@@ -7,14 +7,12 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
-import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.associations.LegacyRepostOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -37,32 +35,28 @@ import javax.inject.Inject;
 public class PlaylistEngagementsController {
 
     private static final String SHARE_TYPE = "text/plain";
+
+    @Nullable private ToggleButton toggleLike;
+    @Nullable private ToggleButton toggleRepost;
+    @Nullable private ImageButton shareButton;
+
     private Context context;
-
-    @Nullable
-    private ToggleButton toggleLike;
-    @Nullable
-    private ToggleButton toggleRepost;
-    @Nullable
-    private ImageButton shareButton;
-
     private Playable playable;
     private OriginProvider originProvider;
-    private final SoundAssociationOperations soundAssociationOps;
+
+    private final LegacyRepostOperations soundAssociationOps;
     private final AccountOperations accountOperations;
     private final EventBus eventBus;
-    private final FeatureFlags featureFlags;
     private final LikeOperations likeOperations;
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    public PlaylistEngagementsController(EventBus eventBus, SoundAssociationOperations soundAssociationOps,
-                                         AccountOperations accountOperations, FeatureFlags featureFlags, LikeOperations likeOperations) {
+    public PlaylistEngagementsController(EventBus eventBus, LegacyRepostOperations soundAssociationOps,
+                                         AccountOperations accountOperations, LikeOperations likeOperations) {
         this.eventBus = eventBus;
         this.soundAssociationOps = soundAssociationOps;
         this.accountOperations = accountOperations;
-        this.featureFlags = featureFlags;
         this.likeOperations = likeOperations;
     }
 
@@ -77,7 +71,7 @@ public class PlaylistEngagementsController {
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     void bindView(View rootView, OriginProvider originProvider) {
-        context = rootView.getContext();
+        this.context = rootView.getContext();
         this.originProvider = originProvider;
 
         toggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
@@ -87,18 +81,16 @@ public class PlaylistEngagementsController {
                 public void onClick(View view) {
                     final boolean addLike = toggleLike.isChecked();
                     if (playable != null) {
+                        final PropertySet propertySet = playable.toPropertySet();
+
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
                                 Screen.PLAYLIST_DETAILS.get(),
                                 PlaylistEngagementsController.this.originProvider.getScreenTag(),
                                 playable.getUrn()));
-                        if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
-                            final PropertySet propertySet = playable.toPropertySet();
-                            fireAndForget(addLike
-                                    ? likeOperations.addLike(propertySet)
-                                    : likeOperations.removeLike(propertySet));
-                        } else {
-                            fireAndForget(soundAssociationOps.toggleLike(playable.getUrn(), addLike));
-                        }
+
+                        fireAndForget(addLike
+                                ? likeOperations.addLike(propertySet)
+                                : likeOperations.removeLike(propertySet));
                     }
                 }
             });
@@ -239,7 +231,7 @@ public class PlaylistEngagementsController {
         if (button == null) {
             return;
         }
-        Log.d(SoundAssociationOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
+        Log.d(LegacyRepostOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
         final String buttonLabel = ScTextUtils.shortenLargeNumber(count);
         button.setTextOn(buttonLabel);
         button.setTextOff(buttonLabel);

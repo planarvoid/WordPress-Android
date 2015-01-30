@@ -38,9 +38,9 @@ import rx.Observable;
 import rx.Observer;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SoundAssociationOperationsTest {
+public class LegacyRepostOperationsTest {
 
-    private SoundAssociationOperations operations;
+    private LegacyRepostOperations operations;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -57,14 +57,12 @@ public class SoundAssociationOperationsTest {
     private final Urn playlistUrn = Urn.forPlaylist(124L);
     private PublicApiTrack track;
     private PublicApiPlaylist playlist;
-    private SoundAssociation trackLike;
-    private SoundAssociation trackUnlike;
     private SoundAssociation trackRepost;
     private SoundAssociation trackUnpost;
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundAssociationOperations(eventBus, storage, apiScheduler, modelManager,
+        operations = new LegacyRepostOperations(eventBus, storage, apiScheduler, modelManager,
                 trackStorage, legacyPlaylistOperations);
         track = new PublicApiTrack(123L);
         playlist = new PublicApiPlaylist(124L);
@@ -72,16 +70,6 @@ public class SoundAssociationOperationsTest {
     }
 
     private void setupTestAssociations() {
-        final PublicApiTrack liked = new PublicApiTrack(123L);
-        liked.likes_count = 1;
-        liked.user_like = true;
-        trackLike = new SoundAssociation(liked);
-
-        final PublicApiTrack unliked = new PublicApiTrack(123L);
-        unliked.likes_count = 0;
-        unliked.user_like = false;
-        trackUnlike = new SoundAssociation(unliked);
-
         final PublicApiTrack reposted = new PublicApiTrack(123L);
         reposted.reposts_count = 1;
         reposted.user_repost = true;
@@ -92,159 +80,6 @@ public class SoundAssociationOperationsTest {
         unposted.user_repost = false;
         trackUnpost = new SoundAssociation(unposted);
     }
-
-    @Test
-    public void likingTrackAddsLikeAndSendsPUTRequestToApi() {
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_likes/123"))))
-                .thenReturn(Observable.just(response));
-        when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
-
-        operations.toggleLike(trackUrn, true).subscribe(observer);
-
-        verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
-        verify(storage).addLikeAsync(track);
-    }
-
-    @Test
-    public void likingTrackPublishesPlayableChangedEvent() {
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
-
-        operations.toggleLike(trackUrn, true).subscribe(observer);
-
-        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
-        expect(event.getUrn()).toEqual(track.getUrn());
-        expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
-    }
-
-    @Test
-    public void likingTrackPublishesRevertedPlayableChangeEventWhenApiRequestFails() {
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>error(new Exception()));
-        when(storage.addLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackLike));
-        when(storage.removeLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackUnlike));
-
-        operations.toggleLike(trackUrn, true).subscribe(observer);
-
-        PropertySet changes = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
-        expect(changes.get(PlayableProperty.IS_LIKED)).toBe(true);
-        expect(changes.get(PlayableProperty.LIKES_COUNT)).toBe(1);
-
-        PropertySet reverted = eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
-        expect(reverted.get(PlayableProperty.IS_LIKED)).toBe(false);
-        expect(reverted.get(PlayableProperty.LIKES_COUNT)).toBe(0);
-    }
-
-    @Test
-    public void unlikingTrackRemovesLikeAndSendsDELETERequestToApi() {
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
-
-        operations.toggleLike(trackUrn, false).subscribe(observer);
-
-        verify(modelManager).cache((Playable) track, PublicApiResource.CacheUpdateMode.NONE);
-        verify(storage).removeLikeAsync(track);
-        verify(apiScheduler).response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_likes/123")));
-    }
-
-    @Test
-    public void unlikingTrackPublishesChangeEvent() {
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
-
-        operations.toggleLike(trackUrn, false).subscribe(observer);
-
-        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
-        expect(event.getUrn()).toEqual(track.getUrn());
-        expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
-    }
-
-    @Test
-    public void unlikingTrackPublishesRevertedPlayableChangeEventWhenApiRequestFails() {
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>error(new Exception()));
-        when(storage.addLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackLike));
-        when(storage.removeLikeAsync(any(Playable.class))).thenReturn(Observable.just(trackUnlike));
-
-        operations.toggleLike(trackUrn, false).subscribe(observer);
-
-        PropertySet reverted = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
-        expect(reverted.get(PlayableProperty.IS_LIKED)).toBe(false);
-        expect(reverted.get(PlayableProperty.LIKES_COUNT)).toBe(0);
-
-        PropertySet changes = eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
-        expect(changes.get(PlayableProperty.IS_LIKED)).toBe(true);
-        expect(changes.get(PlayableProperty.LIKES_COUNT)).toBe(1);
-    }
-
-    @Test
-    public void likingPlaylistAddsLikeAndSendsPUTRequestToApi() {
-        final SoundAssociation like = new SoundAssociation(playlist);
-        when(legacyPlaylistOperations.loadPlaylist(playlistUrn)).thenReturn(Observable.just(playlist));
-
-        when(storage.addLikeAsync(playlist)).thenReturn(Observable.just(like));
-
-        operations.toggleLike(playlistUrn, true).subscribe(observer);
-
-        verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
-        verify(storage).addLikeAsync(playlist);
-        verify(apiScheduler).response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_likes/124")));
-    }
-
-    @Test
-    public void unlikingPlaylistRemovesLikeAndSendsDELETERequestToApi() {
-        final SoundAssociation unlike = new SoundAssociation(playlist);
-        when(legacyPlaylistOperations.loadPlaylist(playlistUrn)).thenReturn(Observable.just(playlist));
-        when(storage.removeLikeAsync(playlist)).thenReturn(Observable.just(unlike));
-
-        operations.toggleLike(playlistUrn, false).subscribe(observer);
-
-        verify(modelManager).cache((Playable) playlist, PublicApiResource.CacheUpdateMode.NONE);
-        verify(storage).removeLikeAsync(playlist);
-        verify(apiScheduler).response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_likes/124")));
-    }
-
-    @Test
-    public void doesNotRevertUnlikeWhenApiRequestFailsBecauseSoundIsNotLiked() {
-        final SoundAssociation revertUnlike = new SoundAssociation(track);
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_likes/123"))))
-                .thenReturn(Observable.<ApiResponse>error(TestApiResponses.status(404).getFailure()));
-        when(storage.removeLikeAsync(track)).thenReturn(Observable.just(trackUnlike));
-        when(storage.addLikeAsync(track)).thenReturn(Observable.just(revertUnlike));
-
-        operations.toggleLike(trackUrn, false).subscribe(observer);
-
-        verify(storage).removeLikeAsync(track);
-        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toNumber(1);
-        PropertySet changes = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
-        expect(changes.get(PlayableProperty.IS_LIKED)).toBe(false);
-    }
-
-    @Test
-    public void returnsPropertySetWithUpdatedLikeStatus() {
-        track.user_like = true;
-        track.likes_count = 12;
-        SoundAssociation trackLike = new SoundAssociation(track);
-        when(trackStorage.getTrackAsync(eq(123L))).thenReturn(Observable.just(track));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_likes/123"))))
-                .thenReturn(Observable.just(response));
-        when(storage.addLikeAsync(track)).thenReturn(Observable.just(trackLike));
-        when(storage.removeLikeAsync(track)).thenReturn(Observable.<SoundAssociation>never());
-
-        Observable<PropertySet> result = operations.toggleLike(trackUrn, true);
-
-        PropertySet changeSet = result.toBlocking().first();
-        expect(changeSet.get(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(changeSet.get(PlayableProperty.LIKES_COUNT)).toBe(12);
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // REPOSTING / UN-REPOSTING
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Test
     public void repostingTrackAddsRepostAndSendsPUTRequestToApi() {

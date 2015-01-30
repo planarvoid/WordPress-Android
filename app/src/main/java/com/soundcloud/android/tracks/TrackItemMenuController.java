@@ -2,7 +2,7 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.associations.LegacyRepostOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -11,7 +11,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -19,7 +18,6 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -32,7 +30,7 @@ import javax.inject.Inject;
 
 public final class TrackItemMenuController implements TrackMenuWrapperListener {
     private final PlayQueueManager playQueueManager;
-    private final SoundAssociationOperations associationOperations;
+    private final LegacyRepostOperations associationOperations;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final LoadTrackCommand loadTrackCommand;
     private final Context context;
@@ -46,7 +44,7 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
 
     @Inject
     TrackItemMenuController(PlayQueueManager playQueueManager,
-                            SoundAssociationOperations associationOperations,
+                            LegacyRepostOperations associationOperations,
                             PopupMenuWrapper.Factory popupMenuWrapperFactory,
                             LoadTrackCommand loadTrackCommand,
                             EventBus eventBus, Context context, FeatureFlags featureFlags,
@@ -117,24 +115,9 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
     private void handleLike() {
         final Urn trackUrn = track.get(TrackProperty.URN);
         final Boolean addLike = !track.get(TrackProperty.IS_LIKED);
-        if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
-            getToggleLikeObservable(addLike)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new LikeToggleSubscriber(context, addLike));
-        } else {
-            associationOperations
-                    .toggleLike(trackUrn, addLike)
-                    .doOnNext(new Action1<PropertySet>() {
-                        @Override
-                        public void call(PropertySet bindings) {
-                            if (addLike != bindings.get(TrackProperty.IS_LIKED)) {
-                                throw new IllegalStateException("Track did not change liked status on server side");
-                            }
-                        }
-                    })
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new LikeToggleSubscriber(context, addLike));
-        }
+        getToggleLikeObservable(addLike)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new LikeToggleSubscriber(context, addLike));
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(), playQueueManager.getScreenTag(), trackUrn));
     }
 

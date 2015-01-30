@@ -835,9 +835,10 @@ public class ScContentProvider extends ContentProvider {
         return null;
     }
 
+    // New likes don't have all the fields expected to load into SoundAssociation in legacy ScListFragments etc.
     private static String[] addFakeAssociationColumns(String[] columns, long userId) {
-        String[] arr = new String[columns.length + 3];
-        List<String> cols = Lists.newArrayList(columns);
+        final String[] arr = new String[columns.length + 3];
+        final List<String> cols = Lists.newArrayList(columns);
 
         cols.add(userId + " AS " + TableColumns.AssociationView.ASSOCIATION_OWNER_ID);
         cols.add(Table.Likes + "." + TableColumns.Likes.CREATED_AT + " AS " + TableColumns.AssociationView.ASSOCIATION_TIMESTAMP);

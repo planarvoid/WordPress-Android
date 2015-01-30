@@ -26,72 +26,24 @@ import java.util.Map;
 
 /**
  * Use this storage facade to persist information about user-to-sound relations to the database. These relations
- * currently are: likes, reposts, track creations and playlist creations.
+ * currently are: reposts, track creations and playlist creations.
  *
  * @see SoundAssociation.Type
  */
+@Deprecated
 public class SoundAssociationStorage extends ScheduledOperations {
 
     private final ContentResolver resolver;
-    private final SoundAssociationDAO allSoundAssocsDAO, likesDAO, repostsDAO, trackCreationsDAO, playlistCreationsDAO;
+    private final SoundAssociationDAO allSoundAssocsDAO, repostsDAO, trackCreationsDAO, playlistCreationsDAO;
 
     @Inject
     public SoundAssociationStorage() {
         super(ScSchedulers.STORAGE_SCHEDULER);
         resolver = SoundCloudApplication.instance.getContentResolver();
         allSoundAssocsDAO = new SoundAssociationDAO(resolver);
-        likesDAO = SoundAssociationDAO.forContent(Content.ME_LIKES, resolver);
         repostsDAO = SoundAssociationDAO.forContent(Content.ME_REPOSTS, resolver);
         trackCreationsDAO = SoundAssociationDAO.forContent(Content.ME_SOUNDS, resolver);
         playlistCreationsDAO = SoundAssociationDAO.forContent(Content.ME_PLAYLISTS, resolver);
-    }
-
-    /**
-     * Persists user-likes-this information to the database. This methods ensure that both a {@link SoundAssociation}
-     * record will be created, as well as the likes counter cache on the playable to be updated and persisted.
-     */
-    public SoundAssociation addLike(Playable playable) {
-        playable.user_like = true;
-        playable.likes_count = getUpdatedCountForAddition(playable.likes_count);
-        SoundAssociation.Type assocType = (playable instanceof PublicApiTrack) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
-        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        likesDAO.create(like);
-        return like;
-    }
-
-
-    public Observable<SoundAssociation> addLikeAsync(final Playable playable) {
-        return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
-            @Override
-            public void call(Subscriber<? super SoundAssociation> observer) {
-                observer.onNext(addLike(playable));
-                observer.onCompleted();
-            }
-        }));
-    }
-
-    /**
-     * Persists user-unlikes-this information to the database. This methods ensure that both the {@link SoundAssociation}
-     * record will be removed, as well as the likes counter cache on the playable to be updated and persisted.
-     */
-    public SoundAssociation removeLike(Playable playable) {
-        playable.user_like = false;
-        playable.likes_count = getUpdatedCountForRemoval(playable.likes_count);
-        SoundAssociation.Type assocType = (playable instanceof PublicApiTrack) ? SoundAssociation.Type.TRACK_LIKE : SoundAssociation.Type.PLAYLIST_LIKE;
-        SoundAssociation like = new SoundAssociation(playable, new Date(), assocType);
-        likesDAO.delete(like);
-        updatePlayable(playable);
-        return like;
-    }
-
-    public Observable<SoundAssociation> removeLikeAsync(final Playable playable) {
-        return schedule(Observable.create(new Observable.OnSubscribe<SoundAssociation>() {
-            @Override
-            public void call(Subscriber<? super SoundAssociation> observer) {
-                observer.onNext(removeLike(playable));
-                observer.onCompleted();
-            }
-        }));
     }
 
     /**

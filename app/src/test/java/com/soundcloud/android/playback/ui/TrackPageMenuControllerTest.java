@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.associations.LegacyRepostOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -47,7 +47,7 @@ public class TrackPageMenuControllerTest {
     private PlayerTrack privateTrack;
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private SoundAssociationOperations soundAssociationOps;
+    @Mock private LegacyRepostOperations soundAssociationOps;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
 

@@ -43,17 +43,13 @@ public class ApiSyncerFactory {
     public SyncStrategy forContentUri(Context context, Uri contentUri) {
         switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
-                if (featureFlags.isEnabled(Flag.API_MOBILE_STREAM)){
+                if (featureFlags.isEnabled(Flag.API_MOBILE_STREAM)) {
                     return lazySoundStreamSyncer.get();
                 } else {
                     return new ApiSyncer(context, context.getContentResolver());
                 }
             case ME_LIKES:
-                if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
-                    return lazyMyLikesSyncer.get();
-                } else {
-                    return new ApiSyncer(context, context.getContentResolver());
-                }
+                return lazyMyLikesSyncer.get();
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
                 return new UserAssociationSyncer(context, accountOpsProvider.get(), followingOpsProvider.get());

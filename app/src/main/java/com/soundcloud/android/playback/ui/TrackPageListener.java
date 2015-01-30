@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.ui;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
@@ -16,8 +15,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.PropertySet;
@@ -28,34 +25,27 @@ import android.content.Context;
 import javax.inject.Inject;
 
 class TrackPageListener extends PageListener {
-    private final SoundAssociationOperations associationOperations;
     private final PlayQueueManager playQueueManager;
-    private final FeatureFlags featureFlags;
     private final LikeOperations likeOperations;
 
     @Inject
     public TrackPageListener(PlaybackOperations playbackOperations,
-                             SoundAssociationOperations associationOperations,
                              PlayQueueManager playQueueManager,
                              PlaySessionStateProvider playSessionStateProvider,
-                             EventBus eventBus, FeatureFlags featureFlags, LikeOperations likeOperations) {
+                             EventBus eventBus, LikeOperations likeOperations) {
         super(playbackOperations, playSessionStateProvider, eventBus);
-        this.associationOperations = associationOperations;
         this.playQueueManager = playQueueManager;
-        this.featureFlags = featureFlags;
         this.likeOperations = likeOperations;
     }
 
     public void onToggleLike(boolean addLike, Urn trackUrn) {
-        if (featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)) {
-            PropertySet propertySet = PropertySet.from(PlayableProperty.URN.bind(trackUrn));
+            final PropertySet propertySet = PropertySet.from(PlayableProperty.URN.bind(trackUrn));
             fireAndForget(addLike
                     ? likeOperations.addLike(propertySet)
                     : likeOperations.removeLike(propertySet));
-        } else {
-            fireAndForget(associationOperations.toggleLike(trackUrn, addLike));
-        }
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.PLAYER.get(), playQueueManager.getScreenTag(), trackUrn));
+
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleLike(addLike, ScreenElement.PLAYER.get(), playQueueManager.getScreenTag(), trackUrn));
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {

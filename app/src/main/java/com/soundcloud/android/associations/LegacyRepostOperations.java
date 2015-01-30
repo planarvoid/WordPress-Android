@@ -29,14 +29,13 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 
 /**
- * Provides operations for toggling like and repost status based on track/playlist URN and returns changes
+ * Provides operations for toggling repost status based on track/playlist URN and returns changes
  * as property sets.
- *
- * TODO: Remove internal dependency on legacy storage classes!
  */
-public class SoundAssociationOperations {
+@Deprecated
+public class LegacyRepostOperations {
 
-    public static final String TAG = "SoundAssociations";
+    public static final String TAG = LegacyRepostOperations.class.getSimpleName();
 
     private final EventBus eventBus;
     private final SoundAssociationStorage soundAssocStorage;
@@ -46,7 +45,7 @@ public class SoundAssociationOperations {
     private final LegacyPlaylistOperations legacyPlaylistOperations;
 
     @Inject
-    public SoundAssociationOperations(
+    public LegacyRepostOperations(
             EventBus eventBus,
             SoundAssociationStorage soundAssocStorage,
             ApiScheduler apiScheduler,
@@ -61,99 +60,7 @@ public class SoundAssociationOperations {
         this.legacyPlaylistOperations = legacyPlaylistOperations;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // LIKING / UN-LIKING
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public Observable<PropertySet> toggleLike(final Urn soundUrn, final boolean addLike) {
-        return resolveLegacyModel(soundUrn)
-                .flatMap(new Func1<Playable, Observable<PropertySet>>() {
-                    @Override
-                    public Observable<PropertySet> call(Playable playable) {
-                        return toggleLike(playable, addLike);
-                    }
-                });
-    }
-
-    private Observable<PropertySet> toggleLike(final Playable playable, final boolean addLike) {
-        logPlayable(addLike ? "LIKE" : "UNLIKE", playable);
-        return updateLikeState(playable, addLike)
-                .flatMap(new Func1<SoundAssociation, Observable<ApiResponse>>() {
-                    @Override
-                    public Observable<ApiResponse> call(SoundAssociation soundAssociation) {
-                        return apiScheduler.response(buildRequestForLike(playable, addLike));
-                    }
-                })
-                .map(playableToLikePropertiesFunc(playable))
-                .onErrorResumeNext(handleLikeRequestError(playable, addLike));
-    }
-
-    private Observable<SoundAssociation> updateLikeState(Playable playable, boolean addLike) {
-        Observable<SoundAssociation> updateObservable = addLike
-                ? soundAssocStorage.addLikeAsync(playable)
-                : soundAssocStorage.removeLikeAsync(playable);
-        return updateObservable.doOnNext(cacheAndPublishLike());
-    }
-
-    private Action1<SoundAssociation> cacheAndPublishLike() {
-        return new Action1<SoundAssociation>() {
-            @Override
-            public void call(SoundAssociation soundAssociation) {
-                Playable updated = soundAssociation.getPlayable();
-                logPlayable("CACHE/PUBLISH", updated);
-                modelManager.cache(updated, PublicApiResource.CacheUpdateMode.NONE);
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(updated.getUrn(), updated.user_like, updated.likes_count));
-            }
-        };
-    }
-
-    /*
-     * A like could have been removed on the server but not yet synced to the client.
-     * If we unliked and get a 404 then do not revert because client is already in correct state.
-     */
-    private Func1<Throwable, Observable<PropertySet>> handleLikeRequestError(final Playable playable, final boolean wasAddRequest) {
-        return new Func1<Throwable, Observable<PropertySet>>() {
-            @Override
-            public Observable<PropertySet> call(Throwable throwable) {
-                if (throwable instanceof ApiRequestException) {
-                    ApiRequestException requestException = (ApiRequestException) throwable;
-                    if (!wasAddRequest && requestException.reason() == NOT_FOUND) {
-                        Log.d(TAG, "Unliking a track that was not liked on server. Already in correct state.");
-                        return Observable.just(createPropertySetFromLike(playable));
-                    }
-                }
-                return updateLikeState(playable, !wasAddRequest).map(playableToLikePropertiesFunc(playable));
-            }
-        };
-    }
-
-    private Func1<Object, PropertySet> playableToLikePropertiesFunc(final Playable playable) {
-        return new Func1<Object, PropertySet>() {
-            @Override
-            public PropertySet call(Object soundAssociation) {
-                return createPropertySetFromLike(playable);
-            }
-        };
-    }
-
-    private PropertySet createPropertySetFromLike(Playable playable) {
-        return PropertySet.from(
-                PlayableProperty.IS_LIKED.bind(playable.user_like),
-                PlayableProperty.LIKES_COUNT.bind(playable.likes_count));
-    }
-
-    private ApiRequest buildRequestForLike(final Playable playable, final boolean likeAdded) {
-        ApiEndpoints endpoint = playable instanceof PublicApiTrack ? ApiEndpoints.MY_TRACK_LIKES : ApiEndpoints.MY_PLAYLIST_LIKES;
-        final String path = endpoint.path(playable.getId());
-        ApiRequest.Builder builder = likeAdded ? ApiRequest.Builder.put(path) : ApiRequest.Builder.delete(path);
-        return builder.forPublicApi().build();
-    }
-
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // REPOSTING / UN-REPOSTING
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    public Observable<PropertySet> toggleRepost(final Urn soundUrn, final boolean addRepost) {
+   public Observable<PropertySet> toggleRepost(final Urn soundUrn, final boolean addRepost) {
         return resolveLegacyModel(soundUrn)
                 .flatMap(new Func1<Playable, Observable<PropertySet>>() {
                     @Override
@@ -196,7 +103,8 @@ public class SoundAssociationOperations {
     }
 
     /*
-     * See 404 handling explaination for likes above!
+     * A repost could have been removed on the server but not yet synced to the client.
+     * If we unposted and get a 404 then do not revert because client is already in correct state.
      */
     private Func1<Throwable, Observable<PropertySet>> handleRepostRequestError(final Playable playable, final boolean wasAddRequest) {
         return new Func1<Throwable, Observable<PropertySet>>() {

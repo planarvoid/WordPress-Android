@@ -2,11 +2,9 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -22,7 +20,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.propeller.PropertySet;
@@ -41,7 +38,6 @@ public class TrackPageListenerTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private SoundAssociationOperations soundAssociationOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private FeatureFlags featureFlags;
@@ -54,22 +50,12 @@ public class TrackPageListenerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playbackOperations,
-                soundAssociationOperations, playQueueManager,
-                playSessionStateProvider, eventBus, featureFlags, likeOperations);
+                playQueueManager,
+                playSessionStateProvider, eventBus, likeOperations);
     }
 
     @Test
-    public void onToggleLikeTogglesLikeViaAssociationOperations() {
-        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
-
-        listener.onToggleLike(true, TRACK_URN);
-
-        verify(soundAssociationOperations).toggleLike(TRACK_URN, true);
-    }
-
-    @Test
-         public void onToggleUnlikedTrackLikesViaLikesOperations() {
-        when(featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)).thenReturn(true);
+    public void onToggleUnlikedTrackLikesViaLikesOperations() {
         when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
@@ -79,7 +65,6 @@ public class TrackPageListenerTest {
 
     @Test
     public void onToggleLikedTrackLikesViaUnlikesOperations() {
-        when(featureFlags.isEnabled(Flag.NEW_LIKES_END_TO_END)).thenReturn(true);
         when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
@@ -90,7 +75,7 @@ public class TrackPageListenerTest {
     @Test
     public void onToggleLikeEmitsLikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
-        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -101,7 +86,7 @@ public class TrackPageListenerTest {
     @Test
     public void onToggleLikeEmitsUnlikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
-        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
 
