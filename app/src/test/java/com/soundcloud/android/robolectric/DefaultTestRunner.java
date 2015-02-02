@@ -4,7 +4,14 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.robolectric.shadows.*;
+import com.soundcloud.android.robolectric.shadows.ScShadowParcel;
+import com.soundcloud.android.robolectric.shadows.ScShadowSQLiteDatabase;
+import com.soundcloud.android.robolectric.shadows.ShadowArrayMap;
+import com.soundcloud.android.robolectric.shadows.ShadowBaseBundle;
+import com.soundcloud.android.robolectric.shadows.ShadowMediaPlayer;
+import com.soundcloud.android.robolectric.shadows.ShadowNativeAmplitudeAnalyzer;
+import com.soundcloud.android.robolectric.shadows.ShadowSCAccountManager;
+import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -14,7 +21,6 @@ import com.xtremelabs.robolectric.RobolectricTestRunner;
 import com.xtremelabs.robolectric.res.RobolectricPackageManager;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowContentResolver;
-import com.xtremelabs.robolectric.util.SQLiteMap;
 import org.junit.runners.model.InitializationError;
 import org.mockito.MockitoAnnotations;
 
@@ -93,10 +99,4 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ScShadowSQLiteDatabase.class);
     }
 
-    public static class FileDatabaseMap extends SQLiteMap {
-        @Override
-        public String getConnectionString() {
-            return "jdbc:sqlite:tests-" + System.currentTimeMillis() +".sqlite";
-        }
-    }
 }
