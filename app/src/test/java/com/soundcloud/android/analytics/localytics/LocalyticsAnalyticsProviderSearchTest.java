@@ -18,12 +18,12 @@ public class LocalyticsAnalyticsProviderSearchTest {
 
     private LocalyticsAnalyticsProvider provider;
 
-    @Mock
-    private LocalyticsAmpSession localyticsSession;
+    @Mock private LocalyticsAmpSession localyticsSession;
+    @Mock private ProxyDetector proxyDetector;
 
     @Before
     public void setUp() throws CreateModelException {
-        provider = new LocalyticsAnalyticsProvider(localyticsSession, 123L);
+        provider = new LocalyticsAnalyticsProvider(localyticsSession, 123L, proxyDetector);
     }
 
     @Test

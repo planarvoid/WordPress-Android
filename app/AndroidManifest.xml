@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="177" android:versionName="15.01.30-local-debug" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="180" android:versionName="15.02.02" package="com.soundcloud.android">
 
     <supports-screens android:anyDensity="true"/>
     <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="21"/>

@@ -37,21 +37,17 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     private LocalyticsAnalyticsProvider localyticsProvider;
 
-    @Mock
-    private LocalyticsAmpSession localyticsSession;
-
-    @Mock
-    private PlaybackStateProvider playbackServiceStateWrapper;
-
-    @Captor
-    private ArgumentCaptor<Map<String, String>> stopEventAttributes;
+    @Mock private LocalyticsAmpSession localyticsSession;
+    @Mock private PlaybackStateProvider playbackServiceStateWrapper;
+    @Mock private ProxyDetector proxyDetector;
+    @Captor private ArgumentCaptor<Map<String, String>> stopEventAttributes;
 
     private TrackSourceInfo trackSourceInfo;
     private PlaybackSessionEvent startEvent, stopEvent;
 
     @Before
     public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, proxyDetector);
         trackSourceInfo = new TrackSourceInfo(Screen.YOUR_LIKES.get(), true);
 
 
@@ -183,11 +179,6 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         localyticsProvider.handleTrackingEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_ERROR));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("playback_error");
-    }
-
-    private PlaybackSessionEvent createStopEventWithPercentListened(double percent) {
-        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, startEvent, 0L, (long) (startEvent.getTimeStamp() + DURATION * percent), "hls", "playa", "3g", PlaybackSessionEvent.STOP_REASON_BUFFERING
-        );
     }
 
     private PlaybackSessionEvent createStopEventWithDuration(int duration) {

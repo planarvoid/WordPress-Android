@@ -24,11 +24,13 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
 import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +48,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private static final long SESSION_EXPIRY = TimeUnit.MINUTES.toMillis(1);
 
     private final LocalyticsAmpSession session;
+    private final ProxyDetector proxyDetector;
     private final LocalyticsUIEventHandler uiEventHandler;
     private final LocalyticsOnboardingEventHandler onboardingEventHandler;
     private final LocalyticsSearchEventHandler searchEventHandler;
@@ -55,19 +58,25 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Inject
-    public LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsAmpSession, AccountOperations accountOperations) {
-        this(localyticsAmpSession, accountOperations.getLoggedInUserId());
+    public LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsAmpSession,
+                                       AccountOperations accountOperations,
+                                       ProxyDetector proxyDetector) {
+        this(localyticsAmpSession, accountOperations.getLoggedInUserId(), proxyDetector);
     }
 
     @VisibleForTesting
-    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession, long currentUserId) {
-        this(localyticsSession);
+    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
+                                          long currentUserId,
+                                          ProxyDetector proxyDetector) {
+        this(localyticsSession, proxyDetector);
         localyticsSession.setCustomerId(getCustomerId(currentUserId));
     }
 
     @VisibleForTesting
-    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession) {
+    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
+                                          ProxyDetector proxyDetector) {
         session = localyticsSession;
+        this.proxyDetector = proxyDetector;
         uiEventHandler = new LocalyticsUIEventHandler(session);
         onboardingEventHandler = new LocalyticsOnboardingEventHandler(session);
         searchEventHandler = new LocalyticsSearchEventHandler(session);
@@ -104,7 +113,18 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-
+        if (eventData.getMetric() != PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY) {
+            return;
+        }
+        if (eventData.getCdnHost() == null) {
+            return;
+        }
+        Map<String, String> eventAttributes = new HashMap<>();
+        final URI streamUri = URI.create(eventData.getCdnHost());
+        final String proxyConfigured = proxyDetector.isProxyConfiguredFor(streamUri) ? "yes" : "no";
+        Log.e(TAG, String.format("Stream proxy configuration for %s is %s", eventData.getCdnHost(), proxyConfigured));
+        eventAttributes.put("proxy_configured", proxyConfigured);
+        tagEvent(LocalyticsEvents.STREAM_PROXY_CONFIGURED, eventAttributes);
     }
 
     @Override
@@ -163,7 +183,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         if (eventData.isStopEvent()) {
             openSession();
 
-            Map<String, String> eventAttributes = new HashMap<String, String>();
+            Map<String, String> eventAttributes = new HashMap<>();
             eventAttributes.put("context", eventData.getTrackSourceInfo().getOriginScreen());
             eventAttributes.put("track_id", String.valueOf(new Urn(eventData.get(PlaybackSessionEvent.KEY_TRACK_URN)).getNumericId()));
 
