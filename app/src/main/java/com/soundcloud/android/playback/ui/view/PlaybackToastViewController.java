@@ -20,7 +20,7 @@ public class PlaybackToastViewController {
         this.playSessionStateProvider = playSessionStateProvider;
     }
 
-    public void showUnkippableAdToast() {
+    public void showUnskippableAdToast() {
         if (playSessionStateProvider.isPlaying()) {
             Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
         } else {

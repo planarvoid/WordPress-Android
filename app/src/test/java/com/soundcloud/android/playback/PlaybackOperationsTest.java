@@ -383,7 +383,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.previousTrack();
 
-        verify(playbackToastViewController).showUnkippableAdToast();
+        verify(playbackToastViewController).showUnskippableAdToast();
     }
 
     @Test
@@ -427,7 +427,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.nextTrack();
 
-        verify(playbackToastViewController).showUnkippableAdToast();
+        verify(playbackToastViewController).showUnskippableAdToast();
     }
 
     @Test

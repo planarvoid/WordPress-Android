@@ -162,7 +162,7 @@ public class PlaybackOperations {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastViewController.showUnkippableAdToast();
+            playbackToastViewController.showUnskippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !adsOperations.isCurrentTrackAudioAd()) {
@@ -176,7 +176,7 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastViewController.showUnkippableAdToast();
+            playbackToastViewController.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
             playQueueManager.nextTrack();

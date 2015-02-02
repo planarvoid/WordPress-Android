@@ -30,7 +30,7 @@ public class PlaybackToastViewControllerTest {
     public void showAdInProgressIfIsPlaying() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
-        controller.showUnkippableAdToast();
+        controller.showUnskippableAdToast();
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_in_progress);
     }
@@ -39,7 +39,7 @@ public class PlaybackToastViewControllerTest {
     public void showResumePlayingIfIsNotPlaying() {
         when(playSessionStateProvider.isPlaying()).thenReturn(false);
 
-        controller.showUnkippableAdToast();
+        controller.showUnskippableAdToast();
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_resume_playing_to_continue);
     }

@@ -237,7 +237,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onBackground();
         castConnectionHelper.removeMediaRouterButton(viewHolder.mediaRouteButton);
-
     }
 
     @Override
@@ -308,7 +307,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
         holder.menuController.dismiss();
-
     }
 
     @Override

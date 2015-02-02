@@ -30,7 +30,7 @@ public class ShowPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     @Override
     public void onError(Throwable e) {
         if (e instanceof UnSkippablePeriodException) {
-            playbackToastViewController.showUnkippableAdToast();
+            playbackToastViewController.showUnskippableAdToast();
         }
     }
 }

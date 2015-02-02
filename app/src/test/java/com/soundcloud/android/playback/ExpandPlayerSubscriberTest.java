@@ -39,7 +39,7 @@ public class ExpandPlayerSubscriberTest {
     public void subscriberShowAToastOnUnskippableError() {
         subscriber.onError(new PlaybackOperations.UnSkippablePeriodException());
 
-        verify(toastViewController).showUnkippableAdToast();
+        verify(toastViewController).showUnskippableAdToast();
     }
 
     @Test

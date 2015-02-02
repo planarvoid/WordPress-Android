@@ -106,14 +106,14 @@ public class PlayerPagerScrollListenerTest {
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(playbackToastViewController).showUnkippableAdToast();
+        verify(playbackToastViewController).showUnskippableAdToast();
     }
 
     @Test
     public void doesNotShowBlocksSwipeToastWhenSwipeOnTrackPage() {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(playbackToastViewController, never()).showUnkippableAdToast();
+        verify(playbackToastViewController, never()).showUnskippableAdToast();
     }
 
     @Test

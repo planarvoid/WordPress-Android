@@ -45,7 +45,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final DefaultSubscriber<Integer> showBlockedSwipeToast = new DefaultSubscriber<Integer>() {
         @Override
         public void onNext(Integer args) {
-            playbackToastViewController.showUnkippableAdToast();
+            playbackToastViewController.showUnskippableAdToast();
         }
     };
 
