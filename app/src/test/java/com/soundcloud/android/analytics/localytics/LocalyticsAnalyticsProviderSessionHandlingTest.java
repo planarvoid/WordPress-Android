@@ -26,10 +26,11 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
 
     @Mock private LocalyticsAmpSession localyticsSession;
     @Mock private PlaybackStateProvider playbackWrapper;
+    @Mock private ProxyDetector proxyDetector;
 
     @Before
     public void setUp() throws Exception {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackWrapper);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackWrapper, proxyDetector);
     }
 
     @After
