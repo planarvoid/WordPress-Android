@@ -17,7 +17,6 @@ public class HttpProperties {
     private static final long[] PRODUCTION =
             new long[]{0xCFDBF8AB10DCADA3L, 0x6C580A13A4B7801L, 0x607547EC749EBFB4L,
                     0x300C455E649B39A7L, 0x20A6BAC9576286CBL};
-    private final String apiMobileBaseUriPath;
     private final String mobileApiBaseUrl;
     private final String publicApiBaseUrl;
 
@@ -33,7 +32,6 @@ public class HttpProperties {
     public HttpProperties(Resources resources) {
         this.mobileApiBaseUrl = resources.getString(R.string.mobile_api_base_url);
         this.publicApiBaseUrl = resources.getString(R.string.public_api_base_url);
-        apiMobileBaseUriPath = resources.getString(R.string.api_mobile_base_uri_path);
     }
 
     public String getClientSecret() {
@@ -50,11 +48,6 @@ public class HttpProperties {
 
     public String getPublicApiBaseUrl() {
         return publicApiBaseUrl;
-    }
-
-    @Deprecated
-    public String getApiMobileBaseUriPath() {
-        return apiMobileBaseUriPath;
     }
 
     /**
