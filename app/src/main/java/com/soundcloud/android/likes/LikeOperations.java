@@ -3,9 +3,9 @@ package com.soundcloud.android.likes;
 import static com.google.common.collect.Iterables.getLast;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -15,7 +15,6 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.functions.Action1;
 import rx.android.Pager;
 import rx.functions.Action1;
 import rx.functions.Func1;

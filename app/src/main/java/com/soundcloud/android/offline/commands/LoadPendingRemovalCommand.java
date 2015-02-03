@@ -13,12 +13,12 @@ import com.soundcloud.propeller.query.Query;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadDownloadsPendingRemovalCommand extends Command<Long, List<Urn>, LoadDownloadsPendingRemovalCommand> {
+public class LoadPendingRemovalCommand extends Command<Long, List<Urn>, LoadPendingRemovalCommand> {
 
     private final PropellerDatabase database;
 
     @Inject
-    LoadDownloadsPendingRemovalCommand(PropellerDatabase database) {
+    LoadPendingRemovalCommand(PropellerDatabase database) {
         this.database = database;
     }
 

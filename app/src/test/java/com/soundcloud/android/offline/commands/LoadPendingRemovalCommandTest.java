@@ -12,16 +12,16 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LoadDownloadsPendingRemovalCommandTest extends StorageIntegrationTest {
+public class LoadPendingRemovalCommandTest extends StorageIntegrationTest {
 
-    private LoadDownloadsPendingRemovalCommand command;
+    private LoadPendingRemovalCommand command;
 
     private final Urn TRACK_URN = Urn.forTrack(123L);
     private final long REMOVAL_DELAY = 3 * 60000;
 
     @Before
     public void setUp() {
-        command = new LoadDownloadsPendingRemovalCommand(propeller());
+        command = new LoadPendingRemovalCommand(propeller());
     }
 
     @Test

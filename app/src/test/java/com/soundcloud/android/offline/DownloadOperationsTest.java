@@ -37,7 +37,7 @@ public class DownloadOperationsTest {
     @Mock private StoreCompletedDownloadCommand updateDownloadCommand;
 
     private DownloadOperations operations;
-    private TestObserver<DownloadResult> observer;
+    private TestObserver<DownloadResult> downloadResultObserver;
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final String streamUrl = "http://stream1.url";
@@ -47,7 +47,7 @@ public class DownloadOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, loadDownloadsCommand, updateDownloadCommand, Schedulers.immediate());
-        observer = new TestObserver<>();
+        downloadResultObserver = new TestObserver<>();
 
         when(loadDownloadsCommand.toObservable()).thenReturn(listOf1PendingDownload());
     }
@@ -62,7 +62,7 @@ public class DownloadOperationsTest {
 
     @Test
     public void processDownloadRequestCallsHttpClientWithGivenFileUrl() throws IOException {
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
 
         verify(httpClient).downloadFile(downloadRequests.get(0).fileUrl);
     }
@@ -71,7 +71,7 @@ public class DownloadOperationsTest {
     public void processDownloadRequestWritesToFileStorage() throws IOException, EncryptionException {
         when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
 
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
 
         InOrder inOrder = inOrder(fileStorage, inputStream);
         inOrder.verify(fileStorage).storeTrack(trackUrn, inputStream);
@@ -82,7 +82,7 @@ public class DownloadOperationsTest {
     public void processDownloadUpdatedDownloadStorageAfterSuccessfulDownload() throws Exception {
         when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
 
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
         expect(updateDownloadCommand.getInput().getUrn()).toEqual(trackUrn);
     }
 
@@ -90,7 +90,7 @@ public class DownloadOperationsTest {
     public void doesNotUpdateDownloadStateWhenDownloadFailed() throws Exception {
         when(httpClient.downloadFile(streamUrl)).thenThrow(new IOException("Test IOException"));
 
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
         verifyZeroInteractions(updateDownloadCommand);
     }
 
@@ -101,7 +101,7 @@ public class DownloadOperationsTest {
         doThrow(new EncryptionException("Test EncryptionException", null))
                 .when(fileStorage).storeTrack(trackUrn, inputStream);
 
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
         verifyZeroInteractions(updateDownloadCommand);
         verify(inputStream).close();
     }
@@ -110,9 +110,9 @@ public class DownloadOperationsTest {
     public void returnsDownloadExceptionWithTrackInfoWhenDownloadFailed() throws Exception {
         final IOException ioException = new IOException("Test IOException");
         when(httpClient.downloadFile(streamUrl)).thenThrow(ioException);
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
 
-        final List<Throwable> onErrorEvents = observer.getOnErrorEvents();
+        final List<Throwable> onErrorEvents = downloadResultObserver.getOnErrorEvents();
         expect(onErrorEvents.get(0)).toEqual(new DownloadFailedException(downloadRequest, ioException));
     }
 
@@ -123,9 +123,9 @@ public class DownloadOperationsTest {
         doThrow(encryptionException)
                 .when(fileStorage).storeTrack(trackUrn, inputStream);
 
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
 
-        final List<Throwable> onErrorEvents = observer.getOnErrorEvents();
+        final List<Throwable> onErrorEvents = downloadResultObserver.getOnErrorEvents();
         expect(onErrorEvents.get(0)).toEqual(new DownloadFailedException(downloadRequest, encryptionException));
     }
 
@@ -134,7 +134,7 @@ public class DownloadOperationsTest {
         final IOException ioException = new IOException("Test IOException");
         when(httpClient.downloadFile(streamUrl)).thenThrow(ioException);
 
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
 
         verify(fileStorage).deleteTrack(trackUrn);
 
@@ -147,7 +147,7 @@ public class DownloadOperationsTest {
         doThrow(encryptionException)
                 .when(fileStorage).storeTrack(trackUrn, inputStream);
 
-        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(downloadResultObserver);
 
         verify(fileStorage).deleteTrack(trackUrn);
 

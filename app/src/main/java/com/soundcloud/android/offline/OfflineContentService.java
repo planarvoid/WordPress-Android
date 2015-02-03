@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -31,6 +32,7 @@ public class OfflineContentService extends Service {
     @VisibleForTesting static final String ACTION_STOP_DOWNLOAD = "action_stop_download";
 
     @Inject DownloadOperations downloadOperations;
+    @Inject OfflineContentOperations offlineContentOperations;
     @Inject DownloadNotificationController notificationController;
     @Inject EventBus eventBus;
     @Inject OfflineContentScheduler offlineContentScheduler;
@@ -72,9 +74,11 @@ public class OfflineContentService extends Service {
 
     @VisibleForTesting
     OfflineContentService(DownloadOperations downloadOps,
+                          OfflineContentOperations offlineContentOperations,
                           DownloadNotificationController notificationController,
                           EventBus eventBus, OfflineContentScheduler offlineContentScheduler) {
         this.downloadOperations = downloadOps;
+        this.offlineContentOperations = offlineContentOperations;
         this.notificationController = notificationController;
         this.eventBus = eventBus;
         this.offlineContentScheduler = offlineContentScheduler;
@@ -91,6 +95,9 @@ public class OfflineContentService extends Service {
 
             eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.start());
             subscription.unsubscribe();
+
+            fireAndForget(offlineContentOperations.processPendingRemovals());
+
             subscription = downloadOperations
                     .pendingDownloads()
                     .doOnNext(updateNotification)
