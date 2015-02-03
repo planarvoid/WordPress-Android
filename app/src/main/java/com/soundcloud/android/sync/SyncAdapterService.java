@@ -49,8 +49,8 @@ public class SyncAdapterService extends Service {
     public static final int REWIND_LAST_DAY = 2;
 
     private AbstractThreadedSyncAdapter syncAdapter;
-    private AccountOperations accountOperations;
 
+    @Inject AccountOperations accountOperations;
     @Inject SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory;
 
     public SyncAdapterService() {
@@ -60,7 +60,6 @@ public class SyncAdapterService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
         syncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
