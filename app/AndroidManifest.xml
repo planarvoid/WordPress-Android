@@ -366,6 +366,8 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".offline.OfflineSyncStartReceiver"/>
+
         <receiver android:label="SoundCloud Player" android:name=".playback.service.PlayerAppWidgetProvider">
           <intent-filter>
               <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>

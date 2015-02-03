@@ -47,6 +47,10 @@ public class SecureFileStorage {
         }
     }
 
+    public boolean deleteTrack(Urn urn) throws EncryptionException {
+        return new File(OFFLINE_DIR, generateFileName(urn)).delete();
+    }
+
     public Uri getFileUriForOfflineTrack(Urn urn) {
         try {
             return Uri.fromFile(new File(OFFLINE_DIR, generateFileName(urn)));

@@ -26,13 +26,14 @@ import java.util.List;
 
 public class OfflineContentService extends Service {
 
-    protected static final String TAG = "OfflineContent";
+    static final String TAG = "OfflineContent";
     @VisibleForTesting static final String ACTION_START_DOWNLOAD = "action_start_download";
     @VisibleForTesting static final String ACTION_STOP_DOWNLOAD = "action_stop_download";
 
     @Inject DownloadOperations downloadOperations;
     @Inject DownloadNotificationController notificationController;
     @Inject EventBus eventBus;
+    @Inject OfflineContentScheduler offlineContentScheduler;
 
     private Subscription subscription = Subscriptions.empty();
 
@@ -72,10 +73,11 @@ public class OfflineContentService extends Service {
     @VisibleForTesting
     OfflineContentService(DownloadOperations downloadOps,
                           DownloadNotificationController notificationController,
-                          EventBus eventBus) {
+                          EventBus eventBus, OfflineContentScheduler offlineContentScheduler) {
         this.downloadOperations = downloadOps;
         this.notificationController = notificationController;
         this.eventBus = eventBus;
+        this.offlineContentScheduler = offlineContentScheduler;
     }
 
     @Override
@@ -84,6 +86,9 @@ public class OfflineContentService extends Service {
         Log.d(TAG, "Starting offlineContentService for action: " + action);
 
         if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
+
+            offlineContentScheduler.cancelPendingRetries();
+
             eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.start());
             subscription.unsubscribe();
             subscription = downloadOperations
@@ -134,6 +139,8 @@ public class OfflineContentService extends Service {
         public void onError(Throwable throwable) {
             //TODO: error handling and notifications
             Log.e(TAG, "something bad happened", throwable);
+            offlineContentScheduler.scheduleRetry();
+            notificationController.onError();
         }
     }
 }

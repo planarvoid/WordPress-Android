@@ -33,7 +33,7 @@ import android.util.Log;
 import java.util.Arrays;
 import java.util.List;
 
-@SuppressWarnings({"PMD.ExcessiveClassLength"})
+@SuppressWarnings({"PMD.ExcessiveClassLength", "PMD.ExcessiveMethodLength", "PMD.NPathComplexity"})
 public class ScContentProvider extends ContentProvider {
     public static final String AUTHORITY = "com.soundcloud.android.provider.ScContentProvider";
     private static final String TAG = ScContentProvider.class.getSimpleName();
@@ -830,7 +830,7 @@ public class ScContentProvider extends ContentProvider {
      * Called when suggest returns {@link SearchManager#SUGGEST_COLUMN_SHORTCUT_ID}.
      * Currently not used.
      */
-    @SuppressWarnings("UnusedParameters")
+    @SuppressWarnings({"UnusedParameters", "PMD.UnusedFormalParameter"})
     private Cursor refresh(Uri uri, String[] columns, String selection, String[] selectionArgs, String sortOrder) {
         return null;
     }

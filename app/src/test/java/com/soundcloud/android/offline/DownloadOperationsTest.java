@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
@@ -38,9 +39,10 @@ public class DownloadOperationsTest {
     private DownloadOperations operations;
     private TestObserver<DownloadResult> observer;
 
-    private final Urn TRACK1_URN = Urn.forTrack(123L);
-    private final String TRACK1_STREAM_URL = "http://stream1.url";
-    private final List<DownloadRequest> DOWNLOAD_REQUEST = Arrays.asList(new DownloadRequest(TRACK1_URN, TRACK1_STREAM_URL));
+    private final Urn trackUrn = Urn.forTrack(123L);
+    private final String streamUrl = "http://stream1.url";
+    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, streamUrl);
+    private final List<DownloadRequest> downloadRequests = Arrays.asList(this.downloadRequest);
 
     @Before
     public void setUp() throws Exception {
@@ -60,51 +62,99 @@ public class DownloadOperationsTest {
 
     @Test
     public void processDownloadRequestCallsHttpClientWithGivenFileUrl() throws IOException {
-        operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
 
-        verify(httpClient).downloadFile(DOWNLOAD_REQUEST.get(0).fileUrl);
+        verify(httpClient).downloadFile(downloadRequests.get(0).fileUrl);
     }
 
     @Test
     public void processDownloadRequestWritesToFileStorage() throws IOException, EncryptionException {
-        when(httpClient.downloadFile(TRACK1_STREAM_URL)).thenReturn(inputStream);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
 
-        operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
 
         InOrder inOrder = inOrder(fileStorage, inputStream);
-        inOrder.verify(fileStorage).storeTrack(TRACK1_URN, inputStream);
+        inOrder.verify(fileStorage).storeTrack(trackUrn, inputStream);
         inOrder.verify(inputStream).close();
     }
 
     @Test
     public void processDownloadUpdatedDownloadStorageAfterSuccessfulDownload() throws Exception {
-        when(httpClient.downloadFile(TRACK1_STREAM_URL)).thenReturn(inputStream);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
 
-        operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
-        expect(updateDownloadCommand.getInput().getUrn()).toEqual(TRACK1_URN);
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+        expect(updateDownloadCommand.getInput().getUrn()).toEqual(trackUrn);
     }
 
     @Test
     public void doesNotUpdateDownloadStateWhenDownloadFailed() throws Exception {
-        when(httpClient.downloadFile(TRACK1_STREAM_URL)).thenThrow(new IOException("Test IOException"));
+        when(httpClient.downloadFile(streamUrl)).thenThrow(new IOException("Test IOException"));
 
-        operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
         verifyZeroInteractions(updateDownloadCommand);
     }
 
     @Test
     public void doesNotUpdateDownloadStateWhenEncryptionFailed() throws Exception {
-        when(httpClient.downloadFile(TRACK1_STREAM_URL)).thenReturn(inputStream);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
 
         doThrow(new EncryptionException("Test EncryptionException", null))
-                .when(fileStorage).storeTrack(TRACK1_URN, inputStream);
+                .when(fileStorage).storeTrack(trackUrn, inputStream);
 
-        operations.processDownloadRequests(DOWNLOAD_REQUEST).subscribe(observer);
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
         verifyZeroInteractions(updateDownloadCommand);
         verify(inputStream).close();
     }
 
-    private Observable<List<DownloadRequest>> listOf1PendingDownload() {
-        return Observable.just(Arrays.asList(new DownloadRequest(TRACK1_URN, TRACK1_STREAM_URL)));
+    @Test
+    public void returnsDownloadExceptionWithTrackInfoWhenDownloadFailed() throws Exception {
+        final IOException ioException = new IOException("Test IOException");
+        when(httpClient.downloadFile(streamUrl)).thenThrow(ioException);
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+
+        final List<Throwable> onErrorEvents = observer.getOnErrorEvents();
+        expect(onErrorEvents.get(0)).toEqual(new DownloadFailedException(downloadRequest, ioException));
     }
+
+    @Test
+    public void returnsDownloadExceptionWhenEncryptionFailed() throws Exception {
+        final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
+        doThrow(encryptionException)
+                .when(fileStorage).storeTrack(trackUrn, inputStream);
+
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+
+        final List<Throwable> onErrorEvents = observer.getOnErrorEvents();
+        expect(onErrorEvents.get(0)).toEqual(new DownloadFailedException(downloadRequest, encryptionException));
+    }
+
+    @Test
+    public void deletesFileFromFailedDownload() throws Exception {
+        final IOException ioException = new IOException("Test IOException");
+        when(httpClient.downloadFile(streamUrl)).thenThrow(ioException);
+
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+
+        verify(fileStorage).deleteTrack(trackUrn);
+
+    }
+
+    @Test
+    public void deletesFileFromFailedEncryption() throws Exception {
+        final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
+        doThrow(encryptionException)
+                .when(fileStorage).storeTrack(trackUrn, inputStream);
+
+        operations.processDownloadRequests(downloadRequests).subscribe(observer);
+
+        verify(fileStorage).deleteTrack(trackUrn);
+
+    }
+
+    private Observable<List<DownloadRequest>> listOf1PendingDownload() {
+        return Observable.just(Arrays.asList(new DownloadRequest(trackUrn, streamUrl)));
+    }
+
 }

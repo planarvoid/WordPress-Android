@@ -81,19 +81,19 @@ public class OfflineContentController {
 
                 getOfflineSyncEnabled()
                         .flatMap(updateOfflineLikes)
-                        .subscribe(new StartOfflineContentServiceSubscriber()),
+                        .subscribe(new StartOfflineContentServiceSubscriber(context)),
 
                 eventBus.queue(EventQueue.SYNC_RESULT)
                         .filter(isOfflineLikesEnabled)
                         .filter(IS_LIKES_SYNC_FILTER)
                         .flatMap(updateOfflineLikes)
-                        .subscribe(new StartOfflineContentServiceSubscriber()),
+                        .subscribe(new StartOfflineContentServiceSubscriber(context)),
 
                 eventBus.queue(EventQueue.PLAYABLE_CHANGED)
                         .filter(isOfflineLikesEnabled)
                         .filter(IS_TRACK_LIKED_FILTER)
                         .flatMap(updateOfflineLikes)
-                        .subscribe(new StartOfflineContentServiceSubscriber())
+                        .subscribe(new StartOfflineContentServiceSubscriber(context))
         );
     }
 
@@ -111,14 +111,6 @@ public class OfflineContentController {
 
     public void unsubscribe() {
         subscription.unsubscribe();
-    }
-
-    private final class StartOfflineContentServiceSubscriber extends DefaultSubscriber<Object> {
-
-        @Override
-        public void onNext(Object ignored) {
-            OfflineContentService.startSyncing(context);
-        }
     }
 
     private class StopOfflineContentServiceSubscriber extends DefaultSubscriber<Object> {

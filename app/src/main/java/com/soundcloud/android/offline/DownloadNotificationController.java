@@ -56,6 +56,15 @@ class DownloadNotificationController {
         totalDownloads = 0;
     }
 
+    public void onError() {
+        if (totalDownloads > 0) {
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, buildErrorNotification());
+        }
+
+        completedDownloads = 0;
+        totalDownloads = 0;
+    }
+
     private Notification buildCompletedNotification() {
         final NotificationCompat.Builder completedNotification = notificationBuilderProvider.get();
 
@@ -65,6 +74,17 @@ class DownloadNotificationController {
         completedNotification.setContentTitle(resources.getString(R.string.offline_sync_completed_title));
         completedNotification.setContentText(resources.getString(R.string.offline_sync_completed_message));
         return completedNotification.build();
+    }
+
+    private Notification buildErrorNotification() {
+        final NotificationCompat.Builder errorNotification = notificationBuilderProvider.get();
+
+        setDefaultConfiguration(errorNotification);
+        errorNotification.setOngoing(false);
+        errorNotification.setAutoCancel(true);
+        errorNotification.setContentTitle(resources.getString(R.string.offline_sync_error_title));
+        errorNotification.setContentText(resources.getString(R.string.offline_sync_error_message));
+        return errorNotification.build();
     }
 
     private Notification updateProgressNotification() {

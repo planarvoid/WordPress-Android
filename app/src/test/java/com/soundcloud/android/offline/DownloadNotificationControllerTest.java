@@ -26,6 +26,7 @@ public class DownloadNotificationControllerTest {
 
     private static final String DOWNLOAD_IN_PROGRESS = getString(R.string.offline_sync_in_progress);
     private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_sync_completed_title);
+    private static final String DOWNLOAD_ERROR = getString(R.string.offline_sync_error_title);
 
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
@@ -61,8 +62,28 @@ public class DownloadNotificationControllerTest {
     }
 
     @Test
+    public void onErrorShowsDownloadErrorNotification() {
+        notificationController.onNewPendingRequests(20);
+
+        reset(notificationBuilder);
+        notificationController.onError();
+
+        verify(notificationBuilder).setContentTitle(DOWNLOAD_ERROR);
+        verify(notificationBuilder).setOngoing(false);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
     public void onCompletedDoesNotShowNotificationWhenNoPendingRequests() {
         notificationController.onCompleted();
+
+        verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
+    public void onErrorDoesNotShowNotificationWhenNoPendingRequests() {
+        notificationController.onError();
 
         verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }

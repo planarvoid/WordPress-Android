@@ -88,6 +88,21 @@ public class SecureFileStorageTest {
         expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.EMPTY);
     }
 
+    @Test
+    public void deleteTrackRemovesTrackFromStorage() throws Exception {
+        final File file = createOfflineFile();
+        storage.deleteTrack(TRACK_URN);
+        expect(file.exists()).toBeFalse();
+    }
+
+    private File createOfflineFile() throws IOException {
+        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
+        storage.OFFLINE_DIR.mkdirs();
+        file.createNewFile();
+        expect(file.exists()).toBeTrue(); // just to ensure we have write permissions
+        return file;
+    }
+
     private File getEncryptedFile() {
         return new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
     }

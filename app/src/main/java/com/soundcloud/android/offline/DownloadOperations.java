@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.crypto.EncryptionException;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -73,18 +74,25 @@ class DownloadOperations {
                 try {
                     subscriber.onNext(download(track));
                     subscriber.onCompleted();
-                } catch (IOException e) {
+                } catch (DownloadFailedException e) {
                     Log.e(OfflineContentService.TAG, "Failed to download file", e);
-                    subscriber.onError(e);
-                } catch (EncryptionException e) {
-                    Log.e(OfflineContentService.TAG, "Failed to encrypt file", e);
+                    deleteTrack(track.urn);
                     subscriber.onError(e);
                 }
             }
         });
     }
 
-    private DownloadResult download(DownloadRequest track) throws IOException, EncryptionException {
+    private void deleteTrack(Urn urn) {
+        try {
+            fileStorage.deleteTrack(urn);
+        } catch (EncryptionException e1) {
+            // note, in this case, the file probably didn't exist in the first place, so we are in a clean state
+            Log.e(OfflineContentService.TAG, "Failed to remove file", e1);
+        }
+    }
+
+    private DownloadResult download(DownloadRequest track) throws DownloadFailedException {
         InputStream input = null;
         try {
             input = strictSSLHttpClient.downloadFile(track.fileUrl);
@@ -92,6 +100,8 @@ class DownloadOperations {
 
             Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
             return new DownloadResult(true, track.urn);
+        } catch (EncryptionException | IOException e) {
+            throw new DownloadFailedException(track, e);
         } finally {
             IOUtils.close(input);
         }

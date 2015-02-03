@@ -18,8 +18,6 @@ import java.util.List;
 
 public class EntitySyncJob implements SyncJob {
 
-    private static final String TAG = "EntitySyncJob";
-
     private final ApiResourceCommand<List<Urn>, ModelCollection<PropertySetSource>> fetchResources;
     private final StoreCommand storeResources;
 

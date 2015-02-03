@@ -43,6 +43,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import android.accounts.AccountManager;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
@@ -99,6 +100,11 @@ public class ApplicationModule {
     @Provides
     public ConnectivityManager provideConnectivityManager() {
         return (ConnectivityManager) application.getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+    @Provides
+    public AlarmManager provideAlarmManager() {
+        return (AlarmManager) application.getSystemService(Context.ALARM_SERVICE);
     }
 
     @Provides

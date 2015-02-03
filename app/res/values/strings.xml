@@ -574,6 +574,8 @@
     <!-- __OFFLINE_SYNC -->
     <string name="offline_sync_completed_title">All tracks synced!</string>
     <string name="offline_sync_completed_message">Ready for offline listening!</string>
+    <string name="offline_sync_error_title">Error syncing your tracks</string>
+    <string name="offline_sync_error_message">There was an error while syncing your tracks.</string>
     <string name="offline_sync_in_progress">Syncing your tracks</string>
     <string name="sync_likes_dialog_title">Sync your likes</string>
     <string name="sync_likes_dialog_message">This will keep all your likes synced as well as sync all your future likes automagically</string>

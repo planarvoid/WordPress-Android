@@ -29,6 +29,7 @@ public class OfflineContentServiceTest {
 
     @Mock private DownloadOperations downloadOperations;
     @Mock private DownloadNotificationController notificationController;
+    @Mock private OfflineContentScheduler offlineContentScheduler;
 
     private OfflineContentService service;
     private DownloadRequest downloadRequest1;
@@ -42,7 +43,7 @@ public class OfflineContentServiceTest {
         downloadRequest2 = createDownloadRequest(456L);
         downloadResult1 = new DownloadResult(true, Urn.forTrack(123L));
         eventBus = new TestEventBus();
-        service = new OfflineContentService(downloadOperations, notificationController, eventBus);
+        service = new OfflineContentService(downloadOperations, notificationController, eventBus, offlineContentScheduler);
 
         when(downloadOperations.pendingDownloads()).thenReturn(Observable.<List<DownloadRequest>>empty());
     }
@@ -61,6 +62,14 @@ public class OfflineContentServiceTest {
 
         service.onStartCommand(createStartDownloadIntent(), 0, 0);
         verify(notificationController).onNewPendingRequests(requests.size());
+    }
+
+    @Test
+    public void startServiceWithDownloadActionCancelsAnyExistingRetrySchedulings() {
+        when(downloadOperations.pendingDownloads()).thenReturn(Observable.<List<DownloadRequest>>empty());
+
+        service.onStartCommand(createStartDownloadIntent(), 0, 0);
+        verify(offlineContentScheduler).cancelPendingRetries();
     }
 
     @Test
