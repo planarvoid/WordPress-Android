@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync.likes;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.LegacySyncJob;
 import dagger.Lazy;
@@ -10,7 +11,7 @@ import javax.inject.Named;
 public class SyncTrackLikesJob extends DefaultSyncJob {
 
     @Inject
-    public SyncTrackLikesJob(@Named("TrackLikesSyncer") Lazy<LikesSyncer> trackLikesSyncer) {
+    public SyncTrackLikesJob(@Named("TrackLikesSyncer") Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer) {
         super(trackLikesSyncer.get());
     }
 

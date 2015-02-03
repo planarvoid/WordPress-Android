@@ -4,7 +4,6 @@ import static com.soundcloud.android.utils.CollectionUtils.toPropertySets;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
@@ -51,7 +50,10 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
         final PropertySet trackLike = ModelFixtures.apiTrackLike().toPropertySet();
         command.with(Arrays.asList(trackLike)).call();
         // set the removal date
-        propeller().update(Table.Likes, ContentValuesBuilder.values().put(TableColumns.Likes.REMOVED_AT, 123L).get(),
+        propeller().update(Table.Likes, ContentValuesBuilder.values()
+                        .put(TableColumns.Likes.REMOVED_AT, 123L)
+                        .put(TableColumns.Likes.ADDED_AT, 123L)
+                        .get(),
                 new WhereBuilder().whereEq("_id", trackLike.get(LikeProperty.TARGET_URN).getNumericId()));
 
         // replace the like, removal date should disappear
@@ -62,6 +64,7 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
                 .whereEq(TableColumns.Likes._ID, trackLike.get(LikeProperty.TARGET_URN).getNumericId())
                 .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereEq(TableColumns.Likes.CREATED_AT, trackLike.get(LikeProperty.CREATED_AT).getTime())
+                .whereNull(TableColumns.Likes.ADDED_AT)
                 .whereNull(TableColumns.Likes.REMOVED_AT)), counts(1));
     }
 

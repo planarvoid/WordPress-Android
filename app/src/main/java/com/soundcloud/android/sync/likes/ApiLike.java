@@ -1,6 +1,7 @@
-package com.soundcloud.android.likes;
+package com.soundcloud.android.sync.likes;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;

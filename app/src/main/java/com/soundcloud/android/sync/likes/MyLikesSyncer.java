@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.likes;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import dagger.Lazy;
@@ -13,12 +15,12 @@ import javax.inject.Named;
 
 public class MyLikesSyncer implements SyncStrategy {
 
-    private final Lazy<LikesSyncer> trackLikesSyncer;
-    private final Lazy<LikesSyncer> playlistLikesSyncer;
+    private final Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer;
+    private final Lazy<LikesSyncer<ApiPlaylist>> playlistLikesSyncer;
 
     @Inject
-    public MyLikesSyncer(@Named("TrackLikesSyncer") Lazy<LikesSyncer> trackLikesSyncer,
-                         @Named("PlaylistLikesSyncer") Lazy<LikesSyncer> playlistLikesSyncer) {
+    public MyLikesSyncer(@Named("TrackLikesSyncer") Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer,
+                         @Named("PlaylistLikesSyncer") Lazy<LikesSyncer<ApiPlaylist>> playlistLikesSyncer) {
         this.trackLikesSyncer = trackLikesSyncer;
         this.playlistLikesSyncer = playlistLikesSyncer;
     }

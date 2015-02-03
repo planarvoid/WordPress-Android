@@ -8,7 +8,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.likes.ApiLike;
+import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;

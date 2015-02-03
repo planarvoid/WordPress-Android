@@ -43,6 +43,10 @@ public enum ApiEndpoints {
     // likes
     LIKED_TRACKS("/likes/tracks"),
     LIKED_PLAYLISTS("/likes/playlists"),
+    CREATE_TRACK_LIKES("/likes/tracks/create"),
+    DELETE_TRACK_LIKES("/likes/tracks/delete"),
+    CREATE_PLAYLIST_LIKES("/likes/playlists/create"),
+    DELETE_PLAYLIST_LIKES("/likes/playlists/delete"),
 
     // other
     EXPERIMENTS("/experiments/%s"),

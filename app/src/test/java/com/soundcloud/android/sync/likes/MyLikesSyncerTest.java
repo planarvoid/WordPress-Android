@@ -3,9 +3,11 @@ package com.soundcloud.android.sync.likes;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncResult;
-import dagger.Lazy;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,22 +22,14 @@ public class MyLikesSyncerTest {
 
     private MyLikesSyncer myLikesSyncer;
 
-    @Mock private LikesSyncer trackLikesSyncer;
-    @Mock private LikesSyncer playlistLikesSyncer;
+    @Mock private LikesSyncer<ApiTrack> trackLikesSyncer;
+    @Mock private LikesSyncer<ApiPlaylist> playlistLikesSyncer;
 
     @Before
     public void setUp() throws Exception {
-        myLikesSyncer = new MyLikesSyncer(new Lazy<LikesSyncer>() {
-            @Override
-            public LikesSyncer get() {
-                return trackLikesSyncer;
-            }
-        }, new Lazy<LikesSyncer>() {
-            @Override
-            public LikesSyncer get() {
-                return playlistLikesSyncer;
-            }
-        });
+        myLikesSyncer = new MyLikesSyncer(
+                InjectionSupport.lazyOf(trackLikesSyncer),
+                InjectionSupport.lazyOf(playlistLikesSyncer));
     }
 
     @Test

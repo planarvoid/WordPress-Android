@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.likes;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.LegacySyncJob;
@@ -19,7 +20,7 @@ public class SyncPlaylistLikesJobTest {
 
     private SyncPlaylistLikesJob job;
 
-    @Mock private LikesSyncer likesSyncer;
+    @Mock private LikesSyncer<ApiPlaylist> likesSyncer;
 
     @Before
     public void setUp() throws Exception {

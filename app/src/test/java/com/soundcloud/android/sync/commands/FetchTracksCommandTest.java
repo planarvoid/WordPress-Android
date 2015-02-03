@@ -7,9 +7,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.ApiTrackCollection;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,10 +36,10 @@ public class FetchTracksCommandTest {
     public void shouldResolveUrnsToFullTracksViaApiMobile() throws Exception {
         Map body = new HashMap();
         body.put("urns", Arrays.asList("soundcloud:tracks:1", "soundcloud:tracks:2"));
-        ApiTrackCollection tracks = new ApiTrackCollection();
+        ModelCollection<ApiTrack> tracks = new ModelCollection<>();
         when(apiClient.fetchMappedResponse(argThat(
                 isApiRequestTo("POST", ApiEndpoints.TRACKS_FETCH.path()).withContent(body)))).thenReturn(tracks);
-        ApiTrackCollection result = command.with(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2))).call();
+        ModelCollection<ApiTrack> result = command.with(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2))).call();
         expect(result).toBe(tracks);
     }
 

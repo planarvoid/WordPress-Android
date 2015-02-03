@@ -7,7 +7,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
-import com.soundcloud.android.likes.ApiLike;
+import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.testsupport.blueprints.AffiliationActivityBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiAudioAdBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;

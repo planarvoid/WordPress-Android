@@ -6,6 +6,8 @@ import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static com.soundcloud.android.testsupport.TestHelper.addCannedResponse;
 
 import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LocalCollectionDAO;
@@ -14,6 +16,7 @@ import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
 import com.soundcloud.android.sync.likes.LikesSyncer;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -44,8 +47,8 @@ public class ApiSyncServiceTest {
     private LegacySyncJob.Factory collectionSyncRequestFactory;
 
     @Mock private ApiSyncerFactory apiSyncerFactory;
-    @Mock private LikesSyncer trackLikesSyncer;
-    @Mock private LikesSyncer playlistLikesSyncer;
+    @Mock private LikesSyncer<ApiTrack> trackLikesSyncer;
+    @Mock private LikesSyncer<ApiPlaylist> playlistLikesSyncer;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
 
     @Before public void before() {
@@ -56,8 +59,9 @@ public class ApiSyncServiceTest {
 
         syncRequestFactory = new SyncRequestFactory(
                 new LegacySyncRequest.Factory(collectionSyncRequestFactory),
-                lazyOf(new SyncTrackLikesJob(lazyOf(trackLikesSyncer))),
-                lazyOf(new SyncPlaylistLikesJob(lazyOf(playlistLikesSyncer))), entitySyncRequestFactory, new TestEventBus());
+                lazyOf(new SyncTrackLikesJob(InjectionSupport.lazyOf(trackLikesSyncer))),
+                lazyOf(new SyncPlaylistLikesJob(InjectionSupport.lazyOf(playlistLikesSyncer))),
+                entitySyncRequestFactory, new TestEventBus());
     }
 
     @After public void after() {

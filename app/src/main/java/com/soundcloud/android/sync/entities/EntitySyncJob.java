@@ -2,7 +2,7 @@ package com.soundcloud.android.sync.entities;
 
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.commands.ApiResourceCommand;
+import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -18,14 +18,14 @@ import java.util.List;
 
 public class EntitySyncJob implements SyncJob {
 
-    private final ApiResourceCommand<List<Urn>, ModelCollection<PropertySetSource>> fetchResources;
+    private final BulkFetchCommand<PropertySetSource> fetchResources;
     private final StoreCommand storeResources;
 
     private List<Urn> urns = Collections.emptyList();
     private Collection<PropertySet> updatedPropertySets = Collections.emptyList();
 
     @Inject
-    public EntitySyncJob(ApiResourceCommand fetchResources, StoreCommand storeResources) {
+    public EntitySyncJob(BulkFetchCommand fetchResources, StoreCommand storeResources) {
         this.fetchResources = fetchResources;
         this.storeResources = storeResources;
     }

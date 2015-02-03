@@ -15,6 +15,8 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.cast.CastSessionReconnector;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
@@ -224,13 +226,13 @@ public class TestApplicationModule {
 
     @Provides
     @Named("TrackLikesSyncer")
-    LikesSyncer provideTrackLikesSyncer() {
+    LikesSyncer<ApiTrack> provideTrackLikesSyncer() {
         return mock(LikesSyncer.class);
     }
 
     @Provides
     @Named("PlaylistLikesSyncer")
-    LikesSyncer providePlaylistLikesSyncer() {
+    LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer() {
         return mock(LikesSyncer.class);
     }
 

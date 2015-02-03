@@ -1,19 +1,20 @@
 package com.soundcloud.android.sync.commands;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.commands.ApiResourceCommand;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.ApiTrackCollection;
 
 import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.List;
 
-public class FetchTracksCommand extends ApiResourceCommand<List<Urn>, ApiTrackCollection> {
+public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
 
     @Inject
     public FetchTracksCommand(ApiClient apiClient) {
@@ -21,7 +22,7 @@ public class FetchTracksCommand extends ApiResourceCommand<List<Urn>, ApiTrackCo
     }
 
     @Override
-    protected ApiRequest<ApiTrackCollection> buildRequest() {
+    protected ApiRequest<ModelCollection<ApiTrack>> buildRequest() {
         final ArrayList<String> urnStrings = new ArrayList<>(input.size());
         for (Urn urn : input) {
             urnStrings.add(urn.toString());
@@ -30,9 +31,10 @@ public class FetchTracksCommand extends ApiResourceCommand<List<Urn>, ApiTrackCo
         final ArrayMap<String, Object> body = new ArrayMap<>(1);
         body.put("urns", urnStrings);
 
-        return ApiRequest.Builder.<ApiTrackCollection>post(ApiEndpoints.TRACKS_FETCH.path())
+        return ApiRequest.Builder.<ModelCollection<ApiTrack>>post(ApiEndpoints.TRACKS_FETCH.path())
                 .forPrivateApi(1)
-                .forResource(ApiTrackCollection.class)
+                .forResource(new TypeToken<ModelCollection<ApiTrack>>() {
+                })
                 .withContent(body)
                 .build();
     }
