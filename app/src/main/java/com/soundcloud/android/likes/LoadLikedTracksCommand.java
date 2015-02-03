@@ -31,6 +31,7 @@ public class LoadLikedTracksCommand extends PagedQueryCommand<ChronologicalQuery
                         TableColumns.Sounds.PLAYBACK_COUNT,
                         TableColumns.Sounds.LIKES_COUNT,
                         TableColumns.Sounds.SHARING,
+                        TableColumns.TrackDownloads.REQUESTED_AT,
                         TableColumns.TrackDownloads.DOWNLOADED_AT,
                         field(Table.TrackDownloads + "." + TableColumns.TrackDownloads.REMOVED_AT).as(TableColumns.TrackDownloads.REMOVED_AT),
                         field(Table.Likes + "." + TableColumns.Likes.CREATED_AT).as(TableColumns.Likes.CREATED_AT))

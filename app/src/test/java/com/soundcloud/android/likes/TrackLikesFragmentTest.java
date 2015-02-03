@@ -5,6 +5,8 @@ import static com.soundcloud.android.rx.TestObservables.withSubscription;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
@@ -12,14 +14,16 @@ import static rx.Observable.just;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -30,6 +34,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
@@ -39,6 +44,7 @@ import rx.android.Pager;
 import android.view.View;
 import android.widget.AdapterView;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -52,17 +58,20 @@ public class TrackLikesFragmentTest {
     @Mock private PullToRefreshController pullToRefreshController;
     @Mock private TrackLikesHeaderController headerController;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private OfflineContentOperations offlineOperations;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private Subscription subscription;
     @Mock private Subscription allLikedTracksSubscription;
+    @Mock private Subscription eventBusSubscription;
     @Mock private Pager<List<PropertySet>> pager;
 
     private List<Urn> likedTrackUrns = Lists.newArrayList(Urn.forTrack(123L), Urn.forTrack(456L));
+    private List<PropertySet> tracklist = Arrays.asList(PropertySet.create());
+    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() {
-        Observable<List<PropertySet>> likedTracksObservable = withSubscription(subscription, just(PropertySet.create())).toList();
+
+        Observable<List<PropertySet>> likedTracksObservable = withSubscription(subscription, Observable.just(tracklist));
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(Robolectric.application));
@@ -77,15 +86,39 @@ public class TrackLikesFragmentTest {
                 pullToRefreshController,
                 headerController,
                 playbackOperations,
-                offlineOperations,
                 actionMenuController,
-                TestSubscribers.expandPlayerSubscriber());
+                TestSubscribers.expandPlayerSubscriber(),
+                eventBus);
+    }
+
+    @Test
+    public void shouldRefreshListContentAfterOfflineQueueUpdateEvent() throws Exception {
+        fragment.onCreate(null);
+        Mockito.reset(adapter);
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.queueUpdate());
+
+        final InOrder inOrder = Mockito.inOrder(adapter);
+        inOrder.verify(adapter).clear();
+        inOrder.verify(adapter).onNext(tracklist);
+    }
+
+    @Test
+    public void shouldNotRefreshListContentAfterOtherOfflineSyncEvents() throws Exception {
+        fragment.onCreate(null);
+        Mockito.reset(adapter);
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.start());
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.idle());
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.stop());
+
+        verify(adapter, never()).clear();
+        verify(adapter, never()).onNext(tracklist);
     }
 
     @Test
     public void shouldUnsubscribeConnectionSubscriptionInOnDestroy() {
         fragment.onCreate(null);
         fragment.onDestroy();
+
         verify(subscription).unsubscribe();
     }
 

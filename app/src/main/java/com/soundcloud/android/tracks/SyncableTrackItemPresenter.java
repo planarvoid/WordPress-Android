@@ -24,10 +24,21 @@ public class SyncableTrackItemPresenter extends TrackItemPresenter {
         super.bindItemView(position, itemView, trackItems);
         final PropertySet track = trackItems.get(position);
 
-        final View downloadProgressIcon = itemView.findViewById(R.id.download_progress_icon);
+        setDownloadProgressIndicator(itemView, track);
+    }
+
+    private void setDownloadProgressIndicator(View itemView, PropertySet track) {
+
+        final ImageView downloadProgressIcon = (ImageView) itemView.findViewById(R.id.download_progress_icon);
+
         if (track.contains(TrackProperty.OFFLINE_DOWNLOADED_AT) && !track.contains(TrackProperty.OFFLINE_REMOVED_AT)){
-            ((ImageView) downloadProgressIcon).setImageResource(R.drawable.track_downloaded);
+            downloadProgressIcon.setImageResource(R.drawable.track_downloaded);
             downloadProgressIcon.setVisibility(View.VISIBLE);
+
+        } else if (track.contains(TrackProperty.OFFLINE_REQUESTED_AT) && !track.contains(TrackProperty.OFFLINE_REMOVED_AT)) {
+            downloadProgressIcon.setImageResource(R.drawable.track_downloading);
+            downloadProgressIcon.setVisibility(View.VISIBLE);
+
         } else {
             downloadProgressIcon.setVisibility(View.GONE);
         }

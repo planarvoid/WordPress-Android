@@ -133,6 +133,7 @@ public class OfflineContentService extends Service {
         public void onNext(DownloadResult result) {
             Log.d(TAG, "Downloaded track: " + result);
             notificationController.onProgressUpdate();
+            eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.progress(result));
         }
 
         @Override

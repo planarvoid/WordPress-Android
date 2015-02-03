@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -8,6 +9,7 @@ import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -22,6 +24,13 @@ public class OfflineContentController {
     private final EventBus eventBus;
     private final Context context;
     private final OfflineContentOperations operations;
+
+    private final Action1<WriteResult> publishQueueUpdated = new Action1<WriteResult>() {
+        @Override
+        public void call(WriteResult writeResult) {
+            eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.queueUpdate());
+        }
+    };
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
@@ -55,7 +64,7 @@ public class OfflineContentController {
     private final Func1<Object, Observable<WriteResult>> updateOfflineLikes = new Func1<Object, Observable<WriteResult>>() {
         @Override
         public Observable<WriteResult> call(Object ignored) {
-            return operations.updateOfflineLikes();
+            return operations.updateOfflineLikes().doOnNext(publishQueueUpdated);
         }
     };
 
@@ -118,4 +127,5 @@ public class OfflineContentController {
             OfflineContentService.stopSyncing(context);
         }
     }
+
 }
