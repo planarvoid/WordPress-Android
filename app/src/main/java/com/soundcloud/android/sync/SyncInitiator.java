@@ -22,7 +22,7 @@ import java.util.List;
 
 public class SyncInitiator {
 
-    public final Action0 requestSystemSyncAction = new Action0() {
+    private final Action0 requestSystemSyncAction = new Action0() {
         @Override
         public void call() {
             requestSystemSync();
@@ -36,6 +36,11 @@ public class SyncInitiator {
     public SyncInitiator(Context context, AccountOperations accountOperations) {
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;
+    }
+
+
+    public Action0 requestSystemSyncAction() {
+        return requestSystemSyncAction;
     }
 
     public boolean pushFollowingsToApi() {

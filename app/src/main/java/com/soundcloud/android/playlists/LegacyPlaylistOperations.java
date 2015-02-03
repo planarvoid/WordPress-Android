@@ -137,7 +137,7 @@ public class LegacyPlaylistOperations {
             public PublicApiPlaylist call(PublicApiPlaylist playlist) {
                 return playlistStorage.addTrackToPlaylist(playlist, trackId);
             }
-        }).doOnCompleted(syncInitiator.requestSystemSyncAction);
+        }).doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
 }
