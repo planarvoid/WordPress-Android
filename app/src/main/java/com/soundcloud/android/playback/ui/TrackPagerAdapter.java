@@ -283,12 +283,10 @@ public class TrackPagerAdapter extends PagerAdapter {
                 .filter(currentTrackFilter)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaybackProgressSubscriber(presenter, trackPage)));
-
         subscription.add(eventBus
-                        .queue(EventQueue.PLAY_QUEUE_TRACK)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new ClearAdOverlaySubscriber(presenter, trackPage))
-        );
+                .queue(EventQueue.PLAY_QUEUE_TRACK)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ClearAdOverlaySubscriber(presenter, trackPage)));
         return trackPage;
     }
 
@@ -311,7 +309,6 @@ public class TrackPagerAdapter extends PagerAdapter {
         } else {
             trackPagePresenter.clearAdOverlay(view);
         }
-
     }
 
     // Getter with side effects. We are forced to adjust our internal datasets based on position changes here.

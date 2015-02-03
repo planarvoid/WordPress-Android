@@ -766,6 +766,6 @@ public class PlaybackOperationsTest {
 
 
     private void expectUnskippableException() {
-        expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(PlaybackOperations.UnSkippablePeriodException.class);
+        expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(PlaybackOperations.UnskippablePeriodException.class);
     }
 }

@@ -258,7 +258,7 @@ public class PlaybackOperations {
 
     private void playNewQueue(List<Urn> trackUrns, int startPosition, PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
-            throw new UnSkippablePeriodException();
+            throw new UnskippablePeriodException();
         }
 
         final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, playSessionSource);
@@ -308,6 +308,5 @@ public class PlaybackOperations {
         return adjustedPosition;
     }
 
-    public static class UnSkippablePeriodException extends RuntimeException {
-    }
+    public static class UnskippablePeriodException extends RuntimeException {}
 }
