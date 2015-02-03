@@ -22,7 +22,7 @@ import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -57,16 +57,15 @@ public class TrackLikesFragment extends LightCycleFragment
     @Inject EventBus eventBus;
 
     private ConnectableObservable<List<PropertySet>> observable;
-    private Observable<List<Urn>> trackUrnsObservable;
+    private ConnectableObservable<List<Urn>> allTrackUrnsObservable;
     private Subscription connectionSubscription = Subscriptions.empty();
-    private Subscription allLikedTracksSubscription = Subscriptions.empty();
+    private Subscription allTrackUrnsSubscription = Subscriptions.empty();
     private Subscription syncQueueUpdatedSubscription = Subscriptions.empty();
 
-    private final DefaultSubscriber<List<PropertySet>> refreshShuffleHeader = new DefaultSubscriber<List<PropertySet>>() {
+    private Action1<List<PropertySet>> buildLoadAllTrackUrns = new Action1<List<PropertySet>>() {
         @Override
-        public void onNext(List<PropertySet> args) {
-            createShuffleObservable();
-            loadAllLikedTracks();
+        public void call(List<PropertySet> propertySets) {
+            buildLoadAllTrackUrnsObservable();
         }
     };
     private final Func1<OfflineSyncEvent, Boolean> isQueueUpdateEvent = new Func1<OfflineSyncEvent, Boolean>() {
@@ -120,8 +119,8 @@ public class TrackLikesFragment extends LightCycleFragment
         setRetainInstance(true);
         setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
+        buildLoadAllTrackUrnsObservable();
         connectObservable(buildObservable());
-        createShuffleObservable();
         syncQueueUpdatedSubscription = eventBus.queue(EventQueue.OFFLINE_SYNC)
                 .filter(isQueueUpdateEvent)
                 .subscribe(new OfflineSyncQueueUpdated());
@@ -142,8 +141,6 @@ public class TrackLikesFragment extends LightCycleFragment
 
         listViewController.connect(this, observable);
         pullToRefreshController.connect(observable, adapter);
-
-        loadAllLikedTracks();
     }
 
     @Override
@@ -171,18 +168,23 @@ public class TrackLikesFragment extends LightCycleFragment
     @Override
     public void onDestroy() {
         connectionSubscription.unsubscribe();
-        allLikedTracksSubscription.unsubscribe();
+        allTrackUrnsSubscription.unsubscribe();
         syncQueueUpdatedSubscription.unsubscribe();
         super.onDestroy();
     }
 
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
-        return pagedObservable(getLikedTracks());
+        ConnectableObservable<List<PropertySet>> listConnectableObservable = pagedObservable(likeOperations.likedTracks());
+        listConnectableObservable.first().subscribe(new ConnectAllTrackUrnsSubscriber());
+        return listConnectableObservable;
     }
 
-    private Observable<List<PropertySet>> getLikedTracks() {
-        return likeOperations.likedTracks().observeOn(AndroidSchedulers.mainThread());
+    @Override
+    public ConnectableObservable<List<PropertySet>> refreshObservable() {
+        final ConnectableObservable<List<PropertySet>> refreshObservable = pagedObservable(likeOperations.updatedLikedTracks());
+        refreshObservable.first().doOnNext(buildLoadAllTrackUrns).subscribe(new ConnectAllTrackUrnsSubscriber());
+        return refreshObservable;
     }
 
     private ConnectableObservable<List<PropertySet>> pagedObservable(Observable<List<PropertySet>> source) {
@@ -190,17 +192,6 @@ public class TrackLikesFragment extends LightCycleFragment
                 likeOperations.likedTracksPager().page(source).observeOn(mainThread()).replay();
         observable.subscribe(adapter);
         return observable;
-    }
-
-    @Override
-    public ConnectableObservable<List<PropertySet>> refreshObservable() {
-        final ConnectableObservable<List<PropertySet>> refreshObservable = pagedObservable(getUpdatedLikedTracks());
-        refreshObservable.first().subscribe(refreshShuffleHeader);
-        return refreshObservable;
-    }
-
-    private Observable<List<PropertySet>> getUpdatedLikedTracks() {
-        return likeOperations.updatedLikedTracks().observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -218,16 +209,24 @@ public class TrackLikesFragment extends LightCycleFragment
         Urn initialTrack = ((PropertySet) adapterView.getItemAtPosition(position)).get(TrackProperty.URN);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
         playbackOperations
-                .playTracks(trackUrnsObservable, initialTrack, position, playSessionSource)
+                .playTracks(allTrackUrnsObservable, initialTrack, position, playSessionSource)
                 .subscribe(expandPlayerSubscriberProvider.get());
     }
 
-    private void createShuffleObservable() {
-        trackUrnsObservable = likeOperations.likedTrackUrns();
+    private void buildLoadAllTrackUrnsObservable() {
+        allTrackUrnsObservable = likeOperations.likedTrackUrns().observeOn(mainThread()).replay();
     }
 
-    private void loadAllLikedTracks() {
-        allLikedTracksSubscription = trackUrnsObservable.subscribe(new AllLikedTrackUrnsSubscriber());
+    private void connectLoadAllTrackUrns() {
+        allTrackUrnsObservable.subscribe(new AllLikedTrackUrnsSubscriber());
+        allTrackUrnsSubscription = allTrackUrnsObservable.connect();
+    }
+
+    private class ConnectAllTrackUrnsSubscriber extends DefaultSubscriber<List<PropertySet>> {
+        @Override
+        public void onNext(List<PropertySet> propertySetPage) {
+            connectLoadAllTrackUrns();
+        }
     }
 
     private class AllLikedTrackUrnsSubscriber extends DefaultSubscriber<List<Urn>> {

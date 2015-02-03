@@ -4,9 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.rx.TestObservables.withSubscription;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static rx.Observable.just;
@@ -40,6 +41,7 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.Pager;
+import rx.observables.ConnectableObservable;
 
 import android.view.View;
 import android.widget.AdapterView;
@@ -74,6 +76,7 @@ public class TrackLikesFragmentTest {
         Observable<List<PropertySet>> likedTracksObservable = withSubscription(subscription, Observable.just(tracklist));
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(likeOperations.updatedLikedTracks()).thenReturn(just(PropertySet.create()).toList());
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(Robolectric.application));
         when(adapter.getLifeCycleHandler()).thenReturn(Mockito.mock(DefaultFragmentLightCycle.class));
 
@@ -135,18 +138,46 @@ public class TrackLikesFragmentTest {
         PropertySet clickedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
         AdapterView adapterView = setupAdapterView(clickedTrack);
         TestObservables.MockObservable<List<Urn>> playbackObservable = setupPlaybackOperations(clickedTrack);
-        when(likeOperations.likedTracks()).thenReturn(Observable.<List<PropertySet>>empty());
 
+        fragment.onCreate(null);
+        fragment.onViewCreated(mock(View.class), null);
         fragment.onItemClick(adapterView, mock(View.class), 0, 0);
 
         expect(playbackObservable.subscribedTo()).toBeTrue();
     }
 
     @Test
-    public void setAllLikedTrackUrnsOnHeaderControllerAfterViewCreated() {
+    public void onViewCreatedShouldSetHeaderLikedTrackUrns() {
         fragment.onCreate(null);
         fragment.onViewCreated(mock(View.class), null);
         verify(headerController).setLikedTrackUrns(likedTrackUrns);
+    }
+
+    @Test
+    public void refreshObservableShouldSetHeaderLikedTrackUrns() {
+        fragment.refreshObservable().connect();
+        verify(headerController).setLikedTrackUrns(likedTrackUrns);
+    }
+
+    @Test
+    public void refreshObservableShouldUpdateLikedItems() {
+        fragment.refreshObservable().connect();
+        verify(likeOperations).updatedLikedTracks();
+        verify(adapter).onCompleted();
+    }
+
+    @Test
+    public void shouldConnectToListViewControllerInOnViewCreated() {
+        fragment.onCreate(null);
+        fragment.onViewCreated(mock(View.class), null);
+        verify(listViewController).connect(same(fragment), isA(ConnectableObservable.class));
+    }
+
+    @Test
+    public void shouldConnectToPTRControllerInOnViewCreated() {
+        fragment.onCreate(null);
+        fragment.onViewCreated(mock(View.class), null);
+        verify(pullToRefreshController).connect(isA(ConnectableObservable.class), same(adapter));
     }
 
     private AdapterView setupAdapterView(PropertySet clickedTrack) {
