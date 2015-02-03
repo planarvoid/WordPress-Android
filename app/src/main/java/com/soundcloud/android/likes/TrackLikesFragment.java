@@ -62,7 +62,7 @@ public class TrackLikesFragment extends LightCycleFragment
     private Subscription allTrackUrnsSubscription = Subscriptions.empty();
     private Subscription syncQueueUpdatedSubscription = Subscriptions.empty();
 
-    private Action1<List<PropertySet>> buildLoadAllTrackUrns = new Action1<List<PropertySet>>() {
+    private final Action1<List<PropertySet>> buildLoadAllTrackUrns = new Action1<List<PropertySet>>() {
         @Override
         public void call(List<PropertySet> propertySets) {
             buildLoadAllTrackUrnsObservable();
