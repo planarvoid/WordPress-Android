@@ -9,7 +9,7 @@
 
     <item android:id="@+id/action_start_sync"
         android:title="@string/accessibility_start_sync"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/actionbar_download"
         soundcloud:showAsAction="always"/>
 
     <item android:id="@+id/action_syncing"

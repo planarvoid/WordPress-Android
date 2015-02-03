@@ -18,17 +18,14 @@ import javax.inject.Inject;
 public class TrackLikesHeaderPresenter extends HeaderViewPresenter {
 
     private View headerView;
-
-    private State state = State.DEFAULT;
-
-    private enum State {
-        DEFAULT, SYNCING, DOWNLOADED
-    }
-
     @InjectView(R.id.header_text) TextView headerText;
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
     @InjectView(R.id.sync_state) ImageView syncState;
 
+    private State state = State.DEFAULT;
+    private enum State {
+        DEFAULT, SYNCING, DOWNLOADED
+    }
 
     @Inject
     public TrackLikesHeaderPresenter() {

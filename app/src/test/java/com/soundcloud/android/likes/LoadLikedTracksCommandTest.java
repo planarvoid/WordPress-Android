@@ -22,6 +22,7 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
 
     private static final Date DOWNLOADED_DATE = new Date(1000);
     private static final Date REMOVED_DATE = new Date(2000);
+    private static final Date REQUESTED_DATE = new Date(3000);
 
     private LoadLikedTracksCommand command;
     private PropertySet track1;
@@ -36,8 +37,9 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
         track2 = testFixtures().insertLikedTrack(LIKED_DATE_2).toPropertySet();
         track3 = testFixtures().insertLikedTrack(LIKED_DATE_3).toPropertySet();
 
-        testFixtures().insertTrackDownloadPendingRemoval(track2.get(TrackProperty.URN), REMOVED_DATE.getTime());
-        testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), DOWNLOADED_DATE.getTime());
+        testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), REQUESTED_DATE.getTime(), DOWNLOADED_DATE.getTime());
+        testFixtures().insertTrackDownloadPendingRemoval(track2.get(TrackProperty.URN), REQUESTED_DATE.getTime(), REMOVED_DATE.getTime());
+        testFixtures().insertRequestedTrackDownload(track3.get(TrackProperty.URN), REQUESTED_DATE.getTime());
     }
 
     @Test
@@ -45,16 +47,16 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(3, Long.MAX_VALUE)).call();
 
         expect(result).toContainExactly(
-                expectedLikedTrackFor(track3, LIKED_DATE_3),
-                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2, REMOVED_DATE),
-                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1, DOWNLOADED_DATE));
+                expectedRequestedLikedTrackFor(track3, LIKED_DATE_3, REQUESTED_DATE),
+                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2, REQUESTED_DATE, REMOVED_DATE),
+                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1, REQUESTED_DATE, DOWNLOADED_DATE));
     }
 
     @Test
     public void shouldAdhereToLimit() throws Exception {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(1, Long.MAX_VALUE)).call();
 
-        expect(result).toContainExactly(expectedLikedTrackFor(track3, LIKED_DATE_3));
+        expect(result).toContainExactly(expectedRequestedLikedTrackFor(track3, LIKED_DATE_3, REQUESTED_DATE));
     }
 
     @Test
@@ -62,16 +64,24 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(3, LIKED_DATE_3.getTime())).call();
 
         expect(result).toContainExactly(
-                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2, REMOVED_DATE),
-                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1, DOWNLOADED_DATE));
+                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2, REQUESTED_DATE, REMOVED_DATE),
+                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1, REQUESTED_DATE, DOWNLOADED_DATE));
     }
 
-    private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt, Date downloadedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.OFFLINE_DOWNLOADED_AT, downloadedAt);
+    private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.OFFLINE_REQUESTED_AT, requestedAt);
     }
 
-    private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt, Date removedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.OFFLINE_REMOVED_AT, removedAt);
+    private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date downloadedAt) {
+        return expectedLikedTrackFor(track, likedAt)
+                .put(TrackProperty.OFFLINE_REQUESTED_AT, requestedAt)
+                .put(TrackProperty.OFFLINE_DOWNLOADED_AT, downloadedAt);
+    }
+
+    private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date removedAt) {
+        return expectedLikedTrackFor(track, likedAt)
+                .put(TrackProperty.OFFLINE_REQUESTED_AT, requestedAt)
+                .put(TrackProperty.OFFLINE_REMOVED_AT, removedAt);
     }
 
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {

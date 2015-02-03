@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.SyncableTrackItemPresenter;
@@ -13,6 +14,7 @@ import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
@@ -27,6 +29,12 @@ public class TrackLikesAdapter extends HackyErrorSuppressingAdapter<PropertySet>
 
     private final SyncableTrackItemPresenter trackPresenter;
     private final DefaultFragmentLightCycle lifeCycleHandler;
+    private final Func1<OfflineSyncEvent, Boolean> isDownloadFinishedEvent = new Func1<OfflineSyncEvent, Boolean>() {
+        @Override
+        public Boolean call(OfflineSyncEvent offlineSyncEvent) {
+            return offlineSyncEvent.getKind() == OfflineSyncEvent.DOWNLOAD_FINISHED;
+        }
+    };
 
     private Subscription eventSubscriptions = Subscriptions.empty();
 
@@ -34,7 +42,7 @@ public class TrackLikesAdapter extends HackyErrorSuppressingAdapter<PropertySet>
     public TrackLikesAdapter(final SyncableTrackItemPresenter trackPresenter, final EventBus eventBus) {
         super(trackPresenter);
         this.trackPresenter = trackPresenter;
-        lifeCycleHandler = createLifeCycleHandler(trackPresenter, eventBus);
+        this.lifeCycleHandler = createLifeCycleHandler(trackPresenter, eventBus);
     }
 
     public TrackItemPresenter getTrackPresenter() {
@@ -52,7 +60,8 @@ public class TrackLikesAdapter extends HackyErrorSuppressingAdapter<PropertySet>
                 eventSubscriptions = new CompositeSubscription(
                         eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(TrackLikesAdapter.this, trackPresenter)),
                         eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(TrackLikesAdapter.this)),
-                        eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(TrackLikesAdapter.this))
+                        eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(TrackLikesAdapter.this)),
+                        eventBus.queue(EventQueue.OFFLINE_SYNC).filter(isDownloadFinishedEvent).subscribe(new UpdateAdapterFromDownloadSubscriber(TrackLikesAdapter.this))
                 );
             }
 
@@ -62,4 +71,5 @@ public class TrackLikesAdapter extends HackyErrorSuppressingAdapter<PropertySet>
             }
         };
     }
+
 }

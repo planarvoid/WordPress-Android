@@ -7,12 +7,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.ListViewController;
@@ -21,6 +23,7 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -39,6 +42,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
+@SuppressWarnings({"PMD.TooManyFields"})
 public class TrackLikesFragment extends LightCycleFragment
         implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
@@ -48,20 +52,27 @@ public class TrackLikesFragment extends LightCycleFragment
     @Inject TrackLikesHeaderController headerController;
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
-    @Inject OfflineContentOperations offlineOperations;
     @Inject TrackLikesActionMenuController actionMenuController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    @Inject EventBus eventBus;
 
     private ConnectableObservable<List<PropertySet>> observable;
     private Observable<List<Urn>> trackUrnsObservable;
     private Subscription connectionSubscription = Subscriptions.empty();
     private Subscription allLikedTracksSubscription = Subscriptions.empty();
+    private Subscription syncQueueUpdatedSubscription = Subscriptions.empty();
 
-    private DefaultSubscriber<List<PropertySet>> refreshShuffleHeader = new DefaultSubscriber<List<PropertySet>>() {
+    private final DefaultSubscriber<List<PropertySet>> refreshShuffleHeader = new DefaultSubscriber<List<PropertySet>>() {
         @Override
         public void onNext(List<PropertySet> args) {
             createShuffleObservable();
             loadAllLikedTracks();
+        }
+    };
+    private final Func1<OfflineSyncEvent, Boolean> isQueueUpdateEvent = new Func1<OfflineSyncEvent, Boolean>() {
+        @Override
+        public Boolean call(OfflineSyncEvent offlineSyncEvent) {
+            return offlineSyncEvent.getKind() == OfflineSyncEvent.QUEUE_UPDATED;
         }
     };
 
@@ -79,18 +90,18 @@ public class TrackLikesFragment extends LightCycleFragment
                        PullToRefreshController pullToRefreshController,
                        TrackLikesHeaderController headerController,
                        PlaybackOperations playbackOperations,
-                       OfflineContentOperations offlineOperations,
                        TrackLikesActionMenuController actionMenuController,
-                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+                       Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                       EventBus eventBus) {
         this.adapter = adapter;
         this.likeOperations = likeOperations;
         this.listViewController = listViewController;
         this.pullToRefreshController = pullToRefreshController;
         this.headerController = headerController;
         this.playbackOperations = playbackOperations;
-        this.offlineOperations = offlineOperations;
         this.actionMenuController = actionMenuController;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.eventBus = eventBus;
         addLifeCycleComponents();
     }
 
@@ -111,6 +122,9 @@ public class TrackLikesFragment extends LightCycleFragment
         super.onCreate(savedInstanceState);
         connectObservable(buildObservable());
         createShuffleObservable();
+        syncQueueUpdatedSubscription = eventBus.queue(EventQueue.OFFLINE_SYNC)
+                .filter(isQueueUpdateEvent)
+                .subscribe(new OfflineSyncQueueUpdated());
     }
 
     @Override
@@ -158,6 +172,7 @@ public class TrackLikesFragment extends LightCycleFragment
     public void onDestroy() {
         connectionSubscription.unsubscribe();
         allLikedTracksSubscription.unsubscribe();
+        syncQueueUpdatedSubscription.unsubscribe();
         super.onDestroy();
     }
 
@@ -191,6 +206,7 @@ public class TrackLikesFragment extends LightCycleFragment
     @Override
     public Subscription connectObservable(ConnectableObservable<List<PropertySet>> observable) {
         this.observable = observable;
+        this.connectionSubscription.unsubscribe();
         this.connectionSubscription = observable.connect();
         return connectionSubscription;
     }
@@ -221,4 +237,11 @@ public class TrackLikesFragment extends LightCycleFragment
         }
     }
 
+    private class OfflineSyncQueueUpdated extends DefaultSubscriber<OfflineSyncEvent> {
+        @Override
+        public void onNext(OfflineSyncEvent ignored) {
+            adapter.clear();
+            connectObservable(buildObservable());
+        }
+    }
 }
