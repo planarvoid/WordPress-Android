@@ -30,6 +30,7 @@ public class OfflineContentServiceTest {
     @Mock private DownloadOperations downloadOperations;
     @Mock private DownloadNotificationController notificationController;
     @Mock private OfflineContentScheduler offlineContentScheduler;
+    @Mock private OfflineContentOperations offlineContentOperations;
 
     private OfflineContentService service;
     private DownloadRequest downloadRequest1;
@@ -43,8 +44,9 @@ public class OfflineContentServiceTest {
         downloadRequest2 = createDownloadRequest(456L);
         downloadResult1 = new DownloadResult(true, Urn.forTrack(123L));
         eventBus = new TestEventBus();
-        service = new OfflineContentService(downloadOperations, notificationController, eventBus, offlineContentScheduler);
+        service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController, eventBus, offlineContentScheduler);
 
+        when(offlineContentOperations.processPendingRemovals()).thenReturn(Observable.<Void>empty());
         when(downloadOperations.pendingDownloads()).thenReturn(Observable.<List<DownloadRequest>>empty());
     }
 

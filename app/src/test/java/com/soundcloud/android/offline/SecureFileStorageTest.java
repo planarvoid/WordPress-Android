@@ -67,7 +67,7 @@ public class SecureFileStorageTest {
 
         verify(operations).encryptStream(eq(inputStream), any(OutputStream.class));
     }
-
+    
     @Test
     public void storeTrackSavesDataToAFile() throws Exception {
         final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");

@@ -11,7 +11,7 @@ import com.soundcloud.propeller.query.Query;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadLikedTrackUrnsCommand extends Command<Integer, List<Urn>, LoadLikedTrackUrnsCommand> {
+public class LoadLikedTrackUrnsCommand extends Command<Object, List<Urn>, LoadLikedTrackUrnsCommand> {
 
     private final PropellerDatabase database;
 

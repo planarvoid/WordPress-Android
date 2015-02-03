@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class StoreTrackDownloadsCommand extends StoreCommand<List<Urn>> {
+public class UpdateOfflineContentCommand extends StoreCommand<List<Urn>> {
 
     @Inject
-    protected StoreTrackDownloadsCommand(PropellerDatabase database) {
+    protected UpdateOfflineContentCommand(PropellerDatabase database) {
         super(database);
     }
 
@@ -44,7 +44,7 @@ public class StoreTrackDownloadsCommand extends StoreCommand<List<Urn>> {
             }
 
             private void markAllEntriesAsPendingRemoval(PropellerDatabase database) {
-                step(database.update(TrackDownloads, buildPendingRemoval(), new WhereBuilder()));
+                step(database.update(TrackDownloads, buildPendingRemoval(), new WhereBuilder().whereNull(REMOVED_AT)));
             }
         });
     }
