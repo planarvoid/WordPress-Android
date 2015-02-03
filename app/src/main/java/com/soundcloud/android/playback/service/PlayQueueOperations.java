@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
@@ -13,6 +12,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.GuavaFunctions;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
@@ -114,20 +114,11 @@ public class PlayQueueOperations {
 
     public Observable<PolicyCollection> fetchAndStorePolicies(List<Urn> trackUrns) {
         final ApiRequest<PolicyCollection> request = ApiRequest.Builder.<PolicyCollection>post(ApiEndpoints.POLICIES.path())
-                .withContent(transformUrnsToStrings(trackUrns))
+                .withContent(Lists.transform(trackUrns, GuavaFunctions.urnToString()))
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(PolicyCollection.class)).build();
 
         return apiScheduler.mappedResponse(request).doOnNext(storePoliciesCommand.toAction());
-    }
-
-    private List<String> transformUrnsToStrings(List<Urn> trackUrns) {
-        return Lists.transform(trackUrns, new Function<Urn, String>() {
-            @Override
-            public String apply(Urn input) {
-                return input.toString();
-            }
-        });
     }
 
     enum Keys {

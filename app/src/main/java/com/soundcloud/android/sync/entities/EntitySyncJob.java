@@ -44,7 +44,7 @@ public class EntitySyncJob implements SyncJob {
             if (!urns.isEmpty()) {
                 ModelCollection<PropertySetSource> collection = fetchResources.with(urns).call();
                 storeResources.with(collection).call();
-                updatedPropertySets = Collections2.transform(collection.getCollection(), GuavaFunctions.PROP_SET_SOURCE_TO_PROP_SET);
+                updatedPropertySets = Collections2.transform(collection.getCollection(), GuavaFunctions.toPropertySet());
             }
         } catch (Exception e) {
             ErrorUtils.handleThrowable(e, this.getClass());
