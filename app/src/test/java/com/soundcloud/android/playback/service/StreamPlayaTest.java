@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
@@ -45,6 +46,7 @@ public class StreamPlayaTest {
     @Mock private BufferingPlaya bufferingPlaya;
     @Mock private Playa.PlayaListener playaListener;
     @Mock private StreamPlaya.PlayerSwitcherInfo playerSwitcherInfo;
+    @Mock private FeatureOperations featureOperations;
 
     private PropertySet track;
 
@@ -65,7 +67,7 @@ public class StreamPlayaTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, playerSwitcherInfo);
+        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, playerSwitcherInfo, featureOperations);
         streamPlayerWrapper.setListener(playaListener);
     }
 
@@ -168,6 +170,7 @@ public class StreamPlayaTest {
 
     @Test
     public void playCallsPlayOfflineOnSkippyIfTrackIsAvailableOfflineAndNotMarkedForRemoval() throws Exception {
+        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
         instantiateStreamPlaya();
         track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
 
@@ -178,6 +181,7 @@ public class StreamPlayaTest {
 
     @Test
     public void playCallsPlayOfflineOnSkippyWithResumeTimeIfTrackIsAvailableOfflineAndNotMarkedForRemoval() throws Exception {
+        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
         instantiateStreamPlaya();
         track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
 

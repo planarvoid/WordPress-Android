@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.service.Playa.PlayaListener;
@@ -35,6 +36,7 @@ public class StreamPlaya implements PlayaListener {
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences sharedPreferences;
     private final PlayerSwitcherInfo playerSwitcherInfo;
+    private final FeatureOperations featureOperations;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -45,11 +47,14 @@ public class StreamPlaya implements PlayaListener {
 
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo){
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo,
+                       FeatureOperations featureOperations){
+
         this.sharedPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
+        this.featureOperations = featureOperations;
         currentPlaya = bufferingPlayaDelegate;
 
         this.playerSwitcherInfo = playerSwitcherInfo;
@@ -259,6 +264,7 @@ public class StreamPlaya implements PlayaListener {
 
     private boolean isAvailableOffline(PropertySet track){
         return !skippyFailedToInitialize
+                && featureOperations.isOfflineSyncEnabled()
                 && track.getOrElseNull(TrackProperty.OFFLINE_DOWNLOADED_AT) != null
                 && track.getOrElseNull(TrackProperty.OFFLINE_REMOVED_AT) == null;
     }
