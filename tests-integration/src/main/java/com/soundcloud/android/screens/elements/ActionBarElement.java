@@ -23,7 +23,7 @@ public class ActionBarElement extends Element {
 
     private static final int SEARCH_SELECTOR = R.id.action_search;
     private static final int CONTAINER = R.id.action_bar_container;
-    private final Han testDriver;
+    protected final Han testDriver;
 
     public ActionBarElement(Han solo) {
         super(solo);
@@ -71,13 +71,13 @@ public class ActionBarElement extends Element {
     public SearchResultsScreen doSearch(String query) {
         setSearchQuery(query);
         solo.sendKey(KeyEvent.KEYCODE_ENTER);
-        return new SearchResultsScreen(solo);
+        return new SearchResultsScreen(testDriver);
     }
 
     public PlaylistResultsScreen doTagSearch(String query) {
         setSearchQuery(query);
         solo.sendKey(KeyEvent.KEYCODE_ENTER);
-        return new PlaylistResultsScreen(solo);
+        return new PlaylistResultsScreen(testDriver);
     }
 
     public String getSearchQuery() {
@@ -89,8 +89,8 @@ public class ActionBarElement extends Element {
     }
 
     private void clickOverflowButton(String buttonText) {
-        solo.findElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton")).click();
-        solo.findElement(With.text(buttonText)).click();
+        testDriver.findElement(With.className("android.support.v7.widget.ActionMenuPresenter$OverflowMenuButton")).click();
+        testDriver.findElement(With.text(buttonText)).click();
     }
 
     private TextElement title() {
@@ -98,17 +98,17 @@ public class ActionBarElement extends Element {
     }
 
     private ViewElement actionBarContainer() {
-        return solo.findElement(With.id(CONTAINER));
+        return testDriver.findElement(With.id(CONTAINER));
     }
 
     private EditTextElement searchInputField() {
         waiter.waitForElement(AutoCompleteTextView.class);
-        return new EditTextElement(solo.findElement(With.className(AutoCompleteTextView.class)));
+        return new EditTextElement(testDriver.findElement(With.className(AutoCompleteTextView.class)));
     }
 
     public PlaylistTagsScreen dismissSearch() {
         searchInputField().clearText();
-        return new PlaylistTagsScreen(solo);
+        return new PlaylistTagsScreen(testDriver);
     }
 
 }
