@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
@@ -55,7 +54,7 @@ public class LikesSyncerTest {
     public void setup() throws Exception {
         syncer = new LikesSyncer(fetchLikes, fetchLikedResources, pushLikeAdditions, pushLikeDeletions, loadLikes,
                 loadLikesPendingAddition, loadLikesPendingRemoval, storeLikedResources, storeLikes,
-                removeLikes, ApiEndpoints.LIKED_TRACKS);
+                removeLikes);
         trackLike = ModelFixtures.apiTrackLike();
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
     }

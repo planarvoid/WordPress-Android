@@ -26,9 +26,9 @@ public class LikesSyncModule {
             @Named("TrackLikeDeletions") PushLikeDeletionsCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StoreTracksCommand storeTracks, StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes) {
-        return new LikesSyncer<>(fetchLikesCommand, fetchTracks, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_TRACK),
+        return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS), fetchTracks, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_TRACK),
                 loadLikesPendingAddition.with(Sounds.TYPE_TRACK), loadLikesPendingRemoval.with(Sounds.TYPE_TRACK), storeTracks, storeLikes,
-                removeLikes, ApiEndpoints.LIKED_TRACKS);
+                removeLikes);
     }
 
     @Provides
@@ -39,9 +39,9 @@ public class LikesSyncModule {
             @Named("PlaylistLikeDeletions") PushLikeDeletionsCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes) {
-        return new LikesSyncer<>(fetchLikesCommand, fetchPlaylists, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_PLAYLIST),
+        return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_PLAYLISTS), fetchPlaylists, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_PLAYLIST),
                 loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST), loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST), storePlaylists, storeLikes,
-                removeLikes, ApiEndpoints.LIKED_PLAYLISTS);
+                removeLikes);
     }
 
     @Provides

@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync.likes;
 
-import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.likes.LikeProperty;
@@ -31,7 +30,6 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     private final LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
     private final StoreCommand<Iterable<ApiModel>> storeLikedResources;
     private final StoreLikesCommand storeLikes;
-    private final ApiEndpoints apiEndpoints;
     private final RemoveLikesCommand removeLikes;
 
     @SuppressWarnings("PMD.ExcessiveParameterList") // We will run into this a lot with commands...
@@ -44,8 +42,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
                 LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
                 StoreCommand<Iterable<ApiModel>> storeLikedResources,
                 StoreLikesCommand storeLikes,
-                RemoveLikesCommand removeLikes,
-                ApiEndpoints apiEndpoints) {
+                RemoveLikesCommand removeLikes) {
         this.fetchLikes = fetchLikes;
         this.pushLikeAdditions = pushLikeAdditions;
         this.pushLikeDeletions = pushLikeDeletions;
@@ -56,13 +53,11 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         this.fetchLikedResources = fetchLikedResources;
         this.storeLikedResources = storeLikedResources;
         this.storeLikes = storeLikes;
-        this.apiEndpoints = apiEndpoints;
     }
 
     @Override
     public Boolean call() throws Exception {
-        final NavigableSet<PropertySet> remoteLikes = fetchLikes
-                .with(apiEndpoints).call();
+        final NavigableSet<PropertySet> remoteLikes = fetchLikes.call();
 
         final Set<PropertySet> localLikes = new TreeSet<>(LIKES_COMPARATOR);
         localLikes.addAll(loadLikes.call());
