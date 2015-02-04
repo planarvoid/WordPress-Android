@@ -17,6 +17,7 @@ import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -516,8 +517,7 @@ public class StreamPlayaTest {
     public void onPlaystateChangeDoesThrowsNPEWithSuccessStateAndNoListener(){
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(null);
-        final Playa.StateTransition transition = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
-        streamPlayerWrapper.onPlaystateChanged(transition);
+        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
     }
 
     @Test
@@ -525,7 +525,7 @@ public class StreamPlayaTest {
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(playaListener);
 
-        final Playa.StateTransition transition = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
+        final Playa.StateTransition transition = TestPlayStates.buffering();
         streamPlayerWrapper.onPlaystateChanged(transition);
         verify(playaListener).onPlaystateChanged(transition);
     }
@@ -595,21 +595,20 @@ public class StreamPlayaTest {
     @Test
     public void getStateReturnsLastState() throws Exception {
         instantiateStreamPlaya();
-        streamPlayerWrapper.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE));
+        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
         expect(streamPlayerWrapper.getState()).toBe(Playa.PlayaState.BUFFERING);
     }
 
     @Test
     public void getLastStateTransitionReturnsIdleNothingByDefault() throws Exception {
         instantiateStreamPlaya();
-        final Playa.StateTransition expected = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE);
-        expect(streamPlayerWrapper.getLastStateTransition()).toEqual(expected);
+        expect(streamPlayerWrapper.getLastStateTransition()).toEqual(TestPlayStates.idleDefault());
     }
 
     @Test
     public void getLastStateTransitionReturnsLastTransition() throws Exception {
         instantiateStreamPlaya();
-        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
+        final Playa.StateTransition stateTransition = TestPlayStates.buffering();
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
         expect(streamPlayerWrapper.getLastStateTransition()).toEqual(stateTransition);
     }
@@ -617,32 +616,28 @@ public class StreamPlayaTest {
     @Test
     public void isPlayingReturnsIsPlayingFromLastTransition() throws Exception {
         instantiateStreamPlaya();
-        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
-        streamPlayerWrapper.onPlaystateChanged(stateTransition);
+        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
         expect(streamPlayerWrapper.isPlaying()).toEqual(true);
     }
 
     @Test
     public void isPlayerPlayingReturnsIsPlayerPlayingFromLastTransition() throws Exception {
         instantiateStreamPlaya();
-        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
-        streamPlayerWrapper.onPlaystateChanged(stateTransition);
+        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.playing());
         expect(streamPlayerWrapper.isPlaying()).toEqual(true);
     }
 
     @Test
     public void isBufferingReturnsIsPlayerPlayingFromLastTransition() throws Exception {
         instantiateStreamPlaya();
-        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE);
-        streamPlayerWrapper.onPlaystateChanged(stateTransition);
+        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
         expect(streamPlayerWrapper.isPlaying()).toEqual(true);
     }
 
     @Test
     public void playbackHasPausedReturnTrueIfLastStateTransitionIsIdleNone() throws Exception {
         instantiateStreamPlaya();
-        final Playa.StateTransition stateTransition = new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE);
-        streamPlayerWrapper.onPlaystateChanged(stateTransition);
+        streamPlayerWrapper.onPlaystateChanged(TestPlayStates.idle());
         expect(streamPlayerWrapper.playbackHasPaused()).toEqual(true);
     }
 

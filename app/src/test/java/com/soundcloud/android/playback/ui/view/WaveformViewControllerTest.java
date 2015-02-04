@@ -84,7 +84,7 @@ public class WaveformViewControllerTest {
         when(adOverlayController.isNotVisible()).thenReturn(true);
 
         waveformViewController = new WaveformViewController.Factory(scrubControllerFactory, progressAnimationControllerFactory,
-               Schedulers.immediate()).create(waveformView, adOverlayController);
+               Schedulers.immediate()).create(waveformView);
     }
 
     @Test
@@ -356,7 +356,22 @@ public class WaveformViewControllerTest {
     }
 
     @Test
-    public void setExpandedWhenAdOverlayActiveWithWaveformResultDoesNotSetWaveform() {
+    public void setExpandedWhenNotAllowedToBeShownWithWaveformResultDoesNotMakeWaveformVisible() {
+        waveformViewController.onWaveformViewWidthChanged(500);
+        waveformViewController.onForeground();
+        waveformViewController.setWaveform(Observable.just(waveformData), true);
+        waveformViewController.hide();
+        when(waveformView.createWaveforms(any(WaveformData.class), anyInt())).thenReturn(new Pair<>(bitmap, bitmap));
+        when(adOverlayController.isNotVisible()).thenReturn(false);
+
+        waveformViewController.setExpanded();
+
+        verify(waveformView).setWaveformBitmaps(any(Pair.class));
+        verify(waveformView, never()).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void setExpandedWhenAllowedToBeShownWithWaveformResultMakesWaveformVisible() {
         waveformViewController.onWaveformViewWidthChanged(500);
         waveformViewController.onForeground();
         waveformViewController.setWaveform(Observable.just(waveformData), true);
@@ -365,13 +380,23 @@ public class WaveformViewControllerTest {
 
         waveformViewController.setExpanded();
 
-        verify(waveformView, never()).setWaveformBitmaps(any(Pair.class));
+        verify(waveformView).setWaveformBitmaps(any(Pair.class));
+        verify(waveformView).setVisibility(View.VISIBLE);
     }
 
     @Test
     public void onPlayerSlideWithGreaterThanZeroShowsWaveform() {
         waveformViewController.onPlayerSlide(Float.MIN_VALUE);
         verify(waveformView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void onPlayerSlideDoesNotSetWaveformVisibleWhenSetToHide() {
+        waveformViewController.hide();
+
+        waveformViewController.onPlayerSlide(Float.MIN_VALUE);
+
+        verify(waveformView, never()).setVisibility(View.VISIBLE);
     }
 
     @Test
@@ -411,6 +436,27 @@ public class WaveformViewControllerTest {
         when(waveformView.createWaveforms(waveformData, 1000)).thenReturn(bitmapPair);
         waveformViewController.onWaveformViewWidthChanged(500);
         verify(waveformView).setWaveformBitmaps(bitmapPair);
+    }
+
+    @Test
+    public void showSetsWaveformVisibleIfExpanded() {
+        waveformViewController.show();
+        verify(waveformView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void showDoesNotSetWaveformVisibleIfCollapsed() {
+        waveformViewController.setCollapsed();
+
+        waveformViewController.show();
+
+        verify(waveformView, never()).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void hideSetsWaveformGone() {
+        waveformViewController.hide();
+        verify(waveformView).setVisibility(View.GONE);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)

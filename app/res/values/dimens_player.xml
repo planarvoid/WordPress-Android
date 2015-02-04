@@ -37,4 +37,7 @@
     <dimen name="ad_overlay_padding">6dp</dimen>
     <dimen name="interstitial_padding_large">16dp</dimen>
 
+    <!-- playback error -->
+    <dimen name="player_error_text_margin">40dp</dimen>
+
 </resources>

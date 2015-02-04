@@ -25,6 +25,7 @@ import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.AdFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -316,7 +317,7 @@ public class AdsControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
         verify(playQueueManager, never()).autoNextTrack();
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
@@ -345,7 +346,7 @@ public class AdsControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
         verify(playQueueManager, never()).autoNextTrack();
@@ -355,9 +356,9 @@ public class AdsControllerTest {
     public void playEventUnsubscribesFromSkipAd() {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         adsController.subscribe();
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         verify(playQueueManager, never()).autoNextTrack();
@@ -367,9 +368,9 @@ public class AdsControllerTest {
     public void pauseEventUnsubscribesFromSkipAd() {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         adsController.subscribe();
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
 
         verify(playQueueManager, never()).autoNextTrack();
@@ -379,7 +380,7 @@ public class AdsControllerTest {
     public void trackChangeEventUnsubscribesFromSkipAd() {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         adsController.subscribe();
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.BUFFERING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.buffering());
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(CURRENT_TRACK_URN));
         scheduler.advanceTimeBy(AdsController.FAILED_AD_WAIT_SECS, TimeUnit.SECONDS);
@@ -392,7 +393,7 @@ public class AdsControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
 
         verify(playQueueManager).autoNextTrack();
     }
@@ -402,7 +403,7 @@ public class AdsControllerTest {
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(false);
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.error(Reason.ERROR_FAILED));
 
         verify(playQueueManager, never()).autoNextTrack();
     }
@@ -415,7 +416,7 @@ public class AdsControllerTest {
 
         adsController.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.IDLE, Reason.TRACK_COMPLETE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.complete());
 
         expect(monetizableProperties.get(LeaveBehindProperty.META_AD_COMPLETED)).toBeTrue();
     }

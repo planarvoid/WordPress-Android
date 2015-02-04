@@ -15,6 +15,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackProgressInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +45,7 @@ public class PlaySessionStateProviderTest {
 
     @Test
     public void stateListenerIgnoresDefaultEvent() {
-        final Playa.StateTransition lastTransition = new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE);
+        final Playa.StateTransition lastTransition = TestPlayStates.playing();
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, lastTransition);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, Playa.StateTransition.DEFAULT);
         expect(provider.isPlaying()).toBeTrue();

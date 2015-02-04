@@ -63,7 +63,6 @@
     <string name="accessibility_stats_user_reposted">Dikirim ulang olehmu</string>
     <string name="accessibility_like_action">Suka</string>
     <string name="accessibility_repost_action">Kirim ulang</string>
-    <string name="accessibility_comment_action">Komentar</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">menyukai %s</string>

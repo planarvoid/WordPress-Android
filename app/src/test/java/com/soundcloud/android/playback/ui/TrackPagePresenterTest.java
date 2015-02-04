@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.ads.AdOverlayController.Factory;
+import static com.soundcloud.android.playback.service.Playa.Reason;
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -16,12 +16,12 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
-import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
@@ -53,8 +53,10 @@ public class TrackPagePresenterTest {
     @Mock private PlayerArtworkController artworkController;
     @Mock private PlayerOverlayController.Factory playerOverlayControllerFactory;
     @Mock private PlayerOverlayController playerOverlayController;
-    @Mock private Factory leaveBehindControllerFactory;
+    @Mock private AdOverlayController.Factory leaveBehindControllerFactory;
     @Mock private AdOverlayController adOverlayController;
+    @Mock private ErrorController.Factory errorControllerFactory;
+    @Mock private ErrorController errorController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
@@ -70,13 +72,15 @@ public class TrackPagePresenterTest {
     public void setUp() throws Exception {
         TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
-                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory, castConnectionHelper);
+                artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
+                errorControllerFactory, castConnectionHelper);
         when(container.getContext()).thenReturn(Robolectric.application);
-        when(waveformFactory.create(any(WaveformView.class), any(AdOverlayController.class))).thenReturn(waveformViewController);
+        when(waveformFactory.create(any(WaveformView.class))).thenReturn(waveformViewController);
         when(artworkFactory.create(any(PlayerTrackArtworkView.class))).thenReturn(artworkController);
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
         when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
+        when(errorControllerFactory.create(any(View.class))).thenReturn(errorController);
         trackView = presenter.createItemView(container, skipListener);
     }
 
@@ -95,142 +99,142 @@ public class TrackPagePresenterTest {
 
     @Test
     public void playingStateSetsToggleChecked() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
         expect(getHolder(trackView).footerPlayToggle).toBeChecked();
     }
 
     @Test
     public void playingStateShowsBackgroundOnTitle() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
         expect(getHolder(trackView).title.isShowingBackground()).toBeTrue();
     }
 
     @Test
     public void playingStateShowsBackgroundOnUser() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
         expect(getHolder(trackView).user.isShowingBackground()).toBeTrue();
     }
 
     @Test
     public void pausedStateSetsToggleUnchecked() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
         expect(getHolder(trackView).footerPlayToggle).not.toBeChecked();
     }
 
     @Test
     public void pausedStateHidesBackgroundOnTitle() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
         expect(getHolder(trackView).title.isShowingBackground()).toBeFalse();
     }
 
     @Test
     public void playingStateHidesBackgroundOnUser() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
         expect(getHolder(trackView).user.isShowingBackground()).toBeFalse();
     }
 
     @Test
     public void playingStateShowsBackgroundOnTimestamp() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
         expect(getHolder(trackView).timestamp.isShowingBackground()).toBeTrue();
     }
 
     @Test
     public void pauseStateHidesBackgroundOnTimestamp() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
         expect(getHolder(trackView).timestamp.isShowingBackground()).toBeFalse();
     }
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET, 10, 20), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
         verify(waveformViewController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithCurrentTrackDoesNotResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
 
         verify(waveformViewController, never()).setProgress(PlaybackProgress.empty());
     }
 
     @Test
     public void playingStateWithCurrentTrackShowsPlayingStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), true, true);
         verify(artworkController).showPlayingState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void playingStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void playingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
         verify(artworkController).showIdleState();
     }
 
     @Test
     public void playingStateWithOtherTrackResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, Urn.NOT_SET,  10, 20), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(10, 20), false, true);
 
         verify(waveformViewController).setProgress(PlaybackProgress.empty());
     }
 
     @Test
     public void bufferingStateWithCurrentTrackShowsBufferingStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.buffering(), true, true);
         verify(waveformViewController).showBufferingState();
     }
 
     @Test
     public void bufferingStateWithCurrentTrackShowsIdleStateWithProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, Urn.forTrack(123L), 10, 20), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.buffering(10, 20), true, true);
         verify(artworkController).showIdleState(eq(new PlaybackProgress(10, 20)));
     }
 
     @Test
     public void bufferingStateWithOtherTrackResetProgress() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
 
         verify(waveformViewController).setProgress(PlaybackProgress.empty());
     }
 
     @Test
     public void bufferingStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void bufferingStateWithOtherTrackShowsPlayingStateWithoutProgressOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.buffering(), false, true);
         verify(artworkController).showIdleState();
     }
 
     @Test
     public void idleStateWithCurrentTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void idleStateWithCurrentTrackShowsIdleStateOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
         verify(artworkController).showIdleState();
     }
 
     @Test
     public void idleStateWithOtherTrackShowsIdleStateOnWaveform() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), false, true);
         verify(waveformViewController).showIdleState();
     }
 
     @Test
     public void idleStateWithOtherTrackShowsIdleStateOnArtwork() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), false, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), false, true);
         verify(artworkController).showIdleState();
     }
 
@@ -487,7 +491,6 @@ public class TrackPagePresenterTest {
         presenter.clearAdOverlay(trackView);
 
         verify(adOverlayController).clear();
-
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -504,30 +507,44 @@ public class TrackPagePresenterTest {
 
     @Test
     public void onPauseDismissOnLeaveBehindController() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.idle(), true, true);
 
         verify(adOverlayController).clear();
     }
 
     @Test
     public void onPlayShowsInBackgroundDoesNotShowLeaveBehind() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, false);
+        presenter.setPlayState(trackView, TestPlayStates.playing(), true, false);
 
         verify(adOverlayController, never()).show();
     }
 
     @Test
     public void onPlayShowsOnLeaveBehindController() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.playing(), true, true);
 
         verify(adOverlayController).show(true);
     }
 
     @Test
     public void onPlaybackErrorDismissOnLeaveBehindController() {
-        presenter.setPlayState(trackView, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED), true, true);
+        presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
 
         verify(adOverlayController).clear();
+    }
+
+    @Test
+    public void onPlaybackErrorShowErrorState() {
+        presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
+
+        verify(errorController).showError(Reason.ERROR_FAILED);
+    }
+
+    @Test
+    public void onNonErrorPlaybackEventClearAnyExistingErrorState() {
+        presenter.setPlayState(trackView, TestPlayStates.playing(), true, false);
+
+        verify(errorController).hideError();
     }
 
     @Test

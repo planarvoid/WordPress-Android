@@ -51,26 +51,6 @@
         <item name="android:textSize">@dimen/list_txt_sub_2_size</item>
     </style>
 
-
-    <!-- ****** Comment Panel ****** -->
-
-    <style name="TextAppearance.Comment">
-        <item name="android:textSize">@dimen/comment_panel_main_size</item>
-    </style>
-    <style name="TextAppearance.Comment.User">
-        <item name="android:textColor">@color/list_text_secondary</item>
-    </style>
-    <style name="TextAppearance.Comment.Timestamp" parent="TextAppearance.Comment.User">
-        <item name="android:textColor">#ffe36711</item>
-    </style>
-    <style name="TextAppearance.Comment.CreatedAt" parent="TextAppearance.Comment.User">
-        <item name="android:textSize">@dimen/comment_panel_created_at_size</item>
-    </style>
-    <style name="TextAppearance.Comment.Body">
-        <item name="android:textColor">@color/list_text_value</item>
-        <item name="android:textSize">@dimen/comment_panel_main_size</item>
-    </style>
-
     <style name="TextAppearance.ExploreTracksCategory">
         <item name="android:textColor">@color/dark_gray_text</item>
         <item name="android:textSize">@dimen/explore_suggested_track_category_text_size</item>

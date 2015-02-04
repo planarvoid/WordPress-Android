@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui.view;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.service.Playa;
 
 import android.content.Context;
 import android.widget.Toast;
@@ -21,18 +20,10 @@ public class PlaybackToastViewController {
     }
 
     public void showUnskippableAdToast() {
-        if (playSessionStateProvider.isPlaying()) {
-            Toast.makeText(context, R.string.ad_in_progress, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, R.string.ad_resume_playing_to_continue, Toast.LENGTH_SHORT).show();
-        }
+        Toast.makeText(context, playSessionStateProvider.isPlaying()
+                ? R.string.ad_in_progress
+                : R.string.ad_resume_playing_to_continue,
+                Toast.LENGTH_SHORT).show();
     }
 
-    public void showError(Playa.Reason reason){
-        if (reason == Playa.Reason.ERROR_FAILED){
-            Toast.makeText(context, R.string.playback_error_connection, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, R.string.playback_error_unable_to_play, Toast.LENGTH_SHORT).show();
-        }
-    }
 }

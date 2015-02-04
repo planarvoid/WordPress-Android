@@ -6,7 +6,6 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState.PLAYING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
-import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -46,13 +45,15 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     private final WaveformView waveformView;
     private final Scheduler graphicsScheduler;
-    private final AdOverlayController adOverlayController;
     private final float waveformWidthRatio;
     private final ProgressController leftProgressController;
     private final ProgressController rightProgressController;
     private final ProgressController dragProgressController;
 
     private final ScrubController scrubController;
+
+    private boolean isCollapsed;
+    private boolean canShow = true;
 
     private TranslateXHelper leftProgressHelper;
     private TranslateXHelper rightProgressHelper;
@@ -68,10 +69,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     WaveformViewController(WaveformView waveform,
                            ProgressController.Factory animationControllerFactory,
-                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler, AdOverlayController adOverlayController){
+                           final ScrubController.Factory scrubControllerFactory, Scheduler graphicsScheduler){
         this.waveformView = waveform;
         this.graphicsScheduler = graphicsScheduler;
-        this.adOverlayController = adOverlayController;
         this.waveformWidthRatio = waveform.getWidthRatio();
         this.scrubController = scrubControllerFactory.create(waveformView.getDragViewHolder());
 
@@ -118,7 +118,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             rightProgressController.setPlaybackProgress(progress);
             dragProgressController.setPlaybackProgress(progress);
 
-            if (currentState == IDLE){
+            if (currentState == IDLE) {
                 waveformView.showIdleLinesAtWaveformPositions();
             }
         }
@@ -190,20 +190,35 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
     }
 
     public void onPlayerSlide(float value){
-        if (adOverlayController.isNotVisible()){
+        isCollapsed = false;
+        if (canShow) {
             waveformView.setVisibility(value > 0 ? View.VISIBLE : View.GONE);
         }
     }
 
     public void setExpanded() {
-        if (adOverlayController.isNotVisible()){
-            createWaveforms(IS_EXPANDED);
+        isCollapsed = false;
+        createWaveforms(IS_EXPANDED);
+        if (canShow) {
             waveformView.setVisibility(View.VISIBLE);
         }
     }
 
     public void setCollapsed() {
+        isCollapsed = true;
         createState.clear(IS_EXPANDED);
+        waveformView.setVisibility(View.GONE);
+    }
+
+    public void show() {
+        canShow = true;
+        if (!isCollapsed){
+            waveformView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void hide() {
+        canShow = false;
         waveformView.setVisibility(View.GONE);
     }
 
@@ -286,9 +301,9 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
             this.animationControllerFactory = animationControllerFactory;
             this.scheduler = scheduler;
         }
-        public WaveformViewController create(WaveformView waveformView, AdOverlayController adOverlayController){
+        public WaveformViewController create(WaveformView waveformView){
             return new WaveformViewController(waveformView, animationControllerFactory,scrubControllerFactory,
-                    scheduler, adOverlayController);
+                    scheduler);
         }
     }
 
