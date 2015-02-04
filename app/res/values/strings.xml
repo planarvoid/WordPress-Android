@@ -32,7 +32,6 @@
     <string name="btn_following">Following</string>
     <string name="btn_save">Save</string>
     <string name="btn_skip">Skip</string>
-    <string name="compressed">Compressed</string>
     <string name="configure">Configure</string>
     <string name="connect_progress">Loading</string>
     <string name="connect_success">Successfully connected with %1$s</string>
@@ -40,7 +39,6 @@
     <string name="delete">Delete</string>
     <string name="comments">Comments</string>
     <string name="new_connection_error">There was a problem adding the network</string>
-    <string name="raw">Raw</string>
     <string name="reset">Discard</string>
     <string name="share_fail_message">OK, that went wrong.</string>
     <string name="share_log_out">Log out</string>
@@ -63,6 +61,14 @@
     <string name="accessibility_stats_user_reposted">Reposted by you</string>
     <string name="accessibility_like_action">Like</string>
     <string name="accessibility_repost_action">Repost</string>
+    <plurals name="accessibility_stats_likes">
+        <item quantity="one">1 Like</item>
+        <item quantity="other">%d Likes</item>
+    </plurals>
+    <plurals name="accessibility_stats_reposts">
+        <item quantity="one">1 Repost</item>
+        <item quantity="other">%d Reposts</item>
+    </plurals>
 
     <!-- __ACCESSIBILITY OFFLINE SYNC -->
     <string name="accessibility_start_offline_update">Start Sync</string>
@@ -182,8 +188,16 @@
     <string name="connect_failure">Failed connecting with %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
+
     <string name="follow_blocked_title">Follow Blocked</string>
-    <string name="follow_blocked_content">%s has asked us to block your account from following them.</string>
+    <string name="follow_blocked_content">%s has blocked you.</string>
+    <string name="follow_blocked_content_long">%s has asked us to block your account from following them.</string>
+    <string name="follow_age_restricted_title">Follow Blocked</string>
+    <string name="follow_age_restricted_content">Users %1$s+ can follow %2$s.</string>
+    <string name="follow_age_restricted_content_long">Sorry, only users %1$s years and older are allowed to follow %2$s.</string>
+    <string name="follow_age_unknown_title">Please verify your age</string>
+    <string name="follow_age_unknown_content">Enter age to follow %s.</string>
+    <string name="follow_age_unknown_content_long">To follow %s, confirm you\'re of the required age.</string>
 
     <!-- __EXPLORE -->
     <string name="explore_genres">Genres</string>
@@ -227,6 +241,62 @@
     <string name="dashboard_notifications_title">%s new sounds</string>
     <string name="dashboard_notifications_title_single">1 new sound</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s reposted %2$s</string>
+    <plurals name="dashboard_notifications_activity_title_repost">
+        <item quantity="one">A new repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_repost">
+        <item quantity="one">New repost</item>
+        <item quantity="other">%d new reposts</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_repost">
+        <item quantity="one">on %1$s</item>
+        <item quantity="two">on %1$s and %2$s</item>
+        <item quantity="other">on %1$s, %2$s and other sounds</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_activity">
+        <item quantity="one">from %2$s on %1$s</item>
+        <item quantity="two">Comments and likes from %2$s and %3$s</item>
+        <item quantity="other">Comments and likes from %2$s, %3$s and others</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment">
+        <item quantity="two">Comments from %1$s and %2$s</item>
+        <item quantity="other">Comments from %1$s, %2$s and others</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment_single_track">
+        <item quantity="one">new comment on %2$s from %3$s</item>
+        <item quantity="two">%1$d new comments on %2$s from %3$s and %4$s</item>
+        <item quantity="other">%1$d new comments on %2$s from %3$s, %4$s and others</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_like">
+        <item quantity="one">on %1$s</item>
+        <item quantity="two">on %1$s and %2$s</item>
+        <item quantity="other">on %1$s, %2$s and other sounds</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_activity">
+        <item quantity="one">1 new activity</item>
+        <item quantity="other">%d new activities</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_comment">
+        <item quantity="one">1 new comment</item>
+        <item quantity="other">%d new comments</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_like">
+        <item quantity="one">New like</item>
+        <item quantity="other">%d new likes</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_activity">
+        <item quantity="one">1 new activity</item>
+        <item quantity="other">%d new activities</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_comment">
+        <item quantity="one">1 new comment</item>
+        <item quantity="other">%d new comments</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_like">
+        <item quantity="one">A new like</item>
+        <item quantity="other">%d new likes</item>
+    </plurals>
 
     <!-- __ONBOARDING -->
     <string name="suggested_users_genres_large_title">Choose your favorite categories</string>
@@ -310,6 +380,10 @@
     <string name="pause">Pause</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <plurals name="trackinfo_comments">
+        <item quantity="one">1 comment on this track</item>
+        <item quantity="other">%d comments on this track</item>
+    </plurals>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s at %2$s</string>
@@ -347,6 +421,10 @@
     <string name="create_new_playlist_hint">Enter playlist title</string>
     <string name="error_new_playlist_blank_title">Please enter a valid title</string>
     <string name="add_playlist_private">Private</string>
+    <plurals name="number_of_sounds">
+        <item quantity="one">1 track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Info</string>
@@ -356,6 +434,25 @@
     <string name="tab_title_user_followings">Following</string>
     <string name="discogs">Discogs</string>
     <string name="myspace">Myspace</string>
+    <plurals name="number_of_followers">
+        <item quantity="one">1 follower</item>
+        <item quantity="other">%d followers</item>
+    </plurals>
+    <plurals name="followers_message">
+        <item quantity="one">Followed by %s person</item>
+        <item quantity="other">Followed by %s people</item>
+    </plurals>
+    <!-- Zero value is separate due to this: https://plus.google.com/+TorNorbye/posts/VYcxa1jUGNo -->
+    <string name="following_zero">Followed by you</string>
+    <plurals name="following_message">
+        <item quantity="one">Followed by you and %s other person</item>
+        <item quantity="other">Followed by you and %s other people</item>
+    </plurals>
+    <string name="number_of_liked_tracks_you_liked_zero">You have no liked tracks</string>
+    <plurals name="number_of_liked_tracks_you_liked">
+        <item quantity="one">You liked 1 track</item>
+        <item quantity="other">You liked %d tracks</item>
+    </plurals>
 
     <!-- __RECORD -->
     <string name="rec_title_generating_waveform">Please Wait...</string>
@@ -391,45 +488,48 @@
     <string name="cloud_recorder_playback_event_title">Playback in progress</string>
 
     <!-- __RECORD TIPS -->
-    <string tools:ignore="UnusedResources" name="rectip_default">Why don\'t you record the sounds of your street?.</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_voice_notes">Record voice notes as handy reminders.</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_voice_blog">Use the REC button to create a voice blog – what will you share today?</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_what_are_you_doing_right_now">What are you doing right now?</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_child_first_words">Capture the moment: a child\’s first words</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_sound_your_pet_makes">Capture the moment: the sounds your pet makes</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_voice_of_someone_you_care_about">Capture the moment: the voice of someone you care about</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_shopping_reminders">Going shopping?  Record reminders so you don\’t forget what to buy.</string>
-    <string tools:ignore="UnusedResources" name="rectip_memories_great_idea">Had a great idea?  Capture it with the REC button.</string>
-    <string tools:ignore="UnusedResources" name="rectip_social_good_joke">Heard a good joke lately? Share it!</string>
-    <string tools:ignore="UnusedResources" name="rectip_social_great_conversaion">Enjoying a great conversation?  Why not record it for posterity?</string>
-    <string tools:ignore="UnusedResources" name="rectip_social_hilarious_moment">Capture a hilarious moment in sound</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_did_you_know">Did you know you can save private recordings if you don\’t want to share them?</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_best_recording_device">Sometimes the best recording device is the one you have with you.</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_unmute_yourself">Unmute yourself!</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_unmute_internet">Unmute the internet.</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_unmute_the_world">Unmute the world.</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_express_yourself">Express yourself!</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_professional_minutes_of_meeting">Why not record the minutes of your next meeting?</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_professional_capture_ideas_for_later">Use the REC button to capture ideas for later.</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_professional_study_aid">Use the REC button as a study aid: store your notes on the go.</string>
-    <string tools:ignore="UnusedResources" name="rectip_general_professional_record_interviews_and_meetings">You can use the REC button to record interviews and meetings.</string>
-    <string tools:ignore="UnusedResources" name="rectip_environmental_ocean_waves">Record the sound of the ocean waves at the beach</string>
-    <string tools:ignore="UnusedResources" name="rectip_environmental_vibrant_rush_hour">Capture the sounds of a vibrant city at rush hour</string>
-    <string tools:ignore="UnusedResources" name="rectip_environmental_crazy_sound">Heard a crazy sound?  Capture it with the REC button!</string>
-    <string tools:ignore="UnusedResources" name="rectip_music_feel_inspired">Feel inspired? Capture your idea with the REC button.</string>
-    <string tools:ignore="UnusedResources" name="rectip_music_track_idea">Got an idea for a new track? Save it with the REC button.</string>
-    <string tools:ignore="UnusedResources" name="rectip_music_tune_stuck">Tune stuck in your head? Capture it with the REC button.</string>
-    <string tools:ignore="UnusedResources" name="rectip_music_song_lyric_ideas">Ideas for song lyrics? Capture them instantly with the REC button.</string>
-    <string tools:ignore="UnusedResources" name="rectip_events_whats_going_on">What’s going on right now?</string>
-    <string tools:ignore="UnusedResources" name="rectip_events_current_events_as_they_happen">Record current events as they happen and share them with the world.</string>
-    <string tools:ignore="UnusedResources" name="rectip_events_something_interesting">Is something interesting happening?  Capture the moment in audio.</string>
-    <string tools:ignore="UnusedResources" name="rectip_events_citizen_reporter">Citizen Reporter?  Tell the world what\’s happening where you are.</string>
-    <string tools:ignore="UnusedResources" name="rectip_private_happy_birthday">Wish %s a Happy Birthday</string>
-    <string tools:ignore="UnusedResources" name="rectip_private_record_a_message">Why not record a message for %s?</string>
-    <string tools:ignore="UnusedResources" name="rectip_private_how_much_they_mean">Tell %s how much they mean to you.</string>
-    <string tools:ignore="UnusedResources" name="rectip_private_send_reminder">Send %s a reminder</string>
-    <string tools:ignore="UnusedResources" name="rectip_private_liked_their_sound">Tell %s how much you liked their sound</string>
-    <string tools:ignore="UnusedResources" name="rectip_private_leave_feedback">Leave some feedback for %s</string>
+    <string-array name="record_suggestions">
+        <item>Why don\'t you record the sounds of your street?</item>
+
+        <item>Record voice notes as handy reminders.</item>
+        <item>Use the REC button to create a voice blog – what will you share today?</item>
+        <item>What are you doing right now?</item>
+        <item>Capture the moment: a child\’s first words</item>
+        <item>Capture the moment: the sounds your pet makes</item>
+        <item>Capture the moment: the voice of someone you care about</item>
+        <item>Going shopping?  Record reminders so you don\’t forget what to buy.</item>
+        <item>Had a great idea?  Capture it with the REC button.</item>
+
+        <item>Heard a good joke lately? Share it!</item>
+        <item>Enjoying a great conversation?  Why not record it for posterity?</item>
+        <item>Capture a hilarious moment in sound</item>
+
+        <item>Did you know you can save private recordings if you don\’t want to share them?</item>
+        <item>Sometimes the best recording device is the one you have with you.</item>
+        <item>Unmute yourself!</item>
+        <item>Unmute the internet.</item>
+        <item>Unmute the world.</item>
+        <item>Express yourself!</item>
+
+        <item>Why not record the minutes of your next meeting?</item>
+        <item>Use the REC button to capture ideas for later.</item>
+        <item>Use the REC button as a study aid: store your notes on the go.</item>
+        <item>You can use the REC button to record interviews and meetings.</item>
+
+        <item>Record the sound of the ocean waves at the beach</item>
+        <item>Capture the sounds of a vibrant city at rush hour</item>
+        <item>Heard a crazy sound?  Capture it with the REC button!</item>
+
+        <item>Feel inspired? Capture your idea with the REC button.</item>
+        <item>Got an idea for a new track? Save it with the REC button.</item>
+        <item>Tune stuck in your head? Capture it with the REC button.</item>
+        <item>Ideas for song lyrics? Capture them instantly with the REC button.</item>
+
+        <item>What’s going on right now?</item>
+        <item>Record current events as they happen and share them with the world.</item>
+        <item>Is something interesting happening?  Capture the moment in audio.</item>
+        <item>Citizen Reporter?  Tell the world what\’s happening where you are.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
@@ -480,6 +580,10 @@
     <string name="wifi_settings_summary">Edit your settings. Use Wi-Fi for best performance.</string>
     <string name="cache_clearing">Clearing cache</string>
     <string name="cache_clearing_message">Deleting cached files...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>Compressed</item>
+        <item>Raw</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>
@@ -511,6 +615,18 @@
     <string name="pref_notifications_wifi_only_description">Request updates only when connected via wifi</string>
     <string name="pref_notifications_reposts">Reposts</string>
     <string name="pref_notifications_reposts_description">Receive updates on new reposts on your sounds</string>
+    <string-array name="pref_notifications_frequency">
+        <item>Every hour</item>
+        <item>Every 4 hours</item>
+        <item>Every 12 hours</item>
+        <item>Every 24 hours</item>
+    </string-array>
+
+    <!-- __SINGLE_LINE_COLLECTION_TEXT_VIEW -->
+    <plurals name="number_of_others">
+        <item quantity="one">and 1 other</item>
+        <item quantity="other">and %d others</item>
+    </plurals>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Force Experimental Player</string>
@@ -526,6 +642,62 @@
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
+    <plurals name="elapsed_days">
+        <item quantity="one">1 day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">1 day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
+    <plurals name="elapsed_hours">
+        <item quantity="one">1 hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">1 hour ago</item>
+        <item quantity="other">%d hours ago</item>
+    </plurals>
+    <plurals name="elapsed_minutes">
+        <item quantity="one">1 minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">1 minute ago</item>
+        <item quantity="other">%d minutes ago</item>
+    </plurals>
+    <plurals name="elapsed_months">
+        <item quantity="one">1 month</item>
+        <item quantity="other">%d months</item>
+    </plurals>
+    <plurals name="elapsed_months_ago">
+        <item quantity="one">1 month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="elapsed_seconds">
+        <item quantity="one">1 second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+    <plurals name="elapsed_seconds_ago">
+        <item quantity="one">1 second ago</item>
+        <item quantity="other">%d seconds ago</item>
+    </plurals>
+    <plurals name="elapsed_years">
+        <item quantity="one">1 year</item>
+        <item quantity="other">%d years</item>
+    </plurals>
+    <plurals name="elapsed_years_ago">
+        <item quantity="one">1 year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <plurals name="minutes_available">
+        <item quantity="one">1 minute available</item>
+        <item quantity="other">%d minutes available</item>
+    </plurals>
+    <plurals name="seconds_available">
+        <item quantity="one">1 second available</item>
+        <item quantity="other">%d seconds available</item>
+    </plurals>
 
     <!-- __TOUR -->
     <string name="tour_title_1">Hear the world\'s sounds</string>
@@ -571,5 +743,33 @@
     <string name="offline_likes_dialog_title">Make available offline</string>
     <string name="offline_likes_dialog_message">This will keep all your Likes available for offline listening including any tracks you like in the future.</string>
     <string name="offline_likes_dialog_accept">Keep available offline</string>
+    <plurals name="downloading_track_of_tracks">
+        <item quantity="one">1 track</item>
+        <item quantity="other">%1$d of %2$d tracks</item>
+    </plurals>
+
+    <!-- AGE VERFICATION -->
+    <string name="age_verify_label">Verify Age</string>
+    <string name="age_verify_title">Please verify your age</string>
+    <string name="age_verify_warning">Content on this profile may be inappropriate for those under a certain age.</string>
+    <string name="age_verify_info">This information will be saved on your profile.</string>
+    <string name="age_verify_birthday">Your birthday</string>
+    <string name="age_verify_year_hint">Enter year</string>
+    <string name="age_verify_button">Verify age</string>
+    <string-array name="birth_month_options">
+        <item>Select month</item>
+        <item>January</item>
+        <item>February</item>
+        <item>March</item>
+        <item>April</item>
+        <item>May</item>
+        <item>June</item>
+        <item>July</item>
+        <item>August</item>
+        <item>September</item>
+        <item>October</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
 
 </resources>

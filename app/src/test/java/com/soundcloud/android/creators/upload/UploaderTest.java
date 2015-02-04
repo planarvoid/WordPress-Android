@@ -51,7 +51,7 @@ public class UploaderTest {
     }
 
     public void shouldThrowWhenFileIsEmpty() throws Exception {
-        uploader(Recording.create()).run();
+        uploader(Recording.create(null)).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_ERROR);
     }
 

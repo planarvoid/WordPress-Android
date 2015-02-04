@@ -12,11 +12,14 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -24,14 +27,19 @@ import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.VerifyAgeActivity;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,23 +62,25 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     private final UserAssociationStorage userAssociationStorage;
     private final FollowingOperations followingOperations;
     private final NotificationManager notificationManager;
+    private final JsonTransformer jsonTransformer;
     private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public UserAssociationSyncer(Context context, AccountOperations accountOperations,
-                                 FollowingOperations followingOperations, NotificationManager notificationManager) {
+                                 FollowingOperations followingOperations, NotificationManager notificationManager, JsonTransformer jsonTransformer) {
         this(context, context.getContentResolver(),
                 new UserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
-                followingOperations, accountOperations, notificationManager);
+                followingOperations, accountOperations, notificationManager, jsonTransformer);
     }
 
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
                                     FollowingOperations followingOperations, AccountOperations accountOperations,
-                                    NotificationManager notificationManager) {
+                                    NotificationManager notificationManager, JsonTransformer jsonTransformer) {
         super(context, resolver, accountOperations);
         this.userAssociationStorage = userAssociationStorage;
         this.followingOperations = followingOperations;
         this.notificationManager = notificationManager;
+        this.jsonTransformer = jsonTransformer;
     }
 
     public void setBulkInsertBatchSize(int bulkInsertBatchSize) {
@@ -113,7 +123,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         }
 
         // deletions can happen here, has no impact
-        List<Long> itemDeletions = new ArrayList<Long>(local);
+        List<Long> itemDeletions = new ArrayList<>(local);
         itemDeletions.removeAll(remote);
         userAssociationStorage.deleteAssociations(content.uri, itemDeletions);
 
@@ -170,24 +180,10 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     }
 
     private boolean pushUserAssociationAddition(UserAssociation userAssociation, Request request) throws IOException {
-        int status = api.put(request).getStatusLine().getStatusCode();
+        final HttpResponse response = api.put(request);
+        int status = response.getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_FORBIDDEN) {
-            String title = context.getString(R.string.follow_blocked_title);
-            String content = context.getString(R.string.follow_blocked_content, userAssociation.getUser().getDisplayName());
-            Intent launchProfileActivity = ProfileActivity.getIntent(context, userAssociation.getUser().getUrn());
-            launchProfileActivity.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, launchProfileActivity, 0);
-            final Notification notification = new NotificationCompat.Builder(context)
-                    .setSmallIcon(R.drawable.ic_notification_cloud)
-                    .setContentTitle(title)
-                    .setContentText(content)
-                    .setStyle(new NotificationCompat.BigTextStyle().bigText(content).setBigContentTitle(title))
-                    .setAutoCancel(true)
-                    .setContentIntent(pendingIntent)
-                    .build();
-            notificationManager.notify(userAssociation.getUser().getUrn().toString(), NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID, notification);
-
-            followingOperations.removeFollowing(userAssociation.getUser());
+            forbiddenUserPushHandler(userAssociation, extractApiErrors(response.getEntity()));
             return true;
         } else if (status == HttpStatus.SC_OK || status == HttpStatus.SC_CREATED) {
             userAssociationStorage.setFollowingAsSynced(userAssociation);
@@ -196,6 +192,76 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
             Log.w(TAG, "failure " + status + " in user association addition of " + userAssociation.getUser().getId());
             return false;
         }
+    }
+
+    private FollowErrors extractApiErrors(HttpEntity entity) throws IOException {
+        try {
+            String responseBody = IOUtils.readInputStream(entity.getContent());
+            return jsonTransformer.fromJson(responseBody, TypeToken.of(FollowErrors.class));
+        } catch (ApiMapperException e) {
+            return FollowErrors.empty();
+        }
+    }
+
+    private void forbiddenUserPushHandler(UserAssociation userAssociation, FollowErrors errors) {
+        Notification notification = getForbiddenNotification(userAssociation, errors);
+        notificationManager.notify(userAssociation.getUser().getUrn().toString(), NotificationConstants.FOLLOW_BLOCKED_NOTIFICATION_ID, notification);
+        DefaultSubscriber.fireAndForget(followingOperations.removeFollowing(userAssociation.getUser()));
+    }
+
+    private Notification getForbiddenNotification(UserAssociation userAssociation, FollowErrors errors) {
+        final String userName = userAssociation.getUser().getDisplayName();
+        if (errors.isAgeRestricted()) {
+            return buildUnderAgeNotification(userAssociation, errors, userName);
+        } else if (errors.isAgeUnknown()) {
+            return buildUnknownAgeNotification(userAssociation, userName);
+        } else {
+            return buildBlockedFollowNotification(userAssociation, userName);
+        }
+    }
+
+    private Notification buildBlockedFollowNotification(UserAssociation userAssociation, String userName) {
+        String title = context.getString(R.string.follow_blocked_title);
+        String content = context.getString(R.string.follow_blocked_content, userName);
+        String contentLong = context.getString(R.string.follow_blocked_content_long, userName);
+        return buildNotification(title, content, contentLong, buildReturnToProfileIntent(userAssociation));
+    }
+
+    private Notification buildUnknownAgeNotification(UserAssociation userAssociation, String userName) {
+        String title = context.getString(R.string.follow_age_unknown_title);
+        String content = context.getString(R.string.follow_age_unknown_content, userName);
+        String contentLong = context.getString(R.string.follow_age_unknown_content_long, userName);
+        return buildNotification(title, content, contentLong, buildVerifyAgeIntent(userAssociation));
+    }
+
+    private Notification buildUnderAgeNotification(UserAssociation userAssociation, FollowErrors errors, String userName) {
+        String title = context.getString(R.string.follow_age_restricted_title);
+        String content = context.getString(R.string.follow_age_restricted_content, errors.getAge(), userName);
+        String contentLong = context.getString(R.string.follow_age_restricted_content_long, errors.getAge(), userName);
+        return buildNotification(title, content, contentLong, buildReturnToProfileIntent(userAssociation));
+    }
+
+    private Notification buildNotification(String title, String content, String contentLong, PendingIntent contentIntent) {
+        return new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_notification_cloud)
+                .setContentTitle(title)
+                .setContentText(content)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(contentLong).setBigContentTitle(title))
+                .setAutoCancel(true)
+                .setContentIntent(contentIntent)
+                .build();
+    }
+
+    private PendingIntent buildVerifyAgeIntent(UserAssociation userAssociation) {
+        Intent verifyAgeActivity = VerifyAgeActivity.getIntent(context, userAssociation.getUser().getUrn());
+        verifyAgeActivity.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        return PendingIntent.getActivity(context, 0, verifyAgeActivity, 0);
+    }
+
+    private PendingIntent buildReturnToProfileIntent(UserAssociation userAssociation) {
+        Intent launchProfileActivity = ProfileActivity.getIntent(context, userAssociation.getUser().getUrn());
+        launchProfileActivity.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        return PendingIntent.getActivity(context, 0, launchProfileActivity, 0);
     }
 
     private boolean pushUserAssociationRemoval(UserAssociation userAssociation, Request request) throws IOException {
@@ -213,8 +279,8 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
         switch (content) {
             case ME_FOLLOWERS:
             case ME_FOLLOWINGS:
-                Set<Long> localSet = new HashSet<Long>(local);
-                Set<Long> remoteSet = new HashSet<Long>(remote);
+                Set<Long> localSet = new HashSet<>(local);
+                Set<Long> remoteSet = new HashSet<>(remote);
                 if (!localSet.equals(remoteSet)) {
                     result.change = ApiSyncResult.CHANGED;
                     result.extra = REQUEST_NO_BACKOFF; // reset sync misses

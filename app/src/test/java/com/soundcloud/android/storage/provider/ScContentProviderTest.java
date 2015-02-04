@@ -65,7 +65,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldInsertAndQueryRecordings() throws Exception {
-        Recording r = Recording.create();
+        Recording r = Recording.create(null);
         r.user_id = USER_ID;
 
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
@@ -150,7 +150,7 @@ public class ScContentProviderTest {
 
     @Test
     public void shouldCreateAndDeleteARecording() throws Exception {
-        Recording r = Recording.create();
+        Recording r = Recording.create(null);
         r.user_id = USER_ID;
         Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
         expect(uri).not.toBeNull();

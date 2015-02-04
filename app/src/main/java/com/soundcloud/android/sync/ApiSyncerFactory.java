@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -28,18 +29,21 @@ public class ApiSyncerFactory {
     private final FeatureFlags featureFlags;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
+    private final JsonTransformer jsonTransformer;
 
     @Inject
     public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
-                            Lazy<MyLikesSyncer> lazyMyLikesSyncer) {
+                            Lazy<MyLikesSyncer> lazyMyLikesSyncer,
+                            JsonTransformer jsonTransformer) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
         this.featureFlags = featureFlags;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
+        this.jsonTransformer = jsonTransformer;
     }
 
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -57,7 +61,7 @@ public class ApiSyncerFactory {
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
                 return new UserAssociationSyncer(
-                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get());
+                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(), jsonTransformer);
 
             case ME_PLAYLISTS:
             case PLAYLIST:

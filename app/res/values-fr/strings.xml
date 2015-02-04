@@ -31,7 +31,6 @@
     <string name="btn_following">Abonnements</string>
     <string name="btn_save">Sauvegarder</string>
     <string name="btn_skip">Passer</string>
-    <string name="compressed">Compressé</string>
     <string name="configure">Configurer</string>
     <string name="connect_progress">Téléchargement en cours</string>
     <string name="connect_success">Connexion réussie avec %1$s</string>
@@ -39,7 +38,6 @@
     <string name="delete">Supprimer</string>
     <string name="comments">Commentaires</string>
     <string name="new_connection_error">Un problème est survenu en ajoutant le réseau</string>
-    <string name="raw">Brut</string>
     <string name="reset">Rejeter</string>
     <string name="share_fail_message">Bon, ça n\'a pas marché comme prévu.</string>
     <string name="share_log_out">Déconnexion</string>
@@ -373,45 +371,48 @@
     <string name="cloud_recorder_playback_event_title">Lecture en cours</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default" tools:ignore="UnusedResources">Pourquoi ne pas enregistrer les sons de votre rue?</string>
-    <string name="rectip_memories_voice_notes" tools:ignore="UnusedResources">Enregistrer des notes vocales comme pense-bête.</string>
-    <string name="rectip_memories_voice_blog" tools:ignore="UnusedResources">Utilisez la touche REC pour créer un blog vocal - que partagerez-vous aujourd\'hui?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now" tools:ignore="UnusedResources">Que faites-vous en ce moment?</string>
-    <string name="rectip_memories_child_first_words" tools:ignore="UnusedResources">Capturez l\'instant : les premiers mots d\'un enfant</string>
-    <string name="rectip_memories_sound_your_pet_makes" tools:ignore="UnusedResources">Capturez l\'instant : les bruits que fait votre animal de compagnie</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about" tools:ignore="UnusedResources">Capturez l\'instant : la voix de quelqu\'un à qui vous tenez</string>
-    <string name="rectip_memories_shopping_reminders" tools:ignore="UnusedResources">Vous allez faire du shopping? Enregistrez des rappels pour ne rien oublier d\'acheter.</string>
-    <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">Vous avez eu une super idée? Saisissez-là au vol avec la touche REC.</string>
-    <string name="rectip_social_good_joke" tools:ignore="UnusedResources">Vous avez entendu une bonne blague récemment? Partagez-là ?</string>
-    <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">Vous avez une conversation géniale? Pourquoi ne pas l\'enregistrer pour la postérité ?</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">Capturez un moment hilarant en sons</string>
-    <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">Saviez-vous que vous pouviez sauvegarder des enregistrements privés si vous ne voulez pas les partager?</string>
-    <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">Parfois, le meilleur dispositif d\'enregistrement est celui que vous avez avec vous.</string>
-    <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">Rendez-vous audible !</string>
-    <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">Remmettre le son Internet.</string>
-    <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">Rendez le monde audible.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">Exprimez-vous !</string>
-    <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">Pourquoi ne pas enregistrer le compte-rendu de votre prochaine réunion?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">Utilisez la touche REC pour capturer des idées pour plus tard.</string>
-    <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">Utilisez la touche REC comme un assistant : stockez vos notes à la volée.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings" tools:ignore="UnusedResources">Vous pouvez utiliser la touche REC pour enregistrer entretiens et réunions.</string>
-    <string name="rectip_environmental_ocean_waves" tools:ignore="UnusedResources">Enregistrez le son des vagues de l\'océan à la plage</string>
-    <string name="rectip_environmental_vibrant_rush_hour" tools:ignore="UnusedResources">Captez les sons d\'une ville dynamique à l\'heure de pointe</string>
-    <string name="rectip_environmental_crazy_sound" tools:ignore="UnusedResources">Vous entendu quelque chose d\'incroyable? Enregistrez grâce à la touche REC !</string>
-    <string name="rectip_music_feel_inspired" tools:ignore="UnusedResources">Vous sentez venir l\'inspiration? Gardez une trace de vos idées grâce à la touche REC.</string>
-    <string name="rectip_music_track_idea" tools:ignore="UnusedResources">Vous avez une idée pour une nouvelle chanson? Enregistrez-la avec la touche REC.</string>
-    <string name="rectip_music_tune_stuck" tools:ignore="UnusedResources">Une chanson vous trotte dans la tête? Enregistrez-la avec la touche REC.</string>
-    <string name="rectip_music_song_lyric_ideas" tools:ignore="UnusedResources">Des idées de paroles de chanson? Enregistrez-les instantanément avec la touche REC.</string>
-    <string name="rectip_events_whats_going_on" tools:ignore="UnusedResources">Qu\'est-ce qui se passe en ce moment?</string>
-    <string name="rectip_events_current_events_as_they_happen" tools:ignore="UnusedResources">Saisissez les événements dans l\'instant et partagez-les avec le monde.</string>
-    <string name="rectip_events_something_interesting" tools:ignore="UnusedResources">Quelque chose d\'intéressant se passe autour de vous? Capturez ce moment en audio.</string>
-    <string name="rectip_events_citizen_reporter" tools:ignore="UnusedResources">Reporter Citoyen? Dites au monde ce qui se passe là où vous êtes.</string>
-    <string name="rectip_private_happy_birthday" tools:ignore="UnusedResources">Souhaitez  un joyeux anniversaire à %s</string>
-    <string name="rectip_private_record_a_message" tools:ignore="UnusedResources">Pourquoi ne pas enregistrer un message pour %s?</string>
-    <string name="rectip_private_how_much_they_mean" tools:ignore="UnusedResources">Dites à %s à quel point il/elle compte pour vous.</string>
-    <string name="rectip_private_send_reminder" tools:ignore="UnusedResources">Envoyez  un rappel à %s</string>
-    <string name="rectip_private_liked_their_sound" tools:ignore="UnusedResources">Dites à %s à quel point vous avez aimé son fichier audio</string>
-    <string name="rectip_private_leave_feedback" tools:ignore="UnusedResources">Laissez un commentaire pour %s</string>
+    <string-array name="record_suggestions">
+        <item>Pourquoi ne pas enregistrer les sons de votre rue?</item>
+
+        <item>Enregistrer des notes vocales comme pense-bête.</item>
+        <item>Utilisez la touche REC pour créer un blog vocal - que partagerez-vous aujourd\'hui?</item>
+        <item>Que faites-vous en ce moment?</item>
+        <item>Capturez l\'instant : les premiers mots d\'un enfant</item>
+        <item>Capturez l\'instant : les bruits que fait votre animal de compagnie</item>
+        <item>Capturez l\'instant : la voix de quelqu\'un à qui vous tenez</item>
+        <item>Vous allez faire du shopping? Enregistrez des rappels pour ne rien oublier d\'acheter.</item>
+        <item>Vous avez eu une super idée? Saisissez-là au vol avec la touche REC.</item>
+
+        <item>Vous avez entendu une bonne blague récemment? Partagez-là ?</item>
+        <item>Vous avez une conversation géniale? Pourquoi ne pas l\'enregistrer pour la postérité ?</item>
+        <item>Capturez un moment hilarant en sons</item>
+
+        <item>Saviez-vous que vous pouviez sauvegarder des enregistrements privés si vous ne voulez pas les partager?</item>
+        <item>Parfois, le meilleur dispositif d\'enregistrement est celui que vous avez avec vous.</item>
+        <item>Rendez-vous audible !</item>
+        <item>Remmettre le son Internet.</item>
+        <item>Rendez le monde audible.</item>
+        <item>Exprimez-vous !</item>
+
+        <item>Pourquoi ne pas enregistrer le compte-rendu de votre prochaine réunion?</item>
+        <item>Utilisez la touche REC pour capturer des idées pour plus tard.</item>
+        <item>Utilisez la touche REC comme un assistant : stockez vos notes à la volée.</item>
+        <item>Vous pouvez utiliser la touche REC pour enregistrer entretiens et réunions.</item>
+
+        <item>Enregistrez le son des vagues de l\'océan à la plage</item>
+        <item>Captez les sons d\'une ville dynamique à l\'heure de pointe</item>
+        <item>Vous entendu quelque chose d\'incroyable? Enregistrez grâce à la touche REC !</item>
+
+        <item>Vous sentez venir l\'inspiration? Gardez une trace de vos idées grâce à la touche REC.</item>
+        <item>Vous avez une idée pour une nouvelle chanson? Enregistrez-la avec la touche REC.</item>
+        <item>Une chanson vous trotte dans la tête? Enregistrez-la avec la touche REC.</item>
+        <item>Des idées de paroles de chanson? Enregistrez-les instantanément avec la touche REC.</item>
+
+        <item>Qu\'est-ce qui se passe en ce moment?</item>
+        <item>Saisissez les événements dans l\'instant et partagez-les avec le monde.</item>
+        <item>Quelque chose d\'intéressant se passe autour de vous? Capturez ce moment en audio.</item>
+        <item>Reporter Citoyen? Dites au monde ce qui se passe là où vous êtes.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Rechercher sur SoundCloud</string>
@@ -460,6 +461,10 @@
     <string name="wifi_settings_summary">Modifier vos paramètres. Utiliser le Wifi pour une meilleure performance.</string>
     <string name="cache_clearing">Nettoyage du cache en cours</string>
     <string name="cache_clearing_message">Suppression des fichiers mis en cache ...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>Compressé</item>
+        <item>Brut</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Vous devrez vous reconnecter à votre compte SoundCloud.</string>

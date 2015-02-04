@@ -4,6 +4,7 @@ import static com.pivotallabs.greatexpectations.Expect.expect;
 import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -60,6 +61,10 @@ public class ApiSyncerFactoryTest {
             public NotificationManager get() {
                 return mock(NotificationManager.class);
             }
-        }, Mockito.mock(FeatureFlags.class), Mockito.mock(Lazy.class), Mockito.mock(Lazy.class)).forContentUri(Robolectric.application, content.uri);
+        }, Mockito.mock(FeatureFlags.class),
+                Mockito.mock(Lazy.class),
+                Mockito.mock(Lazy.class),
+                mock(JsonTransformer.class)
+        ).forContentUri(Robolectric.application, content.uri);
     }
 }

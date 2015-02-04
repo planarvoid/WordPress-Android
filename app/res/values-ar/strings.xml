@@ -31,7 +31,6 @@
     <string name="btn_following">متابعة</string>
     <string name="btn_save">حفظ</string>
     <string name="btn_skip">تخطي</string>
-    <string name="compressed">مضغوط</string>
     <string name="configure">تهيئة</string>
     <string name="connect_progress">تحميل</string>
     <string name="connect_success">تم الاتصال بنجاح بـ %1$s</string>
@@ -39,7 +38,6 @@
     <string name="delete">حذف</string>
     <string name="comments">تعليقات</string>
     <string name="new_connection_error">هناك مشكلة في إضافة الشبكة</string>
-    <string name="raw">Raw</string>
     <string name="reset">تجاهل</string>
     <string name="share_fail_message">حسنًا، هذا خطأ</string>
     <string name="share_log_out">تسجيل الخروج</string>
@@ -363,45 +361,48 @@
     <string name="cloud_recorder_playback_event_title">التشغيل قيد التقدم</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default" tools:ignore="UnusedResources">لماذا لا تقوم بتسجيل أصوات الشارع؟</string>
-    <string name="rectip_memories_voice_notes" tools:ignore="UnusedResources">استمتع بتسجيل الملاحظات الصوتية كرسائل تذكير في المتناول.</string>
-    <string name="rectip_memories_voice_blog" tools:ignore="UnusedResources">استخدم زر REC لإنشاء مدونة صوتية - ما الذي ستشاركه اليوم؟</string>
-    <string name="rectip_memories_what_are_you_doing_right_now" tools:ignore="UnusedResources">ماذا تفعل الآن؟</string>
-    <string name="rectip_memories_child_first_words" tools:ignore="UnusedResources">التقط اللحظة: كلمات الطفل الأولى</string>
-    <string name="rectip_memories_sound_your_pet_makes" tools:ignore="UnusedResources">التقط اللحظة: الأصوات التي تصدرها حيواناتك الأليفة</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about" tools:ignore="UnusedResources">التقط اللحظة: صوت شخص يحوز اهتمامك</string>
-    <string name="rectip_memories_shopping_reminders" tools:ignore="UnusedResources">أتذهب للتسوق؟ استمتع بتسجيل رسائل التذكير بحيث لا تنسى ما الذي سوف تشتريه.</string>
-    <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">ألديك فكرة عظيمة؟ هيا التقطها بضغطة على زر REC.</string>
-    <string name="rectip_social_good_joke" tools:ignore="UnusedResources">هل سمعت نكتة جديدة مؤخرًا؟ هيا شاركها!</string>
-    <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">أتستمتع بمحادثة رائعة؟ لماذا لا تقوم بالتسجيل لأبنائك؟</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">التقط لحظة المرحة وسجِّلها صوتيًا</string>
-    <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">هل تعلم أنه يمكنك حفظ التسجيلات الخاصة إذا كنت لا ترغب في مشاركتها؟</string>
-    <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">أحيانًا يكون أفضل جهاز تسجيل هو الذي بين يديك.</string>
-    <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">استمتع بإلغاء كتم نفسك!</string>
-    <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">قم بإلغاء كتم الإنترنت,</string>
-    <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">إلغاء كتم العالم.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">عبِّر عن نفسك!</string>
-    <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">لماذا لا تُسجل محضر الاجتماع المقبل؟</string>
-    <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">استخدم زر REC لالتقاط الأفكار لتذكرها في وقت لاحق.</string>
-    <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">استخدم زر REC كوسيلة دراسة مساعدة: قم بتخزين ملاحظاتك أثناء تنقلاتك.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings" tools:ignore="UnusedResources">يمكنك استخدام زر REC لتسجيل المقابلات والاجتماعات.</string>
-    <string name="rectip_environmental_ocean_waves" tools:ignore="UnusedResources">تسجيل صوت أمواج المحيطات على الشاطئ</string>
-    <string name="rectip_environmental_vibrant_rush_hour" tools:ignore="UnusedResources">التقاط أصوات المدينة النابضة الحيوية ساعة الذروة</string>
-    <string name="rectip_environmental_crazy_sound" tools:ignore="UnusedResources">هل استمتعت إلى صوت غريب؟ التقط الصوت باستخدام زر REC!</string>
-    <string name="rectip_music_feel_inspired" tools:ignore="UnusedResources">أتشعر بأنك ملهم؟ التقط فكرتك باستخدام زر REC.</string>
-    <string name="rectip_music_track_idea" tools:ignore="UnusedResources">هل تريد الحصول على فكرة لمسار جديد؟ احفظه باستخدام زر REC.</string>
-    <string name="rectip_music_tune_stuck" tools:ignore="UnusedResources">النغمة لا تزال تتردد في رأسك؟ التقط الصوت باستخدام زر REC.</string>
-    <string name="rectip_music_song_lyric_ideas" tools:ignore="UnusedResources">ألديك أفكار لكلمات أغنية؟ التقط الأفكار على الفور باستخدام زر REC.</string>
-    <string name="rectip_events_whats_going_on" tools:ignore="UnusedResources">ماذا يحدث الآن؟</string>
-    <string name="rectip_events_current_events_as_they_happen" tools:ignore="UnusedResources">تسجيل الأحداث الجارية فور حدوثها ومشاركتها مع العالم.</string>
-    <string name="rectip_events_something_interesting" tools:ignore="UnusedResources">هل يحدث شيء مثير للاهتمام؟ التقاط اللحظة صوتيًا.</string>
-    <string name="rectip_events_citizen_reporter" tools:ignore="UnusedResources">هل أنت مراسل مواطن؟ هيا أخبر العالم بما يحدث من حولك.</string>
-    <string name="rectip_private_happy_birthday" tools:ignore="UnusedResources">أتمنى %s عيد ميلاد سعيد</string>
-    <string name="rectip_private_record_a_message" tools:ignore="UnusedResources">لماذا لا تقوم بتسجيل رسالة لـ %s؟</string>
-    <string name="rectip_private_how_much_they_mean" tools:ignore="UnusedResources">أخبر %s بمقدار ما يعني ذلك لك.</string>
-    <string name="rectip_private_send_reminder" tools:ignore="UnusedResources">إرسال %s كرسالة تذكير</string>
-    <string name="rectip_private_liked_their_sound" tools:ignore="UnusedResources">أخبر %s كم كان يعجبك أصواتها</string>
-    <string name="rectip_private_leave_feedback" tools:ignore="UnusedResources">اترك بعض الملاحظات لـ %s</string>
+    <string-array name="record_suggestions">
+        <item>لماذا لا تقوم بتسجيل أصوات الشارع؟</item>
+
+        <item>استمتع بتسجيل الملاحظات الصوتية كرسائل تذكير في المتناول.</item>
+        <item>استخدم زر REC لإنشاء مدونة صوتية - ما الذي ستشاركه اليوم؟</item>
+        <item>ماذا تفعل الآن؟</item>
+        <item>التقط اللحظة: كلمات الطفل الأولى</item>
+        <item>التقط اللحظة: الأصوات التي تصدرها حيواناتك الأليفة</item>
+        <item>التقط اللحظة: صوت شخص يحوز اهتمامك</item>
+        <item>أتذهب للتسوق؟ استمتع بتسجيل رسائل التذكير بحيث لا تنسى ما الذي سوف تشتريه.</item>
+        <item>ألديك فكرة عظيمة؟ هيا التقطها بضغطة على زر REC.</item>
+
+        <item>هل سمعت نكتة جديدة مؤخرًا؟ هيا شاركها!</item>
+        <item>أتستمتع بمحادثة رائعة؟ لماذا لا تقوم بالتسجيل لأبنائك؟</item>
+        <item>التقط لحظة المرحة وسجِّلها صوتيًا</item>
+
+        <item>هل تعلم أنه يمكنك حفظ التسجيلات الخاصة إذا كنت لا ترغب في مشاركتها؟</item>
+        <item>أحيانًا يكون أفضل جهاز تسجيل هو الذي بين يديك.</item>
+        <item>استمتع بإلغاء كتم نفسك!</item>
+        <item>قم بإلغاء كتم الإنترنت,</item>
+        <item>إلغاء كتم العالم.</item>
+        <item>عبِّر عن نفسك!</item>
+
+        <item>لماذا لا تُسجل محضر الاجتماع المقبل؟</item>
+        <item>استخدم زر REC لالتقاط الأفكار لتذكرها في وقت لاحق.</item>
+        <item>استخدم زر REC كوسيلة دراسة مساعدة: قم بتخزين ملاحظاتك أثناء تنقلاتك.</item>
+        <item>يمكنك استخدام زر REC لتسجيل المقابلات والاجتماعات.</item>
+
+        <item>تسجيل صوت أمواج المحيطات على الشاطئ</item>
+        <item>التقاط أصوات المدينة النابضة الحيوية ساعة الذروة</item>
+        <item>هل استمتعت إلى صوت غريب؟ التقط الصوت باستخدام زر REC!</item>
+
+        <item>أتشعر بأنك ملهم؟ التقط فكرتك باستخدام زر REC.</item>
+        <item>هل تريد الحصول على فكرة لمسار جديد؟ احفظه باستخدام زر REC.</item>
+        <item>النغمة لا تزال تتردد في رأسك؟ التقط الصوت باستخدام زر REC.</item>
+        <item>ألديك أفكار لكلمات أغنية؟ التقط الأفكار على الفور باستخدام زر REC.</item>
+
+        <item>ماذا يحدث الآن؟</item>
+        <item>تسجيل الأحداث الجارية فور حدوثها ومشاركتها مع العالم.</item>
+        <item>هل يحدث شيء مثير للاهتمام؟ التقاط اللحظة صوتيًا.</item>
+        <item>هل أنت مراسل مواطن؟ هيا أخبر العالم بما يحدث من حولك.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">بحث في SoundCloud</string>
@@ -450,6 +451,10 @@
     <string name="wifi_settings_summary">قم بتحرير الإعدادات. استخدم شبكة Wifi للحصول على أفضل أداء.</string>
     <string name="cache_clearing">مسح ذاكرة التخزين المؤقت</string>
     <string name="cache_clearing_message">جار حذف ملفات ذاكرة التخزين المؤقت...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>مضغوط</item>
+        <item>Raw</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">سوف تحتاج إلى إعادة الاتصال بحساب SoundCloud لديك.</string>

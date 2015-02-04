@@ -91,7 +91,7 @@ public class FollowingOperationsTest {
     @Test
     public void shouldToggleFollowingOnAddition() throws CreateModelException {
         ops.addFollowing(user).subscribe(observer);
-        verify(followStatus).toggleFollowing(user.getId());
+        verify(followStatus).addFollowing(user.getId());
         verify(observer).onNext(true);
     }
 
@@ -104,19 +104,19 @@ public class FollowingOperationsTest {
     @Test
     public void shouldToggleFollowingOnSuggestedUserAddition() throws CreateModelException {
         ops.addFollowingBySuggestedUser(suggestedUser);
-        verify(followStatus).toggleFollowing(suggestedUser.getId());
+        verify(followStatus).addFollowing(suggestedUser.getId());
     }
 
     @Test
     public void shouldToggleFollowingsOnSuggestedUserAdditions() throws CreateModelException {
         ops.addFollowingsBySuggestedUsers(suggestedUsers);
-        verify(followStatus).toggleFollowing(ScModel.getIdList(suggestedUsers));
+        verify(followStatus).addFollowing(ScModel.getIdList(suggestedUsers));
     }
 
     @Test
     public void shouldToggleFollowingOnRemoval() throws CreateModelException {
         ops.removeFollowing(user).subscribe(observer);
-        verify(followStatus).toggleFollowing(user.getId());
+        verify(followStatus).removeFollowing(user.getId());
         verify(observer).onNext(false);
     }
 

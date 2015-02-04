@@ -238,10 +238,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         configurePlaybackInfo();
     }
 
-    public SoundRecorder getRecorder() {
-        return recorder;
-    }
-
     @Override
     public void onBackPressed() {
         if (currentState.isEdit()) {
@@ -761,7 +757,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             if (!TextUtils.isEmpty(recordErrorMessage)) {
                 txtRecordMessage.setMessage(recordErrorMessage);
             } else {
-                txtRecordMessage.loadSuggestion(null);
+                txtRecordMessage.loadSuggestion();
             }
         }
     }
@@ -800,7 +796,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         recordErrorMessage = null;
 
         try {
-            recorder.startRecording(txtRecordMessage.getCurrentSuggestionKey());
+            recorder.startRecording(txtRecordMessage.getCurrentSuggestion());
             waveDisplay.gotoRecordMode();
         } catch (IOException e) {
             onRecordingError(e.getMessage());
@@ -1011,7 +1007,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     }
 
     private static enum Dialogs {
-        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING;
+        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING
     }
 
     public enum CreateState {

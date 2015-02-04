@@ -31,7 +31,6 @@
     <string name="btn_following">Siguiendo</string>
     <string name="btn_save">Guardar</string>
     <string name="btn_skip">Saltar</string>
-    <string name="compressed">Comprimido</string>
     <string name="configure">Configurar</string>
     <string name="connect_progress">Cargando</string>
     <string name="connect_success">Conectado correctamente con %1$s</string>
@@ -39,7 +38,6 @@
     <string name="delete">Eliminar</string>
     <string name="comments">Comentarios</string>
     <string name="new_connection_error">Hubo un problema al añadir la red</string>
-    <string name="raw">Raw</string>
     <string name="reset">Desechar</string>
     <string name="share_fail_message">OK, eso salió mal.</string>
     <string name="share_log_out">Salir</string>
@@ -62,6 +60,14 @@
     <string name="accessibility_stats_user_reposted">Republicado por usted</string>
     <string name="accessibility_like_action">Me gusta</string>
     <string name="accessibility_repost_action">Republicar</string>
+    <plurals name="accessibility_stats_likes">
+        <item quantity="one">1 me gusta</item>
+        <item quantity="other">%d me gusta</item>
+    </plurals>
+    <plurals name="accessibility_stats_reposts">
+        <item quantity="one">1 republicaciónt</item>
+        <item quantity="other">%d republicaciones</item>
+    </plurals>
 
     <!-- __ACTIVITIES -->
     <string name="liked">gustado %s</string>
@@ -219,6 +225,54 @@
     <string name="dashboard_notifications_title">%s nuevos sonidos</string>
     <string name="dashboard_notifications_title_single">1 nuevo sonido</string>
     <string name="dashboard_notifications_activity_message_repost"> %1$s republicado de %2$s</string>
+    <plurals name="dashboard_notifications_activity_message_repost" tools:ignore="UnusedQuantity">
+        <item quantity="one">sobre %1$s</item>
+        <item quantity="two">sobre %1$s y %2$s</item>
+        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_activity" tools:ignore="UnusedQuantity">
+        <item quantity="one">de %2$s sobre %1$s</item>
+        <item quantity="two">Comentarios y gustos de %2$s y %3$s</item>
+        <item quantity="other">Comentarios y gustos de %2$s, %3$s y otros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment" tools:ignore="UnusedQuantity">
+        <item quantity="two">Comentarios de %1$s y %2$s</item>
+        <item quantity="other">Comentarios de %1$s, %2$s y otros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment_single_track" tools:ignore="UnusedQuantity">
+        <item quantity="one">nuevo comentario sobre %2$s de %3$s</item>
+        <item quantity="two">%1$d nuevos comentarios sobre %2$s de %3$s y %4$s</item>
+        <item quantity="other">%1$d nuevos comentarios sobre %2$s de %3$s, %4$s y otros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_like" tools:ignore="UnusedQuantity">
+        <item quantity="one">sobre %1$s</item>
+        <item quantity="other">sobre %1$s, %2$s y otros sonidos</item>
+        <item quantity="two">sobre %1$s y %2$s</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_activity">
+        <item quantity="one">Una nueva actividad</item>
+        <item quantity="other">%d nuevas actividades</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_comment">
+        <item quantity="one">Un nuevo comentario</item>
+        <item quantity="other">%d nuevos comentarios</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_like">
+        <item quantity="one">Nuevo me gusta</item>
+        <item quantity="other">%d nuevos gustos</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_activity">
+        <item quantity="one">Una nueva actividad</item>
+        <item quantity="other">%d nuevas actividades</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_comment">
+        <item quantity="one">Un nuevo comentario</item>
+        <item quantity="other">%d nuevos comentarios</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_like">
+        <item quantity="one">Nuevo me gusta</item>
+        <item quantity="other">%d nuevos gustos</item>
+    </plurals>
 
     <!-- __ONBOARDING -->
     <string name="suggested_users_genres_large_title">Elige sus categorías favoritas</string>
@@ -301,6 +355,10 @@
     <string name="pause">Pausar</string>
     <string name="previous">Anterior</string>
     <string name="next">Siguiente</string>
+    <plurals name="trackinfo_comments">
+        <item quantity="one">1 comentario sobre esta pista</item>
+        <item quantity="other">%d comentarios sobre esta pista</item>
+    </plurals>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s en %2$s</string>
@@ -329,6 +387,10 @@
     <string name="create_new_playlist_hint">Introduce el título de la lista de reproducción</string>
     <string name="error_new_playlist_blank_title">Por favor, introduce un título válido.</string>
     <string name="add_playlist_private">Privado</string>
+    <plurals name="number_of_sounds">
+        <item quantity="one">un sonido</item>
+        <item quantity="other">%d sonidos</item>
+    </plurals>
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Información</string>
@@ -373,45 +435,48 @@
     <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default" tools:ignore="UnusedResources">¿Por qué no grabas los sonidos de tu vecindario?</string>
-    <string name="rectip_memories_voice_notes" tools:ignore="UnusedResources">Graba notas de voz como recordatorios útiles.</string>
-    <string name="rectip_memories_voice_blog" tools:ignore="UnusedResources">Utiliza el botón REC para crear un blog de voz. ¿Qué vas a compartir hoy?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now" tools:ignore="UnusedResources">¿Qué estás haciendo en este momento?</string>
-    <string name="rectip_memories_child_first_words" tools:ignore="UnusedResources">Captura el momento: las primeras palabras de un niño</string>
-    <string name="rectip_memories_sound_your_pet_makes" tools:ignore="UnusedResources">Captura el momento: los sonidos que hace tu mascota</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about" tools:ignore="UnusedResources">Captura el momento: la voz de un ser querido</string>
-    <string name="rectip_memories_shopping_reminders" tools:ignore="UnusedResources">¿Vas de compras? Graba recordatorios para no olvidar qué comprar.</string>
-    <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">¿Tuviste una gran idea? Captúrala con el botón REC.</string>
-    <string name="rectip_social_good_joke" tools:ignore="UnusedResources">¿Oíste una buena broma? ¡Compártela!</string>
-    <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">¿Disfrutando de una buena conversación? ¿Por qué no grabarla para tenerla luego?</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">Captura un momento hilarante en sonido</string>
-    <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">¿Sabías que puedes guardar tus grabaciones privadas si no quieres compartirlas?</string>
-    <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">A veces el mejor dispositivo de grabación es el que tienes tú.</string>
-    <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">¡Activa tu propia voz!</string>
-    <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">Activa el sonido de Internet.</string>
-    <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">Activa el sonido del mundo.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">¡Exprésate!</string>
-    <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">¿Por qué no grabar la minuta de tu próxima reunión?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">Utiliza el botón REC para capturar ideas para más adelante.</string>
-    <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">Utiliza el botón REC para facilitar el estudio: guarda tus notas sobre la marcha.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings" tools:ignore="UnusedResources">Puedes utilizar el botón REC para grabar entrevistas y reuniones.</string>
-    <string name="rectip_environmental_ocean_waves" tools:ignore="UnusedResources">Graba el sonido de las olas del mar en la playa</string>
-    <string name="rectip_environmental_vibrant_rush_hour" tools:ignore="UnusedResources">Captura los sonidos de una ciudad vibrante en horas pico</string>
-    <string name="rectip_environmental_crazy_sound" tools:ignore="UnusedResources">¿Oíste un sonido loco? ¡Captúralo con el botón REC!</string>
-    <string name="rectip_music_feel_inspired" tools:ignore="UnusedResources">¿Te sientes inspirado? Captura tu idea con el botón REC.</string>
-    <string name="rectip_music_track_idea" tools:ignore="UnusedResources">¿Tienes una idea para una nueva pista? Guárdala con el botón REC.</string>
-    <string name="rectip_music_tune_stuck" tools:ignore="UnusedResources">¿Tienes un tono pegado en tu cabeza? Captúralo con el botón REC.</string>
-    <string name="rectip_music_song_lyric_ideas" tools:ignore="UnusedResources">¿Ideas para letras de las canciones? Captura instantáneamente con el botón REC.</string>
-    <string name="rectip_events_whats_going_on" tools:ignore="UnusedResources">¿Qué está pasando ahora?</string>
-    <string name="rectip_events_current_events_as_they_happen" tools:ignore="UnusedResources">Registra los acontecimientos actuales a medida que ocurren y compártelos con el mundo.</string>
-    <string name="rectip_events_something_interesting" tools:ignore="UnusedResources">¿Sucedió algo interesante? Captura el momento en audio.</string>
-    <string name="rectip_events_citizen_reporter" tools:ignore="UnusedResources">¿Reportero ciudadano? Dile al mundo lo que está sucediendo donde estás.</string>
-    <string name="rectip_private_happy_birthday" tools:ignore="UnusedResources">Deséale a %s un feliz cumpleaños</string>
-    <string name="rectip_private_record_a_message" tools:ignore="UnusedResources">¿Por qué no grabar un mensaje para %s?</string>
-    <string name="rectip_private_how_much_they_mean" tools:ignore="UnusedResources">Cuéntales a %s lo mucho que significan para ti.</string>
-    <string name="rectip_private_send_reminder" tools:ignore="UnusedResources">Envíale un recordatorio a %s</string>
-    <string name="rectip_private_liked_their_sound" tools:ignore="UnusedResources">Cuéntale a %s cuánto te gustó su sonido</string>
-    <string name="rectip_private_leave_feedback" tools:ignore="UnusedResources">Dejar algunos comentarios para %s</string>
+    <string-array name="record_suggestions">
+        <item>¿Por qué no grabas los sonidos de tu vecindario?</item>
+
+        <item>Graba notas de voz como recordatorios útiles.</item>
+        <item>Utiliza el botón REC para crear un blog de voz. ¿Qué vas a compartir hoy?</item>
+        <item>¿Qué estás haciendo en este momento?</item>
+        <item>Captura el momento: las primeras palabras de un niño</item>
+        <item>Captura el momento: los sonidos que hace tu mascota</item>
+        <item>Captura el momento: la voz de un ser querido</item>
+        <item>¿Vas de compras? Graba recordatorios para no olvidar qué comprar.</item>
+        <item>¿Tuviste una gran idea? Captúrala con el botón REC.</item>
+
+        <item>¿Oíste una buena broma? ¡Compártela!</item>
+        <item>¿Disfrutando de una buena conversación? ¿Por qué no grabarla para tenerla luego?</item>
+        <item>Captura un momento hilarante en sonido</item>
+
+        <item>¿Sabías que puedes guardar tus grabaciones privadas si no quieres compartirlas?</item>
+        <item>A veces el mejor dispositivo de grabación es el que tienes tú.</item>
+        <item>¡Activa tu propia voz!</item>
+        <item>Activa el sonido de Internet.</item>
+        <item>Activa el sonido del mundo.</item>
+        <item>¡Exprésate!</item>
+
+        <item>¿Por qué no grabar la minuta de tu próxima reunión?</item>
+        <item>Utiliza el botón REC para capturar ideas para más adelante.</item>
+        <item>Utiliza el botón REC para facilitar el estudio: guarda tus notas sobre la marcha.</item>
+        <item>Puedes utilizar el botón REC para grabar entrevistas y reuniones.</item>
+
+        <item>Graba el sonido de las olas del mar en la playa</item>
+        <item>Captura los sonidos de una ciudad vibrante en horas pico</item>
+        <item>¿Oíste un sonido loco? ¡Captúralo con el botón REC!</item>
+
+        <item>¿Te sientes inspirado? Captura tu idea con el botón REC.</item>
+        <item>¿Tienes una idea para una nueva pista? Guárdala con el botón REC.</item>
+        <item>¿Tienes un tono pegado en tu cabeza? Captúralo con el botón REC.</item>
+        <item>¿Ideas para letras de las canciones? Captura instantáneamente con el botón REC.</item>
+
+        <item>¿Qué está pasando ahora?</item>
+        <item>Registra los acontecimientos actuales a medida que ocurren y compártelos con el mundo.</item>
+        <item>¿Sucedió algo interesante? Captura el momento en audio.</item>
+        <item>¿Reportero ciudadano? Dile al mundo lo que está sucediendo donde estás.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Buscar en SoundCloud</string>
@@ -460,6 +525,10 @@
     <string name="wifi_settings_summary">Editar la configuración. Utilizar Wi-Fi para un mejor rendimiento.</string>
     <string name="cache_clearing">Borrando caché</string>
     <string name="cache_clearing_message">Eliminación de archivos almacenados en caché...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>Comprimido</item>
+        <item>Raw</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Tendrás que volver a conectar tu cuenta de SoundCloud.</string>
@@ -506,6 +575,62 @@
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d segundos</string>
     <string name="format_abbreviated_minutes">%d minutos</string>
+    <plurals name="elapsed_days">
+        <item quantity="one">Un día</item>
+        <item quantity="other">%d días</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">Hace un día</item>
+        <item quantity="other">Hace %d días</item>
+    </plurals>
+    <plurals name="elapsed_hours">
+        <item quantity="one">Una hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">Hace una hora</item>
+        <item quantity="other">Hace %d horas</item>
+    </plurals>
+    <plurals name="elapsed_minutes">
+        <item quantity="one">Un minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">Hace un minuto</item>
+        <item quantity="other">Hace %d minutos</item>
+    </plurals>
+    <plurals name="elapsed_months">
+        <item quantity="one">Un mes</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="elapsed_months_ago">
+        <item quantity="one">Hace un mes</item>
+        <item quantity="other">Hace %d meses</item>
+    </plurals>
+    <plurals name="elapsed_seconds">
+        <item quantity="one">Un segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+    <plurals name="elapsed_seconds_ago">
+        <item quantity="one">Hace un segundo</item>
+        <item quantity="other">Hace %d segundos</item>
+    </plurals>
+    <plurals name="elapsed_years">
+        <item quantity="one">Un año</item>
+        <item quantity="other">%d años</item>
+    </plurals>
+    <plurals name="elapsed_years_ago">
+        <item quantity="one">Hace un año</item>
+        <item quantity="other">Hace %d años</item>
+    </plurals>
+    <plurals name="minutes_available">
+        <item quantity="one">1 minuto disponible</item>
+        <item quantity="other">%d minutos disponibles</item>
+    </plurals>
+    <plurals name="seconds_available">
+        <item quantity="one">1 segundo disponible</item>
+        <item quantity="other">%d segundos disponibles</item>
+    </plurals>
 
     <!-- __TOUR -->
     <string name="tour_title_1">Escucha los sonidos del mundo</string>

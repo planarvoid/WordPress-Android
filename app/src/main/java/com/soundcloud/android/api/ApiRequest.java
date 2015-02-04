@@ -128,11 +128,11 @@ public class ApiRequest<ResourceType> {
             return new Builder<>(uri, HttpPost.METHOD_NAME);
         }
 
-        public static <ResourceType> Builder<ResourceType> put(String uri) {
+        public static Builder put(String uri) {
             return new Builder<>(uri, HttpPut.METHOD_NAME);
         }
 
-        public static <ResourceType> Builder<ResourceType> delete(String uri) {
+        public static Builder delete(String uri) {
             return new Builder<>(uri, HttpDelete.METHOD_NAME);
         }
 
