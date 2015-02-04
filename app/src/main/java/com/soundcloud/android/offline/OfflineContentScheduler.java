@@ -3,6 +3,7 @@ package com.soundcloud.android.offline;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -17,27 +18,37 @@ public class OfflineContentScheduler {
     @VisibleForTesting
     static final int REQUEST_ID = R.id.action_syncing; // do these have to be unique over the app??
     static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
-    private static final long RETRY_DELAY = TimeUnit.SECONDS.toMillis(60);
+    private static final long RETRY_DELAY = TimeUnit.MINUTES.toMillis(10);
 
     private final Context context;
     private final AlarmManager alarmManager;
+    private final ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver;
+    private final NetworkConnectionHelper networkConnectionHelper;
 
     @Inject
-    public OfflineContentScheduler(Context context, AlarmManager alarmManager) {
+    public OfflineContentScheduler(Context context, AlarmManager alarmManager,
+                                   ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver,
+                                   NetworkConnectionHelper networkConnectionHelper) {
         this.context = context;
         this.alarmManager = alarmManager;
+        this.resumeOnConnectedReceiver = resumeOnConnectedReceiver;
+        this.networkConnectionHelper = networkConnectionHelper;
     }
 
     public void cancelPendingRetries(){
         alarmManager.cancel(getPendingIntent(context));
+        resumeOnConnectedReceiver.unregister();
     }
 
     public void scheduleRetry(){
-        scheduleRetry(System.currentTimeMillis() + RETRY_DELAY);
+        if (!networkConnectionHelper.networkIsConnected()){
+            resumeOnConnectedReceiver.register();
+        }
+        scheduleDelayedRetry(System.currentTimeMillis() + RETRY_DELAY);
     }
 
     @VisibleForTesting
-    void scheduleRetry(long atTimeInMillis){
+    void scheduleDelayedRetry(long atTimeInMillis){
         Log.d(OfflineContentService.TAG, "Scheduling retry of offline content service");
         alarmManager.set(ALARM_TYPE, atTimeInMillis, getPendingIntent(context));
     }
