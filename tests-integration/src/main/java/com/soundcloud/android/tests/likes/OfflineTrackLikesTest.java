@@ -58,7 +58,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     private void resetOfflineSyncState(Context context) {
-        OfflineContentHelper.clearOfflineContent(context);
         ConfigurationHelper.disableOfflineSync(context);
+        OfflineContentHelper.clearOfflineContent(context);
     }
 }
