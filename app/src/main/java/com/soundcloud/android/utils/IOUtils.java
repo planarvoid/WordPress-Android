@@ -52,9 +52,8 @@ public final class IOUtils {
     private IOUtils() {
     }
 
-    public static
     @NotNull
-    File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
+    public static File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
         if (f == null) {
             return new File[0];
         }
@@ -269,20 +268,6 @@ public final class IOUtils {
         }
     }
 
-    public static boolean fileExistsCaseSensitive(final File f) {
-        if (f != null && f.exists() && f.getParentFile() != null) {
-            File[] files = nullSafeListFiles(f.getParentFile(), new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.equals(f.getName());
-                }
-            });
-            return files.length > 0;
-        } else {
-            return false;
-        }
-    }
-
     public static boolean nomedia(File dir) {
         if (!dir.isDirectory()) {
             return false;
@@ -442,8 +427,6 @@ public final class IOUtils {
     /**
      * Closes a cursor. These cannot use the {@link this#close(java.io.Closeable)}
      * function as cursors do not implement Closeable pre-honecomb
-     *
-     * @param cursor
      */
     public static void close(Cursor cursor) {
         if (cursor != null) {
@@ -460,9 +443,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @NotNull
-    File appendToFilename(File file, String text) {
+    public static File appendToFilename(File file, String text) {
         String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {
@@ -473,9 +455,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @Nullable
-    String extension(File file) {
+    public static String extension(File file) {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1 && lastDot != name.length() - 1) {
@@ -485,9 +466,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @NotNull
-    File changeExtension(File file, String ext) {
+    public static File changeExtension(File file, String ext) {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {
@@ -497,9 +477,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @NotNull
-    File removeExtension(@NotNull File file) {
+    public static File removeExtension(@NotNull File file) {
         if (file.isDirectory()) {
             return file;
         }
@@ -522,7 +501,6 @@ public final class IOUtils {
             }
         }
     }
-
 
     /**
      * some phones have really low transfer rates when the screen is turned off, so request a full
