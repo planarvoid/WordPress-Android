@@ -282,7 +282,7 @@ public class StreamItem implements Parcelable {
         data.putBoolean("unavailable", unavailable);
         data.putLong("contentLength", contentLength);
         data.putLong("expires", expires);
-        // TODO index + downloaded chunks
+        // TODO index + downloadFinished chunks
         dest.writeBundle(data);
     }
 

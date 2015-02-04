@@ -15,14 +15,12 @@ import javax.inject.Singleton;
 public class ResumeDownloadOnConnectedReceiver extends BroadcastReceiver {
 
     private final Context context;
-    private final OfflineContentOperations operations;
     private final NetworkConnectionHelper connectionHelper;
     private boolean isRegistered;
 
     @Inject
-    ResumeDownloadOnConnectedReceiver(Context context, OfflineContentOperations operations, NetworkConnectionHelper connectionHelper) {
+    ResumeDownloadOnConnectedReceiver(Context context, NetworkConnectionHelper connectionHelper) {
         this.context = context;
-        this.operations = operations;
         this.connectionHelper = connectionHelper;
     }
 
@@ -44,8 +42,8 @@ public class ResumeDownloadOnConnectedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (connectionHelper.networkIsConnected()){
-            operations.updateOfflineLikes().subscribe(new StartOfflineContentServiceSubscriber(context));
+        if (connectionHelper.networkIsConnected()) {
+            OfflineSyncService.startSyncing(context);
         }
     }
 }

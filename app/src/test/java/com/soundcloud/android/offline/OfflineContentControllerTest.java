@@ -1,6 +1,8 @@
 package com.soundcloud.android.offline;
 
-import android.content.Intent;
+import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.doReturn;
+
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -9,8 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.subjects.PublishSubject;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.doReturn;
+import android.content.Intent;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentControllerTest {
@@ -39,8 +40,8 @@ public class OfflineContentControllerTest {
         startSyncer.onNext(new Object());
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START_DOWNLOAD);
-        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+        expect(startService.getAction()).toEqual(OfflineSyncService.ACTION_START_DOWNLOAD);
+        expect(startService.getComponent().getClassName()).toEqual(OfflineSyncService.class.getCanonicalName());
     }
 
     @Test
@@ -50,8 +51,8 @@ public class OfflineContentControllerTest {
         stopSyncer.onNext(new Object());
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_STOP_DOWNLOAD);
-        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+        expect(startService.getAction()).toEqual(OfflineSyncService.ACTION_STOP_DOWNLOAD);
+        expect(startService.getComponent().getClassName()).toEqual(OfflineSyncService.class.getCanonicalName());
     }
 
     @Test

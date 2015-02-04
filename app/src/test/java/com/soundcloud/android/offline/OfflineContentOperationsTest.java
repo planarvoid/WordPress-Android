@@ -8,8 +8,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.DeleteOfflineContentCommand;
-import com.soundcloud.android.offline.commands.LoadPendingRemovalCommand;
+import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
+import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
+import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -25,24 +26,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
-import rx.schedulers.Schedulers;
-import rx.schedulers.TestScheduler;
 import rx.subjects.PublishSubject;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentOperationsTest {
 
-    @Mock private LoadPendingRemovalCommand loadPendingRemoval;
+    @Mock private LoadPendingDownloadsCommand loadPendingDownloads;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private UpdateOfflineContentCommand updateOfflineContent;
-    @Mock private DeleteOfflineContentCommand deleteOfflineContent;
+    @Mock private DeletePendingRemovalCommand deleteOfflineContent;
     @Mock private UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrns;
     @Mock private SecureFileStorage fileStorage;
+    @Mock private StoreCompletedDownloadCommand storeCompletedDownloadCommand;
 
     private final Urn TRACK_URN = Urn.forTrack(123L);
     private final List<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN);
@@ -50,14 +49,12 @@ public class OfflineContentOperationsTest {
     private OfflineContentOperations offlineOperations;
     private TestEventBus eventBus;
     private PublishSubject<Boolean> offlineSyncSetting;
-    private TestScheduler delayScheduler;
     private TestSubscriber<Object> subscriber;
 
     @Before
     public void setUp() throws Exception {
         offlineSyncSetting = PublishSubject.create();
         eventBus = new TestEventBus();
-        delayScheduler = new TestScheduler();
         offlineSyncSetting = PublishSubject.create();
         subscriber = new TestSubscriber<>();
 
@@ -65,20 +62,17 @@ public class OfflineContentOperationsTest {
         when(settingsStorage.getLikesOfflineSyncChanged()).thenReturn(offlineSyncSetting);
 
         when(loadLikedTrackUrns.toObservable()).thenReturn(Observable.just(LIKED_TRACKS));
-        when(loadPendingRemoval.toObservable()).thenReturn(Observable.<List<Urn>>empty());
+        when(loadPendingDownloads.toObservable()).thenReturn(Observable.<List<DownloadRequest>>empty());
         when(updateOfflineContent.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(1)));
         when(updateContentAsPendingRemoval.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(1)));
 
         offlineOperations = new OfflineContentOperations(
                 updateOfflineContent,
-                loadPendingRemoval,
-                deleteOfflineContent,
                 loadLikedTrackUrns,
+                loadPendingDownloads,
                 updateContentAsPendingRemoval,
                 settingsStorage,
-                eventBus,
-                Schedulers.immediate(),
-                delayScheduler
+                eventBus
         );
     }
 
@@ -110,13 +104,11 @@ public class OfflineContentOperationsTest {
     }
 
     @Test
-    public void startsOfflineSyncAfter3MinutesWhenATrackIsUnliked() {
+    public void startsOfflineSyncWhenATrackIsUnliked() {
         offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forTrack(123L), false, 1));
 
-        expect(subscriber.getOnNextEvents()).toBeEmpty();
-        delayScheduler.advanceTimeBy(3, TimeUnit.MINUTES);
         expect(subscriber.getOnNextEvents()).toNumber(1);
     }
 
@@ -140,7 +132,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void updateOfflineLikesWhenOfflineLikesEnabled() throws PropellerWriteException {
-        offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
+        offlineOperations.updateDownloadRequestsFromLikes().subscribe(subscriber);
 
         offlineSyncSetting.onNext(true);
 
@@ -163,16 +155,5 @@ public class OfflineContentOperationsTest {
         offlineSyncSetting.onNext(false);
 
         expect(subscriber.getOnNextEvents()).toNumber(1);
-    }
-
-    @Test
-    public void processPendingRemovalUpdatedAfterSuccessfulFileDeletion() throws Exception {
-        final List<Urn> tracks = Arrays.asList(TRACK_URN);
-        when(loadPendingRemoval.toObservable()).thenReturn(Observable.just(tracks));
-        when(fileStorage.deleteTrack(TRACK_URN)).thenReturn(true);
-
-        offlineOperations.processPendingRemovals().subscribe();
-
-        expect(deleteOfflineContent.getInput()).toEqual(tracks);
     }
 }

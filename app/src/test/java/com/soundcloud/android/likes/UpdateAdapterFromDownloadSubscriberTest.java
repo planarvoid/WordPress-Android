@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.OfflineSyncEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadResult;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -37,10 +36,10 @@ public class UpdateAdapterFromDownloadSubscriberTest {
     }
 
     @Test
-    public void offlineProgressEventUpdatesDownloadTimeOfMatchingTrack() throws Exception {
+    public void downloadingStartedEventUpdatesDownloadTimeOfMatchingTrack() throws Exception {
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        subscriber.onNext(OfflineSyncEvent.progress(new DownloadResult(true, track1.get(EntityProperty.URN))));
+        subscriber.onNext(OfflineSyncEvent.downloadStarted(track1.get(EntityProperty.URN)));
 
         expect(track1.get(TrackProperty.OFFLINE_DOWNLOADED_AT)).not.toBeNull();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
@@ -48,10 +47,10 @@ public class UpdateAdapterFromDownloadSubscriberTest {
     }
 
     @Test
-    public void offlineProgressEventDoesUpdatesDownloadTimeOfAnyTrackWithUnmatchedUrl() throws Exception {
+    public void downloadingStartedEventDoesUpdatesDownloadTimeOfAnyTrackWithUnmatchedUrl() throws Exception {
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        subscriber.onNext(OfflineSyncEvent.progress(new DownloadResult(true, Urn.forTrack(123L))));
+        subscriber.onNext(OfflineSyncEvent.downloadStarted(Urn.forTrack(123L)));
 
         expect(track1.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();

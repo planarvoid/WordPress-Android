@@ -6,12 +6,10 @@ import com.soundcloud.android.model.Urn;
 public final class DownloadResult {
 
     private final Urn urn;
-    private final boolean isSuccessful;
     private final long downloadedAt;
 
-    public DownloadResult(boolean success, Urn urn) {
+    public DownloadResult(Urn urn) {
         this.urn = urn;
-        this.isSuccessful = success;
         this.downloadedAt = System.currentTimeMillis();
     }
 
@@ -27,7 +25,6 @@ public final class DownloadResult {
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("urn", urn)
-                .add("isSuccessful", isSuccessful)
                 .add("downloadedAt", downloadedAt).toString();
     }
 }

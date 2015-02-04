@@ -27,7 +27,7 @@ class SoundCloudHostnameVerifier implements HostnameVerifier {
 
             return verifyHostName(hostname, names);
         } catch (SSLException e) {
-            Log.e(OfflineContentService.TAG, "Error retrieving peer certificates for " + hostname, e);
+            Log.e(OfflineSyncService.TAG, "Error retrieving peer certificates for " + hostname, e);
             return false;
         }
     }

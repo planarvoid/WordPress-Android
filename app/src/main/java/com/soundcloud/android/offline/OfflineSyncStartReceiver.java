@@ -16,7 +16,7 @@ public class OfflineSyncStartReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         SoundCloudApplication.getObjectGraph().inject(this);
-        Log.d(OfflineContentService.TAG, "Offline Content Sync Start Receiver is awake..... starting service");
-        operations.updateOfflineLikes().subscribe(new StartOfflineContentServiceSubscriber(context));
+        Log.d(OfflineSyncService.TAG, "Offline Content Sync Start Receiver is awake..... starting service");
+        OfflineSyncService.startSyncing(context);
     }
 }

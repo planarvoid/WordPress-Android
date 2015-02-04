@@ -50,10 +50,10 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onCompletedShowsDownloadCompletedNotification() {
-        notificationController.onNewPendingRequests(20);
+        notificationController.onPendingRequests(20);
 
         reset(notificationBuilder);
-        notificationController.onCompleted();
+        notificationController.onDownloadsFinished();
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
@@ -63,7 +63,7 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onErrorShowsDownloadErrorNotification() {
-        notificationController.onNewPendingRequests(20);
+        notificationController.onPendingRequests(20);
 
         reset(notificationBuilder);
         notificationController.onError();
@@ -76,7 +76,7 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onCompletedDoesNotShowNotificationWhenNoPendingRequests() {
-        notificationController.onCompleted();
+        notificationController.onDownloadsFinished();
 
         verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
@@ -90,7 +90,7 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onNewPendingRequestsCreatesNewProgressNotification() {
-        notificationController.onNewPendingRequests(20);
+        notificationController.onPendingRequests(20);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -101,11 +101,11 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onNewPendingRequestsOverridesNumberOfTotalDownloads() {
-        notificationController.onNewPendingRequests(5);
+        notificationController.onPendingRequests(5);
         notificationController.onProgressUpdate();
 
         reset(notificationBuilder);
-        notificationController.onNewPendingRequests(10);
+        notificationController.onPendingRequests(10);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -116,7 +116,7 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onProgressUpdateModifiesNumberOfCompletedDownloads() {
-        notificationController.onNewPendingRequests(20);
+        notificationController.onPendingRequests(20);
         reset(notificationBuilder);
 
         notificationController.onProgressUpdate();

@@ -9,8 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +20,7 @@ import org.mockito.Mock;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 
@@ -29,13 +30,12 @@ public class ResumeDownloadOnConnectedReceiverTest {
     private ResumeDownloadOnConnectedReceiver receiver;
 
     @Mock private Context context;
-    @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Captor private ArgumentCaptor<IntentFilter> intentFilterCaptor;
 
     @Before
     public void setUp() throws Exception {
-        receiver = new ResumeDownloadOnConnectedReceiver(context, offlineContentOperations, networkConnectionHelper);
+        receiver = new ResumeDownloadOnConnectedReceiver(context, networkConnectionHelper);
     }
 
     @Test
@@ -71,20 +71,20 @@ public class ResumeDownloadOnConnectedReceiverTest {
 
     @Test
     public void onReceiveDoesNotStartSyncServiceIfNotConnected() throws Exception {
-        receiver.onReceive(context, null);
+        receiver.onReceive(Robolectric.application, null);
 
-        verify(offlineContentOperations, never()).startOfflineContentSyncing();
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService).toBeNull();
     }
 
     @Test
     public void onReceiveStartsSyncServiceIfConnected() throws Exception {
-        // this test is weird, and does not test the right things, but we have to wait for refactors....
-        final TestObservables.MockObservable objectObservable = TestObservables.emptyObservable();
-        when(offlineContentOperations.updateOfflineLikes()).thenReturn(objectObservable);
         when(networkConnectionHelper.networkIsConnected()).thenReturn(true);
 
-        receiver.onReceive(context, null);
+        receiver.onReceive(Robolectric.application, null);
 
-        expect(objectObservable.subscribedTo()).toBeTrue();
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService.getAction()).toEqual(OfflineSyncService.ACTION_START_DOWNLOAD);
+        expect(startService.getComponent().getClassName()).toEqual(OfflineSyncService.class.getCanonicalName());
     }
 }

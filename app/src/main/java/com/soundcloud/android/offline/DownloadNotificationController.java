@@ -35,7 +35,7 @@ class DownloadNotificationController {
         this.notificationBuilderProvider = notificationBuilderProvider;
     }
 
-    public Notification onNewPendingRequests(int pending) {
+    public Notification onPendingRequests(int pending) {
         totalDownloads = completedDownloads + pending;
         progressNotification = notificationBuilderProvider.get();
 
@@ -47,7 +47,7 @@ class DownloadNotificationController {
         notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, updateProgressNotification());
     }
 
-    public void onCompleted() {
+    public void onDownloadsFinished() {
         if (totalDownloads > 0) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, buildCompletedNotification());
         }

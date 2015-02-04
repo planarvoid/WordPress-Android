@@ -18,7 +18,7 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadPendingDownloadsCommand extends Command<Integer, List<DownloadRequest>, LoadPendingDownloadsCommand> {
+public class LoadPendingDownloadsCommand extends Command<Object, List<DownloadRequest>, LoadPendingDownloadsCommand> {
 
     private final PropellerDatabase database;
 
@@ -32,6 +32,7 @@ public class LoadPendingDownloadsCommand extends Command<Integer, List<DownloadR
         return database.query(Query.from(TrackDownloads.name(), Sounds.name())
                 .joinOn(Sounds + "." + TableColumns.Sounds._ID, TrackDownloads + "." + _ID)
                 .select(TrackDownloads + "." + _ID, TableColumns.SoundView.STREAM_URL)
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereNull(REMOVED_AT)
                 .whereNull(DOWNLOADED_AT)).toList(new DownloadRequestMapper());
     }

@@ -49,7 +49,7 @@ public class OfflineContentScheduler {
 
     @VisibleForTesting
     void scheduleDelayedRetry(long atTimeInMillis){
-        Log.d(OfflineContentService.TAG, "Scheduling retry of offline content service");
+        Log.d(OfflineSyncService.TAG, "Scheduling retry of offline content service");
         alarmManager.set(ALARM_TYPE, atTimeInMillis, getPendingIntent(context));
     }
 

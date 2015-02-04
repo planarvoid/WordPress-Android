@@ -329,7 +329,7 @@
         <service android:name=".sync.ApiSyncService"/>
         <service android:name=".creators.record.SoundRecorderService"/>
         <service android:exported="false" android:name=".playback.service.PlaybackService"/>
-        <service android:exported="false" android:name=".offline.OfflineContentService"/>
+        <service android:exported="false" android:name=".offline.OfflineSyncService"/>
         
         <service android:exported="false" android:name=".creators.upload.UploadService">
             <intent-filter>

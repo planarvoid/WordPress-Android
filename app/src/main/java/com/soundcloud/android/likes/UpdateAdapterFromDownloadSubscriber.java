@@ -20,7 +20,7 @@ class UpdateAdapterFromDownloadSubscriber extends DefaultSubscriber<OfflineSyncE
     @Override
     public void onNext(OfflineSyncEvent offlineSyncEvent) {
         for (PropertySet item : adapter.getItems()){
-            if (item.get(EntityProperty.URN).equals(offlineSyncEvent.getDownloadedItem())){
+            if (item.get(EntityProperty.URN).equals(offlineSyncEvent.getUrn())){
                 item.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date());
                 adapter.notifyDataSetChanged();
             }

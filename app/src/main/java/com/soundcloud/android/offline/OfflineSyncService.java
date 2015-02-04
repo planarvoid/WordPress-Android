@@ -1,0 +1,198 @@
+package com.soundcloud.android.offline;
+
+import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.subscriptions.Subscriptions;
+
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.os.IBinder;
+import android.os.Message;
+
+import javax.inject.Inject;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+
+public class OfflineSyncService extends Service implements DownloadHandler.Listener {
+
+    static final String TAG = "OfflineContent";
+    @VisibleForTesting static final String ACTION_START_DOWNLOAD = "action_start_download";
+    @VisibleForTesting static final String ACTION_STOP_DOWNLOAD = "action_stop_download";
+
+    @Inject DownloadOperations downloadOperations;
+    @Inject OfflineContentOperations offlineContentOperations;
+    @Inject DownloadNotificationController notificationController;
+    @Inject EventBus eventBus;
+    @Inject OfflineContentScheduler offlineContentScheduler;
+    @Inject DownloadHandler.Builder builder;
+
+    private final Queue<DownloadRequest> queue = new LinkedList<>();
+    private DownloadHandler downloadHandler;
+
+    private Subscription loadRequestsSubscription = Subscriptions.empty();
+
+    private final Action1<List<DownloadRequest>> updateNotification = new Action1<List<DownloadRequest>>() {
+        @Override
+        public void call(List<DownloadRequest> downloadRequests) {
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(downloadRequests.size()));
+        }
+    };
+
+    private Action1<List<DownloadRequest>> sendDownloadRequestsUpdated = new Action1<List<DownloadRequest>>() {
+        @Override
+        public void call(List<DownloadRequest> requests) {
+            eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.queueUpdate());
+        }
+    };
+
+    public static void startSyncing(Context context) {
+        context.startService(createIntent(context, ACTION_START_DOWNLOAD));
+    }
+
+    public static void stopSyncing(Context context) {
+        context.startService(createIntent(context, ACTION_STOP_DOWNLOAD));
+    }
+
+    private static Intent createIntent(Context context, String action) {
+        final Intent intent = new Intent(context, OfflineSyncService.class);
+        intent.setAction(action);
+        return intent;
+    }
+
+    public OfflineSyncService() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    OfflineSyncService(DownloadOperations downloadOps,
+                       OfflineContentOperations offlineContentOperations,
+                       DownloadNotificationController notificationController,
+                       EventBus eventBus,
+                       OfflineContentScheduler offlineContentScheduler,
+                       DownloadHandler.Builder builder) {
+        this.downloadOperations = downloadOps;
+        this.offlineContentOperations = offlineContentOperations;
+        this.notificationController = notificationController;
+        this.eventBus = eventBus;
+        this.offlineContentScheduler = offlineContentScheduler;
+        this.builder = builder;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        downloadHandler = builder.create(this);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        final String action = intent.getAction();
+        Log.d(TAG, "Starting offlineContentService for action: " + action);
+
+        if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
+            offlineContentScheduler.cancelPendingRetries();
+
+            loadRequestsSubscription.unsubscribe();
+
+            loadRequestsSubscription = offlineContentOperations
+                    .updateDownloadRequestsFromLikes()
+                    .doOnNext(sendDownloadRequestsUpdated)
+                    .doOnNext(downloadOperations.deletePendingRemovals())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(updateNotification)
+                    .subscribe(new DownloadSubscriber());
+
+        } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
+            stop();
+        }
+        return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onSuccess(DownloadResult result) {
+        Log.d(TAG, "Download finished " + result);
+        notificationController.onProgressUpdate();
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.downloadFinished(result.getUrn()));
+        loop();
+    }
+
+    @Override
+    public void onError(DownloadRequest request) {
+        Log.d(TAG, "Download failed " + request);
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.downloadFailed(request.urn));
+        offlineContentScheduler.scheduleRetry();
+        stop();
+        notificationController.onError();
+        // TODO : proceed the queue ?
+    }
+
+    private void loop() {
+        if (queue.isEmpty()) {
+            // FIXME : a request might be processing
+            stop();
+            notificationController.onDownloadsFinished();
+        } else {
+            startDownloadIfNotRunning();
+        }
+    }
+
+    private void startDownloadIfNotRunning() {
+        if (!downloadHandler.hasMessages(DownloadHandler.ACTION_DOWNLOAD)) {
+            final DownloadRequest request = queue.poll();
+            final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
+
+            downloadHandler.sendMessage(message);
+            eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.downloadStarted(request.urn));
+        }
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    private void stop() {
+        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.stop());
+
+        Log.d(TAG, "Stopping the service");
+        loadRequestsSubscription.unsubscribe();
+        downloadHandler.quit();
+
+        stopForeground(false);
+        stopSelf();
+    }
+
+    @Override
+    public void onDestroy() {
+        loadRequestsSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
+        @Override
+        public void onNext(List<DownloadRequest> requests) {
+            if (queue.isEmpty() && !requests.isEmpty()) {
+                Log.d(TAG, "Start offline sync with " + requests.size());
+                eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.start());
+            }
+            // FIXME : do not start if nothing to process
+
+            queue.clear();
+            queue.addAll(requests);
+            loop();
+        }
+    }
+
+}

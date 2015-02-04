@@ -1,6 +1,5 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -24,18 +23,12 @@ public class OfflineContentController {
 
     public void subscribe() {
         subscription = new CompositeSubscription(
-                operations.startOfflineContentSyncing().subscribe(new StartOfflineContentServiceSubscriber(context)),
-                operations.stopOfflineContentSyncing().subscribe(new StopOfflineContentServiceSubscriber())
+                operations.startOfflineContentSyncing().subscribe(new StartOfflineSyncServiceSubscriber(context, true)),
+                operations.stopOfflineContentSyncing().subscribe(new StartOfflineSyncServiceSubscriber(context, false))
         );
     }
 
     public void unsubscribe() {
         subscription.unsubscribe();
-    }
-
-    private class StopOfflineContentServiceSubscriber extends DefaultSubscriber<Object> {
-        @Override public void onNext(Object args) {
-            OfflineContentService.stopSyncing(context);
-        }
     }
 }
