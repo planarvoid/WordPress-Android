@@ -10,12 +10,16 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 
+import android.support.v4.util.ArrayMap;
+
 import javax.inject.Inject;
+import java.util.Map;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
@@ -58,7 +62,16 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleVisualAdImpression((VisualAdImpressionEvent) event);
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindTracking((AdOverlayTrackingEvent) event);
+        } else if (event instanceof ScreenEvent) {
+            handleScreenEvent((ScreenEvent) event);
         }
+    }
+
+    private void handleScreenEvent(ScreenEvent event) {
+        final String screenTag = event.get(ScreenEvent.KEY_SCREEN);
+        Map<String, String> eventAttributes = new ArrayMap<>();
+        eventAttributes.put("context", screenTag);
+        trackEvent(event.getTimeStamp(), urlBuilder.build(event));
     }
 
     @Override

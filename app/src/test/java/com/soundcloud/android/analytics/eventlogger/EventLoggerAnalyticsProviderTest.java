@@ -1,10 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.events.ConnectionType;
-
-import com.soundcloud.android.events.PlayerType;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -13,11 +9,15 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -190,6 +190,18 @@ public class EventLoggerAnalyticsProviderTest {
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);
 
         verifyZeroInteractions(eventTracker);
+    }
+
+    @Test
+    public void shouldTrackScreenEvent() {
+        ScreenEvent event = ScreenEvent.create(Screen.ACTIVITIES);
+        when(eventLoggerUrlBuilder.build(event)).thenReturn("ForScreenEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        captor.getValue().getUrl().equals("ForScreenEvent");
     }
 
     @Test
