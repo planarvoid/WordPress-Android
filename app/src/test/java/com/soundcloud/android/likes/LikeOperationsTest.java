@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ public class LikeOperationsTest {
     @Mock private UpdateLikeCommand storeLikeCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private Action0 requestSystemSyncAction;
 
     private TestEventBus eventBus = new TestEventBus();
     private Scheduler scheduler = Schedulers.immediate();
@@ -61,6 +63,7 @@ public class LikeOperationsTest {
                 scheduler, networkConnectionHelper);
         when(storeLikeCommand.toObservable()).thenReturn(
                 Observable.just(TestPropertySets.likedTrack(Urn.forTrack(123))));
+        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
     }
 
     @Test
@@ -274,6 +277,15 @@ public class LikeOperationsTest {
         expect(event.getUrn()).toEqual(track.get(PlayableProperty.URN));
         expect(event.getChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
         expect(event.getChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
+    }
+
+    @Test
+    public void togglingLikeRequestsSystemSync() {
+        final PropertySet track = TestPropertySets.likedTrack(Urn.forTrack(123L));
+
+        operations.addLike(track).subscribe();
+
+        verify(requestSystemSyncAction).call();
     }
 
 

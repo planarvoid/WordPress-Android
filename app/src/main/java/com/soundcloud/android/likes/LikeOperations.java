@@ -169,6 +169,7 @@ public class LikeOperations {
                 .with(likeProperties)
                 .toObservable()
                 .doOnNext(publishPlayableChanged)
+                .doOnCompleted(syncInitiator.requestSystemSyncAction())
                 .subscribeOn(scheduler);
     }
 
