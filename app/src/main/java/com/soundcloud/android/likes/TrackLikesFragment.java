@@ -219,6 +219,7 @@ public class TrackLikesFragment extends LightCycleFragment
 
     private void connectLoadAllTrackUrns() {
         allTrackUrnsObservable.subscribe(new AllLikedTrackUrnsSubscriber());
+        allTrackUrnsSubscription.unsubscribe();
         allTrackUrnsSubscription = allTrackUrnsObservable.connect();
     }
 
