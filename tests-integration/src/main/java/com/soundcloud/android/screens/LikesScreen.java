@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens;
 
+import static com.soundcloud.android.framework.with.With.text;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -36,20 +38,36 @@ public class LikesScreen extends Screen {
     }
 
     public VisualPlayerElement clickShuffleButton() {
-        testDriver.findElement(With.text(testDriver.getString(R.string.shuffle))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.shuffle))).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
-    public int getLoadedTrackCount(){
+    public int getLoadedTrackCount() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return likesList().getAdapter().getCount();
+        return likesList().getAdapter().getCount() - 1; // header
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
         likesList().scrollToBottom();
         waiter.waitForContentAndRetryIfLoadingFailed();
+    }
+
+    public void waitForLikesSyncToFinish() {
+        waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_sync_in_progress));
+    }
+
+    public boolean isSyncInProgressTextVisible() {
+        final String syncInProgress = testDriver.getString(R.string.offline_sync_in_progress);
+        return testDriver.isElementDisplayed(text(syncInProgress));
+    }
+
+    public boolean isLikedTracksTextVisible() {
+        int count = tracks().size();
+        final String syncInProgress =
+                testDriver.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, count, count);
+        return testDriver.isElementDisplayed(text(syncInProgress));
     }
 
     private ViewElement syncIcon() {
