@@ -9,4 +9,9 @@ public class ConfigurationHelper {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean("offline_sync", true).apply();
     }
+
+    public static void disableOfflineSync(Context context) {
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean("likes_offline_sync", false).putBoolean("offline_sync", false).apply();
+    }
 }
