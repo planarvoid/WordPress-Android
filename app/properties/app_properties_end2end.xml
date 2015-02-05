@@ -19,6 +19,7 @@
     <!-- Feature flags (enabled) -->
     <bool name="feature_payments">true</bool>
     <bool name="feature_payments_test">true</bool>
+    <bool name="feature_reload_last_playqueue">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_google_cast">false</bool>
@@ -28,6 +29,5 @@
     <bool name="feature_api_mobile_stream">false</bool>
     <bool name="feature_new_likes_syncer">false</bool>
     <bool name="feature_playlist_likes_screen">false</bool>
-    <bool name="feature_reload_last_playqueue">false</bool>
     <bool name="feature_configuration_features">false</bool>
 </resources>
