@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -62,6 +63,22 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final PropertySet trackRepost = createTrackPropertySet(track)
                 .put(PlayableProperty.REPOSTER, reposter.getUsername());
 
+        verify(observer).onNext(trackRepost);
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void loadingStreamItemsFiltersOutTrackWithSameTrackReposted() throws CreateModelException {
+        final ApiUser reposter = testFixtures().insertUser();
+        final ApiTrack track = testFixtures().insertTrack();
+        testFixtures().insertTrackPost(track.getId(), TIMESTAMP);
+        testFixtures().insertTrackRepost(track.getId(), TIMESTAMP, reposter.getId());
+        storage.streamItemsBefore(Long.MAX_VALUE, Urn.forUser(123), 50).subscribe(observer);
+        final PropertySet trackPost = createTrackPropertySet(track);
+        final PropertySet trackRepost = createTrackPropertySet(track)
+                .put(PlayableProperty.REPOSTER, reposter.getUsername());
+
+        verify(observer, never()).onNext(trackPost);
         verify(observer).onNext(trackRepost);
         verify(observer).onCompleted();
     }
