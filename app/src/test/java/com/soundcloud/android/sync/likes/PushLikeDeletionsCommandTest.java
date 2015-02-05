@@ -21,4 +21,11 @@ public class PushLikeDeletionsCommandTest {
         final ApiRequest builder = command.requestBuilder(ApiEndpoints.DELETE_TRACK_LIKES).forPrivateApi(1).build();
         expect(builder.getResourceType()).toEqual(new TypeToken<ModelCollection<ApiDeletedLike>>() {});
     }
+
+    @Test
+    public void shouldSpecifyCorrectMethodType() {
+        PushLikeDeletionsCommand command = new PushLikeDeletionsCommand(mock(ApiClient.class), ApiEndpoints.DELETE_TRACK_LIKES);
+        final ApiRequest builder = command.requestBuilder(ApiEndpoints.DELETE_TRACK_LIKES).forPrivateApi(1).build();
+        expect(builder.getMethod()).toEqual("POST");
+    }
 }

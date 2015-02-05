@@ -16,6 +16,6 @@ class PushLikeDeletionsCommand extends PushLikesCommand<ApiDeletedLike> {
     protected ApiRequest.Builder<ModelCollection<ApiDeletedLike>> requestBuilder(ApiEndpoints endpoint) {
         final TypeToken<ModelCollection<ApiDeletedLike>> typeToken = new TypeToken<ModelCollection<ApiDeletedLike>>() {
         };
-        return ApiRequest.Builder.<ModelCollection<ApiDeletedLike>>delete(endpoint.path()).forResource(typeToken);
+        return ApiRequest.Builder.<ModelCollection<ApiDeletedLike>>post(endpoint.path()).forResource(typeToken);
     }
 }
