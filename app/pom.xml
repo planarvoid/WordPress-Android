@@ -408,8 +408,9 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>skippy</artifactId>
-            <version>588</version>
-            <type>apklib</type>
+            <!-- Skippy version 0 is equiv to 588 -->
+            <version>0</version>
+            <type>aar</type>
         </dependency>
         <dependency>
             <groupId>com.nineoldandroids</groupId>
