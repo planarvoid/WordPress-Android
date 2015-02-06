@@ -9,11 +9,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.ImmutableMap;
 import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
-import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -22,6 +21,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
+import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -32,9 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
-import android.net.Uri;
-import android.support.v4.util.ArrayMap;
 
 import java.io.IOException;
 import java.net.URI;
@@ -136,6 +133,14 @@ public class LocalyticsAnalyticsProviderTest {
         localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Skippy Init Error"), eq(event.getAttributes()));
+    }
+
+    @Test
+    public void shouldTrackSkippyInitilizationSuccess() {
+        SkippyInitilizationSucceededEvent event = new SkippyInitilizationSucceededEvent(3, 4);
+        localyticsProvider.handleTrackingEvent(event);
+
+        verify(localyticsSession).tagEvent(eq("Skippy Init Success"), eq(event.getAttributes()));
     }
 
     @Test

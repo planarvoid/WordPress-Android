@@ -19,6 +19,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
+import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -94,14 +95,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     public boolean init(Context context) {
         boolean initSuccess = skippy.init(context, skippyFactory.createConfiguration());
         if (initSuccess){
-            incrementInitSuccesses();
+            eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationSucceededEvent(
+                    getInitializationErrorCount(), getAndIncrementInitilizationSuccesses()));
         }
         return initSuccess;
-    }
-
-    private void incrementInitSuccesses() {
-        int successes = sharedPreferences.getInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, 0) + 1;
-        sharedPreferences.edit().putInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, successes).apply();
     }
 
     @Override
@@ -399,15 +396,24 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     private int getAndIncrementInitilizationErrors() {
-        int errors = sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0) + 1;
+        int errors = getInitializationErrorCount() + 1;
         sharedPreferences.edit().putInt(SKIPPY_INIT_ERROR_COUNT_KEY, errors).apply();
         return errors;
+    }
+
+    private int getInitializationErrorCount() {
+        return sharedPreferences.getInt(SKIPPY_INIT_ERROR_COUNT_KEY, 0);
+    }
+
+    private int getAndIncrementInitilizationSuccesses() {
+        int successes = getInitializationSuccessCount() + 1;
+        sharedPreferences.edit().putInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, successes).apply();
+        return successes;
     }
 
     private int getInitializationSuccessCount() {
         return sharedPreferences.getInt(SKIPPY_INIT_SUCCESS_COUNT_KEY, 0);
     }
-
 
     static class StateChangeHandler extends Handler {
 

@@ -29,6 +29,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
+import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -121,14 +122,6 @@ public class SkippyAdapterTest {
         verify(skippy).init(Robolectric.application, configuration);
     }
 
-    @Test
-    public void initIncrementsSkippyInitSuccesses() {
-        when(skippyFactory.createConfiguration()).thenReturn(configuration);
-        when(skippy.init(Robolectric.application, configuration)).thenReturn(true);
-        skippyAdapter.init(Robolectric.application);
-        verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
-        verify(sharedPreferencesEditor).apply();
-    }
 
     @Test
     public void playDoesNotInteractWithSkippyIfNoListenerPresent() {
@@ -537,6 +530,27 @@ public class SkippyAdapterTest {
         expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
         expect(event.getCategory()).toEqual("CODEC_DECODER");
         expect(event.getCdnHost()).toEqual(CDN_HOST);
+    }
+
+    @Test
+    public void initilizationSuccessPublishesSkippyInitSuccessEvent() throws Exception {
+        when(skippyFactory.createConfiguration()).thenReturn(configuration);
+        when(skippy.init(Robolectric.application, configuration)).thenReturn(true);
+        skippyAdapter.init(Robolectric.application);
+
+        final SkippyInitilizationSucceededEvent event = (SkippyInitilizationSucceededEvent) eventBus.lastEventOn(EventQueue.TRACKING);
+        expect(event.getAttributes().get("failure_count")).toEqual("0");
+        expect(event.getAttributes().get("success_count")).toEqual("1");
+        expect(event.getAttributes().get("has_failed")).toEqual("false");
+    }
+
+    @Test
+    public void initilizationSuccessIncrementsSuccessCount() throws Exception {
+        when(skippyFactory.createConfiguration()).thenReturn(configuration);
+        when(skippy.init(Robolectric.application, configuration)).thenReturn(true);
+        skippyAdapter.init(Robolectric.application);
+        verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_SUCCESS_COUNT_KEY, 1);
+        verify(sharedPreferencesEditor).apply();
     }
 
     @Test
