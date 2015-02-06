@@ -9,6 +9,7 @@ final class LocalyticsEvents {
     static final String BUFFER_UNDERRUN = "Buffer Underrun";
     static final String SKIPPY_PLAY = "Skippy Play";
     static final String SKIPPY_INITILIAZATION_ERROR = "Skippy Init Error";
+    static final String SKIPPY_INITILIAZATION_SUCCESS = "Skippy Init Success";
     static final String STREAM_PROXY_CONFIGURED = "Stream proxy configured";
 
     static final class DeviceMetrics {

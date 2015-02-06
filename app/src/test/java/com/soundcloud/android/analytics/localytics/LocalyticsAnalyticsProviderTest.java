@@ -21,6 +21,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
+import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -132,6 +133,14 @@ public class LocalyticsAnalyticsProviderTest {
         localyticsProvider.handleTrackingEvent(event);
 
         verify(localyticsSession).tagEvent(eq("Skippy Init Error"), eq(event.getAttributes()));
+    }
+
+    @Test
+    public void shouldTrackSkippyInitilizationSuccess() {
+        SkippyInitilizationSucceededEvent event = new SkippyInitilizationSucceededEvent(3, 4);
+        localyticsProvider.handleTrackingEvent(event);
+
+        verify(localyticsSession).tagEvent(eq("Skippy Init Success"), eq(event.getAttributes()));
     }
 
     @Test

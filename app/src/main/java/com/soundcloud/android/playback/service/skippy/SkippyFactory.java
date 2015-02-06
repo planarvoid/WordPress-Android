@@ -12,7 +12,7 @@ public class SkippyFactory {
 
     private static final String KEY_PREFERENCE_NAME = "skippy_cache";
     private static final int PROGRESS_INTERVAL_MS = 500;
-    private static final int BUFFER_DURATION_MS = (int) TimeUnit.SECONDS.toMillis(10);
+    private static final int BUFFER_DURATION_MS = (int) TimeUnit.SECONDS.toMillis(60);
     private static final boolean ALL_TRACKS_CACHE = false;
     private static final int MAX_CACHE_SIZE_BYTES = 300 * 1024 * 1024;
     private static final int CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE = 10;
