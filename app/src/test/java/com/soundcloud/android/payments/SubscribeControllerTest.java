@@ -89,7 +89,7 @@ public class SubscribeControllerTest {
         controller.onCreate(activity);
         controller.handleBillingResult(TestBillingResults.cancelled());
 
-        verify(paymentOperations).cancel("user cancelled");
+        verify(paymentOperations).cancel("payment failed");
     }
 
     @Test
