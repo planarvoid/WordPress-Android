@@ -68,7 +68,7 @@ public class PlaylistPostsFragmentTest {
 
     @Test
     public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
-        PropertySet clickedPlaylist = TestPropertySets.expectedLikedPlaylistForPlaylistsScreen();
+        PropertySet clickedPlaylist = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
         fragment.onCreate(null);
         createFragmentView();

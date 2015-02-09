@@ -22,7 +22,7 @@ public class EmptyPlaylistPostsTest extends ActivityTest<MainActivity> {
         super.setUp();
     }
 
-    public void testShowsEmptyLikesScreen() {
+    public void testShowsEmptyPostsScreen() {
         playlistsScreen = NavigationHelper.openPostedPlaylists(new MenuScreen(solo));
         assertTrue(playlistsScreen.emptyView().isVisible());
     }
