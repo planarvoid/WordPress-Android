@@ -153,6 +153,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             final DownloadRequest request = queue.poll();
             final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
 
+            Log.d(TAG, "Download started " + request);
             downloadHandler.sendMessage(message);
             eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadStarted(request.urn));
         }
@@ -184,7 +185,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         @Override
         public void onNext(List<DownloadRequest> requests) {
             if (queue.isEmpty() && !requests.isEmpty()) {
-                Log.d(TAG, "Start offline sync with " + requests.size());
+                Log.d(TAG, "Start offline sync with " + requests.size() + " queue.");
                 eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
             }
             // FIXME : do not start if nothing to process

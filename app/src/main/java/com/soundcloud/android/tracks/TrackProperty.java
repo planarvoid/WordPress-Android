@@ -16,4 +16,6 @@ public final class TrackProperty extends PlayableProperty {
     public static final Property<Date> OFFLINE_DOWNLOADED_AT = Property.of(TrackProperty.class, Date.class);
     public static final Property<Date> OFFLINE_REMOVED_AT = Property.of(TrackProperty.class, Date.class);
     public static final Property<Date> OFFLINE_REQUESTED_AT = Property.of(TrackProperty.class, Date.class);
+    public static final Property<Boolean> OFFLINE_DOWNLOADING = Property.of(TrackProperty.class, Boolean.class);
+
 }

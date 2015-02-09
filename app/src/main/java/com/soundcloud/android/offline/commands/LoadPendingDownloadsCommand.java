@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline.commands;
 
 import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.storage.Table.Likes;
 import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
@@ -29,12 +30,15 @@ public class LoadPendingDownloadsCommand extends Command<Object, List<DownloadRe
 
     @Override
     public List<DownloadRequest> call() throws Exception {
-        return database.query(Query.from(TrackDownloads.name(), Sounds.name())
+        return database.query(Query.from(TrackDownloads.name(), Sounds.name(), Likes.name())
                 .joinOn(Sounds + "." + TableColumns.Sounds._ID, TrackDownloads + "." + _ID)
+                .joinOn(Likes + "." + TableColumns.Likes._ID, TrackDownloads + "." + _ID)
                 .select(TrackDownloads + "." + _ID, TableColumns.SoundView.STREAM_URL)
-                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(REMOVED_AT)
-                .whereNull(DOWNLOADED_AT)).toList(new DownloadRequestMapper());
+                .whereEq(Sounds + "." + TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereNull(TrackDownloads + "." +REMOVED_AT)
+                .whereNull(DOWNLOADED_AT)
+                .order(Likes + "." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC))
+                .toList(new DownloadRequestMapper());
     }
 
     private static class DownloadRequestMapper extends RxResultMapper<DownloadRequest> {

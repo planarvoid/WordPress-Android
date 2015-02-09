@@ -19,9 +19,14 @@ class UpdateAdapterFromDownloadSubscriber extends DefaultSubscriber<OfflineConte
 
     @Override
     public void onNext(OfflineContentEvent offlineContentEvent) {
-        for (PropertySet item : adapter.getItems()){
-            if (item.get(EntityProperty.URN).equals(offlineContentEvent.getUrn())){
-                item.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date());
+        for (PropertySet item : adapter.getItems()) {
+            if (item.get(EntityProperty.URN).equals(offlineContentEvent.getUrn())) {
+                if (offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_FINISHED) {
+                    item.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date());
+                    item.put(TrackProperty.OFFLINE_DOWNLOADING, false);
+                } else {
+                    item.put(TrackProperty.OFFLINE_DOWNLOADING, true);
+                }
                 adapter.notifyDataSetChanged();
             }
         }
