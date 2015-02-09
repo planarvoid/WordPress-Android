@@ -101,11 +101,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         final String action = intent.getAction();
         Log.d(TAG, "Starting offlineContentService for action: " + action);
 
+        offlineContentScheduler.cancelPendingRetries();
         if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
-            offlineContentScheduler.cancelPendingRetries();
-
             loadRequestsSubscription.unsubscribe();
-
             loadRequestsSubscription = offlineContentOperations
                     .updateDownloadRequestsFromLikes()
                     .doOnNext(sendDownloadRequestsUpdated)

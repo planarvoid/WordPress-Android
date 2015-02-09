@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.os.Message;
 
 import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 
 public class DownloadHandler extends Handler {
 
@@ -44,18 +45,19 @@ public class DownloadHandler extends Handler {
         try {
             final DownloadResult result = downloadOperations.download(request);
             storeCompletedDownload.with(result).call();
-
-            final Message message = mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
-            mainHandler.sendMessage(message);
-
+            sendMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
         } catch (DownloadFailedException | PropellerWriteException e) {
-            final Message message = mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, request);
-            mainHandler.sendMessage(message);
+            sendMessage(MainHandler.ACTION_DOWNLOAD_FAILED, request);
         }
+    }
+
+    private void sendMessage(int status, Object obj) {
+        mainHandler.sendMessage(mainHandler.obtainMessage(status, obj));
     }
 
     void quit() {
         getLooper().quit();
+        mainHandler.quit();
     }
 
     @VisibleForTesting
@@ -85,20 +87,27 @@ public class DownloadHandler extends Handler {
         static final int ACTION_DOWNLOAD_SUCCESS = 0;
         static final int ACTION_DOWNLOAD_FAILED = 1;
 
-        private final Listener listener;
+        private final WeakReference<Listener> listenerRef;
 
-        public MainHandler(Listener listener) {
+        public MainHandler(Listener listenerRef) {
             super(Looper.getMainLooper());
-            this.listener = listener;
+            this.listenerRef = new WeakReference<>(listenerRef);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            if (ACTION_DOWNLOAD_SUCCESS == msg.what) {
-                listener.onSuccess((DownloadResult) msg.obj);
-            } else if (ACTION_DOWNLOAD_FAILED == msg.what) {
-                listener.onError((DownloadRequest) msg.obj);
+            final Listener listener = listenerRef.get();
+            if (listener != null) {
+                if (ACTION_DOWNLOAD_SUCCESS == msg.what) {
+                    listener.onSuccess((DownloadResult) msg.obj);
+                } else if (ACTION_DOWNLOAD_FAILED == msg.what) {
+                    listener.onError((DownloadRequest) msg.obj);
+                }
             }
+        }
+
+        public void quit() {
+            listenerRef.clear();
         }
     }
 }
