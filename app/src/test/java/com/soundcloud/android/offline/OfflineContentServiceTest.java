@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class OfflineSyncServiceTest {
+public class OfflineContentServiceTest {
 
     @Mock private DownloadOperations downloadOperations;
     @Mock private DownloadNotificationController notificationController;
@@ -39,7 +39,7 @@ public class OfflineSyncServiceTest {
     @Mock private DownloadHandler downloadHandler;
     @Mock private Action1<Object> deletePendingRemoval;
 
-    private OfflineSyncService service;
+    private OfflineContentService service;
     private DownloadRequest downloadRequest1;
     private DownloadRequest downloadRequest2;
     private DownloadResult downloadResult1;
@@ -53,7 +53,7 @@ public class OfflineSyncServiceTest {
         downloadResult1 = new DownloadResult(Urn.forTrack(123L));
         eventBus = new TestEventBus();
 
-        service = new OfflineSyncService(downloadOperations, offlineContentOperations, notificationController,
+        service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
                 eventBus, offlineContentScheduler, handlerFactory);
 
         when(downloadOperations.deletePendingRemovals()).thenReturn(deletePendingRemoval);
@@ -97,22 +97,22 @@ public class OfflineSyncServiceTest {
 
         startService();
 
-        List<OfflineSyncEvent> offlineSyncEvents = eventBus.eventsOn(EventQueue.OFFLINE_SYNC);
-        expect(offlineSyncEvents.size()).toBe(4);
-        expect(offlineSyncEvents.get(0).getKind()).toEqual(OfflineSyncEvent.IDLE);
-        expect(offlineSyncEvents.get(1).getKind()).toEqual(OfflineSyncEvent.QUEUE_UPDATED);
-        expect(offlineSyncEvents.get(2).getKind()).toEqual(OfflineSyncEvent.START);
-        expect(offlineSyncEvents.get(3).getKind()).toEqual(OfflineSyncEvent.DOWNLOAD_STARTED);
+        List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
+        expect(offlineContentEvents.size()).toBe(4);
+        expect(offlineContentEvents.get(0).getKind()).toEqual(OfflineContentEvent.IDLE);
+        expect(offlineContentEvents.get(1).getKind()).toEqual(OfflineContentEvent.QUEUE_UPDATED);
+        expect(offlineContentEvents.get(2).getKind()).toEqual(OfflineContentEvent.START);
+        expect(offlineContentEvents.get(3).getKind()).toEqual(OfflineContentEvent.DOWNLOAD_STARTED);
     }
 
     @Test
     public void cancelServiceEmitsOfflineSyncStopEvent() {
         stopService();
 
-        List<OfflineSyncEvent> offlineSyncEvents = eventBus.eventsOn(EventQueue.OFFLINE_SYNC);
-        expect(offlineSyncEvents.size()).toBe(2);
-        expect(offlineSyncEvents.get(0).getKind()).toEqual(OfflineSyncEvent.IDLE);
-        expect(offlineSyncEvents.get(1).getKind()).toEqual(OfflineSyncEvent.STOP);
+        List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
+        expect(offlineContentEvents.size()).toBe(2);
+        expect(offlineContentEvents.get(0).getKind()).toEqual(OfflineContentEvent.IDLE);
+        expect(offlineContentEvents.get(1).getKind()).toEqual(OfflineContentEvent.STOP);
     }
 
     @Test
@@ -121,9 +121,9 @@ public class OfflineSyncServiceTest {
 
         startService();
 
-        final OfflineSyncEvent offlineSyncEvent = eventBus.lastEventOn(EventQueue.OFFLINE_SYNC);
-        expect(offlineSyncEvent.getKind()).toBe(OfflineSyncEvent.DOWNLOAD_STARTED);
-        expect(offlineSyncEvent.getUrn()).toEqual(downloadRequest1.urn);
+        final OfflineContentEvent offlineContentEvent = eventBus.lastEventOn(EventQueue.OFFLINE_CONTENT);
+        expect(offlineContentEvent.getKind()).toBe(OfflineContentEvent.DOWNLOAD_STARTED);
+        expect(offlineContentEvent.getUrn()).toEqual(downloadRequest1.urn);
     }
 
     @Test
@@ -133,14 +133,14 @@ public class OfflineSyncServiceTest {
         startService();
         service.onSuccess(downloadResult1);
 
-        final List<OfflineSyncEvent> events = eventBus.eventsOn(EventQueue.OFFLINE_SYNC);
-        expect(events.get(0).getKind()).toBe(OfflineSyncEvent.IDLE);
-        expect(events.get(1).getKind()).toEqual(OfflineSyncEvent.QUEUE_UPDATED);
-        expect(events.get(2).getKind()).toBe(OfflineSyncEvent.START);
-        expect(events.get(3).getKind()).toBe(OfflineSyncEvent.DOWNLOAD_STARTED);
-        expect(events.get(4).getKind()).toBe(OfflineSyncEvent.DOWNLOAD_FINISHED);
+        final List<OfflineContentEvent> events = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
+        expect(events.get(0).getKind()).toBe(OfflineContentEvent.IDLE);
+        expect(events.get(1).getKind()).toEqual(OfflineContentEvent.QUEUE_UPDATED);
+        expect(events.get(2).getKind()).toBe(OfflineContentEvent.START);
+        expect(events.get(3).getKind()).toBe(OfflineContentEvent.DOWNLOAD_STARTED);
+        expect(events.get(4).getKind()).toBe(OfflineContentEvent.DOWNLOAD_FINISHED);
         expect(events.get(4).getUrn()).toEqual(downloadRequest1.urn);
-        expect(events.get(5).getKind()).toBe(OfflineSyncEvent.STOP);
+        expect(events.get(5).getKind()).toBe(OfflineContentEvent.STOP);
     }
 
     @Test
@@ -150,14 +150,14 @@ public class OfflineSyncServiceTest {
         startService();
         service.onError(downloadRequest1);
 
-        final List<OfflineSyncEvent> events = eventBus.eventsOn(EventQueue.OFFLINE_SYNC);
-        expect(events.get(0).getKind()).toBe(OfflineSyncEvent.IDLE);
-        expect(events.get(1).getKind()).toEqual(OfflineSyncEvent.QUEUE_UPDATED);
-        expect(events.get(2).getKind()).toBe(OfflineSyncEvent.START);
-        expect(events.get(3).getKind()).toBe(OfflineSyncEvent.DOWNLOAD_STARTED);
-        expect(events.get(4).getKind()).toBe(OfflineSyncEvent.DOWNLOAD_FAILED);
+        final List<OfflineContentEvent> events = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
+        expect(events.get(0).getKind()).toBe(OfflineContentEvent.IDLE);
+        expect(events.get(1).getKind()).toEqual(OfflineContentEvent.QUEUE_UPDATED);
+        expect(events.get(2).getKind()).toBe(OfflineContentEvent.START);
+        expect(events.get(3).getKind()).toBe(OfflineContentEvent.DOWNLOAD_STARTED);
+        expect(events.get(4).getKind()).toBe(OfflineContentEvent.DOWNLOAD_FAILED);
         expect(events.get(4).getUrn()).toEqual(downloadRequest1.urn);
-        expect(events.get(5).getKind()).toBe(OfflineSyncEvent.STOP);
+        expect(events.get(5).getKind()).toBe(OfflineContentEvent.STOP);
     }
 
     @Test
@@ -215,14 +215,14 @@ public class OfflineSyncServiceTest {
     }
 
     private int startService() {
-        Intent intent = new Intent(Robolectric.application, OfflineSyncService.class);
-        intent.setAction(OfflineSyncService.ACTION_START_DOWNLOAD);
+        Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
+        intent.setAction(OfflineContentService.ACTION_START_DOWNLOAD);
         return service.onStartCommand(intent, 0, 0);
     }
 
     private int stopService() {
-        Intent intent = new Intent(Robolectric.application, OfflineSyncService.class);
-        intent.setAction(OfflineSyncService.ACTION_STOP_DOWNLOAD);
+        Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
+        intent.setAction(OfflineContentService.ACTION_STOP_DOWNLOAD);
         return service.onStartCommand(intent, 0, 0);
     }
 

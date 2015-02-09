@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class OfflineContentScheduler {
 
     @VisibleForTesting
-    static final int REQUEST_ID = R.id.action_syncing; // do these have to be unique over the app??
+    static final int REQUEST_ID = R.id.action_updating_offline_likes; // do these have to be unique over the app??
     static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
     private static final long RETRY_DELAY = TimeUnit.MINUTES.toMillis(10);
 
@@ -49,12 +49,12 @@ public class OfflineContentScheduler {
 
     @VisibleForTesting
     void scheduleDelayedRetry(long atTimeInMillis){
-        Log.d(OfflineSyncService.TAG, "Scheduling retry of offline content service");
+        Log.d(OfflineContentService.TAG, "Scheduling retry of offline content service");
         alarmManager.set(ALARM_TYPE, atTimeInMillis, getPendingIntent(context));
     }
 
     private PendingIntent getPendingIntent(Context context) {
-        Intent intent =  new Intent(context, OfflineSyncStartReceiver.class);
+        Intent intent =  new Intent(context, OfflineContentStartReceiver.class);
         return PendingIntent.getBroadcast(context, REQUEST_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 

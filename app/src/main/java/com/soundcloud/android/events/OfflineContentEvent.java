@@ -3,7 +3,7 @@ package com.soundcloud.android.events;
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 
-public class OfflineSyncEvent {
+public class OfflineContentEvent {
 
     public static final int IDLE = 0;
     public static final int START = 1;
@@ -18,38 +18,38 @@ public class OfflineSyncEvent {
     private final int kind;
     private final Urn downloadedItem;
 
-    public OfflineSyncEvent(int kind, Urn downloadedItem) {
+    public OfflineContentEvent(int kind, Urn downloadedItem) {
         this.kind = kind;
         this.downloadedItem = downloadedItem;
     }
 
-    public static OfflineSyncEvent idle() {
-        return new OfflineSyncEvent(IDLE, Urn.NOT_SET);
+    public static OfflineContentEvent idle() {
+        return new OfflineContentEvent(IDLE, Urn.NOT_SET);
     }
 
-    public static OfflineSyncEvent start() {
-        return new OfflineSyncEvent(START, Urn.NOT_SET);
+    public static OfflineContentEvent start() {
+        return new OfflineContentEvent(START, Urn.NOT_SET);
     }
 
-    public static OfflineSyncEvent stop() {
-        return new OfflineSyncEvent(STOP, Urn.NOT_SET);
+    public static OfflineContentEvent stop() {
+        return new OfflineContentEvent(STOP, Urn.NOT_SET);
     }
 
-    public static OfflineSyncEvent downloadStarted(Urn track) {
-        return new OfflineSyncEvent(DOWNLOAD_STARTED, track);
+    public static OfflineContentEvent downloadStarted(Urn track) {
+        return new OfflineContentEvent(DOWNLOAD_STARTED, track);
     }
 
-    public static OfflineSyncEvent downloadFinished(Urn track) {
-        return new OfflineSyncEvent(DOWNLOAD_FINISHED, track);
+    public static OfflineContentEvent downloadFinished(Urn track) {
+        return new OfflineContentEvent(DOWNLOAD_FINISHED, track);
     }
 
-    public static OfflineSyncEvent downloadFailed(Urn track) {
-        return new OfflineSyncEvent(DOWNLOAD_FAILED, track);
+    public static OfflineContentEvent downloadFailed(Urn track) {
+        return new OfflineContentEvent(DOWNLOAD_FAILED, track);
     }
 
     // is that really needed?
-    public static OfflineSyncEvent queueUpdate() {
-        return new OfflineSyncEvent(QUEUE_UPDATED, Urn.NOT_SET);
+    public static OfflineContentEvent queueUpdate() {
+        return new OfflineContentEvent(QUEUE_UPDATED, Urn.NOT_SET);
     }
 
     public int getKind() {

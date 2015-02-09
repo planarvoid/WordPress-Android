@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.SyncLikesDialog;
+import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.payments.SubscribeActivity;
 
 import android.app.Activity;
@@ -22,7 +22,7 @@ public class SyncActionMenuController implements ActionMenuController {
     private final CastConnectionHelper castConnectionHelper;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineOperations;
-    private final Provider<SyncLikesDialog> syncLikesDialogProvider;
+    private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
 
     private MenuItem startSync;
     private MenuItem syncing;
@@ -31,7 +31,7 @@ public class SyncActionMenuController implements ActionMenuController {
     @Inject
     public SyncActionMenuController(CastConnectionHelper castConnectionHelper, FeatureOperations featureOperations,
                                     OfflineContentOperations offlineOperations,
-                                    Provider<SyncLikesDialog> syncLikesDialogProvider) {
+                                    Provider<OfflineLikesDialog> syncLikesDialogProvider) {
         this.castConnectionHelper = castConnectionHelper;
         this.featureOperations = featureOperations;
         this.offlineOperations = offlineOperations;
@@ -42,9 +42,9 @@ public class SyncActionMenuController implements ActionMenuController {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         menu.clear();
         inflater.inflate(R.menu.offline_sync, menu);
-        startSync = menu.findItem(R.id.action_start_sync);
-        syncing = menu.findItem(R.id.action_syncing);
-        removeSync = menu.findItem(R.id.action_remove_sync);
+        startSync = menu.findItem(R.id.action_start_offline_update);
+        syncing = menu.findItem(R.id.action_updating_offline_likes);
+        removeSync = menu.findItem(R.id.action_remove_offline_likes);
 
         castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
 
@@ -54,18 +54,18 @@ public class SyncActionMenuController implements ActionMenuController {
     @Override
     public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_start_sync:
-                if (featureOperations.isOfflineSyncEnabled()) {
+            case R.id.action_start_offline_update:
+                if (featureOperations.isOfflineContentEnabled()) {
                     syncLikesDialogProvider.get().show(fragment.getFragmentManager());
                 } else {
                     upsell(fragment);
                 }
                 return true;
-            case R.id.action_syncing:
+            case R.id.action_updating_offline_likes:
                 // TODO
                 return true;
-            case R.id.action_remove_sync:
-                offlineOperations.setLikesOfflineSync(false);
+            case R.id.action_remove_offline_likes:
+                offlineOperations.setOfflineLikesEnabled(false);
                 return true;
             default:
                 return false;

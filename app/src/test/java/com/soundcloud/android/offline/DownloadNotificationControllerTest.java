@@ -24,9 +24,9 @@ import javax.inject.Provider;
 @RunWith(SoundCloudTestRunner.class)
 public class DownloadNotificationControllerTest {
 
-    private static final String DOWNLOAD_IN_PROGRESS = getString(R.string.offline_sync_in_progress);
-    private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_sync_completed_title);
-    private static final String DOWNLOAD_ERROR = getString(R.string.offline_sync_error_title);
+    private static final String DOWNLOAD_IN_PROGRESS = getString(R.string.offline_update_in_progress);
+    private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_update_completed_title);
+    private static final String DOWNLOAD_ERROR = getString(R.string.offline_update_error_title);
 
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;

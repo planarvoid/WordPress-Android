@@ -335,6 +335,7 @@ public class DatabaseFixtures {
     }
 
     public long insertRequestedTrackDownload(Urn trackUrn, long addedTimestamp) {
+        insertLike(trackUrn.getNumericId(), TableColumns.Sounds.TYPE_TRACK, new Date(0));
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
         cv.put(TableColumns.TrackDownloads.REQUESTED_AT, addedTimestamp);

@@ -7,8 +7,8 @@ import java.util.Map;
 
 public class FeatureOperations {
 
-    private static final String OFFLINE_SYNC = "offline_sync";
-    private static final String OFFLINE_SYNC_UPSELL = "offline_sync_upsell";
+    private static final String OFFLINE_CONTENT = "offline_sync";
+    private static final String OFFLINE_CONTENT_UPSELL = "offline_sync_upsell";
 
     private final FeatureStorage featureStorage;
 
@@ -29,16 +29,16 @@ public class FeatureOperations {
         return featureStorage.list();
     }
 
-    public boolean isOfflineSyncEnabled() {
-        return featureStorage.isEnabled(OFFLINE_SYNC, false);
+    public boolean isOfflineContentEnabled() {
+        return featureStorage.isEnabled(OFFLINE_CONTENT, false);
     }
 
-    public boolean isOfflineSyncUpsellEnabled() {
-        return featureStorage.isEnabled(OFFLINE_SYNC_UPSELL, false);
+    public boolean isOfflineContentUpsellEnabled() {
+        return featureStorage.isEnabled(OFFLINE_CONTENT_UPSELL, false);
     }
 
-    public Observable<Boolean> offlineSyncEnabled() {
-         return getUpdates(OFFLINE_SYNC);
+    public Observable<Boolean> offlineContentEnabled() {
+         return getUpdates(OFFLINE_CONTENT);
     }
 
     private Observable<Boolean> getUpdates(String name) {

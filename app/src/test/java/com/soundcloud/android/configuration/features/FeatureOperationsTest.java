@@ -20,27 +20,27 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void isOfflineSyncEnabledReturnsDownloadedState() {
-        featureOperations.update("offline_sync", true);
+    public void isOfflineContentEnabledReturnsDownloadedState() {
+        featureOperations.update("offline_content", true);
 
-        expect(featureOperations.isOfflineSyncEnabled()).toBeTrue();
+        expect(featureOperations.isOfflineContentEnabled()).toBeTrue();
     }
 
     @Test
-    public void isOfflineSyncEnabledDefaultsFalse() {
-        expect(featureOperations.isOfflineSyncEnabled()).toBeFalse();
+    public void isOfflineContentEnabledDefaultsFalse() {
+        expect(featureOperations.isOfflineContentEnabled()).toBeFalse();
     }
 
     @Test
-    public void isOfflineSyncUpsellEnabledReturnsDownloadedState() {
-        featureOperations.update("offline_sync_upsell", true);
+    public void isOfflineContentUpsellEnabledReturnsDownloadedState() {
+        featureOperations.update("offline_content_upsell", true);
 
-        expect(featureOperations.isOfflineSyncUpsellEnabled()).toBeTrue();
+        expect(featureOperations.isOfflineContentUpsellEnabled()).toBeTrue();
     }
 
     @Test
-    public void isOfflineSyncUpsellEnabledDefaultsFalse() {
-        expect(featureOperations.isOfflineSyncUpsellEnabled()).toBeFalse();
+    public void isOfflineContentUpsellEnabledDefaultsFalse() {
+        expect(featureOperations.isOfflineContentUpsellEnabled()).toBeFalse();
     }
 
 }

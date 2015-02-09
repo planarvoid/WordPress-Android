@@ -28,8 +28,8 @@ public class OfflineContentControllerTest {
     public void setUp() throws Exception {
         startSyncer = PublishSubject.create();
         stopSyncer = PublishSubject.create();
-        doReturn(startSyncer).when(operations).startOfflineContentSyncing();
-        doReturn(stopSyncer).when(operations).stopOfflineContentSyncing();
+        doReturn(startSyncer).when(operations).startOfflineContent();
+        doReturn(stopSyncer).when(operations).stopOfflineContentService();
         controller = new OfflineContentController(operations, Robolectric.application);
     }
 
@@ -40,8 +40,8 @@ public class OfflineContentControllerTest {
         startSyncer.onNext(new Object());
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineSyncService.ACTION_START_DOWNLOAD);
-        expect(startService.getComponent().getClassName()).toEqual(OfflineSyncService.class.getCanonicalName());
+        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START_DOWNLOAD);
+        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 
     @Test
@@ -51,8 +51,8 @@ public class OfflineContentControllerTest {
         stopSyncer.onNext(new Object());
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineSyncService.ACTION_STOP_DOWNLOAD);
-        expect(startService.getComponent().getClassName()).toEqual(OfflineSyncService.class.getCanonicalName());
+        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_STOP_DOWNLOAD);
+        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 
     @Test

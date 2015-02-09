@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -33,7 +33,6 @@ public class TrackLikesHeaderControllerTest {
     private TrackLikesHeaderController controller;
 
     @Mock private TrackLikesHeaderPresenter headerPresenter;
-    @Mock private OfflineSyncEventOperations offlineContentEventsOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaybackOperations playbackOperations;
@@ -44,15 +43,14 @@ public class TrackLikesHeaderControllerTest {
     @Before
     public void setUp() throws Exception {
         controller = new TrackLikesHeaderController(headerPresenter,
-                offlineContentEventsOperations,
                 offlineContentOperations,
                 featureOperations,
                 playbackOperations,
                 TestSubscribers.expandPlayerSubscriber(),
                 eventBus);
 
-        when(offlineContentEventsOperations.onStarted()).thenReturn(Observable.<OfflineSyncEvent>never());
-        when(offlineContentEventsOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.<Integer>never());
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.<OfflineContentEvent>never());
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.<Integer>never());
 
         likedTrackUrns = Lists.newArrayList(Urn.forTrack(123L), Urn.forTrack(456L));
         controller.setLikedTrackUrns(likedTrackUrns);
@@ -63,8 +61,8 @@ public class TrackLikesHeaderControllerTest {
     // On Sync Started
     @Test
     public void showHeaderDefaultOnSyncStartedWithOfflineSyncAvailable() {
-        when(offlineContentEventsOperations.onStarted()).thenReturn(Observable.just(OfflineSyncEvent.start()));
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         controller.onResume(null);
 
@@ -73,8 +71,8 @@ public class TrackLikesHeaderControllerTest {
 
     @Test
     public void showHeaderDefaultOnSyncStartedWithOfflineSyncEnabled() {
-        when(offlineContentEventsOperations.onStarted()).thenReturn(Observable.just(OfflineSyncEvent.start()));
-        when(offlineContentOperations.isLikesOfflineSyncEnabled()).thenReturn(true);
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
         controller.onResume(null);
 
@@ -83,9 +81,9 @@ public class TrackLikesHeaderControllerTest {
 
     @Test
     public void showHeaderSyncingOnSyncStartedWithOfflineSyncEnabledAndAvailable() {
-        when(offlineContentEventsOperations.onStarted()).thenReturn(Observable.just(OfflineSyncEvent.start()));
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
-        when(offlineContentOperations.isLikesOfflineSyncEnabled()).thenReturn(true);
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
         controller.onResume(null);
 
@@ -95,15 +93,15 @@ public class TrackLikesHeaderControllerTest {
     // On Sync Finished or Idle
     @Test
     public void showHeaderDefaultOnSyncFinishedOrIdleWithDownloadedTracks() {
-        when(offlineContentEventsOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
         controller.onResume(null);
         verify(headerPresenter).showDefaultState(likedTrackUrns.size());
     }
 
     @Test
     public void showHeaderDefaultOnSyncFinishedOrIdleWithOfflineSyncAvailable() {
-        when(offlineContentEventsOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         controller.onResume(null);
 
@@ -112,8 +110,8 @@ public class TrackLikesHeaderControllerTest {
 
     @Test
     public void showHeaderDefaultOnSyncFinishedOrIdleWithOfflineSyncEnabled() {
-        when(offlineContentEventsOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        when(offlineContentOperations.isLikesOfflineSyncEnabled()).thenReturn(true);
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
         controller.onResume(null);
 
@@ -122,9 +120,9 @@ public class TrackLikesHeaderControllerTest {
 
     @Test
     public void showHeaderDownloadedOnSyncFinishedOrIdleWithDownloadTracksAndOfflineAvailableAndEnabled() {
-        when(offlineContentEventsOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
-        when(offlineContentOperations.isLikesOfflineSyncEnabled()).thenReturn(true);
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
         controller.onResume(null);
 

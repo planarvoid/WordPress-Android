@@ -15,7 +15,7 @@ public class LikesActionBarElement extends ActionBarElement {
     }
 
     public ViewElement syncAction() {
-        return testDriver.findElement(With.id(R.id.action_start_sync));
+        return testDriver.findElement(With.id(R.id.action_start_offline_update));
     }
 
     public SyncYourLikesScreen clickSyncLikesButton() {

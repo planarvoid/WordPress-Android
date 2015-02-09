@@ -1,6 +1,6 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.offline.OfflineSyncService.TAG;
+import static com.soundcloud.android.offline.OfflineContentService.TAG;
 
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.api.oauth.OAuth;

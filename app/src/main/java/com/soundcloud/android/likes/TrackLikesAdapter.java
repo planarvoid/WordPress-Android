@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.SyncableTrackItemPresenter;
@@ -29,10 +29,10 @@ public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
 
     private final SyncableTrackItemPresenter trackPresenter;
     private final DefaultFragmentLightCycle lifeCycleHandler;
-    private final Func1<OfflineSyncEvent, Boolean> isDownloadFinishedEvent = new Func1<OfflineSyncEvent, Boolean>() {
+    private final Func1<OfflineContentEvent, Boolean> isDownloadFinishedEvent = new Func1<OfflineContentEvent, Boolean>() {
         @Override
-        public Boolean call(OfflineSyncEvent offlineSyncEvent) {
-            return offlineSyncEvent.getKind() == OfflineSyncEvent.DOWNLOAD_FINISHED;
+        public Boolean call(OfflineContentEvent offlineContentEvent) {
+            return offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_FINISHED;
         }
     };
 
@@ -61,7 +61,7 @@ public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
                         eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(TrackLikesAdapter.this, trackPresenter)),
                         eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(TrackLikesAdapter.this)),
                         eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(TrackLikesAdapter.this)),
-                        eventBus.queue(EventQueue.OFFLINE_SYNC).filter(isDownloadFinishedEvent).subscribe(new UpdateAdapterFromDownloadSubscriber(TrackLikesAdapter.this))
+                        eventBus.queue(EventQueue.OFFLINE_CONTENT).filter(isDownloadFinishedEvent).subscribe(new UpdateAdapterFromDownloadSubscriber(TrackLikesAdapter.this))
                 );
             }
 

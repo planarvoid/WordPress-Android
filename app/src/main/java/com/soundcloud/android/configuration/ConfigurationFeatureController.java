@@ -18,7 +18,7 @@ public class ConfigurationFeatureController {
                                           FeatureOperations featureOperations) {
         this.offlineContentController = offlineContentController;
         this.featureOperations = featureOperations;
-        this.offlineSyncFeatureUpdatesObservable = featureOperations.offlineSyncEnabled();
+        this.offlineSyncFeatureUpdatesObservable = featureOperations.offlineContentEnabled();
     }
 
     public void subscribe() {
@@ -28,7 +28,7 @@ public class ConfigurationFeatureController {
     }
 
     private void initialise() {
-        if (featureOperations.isOfflineSyncEnabled()) {
+        if (featureOperations.isOfflineContentEnabled()) {
             offlineContentController.subscribe();
         }
     }

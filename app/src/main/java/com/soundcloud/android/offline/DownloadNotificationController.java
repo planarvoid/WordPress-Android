@@ -71,8 +71,8 @@ class DownloadNotificationController {
         setDefaultConfiguration(completedNotification);
         completedNotification.setOngoing(false);
         completedNotification.setAutoCancel(true);
-        completedNotification.setContentTitle(resources.getString(R.string.offline_sync_completed_title));
-        completedNotification.setContentText(resources.getString(R.string.offline_sync_completed_message));
+        completedNotification.setContentTitle(resources.getString(R.string.offline_update_completed_title));
+        completedNotification.setContentText(resources.getString(R.string.offline_update_completed_message));
         return completedNotification.build();
     }
 
@@ -82,8 +82,8 @@ class DownloadNotificationController {
         setDefaultConfiguration(errorNotification);
         errorNotification.setOngoing(false);
         errorNotification.setAutoCancel(true);
-        errorNotification.setContentTitle(resources.getString(R.string.offline_sync_error_title));
-        errorNotification.setContentText(resources.getString(R.string.offline_sync_error_message));
+        errorNotification.setContentTitle(resources.getString(R.string.offline_update_error_title));
+        errorNotification.setContentText(resources.getString(R.string.offline_update_error_message));
         return errorNotification.build();
     }
 
@@ -92,7 +92,7 @@ class DownloadNotificationController {
 
         setDefaultConfiguration(progressNotification);
         progressNotification.setOngoing(true);
-        progressNotification.setContentTitle(resources.getString(R.string.offline_sync_in_progress));
+        progressNotification.setContentTitle(resources.getString(R.string.offline_update_in_progress));
         progressNotification.setProgress(totalDownloads, completedDownloads, false);
         progressNotification.setContentText(downloadDescription);
 

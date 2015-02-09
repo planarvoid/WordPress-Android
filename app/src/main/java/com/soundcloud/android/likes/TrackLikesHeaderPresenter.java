@@ -66,7 +66,7 @@ public class TrackLikesHeaderPresenter extends HeaderViewPresenter {
 
         syncState.setVisibility(View.VISIBLE);
         syncState.setImageResource(R.drawable.header_syncing);
-        headerText.setText(headerView.getContext().getString(R.string.offline_sync_in_progress));
+        headerText.setText(headerView.getContext().getString(R.string.offline_update_in_progress));
 
         AnimUtils.runSpinClockwiseAnimationOn(syncState.getContext(), syncState);
     }

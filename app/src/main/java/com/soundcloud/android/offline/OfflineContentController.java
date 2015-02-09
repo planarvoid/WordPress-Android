@@ -23,8 +23,8 @@ public class OfflineContentController {
 
     public void subscribe() {
         subscription = new CompositeSubscription(
-                operations.startOfflineContentSyncing().subscribe(new StartOfflineSyncServiceSubscriber(context, true)),
-                operations.stopOfflineContentSyncing().subscribe(new StartOfflineSyncServiceSubscriber(context, false))
+                operations.startOfflineContent().subscribe(new OfflineContentServiceSubscriber(context, true)),
+                operations.stopOfflineContentService().subscribe(new OfflineContentServiceSubscriber(context, false))
         );
     }
 

@@ -170,7 +170,7 @@ public class StreamPlayaTest {
 
     @Test
     public void playCallsPlayOfflineOnSkippyIfTrackIsAvailableOfflineAndNotMarkedForRemoval() throws Exception {
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         instantiateStreamPlaya();
         track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
 
@@ -181,7 +181,7 @@ public class StreamPlayaTest {
 
     @Test
     public void playCallsPlayOfflineOnSkippyWithResumeTimeIfTrackIsAvailableOfflineAndNotMarkedForRemoval() throws Exception {
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         instantiateStreamPlaya();
         track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
 

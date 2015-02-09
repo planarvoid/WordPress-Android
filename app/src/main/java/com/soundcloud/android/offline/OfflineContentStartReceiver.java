@@ -9,14 +9,14 @@ import android.content.Intent;
 
 import javax.inject.Inject;
 
-public class OfflineSyncStartReceiver extends BroadcastReceiver {
+public class OfflineContentStartReceiver extends BroadcastReceiver {
 
     @Inject OfflineContentOperations operations;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         SoundCloudApplication.getObjectGraph().inject(this);
-        Log.d(OfflineSyncService.TAG, "Offline Content Sync Start Receiver is awake..... starting service");
-        OfflineSyncService.startSyncing(context);
+        Log.d(OfflineContentService.TAG, "Offline Content Start Receiver notified. Starting service.");
+        OfflineContentService.start(context);
     }
 }

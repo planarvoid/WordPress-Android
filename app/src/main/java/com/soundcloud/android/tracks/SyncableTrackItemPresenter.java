@@ -36,7 +36,7 @@ public class SyncableTrackItemPresenter extends TrackItemPresenter {
 
         final ImageView downloadProgressIcon = (ImageView) itemView.findViewById(R.id.download_progress_icon);
 
-        if (featureOperations.isOfflineSyncEnabled()){
+        if (featureOperations.isOfflineContentEnabled()){
             if (track.contains(TrackProperty.OFFLINE_DOWNLOADED_AT) && !track.contains(TrackProperty.OFFLINE_REMOVED_AT)){
                 downloadProgressIcon.setImageResource(R.drawable.track_downloaded);
                 downloadProgressIcon.setVisibility(View.VISIBLE);

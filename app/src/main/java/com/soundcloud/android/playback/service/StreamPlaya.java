@@ -264,7 +264,7 @@ public class StreamPlaya implements PlayaListener {
 
     private boolean isAvailableOffline(PropertySet track){
         return !skippyFailedToInitialize
-                && featureOperations.isOfflineSyncEnabled()
+                && featureOperations.isOfflineContentEnabled()
                 && track.getOrElseNull(TrackProperty.OFFLINE_DOWNLOADED_AT) != null
                 && track.getOrElseNull(TrackProperty.OFFLINE_REMOVED_AT) == null;
     }

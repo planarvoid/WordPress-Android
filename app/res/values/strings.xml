@@ -67,9 +67,9 @@
     <string name="accessibility_comment_action">Comment</string>
 
     <!-- __ACCESSIBILITY OFFLINE SYNC -->
-    <string name="accessibility_start_sync">Start Sync</string>
-    <string name="accessibility_syncing">Syncing</string>
-    <string name="accessibility_remove_sync">Remove from Offline Sync</string>
+    <string name="accessibility_start_offline_update">Start Sync</string>
+    <string name="accessibility_updating_offline_likes">Syncing</string>
+    <string name="accessibility_remove_offline_likes">Remove from Offline Sync</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">liked %s</string>
@@ -574,11 +574,11 @@
     <string name="widget_touch_to_open">Touch to open SoundCloud</string>
 
     <!-- __OFFLINE_SYNC -->
-    <string name="offline_sync_completed_title">All tracks synced!</string>
-    <string name="offline_sync_completed_message">Ready for offline listening!</string>
-    <string name="offline_sync_error_title">Error syncing your tracks</string>
-    <string name="offline_sync_error_message">There was an error while syncing your tracks.</string>
-    <string name="offline_sync_in_progress">Syncing your tracks</string>
+    <string name="offline_update_completed_title">All tracks synced!</string>
+    <string name="offline_update_completed_message">Ready for offline listening!</string>
+    <string name="offline_update_error_title">Error syncing your tracks</string>
+    <string name="offline_update_error_message">There was an error while syncing your tracks.</string>
+    <string name="offline_update_in_progress">Syncing your tracks</string>
     <string name="sync_likes_dialog_title">Sync your likes</string>
     <string name="sync_likes_dialog_message">This will keep all your likes synced as well as sync all your future likes automagically</string>
     <string name="sync_likes_dialog_accept">Keep likes synced</string>

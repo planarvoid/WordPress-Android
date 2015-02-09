@@ -7,18 +7,18 @@
         soundcloud:actionProviderClass="android.support.v7.app.MediaRouteActionProvider"
         soundcloud:showAsAction="always"/>
 
-    <item android:id="@+id/action_start_sync"
-        android:title="@string/accessibility_start_sync"
+    <item android:id="@+id/action_start_offline_update"
+        android:title="@string/accessibility_start_offline_update"
         android:icon="@drawable/actionbar_download"
         soundcloud:showAsAction="always"/>
 
-    <item android:id="@+id/action_syncing"
-        android:title="@string/accessibility_syncing"
+    <item android:id="@+id/action_updating_offline_likes"
+        android:title="@string/accessibility_updating_offline_likes"
         android:icon="@drawable/ic_av_pause"
         soundcloud:showAsAction="always"/>
 
-    <item android:id="@+id/action_remove_sync"
-        android:title="@string/accessibility_remove_sync"
+    <item android:id="@+id/action_remove_offline_likes"
+        android:title="@string/accessibility_remove_offline_likes"
         soundcloud:showAsAction="never"/>
 
 </menu>

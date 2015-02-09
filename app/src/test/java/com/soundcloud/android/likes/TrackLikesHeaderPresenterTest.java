@@ -90,7 +90,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.showSyncingState();
         presenter.updateTrackCount(4);
         expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
-                .getString(R.string.offline_sync_in_progress));
+                .getString(R.string.offline_update_in_progress));
     }
 
     private View getShuffleButton() {

@@ -10,10 +10,10 @@ import javax.inject.Named;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                OfflineSyncService.class,
+                OfflineContentService.class,
                 OfflineSettingsStorage.class,
-                SyncLikesDialog.class,
-                OfflineSyncStartReceiver.class
+                OfflineLikesDialog.class,
+                OfflineContentStartReceiver.class
         })
 public class OfflineModule {
 

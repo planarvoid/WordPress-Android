@@ -10,7 +10,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.SyncLikesDialog;
+import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.payments.SubscribeActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -37,17 +37,17 @@ public class SyncActionMenuControllerTest {
     @Mock private CastConnectionHelper castConnectionHelper;
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineOperations;
-    @Mock private SyncLikesDialog syncLikesDialog;
+    @Mock private OfflineLikesDialog offlineLikesDialog;
 
     @Before
     public void setUp() throws Exception {
         controller = new SyncActionMenuController(castConnectionHelper,
                 featureOperations,
                 offlineOperations,
-                new Provider<SyncLikesDialog>() {
+                new Provider<OfflineLikesDialog>() {
                     @Override
-                    public SyncLikesDialog get() {
-                        return syncLikesDialog;
+                    public OfflineLikesDialog get() {
+                        return offlineLikesDialog;
                     }
                 });
         fragment = new Fragment();
@@ -58,19 +58,19 @@ public class SyncActionMenuControllerTest {
     @Test
     public void clickStartSyncNameOnOfflineSyncAvailableShowsSyncLikesDialog() {
         MenuItem item = mock(MenuItem.class);
-        when(item.getItemId()).thenReturn(R.id.action_start_sync);
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
+        when(item.getItemId()).thenReturn(R.id.action_start_offline_update);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         controller.onOptionsItemSelected(fragment, item);
 
-        verify(syncLikesDialog).show(any(FragmentManager.class));
+        verify(offlineLikesDialog).show(any(FragmentManager.class));
     }
 
     @Test
     public void clickStartSyncNameOnOfflineSyncUnavailableShowsUpsell() {
         MenuItem item = mock(MenuItem.class);
-        when(item.getItemId()).thenReturn(R.id.action_start_sync);
-        when(featureOperations.isOfflineSyncUpsellEnabled()).thenReturn(false);
+        when(item.getItemId()).thenReturn(R.id.action_start_offline_update);
+        when(featureOperations.isOfflineContentUpsellEnabled()).thenReturn(false);
 
         controller.onOptionsItemSelected(fragment, item);
 
@@ -82,10 +82,10 @@ public class SyncActionMenuControllerTest {
     @Test
     public void removeSyncClickUnsetsLikesOfflineSync() {
         MenuItem item = mock(MenuItem.class);
-        when(item.getItemId()).thenReturn(R.id.action_remove_sync);
+        when(item.getItemId()).thenReturn(R.id.action_remove_offline_likes);
 
         controller.onOptionsItemSelected(null, item);
 
-        verify(offlineOperations).setLikesOfflineSync(false);
+        verify(offlineOperations).setOfflineLikesEnabled(false);
     }
 }

@@ -1,9 +1,11 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
+import com.soundcloud.android.offline.commands.OfflineTrackCountCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -21,8 +23,15 @@ public class OfflineContentOperations {
     private final LoadPendingDownloadsCommand loadPendingDownloads;
     private final UpdateOfflineContentCommand updateOfflineContent;
     private final UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval;
+    private final OfflineTrackCountCommand offlineTrackCount;
 
+    private final EventBus eventBus;
     private final OfflineSettingsStorage settingsStorage;
+
+    private final Observable<PlayableUpdatedEvent> likedTracks;
+    private final Observable<SyncResult> syncedLikes;
+    private final Observable<Boolean> featureEnabled;
+    private final Observable<Boolean> featureDisabled;
 
     private static final Func1<Boolean, Boolean> IS_DISABLED = new Func1<Boolean, Boolean>() {
         @Override
@@ -56,14 +65,24 @@ public class OfflineContentOperations {
     private final Func1<Object, Boolean> isOfflineLikesEnabled = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object ignored) {
-            return isLikesOfflineSyncEnabled();
+            return isOfflineLikesEnabled();
         }
     };
 
-    private final Observable<PlayableUpdatedEvent> likedTracks;
-    private final Observable<SyncResult> syncedLikes;
-    private final Observable<Boolean> featureEnabled;
-    private final Observable<Boolean> featureDisabled;
+    private static final Func1<OfflineContentEvent, Boolean> OFFLINE_SYNC_IN_PROGRESS = new Func1<OfflineContentEvent, Boolean>() {
+        @Override
+        public Boolean call(OfflineContentEvent offlineContentEvent) {
+            return offlineContentEvent.getKind() == OfflineContentEvent.START;
+        }
+    };
+
+    private static final Func1<OfflineContentEvent, Boolean> OFFLINE_SYNC_FINISHED_OR_IDLE = new Func1<OfflineContentEvent, Boolean>() {
+        @Override
+        public Boolean call(OfflineContentEvent offlineContentEvent) {
+            return offlineContentEvent.getKind() == OfflineContentEvent.STOP ||
+                    offlineContentEvent.getKind() == OfflineContentEvent.IDLE;
+        }
+    };
 
     @Inject
     public OfflineContentOperations(UpdateOfflineContentCommand updateOfflineContent,
@@ -71,37 +90,43 @@ public class OfflineContentOperations {
                                     LoadPendingDownloadsCommand loadPendingCommand,
                                     UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval,
                                     OfflineSettingsStorage settingsStorage,
-                                    EventBus eventBus) {
+                                    EventBus eventBus, OfflineTrackCountCommand offlineTrackCount) {
         this.updateOfflineContent = updateOfflineContent;
         this.settingsStorage = settingsStorage;
         this.loadLikedTrackUrns = loadLikedTrackUrns;
         this.loadPendingDownloads = loadPendingCommand;
         this.updateContentAsPendingRemoval = updateContentAsPendingRemoval;
+        this.offlineTrackCount = offlineTrackCount;
+        this.eventBus = eventBus;
         this.likedTracks = eventBus.queue(EventQueue.PLAYABLE_CHANGED).filter(WAS_TRACK_LIKED);
         this.syncedLikes = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
-        this.featureEnabled = settingsStorage.getLikesOfflineSyncChanged().filter(IS_ENABLED);
-        this.featureDisabled = settingsStorage.getLikesOfflineSyncChanged().filter(IS_DISABLED);
+        this.featureEnabled = settingsStorage.getOfflineLikesChanged().filter(IS_ENABLED);
+        this.featureDisabled = settingsStorage.getOfflineLikesChanged().filter(IS_DISABLED);
     }
 
-    public void setLikesOfflineSync(boolean isEnabled) {
-        settingsStorage.setLikesOfflineSync(isEnabled);
+    public void setOfflineLikesEnabled(boolean isEnabled) {
+        settingsStorage.setOfflineLikesEnabled(isEnabled);
     }
 
-    public boolean isLikesOfflineSyncEnabled() {
-        return settingsStorage.isLikesOfflineSyncEnabled();
+    public boolean isOfflineLikesEnabled() {
+        return settingsStorage.isOfflineLikesEnabled();
     }
 
     public Observable<Boolean> getSettingsStatus() {
-        return settingsStorage.getLikesOfflineSyncChanged();
+        return settingsStorage.getOfflineLikesChanged();
     }
 
-    public Observable<?> stopOfflineContentSyncing() {
+    public Observable<?> stopOfflineContentService() {
         return featureDisabled
                 .flatMap(updateContentAsPendingRemoval);
     }
 
-    public Observable<?> startOfflineContentSyncing() {
-        return triggerOfflineContentSyncing();
+    public Observable<?> startOfflineContent() {
+        return Observable
+                .merge(featureEnabled,
+                        syncedLikes.filter(isOfflineLikesEnabled),
+                        likedTracks.filter(isOfflineLikesEnabled)
+                );
     }
 
     Observable<List<DownloadRequest>> updateDownloadRequestsFromLikes() {
@@ -111,11 +136,15 @@ public class OfflineContentOperations {
                 .flatMap(loadPendingDownloads);
     }
 
-    private Observable<Object> triggerOfflineContentSyncing() {
-        return Observable
-                .merge(featureEnabled,
-                        syncedLikes.filter(isOfflineLikesEnabled),
-                        likedTracks.filter(isOfflineLikesEnabled)
-                );
+    public Observable<OfflineContentEvent> onStarted() {
+        return eventBus.queue(EventQueue.OFFLINE_CONTENT)
+                .filter(OFFLINE_SYNC_IN_PROGRESS);
     }
+
+    public Observable<Integer> onFinishedOrIdleWithDownloadedCount() {
+        return eventBus.queue(EventQueue.OFFLINE_CONTENT)
+                .filter(OFFLINE_SYNC_FINISHED_OR_IDLE)
+                .flatMap(offlineTrackCount);
+    }
+
 }

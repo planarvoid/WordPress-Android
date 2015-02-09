@@ -5,11 +5,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
+import com.soundcloud.android.offline.commands.OfflineTrackCountCommand;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
@@ -25,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
@@ -34,6 +37,11 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentOperationsTest {
 
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final List<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN);
+    private static final int DOWNLOAD_LIKED_TRACKS_COUNT = 4;
+
+    @Mock private OfflineTrackCountCommand offlineTrackCount;
     @Mock private LoadPendingDownloadsCommand loadPendingDownloads;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private UpdateOfflineContentCommand updateOfflineContent;
@@ -43,10 +51,7 @@ public class OfflineContentOperationsTest {
     @Mock private SecureFileStorage fileStorage;
     @Mock private StoreCompletedDownloadCommand storeCompletedDownloadCommand;
 
-    private final Urn TRACK_URN = Urn.forTrack(123L);
-    private final List<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN);
-
-    private OfflineContentOperations offlineOperations;
+    private OfflineContentOperations operations;
     private TestEventBus eventBus;
     private PublishSubject<Boolean> offlineSyncSetting;
     private TestSubscriber<Object> subscriber;
@@ -55,30 +60,30 @@ public class OfflineContentOperationsTest {
     public void setUp() throws Exception {
         offlineSyncSetting = PublishSubject.create();
         eventBus = new TestEventBus();
-        offlineSyncSetting = PublishSubject.create();
         subscriber = new TestSubscriber<>();
 
-        when(settingsStorage.isLikesOfflineSyncEnabled()).thenReturn(true);
-        when(settingsStorage.getLikesOfflineSyncChanged()).thenReturn(offlineSyncSetting);
+        when(settingsStorage.isOfflineLikesEnabled()).thenReturn(true);
+        when(settingsStorage.getOfflineLikesChanged()).thenReturn(offlineSyncSetting);
 
         when(loadLikedTrackUrns.toObservable()).thenReturn(Observable.just(LIKED_TRACKS));
         when(loadPendingDownloads.toObservable()).thenReturn(Observable.<List<DownloadRequest>>empty());
         when(updateOfflineContent.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(1)));
         when(updateContentAsPendingRemoval.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(1)));
+        when(offlineTrackCount.toObservable()).thenReturn(Observable.just(DOWNLOAD_LIKED_TRACKS_COUNT));
 
-        offlineOperations = new OfflineContentOperations(
+        operations = new OfflineContentOperations(
                 updateOfflineContent,
                 loadLikedTrackUrns,
                 loadPendingDownloads,
                 updateContentAsPendingRemoval,
                 settingsStorage,
-                eventBus
-        );
+                eventBus,
+                offlineTrackCount);
     }
 
     @Test
     public void startOfflineSyncWhenFeatureIsEnabled() {
-        offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
+        operations.startOfflineContent().subscribe(subscriber);
 
         offlineSyncSetting.onNext(true);
         expect(subscriber.getOnNextEvents()).toNumber(1);
@@ -86,8 +91,8 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void doesNotStartOfflineSyncWhenTheFeatureIsDisabled() {
-        when(settingsStorage.isLikesOfflineSyncEnabled()).thenReturn(false);
-        offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
+        when(settingsStorage.isOfflineLikesEnabled()).thenReturn(false);
+        operations.startOfflineContent().subscribe(subscriber);
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
@@ -96,7 +101,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void startsOfflineSyncWhenATrackIsLiked() {
-        offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
+        operations.startOfflineContent().subscribe(subscriber);
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forTrack(123L), true, 1));
 
@@ -105,7 +110,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void startsOfflineSyncWhenATrackIsUnliked() {
-        offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
+        operations.startOfflineContent().subscribe(subscriber);
 
         eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forTrack(123L), false, 1));
 
@@ -114,7 +119,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void startsOfflineSyncWhenLikeSyncingUpdatedTheLikes() {
-        offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
+        operations.startOfflineContent().subscribe(subscriber);
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
@@ -123,7 +128,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void doesNotStartOfflineSyncWhenLikeSyncingDidNotUpdateTheLiked() {
-        offlineOperations.startOfflineContentSyncing().subscribe(subscriber);
+        operations.startOfflineContent().subscribe(subscriber);
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, false));
 
@@ -132,7 +137,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void updateOfflineLikesWhenOfflineLikesEnabled() throws PropellerWriteException {
-        offlineOperations.updateDownloadRequestsFromLikes().subscribe(subscriber);
+        operations.updateDownloadRequestsFromLikes().subscribe(subscriber);
 
         offlineSyncSetting.onNext(true);
 
@@ -141,7 +146,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void updateOfflineLikesWhenOfflineLikesDisabled() throws PropellerWriteException {
-        offlineOperations.stopOfflineContentSyncing().subscribe(subscriber);
+        operations.stopOfflineContentService().subscribe(subscriber);
 
         offlineSyncSetting.onNext(false);
 
@@ -150,10 +155,41 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void updatesOfflineLikesWhenOfflineLikesDisabled() {
-        offlineOperations.stopOfflineContentSyncing().subscribe(subscriber);
+        operations.stopOfflineContentService().subscribe(subscriber);
 
         offlineSyncSetting.onNext(false);
 
         expect(subscriber.getOnNextEvents()).toNumber(1);
+    }
+
+    @Test
+    public void callSyncFinishedOnOfflineIdleEvent() {
+        TestObserver<Integer> observer = new TestObserver<>();
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.idle());
+
+        operations.onFinishedOrIdleWithDownloadedCount().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(DOWNLOAD_LIKED_TRACKS_COUNT);
+    }
+
+    @Test
+    public void callSyncFinishedOnOfflineSyncStopEvent() {
+        TestObserver<Integer> observer = new TestObserver<>();
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
+
+        operations.onFinishedOrIdleWithDownloadedCount().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(DOWNLOAD_LIKED_TRACKS_COUNT);
+    }
+
+    @Test
+    public void callSyncStartedOnOfflineSyncStartEvent() {
+        TestObserver<OfflineContentEvent> observer = new TestObserver<>();
+        OfflineContentEvent event = OfflineContentEvent.start();
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, event);
+
+        operations.onStarted().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(event);
     }
 }

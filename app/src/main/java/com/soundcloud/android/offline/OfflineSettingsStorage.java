@@ -11,14 +11,14 @@ import javax.inject.Named;
 
 public class OfflineSettingsStorage {
 
-    private static final String LIKES_OFFLINE_SYNC_ENABLED = "likes_offline_sync";
+    private static final String OFFLINE_LIKES_ENABLED = "offline_likes";
 
     private final SharedPreferences sharedPreferences;
 
     private static final Func1<String, Boolean> FILTER_OFFLINE_LIKES_KEY = new Func1<String, Boolean>() {
         @Override
         public Boolean call(String key) {
-            return LIKES_OFFLINE_SYNC_ENABLED.equals(key);
+            return OFFLINE_LIKES_ENABLED.equals(key);
         }
     };
 
@@ -34,15 +34,15 @@ public class OfflineSettingsStorage {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public boolean isLikesOfflineSyncEnabled() {
-        return sharedPreferences.getBoolean(LIKES_OFFLINE_SYNC_ENABLED, false);
+    public boolean isOfflineLikesEnabled() {
+        return sharedPreferences.getBoolean(OFFLINE_LIKES_ENABLED, false);
     }
 
-    public void setLikesOfflineSync(final boolean enabled) {
-        sharedPreferences.edit().putBoolean(LIKES_OFFLINE_SYNC_ENABLED, enabled).apply();
+    public void setOfflineLikesEnabled(final boolean enabled) {
+        sharedPreferences.edit().putBoolean(OFFLINE_LIKES_ENABLED, enabled).apply();
     }
 
-    public Observable<Boolean> getLikesOfflineSyncChanged() {
+    public Observable<Boolean> getOfflineLikesChanged() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                 .filter(FILTER_OFFLINE_LIKES_KEY)
                 .map(toValue);

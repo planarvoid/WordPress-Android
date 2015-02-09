@@ -4,12 +4,12 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 import android.content.Context;
 
-final class StartOfflineSyncServiceSubscriber extends DefaultSubscriber<Object> {
+final class OfflineContentServiceSubscriber extends DefaultSubscriber<Object> {
 
     private final Context context;
     private final boolean shouldStart;
 
-    public StartOfflineSyncServiceSubscriber(Context context, boolean shouldStart) {
+    public OfflineContentServiceSubscriber(Context context, boolean shouldStart) {
         this.context = context;
         this.shouldStart = shouldStart;
     }
@@ -17,9 +17,9 @@ final class StartOfflineSyncServiceSubscriber extends DefaultSubscriber<Object> 
     @Override
     public void onNext(Object ignored) {
         if (shouldStart) {
-            OfflineSyncService.startSyncing(context);
+            OfflineContentService.start(context);
         } else {
-            OfflineSyncService.stopSyncing(context);
+            OfflineContentService.stop(context);
         }
     }
 }

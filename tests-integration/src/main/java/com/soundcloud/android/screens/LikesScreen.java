@@ -55,11 +55,11 @@ public class LikesScreen extends Screen {
     }
 
     public void waitForLikesSyncToFinish() {
-        waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_sync_in_progress));
+        waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
     }
 
     public boolean isSyncInProgressTextVisible() {
-        final String syncInProgress = testDriver.getString(R.string.offline_sync_in_progress);
+        final String syncInProgress = testDriver.getString(R.string.offline_update_in_progress);
         return testDriver.isElementDisplayed(text(syncInProgress));
     }
 

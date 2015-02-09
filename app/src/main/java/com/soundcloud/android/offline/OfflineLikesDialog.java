@@ -12,21 +12,21 @@ import android.support.v4.app.FragmentManager;
 
 import javax.inject.Inject;
 
-public class SyncLikesDialog extends DialogFragment {
+public class OfflineLikesDialog extends DialogFragment {
 
-    private static final String TAG = "SyncLikes";
+    private static final String TAG = "OfflineLikes";
 
     @Inject OfflineContentOperations offlineOperations;
 
     private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int which) {
-            offlineOperations.setLikesOfflineSync(true);
+            offlineOperations.setOfflineLikesEnabled(true);
             dismiss();
         }
     };
 
-    public SyncLikesDialog() {
+    public OfflineLikesDialog() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 

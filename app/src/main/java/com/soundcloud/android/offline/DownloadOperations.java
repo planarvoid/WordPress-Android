@@ -31,7 +31,7 @@ class DownloadOperations {
             fileStorage.deleteTrack(urn);
         } catch (EncryptionException e1) {
             // note, in this case, the file probably didn't exist in the first place, so we are in a clean state
-            Log.e(OfflineSyncService.TAG, "Failed to remove file", e1);
+            Log.e(OfflineContentService.TAG, "Failed to remove file", e1);
         }
     }
 
@@ -41,7 +41,7 @@ class DownloadOperations {
             input = strictSSLHttpClient.downloadFile(track.fileUrl);
             fileStorage.storeTrack(track.urn, input);
 
-            Log.d(OfflineSyncService.TAG, "Track stored on device: " + track.urn);
+            Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
             return new DownloadResult(track.urn);
         } catch (Exception e) {
             deleteTrack(track.urn);

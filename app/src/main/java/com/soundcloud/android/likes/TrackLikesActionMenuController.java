@@ -53,7 +53,7 @@ public class TrackLikesActionMenuController {
     }
 
     private void updateOfflineLikesState() {
-        setOfflineLikesSelected(offlineOperations.isLikesOfflineSyncEnabled());
+        setOfflineLikesSelected(offlineOperations.isOfflineLikesEnabled());
     }
 
     private void setOfflineLikesSelected(boolean offlineLikes) {

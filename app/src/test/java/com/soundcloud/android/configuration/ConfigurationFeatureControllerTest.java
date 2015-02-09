@@ -25,13 +25,13 @@ public class ConfigurationFeatureControllerTest {
     @Before
     public void setUp() throws Exception {
         featureUpdatesObservable = PublishSubject.create();
-        when(featureOperations.offlineSyncEnabled()).thenReturn(featureUpdatesObservable);
+        when(featureOperations.offlineContentEnabled()).thenReturn(featureUpdatesObservable);
         controller = new ConfigurationFeatureController(offlineController, featureOperations);
     }
 
     @Test
     public void initialiseSubscribesOfflineControllerWhenFeatureEnabled() {
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(true);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         controller.subscribe();
 
@@ -40,7 +40,7 @@ public class ConfigurationFeatureControllerTest {
 
     @Test
     public void initialiseDoesNotSubscribeOfflineControllerWhenFeatureDisabled() {
-        when(featureOperations.isOfflineSyncEnabled()).thenReturn(false);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
 
         controller.subscribe();
 

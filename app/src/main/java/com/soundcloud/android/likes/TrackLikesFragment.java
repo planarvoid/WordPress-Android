@@ -8,7 +8,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.lightcycle.LightCycleFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -68,10 +68,10 @@ public class TrackLikesFragment extends LightCycleFragment
             buildLoadAllTrackUrnsObservable();
         }
     };
-    private final Func1<OfflineSyncEvent, Boolean> isQueueUpdateEvent = new Func1<OfflineSyncEvent, Boolean>() {
+    private final Func1<OfflineContentEvent, Boolean> isQueueUpdateEvent = new Func1<OfflineContentEvent, Boolean>() {
         @Override
-        public Boolean call(OfflineSyncEvent offlineSyncEvent) {
-            return offlineSyncEvent.getKind() == OfflineSyncEvent.QUEUE_UPDATED;
+        public Boolean call(OfflineContentEvent offlineContentEvent) {
+            return offlineContentEvent.getKind() == OfflineContentEvent.QUEUE_UPDATED;
         }
     };
 
@@ -121,7 +121,7 @@ public class TrackLikesFragment extends LightCycleFragment
         super.onCreate(savedInstanceState);
         buildLoadAllTrackUrnsObservable();
         connectObservable(buildObservable());
-        syncQueueUpdatedSubscription = eventBus.queue(EventQueue.OFFLINE_SYNC)
+        syncQueueUpdatedSubscription = eventBus.queue(EventQueue.OFFLINE_CONTENT)
                 .filter(isQueueUpdateEvent)
                 .subscribe(new OfflineSyncQueueUpdated());
     }
@@ -237,9 +237,9 @@ public class TrackLikesFragment extends LightCycleFragment
         }
     }
 
-    private class OfflineSyncQueueUpdated extends DefaultSubscriber<OfflineSyncEvent> {
+    private class OfflineSyncQueueUpdated extends DefaultSubscriber<OfflineContentEvent> {
         @Override
-        public void onNext(OfflineSyncEvent ignored) {
+        public void onNext(OfflineContentEvent ignored) {
             adapter.clear();
             connectObservable(buildObservable());
         }

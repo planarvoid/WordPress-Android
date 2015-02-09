@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -98,7 +98,7 @@ public class TrackLikesFragmentTest {
     public void shouldRefreshListContentAfterOfflineQueueUpdateEvent() throws Exception {
         fragment.onCreate(null);
         Mockito.reset(adapter);
-        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.queueUpdate());
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.queueUpdate());
 
         final InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).clear();
@@ -109,9 +109,9 @@ public class TrackLikesFragmentTest {
     public void shouldNotRefreshListContentAfterOtherOfflineSyncEvents() throws Exception {
         fragment.onCreate(null);
         Mockito.reset(adapter);
-        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.start());
-        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.idle());
-        eventBus.publish(EventQueue.OFFLINE_SYNC, OfflineSyncEvent.stop());
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.idle());
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
 
         verify(adapter, never()).clear();
         verify(adapter, never()).onNext(tracklist);

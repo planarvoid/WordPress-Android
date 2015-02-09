@@ -3,7 +3,7 @@ package com.soundcloud.android.likes;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
@@ -31,7 +31,6 @@ import java.util.List;
 public class TrackLikesHeaderController extends DefaultFragmentLightCycle implements View.OnClickListener {
 
     private final TrackLikesHeaderPresenter headerPresenter;
-    private final OfflineSyncEventOperations offlineContentEventsOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final FeatureOperations featureOperations;
     private final PlaybackOperations playbackOperations;
@@ -51,13 +50,11 @@ public class TrackLikesHeaderController extends DefaultFragmentLightCycle implem
 
     @Inject
     public TrackLikesHeaderController(TrackLikesHeaderPresenter headerPresenter,
-                                      OfflineSyncEventOperations offlineContentEventsOperations,
                                       OfflineContentOperations offlineContentOperations,
                                       FeatureOperations featureOperations, PlaybackOperations playbackOperations,
                                       Provider<ExpandPlayerSubscriber> subscriberProvider,
                                       EventBus eventBus) {
         this.headerPresenter = headerPresenter;
-        this.offlineContentEventsOperations = offlineContentEventsOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.featureOperations = featureOperations;
         this.playbackOperations = playbackOperations;
@@ -86,11 +83,11 @@ public class TrackLikesHeaderController extends DefaultFragmentLightCycle implem
     @Override
     public void onResume(Fragment fragment) {
         subscription = new CompositeSubscription();
-        subscription.add(offlineContentEventsOperations.onStarted()
+        subscription.add(offlineContentOperations.onStarted()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncStartedSubscriber()));
 
-        subscription.add(offlineContentEventsOperations.onFinishedOrIdleWithDownloadedCount()
+        subscription.add(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncFinishedOrIdleSubscriber()));
     }
@@ -105,9 +102,9 @@ public class TrackLikesHeaderController extends DefaultFragmentLightCycle implem
         headerPresenter.onDestroyView();
     }
 
-    private class SyncStartedSubscriber extends DefaultSubscriber<OfflineSyncEvent> {
+    private class SyncStartedSubscriber extends DefaultSubscriber<OfflineContentEvent> {
         @Override
-        public void onNext(OfflineSyncEvent offlineSyncEvent) {
+        public void onNext(OfflineContentEvent offlineContentEvent) {
             if (isOfflineSyncEnabledAndAvailable()) {
                 headerPresenter.showSyncingState();
             } else {
@@ -129,8 +126,8 @@ public class TrackLikesHeaderController extends DefaultFragmentLightCycle implem
     }
 
     private boolean isOfflineSyncEnabledAndAvailable() {
-        return featureOperations.isOfflineSyncEnabled() &&
-                offlineContentOperations.isLikesOfflineSyncEnabled();
+        return featureOperations.isOfflineContentEnabled() &&
+                offlineContentOperations.isOfflineLikesEnabled();
     }
 
     @Override

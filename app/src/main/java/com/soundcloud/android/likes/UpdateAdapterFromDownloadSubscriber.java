@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -9,7 +9,7 @@ import com.soundcloud.propeller.PropertySet;
 
 import java.util.Date;
 
-class UpdateAdapterFromDownloadSubscriber extends DefaultSubscriber<OfflineSyncEvent> {
+class UpdateAdapterFromDownloadSubscriber extends DefaultSubscriber<OfflineContentEvent> {
 
     private final ItemAdapter<PropertySet> adapter;
 
@@ -18,9 +18,9 @@ class UpdateAdapterFromDownloadSubscriber extends DefaultSubscriber<OfflineSyncE
     }
 
     @Override
-    public void onNext(OfflineSyncEvent offlineSyncEvent) {
+    public void onNext(OfflineContentEvent offlineContentEvent) {
         for (PropertySet item : adapter.getItems()){
-            if (item.get(EntityProperty.URN).equals(offlineSyncEvent.getUrn())){
+            if (item.get(EntityProperty.URN).equals(offlineContentEvent.getUrn())){
                 item.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date());
                 adapter.notifyDataSetChanged();
             }

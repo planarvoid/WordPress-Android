@@ -5,7 +5,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.OfflineSyncEvent;
+import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -39,7 +39,7 @@ public class UpdateAdapterFromDownloadSubscriberTest {
     public void downloadingStartedEventUpdatesDownloadTimeOfMatchingTrack() throws Exception {
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        subscriber.onNext(OfflineSyncEvent.downloadStarted(track1.get(EntityProperty.URN)));
+        subscriber.onNext(OfflineContentEvent.downloadStarted(track1.get(EntityProperty.URN)));
 
         expect(track1.get(TrackProperty.OFFLINE_DOWNLOADED_AT)).not.toBeNull();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
@@ -50,7 +50,7 @@ public class UpdateAdapterFromDownloadSubscriberTest {
     public void downloadingStartedEventDoesUpdatesDownloadTimeOfAnyTrackWithUnmatchedUrl() throws Exception {
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        subscriber.onNext(OfflineSyncEvent.downloadStarted(Urn.forTrack(123L)));
+        subscriber.onNext(OfflineContentEvent.downloadStarted(Urn.forTrack(123L)));
 
         expect(track1.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
@@ -61,9 +61,9 @@ public class UpdateAdapterFromDownloadSubscriberTest {
     public void offlineProgressEventDoesUpdatesDownloadTimeOfAnyTrackWithWrongEventType() throws Exception {
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        subscriber.onNext(OfflineSyncEvent.idle());
-        subscriber.onNext(OfflineSyncEvent.start());
-        subscriber.onNext(OfflineSyncEvent.stop());
+        subscriber.onNext(OfflineContentEvent.idle());
+        subscriber.onNext(OfflineContentEvent.start());
+        subscriber.onNext(OfflineContentEvent.stop());
 
         expect(track1.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();

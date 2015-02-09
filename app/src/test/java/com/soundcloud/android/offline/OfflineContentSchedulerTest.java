@@ -75,6 +75,6 @@ public class OfflineContentSchedulerTest {
     private void verifyPendingIntent() {
         final ShadowPendingIntent shadowPendingIntent = Robolectric.shadowOf(intentArgumentCaptor.getValue());
         expect(shadowPendingIntent.getRequestCode()).toEqual(OfflineContentScheduler.REQUEST_ID);
-        expect(shadowPendingIntent.getSavedIntent()).toEqual(new Intent(Robolectric.application, OfflineSyncStartReceiver.class));
+        expect(shadowPendingIntent.getSavedIntent()).toEqual(new Intent(Robolectric.application, OfflineContentStartReceiver.class));
     }
 }
