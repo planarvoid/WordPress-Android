@@ -21,7 +21,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void isOfflineContentEnabledReturnsDownloadedState() {
-        featureOperations.update("offline_content", true);
+        featureOperations.update("offline_sync", true);
 
         expect(featureOperations.isOfflineContentEnabled()).toBeTrue();
     }
@@ -33,7 +33,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void isOfflineContentUpsellEnabledReturnsDownloadedState() {
-        featureOperations.update("offline_content_upsell", true);
+        featureOperations.update("offline_sync_upsell", true);
 
         expect(featureOperations.isOfflineContentUpsellEnabled()).toBeTrue();
     }

@@ -39,7 +39,7 @@ public class UpdateAdapterFromDownloadSubscriberTest {
     public void downloadingStartedEventUpdatesDownloadTimeOfMatchingTrack() throws Exception {
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        subscriber.onNext(OfflineContentEvent.downloadStarted(track1.get(EntityProperty.URN)));
+        subscriber.onNext(OfflineContentEvent.downloadFinished(track1.get(EntityProperty.URN)));
 
         expect(track1.get(TrackProperty.OFFLINE_DOWNLOADED_AT)).not.toBeNull();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
@@ -50,7 +50,7 @@ public class UpdateAdapterFromDownloadSubscriberTest {
     public void downloadingStartedEventDoesUpdatesDownloadTimeOfAnyTrackWithUnmatchedUrl() throws Exception {
         when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        subscriber.onNext(OfflineContentEvent.downloadStarted(Urn.forTrack(123L)));
+        subscriber.onNext(OfflineContentEvent.downloadFinished(Urn.forTrack(123L)));
 
         expect(track1.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();

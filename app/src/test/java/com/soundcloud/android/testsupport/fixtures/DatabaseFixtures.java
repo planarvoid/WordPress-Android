@@ -115,7 +115,7 @@ public class DatabaseFixtures {
         return id;
     }
 
-    private long insertLike(long id, int type, Date createdAt) {
+    public long insertLike(long id, int type, Date createdAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Likes._ID, id);
         cv.put(TableColumns.Likes._TYPE, type);
@@ -335,7 +335,6 @@ public class DatabaseFixtures {
     }
 
     public long insertRequestedTrackDownload(Urn trackUrn, long addedTimestamp) {
-        insertLike(trackUrn.getNumericId(), TableColumns.Sounds.TYPE_TRACK, new Date(0));
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
         cv.put(TableColumns.TrackDownloads.REQUESTED_AT, addedTimestamp);
