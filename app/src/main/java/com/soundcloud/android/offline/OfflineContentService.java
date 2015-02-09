@@ -50,7 +50,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     };
 
-    private Action1<List<DownloadRequest>> sendDownloadRequestsUpdated = new Action1<List<DownloadRequest>>() {
+    private final Action1<List<DownloadRequest>> sendDownloadRequestsUpdated = new Action1<List<DownloadRequest>>() {
         @Override
         public void call(List<DownloadRequest> requests) {
             eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.queueUpdate());

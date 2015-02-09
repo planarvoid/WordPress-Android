@@ -4,23 +4,25 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.propeller.PropellerWriteException;
 
-import android.os.*;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 
 import javax.inject.Inject;
 
 public class DownloadHandler extends Handler {
 
-    interface Listener {
-        void onSuccess(DownloadResult result);
-
-        void onError(DownloadRequest request);
-    }
-
     public static final int ACTION_DOWNLOAD = 0;
 
-    private MainHandler mainHandler;
+    private final MainHandler mainHandler;
     private final DownloadOperations downloadOperations;
     private final StoreCompletedDownloadCommand storeCompletedDownload;
+
+    interface Listener {
+        void onSuccess(DownloadResult result);
+        void onError(DownloadRequest request);
+    }
 
     public DownloadHandler(Looper looper, MainHandler mainHandler, DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload) {
         super(looper);
@@ -58,8 +60,8 @@ public class DownloadHandler extends Handler {
 
     @VisibleForTesting
     static class Builder {
-        private DownloadOperations downloadOperations;
-        private StoreCompletedDownloadCommand storeCompletedDownload;
+        private final DownloadOperations downloadOperations;
+        private final StoreCompletedDownloadCommand storeCompletedDownload;
 
         @Inject
         Builder(DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload) {
