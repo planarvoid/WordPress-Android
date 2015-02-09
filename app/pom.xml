@@ -408,8 +408,8 @@
         <dependency>
             <groupId>com.soundcloud.android</groupId>
             <artifactId>skippy</artifactId>
-            <version>605</version>
-            <type>apklib</type>
+            <version>613</version>
+            <type>aar</type>
         </dependency>
         <dependency>
             <groupId>com.nineoldandroids</groupId>
