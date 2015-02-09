@@ -42,7 +42,7 @@ public class BillingResultTest {
     @Test
     public void failReasonForUserCancelled() {
         BillingResult result = TestBillingResults.cancelled();
-        expect(result.getFailReason()).toEqual("user cancelled");
+        expect(result.getFailReason()).toEqual("payment failed");
     }
 
     @Test
