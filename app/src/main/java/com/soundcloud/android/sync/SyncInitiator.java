@@ -85,12 +85,35 @@ public class SyncInitiator {
                 .setData(Content.ME_SOUND_STREAM.uri));
     }
 
+    public Observable<Boolean> refreshPostedPlaylists() {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                requestPostedPlaylistsSync(
+                        ApiSyncService.ACTION_HARD_REFRESH,
+                        new LegacyResultReceiverAdapter(subscriber, Content.ME_PLAYLISTS.uri));
+            }
+        });
+    }
+
+    private void requestPostedPlaylistsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
+        context.startService(new Intent(context, ApiSyncService.class)
+                .setAction(action)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                .setData(Content.ME_PLAYLISTS.uri));
+    }
+
     public Observable<SyncResult> syncTrackLikes() {
         return requestSyncObservable(SyncActions.SYNC_TRACK_LIKES);
     }
 
     public Observable<SyncResult> syncPlaylistLikes() {
         return requestSyncObservable(SyncActions.SYNC_PLAYLIST_LIKES);
+    }
+
+    public Observable<SyncResult> syncPlaylistPosts() {
+        return requestSyncObservable(SyncActions.SYNC_PLAYLISTS);
     }
 
     public void requestTracksSync(List<PropertySet> tracks) {

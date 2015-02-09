@@ -1,9 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.collections.ScListFragment;
-import com.soundcloud.android.storage.provider.Content;
 
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
@@ -26,7 +23,7 @@ public class PlaylistsPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_YOUR_PLAYLISTS:
-                return ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists, Screen.SIDE_MENU_PLAYLISTS, false);
+                return new PlaylistPostsFragment();
             case TAB_LIKED_PLAYLISTS:
                 return new PlaylistLikesFragment();
             default:
