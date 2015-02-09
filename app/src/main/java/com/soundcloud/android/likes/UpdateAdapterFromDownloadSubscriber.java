@@ -19,6 +19,13 @@ class UpdateAdapterFromDownloadSubscriber extends DefaultSubscriber<OfflineConte
 
     @Override
     public void onNext(OfflineContentEvent offlineContentEvent) {
+        if (offlineContentEvent.getKind() == OfflineContentEvent.STOP || findAndUpdateItems(offlineContentEvent)) {
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+    private boolean findAndUpdateItems(OfflineContentEvent offlineContentEvent) {
+        boolean hadChanged = false;
         for (PropertySet item : adapter.getItems()) {
             if (item.get(EntityProperty.URN).equals(offlineContentEvent.getUrn())) {
                 if (offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_FINISHED) {
@@ -27,8 +34,9 @@ class UpdateAdapterFromDownloadSubscriber extends DefaultSubscriber<OfflineConte
                 } else {
                     item.put(TrackProperty.OFFLINE_DOWNLOADING, true);
                 }
-                adapter.notifyDataSetChanged();
+                hadChanged = true;
             }
         }
+        return hadChanged;
     }
 }

@@ -33,7 +33,8 @@ public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
         @Override
         public Boolean call(OfflineContentEvent offlineContentEvent) {
             return offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_FINISHED
-                    || offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_STARTED;
+                    || offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_STARTED
+                    || offlineContentEvent.getKind() == OfflineContentEvent.STOP;
         }
     };
 
@@ -62,7 +63,8 @@ public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
                         eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(TrackLikesAdapter.this, trackPresenter)),
                         eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(TrackLikesAdapter.this)),
                         eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(TrackLikesAdapter.this)),
-                        eventBus.queue(EventQueue.OFFLINE_CONTENT).filter(isTrackDownloadEvent)
+                        eventBus.queue(EventQueue.OFFLINE_CONTENT)
+                                .filter(isTrackDownloadEvent)
                                 .subscribe(new UpdateAdapterFromDownloadSubscriber(TrackLikesAdapter.this))
                 );
             }
