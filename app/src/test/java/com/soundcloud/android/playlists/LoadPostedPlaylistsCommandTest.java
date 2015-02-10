@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
@@ -15,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -46,21 +46,21 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
     public void shouldLoadAllPlaylistPosts() throws Exception {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(10, Long.MAX_VALUE)).call();
 
-        expect(result).toEqual(Lists.newArrayList(playlist2, playlist1));
+        expect(result).toEqual(Arrays.asList(playlist2, playlist1));
     }
 
     @Test
     public void shouldAdhereToLimit() throws Exception {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(1, Long.MAX_VALUE)).call();
 
-        expect(result).toEqual(Lists.<PropertySet>newArrayList(playlist2));
+        expect(result).toEqual(Arrays.asList(playlist2));
     }
 
     @Test
     public void shouldAdhereToTimestamp() throws Exception {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(2, POSTED_DATE_2.getTime())).call();
 
-        expect(result).toEqual(Lists.<PropertySet>newArrayList(playlist1));
+        expect(result).toEqual(Arrays.asList(playlist1));
     }
 
     private PropertySet createPostedPlaylistAt(Date postedAt) {
