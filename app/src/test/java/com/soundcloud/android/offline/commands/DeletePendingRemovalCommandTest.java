@@ -61,6 +61,16 @@ public class DeletePendingRemovalCommandTest extends StorageIntegrationTest {
         verify(fileStorage, never()).deleteTrack(TRACK_URN);
     }
 
+    @Test
+    public void doesNotDeleteTrackInInput() throws Exception {
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
+
+        command.with(TRACK_URN).call();
+
+        assertDownloadPendingRemovalCount(TRACK_URN, counts(1));
+        verify(fileStorage, never()).deleteTrack(TRACK_URN);
+    }
+
     public void assertDownloadPendingRemovalCount(Urn trackUrn, RowCountMatcher count) {
         assertThat(select(from(Table.TrackDownloads.name())
                 .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())

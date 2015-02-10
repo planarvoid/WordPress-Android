@@ -12,6 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -19,7 +20,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import android.content.Intent;
@@ -37,7 +38,7 @@ public class OfflineContentServiceTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private DownloadHandler.Builder handlerFactory;
     @Mock private DownloadHandler downloadHandler;
-    @Mock private Action1<Object> deletePendingRemoval;
+    private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
 
     private OfflineContentService service;
     private DownloadRequest downloadRequest1;
@@ -48,13 +49,14 @@ public class OfflineContentServiceTest {
 
     @Before
     public void setUp() {
+        deletePendingRemoval = TestObservables.emptyObservable();
         downloadRequest1 = createDownloadRequest(123L);
         downloadRequest2 = createDownloadRequest(456L);
         downloadResult1 = new DownloadResult(Urn.forTrack(123L));
         eventBus = new TestEventBus();
 
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
-                eventBus, offlineContentScheduler, handlerFactory);
+                eventBus, offlineContentScheduler, handlerFactory, Schedulers.immediate());
 
         when(downloadOperations.deletePendingRemovals()).thenReturn(deletePendingRemoval);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
@@ -70,7 +72,7 @@ public class OfflineContentServiceTest {
 
         startService();
 
-        verify(deletePendingRemoval).call(any());
+        expect(deletePendingRemoval.subscribedTo()).toBeTrue();
     }
 
     @Test

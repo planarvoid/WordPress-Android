@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
@@ -9,6 +10,7 @@ import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -21,6 +23,7 @@ import android.os.IBinder;
 import android.os.Message;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -37,10 +40,11 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject EventBus eventBus;
     @Inject OfflineContentScheduler offlineContentScheduler;
     @Inject DownloadHandler.Builder builder;
+    @Inject @Named("Storage") Scheduler scheduler;
 
     private final Queue<DownloadRequest> queue = new LinkedList<>();
-    private DownloadHandler downloadHandler;
 
+    private DownloadHandler downloadHandler;
     private Subscription loadRequestsSubscription = Subscriptions.empty();
 
     private final Action1<List<DownloadRequest>> updateNotification = new Action1<List<DownloadRequest>>() {
@@ -81,13 +85,15 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                           DownloadNotificationController notificationController,
                           EventBus eventBus,
                           OfflineContentScheduler offlineContentScheduler,
-                          DownloadHandler.Builder builder) {
+                          DownloadHandler.Builder builder,
+                          Scheduler scheduler) {
         this.downloadOperations = downloadOps;
         this.offlineContentOperations = offlineContentOperations;
         this.notificationController = notificationController;
         this.eventBus = eventBus;
         this.offlineContentScheduler = offlineContentScheduler;
         this.builder = builder;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -104,14 +110,18 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         offlineContentScheduler.cancelPendingRetries();
         if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
             loadRequestsSubscription.unsubscribe();
+
+            fireAndForget(downloadOperations
+                    .deletePendingRemovals()
+                    .subscribeOn(scheduler));
+
             loadRequestsSubscription = offlineContentOperations
                     .updateDownloadRequestsFromLikes()
-                    .doOnNext(sendDownloadRequestsUpdated)
-                    .doOnNext(downloadOperations.deletePendingRemovals())
                     .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(sendDownloadRequestsUpdated)
                     .doOnNext(updateNotification)
+                    .subscribeOn(scheduler)
                     .subscribe(new DownloadSubscriber());
-
         } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
             stop();
         }

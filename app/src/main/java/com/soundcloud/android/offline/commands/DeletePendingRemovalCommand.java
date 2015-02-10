@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class DeletePendingRemovalCommand extends Command<Object, List<Urn>, DeletePendingRemovalCommand> {
+public class DeletePendingRemovalCommand extends Command<Urn, List<Urn>, DeletePendingRemovalCommand> {
     private static final long DELAY = TimeUnit.MINUTES.toMillis(3);
 
     private final SecureFileStorage fileStorage;
@@ -38,10 +38,16 @@ public class DeletePendingRemovalCommand extends Command<Object, List<Urn>, Dele
         final List<Urn> tracksToRemove = getTracksRemovedBefore();
 
         for (Urn track : tracksToRemove) {
-            deleteFromFileSystem(track);
-            deleteFromDatabase(track);
+            if (isNotPlayingTrack(track)) {
+                deleteFromFileSystem(track);
+                deleteFromDatabase(track);
+            }
         }
         return tracksToRemove;
+    }
+
+    private boolean isNotPlayingTrack(Urn track) {
+        return input == null || !input.equals(track);
     }
 
     private List<Urn> getTracksRemovedBefore() {

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,7 @@ public class DownloadOperationsTest {
     @Mock private SecureFileStorage fileStorage;
     @Mock private InputStream inputStream;
     @Mock private DeletePendingRemovalCommand deleteOfflineContent;
+    @Mock private PlayQueueManager playQueueManager;
 
     private DownloadOperations operations;
 
@@ -34,7 +36,7 @@ public class DownloadOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent);
+        operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager);
     }
 
     @Test

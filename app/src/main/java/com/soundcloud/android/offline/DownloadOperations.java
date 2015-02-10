@@ -3,27 +3,34 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
-import rx.functions.Action1;
+import rx.Observable;
 
 import javax.inject.Inject;
 import java.io.InputStream;
+import java.util.List;
 
 class DownloadOperations {
     private final StrictSSLHttpClient strictSSLHttpClient;
     private final SecureFileStorage fileStorage;
     private final DeletePendingRemovalCommand deleteOfflineContent;
+    private final PlayQueueManager playQueueManager;
 
     @Inject
-    public DownloadOperations(StrictSSLHttpClient httpClient, SecureFileStorage fileStorage, DeletePendingRemovalCommand deleteOfflineContent) {
+    public DownloadOperations(StrictSSLHttpClient httpClient,
+                              SecureFileStorage fileStorage,
+                              DeletePendingRemovalCommand deleteOfflineContent,
+                              PlayQueueManager playQueueManager) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
+        this.playQueueManager = playQueueManager;
     }
 
-    Action1<Object> deletePendingRemovals() {
-        return deleteOfflineContent.toAction();
+    Observable<List<Urn>> deletePendingRemovals() {
+        return deleteOfflineContent.with(playQueueManager.getCurrentTrackUrn()).toObservable();
     }
 
     private void deleteTrack(Urn urn) {
