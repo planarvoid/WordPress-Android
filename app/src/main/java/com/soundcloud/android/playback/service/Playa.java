@@ -51,13 +51,7 @@ public interface Playa {
         // used to pass various additional meta data with the event, often for tracking/analytics
         private final SparseArray<String> extraAttributes = new SparseArray<String>(2);
 
-        public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
-
-        // TODO: make private and use blueprints in tests
-        @Deprecated
-        public StateTransition(PlayaState newState, Reason reason) {
-            this(newState, reason, Urn.NOT_SET);
-        }
+        public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.NOT_SET);
 
         public StateTransition(PlayaState newState, Reason reason, Urn trackUrn) {
             this(newState, reason, trackUrn, 0, 0);

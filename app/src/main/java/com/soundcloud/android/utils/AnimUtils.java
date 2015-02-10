@@ -9,8 +9,7 @@ import android.view.animation.AnimationUtils;
 
 public final class AnimUtils {
 
-    private AnimUtils() {
-    }
+    private AnimUtils() {}
 
     public static class SimpleAnimationListener implements Animation.AnimationListener {
 
@@ -26,19 +25,6 @@ public final class AnimUtils {
         public void onAnimationRepeat(Animation animation) {
         }
     }
-
-    public static void attachVisibilityListener(final View target, final int visibility) {
-        target.getAnimation().setAnimationListener(new SimpleAnimationListener() {
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if (target.getAnimation().equals(animation)) {
-                    target.setVisibility(visibility);
-                    target.setEnabled(true);
-                }
-            }
-        });
-    }
-
 
     public static Animation runFadeInAnimationOn(Context ctx, View target) {
         Animation animation = AnimationUtils.loadAnimation(ctx, android.R.anim.fade_in);
@@ -58,13 +44,13 @@ public final class AnimUtils {
         return animation;
     }
 
-    public static void hideViews(final View... views) {
+    public static void hideViews(Iterable<View> views) {
         for (View view : views){
             hideView(view.getContext(), view, true);
         }
     }
 
-    public static void showViews(final View... views) {
+    public static void showViews(Iterable<View> views) {
         for (View view : views) {
             showView(view.getContext(), view, true);
         }

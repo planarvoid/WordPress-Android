@@ -64,7 +64,6 @@
     <string name="accessibility_stats_user_reposted">Reposted by you</string>
     <string name="accessibility_like_action">Like</string>
     <string name="accessibility_repost_action">Repost</string>
-    <string name="accessibility_comment_action">Comment</string>
 
     <!-- __ACCESSIBILITY OFFLINE SYNC -->
     <string name="accessibility_start_offline_update">Start Sync</string>
@@ -307,8 +306,9 @@
     <string name="info">Info</string>
     <string name="uploaded_at">Uploaded %s</string>
     <string name="track_info_no_description">No description available</string>
-    <string name="playback_error_connection">Please check your connection</string>
-    <string name="playback_error_unable_to_play">Unable to play track</string>
+    <string name="playback_error">Not playable</string>
+    <string name="playback_error_connection">Please check your connection. Tap to try again.</string>
+    <string name="playback_error_unable_to_play">Track cannot be streamed</string>
     <string name="play">Play</string>
     <string name="pause">Pause</string>
     <string name="previous">Previous</string>

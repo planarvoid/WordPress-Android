@@ -62,7 +62,6 @@
     <string name="accessibility_stats_user_reposted">تمت إعادة النشر من قِبلك</string>
     <string name="accessibility_like_action">إعجاب</string>
     <string name="accessibility_repost_action">إعادة نشر</string>
-    <string name="accessibility_comment_action">تعليق</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">أعجب %s</string>

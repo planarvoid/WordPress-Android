@@ -1,9 +1,6 @@
 package com.soundcloud.android.playback.widget;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
-import static com.soundcloud.android.playback.service.Playa.PlayaState;
-import static com.soundcloud.android.playback.service.Playa.Reason;
-import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForWidget;
 import static org.mockito.Matchers.any;
@@ -28,6 +25,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -90,7 +88,7 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterWithDefaultPlayStateFollowedByReceivedPlayStateOnSubscribeAndReceivePlaybackStateChangedEvent() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
 
         InOrder inOrder = Mockito.inOrder(playerWidgetPresenter);
         inOrder.verify(playerWidgetPresenter).updatePlayState(eq(context), eq(false));

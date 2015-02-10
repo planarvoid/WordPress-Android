@@ -26,11 +26,7 @@
     <color name="record_list_item_text">#666666</color>
     <color name="playlist_tracks">#e5e5e5</color>
 
-    <!-- Comments -->
-    <color name="comment_gray">#9c9c9c</color>
-
     <!-- Player -->
-    <color name="player_control_alpha_background">#aaf3f3f3</color>
     <color name="player_gradient_start">#4C000000</color>
     <color name="player_user_text">#c5c5c5</color>
 

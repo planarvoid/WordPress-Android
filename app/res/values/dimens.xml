@@ -23,17 +23,6 @@
     <dimen name="list_txt_sub_size">12sp</dimen>
     <dimen name="list_txt_sub_2_size">10sp</dimen>
 
-    <dimen name="comment_panel_main_size">14sp</dimen>
-    <dimen name="comment_panel_created_at_size">12sp</dimen>
-
-    <!-- can't change one of these without change them all -->
-    <!-- end of can't change one of these without change them all -->
-
-    <dimen name="player_time_text_size">10sp</dimen>
-    <dimen name="player_time_text_instructions_size">12sp</dimen>
-
-    <dimen name="player_comment_bar_txt_size">16sp</dimen>
-
     <dimen name="button_bar_text_size">15sp</dimen>
     <dimen name="button_bar_button_padding">16dp</dimen>
 

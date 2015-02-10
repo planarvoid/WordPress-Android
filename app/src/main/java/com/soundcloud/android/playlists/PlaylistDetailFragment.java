@@ -22,7 +22,7 @@ import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -71,7 +71,7 @@ public class PlaylistDetailFragment extends LightCycleFragment implements Adapte
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
     @Inject PlaylistPresenter playlistPresenter;
-    @Inject PlaybackToastViewController playbackToastViewController;
+    @Inject AdToastViewController adToastViewController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     private PlaylistDetailsController controller;
@@ -155,7 +155,7 @@ public class PlaylistDetailFragment extends LightCycleFragment implements Adapte
     }
 
     private void playFromBeginning() {
-        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastViewController));
+        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, adToastViewController));
     }
 
     private void addLifeCycleComponents() {
@@ -397,8 +397,8 @@ public class PlaylistDetailFragment extends LightCycleFragment implements Adapte
 
     private class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
 
-        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, PlaybackToastViewController playbackToastViewController) {
-            super(eventBus, playbackToastViewController);
+        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, AdToastViewController adToastViewController) {
+            super(eventBus, adToastViewController);
         }
 
         @Override

@@ -63,7 +63,6 @@
     <string name="accessibility_stats_user_reposted">Republicado por você</string>
     <string name="accessibility_like_action">Curtir</string>
     <string name="accessibility_repost_action">Republicar</string>
-    <string name="accessibility_comment_action">Comentário</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">curtiu %s</string>

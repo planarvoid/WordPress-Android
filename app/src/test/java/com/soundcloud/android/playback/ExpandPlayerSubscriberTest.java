@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
@@ -19,7 +19,7 @@ public class ExpandPlayerSubscriberTest {
     private ExpandPlayerSubscriber subscriber;
 
     private TestEventBus eventBus;
-    @Mock private PlaybackToastViewController toastViewController;
+    @Mock private AdToastViewController toastViewController;
 
     @Before
     public void setUp() throws Exception {

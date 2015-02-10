@@ -126,8 +126,6 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         return presenter.shouldDisplayOverlay(data, isExpanded, isPortrait, isForeground);
     }
 
-
-
     private void setVisible() {
         if (presenter != null) {
             presenter.setVisible();
@@ -145,8 +143,8 @@ public class AdOverlayController implements AdOverlayPresenter.Listener {
         return presenter == null || presenter.isNotVisible();
     }
 
-    public boolean isNotVisibleInFullscreen() {
-        return isNotVisible() || !presenter.isFullScreen();
+    public boolean isVisibleInFullscreen() {
+        return !isNotVisible() && presenter.isFullScreen();
     }
 
     public void clear() {

@@ -63,7 +63,6 @@
     <string name="accessibility_stats_user_reposted">Republié par vous</string>
     <string name="accessibility_like_action">«J\'aime»</string>
     <string name="accessibility_repost_action">Republier</string>
-    <string name="accessibility_comment_action">Commentaire</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">a aimé %s</string>
