@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -56,7 +56,7 @@ public class PlaybackOperations {
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final PlaybackToastViewController playbackToastViewController;
+    private final AdToastViewController adToastViewController;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
@@ -67,7 +67,7 @@ public class PlaybackOperations {
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider,
-                              PlaybackToastViewController playbackToastViewController, EventBus eventBus,
+                              AdToastViewController adToastViewController, EventBus eventBus,
                               AdsOperations adsOperations, AccountOperations accountOperations,
                               Provider<PlaybackStrategy> playbackStrategyProvider) {
         this.context = context;
@@ -75,7 +75,7 @@ public class PlaybackOperations {
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.playbackToastViewController = playbackToastViewController;
+        this.adToastViewController = adToastViewController;
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
@@ -162,7 +162,7 @@ public class PlaybackOperations {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastViewController.showUnskippableAdToast();
+            adToastViewController.showUnskippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !adsOperations.isCurrentTrackAudioAd()) {
@@ -176,7 +176,7 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastViewController.showUnskippableAdToast();
+            adToastViewController.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
             playQueueManager.nextTrack();

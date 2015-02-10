@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-class ErrorController {
+class ErrorViewController {
 
     private final View trackView;
     private final TrackPageHolder holder;
@@ -23,7 +23,7 @@ class ErrorController {
 
     @Nullable private Playa.Reason currentError;
 
-    public ErrorController(View trackView) {
+    public ErrorViewController(View trackView) {
         this.trackView = trackView;
         this.holder = (TrackPageHolder) trackView.getTag();
         this.errorStub = (ViewStub) trackView.findViewById(R.id.track_page_error_stub);
@@ -61,7 +61,7 @@ class ErrorController {
     public void hideError() {
         if (isShowingError()) {
             holder.waveformController.show();
-            setVisibile(holder.hideOnErrorViews);
+            setVisible(holder.hideOnErrorViews);
 
             errorLayout.setVisibility(View.GONE);
             currentError = null;
@@ -74,7 +74,7 @@ class ErrorController {
         }
     }
 
-    private void setVisibile(Iterable<View> views) {
+    private void setVisible(Iterable<View> views) {
         for (View v : views) {
             v.setVisibility(View.VISIBLE);
             ViewHelper.setAlpha(v, 1f);
@@ -86,8 +86,8 @@ class ErrorController {
         @Inject
         Factory() {}
 
-        public ErrorController create(View trackView) {
-            return new ErrorController(trackView);
+        public ErrorViewController create(View trackView) {
+            return new ErrorViewController(trackView);
         }
     }
 

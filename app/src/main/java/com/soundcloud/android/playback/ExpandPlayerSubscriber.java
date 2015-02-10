@@ -6,7 +6,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
@@ -19,7 +19,7 @@ import java.util.List;
 public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     public static final int EXPAND_DELAY_MILLIS = 100;
     private final EventBus eventBus;
-    private final PlaybackToastViewController playbackToastViewController;
+    private final AdToastViewController adToastViewController;
 
     private final Handler expandDelayHandler = new Handler(){
         @Override
@@ -30,9 +30,9 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     };
 
     @Inject
-    public ExpandPlayerSubscriber(EventBus eventBus, PlaybackToastViewController playbackToastViewController) {
+    public ExpandPlayerSubscriber(EventBus eventBus, AdToastViewController adToastViewController) {
         this.eventBus = eventBus;
-        this.playbackToastViewController = playbackToastViewController;
+        this.adToastViewController = adToastViewController;
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     @Override
     public void onError(Throwable e) {
         if (e instanceof UnskippablePeriodException) {
-            playbackToastViewController.showUnskippableAdToast();
+            adToastViewController.showUnskippableAdToast();
         }
     }
 }

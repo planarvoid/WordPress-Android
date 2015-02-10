@@ -21,14 +21,14 @@ import android.view.ViewStub;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ErrorControllerTest {
+public class ErrorViewControllerTest {
 
     @Mock private WaveformViewController waveformViewController;
     @Mock private View trackPage;
     @Mock private ViewStub errorStub;
     private View hideOnError;
 
-    private ErrorController errorController;
+    private ErrorViewController errorViewController;
     private View errorLayout;
 
     @Before
@@ -43,12 +43,12 @@ public class ErrorControllerTest {
 
         when(trackPage.findViewById(R.id.track_page_error_stub)).thenReturn(errorStub);
         when(trackPage.getTag()).thenReturn(holder);
-        errorController = new ErrorController(trackPage);
+        errorViewController = new ErrorViewController(trackPage);
     }
 
     @Test
     public void showErrorSetsTrackPageStates() {
-        errorController.showError(Playa.Reason.ERROR_FAILED);
+        errorViewController.showError(Playa.Reason.ERROR_FAILED);
 
         verify(waveformViewController).hide();
         expect(hideOnError).toBeGone();
@@ -56,9 +56,9 @@ public class ErrorControllerTest {
 
     @Test
     public void hideErrorClearsTrackPageStates() {
-        errorController.showError(Playa.Reason.ERROR_FAILED);
+        errorViewController.showError(Playa.Reason.ERROR_FAILED);
 
-        errorController.hideError();
+        errorViewController.hideError();
 
         verify(waveformViewController).show();
         expect(hideOnError).toBeVisible();
@@ -67,7 +67,7 @@ public class ErrorControllerTest {
 
     @Test
     public void showErrorSetsMessageForConnectionError() {
-        errorController.showError(Playa.Reason.ERROR_FAILED);
+        errorViewController.showError(Playa.Reason.ERROR_FAILED);
 
         String expected = Robolectric.application.getString(R.string.playback_error_connection);
         expect(errorLayout.findViewById(R.id.playback_error_reason)).toHaveText(expected);
@@ -75,7 +75,7 @@ public class ErrorControllerTest {
 
     @Test
     public void showErrorSetsMessageForGeneralError() {
-        errorController.showError(Playa.Reason.ERROR_NOT_FOUND);
+        errorViewController.showError(Playa.Reason.ERROR_NOT_FOUND);
 
         String expected = Robolectric.application.getString(R.string.playback_error_unable_to_play);
         expect(errorLayout.findViewById(R.id.playback_error_reason)).toHaveText(expected);
@@ -83,18 +83,18 @@ public class ErrorControllerTest {
 
     @Test
     public void isShowingErrorIsTrueAfterShow() {
-        errorController.showError(Playa.Reason.ERROR_FORBIDDEN);
+        errorViewController.showError(Playa.Reason.ERROR_FORBIDDEN);
 
-        expect(errorController.isShowingError()).toBeTrue();
+        expect(errorViewController.isShowingError()).toBeTrue();
     }
 
     @Test
     public void isShowingErrorIsFalseAfterHide() {
-        errorController.showError(Playa.Reason.ERROR_FORBIDDEN);
+        errorViewController.showError(Playa.Reason.ERROR_FORBIDDEN);
 
-        errorController.hideError();
+        errorViewController.hideError();
 
-        expect(errorController.isShowingError()).toBeFalse();
+        expect(errorViewController.isShowingError()).toBeFalse();
     }
 
 }

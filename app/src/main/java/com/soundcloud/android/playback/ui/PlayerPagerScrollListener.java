@@ -5,7 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -22,7 +22,7 @@ import javax.inject.Inject;
 public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener {
 
     private final ReplaySubject<Integer> scrollStateSubject = ReplaySubject.createWithSize(1);
-    private final PlaybackToastViewController playbackToastViewController;
+    private final AdToastViewController adToastViewController;
     private final PlayQueueManager playQueueManager;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
@@ -45,7 +45,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final DefaultSubscriber<Integer> showBlockedSwipeToast = new DefaultSubscriber<Integer>() {
         @Override
         public void onNext(Integer args) {
-            playbackToastViewController.showUnskippableAdToast();
+            adToastViewController.showUnskippableAdToast();
         }
     };
 
@@ -74,11 +74,11 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     };
 
     @Inject
-    PlayerPagerScrollListener(PlayQueueManager playQueueManager, PlaybackToastViewController playbackToastViewController,
+    PlayerPagerScrollListener(PlayQueueManager playQueueManager, AdToastViewController adToastViewController,
                               EventBus eventBus, AdsOperations adsOperations) {
         this.playQueueManager = playQueueManager;
         this.eventBus = eventBus;
-        this.playbackToastViewController = playbackToastViewController;
+        this.adToastViewController = adToastViewController;
         this.adsOperations = adsOperations;
     }
 

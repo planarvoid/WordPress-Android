@@ -14,15 +14,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaybackToastViewControllerTest {
+public class AdToastViewControllerTest {
 
-    private PlaybackToastViewController controller;
+    private AdToastViewController controller;
 
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlaybackToastViewController(Robolectric.application, playSessionStateProvider);
+        controller = new AdToastViewController(Robolectric.application, playSessionStateProvider);
     }
 
     @Test

@@ -8,13 +8,13 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public class PlaybackToastViewController {
+public class AdToastViewController {
 
     private final Context context;
     private final PlaySessionStateProvider playSessionStateProvider;
 
     @Inject
-    public PlaybackToastViewController(Context context, PlaySessionStateProvider playSessionStateProvider) {
+    public AdToastViewController(Context context, PlaySessionStateProvider playSessionStateProvider) {
         this.context = context;
         this.playSessionStateProvider = playSessionStateProvider;
     }

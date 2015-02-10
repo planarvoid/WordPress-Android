@@ -25,7 +25,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
@@ -66,7 +66,7 @@ public class PlaybackOperationsTest {
     @Mock private TrackStorage trackStorage;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
-    @Mock private PlaybackToastViewController playbackToastViewController;
+    @Mock private AdToastViewController adToastViewController;
     @Mock private AdsOperations adsOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackStrategy playbackStrategy;
@@ -84,7 +84,7 @@ public class PlaybackOperationsTest {
         };
 
         playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, playSessionStateProvider, playbackToastViewController, eventBus, adsOperations, accountOperations,
+                playQueueManager, playSessionStateProvider, adToastViewController, eventBus, adsOperations, accountOperations,
                 playbackStrategyProvider);
 
         track = ModelFixtures.create(PublicApiTrack.class);
@@ -383,7 +383,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.previousTrack();
 
-        verify(playbackToastViewController).showUnskippableAdToast();
+        verify(adToastViewController).showUnskippableAdToast();
     }
 
     @Test
@@ -427,7 +427,7 @@ public class PlaybackOperationsTest {
 
         playbackOperations.nextTrack();
 
-        verify(playbackToastViewController).showUnskippableAdToast();
+        verify(adToastViewController).showUnskippableAdToast();
     }
 
     @Test

@@ -55,8 +55,8 @@ public class TrackPagePresenterTest {
     @Mock private PlayerOverlayController playerOverlayController;
     @Mock private AdOverlayController.Factory leaveBehindControllerFactory;
     @Mock private AdOverlayController adOverlayController;
-    @Mock private ErrorController.Factory errorControllerFactory;
-    @Mock private ErrorController errorController;
+    @Mock private ErrorViewController.Factory errorControllerFactory;
+    @Mock private ErrorViewController errorViewController;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
     @Mock private CastConnectionHelper castConnectionHelper;
@@ -80,7 +80,7 @@ public class TrackPagePresenterTest {
         when(playerOverlayControllerFactory.create(any(View.class))).thenReturn(playerOverlayController);
         when(trackMenuControllerFactory.create(any(View.class))).thenReturn(trackPageMenuController);
         when(leaveBehindControllerFactory.create(any(View.class), any(AdOverlayListener.class))).thenReturn(adOverlayController);
-        when(errorControllerFactory.create(any(View.class))).thenReturn(errorController);
+        when(errorControllerFactory.create(any(View.class))).thenReturn(errorViewController);
         trackView = presenter.createItemView(container, skipListener);
     }
 
@@ -537,14 +537,14 @@ public class TrackPagePresenterTest {
     public void onPlaybackErrorShowErrorState() {
         presenter.setPlayState(trackView, TestPlayStates.error(Reason.ERROR_FAILED), true, true);
 
-        verify(errorController).showError(Reason.ERROR_FAILED);
+        verify(errorViewController).showError(Reason.ERROR_FAILED);
     }
 
     @Test
     public void onNonErrorPlaybackEventClearAnyExistingErrorState() {
         presenter.setPlayState(trackView, TestPlayStates.playing(), true, false);
 
-        verify(errorController).hideError();
+        verify(errorViewController).hideError();
     }
 
     @Test

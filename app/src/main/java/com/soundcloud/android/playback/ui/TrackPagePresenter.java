@@ -52,7 +52,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
     private final AdOverlayController.Factory adOverlayControllerFactory;
-    private final ErrorController.Factory errorControllerFactory;
+    private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
@@ -63,7 +63,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayController.Factory adOverlayControllerFactory,
-                              ErrorController.Factory errorControllerFactory,
+                              ErrorViewController.Factory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
@@ -142,7 +142,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
 
-        if (!holder.errorController.isShowingError()){
+        if (!holder.errorViewController.isShowingError()){
             holder.timestamp.setVisibility(View.VISIBLE);
         }
 
@@ -175,7 +175,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
 
         holder.timestamp.setVisibility(View.GONE);
-        holder.errorController.hideError();
+        holder.errorViewController.hideError();
         return view;
     }
 
@@ -302,9 +302,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private void updateErrorState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
         if (isCurrentTrack) {
             if (state.wasError()) {
-                holder.errorController.showError(state.getReason());
+                holder.errorViewController.showError(state.getReason());
             } else {
-                holder.errorController.hideError();
+                holder.errorViewController.hideError();
             }
         }
     }
@@ -366,7 +366,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private Iterable<View> getFullScreenViews(TrackPageHolder holder) {
         if (holder.adOverlayController.isVisibleInFullscreen()) {
             return holder.fullScreenAdViews;
-        } else if (holder.errorController.isShowingError()) {
+        } else if (holder.errorViewController.isShowingError()) {
             return holder.fullScreenErrorViews;
         } else {
             return holder.fullScreenViews;
@@ -496,7 +496,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.populateViewSets();
         trackView.setTag(holder);
 
-        holder.errorController = errorControllerFactory.create(trackView);
+        holder.errorViewController = errorControllerFactory.create(trackView);
     }
 
     private AdOverlayController.AdOverlayListener createAdOverlayListener(final TrackPageHolder holder) {
@@ -507,8 +507,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 setTextBackgrounds(holder, false);
                 holder.waveformController.hide();
 
-                if (fullscreen){
-                    AnimUtils.hideViews(holder.close, holder.more, holder.likeToggle, holder.title, holder.user);
+                if (fullscreen) {
+                    AnimUtils.hideViews(holder.hideOnAdViews);
                 }
             }
 
@@ -518,8 +518,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                 setTextBackgrounds(holder, true);
                 holder.waveformController.show();
 
-                if (fullscreen){
-                    AnimUtils.showViews(holder.close, holder.more, holder.likeToggle, holder.title, holder.user);
+                if (fullscreen) {
+                    AnimUtils.showViews(holder.hideOnAdViews);
                 }
             }
         };
@@ -550,7 +550,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         PlayerArtworkController artworkController;
         PlayerOverlayController[] playerOverlayControllers;
         AdOverlayController adOverlayController;
-        ErrorController errorController;
+        ErrorViewController errorViewController;
 
         // Footer player
         View footer;
@@ -564,6 +564,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         Iterable<View> fullScreenErrorViews;
         Iterable<View> hideOnScrubViews;
         Iterable<View> hideOnErrorViews;
+        Iterable<View> hideOnAdViews;
         Iterable<View> onClickViews;
         Iterable<ProgressAware> progressAwareViews;
 
@@ -586,6 +587,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
             hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
             onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp);
             progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 

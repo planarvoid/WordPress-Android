@@ -7,7 +7,7 @@ import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
 import javax.inject.Inject;
@@ -20,17 +20,17 @@ public class CastSessionReconnector implements CastConnectionHelper.CastConnecti
     private final PlayQueueManager playQueueManager;
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
-    private final PlaybackToastViewController playbackToastViewController;
+    private final AdToastViewController adToastViewController;
     private final PlaySessionStateProvider playSessionStateProvider;
 
     @Inject
     public CastSessionReconnector(PlaybackOperations playbackOperations, PlayQueueManager playQueueManager,
-                                  CastConnectionHelper castConnectionHelper, EventBus eventBus, PlaybackToastViewController playbackToastViewController, PlaySessionStateProvider playSessionStateProvider) {
+                                  CastConnectionHelper castConnectionHelper, EventBus eventBus, AdToastViewController adToastViewController, PlaySessionStateProvider playSessionStateProvider) {
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
         this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
-        this.playbackToastViewController = playbackToastViewController;
+        this.adToastViewController = adToastViewController;
         this.playSessionStateProvider = playSessionStateProvider;
     }
 
@@ -51,7 +51,7 @@ public class CastSessionReconnector implements CastConnectionHelper.CastConnecti
     public void onMetaDataUpdated(Urn currentUrn) {
         if (playQueueManager.isQueueEmpty()) {
             playbackOperations.playTrackWithRecommendations(currentUrn, PlaySessionSource.EMPTY)
-                    .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastViewController));
+                    .subscribe(new ShowPlayerSubscriber(eventBus, adToastViewController));
         }
     }
 }
