@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 public class ConfigurationHelper {
 
-    private final static String OFFLINE_CONTENT_FEATURE = "offline_content";
+    private final static String OFFLINE_CONTENT_FEATURE = "offline_sync";
 
     public static void enableOfflineSync(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
