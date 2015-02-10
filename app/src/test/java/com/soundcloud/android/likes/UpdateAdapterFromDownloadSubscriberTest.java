@@ -63,10 +63,18 @@ public class UpdateAdapterFromDownloadSubscriberTest {
 
         subscriber.onNext(OfflineContentEvent.idle());
         subscriber.onNext(OfflineContentEvent.start());
-        subscriber.onNext(OfflineContentEvent.stop());
 
         expect(track1.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
         expect(track2.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeFalse();
         verify(adapter, never()).notifyDataSetChanged();
+    }
+
+    @Test
+    public void offlineStoppedEventUpdatesAdapterData() {
+        subscriber.onNext(OfflineContentEvent.idle());
+        subscriber.onNext(OfflineContentEvent.stop());
+        subscriber.onNext(OfflineContentEvent.start());
+
+        verify(adapter).notifyDataSetChanged();
     }
 }
