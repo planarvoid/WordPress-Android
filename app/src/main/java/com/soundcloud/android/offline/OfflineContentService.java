@@ -42,9 +42,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject DownloadHandler.Builder builder;
     @Inject @Named("Storage") Scheduler scheduler;
 
-    private final Queue<DownloadRequest> queue = new LinkedList<>();
-
+    private final Queue<DownloadRequest> requestsQueue = new LinkedList<>();
     private DownloadHandler downloadHandler;
+
     private Subscription loadRequestsSubscription = Subscriptions.empty();
 
     private final Action1<List<DownloadRequest>> updateNotification = new Action1<List<DownloadRequest>>() {
@@ -131,40 +131,34 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Override
     public void onSuccess(DownloadResult result) {
         Log.d(TAG, "Download finished " + result);
+
         notificationController.onProgressUpdate();
         eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadFinished(result.getUrn()));
-        loop();
+
+        if (requestsQueue.isEmpty()) {
+            stop();
+            notificationController.onDownloadsFinished();
+        } else {
+            download(requestsQueue.poll());
+        }
     }
 
     @Override
     public void onError(DownloadRequest request) {
         Log.d(TAG, "Download failed " + request);
+
         eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadFailed(request.urn));
         offlineContentScheduler.scheduleRetry();
         stop();
         notificationController.onError();
-        // TODO : proceed the queue ?
     }
 
-    private void loop() {
-        if (queue.isEmpty()) {
-            // FIXME : a request might be processing
-            stop();
-            notificationController.onDownloadsFinished();
-        } else {
-            startDownloadIfNotRunning();
-        }
-    }
+    private void download(DownloadRequest request) {
+        Log.d(TAG, "Download started " + request);
 
-    private void startDownloadIfNotRunning() {
-        if (!downloadHandler.hasMessages(DownloadHandler.ACTION_DOWNLOAD)) {
-            final DownloadRequest request = queue.poll();
-            final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
-
-            Log.d(TAG, "Download started " + request);
-            downloadHandler.sendMessage(message);
-            eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadStarted(request.urn));
-        }
+        final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
+        downloadHandler.sendMessage(message);
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadStarted(request.urn));
     }
 
     @Override
@@ -192,15 +186,16 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
         @Override
         public void onNext(List<DownloadRequest> requests) {
-            if (queue.isEmpty() && !requests.isEmpty()) {
+            if (!requests.isEmpty()) {
                 Log.d(TAG, "Start offline sync with " + requests.size() + " queue.");
-                eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
-            }
-            // FIXME : do not start if nothing to process
 
-            queue.clear();
-            queue.addAll(requests);
-            loop();
+                requestsQueue.clear();
+                requestsQueue.addAll(requests);
+                if (!downloadHandler.isDownloading()) {
+                    eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
+                    download(requestsQueue.poll());
+                }
+            }
         }
     }
 

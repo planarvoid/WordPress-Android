@@ -11,6 +11,7 @@ import android.os.Message;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DownloadHandler extends Handler {
 
@@ -19,6 +20,11 @@ public class DownloadHandler extends Handler {
     private final MainHandler mainHandler;
     private final DownloadOperations downloadOperations;
     private final StoreCompletedDownloadCommand storeCompletedDownload;
+    private final AtomicBoolean downloading;
+
+    public boolean isDownloading() {
+        return downloading.get();
+    }
 
     interface Listener {
         void onSuccess(DownloadResult result);
@@ -30,6 +36,7 @@ public class DownloadHandler extends Handler {
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
         this.storeCompletedDownload = storeCompletedDownload;
+        downloading = new AtomicBoolean(false);
     }
 
     @VisibleForTesting
@@ -37,16 +44,20 @@ public class DownloadHandler extends Handler {
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
         this.storeCompletedDownload = storeCompletedDownload;
+        downloading = new AtomicBoolean(false);
     }
 
     @Override
     public void handleMessage(Message msg) {
         final DownloadRequest request = (DownloadRequest) msg.obj;
         try {
+            downloading.set(true);
             final DownloadResult result = downloadOperations.download(request);
             storeCompletedDownload.with(result).call();
+            downloading.set(false);
             sendMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
         } catch (DownloadFailedException | PropellerWriteException e) {
+            downloading.set(false);
             sendMessage(MainHandler.ACTION_DOWNLOAD_FAILED, request);
         }
     }
