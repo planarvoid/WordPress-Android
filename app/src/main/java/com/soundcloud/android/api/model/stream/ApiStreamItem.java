@@ -119,13 +119,13 @@ public class ApiStreamItem {
     public long getCreatedAtTime() {
 
         if (apiTrackPost != null){
-            return apiTrackPost.getApiTrack().getCreatedAt().getTime();
+            return apiTrackPost.getCreatedAtTime();
 
         } else if (apiTrackRepost != null) {
             return apiTrackRepost.getCreatedAtTime();
 
         } else if (apiPlaylistPost != null){
-            return apiPlaylistPost.getApiPlaylist().getCreatedAt().getTime();
+            return apiPlaylistPost.getCreatedAtTime();
 
         } else if (apiPlaylistRepost != null) {
             return apiPlaylistRepost.getCreatedAtTime();

@@ -116,7 +116,7 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getTrack().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK)
                         .where(TableColumns.SoundStream.REPOSTER_ID + " IS NULL")
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getTrack().get().getCreatedAt().getTime())
+                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
         ), counts(1));
     }
 
@@ -144,7 +144,7 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.SoundStream.SOUND_ID, streamItem.getPlaylist().get().getId())
                         .whereEq(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                         .where(TableColumns.SoundStream.REPOSTER_ID + " IS NULL")
-                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getPlaylist().get().getCreatedAt().getTime())
+                        .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
         ), counts(1));
     }
 

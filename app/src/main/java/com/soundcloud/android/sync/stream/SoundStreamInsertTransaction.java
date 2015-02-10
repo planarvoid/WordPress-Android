@@ -33,8 +33,8 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
             step(propeller.delete(Table.SoundStream));
         }
         for (ApiStreamItem streamItem : streamItems) {
-            step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
             step(propeller.upsert(Table.Users, getContentValuesForSoundOwner(streamItem)));
+            step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
 
             final Optional<ApiUser> reposter = streamItem.getReposter();
             if (reposter.isPresent()){
