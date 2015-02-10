@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.search;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -45,11 +46,11 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
         assertTrue("Searched tag should be in recents", tagsScreen.getRecentTags().contains("#deep house"));
     }
 
-    public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWith20Results() {
+    public void testClickingOnPlaylistTagOpensPlaylistResultsScreenWithDefaultNumberOfResults() {
         PlaylistResultsScreen resultsScreen = playlistTagsScreen.clickOnTag(0);
 
         assertTrue("Playlist results screen should be visible", resultsScreen.isVisible());
-        assertThat("Playlist results should not be empty", resultsScreen.getResultsCount(), is(20));
+        assertThat("Playlist results should not be empty", resultsScreen.getResultsCount(), is(Consts.CARD_PAGE_SIZE));
     }
 
     public void testClickingOnPlaylistTagPopulatesSearchField() {

@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
@@ -83,6 +84,7 @@ class PlaylistDiscoveryOperations {
     Observable<ApiPlaylistCollection> playlistsForTag(final String tag) {
         final ApiRequest<ApiPlaylistCollection> request =
                 createPlaylistResultsRequest(ApiEndpoints.PLAYLIST_DISCOVERY.path())
+                        .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
                         .addQueryParam("tag", tag)
                         .build();
         return getPlaylistResultsPage(tag, request).finallyDo(new Action0() {
