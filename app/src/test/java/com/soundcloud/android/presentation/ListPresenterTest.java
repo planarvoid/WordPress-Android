@@ -26,7 +26,6 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
 import rx.Subscription;
-import rx.internal.util.UtilityFunctions;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
@@ -140,13 +139,34 @@ public class ListPresenterTest {
 
     @Test
     public void shouldWrapScrollListenerInPagingScrollListenerIfListBindingIsPaged() {
-        createPresenterWithBinding(DataBinding.pagedList(source, adapter,
-                RxTestHelper.<List<String>>pagerWithSinglePage(), UtilityFunctions.<List<String>>identity()));
+        createPresenterWithBinding(DataBinding.pagedList(source, adapter, RxTestHelper.<List<String>>pagerWithSinglePage()));
 
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
 
         verify(listView).setOnScrollListener(isA(PagingScrollListener.class));
+    }
+
+    @Test
+    public void shouldAddRetryHandlerToPagingAdapterIfPageLoadFails() {
+        ListBinding<String, String> listBinding = DataBinding.pagedList(source, adapter,
+                RxTestHelper.<List<String>>pagerWithSinglePage());
+
+        createPresenterWithBinding(listBinding);
+        listPresenter.onCreate(fragment, null);
+        listPresenter.onViewCreated(fragment, view, null);
+        listBinding.connect();
+
+        ArgumentCaptor<View.OnClickListener> retryCaptor = ArgumentCaptor.forClass(View.OnClickListener.class);
+        verify(adapter).setOnErrorRetryListener(retryCaptor.capture());
+
+        retryCaptor.getValue().onClick(view);
+
+        List<String> items = Arrays.asList("item");
+        source.onNext(items);
+
+        verify(adapter).setLoading();
+        verify(adapter).onNext(items);
     }
 
     @Test
@@ -283,7 +303,7 @@ public class ListPresenterTest {
         listPresenter.onCreate(fragment, null);
         expect(listPresenter.getListBinding()).toBe(firstBinding);
 
-        listPresenter.buildListBinding();
+        listPresenter.rebuildListBinding();
         expect(listPresenter.getListBinding()).toBe(secondBinding);
     }
 

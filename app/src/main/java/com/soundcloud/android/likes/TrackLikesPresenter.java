@@ -159,8 +159,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         public void onNext(OfflineContentEvent event) {
             if (event.getKind() == OfflineContentEvent.QUEUE_UPDATED) {
                 adapter.clear();
-                buildListBinding();
-                getListBinding().connect();
+                rebuildListBinding().connect();
             }
         }
     }

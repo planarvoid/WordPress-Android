@@ -60,17 +60,26 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        buildListBinding();
+        rebuildListBinding();
     }
 
-    protected void buildListBinding() {
-        listBinding = onBuildListBinding();
-        listBinding.getSource().subscribe(listBinding.getAdapter());
+    protected ListBinding<DataT, ItemT> rebuildListBinding() {
+        resetListBindingTo(onBuildListBinding());
+        return listBinding;
+    }
+
+    private void resetListBindingTo(ListBinding<DataT, ItemT> listBinding) {
+        this.listBinding = listBinding;
+        this.listBinding.getSource().subscribe(listBinding.getAdapter());
     }
 
     @Override
     protected void onRetry() {
-        buildListBinding();
+        retryWith(onBuildListBinding());
+    }
+
+    private void retryWith(ListBinding<DataT, ItemT> listBinding) {
+        resetListBindingTo(listBinding);
         subscribeListViewObservers();
         listBinding.connect();
     }
@@ -132,19 +141,13 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
     }
 
     private void configurePagedListAdapter() {
-        final EndlessAdapter adapter = (EndlessAdapter) getListBinding().getAdapter();
+        final EndlessAdapter adapter = (EndlessAdapter) listBinding.getAdapter();
         scrollListener = new PagingScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: get it done
-//                    ((EndlessAdapter) adapter).setLoading();
-//                    final ListBinding<Object, ItemT> newListBinding = new ListBinding<>(listBinding().getPager().currentPage(), listBinding().transformer);
-//                    newListBinding.getSource().subscribe(adapter);
-//                    newListBinding.setPager(listBinding().getPager());
-//                    dataBinder.addBinding(LIST_TOKEN, newListBinding);
-//                    resubscribeViewObservers(LIST_TOKEN);
-//                    listBinding().connect();
+                adapter.setLoading();
+                retryWith(listBinding.resetFromCurrentPage());
             }
         });
     }
@@ -169,11 +172,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
             final ItemAdapter<ItemT> adapter = listBinding.getAdapter();
             adapter.clear();
 
-            // swap the successful refresh binding in for the old binding
-            listBinding = refreshBinding;
-
-            // resubscribe observers to the new list binding
-            listBinding.getSource().subscribe(adapter);
+            resetListBindingTo(refreshBinding);
             subscribeListViewObservers();
 
             refreshWrapper.setRefreshing(false);

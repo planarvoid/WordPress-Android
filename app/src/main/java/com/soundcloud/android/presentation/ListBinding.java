@@ -38,11 +38,11 @@ public class ListBinding<DataT, ViewT> extends DataBinding<List<DataT>, List<Vie
         return pager;
     }
 
-    void setPager(Pager<List<DataT>> pager) {
-        this.pager = pager;
-    }
-
     boolean isPaged() {
         return pager != null;
+    }
+
+    ListBinding<DataT, ViewT> resetFromCurrentPage() {
+        return new ListBinding<>(pager.currentPage(), (EndlessAdapter) adapter, pager, transformer);
     }
 }

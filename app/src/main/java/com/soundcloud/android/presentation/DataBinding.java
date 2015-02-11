@@ -22,6 +22,8 @@ public class DataBinding<DataT, ViewT> {
     private final List<Observer<? super ViewT>> observers = new LinkedList<>();
     private Subscription sourceSubscription = Subscriptions.empty();
 
+    protected final Func1<DataT, ViewT> transformer;
+
     static <ViewT> DataBinding<ViewT, ViewT> create(Observable<ViewT> source) {
         return new DataBinding<>(source, UtilityFunctions.<ViewT>identity());
     }
@@ -32,12 +34,18 @@ public class DataBinding<DataT, ViewT> {
         return new ListBinding<>(source, adapter, pager, itemTransformer);
     }
 
+    static <ViewT> ListBinding<ViewT, ViewT> pagedList(
+            Observable<List<ViewT>> source, EndlessAdapter<ViewT> adapter, Pager<List<ViewT>> pager) {
+        return pagedList(source, adapter, pager, UtilityFunctions.<List<ViewT>>identity());
+    }
+
     static <ViewT> ListBinding<ViewT, ViewT> list(Observable<List<ViewT>> source, ItemAdapter<ViewT> adapter) {
         return new ListBinding<>(source, adapter, UtilityFunctions.<List<ViewT>>identity());
     }
 
     DataBinding(Observable<DataT> source, Func1<DataT, ViewT> transformer) {
         this.source = source.map(transformer).observeOn(AndroidSchedulers.mainThread()).replay();
+        this.transformer = transformer;
     }
 
     public DataBinding<DataT, ViewT> addViewObserver(Observer<? super ViewT> observer) {
