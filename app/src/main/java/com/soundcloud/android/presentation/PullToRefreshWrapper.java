@@ -32,15 +32,18 @@ public class PullToRefreshWrapper {
         this.swipeRefreshLayout = null;
     }
 
+    // make this private or remove once we remove PullToRefreshController
     public boolean isAttached() {
         return swipeRefreshLayout != null;
     }
 
     public boolean isRefreshing() {
-        return swipeRefreshLayout.isRefreshing();
+        return isAttached() && swipeRefreshLayout.isRefreshing();
     }
 
     public void setRefreshing(boolean refreshing) {
-        swipeRefreshLayout.setRefreshing(refreshing);
+        if (isAttached()) {
+            swipeRefreshLayout.setRefreshing(refreshing);
+        }
     }
 }
