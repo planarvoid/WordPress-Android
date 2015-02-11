@@ -47,9 +47,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         return onBuildListBinding();
     }
 
-    protected void onSubscribeListObservers(ListBinding<DataT, ItemT> listBinding) {
-        // no op by default
-    }
+    protected abstract void onSubscribeListObservers(ListBinding<DataT, ItemT> listBinding);
 
     protected ListBinding<DataT, ItemT> getListBinding() {
         return listBinding;

@@ -52,7 +52,7 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
         }
     };
 
-    private Func1<List<PropertySet>, Observable<List<Urn>>> loadAllTrackUrns = new Func1<List<PropertySet>, Observable<List<Urn>>>() {
+    private final Func1<List<PropertySet>, Observable<List<Urn>>> loadAllTrackUrns = new Func1<List<PropertySet>, Observable<List<Urn>>>() {
         @Override
         public Observable<List<Urn>> call(List<PropertySet> propertySets) {
             return likeOperations.likedTrackUrns();

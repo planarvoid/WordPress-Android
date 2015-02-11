@@ -22,7 +22,7 @@ class TrackLikesHeaderView {
     @InjectView(R.id.sync_state) ImageView syncState;
 
     private State state = State.DEFAULT;
-    private int trackCount = 0;
+    private int trackCount;
 
     private enum State {
         DEFAULT, SYNCING, DOWNLOADED
