@@ -33,7 +33,7 @@ import java.util.List;
 public class TrackLikesHeaderPresenter implements View.OnClickListener {
 
 
-    private final TrackLikesHeaderView headerPresenter;
+    private final TrackLikesHeaderView headerView;
     private final LikeOperations likeOperations;
     private final OfflineContentOperations offlineContentOperations;
     private final FeatureOperations featureOperations;
@@ -66,7 +66,7 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
                                      FeatureOperations featureOperations, PlaybackOperations playbackOperations,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      EventBus eventBus) {
-        this.headerPresenter = headerView;
+        this.headerView = headerView;
         this.likeOperations = likeOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.featureOperations = featureOperations;
@@ -76,9 +76,9 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
     }
 
     public void onViewCreated(View view, ListView listView) {
-        headerPresenter.onViewCreated(view);
-        headerPresenter.setOnShuffleButtonClick(this);
-        headerPresenter.attachToList(listView);
+        headerView.onViewCreated(view);
+        headerView.setOnShuffleButtonClick(this);
+        headerView.attachToList(listView);
     }
 
     public void onResume() {
@@ -97,7 +97,7 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
     }
 
     public void onDestroyView() {
-        headerPresenter.onDestroyView();
+        headerView.onDestroyView();
         allLikedTracksSubscription.unsubscribe();
     }
 
@@ -122,7 +122,7 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
     private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {
         @Override
         public void onNext(List<Urn> allLikedTracks) {
-            headerPresenter.updateTrackCount(allLikedTracks.size());
+            headerView.updateTrackCount(allLikedTracks.size());
         }
     }
 
@@ -130,9 +130,9 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
         @Override
         public void onNext(OfflineContentEvent unused) {
             if (isOfflineSyncEnabledAndAvailable()) {
-                headerPresenter.showSyncingState();
+                headerView.showSyncingState();
             } else {
-                headerPresenter.showDefaultState();
+                headerView.showDefaultState();
             }
         }
     }
@@ -142,9 +142,9 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
         public void onNext(Integer downloadedLikedTracksCount) {
             if (downloadedLikedTracksCount > 0 &&
                     isOfflineSyncEnabledAndAvailable()) {
-                headerPresenter.showDownloadedState();
+                headerView.showDownloadedState();
             } else {
-                headerPresenter.showDefaultState();
+                headerView.showDefaultState();
             }
         }
     }
