@@ -47,7 +47,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         return onBuildListBinding();
     }
 
-    protected abstract void onSubscribeListObservers(ListBinding<DataT, ItemT> listBinding);
+    protected abstract void onSubscribeListBinding(ListBinding<DataT, ItemT> listBinding);
 
     protected ListBinding<DataT, ItemT> getListBinding() {
         return listBinding;
@@ -86,7 +86,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
 
     private void subscribeListViewObservers() {
         listBinding.clearViewObservers();
-        onSubscribeListObservers(listBinding);
+        onSubscribeListBinding(listBinding);
         listBinding.addViewObserver(new EmptyViewSubscriber());
         if (viewLifeCycle != null) {
             viewLifeCycle.unsubscribe();

@@ -93,7 +93,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     }
 
     @Override
-    protected void onSubscribeListObservers(ListBinding<PropertySet, PropertySet> listBinding) {
+    protected void onSubscribeListBinding(ListBinding<PropertySet, PropertySet> listBinding) {
         headerPresenter.onSubscribeListObservers(listBinding);
     }
 

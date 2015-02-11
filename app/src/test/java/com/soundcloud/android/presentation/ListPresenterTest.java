@@ -379,7 +379,7 @@ public class ListPresenterTest {
             }
 
             @Override
-            protected void onSubscribeListObservers(ListBinding<String, String> listBinding) {
+            protected void onSubscribeListBinding(ListBinding<String, String> listBinding) {
                 for (Observer observer : listObservers) {
                     listBinding.addViewObserver(observer);
                 }
@@ -397,7 +397,7 @@ public class ListPresenterTest {
             }
 
             @Override
-            protected void onSubscribeListObservers(ListBinding<String, String> listBinding) {
+            protected void onSubscribeListBinding(ListBinding<String, String> listBinding) {
                 // no op
             }
         };

@@ -48,9 +48,8 @@ public class DataBinding<DataT, ViewT> {
         this.transformer = transformer;
     }
 
-    public DataBinding<DataT, ViewT> addViewObserver(Observer<? super ViewT> observer) {
+    public void addViewObserver(Observer<? super ViewT> observer) {
         observers.add(observer);
-        return this;
     }
 
     public Subscription connect() {
