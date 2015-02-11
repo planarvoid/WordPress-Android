@@ -176,11 +176,6 @@ public class ScTextUtils {
         return builder.append(seconds).toString();
     }
 
-    public static CharSequence getElapsedTimeString(Resources r, long start, boolean longerText) {
-        double elapsed = Double.valueOf(Math.ceil((System.currentTimeMillis() - start) / 1000d)).longValue();
-        return formatTimeElapsed(r, elapsed, longerText);
-    }
-
     public static boolean usesSameTimeElapsedString(double elapsedSeconds1, double elapsedSeconds2) {
         if (elapsedSeconds1 < 60) {
             return (int) elapsedSeconds1 == (int) elapsedSeconds2;
