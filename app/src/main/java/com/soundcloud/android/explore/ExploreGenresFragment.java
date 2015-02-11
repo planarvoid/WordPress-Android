@@ -13,6 +13,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
@@ -72,7 +73,7 @@ public class ExploreGenresFragment extends LightCycleFragment
                 .flatMap(GENRES_TO_SECTIONS)
                 .observeOn(mainThread())
                 .replay();
-        observable.subscribe(adapter);
+        observable.subscribe(new GenreSectionSubscriber());
         return observable;
     }
 
@@ -112,5 +113,24 @@ public class ExploreGenresFragment extends LightCycleFragment
     public void onDestroy() {
         connectionSubscription.unsubscribe();
         super.onDestroy();
+    }
+
+    private final class GenreSectionSubscriber extends Subscriber<GenreSection<ExploreGenre>> {
+
+        @Override
+        public void onNext(GenreSection<ExploreGenre> section) {
+            adapter.onNext(section.getItems());
+            adapter.demarcateSection(section);
+        }
+
+        @Override
+        public void onCompleted() {
+            adapter.onCompleted();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            adapter.onError(e);
+        }
     }
 }

@@ -23,15 +23,11 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class EndlessAdapterTest {
 
-    @Mock
-    private CellPresenter cellPresenter;
-    @Mock
-    private AbsListView absListView;
-    @Mock
-    private View rowView;
+    @Mock private CellPresenter cellPresenter;
+    @Mock private AbsListView absListView;
+    @Mock private View rowView;
 
     private EndlessAdapter adapter;
-
 
     @Before
     public void setup() {
@@ -42,11 +38,6 @@ public class EndlessAdapterTest {
     @Test
     public void shouldReportAllItemsEnabledAsFalseSinceLoadingItemIsDisabled() {
         expect(adapter.areAllItemsEnabled()).toBeFalse();
-    }
-
-    @Test
-    public void shouldAddAllItemsEmittedBySourceObservable() {
-        expect(adapter.getCount()).toBe(3);
     }
 
     @Test

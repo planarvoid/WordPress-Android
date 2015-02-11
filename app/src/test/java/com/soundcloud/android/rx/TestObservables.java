@@ -50,15 +50,6 @@ public class TestObservables {
         };
     }
 
-    public static <T> Observable<T> endlessObservable() {
-        return Observable.create(new Observable.OnSubscribe<T>() {
-            @Override
-            public void call(Subscriber<? super T> subscriber) {
-                // no-op
-            }
-        });
-    }
-
     public static <T> Observable<T> endlessObservablefromSubscription(final Subscription subscription) {
         return Observable.create(new Observable.OnSubscribe<T>() {
             @Override
@@ -80,10 +71,6 @@ public class TestObservables {
         return new MockObservable<T>(new OnSubscribeCapture(fromSubscription(subscription)));
     }
 
-    public static <T> MockConnectableObservable<T> connectableObservable(T result) {
-        return new MockConnectableObservable<T>(new OnSubscribeCapture(Observable.just(result)));
-    }
-
     public static <T> MockConnectableObservable<T> emptyConnectableObservable(Subscription subscription) {
         return new MockConnectableObservable<T>(new OnSubscribeCapture(fromSubscription(subscription)));
     }
@@ -100,6 +87,7 @@ public class TestObservables {
         return errorObservable(new Exception());
     }
 
+    @Deprecated
     public static class MockObservable<T> extends Observable<T> {
 
         private final OnSubscribeCapture capture;
@@ -118,10 +106,10 @@ public class TestObservables {
         }
     }
 
+    @Deprecated
     public static class MockConnectableObservable<T> extends ConnectableObservable<T> {
 
         private final OnSubscribeCapture capture;
-        private boolean connected;
 
         protected MockConnectableObservable(OnSubscribeCapture capture) {
             super(capture);
@@ -132,17 +120,12 @@ public class TestObservables {
             return !capture.subscribers.isEmpty();
         }
 
-        public boolean connected() {
-            return this.connected;
-        }
-
         public List<Subscriber<? super T>> subscribers() {
             return capture.subscribers;
         }
 
         @Override
         public void connect(Action1<? super Subscription> connection) {
-            connected = true;
             for (Subscriber s : subscribers()) {
                 capture.source.subscribe(s);
             }

@@ -1,104 +1,195 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.mock;
+import static com.pivotallabs.greatexpectations.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
+import com.google.common.collect.Lists;
+import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineContentEvent;
+import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.subjects.PublishSubject;
 
-import android.support.v4.app.Fragment;
-import android.view.View;
-import android.widget.TextView;
-
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesHeaderPresenterTest {
 
     private TrackLikesHeaderPresenter presenter;
 
-    @Mock private Fragment fragment;
+    @Mock private TrackLikesHeaderView headerView;
+    @Mock private LikeOperations likeOperations;
+    @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private FeatureOperations featureOperations;
     @Mock private PlaybackOperations playbackOperations;
+    @Mock private ListBinding<PropertySet, PropertySet> listBinding;
+    private TestEventBus eventBus = new TestEventBus();
+    private List<Urn> likedTrackUrns;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new TrackLikesHeaderPresenter();
-        View view = mock(View.class);
-        when(view.getContext()).thenReturn(Robolectric.application);
-        presenter.onViewCreated(fragment, view, null);
+        presenter = new TrackLikesHeaderPresenter(headerView,
+                likeOperations,
+                offlineContentOperations,
+                featureOperations,
+                playbackOperations,
+                TestSubscribers.expandPlayerSubscriber(),
+                eventBus);
+
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.<OfflineContentEvent>never());
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.<Integer>never());
+
+        likedTrackUrns = Lists.newArrayList(Urn.forTrack(123L), Urn.forTrack(456L));
+    }
+
+    // Reaction to Offline Content Sync events
+    //
+    // On Sync Started
+    @Test
+    public void showHeaderDefaultOnSyncStartedWithOfflineSyncAvailable() {
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        presenter.onResume();
+
+        verify(headerView).showDefaultState();
     }
 
     @Test
-    public void hideShuffleButtonForZeroLikedTracks() {
-        presenter.updateTrackCount(0);
-        View shuffleButton = getShuffleButton();
-        expect(shuffleButton).toBeGone();
+    public void showHeaderDefaultOnSyncStartedWithOfflineSyncEnabled() {
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+
+        presenter.onResume();
+
+        verify(headerView).showDefaultState();
     }
 
     @Test
-    public void disableShuffleButtonForZeroLikedTracks() {
-        presenter.updateTrackCount(0);
-        expect(getShuffleButton()).not.toBeEnabled();
+    public void showHeaderSyncingOnSyncStartedWithOfflineSyncEnabledAndAvailable() {
+        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+
+        presenter.onResume();
+
+        verify(headerView).showSyncingState();
     }
 
     @Test
-    public void hideShuffleButtonForOneLikedTrack() {
-        presenter.updateTrackCount(1);
-        expect(getShuffleButton()).toBeGone();
+    public void doNotChangeHeaderOnSyncStartedEventsAfterOnPause() {
+        PublishSubject<OfflineContentEvent> offlineSyncEvents = PublishSubject.create();
+        when(offlineContentOperations.onStarted()).thenReturn(offlineSyncEvents);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        presenter.onResume();
+        presenter.onPause();
+        offlineSyncEvents.onNext(OfflineContentEvent.start());
+
+        verifyNoMoreInteractions(headerView);
     }
 
     @Test
-    public void disableShuffleButtonForOneTrackLike() {
-        presenter.updateTrackCount(1);
-        expect(getShuffleButton()).not.toBeEnabled();
+    public void doNotChangeHeaderOnSyncStoppedEventsAfterOnPause() {
+        PublishSubject<OfflineContentEvent> offlineSyncEvents = PublishSubject.create();
+        when(offlineContentOperations.onStarted()).thenReturn(offlineSyncEvents);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        presenter.onResume();
+        presenter.onPause();
+        offlineSyncEvents.onNext(OfflineContentEvent.stop());
+
+        verifyNoMoreInteractions(headerView);
+    }
+
+    // On Sync Finished or Idle
+    @Test
+    public void showHeaderDefaultOnSyncFinishedOrIdleWithDownloadedTracks() {
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        presenter.onResume();
+        verify(headerView).showDefaultState();
     }
 
     @Test
-    public void displayShuffleButtonForMoreThanOneLikedTracks() {
-        presenter.updateTrackCount(2);
-        expect(getShuffleButton()).toBeVisible();
+    public void showHeaderDefaultOnSyncFinishedOrIdleWithOfflineSyncAvailable() {
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        presenter.onResume();
+
+        verify(headerView).showDefaultState();
     }
 
     @Test
-    public void enableShuffleButtonForMoreThanOneLikedTracks() {
-        presenter.updateTrackCount(2);
-        expect(getShuffleButton()).toBeEnabled();
+    public void showHeaderDefaultOnSyncFinishedOrIdleWithOfflineSyncEnabled() {
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+
+        presenter.onResume();
+
+        verify(headerView).showDefaultState();
     }
 
     @Test
-    public void showNumberOfLikedTracksForZeroLikedTracks() {
-        presenter.updateTrackCount(0);
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
-                .getString(R.string.number_of_liked_tracks_you_liked_zero));
+    public void showHeaderDownloadedOnSyncFinishedOrIdleWithDownloadTracksAndOfflineAvailableAndEnabled() {
+        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+
+        presenter.onResume();
+
+        verify(headerView).showDownloadedState();
     }
 
     @Test
-    public void showNumberOfLikedTracksForMoreThanZeroLikedTracks() {
-        presenter.updateTrackCount(1);
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
-                .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 1, 1));
+    public void onSubscribeListObserversUpdatesHeaderViewTrackCountOnlyOnce() {
+        when(listBinding.getSource()).thenReturn(Observable.just(TestPropertySets.expectedLikedTrackForLikesScreen()).toList());
+        when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
+
+        presenter.onSubscribeListObservers(listBinding);
+
+        verify(headerView).updateTrackCount(likedTrackUrns.size());
     }
 
     @Test
-    public void doNotUpdateTextWhenUpdatingTrackCountOnSyncingState() {
-        presenter.showSyncingState();
-        presenter.updateTrackCount(4);
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
-                .getString(R.string.offline_update_in_progress));
+    public void doNotUpdateTrackCountAfterViewIsDetroyed() {
+        when(listBinding.getSource()).thenReturn(Observable.just(TestPropertySets.expectedLikedTrackForLikesScreen()).toList());
+        PublishSubject<List<Urn>> likedTrackUrnsObservable = PublishSubject.create();
+        when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
+
+        presenter.onSubscribeListObservers(listBinding);
+        presenter.onDestroyView();
+        likedTrackUrnsObservable.onNext(likedTrackUrns);
+
+        verify(headerView, never()).updateTrackCount(likedTrackUrns.size());
     }
 
-    private View getShuffleButton() {
-        return presenter.getHeaderView().findViewById(R.id.shuffle_btn);
-    }
-
-    private TextView getHeaderText() {
-        return (TextView) presenter.getHeaderView().findViewById(R.id.header_text);
+    // Shuffle button click
+    @Test
+    public void emitTrackingEventOnShuffleButtonClick() {
+        when(playbackOperations.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
+                .thenReturn(Observable.<List<Urn>>empty());
+        presenter.onClick(null);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toEqual(UIEvent.KIND_SHUFFLE_LIKES);
     }
 
 }

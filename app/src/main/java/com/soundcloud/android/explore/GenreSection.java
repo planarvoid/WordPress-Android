@@ -26,6 +26,9 @@ class GenreSection<T> {
         return items;
     }
 
+    public int getSize() {
+        return items.size();
+    }
 
     @Override
     public boolean equals(Object o) {

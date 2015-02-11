@@ -43,7 +43,7 @@ public class CastSessionReconnectorTest {
 
     @Captor private ArgumentCaptor<CastConnectionListener> connectionListenerCaptor;
 
-    private final TestObservables.MockObservable<List<Urn>> mockObservable = TestObservables.emptyObservable();
+    private final Observable<List<Urn>> observable = TestObservables.emptyObservable();
     private final TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -103,7 +103,7 @@ public class CastSessionReconnectorTest {
     public void onMetaDataUpdatedShowsPlayerAfterPlayingTrackWithRecommendations() throws Exception {
         castSessionReconnector.startListening();
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        when(playbackOperations.playTrackWithRecommendations(URN, PlaySessionSource.EMPTY)).thenReturn(mockObservable);
+        when(playbackOperations.playTrackWithRecommendations(URN, PlaySessionSource.EMPTY)).thenReturn(observable);
 
         callOnMetadatUpdated();
 

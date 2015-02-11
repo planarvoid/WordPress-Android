@@ -16,7 +16,7 @@ public class LikesModule {
 
     @Provides
     @Named("LikedTracks")
-    public ActionMenuController provideTrackLikesActionMenuController(
+    ActionMenuController provideTrackLikesActionMenuController(
             Lazy<SyncActionMenuController> syncActionMenuController,
             Lazy<DefaultActionMenuController> defaultActionMenuControllerProvider,
             FeatureOperations featureOperations) {

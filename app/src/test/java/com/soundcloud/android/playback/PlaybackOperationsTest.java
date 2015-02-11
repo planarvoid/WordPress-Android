@@ -541,22 +541,32 @@ public class PlaybackOperationsTest {
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
 
         verify(playQueueManager).setNewPlayQueue(playQueueCaptor.capture(), eq(0), eq(playSessionSource));
+        expectPlayQueueToContainExactly(playQueueCaptor.getValue(), 1L, 2L, 3L);
+    }
 
-        final PlayQueue playQueue = playQueueCaptor.getValue();
-        expect(playQueue.size()).toEqual(3);
-        List<Long> shuffledIds = new ArrayList<Long>(3);
-        for (int i = 0; i < playQueue.size(); i++){
-            shuffledIds.add(playQueue.getTrackId(i));
-        }
-        expect(shuffledIds).toContainExactlyInAnyOrder(1L, 2L, 3L);
+    @Test
+    public void playFromShuffledUsingTracksObservableSetsPlayQueueOnPlayQueueManagerWithGivenTrackIdList() {
+        final List<Urn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        playbackOperations.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES)).subscribe();
+
+        ArgumentCaptor<PlayQueue> playQueueCaptor = ArgumentCaptor.forClass(PlayQueue.class);
+        PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
+
+        verify(playQueueManager).setNewPlayQueue(playQueueCaptor.capture(), eq(0), eq(playSessionSource));
+        expectPlayQueueToContainExactly(playQueueCaptor.getValue(), 1L, 2L, 3L);
     }
 
     @Test
     public void playFromIdsShuffledOpensCurrentTrackThroughPlaybackService() {
         final List<Urn> idsOrig = createTracksUrn(1L, 2L, 3L);
-
         playbackOperations.playTracksShuffled(idsOrig, new PlaySessionSource(Screen.YOUR_LIKES)).subscribe();
+        verify(playbackStrategy).playCurrent();
+    }
 
+    @Test
+    public void playShuffledUsingTracksObservableOpensCurrentTrackThroughPlaybackService() {
+        final List<Urn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        playbackOperations.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES)).subscribe();
         verify(playbackStrategy).playCurrent();
     }
 
@@ -767,5 +777,14 @@ public class PlaybackOperationsTest {
 
     private void expectUnskippableException() {
         expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(PlaybackOperations.UnskippablePeriodException.class);
+    }
+
+    private void expectPlayQueueToContainExactly(PlayQueue playQueue, Long... expectedTrackIds) {
+        expect(playQueue.size()).toEqual(expectedTrackIds.length);
+        List<Long> playQueueTrackIds = new ArrayList<>(expectedTrackIds.length);
+        for (int i = 0; i < playQueue.size(); i++){
+            playQueueTrackIds.add(playQueue.getTrackId(i));
+        }
+        expect(playQueueTrackIds).toContainExactlyInAnyOrder(expectedTrackIds);
     }
 }

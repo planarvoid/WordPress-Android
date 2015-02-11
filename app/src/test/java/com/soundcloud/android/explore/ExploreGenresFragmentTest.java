@@ -88,8 +88,8 @@ public class ExploreGenresFragmentTest {
         createFragment();
         createFragmentView();
 
-        verify(adapter).onNext(buildMusicSection(Lists.newArrayList(electronicCategory)));
-        verify(adapter).onNext(buildAudioSection(Lists.newArrayList(comedyCategory)));
+        verify(adapter).onNext(Lists.newArrayList(electronicCategory));
+        verify(adapter).onNext(Lists.newArrayList(comedyCategory));
     }
 
     @Test

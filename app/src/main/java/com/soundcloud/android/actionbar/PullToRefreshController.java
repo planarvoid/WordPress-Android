@@ -3,6 +3,7 @@ package com.soundcloud.android.actionbar;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
+import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;

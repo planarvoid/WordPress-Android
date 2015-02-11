@@ -10,7 +10,6 @@ import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
 import com.soundcloud.android.view.adapters.ListContentSyncedSubscriber;
-import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -24,8 +23,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class TrackLikesAdapter extends EndlessAdapter<PropertySet>
-        implements ReactiveAdapter<Iterable<PropertySet>> {
+class TrackLikesAdapter extends EndlessAdapter<PropertySet> {
 
     private final SyncableTrackItemPresenter trackPresenter;
     private final DefaultFragmentLightCycle lifeCycleHandler;

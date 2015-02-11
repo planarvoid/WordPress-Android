@@ -1,12 +1,11 @@
 package com.soundcloud.android.explore;
 
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import rx.Observer;
 
 import javax.inject.Inject;
 
 
-class ExploreGenresAdapter extends ItemAdapter<ExploreGenre> implements Observer<GenreSection<ExploreGenre>> {
+class ExploreGenresAdapter extends ItemAdapter<ExploreGenre> {
 
     private final GenreCellPresenter cellPresenter;
 
@@ -22,24 +21,12 @@ class ExploreGenresAdapter extends ItemAdapter<ExploreGenre> implements Observer
         cellPresenter.clearSections();
     }
 
-    @Override
-    public void onCompleted() {
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void onNext(GenreSection<ExploreGenre> section) {
+    void demarcateSection(GenreSection<ExploreGenre> section) {
         boolean isSectionHeader = true; // true only for the first item in a section
-        for (ExploreGenre item : section.getItems()) {
-            addItem(item);
-            cellPresenter.setSectionForPosition(items.size() - 1, section, isSectionHeader);
+        final int itemCount = items.size();
+        for (int i = itemCount - section.getSize(); i < itemCount; i++) {
+            cellPresenter.setSectionForPosition(i, section, isSectionHeader);
             isSectionHeader = false;
         }
     }
-
-    @Override
-    public void onError(Throwable t) {
-        t.printStackTrace();
-    }
-
 }

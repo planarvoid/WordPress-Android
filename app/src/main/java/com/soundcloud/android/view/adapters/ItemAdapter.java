@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Consts;
+import rx.Observer;
 
 import android.util.SparseArray;
 import android.view.View;
@@ -15,14 +16,15 @@ import java.util.List;
  * to Context and so is safe to be used in retained fragments. It forwards cell rendering to the given
  * {@link com.soundcloud.android.view.adapters.CellPresenter}
  *
- * Keep this class lean and clean: it provides basic adapter functionality around a list of parcelables, that's it.
+ * Keep this class lean and clean: it provides basic adapter functionality around a list of items, that's it.
  */
-public class ItemAdapter<ItemT> extends BaseAdapter {
+public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable<ItemT>> {
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
     protected List<ItemT> items;
     protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
 
+    @SafeVarargs
     public ItemAdapter(CellPresenterEntity<ItemT>... cellPresenterEntities) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
         this.cellPresenters = new SparseArray<>(cellPresenterEntities.length);
@@ -73,6 +75,23 @@ public class ItemAdapter<ItemT> extends BaseAdapter {
         }
         presenter.bindItemView(position, itemView, items);
         return itemView;
+    }
+
+    @Override
+    public void onCompleted() {
+    }
+
+    @Override
+    public void onError(Throwable e) {
+        e.printStackTrace();
+    }
+
+    @Override
+    public void onNext(Iterable<ItemT> items) {
+        for (ItemT item : items) {
+            addItem(item);
+        }
+        notifyDataSetChanged();
     }
 
     public static class CellPresenterEntity<ItemT>  {

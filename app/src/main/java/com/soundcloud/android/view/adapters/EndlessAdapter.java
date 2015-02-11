@@ -16,7 +16,7 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
     private View.OnClickListener onErrorRetryListener;
 
     protected enum AppendState {
-        IDLE, LOADING, ERROR;
+        IDLE, LOADING, ERROR
     }
 
     public EndlessAdapter(CellPresenter<T> cellPresenter) {
@@ -28,6 +28,7 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
+    @SafeVarargs
     public EndlessAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
         super(cellPresenterEntities);
         this.progressItemLayoutResId = R.layout.list_loading_item;
@@ -95,7 +96,6 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
     private void setNewAppendState(AppendState newState) {
         assertOnUiThread("Adapter should always be uses on UI Thread. Tracking issue #2377");
         appendState = newState;
-        notifyDataSetChanged();
     }
 
     @Override
@@ -117,6 +117,7 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
 
     public void setLoading() {
         setNewAppendState(AppendState.LOADING);
+        notifyDataSetChanged();
     }
 
     public boolean isIdle() {
@@ -124,20 +125,15 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
     }
 
     @Override
-    public void onCompleted() {
-    }
-
-    @Override
     public void onError(Throwable e) {
-        e.printStackTrace();
+        super.onError(e);
         setNewAppendState(AppendState.ERROR);
+        notifyDataSetChanged();
     }
 
     @Override
     public void onNext(Iterable<T> items) {
-        for (T item : items) {
-            addItem(item);
-        }
         setNewAppendState(AppendState.IDLE);
+        super.onNext(items);
     }
 }

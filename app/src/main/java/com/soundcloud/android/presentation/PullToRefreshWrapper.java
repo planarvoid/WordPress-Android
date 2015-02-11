@@ -1,4 +1,4 @@
-package com.soundcloud.android.actionbar;
+package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -12,7 +12,7 @@ import javax.inject.Inject;
  * As we cannot write tests for this guy, keep its methods as simple as possible so that they're
  * "obviously correct".
  */
-class PullToRefreshWrapper {
+public class PullToRefreshWrapper {
 
     private MultiSwipeRefreshLayout swipeRefreshLayout;
 
@@ -28,19 +28,19 @@ class PullToRefreshWrapper {
         swipeRefreshLayout.setColorSchemeResources(R.color.sc_orange);
     }
 
-    void detach() {
+    public void detach() {
         this.swipeRefreshLayout = null;
     }
 
-    boolean isAttached() {
+    public boolean isAttached() {
         return swipeRefreshLayout != null;
     }
 
-    boolean isRefreshing() {
+    public boolean isRefreshing() {
         return swipeRefreshLayout.isRefreshing();
     }
 
-    void setRefreshing(boolean refreshing) {
+    public void setRefreshing(boolean refreshing) {
         swipeRefreshLayout.setRefreshing(refreshing);
     }
 }
