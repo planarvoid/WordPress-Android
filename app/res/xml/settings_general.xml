@@ -41,7 +41,7 @@
                 android:summary="@string/wifi_settings_summary" />
 
         <Preference
-                android:key="@string/key_clear_image_cache"
+                android:key="@string/key_clear_cache"
                 android:title="@string/pref_clear_cache"
                 android:summary="@string/pref_clear_cache_desc" />
 

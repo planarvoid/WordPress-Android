@@ -94,17 +94,6 @@ public final class IOUtils {
         }
     }
 
-    public static long getTotalSpace(File dir) {
-        try {
-            StatFs fs = new StatFs(dir.getAbsolutePath());
-            return (long) fs.getBlockSize() * (long) fs.getBlockCount();
-        } catch (IllegalArgumentException e) {
-            // gets thrown when call to statfs fails
-            Log.e(TAG, "getTotalSpace(" + dir + ")", e);
-            return 0;
-        }
-    }
-
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
         if (uri == null) {
             return null;
@@ -210,27 +199,6 @@ public final class IOUtils {
         }
     }
 
-    public static void cleanDirs(File... dirs) {
-        for (File d : dirs) {
-            cleanDir(d);
-        }
-    }
-
-    public static void cleanDir(File dir) {
-        if (dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            if (files != null && files.length > 0) {
-                for (File aFile : files) {
-                    if (aFile.isDirectory()) {
-                        deleteDir(aFile);
-                    } else {
-                        deleteFile(aFile);
-                    }
-                }
-            }
-        }
-    }
-
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             for (File f : nullSafeListFiles(dir, null)) {
@@ -248,6 +216,27 @@ public final class IOUtils {
             return dir.delete();
         }
         return false;
+    }
+
+    public static void cleanDir(File dir) {
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null && files.length > 0) {
+                for (File aFile : files) {
+                    if (aFile.isDirectory()) {
+                        deleteDir(aFile);
+                    } else {
+                        deleteFile(aFile);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void cleanDirs(File... dirs) {
+        for (File d : dirs) {
+            cleanDir(d);
+        }
     }
 
     public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
@@ -309,14 +298,12 @@ public final class IOUtils {
     }
 
     /**
-     * @param usedSpace the currently used space by the cache
      * @param spaceLeft space left on the filesystem
      * @param maxSpace  the max space to use
-     * @param maxPct    percentage of free space to use
-     * @return total usable space
+     * @return max usable space
      */
-    public static long getUsableSpace(long usedSpace, long spaceLeft, long maxSpace, double maxPct) {
-        return Math.min((long) (Math.floor((usedSpace + spaceLeft) * maxPct)), maxSpace);
+    public static long getMaxUsableSpace(long spaceLeft, long maxSpace) {
+        return Math.min(maxSpace, spaceLeft);
     }
 
     public static String inMbFormatted(File... directories) {

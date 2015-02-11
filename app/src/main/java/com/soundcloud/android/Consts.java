@@ -29,7 +29,6 @@ public final class Consts {
     public static final int CARD_PAGE_SIZE = 20;
     public static final int MAX_COMMENTS_TO_LOAD = 50;
 
-
     public static final class RequestCodes {
         public static final int GALLERY_IMAGE_PICK = 9000;
         public static final int GALLERY_IMAGE_TAKE = 9001;
@@ -48,7 +47,6 @@ public final class Consts {
         public static final boolean USE_CUSTOM_FONTS = Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD ||
                 Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD_MR1 ||
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-
     }
 
     public static final class Dialogs {

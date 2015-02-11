@@ -1,11 +1,11 @@
 package com.soundcloud.android.playback.streaming;
 
-import static com.soundcloud.android.playback.streaming.StreamStorage.LOG_TAG;
+import static com.soundcloud.android.playback.streaming.StreamStorage.TAG;
 
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,29 +33,23 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
         File chunkFile = params[0];
         File completeFile = params[1];
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-            Log.d(LOG_TAG, "About to write complete file to " + completeFile);
-        }
+        Log.d(TAG, "About to write complete file to " + completeFile);
 
         if (completeFile.exists()) {
-            Log.e(LOG_TAG, "Complete file already exists at path " + completeFile.getAbsolutePath());
+            Log.e(TAG, "Complete file already exists at path " + completeFile.getAbsolutePath());
             return false;
         }
         // make sure complete dir exists
         else if (!completeFile.getParentFile().exists() && !IOUtils.mkdirs(completeFile.getParentFile())) {
-            Log.w(LOG_TAG, "could not create complete file dir");
+            Log.w(TAG, "could not create complete file dir");
             return false;
         }
         // optimization - if chunks have been written in order, just move and truncate file
         else if (isOrdered(indexes)) {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                Log.d(LOG_TAG, "chunk file is already in order, moving");
-            }
+            Log.d(TAG, "chunk file is already in order, moving");
             return move(chunkFile, completeFile) && checkEtag(completeFile, etag);
         } else {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                Log.d(LOG_TAG, "reassembling chunkfile");
-            }
+            Log.d(TAG, "reassembling chunkfile");
             return reassembleFile(chunkFile, completeFile) && checkEtag(completeFile, etag);
         }
     }
@@ -67,7 +61,7 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
 
         final String calculatedEtag = '"' + IOUtils.md5(file) + '"';
         if (!calculatedEtag.equals(etag)) {
-            Log.w(LOG_TAG, "etag " + etag + " for complete file " + file + " does not match " + calculatedEtag);
+            Log.w(TAG, "etag " + etag + " for complete file " + file + " does not match " + calculatedEtag);
             return false;
         } else {
             return true;
@@ -81,11 +75,11 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
                     new RandomAccessFile(completeFile, "rw").setLength(length);
                     return true;
                 } catch (IOException e) {
-                    Log.w(LOG_TAG, e);
+                    Log.w(TAG, e.getMessage());
                 }
             }
         } else {
-            Log.w(LOG_TAG, "error moving file");
+            Log.w(TAG, "error moving file");
         }
         return false;
     }
@@ -121,13 +115,11 @@ class CompleteFileTask extends AsyncTask<File, Integer, Boolean> {
                     fos.write(buffer);
                 }
             }
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                Log.d(LOG_TAG, "complete file " + completeFile + " written");
-            }
+            Log.d(TAG, "complete file " + completeFile + " written");
         } catch (IOException e) {
-            Log.e(LOG_TAG, "IO error during complete file creation", e);
+            Log.e(TAG, "IO error during complete file creation", e);
             if (completeFile.delete()) {
-                Log.d(LOG_TAG, "Deleted " + completeFile);
+                Log.d(TAG, "Deleted " + completeFile);
             }
             return false;
         } finally {

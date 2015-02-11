@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.streaming;
 
 
-import static android.content.SharedPreferences.Editor;
 import static com.soundcloud.android.Expect.expect;
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -11,13 +10,9 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
-import com.xtremelabs.robolectric.shadows.ShadowStatFs;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,23 +85,6 @@ public class StreamStorageTest {
         TestHelper.disableSDCard();
         expect(storage.storeMetadata(item)).toBeTrue();
         expect(storage.storeData(item.getUrl(), ByteBuffer.wrap(new byte[]{1, 2, 3}), 0)).toBeFalse();
-    }
-
-    @Test
-    public void shouldCalculateFileMetrics() throws Exception {
-        ShadowStatFs.registerStats(baseDir, 100, 100, 100);
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(DefaultTestRunner.application);
-        Editor editor = sharedPreferences.edit();
-
-        editor.putInt(StreamStorage.STREAM_CACHE_SIZE, 0).apply();
-        expect(storage.calculateUsableSpace()).toBe(0L);
-
-        editor.putInt(StreamStorage.STREAM_CACHE_SIZE, 33).apply();
-        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 33L);
-
-        editor.putInt(StreamStorage.STREAM_CACHE_SIZE, 100).apply();
-        expect(storage.calculateUsableSpace()).toEqual(ShadowStatFs.BLOCK_SIZE * 100L);
     }
 
     @Test
