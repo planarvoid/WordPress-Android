@@ -375,6 +375,11 @@ public class ListPresenterTest {
             protected ListBinding<String, String> onBuildListBinding() {
                 return pendingBindings.remove(0);
             }
+
+            @Override
+            protected void onSubscribeListObservers(ListBinding<String, String> listBinding) {
+                // no op
+            }
         };
     }
 }
