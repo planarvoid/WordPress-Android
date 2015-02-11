@@ -434,10 +434,6 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">Details van de App</string>
     <string name="pref_basic_settings">Basisinstellingen</string>
-    <string name="pref_clear_cache">Afbeeldingcache Wissen</string>
-    <string name="pref_clear_cache_desc">Wis de applicatiecache om geheugen vrij te maken</string>
-    <string name="pref_clear_stream_cache">Wis Streamcache</string>
-    <string name="pref_clear_stream_cache_desc">Wis de streamcache</string>
     <string name="pref_connection_and_data">Verbinding en data</string>
     <string name="pref_help">Help</string>
     <string name="pref_help_desc">Toegang tot de SoundCloud helpdesksite</string>

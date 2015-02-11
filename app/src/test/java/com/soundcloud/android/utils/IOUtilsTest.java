@@ -107,7 +107,7 @@ public class IOUtilsTest {
     }
 
     @Test
-    public void cleanDirectoryShouldEmptyTheDirectory() throws IOException {
+    public void cleanDirShouldEmptyTheDirectory() throws IOException {
         tempFolder.newFile("file.txt");
         tempFolder.newFolder("folder1");
         tempFolder.newFile("folder1/file.txt");
@@ -115,9 +115,23 @@ public class IOUtilsTest {
         tempFolder.newFile("folder1/subFolder/file1.txt");
         tempFolder.newFile("folder1/subFolder/file2.txt");
 
-        IOUtils.cleanDirectory(tempFolder.getRoot());
+        IOUtils.cleanDir(tempFolder.getRoot());
+
         expect(tempFolder.getRoot().exists()).toBeTrue();
         expect(tempFolder.getRoot().list().length).toBe(0);
+    }
+
+    @Test
+    public void cleanDirsShouldEmptyEachDir() throws IOException {
+        File dir1 = tempFolder.newFolder("folder1");
+        File dir2 = tempFolder.newFolder("folder2");
+        tempFolder.newFile("folder1/file.txt");
+        tempFolder.newFile("folder2/file.txt");
+
+        IOUtils.cleanDirs(dir1, dir2);
+
+        expect(dir1.list().length).toBe(0);
+        expect(dir2.list().length).toBe(0);
     }
 
     @Test

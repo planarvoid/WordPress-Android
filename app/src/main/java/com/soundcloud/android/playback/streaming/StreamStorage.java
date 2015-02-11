@@ -4,7 +4,6 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
@@ -36,6 +35,8 @@ import java.util.Set;
 
 public class StreamStorage {
     static final String LOG_TAG = StreamStorage.class.getSimpleName();
+
+    public static final String STREAM_CACHE_SIZE = "streamCacheSize";
 
     public static final int DEFAULT_CHUNK_SIZE = 128 * 1024; // 128k
     public static final int DEFAULT_PCT_OF_FREE_SPACE = 10;  // use 10% of sd card
@@ -373,7 +374,7 @@ public class StreamStorage {
 
         int percentageOfExternal = PreferenceManager
                 .getDefaultSharedPreferences(context)
-                .getInt(GeneralSettings.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
+                .getInt(STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
 
         if (percentageOfExternal < 0) {
             percentageOfExternal = 0;

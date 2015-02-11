@@ -47,10 +47,10 @@ import java.util.List;
 import java.util.Locale;
 
 public final class IOUtils {
+
     private static final int BUFFER_SIZE = 8192;
 
-    private IOUtils() {
-    }
+    private IOUtils() {}
 
     @NotNull
     public static File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
@@ -210,7 +210,13 @@ public final class IOUtils {
         }
     }
 
-    public static void cleanDirectory(File dir) {
+    public static void cleanDirs(File... dirs) {
+        for (File d : dirs) {
+            cleanDir(d);
+        }
+    }
+
+    public static void cleanDir(File dir) {
         if (dir.isDirectory()) {
             File[] files = dir.listFiles();
             if (files != null && files.length > 0) {
@@ -286,8 +292,7 @@ public final class IOUtils {
         }
     }
 
-
-    public static void createCacheDirectories(Context c) {
+    public static void createCacheDirs() {
         if (isSDCardAvailable()) {
             // create external storage directory
             mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
@@ -301,11 +306,6 @@ public final class IOUtils {
 
     public static boolean isSDCardAvailable() {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-    }
-
-
-    public static long getUsableSpace(File dir, long maxSpace, double maxPct) {
-        return getUsableSpace(getDirSize(dir), getSpaceLeft(dir), maxSpace, maxPct);
     }
 
     /**

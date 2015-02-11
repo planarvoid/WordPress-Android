@@ -45,11 +45,6 @@
                 android:title="@string/pref_clear_cache"
                 android:summary="@string/pref_clear_cache_desc" />
 
-        <Preference
-                android:key="@string/key_clear_stream_cache"
-                android:title="@string/pref_clear_stream_cache"
-                android:summary="@string/pref_clear_stream_cache_desc" />
-
     </PreferenceCategory>
 
     <PreferenceCategory
