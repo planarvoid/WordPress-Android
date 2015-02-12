@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-public class PlaylistOperations {
+class PlaylistOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
@@ -31,8 +31,15 @@ public class PlaylistOperations {
     private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
 
+    private final Func1<Boolean, Observable<List<PropertySet>>> handleSyncResult = new Func1<Boolean, Observable<List<PropertySet>>>() {
+        @Override
+        public Observable<List<PropertySet>> call(Boolean syncSuccess) {
+            return postedPlaylists();
+        }
+    };
+
     @Inject
-    public PlaylistOperations(PlaylistStorage playlistStorage,
+    PlaylistOperations(PlaylistStorage playlistStorage,
                               LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
                               SyncInitiator syncInitiator,
                               @Named("Storage") Scheduler scheduler,
@@ -88,19 +95,10 @@ public class PlaylistOperations {
     }
 
     public Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return syncInitiator.refreshPostedPlaylists().flatMap(handleSyncResult());
+        return syncInitiator.refreshPostedPlaylists().flatMap(handleSyncResult);
     }
 
     public Pager<List<PropertySet>> postedPlaylistsPager() {
         return postedPlaylistsPager;
-    }
-
-    private Func1<Boolean, Observable<List<PropertySet>>> handleSyncResult() {
-        return new Func1<Boolean, Observable<List<PropertySet>>>() {
-            @Override
-            public Observable<List<PropertySet>> call(Boolean syncSuccess) {
-                return postedPlaylists();
-            }
-        };
     }
 }
