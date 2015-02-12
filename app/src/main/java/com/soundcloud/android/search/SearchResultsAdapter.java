@@ -5,7 +5,7 @@ import com.soundcloud.android.lightcycle.FragmentLightCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.TrackChangedSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -78,7 +78,7 @@ class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements Fra
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackPresenter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(this))
         );
     }

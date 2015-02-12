@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.tracks.TrackChangedSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -47,7 +47,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware {
 
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(adapter, trackPresenter)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, trackPresenter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }
