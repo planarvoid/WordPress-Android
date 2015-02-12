@@ -31,37 +31,6 @@ class PlaylistOperations {
     private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
 
-    private final Func1<Boolean, Observable<List<PropertySet>>> handleSyncResult = new Func1<Boolean, Observable<List<PropertySet>>>() {
-        @Override
-        public Observable<List<PropertySet>> call(Boolean syncSuccess) {
-            return postedPlaylists();
-        }
-    };
-
-    @Inject
-    PlaylistOperations(PlaylistStorage playlistStorage,
-                              LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
-                              SyncInitiator syncInitiator,
-                              @Named("Storage") Scheduler scheduler,
-                              NetworkConnectionHelper networkConnectionHelper) {
-        this.playlistStorage = playlistStorage;
-        this.loadPostedPlaylistsCommand = loadPostedPlaylistsCommand;
-        this.syncInitiator = syncInitiator;
-        this.scheduler = scheduler;
-        this.networkConnectionHelper = networkConnectionHelper;
-    }
-
-    public Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
-        return playlistStorage.trackUrns(playlistUrn).toList();
-    }
-
-    private final Func1<SyncResult, ChronologicalQueryParams> toInitalPageParams = new Func1<SyncResult, ChronologicalQueryParams>() {
-        @Override
-        public ChronologicalQueryParams call(SyncResult syncResult) {
-            return new ChronologicalQueryParams(PAGE_SIZE, Long.MAX_VALUE);
-        }
-    };
-
     private final Pager<List<PropertySet>> postedPlaylistsPager = new Pager<List<PropertySet>>() {
         @Override
         public Observable<List<PropertySet>> call(List<PropertySet> result) {
@@ -82,23 +51,47 @@ class PlaylistOperations {
         }
     };
 
-    public Observable<List<PropertySet>> postedPlaylists() {
+    private final Func1<Boolean, Observable<List<PropertySet>>> handleSyncResult = new Func1<Boolean, Observable<List<PropertySet>>>() {
+        @Override
+        public Observable<List<PropertySet>> call(Boolean syncSuccess) {
+            return postedPlaylists();
+        }
+    };
+
+    @Inject
+    PlaylistOperations(PlaylistStorage playlistStorage,
+                              LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
+                              SyncInitiator syncInitiator,
+                              @Named("Storage") Scheduler scheduler,
+                              NetworkConnectionHelper networkConnectionHelper) {
+        this.playlistStorage = playlistStorage;
+        this.loadPostedPlaylistsCommand = loadPostedPlaylistsCommand;
+        this.syncInitiator = syncInitiator;
+        this.scheduler = scheduler;
+        this.networkConnectionHelper = networkConnectionHelper;
+    }
+
+    Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
+        return playlistStorage.trackUrns(playlistUrn).toList();
+    }
+
+    Observable<List<PropertySet>> postedPlaylists() {
         return postedPlaylists(Long.MAX_VALUE);
     }
 
-    public Observable<List<PropertySet>> postedPlaylists(long beforeTime) {
+    Observable<List<PropertySet>> updatedPostedPlaylists() {
+        return syncInitiator.refreshPostedPlaylists().flatMap(handleSyncResult);
+    }
+
+    Pager<List<PropertySet>> postedPlaylistsPager() {
+        return postedPlaylistsPager;
+    }
+
+    private Observable<List<PropertySet>> postedPlaylists(long beforeTime) {
         return loadPostedPlaylistsCommand
                 .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
                 .toObservable()
                 .doOnNext(requestPlaylistsSyncAction)
                 .subscribeOn(scheduler);
-    }
-
-    public Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return syncInitiator.refreshPostedPlaylists().flatMap(handleSyncResult);
-    }
-
-    public Pager<List<PropertySet>> postedPlaylistsPager() {
-        return postedPlaylistsPager;
     }
 }
