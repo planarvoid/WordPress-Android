@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -25,15 +24,13 @@ import java.util.concurrent.TimeUnit;
 public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
-    private final FeatureFlags featureFlags;
     private final TrackItemMenuController trackItemMenuController;
 
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackItemPresenter(ImageOperations imageOperations, FeatureFlags featureFlags, TrackItemMenuController trackItemMenuController) {
+    public TrackItemPresenter(ImageOperations imageOperations, TrackItemMenuController trackItemMenuController) {
         this.imageOperations = imageOperations;
-        this.featureFlags = featureFlags;
         this.trackItemMenuController = trackItemMenuController;
     }
 

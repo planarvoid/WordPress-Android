@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.propeller.PropertySet;
 
@@ -19,11 +18,11 @@ public class SyncableTrackItemPresenter extends TrackItemPresenter {
     private final OfflineContentOperations offlineContentOperations;
 
     @Inject
-    public SyncableTrackItemPresenter(ImageOperations imageOperations, FeatureFlags featureFlags,
+    public SyncableTrackItemPresenter(ImageOperations imageOperations,
                                       TrackItemMenuController trackItemMenuController,
                                       FeatureOperations featureOperations,
                                       OfflineContentOperations offlineContentOperations) {
-        super(imageOperations, featureFlags, trackItemMenuController);
+        super(imageOperations, trackItemMenuController);
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
     }
