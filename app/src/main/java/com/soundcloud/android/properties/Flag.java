@@ -11,8 +11,8 @@ public enum Flag {
     API_MOBILE_STREAM(R.bool.feature_api_mobile_stream),
     CONFIGURATION_FEATURES(R.bool.feature_configuration_features),
     RELOAD_LAST_PLAYQUEUE(R.bool.feature_reload_last_playqueue),
-    PLAYLIST_POSTS_FRAGMENT(R.bool.feature_playlist_posts_fragment);
-
+    PLAYLIST_POSTS_FRAGMENT(R.bool.feature_playlist_posts_fragment),
+    EVENTLOGGER_PAGE_VIEW_EVENTS(R.bool.feature_eventlogger_page_view);
     private final int resourceId;
 
     private Flag(int resourceId) {

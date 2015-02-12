@@ -15,6 +15,8 @@ import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.support.v4.util.ArrayMap;
 
@@ -28,11 +30,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private final EventTracker eventTracker;
     private final EventLoggerUrlBuilder urlBuilder;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerUrlBuilder urlBuilder) {
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerUrlBuilder urlBuilder, FeatureFlags featureFlags) {
         this.eventTracker = eventTracker;
         this.urlBuilder = urlBuilder;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -63,7 +67,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindTracking((AdOverlayTrackingEvent) event);
         } else if (event instanceof ScreenEvent) {
-            handleScreenEvent((ScreenEvent) event);
+            if(featureFlags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)) {
+                handleScreenEvent((ScreenEvent) event);
+            }
         }
     }
 

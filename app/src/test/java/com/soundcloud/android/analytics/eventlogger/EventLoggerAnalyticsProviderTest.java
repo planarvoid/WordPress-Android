@@ -22,6 +22,8 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -41,13 +43,14 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Mock private EventTracker eventTracker;
     @Mock private EventLoggerUrlBuilder eventLoggerUrlBuilder;
+    @Mock private FeatureFlags featureFlags;
 
     private Urn userUrn = Urn.forUser(123L);
     private TrackSourceInfo trackSourceInfo;
 
     @Before
     public void setUp() throws Exception {
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, eventLoggerUrlBuilder);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, eventLoggerUrlBuilder, featureFlags);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
     }
 
@@ -194,6 +197,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackScreenEvent() {
+        when(featureFlags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)).thenReturn(true);
         ScreenEvent event = ScreenEvent.create(Screen.ACTIVITIES);
         when(eventLoggerUrlBuilder.build(event)).thenReturn("ForScreenEvent");
 
