@@ -13,10 +13,10 @@ public final class EntityUpdatedEvent {
 
     private final Map<Urn, PropertySet> changeMap;
 
-    public EntityUpdatedEvent(Collection<PropertySet> changeMap) {
-        this.changeMap = new ArrayMap<>(changeMap.size());
-        for (PropertySet propertySet : changeMap){
-            this.changeMap.put(propertySet.get(EntityProperty.URN), propertySet);
+    public EntityUpdatedEvent(Collection<PropertySet> changedEntities) {
+        this.changeMap = new ArrayMap<>(changedEntities.size());
+        for (PropertySet entity : changedEntities){
+            this.changeMap.put(entity.get(EntityProperty.URN), entity);
         }
     }
 
