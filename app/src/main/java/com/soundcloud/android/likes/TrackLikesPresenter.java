@@ -16,8 +16,8 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
-import com.soundcloud.android.view.adapters.ListContentSyncedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -127,7 +127,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(adapter, adapter.getTrackPresenter())),
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(adapter)),
-                eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
                 eventBus.queue(EventQueue.OFFLINE_CONTENT)
                         .filter(isTrackDownloadEvent)
                         .subscribe(new UpdateAdapterFromDownloadSubscriber(adapter))

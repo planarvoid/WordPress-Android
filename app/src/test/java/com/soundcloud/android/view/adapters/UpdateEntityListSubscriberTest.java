@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.events.EntityUpdatedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -20,17 +20,17 @@ import org.mockito.Mock;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ListContentSyncedSubscriberTest {
+public class UpdateEntityListSubscriberTest {
 
     public static final String UPDATED_CREATOR = "Jamie Macdonald";
 
-    private ListContentSyncedSubscriber listContentSyncedSubscriber;
+    private UpdateEntityListSubscriber updateEntityListSubscriber;
 
     @Mock private ItemAdapter<PropertySet> adapter;
 
     @Before
     public void setUp() throws Exception {
-        listContentSyncedSubscriber = new ListContentSyncedSubscriber(adapter);
+        updateEntityListSubscriber = new UpdateEntityListSubscriber(adapter);
     }
 
     @Test
@@ -45,8 +45,8 @@ public class ListContentSyncedSubscriberTest {
 
         when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
 
-        final EntityUpdatedEvent event = new EntityUpdatedEvent(Arrays.asList(updated));
-        listContentSyncedSubscriber.onNext(event);
+        final EntityStateChangedEvent event = new EntityStateChangedEvent(Arrays.asList(updated));
+        updateEntityListSubscriber.onNext(event);
 
         expect(track1.get(PlayableProperty.CREATOR_NAME)).toEqual(UPDATED_CREATOR);
         verify(adapter).notifyDataSetChanged();
@@ -63,8 +63,8 @@ public class ListContentSyncedSubscriberTest {
 
         when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
 
-        final EntityUpdatedEvent event = new EntityUpdatedEvent(Arrays.asList(updated));
-        listContentSyncedSubscriber.onNext(event);
+        final EntityStateChangedEvent event = new EntityStateChangedEvent(Arrays.asList(updated));
+        updateEntityListSubscriber.onNext(event);
 
         verify(adapter, never()).notifyDataSetChanged();
 

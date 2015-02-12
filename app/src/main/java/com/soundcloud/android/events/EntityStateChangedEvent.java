@@ -9,11 +9,11 @@ import android.support.v4.util.ArrayMap;
 import java.util.Collection;
 import java.util.Map;
 
-public final class EntityUpdatedEvent {
+public final class EntityStateChangedEvent {
 
     private final Map<Urn, PropertySet> changeMap;
 
-    public EntityUpdatedEvent(Collection<PropertySet> changedEntities) {
+    public EntityStateChangedEvent(Collection<PropertySet> changedEntities) {
         this.changeMap = new ArrayMap<>(changedEntities.size());
         for (PropertySet entity : changedEntities){
             this.changeMap.put(entity.get(EntityProperty.URN), entity);

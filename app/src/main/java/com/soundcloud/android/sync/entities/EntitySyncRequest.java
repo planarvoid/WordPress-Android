@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync.entities;
 
 import com.google.common.base.Preconditions;
-import com.soundcloud.android.events.EntityUpdatedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -67,7 +67,7 @@ class EntitySyncRequest implements SyncRequest {
 
     @Override
     public void finish() {
-        eventBus.publish(EventQueue.ENTITY_UPDATED, new EntityUpdatedEvent(entitySyncJob.getUpdatedEntities()));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, new EntityStateChangedEvent(entitySyncJob.getUpdatedEntities()));
     }
 
 }
