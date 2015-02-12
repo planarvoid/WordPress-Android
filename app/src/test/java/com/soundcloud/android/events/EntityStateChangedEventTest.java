@@ -30,24 +30,10 @@ public class EntityStateChangedEventTest {
         expect(singleChangeEvent.getSingleUrn()).toEqual(track.get(TrackProperty.URN));
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowIfTryingToAccessSingleUrnForMultiChangeEvent() {
-        EntityStateChangedEvent multiChangeEvent = EntityStateChangedEvent.fromSync(
-                Arrays.asList(TestPropertySets.fromApiTrack(), TestPropertySets.fromApiTrack()));
-        multiChangeEvent.getSingleUrn();
-    }
-
     @Test
     public void shouldReturnSingleChangeSetFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
         EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromSync(track);
         expect(singleChangeEvent.getSingleChangeSet()).toEqual(track);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowIfTryingToAccessSingleChangeSetForMultiChangeEvent() {
-        EntityStateChangedEvent multiChangeEvent = EntityStateChangedEvent.fromSync(
-                Arrays.asList(TestPropertySets.fromApiTrack(), TestPropertySets.fromApiTrack()));
-        multiChangeEvent.getSingleChangeSet();
     }
 }

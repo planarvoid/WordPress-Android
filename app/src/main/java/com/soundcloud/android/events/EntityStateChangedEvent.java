@@ -112,26 +112,12 @@ public final class EntityStateChangedEvent {
         return changeMap;
     }
 
-    /**
-     * @return the entity URN of the changed entity. Will throw if the event contains more than one change set.
-     */
     public Urn getSingleUrn() {
-        if (isSingularChange()) {
-            return changeMap.keySet().iterator().next();
-        } else {
-            throw new IllegalStateException("Attempting to access a single URN in a change event for multiple entities");
-        }
+        return changeMap.keySet().iterator().next();
     }
 
-    /**
-     * @return the change set of the changed entity. Will throw if the event contains more than one change set.
-     */
     public PropertySet getSingleChangeSet() {
-        if (isSingularChange()) {
-            return changeMap.values().iterator().next();
-        } else {
-            throw new IllegalStateException("Attempting to access a single change set in a change event for multiple entities");
-        }
+        return changeMap.values().iterator().next();
     }
 
     public boolean isSingularChange() {
