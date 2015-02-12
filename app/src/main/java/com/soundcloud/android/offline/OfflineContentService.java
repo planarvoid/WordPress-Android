@@ -5,6 +5,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -133,7 +134,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "Download finished " + result);
 
         notificationController.onProgressUpdate();
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadFinished(result.getUrn()));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFinished(result.getUrn()));
 
         if (requestsQueue.isEmpty()) {
             stop();
@@ -147,7 +148,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public void onError(DownloadRequest request) {
         Log.d(TAG, "Download failed " + request);
 
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadFailed(request.urn));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFailed(request.urn));
         offlineContentScheduler.scheduleRetry();
         stop();
         notificationController.onError();
@@ -158,7 +159,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
         downloadHandler.sendMessage(message);
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.downloadStarted(request.urn));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadStarted(request.urn));
     }
 
     @Override

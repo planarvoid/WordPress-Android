@@ -45,7 +45,7 @@ public class UpdateEntityListSubscriberTest {
 
         when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
 
-        final EntityStateChangedEvent event = new EntityStateChangedEvent(Arrays.asList(updated));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(updated));
         updateEntityListSubscriber.onNext(event);
 
         expect(track1.get(PlayableProperty.CREATOR_NAME)).toEqual(UPDATED_CREATOR);
@@ -63,7 +63,7 @@ public class UpdateEntityListSubscriberTest {
 
         when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
 
-        final EntityStateChangedEvent event = new EntityStateChangedEvent(Arrays.asList(updated));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(updated));
         updateEntityListSubscriber.onNext(event);
 
         verify(adapter, never()).notifyDataSetChanged();

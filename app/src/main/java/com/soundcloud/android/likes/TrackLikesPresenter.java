@@ -16,12 +16,11 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
-import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
@@ -52,15 +51,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
 
     private Subscription creationLifeCycle = Subscriptions.empty();
     private CompositeSubscription viewLifeCycle;
-
-    private final Func1<OfflineContentEvent, Boolean> isTrackDownloadEvent = new Func1<OfflineContentEvent, Boolean>() {
-        @Override
-        public Boolean call(OfflineContentEvent offlineContentEvent) {
-            return offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_FINISHED
-                    || offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_STARTED
-                    || offlineContentEvent.getKind() == OfflineContentEvent.STOP;
-        }
-    };
 
     @Inject
     TrackLikesPresenter(LikeOperations likeOperations,
@@ -127,10 +117,8 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(adapter, adapter.getTrackPresenter())),
                 eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(adapter)),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                eventBus.queue(EventQueue.OFFLINE_CONTENT)
-                        .filter(isTrackDownloadEvent)
-                        .subscribe(new UpdateAdapterFromDownloadSubscriber(adapter))
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
+                // TODO: think about how to bring back the STOP event
         );
     }
 

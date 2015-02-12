@@ -67,7 +67,7 @@ class EntitySyncRequest implements SyncRequest {
 
     @Override
     public void finish() {
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, new EntityStateChangedEvent(entitySyncJob.getUpdatedEntities()));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(entitySyncJob.getUpdatedEntities()));
     }
 
 }
