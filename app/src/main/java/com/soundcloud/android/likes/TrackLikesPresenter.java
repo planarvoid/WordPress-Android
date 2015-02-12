@@ -115,8 +115,15 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
-                // TODO: think about how to bring back the STOP event
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.OFFLINE_CONTENT, new DefaultSubscriber<OfflineContentEvent>() {
+                    @Override
+                    public void onNext(OfflineContentEvent event) {
+                        if (event.getKind() == OfflineContentEvent.STOP) {
+                            adapter.notifyDataSetChanged();
+                        }
+                    }
+                })
         );
     }
 

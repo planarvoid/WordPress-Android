@@ -194,4 +194,22 @@ public class TrackLikesPresenterTest {
         eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.queueUpdate());
         verify(adapter, never()).clear();
     }
+
+    @Test
+    public void shouldListenForDownloadStopEventAndUpdateTheListToRemoveDownlaodIndicators() {
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
+        verify(adapter).notifyDataSetChanged();
+    }
+
+    @Test
+    public void shouldUnsubscribeFromEventQueuesWhenViewsAreDestroyed() {
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        presenter.onDestroyView(fragment);
+
+        eventBus.verifyUnsubscribed();
+    }
 }
