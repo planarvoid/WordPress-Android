@@ -26,4 +26,5 @@
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_playlist_posts_fragment">false</bool>
- </resources>
+    <bool name="feature_eventlogger_page_view">false</bool>
+</resources>
