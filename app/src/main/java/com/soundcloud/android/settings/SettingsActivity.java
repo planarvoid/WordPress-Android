@@ -75,8 +75,9 @@ public class SettingsActivity extends ScSettingsActivity {
                 return deleteDialog;
             case DIALOG_USER_LOGOUT_CONFIRM:
                 return createLogoutDialog();
+            default:
+                return super.onCreateDialog(id);
         }
-        return super.onCreateDialog(id);
     }
 
     void safeShowDialog(int dialogId) {
