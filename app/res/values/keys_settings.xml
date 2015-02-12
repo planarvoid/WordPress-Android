@@ -9,8 +9,7 @@
     <string name="key_analytics_enabled">analytics_enabled</string>
     <string name="key_report_crashes">acra.enable</string>
     <string name="key_wireless">wireless</string>
-    <string name="key_clear_image_cache">clearCache</string>
-    <string name="key_clear_stream_cache">clearStreamCache</string>
+    <string name="key_clear_cache">clearCache</string>
     <string name="key_help">help</string>
     <string name="key_legal">legal</string>
     <string name="key_version">version</string>

@@ -452,10 +452,8 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">App Details</string>
     <string name="pref_basic_settings">Basic settings</string>
-    <string name="pref_clear_cache">Clear Image Cache</string>
-    <string name="pref_clear_cache_desc">Clear the application cache to free up memory</string>
-    <string name="pref_clear_stream_cache">Clear Stream Cache</string>
-    <string name="pref_clear_stream_cache_desc">Clear the stream cache</string>
+    <string name="pref_clear_cache">Clear Application Cache</string>
+    <string name="pref_clear_cache_desc">Clear the application cache to free up memory on your device.</string>
     <string name="pref_connection_and_data">Connection and data</string>
     <string name="pref_help">Help</string>
     <string name="pref_help_desc">Access the SoundCloud support site</string>
@@ -484,7 +482,7 @@
     <string name="wifi_settings">Wireless &amp; network settings</string>
     <string name="wifi_settings_summary">Edit your settings. Use Wi-Fi for best performance.</string>
     <string name="cache_clearing">Clearing cache</string>
-    <string name="cache_clearing_message">Deleting cached files ...</string>
+    <string name="cache_clearing_message">Deleting cached files...</string>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>

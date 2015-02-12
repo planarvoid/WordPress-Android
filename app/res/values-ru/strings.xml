@@ -413,10 +413,6 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">О приложении</string>
     <string name="pref_basic_settings">Базовые настройки</string>
-    <string name="pref_clear_cache">Очистить кэш изображений</string>
-    <string name="pref_clear_cache_desc">Очистить кэш приложения, чтобы освободить память</string>
-    <string name="pref_clear_stream_cache">Очистить кэш ленты</string>
-    <string name="pref_clear_stream_cache_desc">Очистить кэш ленты</string>
     <string name="pref_connection_and_data">Соединение и данные</string>
     <string name="pref_help">Справка</string>
     <string name="pref_help_desc">Перейти на сайт поддержки SoundCloud</string>

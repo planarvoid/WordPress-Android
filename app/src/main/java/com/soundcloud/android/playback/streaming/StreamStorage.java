@@ -4,16 +4,16 @@ import static com.soundcloud.android.utils.IOUtils.mkdirs;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.playback.CacheConfig;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,10 +35,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class StreamStorage {
-    static final String LOG_TAG = StreamStorage.class.getSimpleName();
+
+    static final String TAG = StreamStorage.class.getSimpleName();
 
     public static final int DEFAULT_CHUNK_SIZE = 128 * 1024; // 128k
-    public static final int DEFAULT_PCT_OF_FREE_SPACE = 10;  // use 10% of sd card
 
     private static final int CLEANUP_INTERVAL = 20;
 
@@ -82,13 +82,13 @@ public class StreamStorage {
         try {
             File indexFile = incompleteIndexFileForUrl(item.streamItemUrl());
             if (indexFile.exists() && !indexFile.delete()) {
-                Log.w(LOG_TAG, "could not delete " + indexFile);
+                Log.w(TAG, "could not delete " + indexFile);
             }
             item.toIndexFile(indexFile);
             return true;
         } catch (IOException e) {
             if (IOUtils.isSDCardAvailable()) {
-                Log.e(LOG_TAG, "Error storing index data ", e);
+                Log.e(TAG, "Error storing index data ", e);
             }
             return false;
         }
@@ -151,31 +151,24 @@ public class StreamStorage {
         if (data == null) {
             throw new IllegalArgumentException("buffer is null");
         } else if (data.limit() == 0) {
-            Log.w(LOG_TAG, "Not Storing Data. Content Length is Zero.");
+            Log.w(TAG, "Not Storing Data. Content Length is Zero.");
             return false;
         }
         // Do not add to complete files
         else if (completeFileForUrl(url).exists()) {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                Log.d(LOG_TAG, "complete file exists, not adding data");
-            }
+            Log.d(TAG, "complete file exists, not adding data");
             return false;
         } else if (!IOUtils.isSDCardAvailable()) {
-            Log.w(LOG_TAG, "storage not available, not adding data");
+            Log.w(TAG, "storage not available, not adding data");
             return false;
         }
 
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-            Log.d(LOG_TAG, String.format("Storing %d bytes at index %d for url %s",
-                    data.limit(), chunkIndex, url));
-        }
+        Log.d(TAG, String.format("Storing %d bytes at index %d for url %s", data.limit(), chunkIndex, url));
 
         final StreamItem item = getMetadata(url);
         // return if it's already in store
         if (item.downloadedChunks.contains(chunkIndex)) {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                Log.d(LOG_TAG, String.format("already got chunk"));
-            }
+            Log.d(TAG, String.format("already got chunk"));
             return false;
         }
 
@@ -293,7 +286,7 @@ public class StreamStorage {
             try {
                 return StreamItem.fromIndexFile(f);
             } catch (IOException e) {
-                Log.e(LOG_TAG, "could not read metadata, deleting", e);
+                Log.e(TAG, "could not read metadata, deleting", e);
                 removeAllDataForItem(url);
                 return new StreamItem(url);
             }
@@ -306,7 +299,7 @@ public class StreamStorage {
     }
 
     private void removeAllDataForItem(String url) {
-        Log.w(LOG_TAG, "removing all data for " + url);
+        Log.w(TAG, "removing all data for " + url);
         removeCompleteDataForItem(url);
         removeIncompleteDataForItem(url);
     }
@@ -364,42 +357,21 @@ public class StreamStorage {
     }
 
     /**
-     * @return the usable space for caching
+     * @return max usable space for caching
      */
     /* package */ long calculateUsableSpace() {
-        long result = getUsedSpace();
         long spaceLeft = getSpaceLeft();
-        long totalSpace = getTotalSpace();
+        long usableSpace = IOUtils.getMaxUsableSpace(spaceLeft, CacheConfig.MAX_SIZE_BYTES);
 
-        int percentageOfExternal = PreferenceManager
-                .getDefaultSharedPreferences(context)
-                .getInt(GeneralSettings.STREAM_CACHE_SIZE, DEFAULT_PCT_OF_FREE_SPACE);
-
-        if (percentageOfExternal < 0) {
-            percentageOfExternal = 0;
-        }
-
-        if (percentageOfExternal > 100) {
-            percentageOfExternal = 100;
-        }
-
-        result = IOUtils.getUsableSpace(result, spaceLeft, totalSpace, percentageOfExternal / 100.0);
-
-        if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-            Log.d(LOG_TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
-                    result / (1024d * 1024d), spaceLeft / (1024d * 1024d), result / (1024d * 1024d)));
-        }
-
-        return result;
+        Log.d(TAG, String.format("[File Metrics] %.1f mb used, %.1f mb free, %.1f mb usable for caching",
+                getUsedSpace() / (1024d * 1024d), spaceLeft / (1024d * 1024d), usableSpace / (1024d * 1024d)));
+        return usableSpace;
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private synchronized boolean cleanup(long usableSpace) {
         if (!convertingUrls.isEmpty()) {
-
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                Log.d(LOG_TAG, "Not doing storage cleanup, conversion is going on");
-            }
+            Log.d(TAG, "Not doing storage cleanup, conversion is going on");
             return false;
         }
         // reset counter
@@ -410,31 +382,27 @@ public class StreamStorage {
 
         final long spaceToClean = getUsedSpace() - usableSpace;
         if (spaceToClean > 0) {
-            if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                Log.d(LOG_TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean / (1024d * 1024d)));
-            }
+            Log.d(TAG, String.format("performing cleanup, need to free %.1f mb", spaceToClean / (1024d * 1024d)));
             final List<File> files = allFiles(new FiletimeComparator(true));
             long cleanedSpace = 0;
             for (File f : files) {
                 final long length = f.length();
                 if (f.delete()) {
                     cleanedSpace += length;
-                    if (Log.isLoggable(LOG_TAG, Log.DEBUG)) {
-                        Log.d(LOG_TAG, "deleted " + f);
-                    }
+                    Log.d(TAG, "deleted " + f);
 
                     String name = f.getName();
                     if (name.endsWith(CHUNKS_EXTENSION)) {
                         String hash = name.substring(0, name.indexOf('.'));
                         File indexFile = new File(incompleteDir, hash + "." + INDEX_EXTENSION);
                         if (indexFile.exists() && indexFile.delete()) {
-                            Log.d(LOG_TAG, "deleted " + indexFile);
+                            Log.d(TAG, "deleted " + indexFile);
                             // invalidate cache
                             items.remove(hash);
                         }
                     }
                 } else {
-                    Log.w(LOG_TAG, "could not delete " + f);
+                    Log.w(TAG, "could not delete " + f);
                 }
                 if (cleanedSpace >= spaceToClean) {
                     break;
@@ -447,7 +415,7 @@ public class StreamStorage {
     }
 
     private List<File> allFiles(Comparator<File> comparator) {
-        final List<File> files = new ArrayList<File>();
+        final List<File> files = new ArrayList<>();
         File[] chunks = IOUtils.nullSafeListFiles(incompleteDir, extension(CHUNKS_EXTENSION));
         if (chunks.length > 0) {
             files.addAll(Arrays.asList(chunks));
@@ -483,17 +451,13 @@ public class StreamStorage {
         return IOUtils.getSpaceLeft(baseDir);
     }
 
-    /* package */ long getTotalSpace() {
-        return IOUtils.getTotalSpace(baseDir);
-    }
-
     /* package */ void verifyMetadata(StreamItem item) {
         StreamItem existing = items.get(item.urlHash);
         if (existing != null &&
                 existing.etag() != null &&
                 !existing.etag().equals(item.etag())) {
 
-            Log.w(LOG_TAG, "eTag don't match, removing cached data");
+            Log.w(TAG, "eTag don't match, removing cached data");
             removeAllDataForItem(item.streamItemUrl());
         }
     }

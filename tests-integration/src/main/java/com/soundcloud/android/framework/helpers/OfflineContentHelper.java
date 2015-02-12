@@ -23,6 +23,6 @@ public class OfflineContentHelper {
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
         Table.TrackDownloads.recreate(db);
         // remove actual files
-        IOUtils.cleanDirectory(OFFLINE_DIR);
+        IOUtils.cleanDir(OFFLINE_DIR);
     }
 }
