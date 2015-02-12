@@ -2,7 +2,6 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.associations.LegacyRepostOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -10,7 +9,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -30,11 +28,9 @@ import javax.inject.Inject;
 
 public final class TrackItemMenuController implements TrackMenuWrapperListener {
     private final PlayQueueManager playQueueManager;
-    private final LegacyRepostOperations associationOperations;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final LoadTrackCommand loadTrackCommand;
     private final Context context;
-    private final FeatureFlags featureFlags;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
 
@@ -44,18 +40,15 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
 
     @Inject
     TrackItemMenuController(PlayQueueManager playQueueManager,
-                            LegacyRepostOperations associationOperations,
                             PopupMenuWrapper.Factory popupMenuWrapperFactory,
                             LoadTrackCommand loadTrackCommand,
-                            EventBus eventBus, Context context, FeatureFlags featureFlags,
+                            EventBus eventBus, Context context,
                             LikeOperations likeOperations) {
         this.playQueueManager = playQueueManager;
-        this.associationOperations = associationOperations;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.loadTrackCommand = loadTrackCommand;
         this.eventBus = eventBus;
         this.context = context;
-        this.featureFlags = featureFlags;
         this.likeOperations = likeOperations;
     }
 
