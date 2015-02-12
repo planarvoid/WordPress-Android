@@ -24,7 +24,6 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable
     protected List<ItemT> items;
     protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
 
-    @SafeVarargs
     public ItemAdapter(CellPresenterEntity<ItemT>... cellPresenterEntities) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
         this.cellPresenters = new SparseArray<>(cellPresenterEntities.length);

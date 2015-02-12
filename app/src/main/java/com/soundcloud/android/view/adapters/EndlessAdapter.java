@@ -28,7 +28,6 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    @SafeVarargs
     public EndlessAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
         super(cellPresenterEntities);
         this.progressItemLayoutResId = R.layout.list_loading_item;
