@@ -300,12 +300,10 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void updateErrorState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
-        if (isCurrentTrack) {
-            if (state.wasError()) {
-                holder.errorViewController.showError(state.getReason());
-            } else {
-                holder.errorViewController.hideError();
-            }
+        if (isCurrentTrack && state.wasError()) {
+            holder.errorViewController.showError(state.getReason());
+        } else {
+            holder.errorViewController.hideError();
         }
     }
 
