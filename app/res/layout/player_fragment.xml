@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/player_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
     <View
         android:id="@+id/player_strip"
@@ -15,7 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/player_track_pager"
-        android:layout_marginTop="@dimen/player_strip"
         android:overScrollMode="always" />
 
-</FrameLayout>
+</LinearLayout>
