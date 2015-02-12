@@ -27,6 +27,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
 
     private AbsListView listView;
     private AbsListView.OnScrollListener scrollListener;
+    @Nullable private ListHeaderPresenter headerPresenter;
 
     private ListBinding<DataT, ItemT> listBinding;
     private ListBinding<DataT, ItemT> refreshBinding;
@@ -37,7 +38,11 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         this.refreshWrapper = pullToRefreshWrapper;
     }
 
-    public void setScrollListener(AbsListView.OnScrollListener scrollListener) {
+    protected void setHeaderPresenter(@Nullable ListHeaderPresenter headerPresenter) {
+        this.headerPresenter = headerPresenter;
+    }
+
+    protected void setScrollListener(AbsListView.OnScrollListener scrollListener) {
         this.scrollListener = scrollListener;
     }
 
@@ -103,6 +108,10 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         }
         listView.setEmptyView(getEmptyView());
         configureScrollListener();
+
+        if (headerPresenter != null) {
+            headerPresenter.onViewCreated(view, (ListView) listView);
+        }
         compatSetAdapter(getListBinding().getAdapter());
 
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);

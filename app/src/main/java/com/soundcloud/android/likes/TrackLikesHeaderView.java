@@ -39,7 +39,7 @@ class TrackLikesHeaderView {
     }
 
     void onViewCreated(View view) {
-        headerView = view.inflate(view.getContext(), R.layout.track_likes_header, null);
+        headerView = View.inflate(view.getContext(), R.layout.track_likes_header, null);
         ButterKnife.inject(this, headerView);
     }
 

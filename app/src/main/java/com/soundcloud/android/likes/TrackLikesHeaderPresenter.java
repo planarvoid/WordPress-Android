@@ -11,6 +11,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.ListHeaderPresenter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.PropertySet;
@@ -30,7 +31,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class TrackLikesHeaderPresenter implements View.OnClickListener {
+public class TrackLikesHeaderPresenter implements View.OnClickListener, ListHeaderPresenter {
 
 
     private final TrackLikesHeaderView headerView;
@@ -75,6 +76,7 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
         this.eventBus = eventBus;
     }
 
+    @Override
     public void onViewCreated(View view, ListView listView) {
         headerView.onViewCreated(view);
         headerView.setOnShuffleButtonClick(this);

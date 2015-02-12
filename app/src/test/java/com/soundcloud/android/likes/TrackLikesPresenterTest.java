@@ -97,13 +97,6 @@ public class TrackLikesPresenterTest {
     }
 
     @Test
-    public void shouldRedirectOnViewCreatedToHeaderPresenter() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        verify(headerPresenter).onViewCreated(view, listView);
-    }
-
-    @Test
     public void shouldRedirectOnCreateOptionsMenuToActionMenuController() {
         presenter.onCreateOptionsMenu(menu, menuInflater);
         verify(actionMenuController).onCreateOptionsMenu(menu, menuInflater);

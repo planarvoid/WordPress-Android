@@ -32,6 +32,7 @@ import rx.subjects.PublishSubject;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.ListView;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -49,9 +50,10 @@ public class ListPresenterTest {
     @Mock private View view;
     @Mock private MultiSwipeRefreshLayout refreshLayout;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
-    @Mock private AbsListView listView;
+    @Mock private ListView listView;
     @Mock private EmptyView emptyView;
     @Mock private AbsListView.OnScrollListener scrollListener;
+    @Mock private ListHeaderPresenter headerPresenter;
 
     @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 
@@ -351,6 +353,15 @@ public class ListPresenterTest {
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
         verify(listView).setEmptyView(emptyView);
+    }
+
+    @Test
+    public void shouldForwardViewCreatedEventToHeaderPresenter() {
+        createPresenterWithBinding(DataBinding.list(source, adapter));
+        listPresenter.setHeaderPresenter(headerPresenter);
+        listPresenter.onCreate(fragment, null);
+        listPresenter.onViewCreated(fragment, view, null);
+        verify(headerPresenter).onViewCreated(view, listView);
     }
 
     private void triggerPullToRefresh() {

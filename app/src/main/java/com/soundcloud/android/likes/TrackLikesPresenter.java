@@ -63,6 +63,8 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         this.headerPresenter = headerPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
+
+        setHeaderPresenter(headerPresenter);
     }
 
 
@@ -101,7 +103,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         final ListView listView = (ListView) getListView();
-        headerPresenter.onViewCreated(view, listView);
 
         getEmptyView().setImage(R.drawable.empty_like);
         getEmptyView().setMessageText(R.string.list_empty_user_likes_message);
