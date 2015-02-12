@@ -52,28 +52,6 @@ public class LikeOperations {
         }
     };
 
-    private final Pager<List<PropertySet>> likedTracksPager = new Pager<List<PropertySet>>() {
-        @Override
-        public Observable<List<PropertySet>> call(List<PropertySet> result) {
-            if (result.size() < PAGE_SIZE) {
-                return Pager.finish();
-            } else {
-                return likedTracks(getLast(result).get(LikeProperty.CREATED_AT).getTime());
-            }
-        }
-    };
-
-    private final Pager<List<PropertySet>> likedPlaylistsPager = new Pager<List<PropertySet>>() {
-        @Override
-        public Observable<List<PropertySet>> call(List<PropertySet> result) {
-            if (result.size() < PAGE_SIZE) {
-                return Pager.finish();
-            } else {
-                return likedPlaylists(getLast(result).get(LikeProperty.CREATED_AT).getTime());
-            }
-        }
-    };
-
     private final Action1<List<PropertySet>> requestTracksSyncAction = new Action1<List<PropertySet>>() {
         @Override
         public void call(List<PropertySet> propertySets) {
@@ -82,7 +60,6 @@ public class LikeOperations {
             }
         }
     };
-
 
     private final Action1<List<PropertySet>> requestPlaylistsSyncAction = new Action1<List<PropertySet>>() {
         @Override
@@ -188,10 +165,28 @@ public class LikeOperations {
     }
 
     public Pager<List<PropertySet>> likedTracksPager() {
-        return likedTracksPager;
+        return new Pager<List<PropertySet>>() {
+            @Override
+            public Observable<List<PropertySet>> call(List<PropertySet> result) {
+                if (result.size() < PAGE_SIZE) {
+                    return Pager.finish();
+                } else {
+                    return likedTracks(getLast(result).get(LikeProperty.CREATED_AT).getTime());
+                }
+            }
+        };
     }
 
     public Pager<List<PropertySet>> likedPlaylistsPager() {
-        return likedPlaylistsPager;
+        return new Pager<List<PropertySet>>() {
+            @Override
+            public Observable<List<PropertySet>> call(List<PropertySet> result) {
+                if (result.size() < PAGE_SIZE) {
+                    return Pager.finish();
+                } else {
+                    return likedPlaylists(getLast(result).get(LikeProperty.CREATED_AT).getTime());
+                }
+            }
+        };
     }
 }
