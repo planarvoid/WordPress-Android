@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
@@ -19,7 +19,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistLikesAdapter extends EndlessAdapter<PropertySet>
+public class PlaylistLikesAdapter extends PagingItemAdapter<PropertySet>
         implements ReactiveAdapter<Iterable<PropertySet>> {
 
     private final DefaultFragmentLightCycle lifeCycleHandler;

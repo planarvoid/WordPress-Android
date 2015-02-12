@@ -21,6 +21,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
+@Deprecated // use ListPresenter now, or use PullToRefreshWrapper directly
 public class PullToRefreshController extends DefaultFragmentLightCycle {
 
     private final PullToRefreshWrapper wrapper;

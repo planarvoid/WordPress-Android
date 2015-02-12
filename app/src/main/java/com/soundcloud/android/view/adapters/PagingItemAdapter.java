@@ -8,7 +8,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>> {
+public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>> {
 
     private final int progressItemLayoutResId;
 
@@ -19,16 +19,16 @@ public class EndlessAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter
         IDLE, LOADING, ERROR
     }
 
-    public EndlessAdapter(CellPresenter<T> cellPresenter) {
+    public PagingItemAdapter(CellPresenter<T> cellPresenter) {
         this(R.layout.list_loading_item, cellPresenter);
     }
 
-    public EndlessAdapter(int progressItemLayoutResId, CellPresenter<T> cellPresenter) {
+    public PagingItemAdapter(int progressItemLayoutResId, CellPresenter<T> cellPresenter) {
         super(cellPresenter);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    public EndlessAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
+    public PagingItemAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
         super(cellPresenterEntities);
         this.progressItemLayoutResId = R.layout.list_loading_item;
     }

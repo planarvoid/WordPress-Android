@@ -18,7 +18,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -87,7 +87,7 @@ public class PullToRefreshControllerTest {
     @Test
     public void shouldAttachPullToRefreshWrapperWithInternalRefreshListenerIfOwnerIsRefreshable() {
         when(wrapper.isAttached()).thenReturn(false);
-        controller.setRefreshListener(fragment, mock(EndlessAdapter.class));
+        controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
         controller.onViewCreated(fragment, layout, bundle);
 
         verify(wrapper).attach(same(layout), isA(OnRefreshListener.class));
@@ -166,7 +166,7 @@ public class PullToRefreshControllerTest {
     @Test
     public void connectingReactiveFragmentShouldNotResubscribeIfNoRefreshWasInProgressAndViewsGetRecreated() {
         when(wrapper.isRefreshing()).thenReturn(false);
-        controller.setRefreshListener(fragment, mock(EndlessAdapter.class));
+        controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
 
         controller.onDestroyView(fragment);
         controller.onViewCreated(fragment, layout, bundle);
@@ -205,7 +205,7 @@ public class PullToRefreshControllerTest {
 
     @Test
     public void refreshingReactiveFragmentShouldTellPTRToStopRefreshingOnError() {
-        controller.setRefreshListener(fragment, mock(EndlessAdapter.class));
+        controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
         observable = TestObservables.errorConnectableObservable();
         triggerRefresh();
         verifyZeroInteractions(adapter);

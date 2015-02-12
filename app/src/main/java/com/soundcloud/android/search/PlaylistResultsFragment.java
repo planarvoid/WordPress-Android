@@ -19,7 +19,7 @@ import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -42,7 +42,7 @@ public class PlaylistResultsFragment extends LightCycleFragment
 
     @Inject PlaylistDiscoveryOperations operations;
     @Inject ListViewController listViewController;
-    @Inject EndlessAdapter<ApiPlaylist> adapter;
+    @Inject PagingItemAdapter<ApiPlaylist> adapter;
     @Inject EventBus eventBus;
 
     private ConnectableObservable<ApiPlaylistCollection> observable;
@@ -65,7 +65,7 @@ public class PlaylistResultsFragment extends LightCycleFragment
 
     @VisibleForTesting
     PlaylistResultsFragment(PlaylistDiscoveryOperations operations, ListViewController listViewController,
-                            EndlessAdapter<ApiPlaylist> adapter, EventBus eventBus) {
+                            PagingItemAdapter<ApiPlaylist> adapter, EventBus eventBus) {
         this.operations = operations;
         this.listViewController = listViewController;
         this.adapter = adapter;

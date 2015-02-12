@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public class ListViewControllerTest {
     @Mock private ListView listView;
     @Mock private AbsListView.OnScrollListener scrollListener;
     @Mock private Pager pager;
-    @Mock private EndlessAdapter pagedAdapter;
+    @Mock private PagingItemAdapter pagedAdapter;
 
     @Before
     public void setup() {

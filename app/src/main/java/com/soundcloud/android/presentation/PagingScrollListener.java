@@ -1,6 +1,6 @@
 package com.soundcloud.android.presentation;
 
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.android.Pager;
 
 import android.widget.AbsListView;
@@ -9,10 +9,10 @@ import android.widget.AbsListView;
 final class PagingScrollListener implements AbsListView.OnScrollListener {
 
     private final ListPresenter listPresenter;
-    private final EndlessAdapter<?> adapter;
+    private final PagingItemAdapter<?> adapter;
     private final AbsListView.OnScrollListener listenerDelegate;
 
-    PagingScrollListener(ListPresenter listPresenter, EndlessAdapter<?> adapter, AbsListView.OnScrollListener listenerDelegate) {
+    PagingScrollListener(ListPresenter listPresenter, PagingItemAdapter<?> adapter, AbsListView.OnScrollListener listenerDelegate) {
         this.listPresenter = listPresenter;
         this.adapter = adapter;
         this.listenerDelegate = listenerDelegate;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.presentation;
 
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import rx.Observable;
 import rx.Observer;
@@ -29,13 +29,13 @@ public class DataBinding<DataT, ViewT> {
     }
 
     public static <DataT, ViewT> ListBinding<DataT, ViewT> pagedList(
-            Observable<List<DataT>> source, EndlessAdapter<ViewT> adapter, Pager<List<DataT>> pager,
+            Observable<List<DataT>> source, PagingItemAdapter<ViewT> adapter, Pager<List<DataT>> pager,
             Func1<List<DataT>, List<ViewT>> itemTransformer) {
         return new ListBinding<>(source, adapter, pager, itemTransformer);
     }
 
     static <ViewT> ListBinding<ViewT, ViewT> pagedList(
-            Observable<List<ViewT>> source, EndlessAdapter<ViewT> adapter, Pager<List<ViewT>> pager) {
+            Observable<List<ViewT>> source, PagingItemAdapter<ViewT> adapter, Pager<List<ViewT>> pager) {
         return pagedList(source, adapter, pager, UtilityFunctions.<List<ViewT>>identity());
     }
 

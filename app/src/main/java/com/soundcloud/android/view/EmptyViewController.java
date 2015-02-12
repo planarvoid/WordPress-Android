@@ -15,6 +15,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
+@Deprecated // use ListPresenter or EmptyViewPresenter
 public class EmptyViewController extends DefaultFragmentLightCycle {
 
     private EmptyView emptyView;

@@ -16,7 +16,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
@@ -40,7 +40,7 @@ public class ExploreTracksFragment extends LightCycleFragment
 
     private String trackingTag;
 
-    @Inject EndlessAdapter<ApiTrack> adapter;
+    @Inject PagingItemAdapter<ApiTrack> adapter;
     @Inject PlaybackOperations playbackOperations;
     @Inject ExploreTracksOperations operations;
     @Inject PullToRefreshController pullToRefreshController;
@@ -65,7 +65,7 @@ public class ExploreTracksFragment extends LightCycleFragment
     }
 
     @VisibleForTesting
-    ExploreTracksFragment(EndlessAdapter<ApiTrack> adapter,
+    ExploreTracksFragment(PagingItemAdapter<ApiTrack> adapter,
                           PlaybackOperations playbackOperations,
                           ExploreTracksOperations operations,
                           PullToRefreshController pullToRefreshController,

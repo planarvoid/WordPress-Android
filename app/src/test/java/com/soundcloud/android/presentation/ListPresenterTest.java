@@ -15,7 +15,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +44,7 @@ public class ListPresenterTest {
     private ListPresenter<String, String> listPresenter;
     private PublishSubject<List<String>> source = PublishSubject.create();
 
-    @Mock private EndlessAdapter<String> adapter;
+    @Mock private PagingItemAdapter<String> adapter;
     @Mock private ImageOperations imageOperations;
     @Mock private Fragment fragment;
     @Mock private View view;

@@ -6,7 +6,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
@@ -24,7 +24,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements FragmentLightCycle {
+class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements FragmentLightCycle {
 
     static final int TYPE_USER = 0;
     static final int TYPE_TRACK = 1;

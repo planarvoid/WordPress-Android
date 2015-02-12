@@ -7,7 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.Pager;
@@ -26,6 +26,7 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
+@Deprecated // use ListPresenter
 public class ListViewController extends DefaultFragmentLightCycle {
 
     private final EmptyViewController emptyViewController;
@@ -55,7 +56,7 @@ public class ListViewController extends DefaultFragmentLightCycle {
      * apply an optional transformation of items before adding them to the adapter, e.g. when mapping to a view model.
      */
     public <T, R, CollT extends Iterable<T>>
-    void setAdapter(final EndlessAdapter<R> adapter, final Pager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
+    void setAdapter(final PagingItemAdapter<R> adapter, final Pager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
         this.adapter = adapter;
         this.pager = pager;
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
@@ -68,10 +69,10 @@ public class ListViewController extends DefaultFragmentLightCycle {
     }
 
     /**
-     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.EndlessAdapter, rx.android.Pager)}, but does
+     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.PagingItemAdapter, rx.android.Pager)}, but does
      * not perform any item mapping.
      */
-    public <T, CollT extends Iterable<T>> void setAdapter(final EndlessAdapter<T> adapter, final Pager<CollT> pager) {
+    public <T, CollT extends Iterable<T>> void setAdapter(final PagingItemAdapter<T> adapter, final Pager<CollT> pager) {
         setAdapter(adapter, pager, UtilityFunctions.<CollT>identity());
     }
 
@@ -98,7 +99,7 @@ public class ListViewController extends DefaultFragmentLightCycle {
             scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         }
         if (pager != null) {
-            scrollListener = new PagingScrollListener(pager, (EndlessAdapter) adapter, scrollListener);
+            scrollListener = new PagingScrollListener(pager, (PagingItemAdapter) adapter, scrollListener);
         }
 
         absListView.setOnScrollListener(scrollListener);
@@ -138,10 +139,10 @@ public class ListViewController extends DefaultFragmentLightCycle {
     private static class PagingScrollListener implements AbsListView.OnScrollListener {
 
         private final Pager<?> pager;
-        private final EndlessAdapter<?> adapter;
+        private final PagingItemAdapter<?> adapter;
         private final OnScrollListener listenerDelegate;
 
-        PagingScrollListener(Pager<?> pager, EndlessAdapter<?> adapter, OnScrollListener listenerDelegate) {
+        PagingScrollListener(Pager<?> pager, PagingItemAdapter<?> adapter, OnScrollListener listenerDelegate) {
             this.pager = pager;
             this.adapter = adapter;
             this.listenerDelegate = listenerDelegate;

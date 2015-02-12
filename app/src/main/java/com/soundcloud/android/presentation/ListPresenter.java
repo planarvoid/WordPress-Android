@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
@@ -150,7 +150,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
     }
 
     private void configurePagedListAdapter() {
-        final EndlessAdapter adapter = (EndlessAdapter) listBinding.getAdapter();
+        final PagingItemAdapter adapter = (PagingItemAdapter) listBinding.getAdapter();
         scrollListener = new PagingScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override

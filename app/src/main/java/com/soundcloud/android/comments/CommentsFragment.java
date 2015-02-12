@@ -10,7 +10,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -30,7 +30,7 @@ public class CommentsFragment extends LightCycleFragment implements ReactiveList
     static final String EXTRA_TRACK_URN = "track_urn";
 
     @Inject CommentsOperations operations;
-    @Inject EndlessAdapter<Comment> adapter;
+    @Inject PagingItemAdapter<Comment> adapter;
     @Inject ListViewController listViewController;
 
     private ConnectableObservable<List<Comment>> comments;
