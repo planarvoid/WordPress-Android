@@ -83,6 +83,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
         cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
+        cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
 
         final long id = insertInto(Table.Sounds, cv);
         playlist.setId(id);
@@ -97,6 +98,14 @@ public class DatabaseFixtures {
         cv.put(TableColumns.PlaylistTracks.POSITION, position);
         insertInto(Table.PlaylistTracks, cv);
         return apiTrack;
+    }
+
+    public ApiPlaylist insertPostedPlaylist(ApiUser user, Date postedDate) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setCreatedAt(postedDate);
+        playlist.setUser(user);
+        insertPlaylist(playlist);
+        return playlist;
     }
 
     public ApiUser insertUser() {

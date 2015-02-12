@@ -31,6 +31,10 @@ public class PlaylistsScreen extends Screen {
         touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
     }
 
+    public void touchPostedPlaylistsTab() {
+        touchTab(testDriver.getString(R.string.your_playlists_tab).toUpperCase());
+    }
+
     public int getLoadedTrackCount(){
         waiter.waitForContentAndRetryIfLoadingFailed();
         return playlistsList().getAdapter().getCount();

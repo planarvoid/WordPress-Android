@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
 import com.soundcloud.android.lightcycle.LightCycleFragment;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.SlidingTabLayout;
 
 import android.os.Bundle;
@@ -23,6 +24,7 @@ public class PlaylistsFragment extends LightCycleFragment {
     // A ActionMenuController can be injected in the inner pager fragments
     // if we need more granularity for the menu actions control
     @Inject DefaultActionMenuController defaultActionMenuController;
+    @Inject FeatureFlags featureFlags;
 
     public PlaylistsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -54,7 +56,7 @@ public class PlaylistsFragment extends LightCycleFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        PlaylistsPagerAdapter adapter = new PlaylistsPagerAdapter(this.getChildFragmentManager(), getResources());
+        PlaylistsPagerAdapter adapter = new PlaylistsPagerAdapter(this.getChildFragmentManager(), getResources(), featureFlags);
         ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(adapter);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);

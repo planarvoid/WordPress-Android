@@ -40,4 +40,11 @@ public class NavigationHelper {
         playlistsScreen.touchLikedPlaylistsTab();
         return playlistsScreen;
     }
+
+    public static PlaylistsScreen openPostedPlaylists(MenuScreen screen) {
+        PlaylistsScreen playlistsScreen = screen.open().clickPlaylist();
+        playlistsScreen.touchPostedPlaylistsTab();
+        return playlistsScreen;
+    }
+
 }
