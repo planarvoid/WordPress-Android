@@ -42,8 +42,8 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
     private final EventBus eventBus;
 
     private ConnectableObservable<List<Urn>> allLikedTrackUrns;
-    private Subscription allLikedTracksSubscription = Subscriptions.empty();
-    private CompositeSubscription offlineSyncEventsSubscription;
+    private Subscription viewLifeCycle = Subscriptions.empty();
+    private CompositeSubscription foregroundLifeCycle;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
@@ -82,23 +82,23 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
     }
 
     public void onResume() {
-        offlineSyncEventsSubscription = new CompositeSubscription();
-        offlineSyncEventsSubscription.add(offlineContentOperations.onStarted()
+        foregroundLifeCycle = new CompositeSubscription();
+        foregroundLifeCycle.add(offlineContentOperations.onStarted()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncStartedSubscriber()));
 
-        offlineSyncEventsSubscription.add(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()
+        foregroundLifeCycle.add(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncFinishedOrIdleSubscriber()));
     }
 
     public void onPause() {
-        offlineSyncEventsSubscription.unsubscribe();
+        foregroundLifeCycle.unsubscribe();
     }
 
     public void onDestroyView() {
         headerView.onDestroyView();
-        allLikedTracksSubscription.unsubscribe();
+        viewLifeCycle.unsubscribe();
     }
 
     @Override
@@ -116,7 +116,7 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .replay();
         allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
-        allLikedTracksSubscription = allLikedTrackUrns.connect();
+        viewLifeCycle = allLikedTrackUrns.connect();
     }
 
     private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {
