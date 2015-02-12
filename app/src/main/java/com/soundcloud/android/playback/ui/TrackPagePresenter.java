@@ -10,7 +10,7 @@ import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -207,9 +207,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent) {
+    public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
         final TrackPageHolder holder = getViewHolder(trackPage);
-        final PropertySet changeSet = playableUpdatedEvent.getChangeSet();
+        final PropertySet changeSet = trackChangedEvent.getSingleChangeSet();
 
         if (changeSet.contains(PlayableProperty.IS_LIKED)) {
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));
@@ -222,7 +222,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_REPOSTED);
             holder.menuController.setIsUserRepost(isReposted);
 
-            if (playableUpdatedEvent.isFromRepost()) {
+            if (trackChangedEvent.getKind() == EntityStateChangedEvent.REPOST) {
                 showRepostToast(trackPage.getContext(), isReposted);
             }
         }

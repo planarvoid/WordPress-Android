@@ -14,8 +14,8 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -134,10 +134,10 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
-        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
@@ -150,10 +150,10 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
         when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
-        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
@@ -164,11 +164,11 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldNotUpdatePresenterWhenChangedTrackIsNotCurrentlyPlayingTrack() {
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(false);
-        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
         verify(playerWidgetPresenter, never()).updateTrackInformation(any(Context.class), any(PropertySet.class));
     }
 

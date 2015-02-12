@@ -17,8 +17,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -244,7 +244,7 @@ public class PlaylistEngagementsControllerTest {
 
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(playlist.getUrn(), true, playlist.likes_count));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(playlist.getUrn(), true, playlist.likes_count));
         ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         expect(likeButton.isChecked()).toBeTrue();
     }
@@ -260,11 +260,11 @@ public class PlaylistEngagementsControllerTest {
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED,
-                PlayableUpdatedEvent.forLike(playlist.getUrn(), true, playlist.likes_count));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                EntityStateChangedEvent.fromLike(playlist.getUrn(), true, playlist.likes_count));
         expect(likeButton.isChecked()).toBeTrue();
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED,
-                PlayableUpdatedEvent.forRepost(playlist.getUrn(), true, playlist.reposts_count));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                EntityStateChangedEvent.fromRepost(playlist.getUrn(), true, playlist.reposts_count));
         expect(repostButton.isChecked()).toBeTrue();
     }
 
@@ -277,8 +277,8 @@ public class PlaylistEngagementsControllerTest {
         ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
         expect(repostButton.isChecked()).toBeFalse();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forTrack(2L), true, 1));
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forRepost(Urn.forTrack(2L), true, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(2L), true, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true, 1));
         expect(likeButton.isChecked()).toBeFalse();
         expect(repostButton.isChecked()).toBeFalse();
     }

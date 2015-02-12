@@ -12,8 +12,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
@@ -97,7 +97,7 @@ public class LegacyRepostOperations {
                 Playable updated = soundAssociation.getPlayable();
                 logPlayable("CACHE/PUBLISH", updated);
                 modelManager.cache(updated, PublicApiResource.CacheUpdateMode.NONE);
-                eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forRepost(updated.getUrn(), updated.user_repost, updated.reposts_count));
+                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(updated.getUrn(), updated.user_repost, updated.reposts_count));
             }
         };
     }

@@ -5,12 +5,12 @@ import com.soundcloud.android.lightcycle.FragmentLightCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -79,7 +79,7 @@ class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements Fra
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
-                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this))
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(this))
         );
     }
 

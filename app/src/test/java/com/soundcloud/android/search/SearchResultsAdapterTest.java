@@ -12,16 +12,16 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -107,8 +107,8 @@ public class SearchResultsAdapterTest {
         adapter.addItem(unlikedPlaylist);
         adapter.onViewCreated(fragment, null, null);
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED,
-                PlayableUpdatedEvent.forLike(unlikedPlaylist.get(PlayableProperty.URN), true, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                EntityStateChangedEvent.fromLike(unlikedPlaylist.get(PlayableProperty.URN), true, 1));
 
         final int playlistPosition = 2;
         adapter.getView(playlistPosition, itemView, new FrameLayout(Robolectric.application));

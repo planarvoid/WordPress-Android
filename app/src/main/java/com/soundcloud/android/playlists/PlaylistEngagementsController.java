@@ -8,8 +8,8 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -154,12 +154,11 @@ public class PlaylistEngagementsController {
 
     void startListeningForChanges() {
         subscription = new CompositeSubscription();
-        // make sure we pick up changes to the current playable that come via the event bus
-        subscription.add(eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new DefaultSubscriber<PlayableUpdatedEvent>() {
+        subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new DefaultSubscriber<EntityStateChangedEvent>() {
             @Override
-            public void onNext(PlayableUpdatedEvent event) {
-                if (playable != null && playable.getUrn().equals(event.getUrn())) {
-                    final PropertySet changeSet = event.getChangeSet();
+            public void onNext(EntityStateChangedEvent event) {
+                if (playable != null && playable.getUrn().equals(event.getSingleUrn())) {
+                    final PropertySet changeSet = event.getSingleChangeSet();
                     playable.updateAssociations(changeSet);
 
                     if (changeSet.contains(PlayableProperty.IS_LIKED)) {

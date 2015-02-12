@@ -4,9 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
@@ -103,7 +103,7 @@ public class OfflineContentOperationsTest {
     public void startsOfflineSyncWhenATrackIsLiked() {
         operations.startOfflineContent().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forTrack(123L), true, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 1));
 
         expect(subscriber.getOnNextEvents()).toNumber(1);
     }
@@ -112,7 +112,7 @@ public class OfflineContentOperationsTest {
     public void startsOfflineSyncWhenATrackIsUnliked() {
         operations.startOfflineContent().subscribe(subscriber);
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(Urn.forTrack(123L), false, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), false, 1));
 
         expect(subscriber.getOnNextEvents()).toNumber(1);
     }

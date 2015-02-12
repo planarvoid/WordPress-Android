@@ -1,9 +1,11 @@
 package com.soundcloud.android.events;
 
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
+import rx.functions.Func1;
 
 import android.support.v4.util.ArrayMap;
 
@@ -18,38 +20,76 @@ public final class EntityStateChangedEvent {
     public static final int DOWNLOAD_STARTED = 1;
     public static final int DOWNLOAD_FINISHED = 2;
     public static final int DOWNLOAD_FAILED = 3;
+    public static final int LIKE = 4;
+    public static final int REPOST = 5;
+
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isSingularChange() && event.getSingleUrn().isTrack();
+        }
+    };
+
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKE_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isTrackLike();
+        }
+    };
 
     private final int kind;
     private final Map<Urn, PropertySet> changeMap;
 
     public static EntityStateChangedEvent downloadStarted(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD_STARTED, Collections.singleton(
+        return new EntityStateChangedEvent(DOWNLOAD_STARTED,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
                         TrackProperty.OFFLINE_DOWNLOADING.bind(true))
-        ));
+        );
     }
 
     public static EntityStateChangedEvent downloadFinished(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD_FINISHED, Collections.singleton(
+        return new EntityStateChangedEvent(DOWNLOAD_FINISHED,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
                         TrackProperty.OFFLINE_DOWNLOADING.bind(false),
                         TrackProperty.OFFLINE_DOWNLOADED_AT.bind(new Date()))
-        ));
+        );
     }
 
     public static EntityStateChangedEvent downloadFailed(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD_FAILED, Collections.singleton(
+        return new EntityStateChangedEvent(DOWNLOAD_FAILED,
                 PropertySet.from(
                         TrackProperty.URN.bind(track)
                         // TODO: This isn't handled yet anywhere, but will have to pick this up in views eventually
                 )
-        ));
+        );
     }
 
     public static EntityStateChangedEvent fromSync(Collection<PropertySet> changedEntities) {
         return new EntityStateChangedEvent(ENTITY_SYNCED, changedEntities);
+    }
+
+    public static EntityStateChangedEvent fromSync(PropertySet changedEntity) {
+        return new EntityStateChangedEvent(ENTITY_SYNCED, Collections.singleton(changedEntity));
+    }
+
+    public static EntityStateChangedEvent fromLike(Urn urn, boolean liked, int likesCount) {
+        return new EntityStateChangedEvent(LIKE, PropertySet.from(
+                PlayableProperty.URN.bind(urn),
+                PlayableProperty.IS_LIKED.bind(liked),
+                PlayableProperty.LIKES_COUNT.bind(likesCount)));
+    }
+
+    public static EntityStateChangedEvent fromLike(PropertySet newLikeState) {
+        return new EntityStateChangedEvent(LIKE, newLikeState);
+    }
+
+    public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted, int repostCount) {
+        return new EntityStateChangedEvent(REPOST, PropertySet.from(
+                PlayableProperty.URN.bind(urn),
+                PlayableProperty.IS_REPOSTED.bind(reposted),
+                PlayableProperty.REPOSTS_COUNT.bind(repostCount)));
     }
 
     EntityStateChangedEvent(int kind, Collection<PropertySet> changedEntities) {
@@ -60,6 +100,10 @@ public final class EntityStateChangedEvent {
         }
     }
 
+    EntityStateChangedEvent(int kind, PropertySet changedEntity) {
+        this(kind, Collections.singleton(changedEntity));
+    }
+
     public int getKind() {
         return kind;
     }
@@ -68,4 +112,33 @@ public final class EntityStateChangedEvent {
         return changeMap;
     }
 
+    /**
+     * @return the entity URN of the changed entity. Will throw if the event contains more than one change set.
+     */
+    public Urn getSingleUrn() {
+        if (isSingularChange()) {
+            return changeMap.keySet().iterator().next();
+        } else {
+            throw new IllegalStateException("Attempting to access a single URN in a change event for multiple entities");
+        }
+    }
+
+    /**
+     * @return the change set of the changed entity. Will throw if the event contains more than one change set.
+     */
+    public PropertySet getSingleChangeSet() {
+        if (isSingularChange()) {
+            return changeMap.values().iterator().next();
+        } else {
+            throw new IllegalStateException("Attempting to access a single change set in a change event for multiple entities");
+        }
+    }
+
+    public boolean isSingularChange() {
+        return changeMap.size() == 1;
+    }
+
+    public boolean isTrackLike() {
+        return isSingularChange() && getSingleUrn().isTrack() && kind == LIKE;
+    }
 }

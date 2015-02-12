@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.propeller.PropertySet;
@@ -17,7 +17,7 @@ public interface PlayerPagePresenter {
 
     void setProgress(View trackPage, PlaybackProgress progress);
     void setPlayState(View trackPage, Playa.StateTransition stateTransition, boolean isCurrentTrack, boolean isForeground);
-    void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent);
+    void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent);
 
     void onBackground(View trackPage);
     void onForeground(View trackPage);

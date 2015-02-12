@@ -4,7 +4,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -131,7 +131,7 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent) {
+    public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
         // no-op
     }
 

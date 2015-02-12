@@ -1,8 +1,8 @@
 package com.soundcloud.android.offline;
 
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.OfflineTrackCountCommand;
@@ -28,7 +28,7 @@ public class OfflineContentOperations {
     private final EventBus eventBus;
     private final OfflineSettingsStorage settingsStorage;
 
-    private final Observable<PlayableUpdatedEvent> likedTracks;
+    private final Observable<EntityStateChangedEvent> likedTracks;
     private final Observable<SyncResult> syncedLikes;
     private final Observable<Boolean> featureEnabled;
     private final Observable<Boolean> featureDisabled;
@@ -44,13 +44,6 @@ public class OfflineContentOperations {
         @Override
         public Boolean call(Boolean isEnabled) {
             return isEnabled;
-        }
-    };
-
-    private static final Func1<PlayableUpdatedEvent, Boolean> WAS_TRACK_LIKED = new Func1<PlayableUpdatedEvent, Boolean>() {
-        @Override
-        public Boolean call(PlayableUpdatedEvent event) {
-            return event.getUrn().isTrack() && event.isFromLike();
         }
     };
 
@@ -98,7 +91,7 @@ public class OfflineContentOperations {
         this.updateContentAsPendingRemoval = updateContentAsPendingRemoval;
         this.offlineTrackCount = offlineTrackCount;
         this.eventBus = eventBus;
-        this.likedTracks = eventBus.queue(EventQueue.PLAYABLE_CHANGED).filter(WAS_TRACK_LIKED);
+        this.likedTracks = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_FILTER);
         this.syncedLikes = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
         this.featureEnabled = settingsStorage.getOfflineLikesChanged().filter(IS_ENABLED);
         this.featureDisabled = settingsStorage.getOfflineLikesChanged().filter(IS_DISABLED);

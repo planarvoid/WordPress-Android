@@ -17,8 +17,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LegacyPlaylistOperations;
@@ -51,7 +51,7 @@ public class LegacyRepostOperationsTest {
     @Mock private ApiResponse response;
     @Mock private TrackStorage trackStorage;
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
-    @Captor private ArgumentCaptor<PlayableUpdatedEvent> eventCaptor;
+    @Captor private ArgumentCaptor<EntityStateChangedEvent> eventCaptor;
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final Urn playlistUrn = Urn.forPlaylist(124L);
@@ -100,10 +100,10 @@ public class LegacyRepostOperationsTest {
 
         operations.toggleRepost(trackUrn, true).subscribe(observer);
 
-        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
-        expect(event.getUrn()).toEqual(track.getUrn());
-        expect(event.getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
-        expect(event.getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
+        EntityStateChangedEvent event = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        expect(event.getSingleUrn()).toEqual(track.getUrn());
+        expect(event.getSingleChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
+        expect(event.getSingleChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
     }
 
     @Test
@@ -115,11 +115,11 @@ public class LegacyRepostOperationsTest {
 
         operations.toggleRepost(trackUrn, true).subscribe(observer);
 
-        PropertySet changes = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        PropertySet changes = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED).getSingleChangeSet();
         expect(changes.get(PlayableProperty.IS_REPOSTED)).toBe(true);
         expect(changes.get(PlayableProperty.REPOSTS_COUNT)).toBe(1);
 
-        PropertySet reverted = eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        PropertySet reverted = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getSingleChangeSet();
         expect(reverted.get(PlayableProperty.IS_REPOSTED)).toBe(false);
         expect(reverted.get(PlayableProperty.REPOSTS_COUNT)).toBe(0);
     }
@@ -143,10 +143,10 @@ public class LegacyRepostOperationsTest {
 
         operations.toggleRepost(trackUrn, false).subscribe(observer);
 
-        PlayableUpdatedEvent event = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED);
-        expect(event.getUrn()).toEqual(track.getUrn());
-        expect(event.getChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
-        expect(event.getChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
+        EntityStateChangedEvent event = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        expect(event.getSingleUrn()).toEqual(track.getUrn());
+        expect(event.getSingleChangeSet().contains(PlayableProperty.IS_REPOSTED)).toBeTrue();
+        expect(event.getSingleChangeSet().contains(PlayableProperty.REPOSTS_COUNT)).toBeTrue();
     }
 
     @Test
@@ -158,11 +158,11 @@ public class LegacyRepostOperationsTest {
 
         operations.toggleRepost(trackUrn, false).subscribe(observer);
 
-        PropertySet reverted = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        PropertySet reverted = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED).getSingleChangeSet();
         expect(reverted.get(PlayableProperty.IS_REPOSTED)).toBe(false);
         expect(reverted.get(PlayableProperty.REPOSTS_COUNT)).toBe(0);
 
-        PropertySet changes = eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        PropertySet changes = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getSingleChangeSet();
         expect(changes.get(PlayableProperty.IS_REPOSTED)).toBe(true);
         expect(changes.get(PlayableProperty.REPOSTS_COUNT)).toBe(1);
     }
@@ -206,8 +206,8 @@ public class LegacyRepostOperationsTest {
         operations.toggleRepost(trackUrn, false).subscribe(observer);
 
         verify(storage).removeRepostAsync(track);
-        expect(eventBus.eventsOn(EventQueue.PLAYABLE_CHANGED)).toNumber(1);
-        PropertySet changes = eventBus.firstEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet();
+        expect(eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED)).toNumber(1);
+        PropertySet changes = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED).getSingleChangeSet();
         expect(changes.get(PlayableProperty.IS_REPOSTED)).toBe(false);
     }
 

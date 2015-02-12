@@ -13,7 +13,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.ads.AdOverlayController.AdOverlayListener;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
@@ -300,45 +300,45 @@ public class TrackPagePresenterTest {
     @Test
     public void updateAssociationsWithLikedPropertyUpdatesLikeToggle() {
         getHolder(trackView).likeToggle.setEnabled(false); // Toggle disable whilst updating
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(TRACK_URN, true, 1);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromLike(TRACK_URN, true, 1);
 
-        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
+        presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
         expect(getHolder(trackView).likeToggle).toBeChecked();
     }
 
     @Test
     public void updateAssociationsWithLikedCountPropertyUpdatesLikeCountBelow10k() {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forLike(TRACK_URN, true, 9999);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromLike(TRACK_URN, true, 9999);
 
-        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
+        presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
         expect(getHolder(trackView).likeToggle).toHaveText("9,999");
     }
 
     @Test
     public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(TRACK_URN, true, 1);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true, 1);
 
-        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
+        presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
         verify(trackPageMenuController).setIsUserRepost(true);
     }
 
     @Test
     public void showToastWhenUserRepostedATrack() {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(TRACK_URN, true, 1);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true, 1);
 
-        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
+        presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.reposted_to_followers);
     }
 
     @Test
     public void showToastWhenUserUnpostedATrack() {
-        final PlayableUpdatedEvent playableUpdatedEvent = PlayableUpdatedEvent.forRepost(TRACK_URN, false, 1);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, false, 1);
 
-        presenter.onPlayableUpdated(trackView, playableUpdatedEvent);
+        presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.unposted_to_followers);
     }

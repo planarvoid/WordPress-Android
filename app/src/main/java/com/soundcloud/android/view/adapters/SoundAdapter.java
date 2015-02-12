@@ -11,8 +11,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.collections.ScBaseAdapter;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -46,6 +46,7 @@ import java.util.Map;
 /**
  * Temporarily used to adapt ScListFragment lists that use public API models to PropertySets and the new cell design
  */
+@Deprecated
 public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
 
     private static final int TRACK_VIEW_TYPE = 0;
@@ -201,7 +202,7 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
     public void onViewCreated() {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
-                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber())
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlayableChangedSubscriber())
         );
     }
 
@@ -210,18 +211,18 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
         eventSubscriptions.unsubscribe();
     }
 
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
-        public void onNext(final PlayableUpdatedEvent event) {
+        public void onNext(final EntityStateChangedEvent event) {
             final int index = Iterables.indexOf(propertySets, new Predicate<PropertySet>() {
                 @Override
                 public boolean apply(PropertySet item) {
-                    return item.get(PlayableProperty.URN).equals(event.getUrn());
+                    return item.get(PlayableProperty.URN).equals(event.getSingleUrn());
                 }
             });
 
             if (index > -1) {
-                propertySets.get(index).update(event.getChangeSet());
+                propertySets.get(index).update(event.getSingleChangeSet());
                 notifyDataSetChanged();
             }
         }

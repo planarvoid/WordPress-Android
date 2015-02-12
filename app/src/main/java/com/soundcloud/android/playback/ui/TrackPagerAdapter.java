@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -70,10 +70,10 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
     };
 
-    private final Action1<PlayableUpdatedEvent> invalidateTrackCacheAction = new Action1<PlayableUpdatedEvent>() {
+    private final Action1<EntityStateChangedEvent> invalidateTrackCacheAction = new Action1<EntityStateChangedEvent>() {
         @Override
-        public void call(PlayableUpdatedEvent playableUpdatedEvent) {
-            trackObservableCache.remove(playableUpdatedEvent.getUrn());
+        public void call(EntityStateChangedEvent trackChangedEvent) {
+            trackObservableCache.remove(trackChangedEvent.getSingleUrn());
         }
     };
 
@@ -273,11 +273,11 @@ public class TrackPagerAdapter extends PagerAdapter {
         subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
         subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
         subscription.add(eventBus
-                .queue(EventQueue.PLAYABLE_CHANGED)
-                .filter(PlayableUpdatedEvent.IS_TRACK_FILTER)
+                .queue(EventQueue.ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_FILTER)
                 .doOnNext(invalidateTrackCacheAction)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new PlayableChangedSubscriber(presenter, trackPage)));
+                .subscribe(new TrackChangedSubscriber(presenter, trackPage)));
         subscription.add(eventBus
                 .queue(EventQueue.PLAYBACK_PROGRESS)
                 .filter(currentTrackFilter)
@@ -420,18 +420,18 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
     }
 
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
+    private final class TrackChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         private final PlayerPagePresenter presenter;
         private final View trackPage;
 
-        public PlayableChangedSubscriber(PlayerPagePresenter presenter, View trackPage) {
+        public TrackChangedSubscriber(PlayerPagePresenter presenter, View trackPage) {
             this.presenter = presenter;
             this.trackPage = trackPage;
         }
 
         @Override
-        public void onNext(PlayableUpdatedEvent event) {
-            if (isTrackRelatedToView(trackPage, event.getUrn())) {
+        public void onNext(EntityStateChangedEvent event) {
+            if (isTrackRelatedToView(trackPage, event.getSingleUrn())) {
                 presenter.onPlayableUpdated(trackPage, event);
             }
         }

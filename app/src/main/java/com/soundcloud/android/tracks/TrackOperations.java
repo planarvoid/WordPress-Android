@@ -1,7 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -21,11 +21,11 @@ public class TrackOperations {
     private final EventBus eventBus;
     private final SyncInitiator syncInitiator;
 
-    private final Action1<PropertySet> publishPlayableChanged = new Action1<PropertySet>() {
+    // TODO: should this be fired from the syncer instead?
+    private final Action1<PropertySet> publishTrackChanged = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet propertySet) {
-            final PlayableUpdatedEvent event = PlayableUpdatedEvent.forUpdate(propertySet.get(TrackProperty.URN), propertySet);
-            eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(propertySet));
         }
     };
 
@@ -45,7 +45,7 @@ public class TrackOperations {
         return Observable.concat(
                 fullTrackFromStorage(trackUrn),
                 syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn))
-                        .doOnNext(publishPlayableChanged)
+                        .doOnNext(publishTrackChanged)
         );
     }
 

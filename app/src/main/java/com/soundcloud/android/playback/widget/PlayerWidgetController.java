@@ -5,8 +5,8 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
@@ -65,7 +65,7 @@ public class PlayerWidgetController {
     }
 
     public void subscribe() {
-        eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
+        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackChangedSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
 
@@ -116,11 +116,11 @@ public class PlayerWidgetController {
      * Listens for track changes emitted from our application layer via Rx and updates the widget
      * accordingly.
      */
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
+    private final class TrackChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
-        public void onNext(final PlayableUpdatedEvent event) {
-            if (playQueueManager.isCurrentTrack(event.getUrn())) {
-                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getChangeSet()));
+        public void onNext(final EntityStateChangedEvent event) {
+            if (playQueueManager.isCurrentTrack(event.getSingleUrn())) {
+                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getSingleChangeSet()));
             }
         }
     }

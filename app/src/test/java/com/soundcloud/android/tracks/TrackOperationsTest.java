@@ -120,7 +120,7 @@ public class TrackOperationsTest {
         trackOperations.fullTrackWithUpdate(trackUrn).subscribe();
 
         expect(loadTrack.getInput()).toEqual(trackUrn);
-        expect(eventBus.lastEventOn(EventQueue.PLAYABLE_CHANGED).getChangeSet()).toEqual(
+        expect(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getSingleChangeSet()).toEqual(
                 track.merge(trackDescription));
     }
 }

@@ -4,8 +4,8 @@ import static com.google.common.collect.Iterables.getLast;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -41,10 +41,7 @@ public class LikeOperations {
     private final Action1<PropertySet> publishPlayableChanged = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet changeSet) {
-            final Urn urn = changeSet.get(PlayableProperty.URN);
-            final int likeCount = changeSet.get(PlayableProperty.LIKES_COUNT);
-            final boolean isLiked = changeSet.get(PlayableProperty.IS_LIKED);
-            eventBus.publish(EventQueue.PLAYABLE_CHANGED, PlayableUpdatedEvent.forLike(urn, isLiked, likeCount));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(changeSet));
         }
     };
 
