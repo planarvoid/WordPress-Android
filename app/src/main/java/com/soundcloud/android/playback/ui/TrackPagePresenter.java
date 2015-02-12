@@ -209,7 +209,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     @Override
     public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
         final TrackPageHolder holder = getViewHolder(trackPage);
-        final PropertySet changeSet = trackChangedEvent.getSingleChangeSet();
+        final PropertySet changeSet = trackChangedEvent.getNextChangeSet();
 
         if (changeSet.contains(PlayableProperty.IS_LIKED)) {
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));

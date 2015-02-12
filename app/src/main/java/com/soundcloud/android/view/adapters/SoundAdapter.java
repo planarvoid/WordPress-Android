@@ -217,12 +217,12 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
             final int index = Iterables.indexOf(propertySets, new Predicate<PropertySet>() {
                 @Override
                 public boolean apply(PropertySet item) {
-                    return item.get(PlayableProperty.URN).equals(event.getSingleUrn());
+                    return item.get(PlayableProperty.URN).equals(event.getNextUrn());
                 }
             });
 
             if (index > -1) {
-                propertySets.get(index).update(event.getSingleChangeSet());
+                propertySets.get(index).update(event.getNextChangeSet());
                 notifyDataSetChanged();
             }
         }

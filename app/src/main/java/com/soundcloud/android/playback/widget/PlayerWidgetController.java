@@ -119,8 +119,8 @@ public class PlayerWidgetController {
     private final class TrackChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(final EntityStateChangedEvent event) {
-            if (playQueueManager.isCurrentTrack(event.getSingleUrn())) {
-                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getSingleChangeSet()));
+            if (playQueueManager.isCurrentTrack(event.getNextUrn())) {
+                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getNextChangeSet()));
             }
         }
     }

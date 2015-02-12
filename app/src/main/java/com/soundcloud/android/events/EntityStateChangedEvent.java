@@ -26,7 +26,7 @@ public final class EntityStateChangedEvent {
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
-            return event.isSingularChange() && event.getSingleUrn().isTrack();
+            return event.isSingularChange() && event.getNextUrn().isTrack();
         }
     };
 
@@ -112,11 +112,19 @@ public final class EntityStateChangedEvent {
         return changeMap;
     }
 
-    public Urn getSingleUrn() {
+    /**
+     * @return for a single change event, this returns the single URN; if more than one entity changed,
+     * returns the first available URN.
+     */
+    public Urn getNextUrn() {
         return changeMap.keySet().iterator().next();
     }
 
-    public PropertySet getSingleChangeSet() {
+    /**
+     * @return for a single change event, this returns the single change set; if more than one entity changed,
+     * returns the first available change set.
+     */
+    public PropertySet getNextChangeSet() {
         return changeMap.values().iterator().next();
     }
 
@@ -125,6 +133,6 @@ public final class EntityStateChangedEvent {
     }
 
     public boolean isTrackLike() {
-        return isSingularChange() && getSingleUrn().isTrack() && kind == LIKE;
+        return isSingularChange() && getNextUrn().isTrack() && kind == LIKE;
     }
 }

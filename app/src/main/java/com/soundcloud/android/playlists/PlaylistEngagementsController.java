@@ -157,8 +157,8 @@ public class PlaylistEngagementsController {
         subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new DefaultSubscriber<EntityStateChangedEvent>() {
             @Override
             public void onNext(EntityStateChangedEvent event) {
-                if (playable != null && playable.getUrn().equals(event.getSingleUrn())) {
-                    final PropertySet changeSet = event.getSingleChangeSet();
+                if (playable != null && playable.getUrn().equals(event.getNextUrn())) {
+                    final PropertySet changeSet = event.getNextChangeSet();
                     playable.updateAssociations(changeSet);
 
                     if (changeSet.contains(PlayableProperty.IS_LIKED)) {

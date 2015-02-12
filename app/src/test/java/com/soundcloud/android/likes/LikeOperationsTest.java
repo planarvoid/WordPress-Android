@@ -274,9 +274,9 @@ public class LikeOperationsTest {
         operations.addLike(track).subscribe();
 
         EntityStateChangedEvent event = eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getSingleUrn()).toEqual(track.get(PlayableProperty.URN));
-        expect(event.getSingleChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(event.getSingleChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
+        expect(event.getNextUrn()).toEqual(track.get(PlayableProperty.URN));
+        expect(event.getNextChangeSet().contains(PlayableProperty.IS_LIKED)).toBeTrue();
+        expect(event.getNextChangeSet().contains(PlayableProperty.LIKES_COUNT)).toBeTrue();
     }
 
     @Test

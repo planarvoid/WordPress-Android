@@ -27,13 +27,13 @@ public class EntityStateChangedEventTest {
     public void shouldReturnSingleUrnFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
         EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromSync(track);
-        expect(singleChangeEvent.getSingleUrn()).toEqual(track.get(TrackProperty.URN));
+        expect(singleChangeEvent.getNextUrn()).toEqual(track.get(TrackProperty.URN));
     }
 
     @Test
     public void shouldReturnSingleChangeSetFromSingularChangeEvent() {
         PropertySet track = TestPropertySets.fromApiTrack();
         EntityStateChangedEvent singleChangeEvent = EntityStateChangedEvent.fromSync(track);
-        expect(singleChangeEvent.getSingleChangeSet()).toEqual(track);
+        expect(singleChangeEvent.getNextChangeSet()).toEqual(track);
     }
 }
