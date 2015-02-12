@@ -40,4 +40,13 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest{
         List<Urn> playlistLikes = command.call();
         expect(playlistLikes).toBeEmpty();
     }
+
+    @Test // TODO: we will revisit this once we have designs for missing liked tracks
+    public void shouldNotLoadLikesThatHaveNoTrackMetaData() throws Exception {
+        testFixtures().insertTrackLike(); // only the like, metadata missing; should not get returned.
+
+        List<Urn> trackLikes = command.call();
+
+        expect(trackLikes).toBeEmpty();
+    }
 }
