@@ -14,11 +14,16 @@ import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackChangedSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
+import com.soundcloud.android.view.adapters.ListContentSyncedSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
+import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
@@ -39,18 +44,28 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
 
     private final LikeOperations likeOperations;
     private final PlaybackOperations playbackOperations;
-    private final TrackLikesAdapter adapter;
+    private final PagedTracksAdapter adapter;
     private final TrackLikesActionMenuController actionMenuController;
     private final TrackLikesHeaderPresenter headerPresenter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
 
-    private Subscription syncQueueUpdatedSubscription = Subscriptions.empty();
+    private Subscription creationLifeCycle = Subscriptions.empty();
+    private CompositeSubscription viewLifeCycle;
+
+    private final Func1<OfflineContentEvent, Boolean> isTrackDownloadEvent = new Func1<OfflineContentEvent, Boolean>() {
+        @Override
+        public Boolean call(OfflineContentEvent offlineContentEvent) {
+            return offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_FINISHED
+                    || offlineContentEvent.getKind() == OfflineContentEvent.DOWNLOAD_STARTED
+                    || offlineContentEvent.getKind() == OfflineContentEvent.STOP;
+        }
+    };
 
     @Inject
     TrackLikesPresenter(LikeOperations likeOperations,
                         PlaybackOperations playbackOperations,
-                        TrackLikesAdapter adapter,
+                        PagedTracksAdapter adapter,
                         TrackLikesActionMenuController actionMenuController,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
@@ -71,7 +86,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        syncQueueUpdatedSubscription = eventBus.queue(EventQueue.OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
+        creationLifeCycle = eventBus.queue(EventQueue.OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
 
         getListBinding().connect();
     }
@@ -108,6 +123,15 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         getEmptyView().setMessageText(R.string.list_empty_user_likes_message);
 
         listView.setOnItemClickListener(this);
+
+        viewLifeCycle = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(adapter, adapter.getTrackPresenter())),
+                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(adapter)),
+                eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(adapter)),
+                eventBus.queue(EventQueue.OFFLINE_CONTENT)
+                        .filter(isTrackDownloadEvent)
+                        .subscribe(new UpdateAdapterFromDownloadSubscriber(adapter))
+        );
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -135,12 +159,13 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     @Override
     public void onDestroyView(Fragment fragment) {
         headerPresenter.onDestroyView();
+        viewLifeCycle.unsubscribe();
         super.onDestroyView(fragment);
     }
 
     @Override
     public void onDestroy(Fragment fragment) {
-        syncQueueUpdatedSubscription.unsubscribe();
+        creationLifeCycle.unsubscribe();
         super.onDestroy(fragment);
     }
 

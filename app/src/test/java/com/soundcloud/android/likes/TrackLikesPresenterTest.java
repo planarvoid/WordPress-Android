@@ -51,7 +51,7 @@ public class TrackLikesPresenterTest {
 
     @Mock private LikeOperations likeOperations;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private TrackLikesAdapter adapter;
+    @Mock private PagedTracksAdapter adapter;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private ImageOperations imageOperations;
