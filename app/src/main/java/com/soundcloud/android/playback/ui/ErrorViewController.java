@@ -70,6 +70,7 @@ class ErrorViewController {
 
     private void setGone(Iterable<View> views) {
         for (View v : views) {
+            v.clearAnimation();
             v.setVisibility(View.GONE);
         }
     }
