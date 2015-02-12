@@ -4,7 +4,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.EndlessAdapter;
-import com.soundcloud.android.view.adapters.ListContentSyncedSubscriber;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.soundcloud.propeller.PropertySet;
@@ -36,7 +36,7 @@ public class PlaylistPostsAdapter extends EndlessAdapter<PropertySet>
             @Override
             public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
                 eventSubscriptions = new CompositeSubscription(
-                        eventBus.subscribe(EventQueue.ENTITY_UPDATED, new ListContentSyncedSubscriber(PlaylistPostsAdapter.this))
+                        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(PlaylistPostsAdapter.this))
                 );
             }
 
