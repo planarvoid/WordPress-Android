@@ -2,7 +2,7 @@ package com.soundcloud.android.stream;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.FragmentLightCycle;
+import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
@@ -18,11 +18,12 @@ import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
 
-class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements FragmentLightCycle {
+class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements SupportFragmentLightCycle {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
@@ -77,6 +78,11 @@ class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements Fragm
     @Override
     public void onResume(Fragment fragment) {
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
+        return false;
     }
 
     @Override

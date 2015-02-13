@@ -1,7 +1,7 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
@@ -11,7 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-public abstract class EmptyViewPresenter extends DefaultFragmentLightCycle {
+public abstract class EmptyViewPresenter extends DefaultSupportFragmentLightCycle {
 
     private EmptyView emptyView;
     private int emptyViewStatus = EmptyView.Status.WAITING;

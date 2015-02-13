@@ -1,7 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -22,7 +22,7 @@ import javax.inject.Inject;
 public class PlaylistPostsAdapter extends PagingItemAdapter<PropertySet>
         implements ReactiveAdapter<Iterable<PropertySet>> {
 
-    private final DefaultFragmentLightCycle lifeCycleHandler;
+    private final DefaultSupportFragmentLightCycle lifeCycleHandler;
     private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
@@ -31,8 +31,8 @@ public class PlaylistPostsAdapter extends PagingItemAdapter<PropertySet>
         this.lifeCycleHandler = createLifeCycleHandler(eventBus);
     }
 
-    private DefaultFragmentLightCycle createLifeCycleHandler(final EventBus eventBus) {
-        return new DefaultFragmentLightCycle(){
+    private DefaultSupportFragmentLightCycle createLifeCycleHandler(final EventBus eventBus) {
+        return new DefaultSupportFragmentLightCycle(){
             @Override
             public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
                 eventSubscriptions = new CompositeSubscription(
@@ -47,7 +47,7 @@ public class PlaylistPostsAdapter extends PagingItemAdapter<PropertySet>
         };
     }
 
-    public DefaultFragmentLightCycle getLifeCycleHandler() {
+    public DefaultSupportFragmentLightCycle getLifeCycleHandler() {
         return lifeCycleHandler;
     }
 }

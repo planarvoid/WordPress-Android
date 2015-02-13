@@ -6,13 +6,16 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,7 +23,7 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-class SubscribeController {
+class SubscribeController extends DefaultLightCycleActivity<ActionBarActivity> {
 
     private final PaymentOperations paymentOperations;
     private final PaymentErrorController paymentErrorController;
@@ -41,7 +44,8 @@ class SubscribeController {
         this.paymentErrorController = paymentErrorController;
     }
 
-    public void onCreate(FragmentActivity activity) {
+    @Override
+    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
         this.activity = activity;
         activity.setContentView(R.layout.subscribe_activity);
         ButterKnife.inject(this, activity.findViewById(android.R.id.content));
@@ -49,7 +53,8 @@ class SubscribeController {
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
     }
 
-    public void onDestroy() {
+    @Override
+    public void onDestroy(ActionBarActivity activity) {
         subscription.unsubscribe();
         paymentOperations.disconnect();
     }

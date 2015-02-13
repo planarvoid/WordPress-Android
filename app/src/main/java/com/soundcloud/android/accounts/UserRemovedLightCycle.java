@@ -2,7 +2,7 @@ package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import org.jetbrains.annotations.Nullable;
@@ -11,11 +11,11 @@ import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
-public class UserRemovedLightCycle extends DefaultActivityLightCycle {
+public class UserRemovedLightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
     private final EventBus eventBus;
     private Subscription userEventSubscription = Subscriptions.empty();
 
@@ -25,12 +25,12 @@ public class UserRemovedLightCycle extends DefaultActivityLightCycle {
     }
 
     @Override
-    public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
         userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber(activity));
     }
 
     @Override
-    public void onDestroy(FragmentActivity activity) {
+    public void onDestroy(ActionBarActivity activity) {
         userEventSubscription.unsubscribe();
     }
 

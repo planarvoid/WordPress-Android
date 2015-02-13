@@ -2,19 +2,18 @@ package com.soundcloud.android.likes;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.lightcycle.LightCycleFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class TrackLikesFragment extends LightCycleFragment {
+public class TrackLikesFragment extends LightCycleSupportFragment {
 
     @Inject TrackLikesPresenter presenter;
 
@@ -44,10 +43,5 @@ public class TrackLikesFragment extends LightCycleFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         presenter.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return presenter.onOptionsItemSelected(this, item);
     }
 }

@@ -17,13 +17,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AdPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private AdsOperations adsOperations;
-    @Mock private FragmentActivity activity;
+    @Mock private ActionBarActivity activity;
 
     private TestEventBus eventBus = new TestEventBus();
     private AdPlayerController controller;

@@ -4,13 +4,11 @@ import static com.sothree.slidinguppanel.SlidingUpPanelLayout.PanelSlideListener
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
-import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -21,13 +19,14 @@ import rx.subscriptions.Subscriptions;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class SlidingPlayerController extends DefaultActivityLightCycle implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBarActivity> implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
     private static final float EXPAND_THRESHOLD = 0.5f;
@@ -35,7 +34,6 @@ public class SlidingPlayerController extends DefaultActivityLightCycle implement
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
 
-    private ActionBarController actionBarController;
     private SlidingUpPanelLayout slidingPanel;
     private PlayerFragment playerFragment;
 
@@ -44,6 +42,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle implement
     private boolean isExpanding;
     private boolean expandOnResume;
     private boolean wasDragged;
+    private ActionBar actionBar;
 
     @Inject
     public SlidingPlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
@@ -52,22 +51,21 @@ public class SlidingPlayerController extends DefaultActivityLightCycle implement
     }
 
     @Override
-    public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
-        final ScActivity scActivity = (ScActivity) activity;
-        this.actionBarController = scActivity.getActionBarController();
+    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+        actionBar = activity.getSupportActionBar();
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
         slidingPanel.setOnTouchListener(new TrackingDragListener());
         expandOnResume = shouldExpand(getCurrentBundle(activity, bundle));
 
-        playerFragment = getPlayerFragmentFromActivity(scActivity);
+        playerFragment = getPlayerFragmentFromActivity(activity);
         if (playerFragment == null) {
             throw new IllegalArgumentException("Player fragment not found. Make sure it is present with the expected id.");
         }
     }
 
-    private PlayerFragment getPlayerFragmentFromActivity(FragmentActivity activity) {
+    private PlayerFragment getPlayerFragmentFromActivity(ActionBarActivity activity) {
         return (PlayerFragment) activity.getSupportFragmentManager().findFragmentById(R.id.player_root);
     }
 
@@ -113,7 +111,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle implement
     }
 
     @Override
-    public void onNewIntent(FragmentActivity activity, Intent intent) {
+    public void onNewIntent(ActionBarActivity activity, Intent intent) {
         expandOnResume = shouldExpand(intent.getExtras());
     }
 
@@ -122,7 +120,7 @@ public class SlidingPlayerController extends DefaultActivityLightCycle implement
     }
 
     @Override
-    public void onResume(FragmentActivity activity) {
+    public void onResume(ActionBarActivity activity) {
         if (playQueueManager.isQueueEmpty()) {
             hide();
         } else {
@@ -163,16 +161,20 @@ public class SlidingPlayerController extends DefaultActivityLightCycle implement
 
     private void toggleActionBarAndSysBarVisibility() {
         boolean panelExpanded = !slidingPanel.isPanelHidden() && slidingPanel.isPanelExpanded();
-        actionBarController.setVisible(!panelExpanded);
+        if (!panelExpanded) {
+            actionBar.show();
+        } else {
+            actionBar.hide();
+        }
     }
 
     @Override
-    public void onPause(FragmentActivity activity) {
+    public void onPause(ActionBarActivity activity) {
         subscription.unsubscribe();
     }
 
     @Override
-    public void onSaveInstanceState(FragmentActivity activity, Bundle bundle) {
+    public void onSaveInstanceState(ActionBarActivity activity, Bundle bundle) {
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, slidingPanel.isPanelExpanded());
     }
 
@@ -181,10 +183,10 @@ public class SlidingPlayerController extends DefaultActivityLightCycle implement
         playerFragment.onPlayerSlide(slideOffset);
 
         if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
-            actionBarController.setVisible(false);
+            actionBar.hide();
             isExpanding = true;
         } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
-            actionBarController.setVisible(true);
+            actionBar.show();
             isExpanding = false;
         }
     }

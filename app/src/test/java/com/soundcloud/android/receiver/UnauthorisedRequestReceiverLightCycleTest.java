@@ -16,12 +16,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import android.content.IntentFilter;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class UnauthorisedRequestReceiverLightCycleTest {
     @Captor ArgumentCaptor<IntentFilter> intentArgumentCaptor;
-    @Mock private FragmentActivity activity;
+    @Mock private ActionBarActivity activity;
     private UnauthorisedRequestReceiver.LightCycle lightCycle;
 
     @Before

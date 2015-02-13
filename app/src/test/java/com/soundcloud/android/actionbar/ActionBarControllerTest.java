@@ -2,7 +2,6 @@ package com.soundcloud.android.actionbar;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
@@ -21,9 +20,8 @@ import android.view.MenuItem;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ActionBarControllerTest {
-
-    @Mock
-    private ScActivity activity;
+    @Mock private ScActivity activity;
+    @Mock private ActionBar actionBar;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -31,8 +29,7 @@ public class ActionBarControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(activity.getActivity()).thenReturn(activity);
-        actionBarController = new ActionBarController(activity, eventBus);
+        actionBarController = new ActionBarController(eventBus);
     }
 
     @Test
@@ -40,30 +37,10 @@ public class ActionBarControllerTest {
         MenuItem item = mock(MenuItem.class);
         when(item.getItemId()).thenReturn(R.id.action_search);
 
-        actionBarController.onOptionsItemSelected(item);
+        actionBarController.onOptionsItemSelected(activity, item);
 
         UIEvent uiEvent = (UIEvent) eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_NAVIGATION);
         expect(uiEvent.getAttributes().get("page")).toEqual("search");
-    }
-
-    @Test
-    public void shouldShowActionBarOnVisibilitySetToTrue() throws Exception {
-        ActionBar actionBar = mock(ActionBar.class);
-        when(activity.getSupportActionBar()).thenReturn(actionBar);
-
-        actionBarController.setVisible(true);
-
-        verify(actionBar).show();
-    }
-
-    @Test
-    public void shouldHideActionBarOnVisibilitySetToFalse() throws Exception {
-        ActionBar actionBar = mock(ActionBar.class);
-        when(activity.getSupportActionBar()).thenReturn(actionBar);
-
-        actionBarController.setVisible(false);
-
-        verify(actionBar).hide();
     }
 }

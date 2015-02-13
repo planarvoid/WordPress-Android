@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.dialog.TokenExpiredDialogFragment;
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.utils.ErrorUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,8 +13,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
@@ -47,7 +47,7 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
         }
     }
 
-    public static class LightCycle extends DefaultActivityLightCycle {
+    public static class LightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
         private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
 
         @Inject
@@ -56,22 +56,22 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
         }
 
         @Override
-        public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
+        public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
             unauthoriedRequestReceiver = new UnauthorisedRequestReceiver(activity.getApplicationContext(), activity.getSupportFragmentManager());
         }
 
         @Override
-        public void onResume(FragmentActivity activity) {
+        public void onResume(ActionBarActivity activity) {
             activity.registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         }
 
         @Override
-        public void onPause(FragmentActivity activity) {
+        public void onPause(ActionBarActivity activity) {
             safeUnregisterReceiver(activity, unauthoriedRequestReceiver);
         }
 
 
-        private void safeUnregisterReceiver(FragmentActivity activity, BroadcastReceiver receiver) {
+        private void safeUnregisterReceiver(ActionBarActivity activity, BroadcastReceiver receiver) {
             try {
                 activity.unregisterReceiver(receiver);
             } catch (IllegalArgumentException e) {

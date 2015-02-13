@@ -3,12 +3,13 @@ package com.soundcloud.android.cast;
 import com.soundcloud.android.lightcycle.ActivityLightCycle;
 import com.soundcloud.android.model.Urn;
 
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
 import android.view.Menu;
 
 
-public interface CastConnectionHelper extends ActivityLightCycle {
+public interface CastConnectionHelper extends ActivityLightCycle<ActionBarActivity> {
 
     void addMediaRouterButton(Menu menu, int itemId);
 

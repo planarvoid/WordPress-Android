@@ -8,7 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.lightcycle.LightCycleFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
@@ -30,7 +30,7 @@ import android.widget.ListView;
 import javax.inject.Inject;
 import java.util.Arrays;
 
-public class ExploreGenresFragment extends LightCycleFragment
+public class ExploreGenresFragment extends LightCycleSupportFragment
         implements ReactiveListComponent<ConnectableObservable<GenreSection<ExploreGenre>>> {
 
     private static final Func1<ExploreGenresSections, Observable<GenreSection<ExploreGenre>>> GENRES_TO_SECTIONS =

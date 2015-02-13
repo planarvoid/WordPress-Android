@@ -15,16 +15,16 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
-public class FragmentLightCycleDispatcherTest {
-    @Mock private FragmentLightCycle lifeCycleComponent1;
-    @Mock private FragmentLightCycle lifeCycleComponent2;
+public class SupportFragmentLightCycleDispatcherTest {
+    @Mock private SupportFragmentLightCycle lifeCycleComponent1;
+    @Mock private SupportFragmentLightCycle lifeCycleComponent2;
     @Mock private Fragment fragment;
     @Mock private Activity activity;
-    private FragmentLightCycleDispatcher dispatcher;
+    private SupportFragmentLightCycleDispatcher dispatcher;
 
     @Before
     public void setUp() throws Exception {
-        dispatcher = new FragmentLightCycleDispatcher()
+        dispatcher = new SupportFragmentLightCycleDispatcher()
                 .add(lifeCycleComponent1)
                 .add(lifeCycleComponent2);
     }

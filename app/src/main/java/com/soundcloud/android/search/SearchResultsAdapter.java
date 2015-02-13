@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.FragmentLightCycle;
+import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -20,11 +20,12 @@ import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements FragmentLightCycle {
+class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements SupportFragmentLightCycle<Fragment> {
 
     static final int TYPE_USER = 0;
     static final int TYPE_TRACK = 1;
@@ -101,6 +102,11 @@ class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements Fra
     @Override
     public void onResume(Fragment fragment) {
         /* no-op */
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
+        return false;
     }
 
     @Override

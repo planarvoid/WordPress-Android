@@ -7,7 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.lightcycle.LightCycleFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class PlaylistLikesFragment extends LightCycleFragment
+public class PlaylistLikesFragment extends LightCycleSupportFragment
         implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
     @Inject PlaylistLikesAdapter adapter;

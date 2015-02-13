@@ -8,31 +8,28 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.AccountPlaybackControlLightCycle;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.accounts.UserRemovedLightCycle;
-import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsLightCycle;
 import com.soundcloud.android.lightcycle.LightCycleActionBarActivity;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuItem;
 
 import javax.inject.Inject;
 
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends LightCycleActionBarActivity implements ActionBarController.ActionBarOwner {
+public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject ActivityLifeCyclePublisher activityLifeCyclePublisher;
     @Inject NetworkConnectivityLightCycle networkConnectivityLightCycle;
@@ -43,8 +40,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
     @Inject ScreenStateLightCycle screenStateLightCycle;
 
     @Inject protected EventBus eventBus;
-    @Nullable protected ActionBarController actionBarController;
-    @Inject ActionBarController.Factory actionBarControllerFactory;
     @Inject protected AccountOperations accountOperations;
 
     private long currentUserId;
@@ -73,15 +68,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
         getSupportActionBar().setTitle(titleId);
     }
 
-    @Nullable
-    public ActionBarController getActionBarController() {
-        return actionBarController;
-    }
-
-    public void restoreActionBar() {
-        /** no-op. Used in {@link com.soundcloud.android.main.MainActivity#restoreActionBar()} */
-    }
-
     @Override
     public boolean onSearchRequested() {
         // just focus on the search tab, don't show default android search dialog
@@ -95,27 +81,10 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (actionBarController != null) {
-            actionBarController.onCreateOptionsMenu(menu);
-        }
         if (menu.findItem(R.id.media_route_menu_item) != null){
             castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
         }
         return true;
-    }
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.main;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (actionBarController != null) {
-            return actionBarController.onOptionsItemSelected(item);
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
     }
 
     public long getCurrentUserId() {
@@ -124,12 +93,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
             currentUserId = accountOperations.getLoggedInUserId();
         }
         return currentUserId;
-    }
-
-    @NotNull
-    @Override
-    public ActionBarActivity getActivity() {
-        return this;
     }
 
     /**
@@ -159,28 +122,11 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
         setContentView();
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
-
-        if (getSupportActionBar() != null) {
-            actionBarController = createActionBarController();
-        }
     }
 
     // Override this in activities with custom content views
     protected void setContentView() {
         setContentView(R.layout.container_layout);
-    }
-
-    protected ActionBarController createActionBarController() {
-        return actionBarControllerFactory.create(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        if (actionBarController != null) {
-            actionBarController.onDestroy();
-        }
     }
 
     @Override
