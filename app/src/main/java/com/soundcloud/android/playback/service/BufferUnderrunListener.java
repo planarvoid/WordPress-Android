@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import com.soundcloud.android.crop.util.VisibleForTesting;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;

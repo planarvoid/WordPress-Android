@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;

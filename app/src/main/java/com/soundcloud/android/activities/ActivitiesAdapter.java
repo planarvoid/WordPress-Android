@@ -2,6 +2,7 @@ package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
@@ -12,7 +13,6 @@ import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.comments.TrackCommentsActivity;
-import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
