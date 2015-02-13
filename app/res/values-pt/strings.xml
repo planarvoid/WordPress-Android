@@ -22,7 +22,6 @@
     <string name="legal_summary">Informação legal</string>
     <string name="terms_of_use">Termos de uso</string>
     <string name="privacy_policy">Política de Privacidade</string>
-    <string name="visit_support">Visite o Apoio ao Cliente</string>
     <string name="version">Versão</string>
     <string name="unavailable">Indisponível</string>
     <string name="copyright_information">Informações sobre direitos autorais</string>
@@ -163,8 +162,6 @@
     <string name="empty_user_tracks_text">%1$s não carregou nenhum som público ainda.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Houve um problema ao entrar em contato com o Soundcloud.</string>
-    <string name="error_loading_title">Erro de rede</string>
     <string name="error_recording_message">Houve um erro durante a gravação.\nO seu dispositivo pode não suportar a configuração do registro atual. Você pode alterar as configurações nas configurações do aplicativo.</string>
     <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login no SoundCloud antes que possa continuar a usar o aplicativo.</string>
     <string name="error_unauthorized_title">Erro na conta</string>
@@ -537,10 +534,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Houve um erro de transcodificação %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Erro de transcodificação</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Erro de transcodificação</string>
-    <string name="dialog_transcoding_failed_title">Falha na transcodificação</string>
-    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso apoio ao cliente.</string>
-    <string name="dialog_transcoding_processing_title">Processamento de som</string>
-    <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em poucos segundos.</string>
     <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
     <string name="sc_upload_add_image">Adicionar Imagem</string>
     <string name="sc_upload_private">Privado</string>

@@ -22,7 +22,6 @@
     <string name="legal_summary">Juridische informatie</string>
     <string name="terms_of_use">Gebruikersvoorwaarden</string>
     <string name="privacy_policy">Privacybeleid</string>
-    <string name="visit_support">Bezoek Helpdesk</string>
     <string name="version">Versie</string>
     <string name="unavailable">Niet beschikbaar</string>
     <string name="copyright_information">Copyright informatie</string>
@@ -163,8 +162,6 @@
     <string name="empty_user_tracks_text">%1$s heeft nog\ngeen publieke geluiden geüpload.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Er was een probleem tijdens het contact opnemen met SoundCloud.</string>
-    <string name="error_loading_title">Netwerkfout</string>
     <string name="error_recording_message">Er is een fout opgetreden tijdens het opnemen.\nUw apparaat ondersteunt de huidige opnameconfiguratie misschien niet. U kunt de configuraties veranderen bij de applicatieinstellingen.</string>
     <string name="error_unauthorized_message">We zijn een probleem tegengekomen met uw account. U moet opnieuw inloggen bij SoundCloud voordat u de app weer kunt gebruiken.</string>
     <string name="error_unauthorized_title">Accountfout</string>
@@ -537,10 +534,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Er is een fout opgetreden bij de transcodering van %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoderingsfout</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Transcoderingsfout</string>
-    <string name="dialog_transcoding_failed_title">Transcoderen mislukt</string>
-    <string name="dialog_transcoding_failed_message">Oeps, er ging iets mis en uw geluid kan niet worden afgespeeld. U kunt het geluid van uw lijst verwijderen via de website. Voor meer informatie kunt u contact opnemen met onze helpdesk.</string>
-    <string name="dialog_transcoding_processing_title">Geluidsverwerking</string>
-    <string name="dialog_transcoding_processing_message">Uw geluid wordt verwerkt en zal binnen enkele seconden afspeelbaar zijn.</string>
     <string name="dialog_cancel_upload_message">Upload annuleren?</string>
     <string name="sc_upload_add_image">Voeg\nAfbeelding\nToe</string>
     <string name="sc_upload_private">Privé</string>

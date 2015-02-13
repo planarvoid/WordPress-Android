@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.net.Uri;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -200,14 +199,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
     @Override
     protected Dialog onCreateDialog(int which) {
         switch (which) {
-            case Consts.Dialogs.DIALOG_ERROR_LOADING:
-                return new AlertDialog.Builder(this).setTitle(R.string.error_loading_title)
-                        .setMessage(R.string.error_loading_message).setPositiveButton(
-                                android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        removeDialog(Consts.Dialogs.DIALOG_ERROR_LOADING);
-                                    }
-                                }).create();
             case Consts.Dialogs.DIALOG_LOGOUT:
                 return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
                         .setMessage(R.string.menu_clear_user_desc)
@@ -217,32 +208,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity implements 
                                 LogoutActivity.start(ScActivity.this);
                             }
                         }).create();
-
-            case Consts.Dialogs.DIALOG_TRANSCODING_FAILED:
-                return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_failed_title)
-                        .setMessage(R.string.dialog_transcoding_failed_message).setPositiveButton(
-                                android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
-                                    }
-                                }).setNegativeButton(
-                                R.string.visit_support, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        startActivity(
-                                                new Intent(Intent.ACTION_VIEW,
-                                                        Uri.parse(getString(R.string.url_contact_support))));
-                                        removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_FAILED);
-                                    }
-                                }).create();
-            case Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING:
-                return new AlertDialog.Builder(this).setTitle(R.string.dialog_transcoding_processing_title)
-                        .setMessage(R.string.dialog_transcoding_processing_message).setPositiveButton(
-                                android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        removeDialog(Consts.Dialogs.DIALOG_TRANSCODING_PROCESSING);
-                                    }
-                                }).create();
-
             default:
                 return super.onCreateDialog(which);
         }

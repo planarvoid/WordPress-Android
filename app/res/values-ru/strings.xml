@@ -22,7 +22,6 @@
     <string name="legal_summary">Правовая информация</string>
     <string name="terms_of_use">Правила использования</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
-    <string name="visit_support">Посетите страницу \"Поддержка\"</string>
     <string name="version">Версия</string>
     <string name="unavailable">Недоступно</string>
     <string name="copyright_information">Авторские права</string>
@@ -159,8 +158,6 @@
     <string name="empty_user_tracks_text">%1$s не имеет закачанной \nмузыки в открытом доступе.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Не удалось связаться с SoundCloud.</string>
-    <string name="error_loading_title">Ошибка сети</string>
     <string name="error_recording_message">Произошел сбой во время записи.\n Возможно ваше устройство не поддерживает текущую конфигурацию записи. Вы можете изменить конфигурацию в настройках приложения.</string>
     <string name="error_unauthorized_message">Возникла проблема с вашей учетной записью. Чтобы продолжить использовать приложение, нужно, чтобы вы повторно вошли в SoundCloud.</string>
     <string name="error_unauthorized_title">Проблема с учетной записью</string>
@@ -508,10 +505,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Произошел сбой перекодирования %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Сбой перекодирования</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Сбой перекодирования</string>
-    <string name="dialog_transcoding_failed_title">Сбой перекодирования</string>
-    <string name="dialog_transcoding_failed_message">Упс, что-то не так – ваша запись не может быть воспроизведена. Вы можете зайти на веб-сайт и удалить ее из списка. Чтобы узнать подробнее, свяжитесь с нашей службой поддержки.</string>
-    <string name="dialog_transcoding_processing_title">Обработка записи</string>
-    <string name="dialog_transcoding_processing_message">Ваша запись обрабатывается и будет воспроизведена через несколько секунд.</string>
     <string name="dialog_cancel_upload_message">Отменить загрузку?</string>
     <string name="sc_upload_add_image">Добавить\nизображение</string>
     <string name="sc_upload_private">Личное</string>

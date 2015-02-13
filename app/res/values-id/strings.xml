@@ -22,7 +22,6 @@
     <string name="legal_summary">Informasi hukum</string>
     <string name="terms_of_use">Syarat Penggunaan</string>
     <string name="privacy_policy">Kebijakan Privasi</string>
-    <string name="visit_support">Kunjungi Dukungan</string>
     <string name="version">Versi</string>
     <string name="unavailable">Tidak tersedia</string>
     <string name="copyright_information">Informasi hak cipta</string>
@@ -163,8 +162,6 @@
     <string name="empty_user_tracks_text">%1$s belum mengunggah\nsuara publik sama sekali.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Terjadi masalah saat menghubungi SoundCloud.</string>
-    <string name="error_loading_title">Kesalahan jaringan</string>
     <string name="error_recording_message">Ada kesalahan selama perekaman.\n Perangkatmu mungkin tidak mendukung konfigurasi perekaman saat ini. Kamu dapat mengubah konfigurasi dalam pengaturan aplikasi.</string>
     <string name="error_unauthorized_message">Kami sedang mengalami masalah dengan akunmu dan kamu harus masuk lagi ke SoundCloud sebelum kamu dapat terus menggunakan aplikasi.</string>
     <string name="error_unauthorized_title">Kesalahan Akun</string>
@@ -537,10 +534,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Ada kesalahan transfer kode %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Kesalahan Transfer Kode</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Kesalahan Transfer Kode</string>
-    <string name="dialog_transcoding_failed_title">Transfer kode gagal</string>
-    <string name="dialog_transcoding_failed_message">Ups, ada yang salah sehingga suara kamu tak dapat diputar. Kamu dapat menghapus suara dari daftar melalui situs web. Untuk informasi lebih lanjut, silakan hubungi kami.</string>
-    <string name="dialog_transcoding_processing_title">Pemrosesan suara</string>
-    <string name="dialog_transcoding_processing_message">Suaramu sedang diproses dan dapat dimainkan dalam beberapa detik.</string>
     <string name="dialog_cancel_upload_message">Batal mengunggah?</string>
     <string name="sc_upload_add_image">Tambahkan\nGambar</string>
     <string name="sc_upload_private">Pribadi</string>
