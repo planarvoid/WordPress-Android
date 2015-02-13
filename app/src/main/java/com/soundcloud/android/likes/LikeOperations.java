@@ -38,6 +38,19 @@ public class LikeOperations {
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
 
+    // TODO: revert this to create a new instance in the respective method once we port
+    // the playlist likes fragment to the new ListPresenter
+    private final Pager<List<PropertySet>> likedPlaylistsPager = new Pager<List<PropertySet>>() {
+        @Override
+        public Observable<List<PropertySet>> call(List<PropertySet> result) {
+            if (result.size() < PAGE_SIZE) {
+                return Pager.finish();
+            } else {
+                return likedPlaylists(getLast(result).get(LikeProperty.CREATED_AT).getTime());
+            }
+        }
+    };
+
     private final Action1<PropertySet> publishPlayableChanged = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet changeSet) {
@@ -178,15 +191,6 @@ public class LikeOperations {
     }
 
     public Pager<List<PropertySet>> likedPlaylistsPager() {
-        return new Pager<List<PropertySet>>() {
-            @Override
-            public Observable<List<PropertySet>> call(List<PropertySet> result) {
-                if (result.size() < PAGE_SIZE) {
-                    return Pager.finish();
-                } else {
-                    return likedPlaylists(getLast(result).get(LikeProperty.CREATED_AT).getTime());
-                }
-            }
-        };
+        return likedPlaylistsPager;
     }
 }
