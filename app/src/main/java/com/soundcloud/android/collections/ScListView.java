@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
+@Deprecated
 public class ScListView extends ListView {
 
     public ScListView(Context context) {

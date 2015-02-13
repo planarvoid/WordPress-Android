@@ -1,8 +1,9 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.adapters.CellPresenter;
 
 import android.content.res.Resources;
 import android.view.LayoutInflater;
@@ -14,12 +15,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PendingRecordingItemPresenter implements CellPresenter<Recording> {
+class PendingRecordingItemPresenter implements CellPresenter<Recording> {
 
     private final Resources resources;
 
     @Inject
-    public PendingRecordingItemPresenter(Resources resources) {
+    PendingRecordingItemPresenter(Resources resources) {
         this.resources = resources;
     }
 

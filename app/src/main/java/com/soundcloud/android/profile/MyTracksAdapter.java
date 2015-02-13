@@ -35,7 +35,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.CellPresenter;
-import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
