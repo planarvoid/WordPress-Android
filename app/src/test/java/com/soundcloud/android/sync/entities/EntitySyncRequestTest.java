@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import android.content.Intent;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -103,5 +104,14 @@ public class EntitySyncRequestTest {
         expect(changeSet.size()).toEqual(2);
         expect(changeSet.get(propertySet1.get(EntityProperty.URN))).toBe(propertySet1);
         expect(changeSet.get(propertySet2.get(EntityProperty.URN))).toBe(propertySet2);
+    }
+
+    @Test // github #2779
+    public void finishDoesNotBroadcastWhenNoChangesReceived() throws Exception {
+        when(entitySyncJob.getUpdatedEntities()).thenReturn(Collections.<PropertySet>emptyList());
+
+        entitySyncRequest.finish();
+
+        eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
     }
 }
