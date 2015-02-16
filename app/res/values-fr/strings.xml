@@ -22,7 +22,6 @@
     <string name="legal_summary">Mentions légales</string>
     <string name="terms_of_use">Conditions d\'utilisation</string>
     <string name="privacy_policy">Politique de confidentialité</string>
-    <string name="visit_support">Visitez le service d\'assistance</string>
     <string name="version">Version</string>
     <string name="unavailable">Indisponible</string>
     <string name="copyright_information">Informations sur le copyright</string>
@@ -163,8 +162,6 @@
     <string name="empty_user_tracks_text">%1$s n\'a pas encore téléchargé de fichiers audio publiques.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Un problème est survenu en contactant Soundcloud.</string>
-    <string name="error_loading_title">Erreur de réseau</string>
     <string name="error_recording_message">Une erreur est survenue lors de l\'enregistrement. Votre appareil ne prend peut-être pas en charge la configuration d\'enregistrement actuelle. Vous pouvez modifier les configurations dans les paramètres de l\'application.</string>
     <string name="error_unauthorized_message">Nous avons un problème avec votre compte et avons besoin que vous vous reconnectiez de nouveau dans SoundCloud avant de pouvoir continuer à utiliser l\'application.</string>
     <string name="error_unauthorized_title">Erreur de compte</string>
@@ -537,10 +534,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Une erreur est survenue lors du transcodage %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Erreur de transcodage</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Erreur de transcodage</string>
-    <string name="dialog_transcoding_failed_title">Échec du transcodage</string>
-    <string name="dialog_transcoding_failed_message">Oups, quelque chose s\'est mal passé et votre fichier audio ne peut être lu. Vous pouvez le supprimer de votre liste via le site web. Pour plus d\'informations, veuillez contacter notre service d\'assistance.</string>
-    <string name="dialog_transcoding_processing_title">Traitement du son</string>
-    <string name="dialog_transcoding_processing_message">Votre fichier audio est en cours de traitement et sera prêt dans quelques secondes.</string>
     <string name="dialog_cancel_upload_message">Annuler le téléchargement?</string>
     <string name="sc_upload_add_image">Ajouter\nune Image</string>
     <string name="sc_upload_private">Privé</string>

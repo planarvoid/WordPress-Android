@@ -23,7 +23,6 @@
     <string name="legal_summary">Legal information</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="privacy_policy">Privacy Policy</string>
-    <string name="visit_support">Visit Support</string>
     <string name="version">Version</string>
     <string name="unavailable">Unavailable</string>
     <string name="copyright_information">Copyright information</string>
@@ -169,8 +168,6 @@
     <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">There was a problem contacting Soundcloud.</string>
-    <string name="error_loading_title">Network error</string>
     <string name="error_recording_message">There was an error during recording.\n Your device may not support the current record configuration. You can change configurations in the application settings.</string>
     <string name="error_unauthorized_message">We\'re having a problem with your account and need you to log back into SoundCloud before you can continue using the app.</string>
     <string name="error_unauthorized_title">Account Error</string>
@@ -557,10 +554,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">There was an error transcoding %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
-    <string name="dialog_transcoding_failed_title">Transcoding failed</string>
-    <string name="dialog_transcoding_failed_message">Ooops, something went wrong and your sound can\'t be played. You can remove the sound from your list via the website. For more information please contact our support.</string>
-    <string name="dialog_transcoding_processing_title">Sound processing</string>
-    <string name="dialog_transcoding_processing_message">Your sound is being processed and will be playable in few seconds.</string>
     <string name="dialog_cancel_upload_message">Cancel upload?</string>
     <string name="sc_upload_add_image">Add\nImage</string>
     <string name="sc_upload_private">\u00A0Private</string>

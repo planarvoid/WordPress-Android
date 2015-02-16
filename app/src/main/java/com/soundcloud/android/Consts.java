@@ -50,10 +50,7 @@ public final class Consts {
     }
 
     public static final class Dialogs {
-        public static final int DIALOG_ERROR_LOADING = 1;
         public static final int DIALOG_LOGOUT = 9;
-        public static final int DIALOG_TRANSCODING_FAILED = 12;
-        public static final int DIALOG_TRANSCODING_PROCESSING = 13;
     }
 
     public static final class GeneralIntents {

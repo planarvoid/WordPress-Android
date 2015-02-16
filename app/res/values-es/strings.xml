@@ -22,7 +22,6 @@
     <string name="legal_summary">Información legal</string>
     <string name="terms_of_use">Condiciones de uso</string>
     <string name="privacy_policy">Política de privacidad</string>
-    <string name="visit_support">Visitar soporte</string>
     <string name="version">Versión</string>
     <string name="unavailable">No disponible</string>
     <string name="copyright_information">Información de copyright</string>
@@ -163,8 +162,6 @@
     <string name="empty_user_tracks_text">%1$s no ha subido\nningún sonido público todavía.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Hubo un problema al comunicarse con Soundcloud.</string>
-    <string name="error_loading_title">Error de red</string>
     <string name="error_recording_message">Se produjo un error durante la grabación.\nEs posible que tu dispositivo no sea compatible con la configuración de registro actual. Puedes cambiar las configuraciones de los parámetros de la aplicación.</string>
     <string name="error_unauthorized_message">Tenemos un problema con su cuenta y necesito que vuelva a entrar en SoundCloud antes de poder continuar utilizando la aplicación.</string>
     <string name="error_unauthorized_title">Error en la cuenta</string>
@@ -537,10 +534,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Hubo un error al transcodificar %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Error de transcodificación</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Error de transcodificación</string>
-    <string name="dialog_transcoding_failed_title">La transcodificación falló.</string>
-    <string name="dialog_transcoding_failed_message">Ups, algo salió mal y tu sonido no se puede reproducir. Se puede quitar el sonido de tu lista a través de la página web. Para obtener más información, ponte en contacto con nuestro soporte.</string>
-    <string name="dialog_transcoding_processing_title">Procesamiento de sonido</string>
-    <string name="dialog_transcoding_processing_message">Tu sonido se está procesando y se podrá reproducir en pocos segundos.</string>
     <string name="dialog_cancel_upload_message">¿Cancelar carga?</string>
     <string name="sc_upload_add_image">Añadir\nImagen</string>
     <string name="sc_upload_private">Privado</string>

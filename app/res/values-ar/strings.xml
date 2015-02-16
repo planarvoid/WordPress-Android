@@ -22,7 +22,6 @@
     <string name="legal_summary">معلومات قانونية</string>
     <string name="terms_of_use">شروط الإستخدام</string>
     <string name="privacy_policy">سياسة الخصوصية</string>
-    <string name="visit_support">تفضل بزيارة مركز الدعم</string>
     <string name="version">نسخة</string>
     <string name="unavailable">غير متاح</string>
     <string name="copyright_information">معلومات حقوق النشر</string>
@@ -161,8 +160,6 @@
     <string name="empty_user_tracks_text">%1$s لم يقم بتحميل\nأي أصوات عامة حتى الآن.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">هناك مشكلة في الاتصال بـ Soundcloud.</string>
-    <string name="error_loading_title">خطأ في الشبكة</string>
     <string name="error_recording_message">حدث خطأ اثناء التسجيل.\nقد لا يدعم جهازك عملية تهيئة التسجيل الحالية.\nيمكنك تغيير التهيئات في إعدادات التطبيق.</string>
     <string name="error_unauthorized_message">لدينا مشكلة مع حسابك ونحتاج قيامك بتسجيل الدخول مرة أخرى إلى SoundCloud قبل أن تتمكن من الاستمرار في استخدام التطبيق.</string>
     <string name="error_unauthorized_title">خطأ في الحساب</string>
@@ -526,10 +523,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">هناك خطأ في تحويل ترميز %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">خطأ تحويل الترميز</string>
     <string name="cloud_uploader_notification_transcoding_error_title">خطأ تحويل الترميز</string>
-    <string name="dialog_transcoding_failed_title">فشل تحويل الترميز</string>
-    <string name="dialog_transcoding_failed_message">عذرًا، هناك شيء ما خطأ وتعذر تشغيل صوتك. يمكنك إزالة الصوت من القائمة الخاصة بك عبر الموقع الإلكتروني. لمزيد من المعلومات يرجى الاتصال بخدمة الدعم لدينا.</string>
-    <string name="dialog_transcoding_processing_title">معالجة الصوت</string>
-    <string name="dialog_transcoding_processing_message">يتم معالجة صوتك وسوف يتم تشغيله خلال بضع ثوان.</string>
     <string name="dialog_cancel_upload_message">هل تريد إلغاء التحميل؟</string>
     <string name="sc_upload_add_image">إضافة\nصورة</string>
     <string name="sc_upload_private">خاص</string>
