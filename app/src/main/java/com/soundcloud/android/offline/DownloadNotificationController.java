@@ -112,7 +112,7 @@ class DownloadNotificationController {
     }
 
     private Intent getIntent() {
-        return new Intent(Actions.STREAM)
+        return new Intent(Actions.LIKES)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }
