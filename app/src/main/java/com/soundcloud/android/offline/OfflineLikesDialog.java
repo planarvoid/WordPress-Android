@@ -37,10 +37,10 @@ public class OfflineLikesDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.sync_likes_dialog_title)
-                .setMessage(R.string.sync_likes_dialog_message)
+                .setTitle(R.string.offline_likes_dialog_title)
+                .setMessage(R.string.offline_likes_dialog_message)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.sync_likes_dialog_accept, listener)
+                .setPositiveButton(R.string.offline_likes_dialog_accept, listener)
                 .create();
     }
 

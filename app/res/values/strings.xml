@@ -570,8 +570,8 @@
     <string name="offline_update_error_title">Error syncing your tracks</string>
     <string name="offline_update_error_message">There was an error while syncing your tracks.</string>
     <string name="offline_update_in_progress">Syncing your tracks</string>
-    <string name="sync_likes_dialog_title">Sync your likes</string>
-    <string name="sync_likes_dialog_message">This will keep all your likes synced as well as sync all your future likes automagically</string>
-    <string name="sync_likes_dialog_accept">Keep likes synced</string>
+    <string name="offline_likes_dialog_title">Make available offline</string>
+    <string name="offline_likes_dialog_message">This will keep all your Likes available for offline listening including any tracks you like in the future.</string>
+    <string name="offline_likes_dialog_accept">Keep available offline</string>
 
 </resources>
