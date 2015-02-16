@@ -96,7 +96,7 @@ public class DownloadNotificationControllerTest {
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationBuilder).setProgress(20, 0, false);
-        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(0, 20));
+        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(1, 20));
     }
 
     @Test
@@ -111,7 +111,7 @@ public class DownloadNotificationControllerTest {
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationBuilder).setProgress(11, 1, false);
-        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(1, 11));
+        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(2, 11));
     }
 
     @Test
@@ -125,7 +125,22 @@ public class DownloadNotificationControllerTest {
         verify(notificationBuilder).setOngoing(true);
         verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         verify(notificationBuilder).setProgress(20, 1, false);
-        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(1, 20));
+        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(2, 20));
+        verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
+    public void onProgressUpdateDisplaysCountBasedOnCurrentDownloadingTrack() {
+        notificationController.onPendingRequests(2);
+        reset(notificationBuilder);
+
+        notificationController.onProgressUpdate();
+
+        verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
+        verify(notificationBuilder).setOngoing(true);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        verify(notificationBuilder).setProgress(2, 1, false);
+        verify(notificationBuilder).setContentText(getQuantifiedDownloadString(2, 2));
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
 

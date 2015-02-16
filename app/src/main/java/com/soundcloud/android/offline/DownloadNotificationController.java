@@ -88,7 +88,8 @@ class DownloadNotificationController {
     }
 
     private Notification updateProgressNotification() {
-        final String downloadDescription = resources.getQuantityString(R.plurals.downloading_track_of_tracks, totalDownloads, completedDownloads, totalDownloads);
+        final int currentDownload = completedDownloads + 1;
+        final String downloadDescription = resources.getQuantityString(R.plurals.downloading_track_of_tracks, totalDownloads, currentDownload, totalDownloads);
 
         setDefaultConfiguration(progressNotification);
         progressNotification.setOngoing(true);
