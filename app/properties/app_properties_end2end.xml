@@ -19,6 +19,7 @@
     <!-- Feature flags (enabled) -->
     <bool name="feature_payments">true</bool>
     <bool name="feature_payments_test">true</bool>
+    <bool name="feature_eventlogger_page_view">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_google_cast">false</bool>
@@ -26,5 +27,4 @@
     <bool name="feature_reload_last_playqueue">false</bool>
     <bool name="feature_configuration_features">false</bool>
     <bool name="feature_playlist_posts_fragment">false</bool>
-    <bool name="feature_eventlogger_page_view">false</bool>
 </resources>
