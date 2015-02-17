@@ -59,7 +59,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // XXX : would be great to not have these boolean states
     private boolean waitingForPlaylist;
     @Nullable private PropertySet currentTrack;
-    private int serviceStartId = -1;
     // audio focus related
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
@@ -142,7 +141,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        serviceStartId = startId;
         delayedStopHandler.removeCallbacksAndMessages(null);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
 
@@ -152,11 +150,16 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 playQueueManager.loadPlayQueueAsync();
             }
             playbackReceiver.onReceive(this, intent);
+            scheduleServiceShutdownCheck();
+            return START_STICKY;
+        } else {
+
+            // the system will automatically re-start a service that was killed by the user.
+            // Shutdown to go through normal shutdown logic
+            delayedStopHandler.removeCallbacksAndMessages(null);
+            delayedStopHandler.sendEmptyMessage(0);
+            return START_NOT_STICKY;
         }
-        scheduleServiceShutdownCheck();
-        // make sure the service will shut down on its own if it was
-        // just started but not bound to and nothing is playing
-        return START_STICKY;
     }
 
     @Override
@@ -379,7 +382,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "DelayedStopHandler: stopping service");
                 }
-                service.stopSelf(service.serviceStartId);
+                service.stopSelf();
             }
         }
     }
