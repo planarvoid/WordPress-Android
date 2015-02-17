@@ -1,9 +1,12 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT;
+import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EntityStateChangedEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -94,7 +97,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        creationLifeCycle = eventBus.queue(EventQueue.OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
+        creationLifeCycle = eventBus.queue(OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
 
         getListBinding().connect();
     }
@@ -133,26 +136,27 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         listView.setOnItemClickListener(this);
 
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                        .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
-                        .flatMap(loadTrack)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new PrependItemToListSubscriber(adapter)),
-                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                        .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RemoveEntityListSubscriber(adapter)),
-                eventBus.subscribe(EventQueue.OFFLINE_CONTENT, new DefaultSubscriber<OfflineContentEvent>() {
-                    @Override
-                    public void onNext(OfflineContentEvent event) {
-                        if (event.getKind() == OfflineContentEvent.STOP) {
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                })
+                eventBus.subscribe(PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
+                eventBus.subscribe(OFFLINE_CONTENT, new OfflineSyncStopped()),
+                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                prependTrackOnLike(),
+                removeTrackOnUnlike()
         );
+    }
+
+    private Subscription prependTrackOnLike() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new RemoveEntityListSubscriber(adapter));
+    }
+
+    private Subscription removeTrackOnUnlike() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
+                .flatMap(loadTrack)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new PrependItemToListSubscriber(adapter));
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -196,6 +200,15 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
             if (event.getKind() == OfflineContentEvent.QUEUE_UPDATED) {
                 adapter.clear();
                 rebuildListBinding().connect();
+            }
+        }
+    }
+
+    private class OfflineSyncStopped extends DefaultSubscriber<OfflineContentEvent> {
+        @Override
+        public void onNext(OfflineContentEvent event) {
+            if (event.getKind() == OfflineContentEvent.STOP) {
+                adapter.notifyDataSetChanged();
             }
         }
     }
