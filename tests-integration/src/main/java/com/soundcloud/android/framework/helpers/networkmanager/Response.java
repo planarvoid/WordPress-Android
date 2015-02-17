@@ -10,6 +10,8 @@ public class Response {
 
     private final String command;
 
+    public static final Response EMPTY = new Response(Message.obtain());
+
     public Response(Message msg) {
         id = msg.getData().getInt("Id");
         response = msg.getData().getString("Response");

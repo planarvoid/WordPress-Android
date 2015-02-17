@@ -45,15 +45,21 @@ public class NetworkManager {
     }
 
     public Response switchWifiOn() {
-        return networkServiceClient.send(TURN_ON_WIFI);
+        return sendIfConnected(TURN_ON_WIFI);
     }
 
     public Response switchWifiOff() {
-        return networkServiceClient.send(TURN_OFF_WIFI);
+        return sendIfConnected(TURN_OFF_WIFI);
     }
 
     public boolean isWifiEnabled() {
-        return Boolean.parseBoolean(networkServiceClient.send(IS_WIFI_ENABLED).getResponse());
+        return Boolean.parseBoolean(sendIfConnected(IS_WIFI_ENABLED).getResponse());
+    }
+
+    private Response sendIfConnected(String command) {
+        return networkServiceClient == null
+                ? Response.EMPTY
+                : networkServiceClient.send(command);
     }
 
     private Intent getIntent() {

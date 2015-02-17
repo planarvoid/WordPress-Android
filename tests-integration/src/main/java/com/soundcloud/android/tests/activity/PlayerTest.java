@@ -31,9 +31,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testVisualPlayerIsAccessible() {
-        networkManager.switchWifiOff();
-        assertFalse(networkManager.isWifiEnabled());
-
         player = streamScreen.clickFirstTrack();
         assertThat(player, is(expanded()));
         player.pressBackToCollapse();
