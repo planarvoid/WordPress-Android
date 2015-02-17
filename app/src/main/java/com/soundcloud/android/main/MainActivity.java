@@ -5,7 +5,6 @@ import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
@@ -69,11 +68,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject CastConnectionHelper castConnectionHelper;
 
     public MainActivity() {
-        SoundCloudApplication.getObjectGraph().inject(this);
+        // graph injection happens in ScActivity
         lightCycleDispatcher.add(playerController);
         lightCycleDispatcher.add(adPlayerController);
         lightCycleDispatcher.add(inAppCampaignController);
-
         presenter.attach(this);
     }
 
