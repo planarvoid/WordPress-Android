@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -17,13 +18,11 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.support.v4.app.Fragment;
 import android.view.View;
@@ -45,7 +44,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
     private final EventBus eventBus;
 
     private ConnectableObservable<List<Urn>> allLikedTrackUrns;
-    private Subscription viewLifeCycle = Subscriptions.empty();
+    private CompositeSubscription viewLifeCycle;
     private CompositeSubscription foregroundLifeCycle;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
@@ -83,6 +82,13 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
         headerView.onViewCreated(view);
         headerView.setOnShuffleButtonClick(this);
         headerView.attachToList(listView);
+
+        viewLifeCycle = new CompositeSubscription(
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_LIKE_FILTER)
+                .flatMap(loadAllTrackUrns)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new AllLikedTracksSubscriber()));
     }
 
     @Override
@@ -95,11 +101,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
         foregroundLifeCycle.add(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncFinishedOrIdleSubscriber()));
-
-        foregroundLifeCycle.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .flatMap(loadAllTrackUrns)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new AllLikedTracksSubscriber()));
     }
 
     @Override
@@ -127,7 +128,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
                 .observeOn(AndroidSchedulers.mainThread())
                 .replay();
         allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
-        viewLifeCycle = allLikedTrackUrns.connect();
+        viewLifeCycle.add(allLikedTrackUrns.connect());
     }
 
     private class AllLikedTracksSubscriber extends DefaultSubscriber<List<Urn>> {
