@@ -209,6 +209,15 @@ public class DatabaseFixtures {
         return insertInto(Table.CollectionItems, cv);
     }
 
+    public long insertPlaylistCollection(long playlistId, long userId) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
+        cv.put(TableColumns.CollectionItems.USER_ID, userId);
+        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.PLAYLIST);
+        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        return insertInto(Table.CollectionItems, cv);
+    }
+
     @Deprecated
     public long insertLegacyTrackPost(ApiTrack track, long timestamp) {
         ContentValues cv = new ContentValues();
@@ -261,7 +270,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE,TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.Activities.TYPE, "playlist-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);

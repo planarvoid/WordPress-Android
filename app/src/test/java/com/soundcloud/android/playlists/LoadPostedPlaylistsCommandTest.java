@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -23,6 +24,7 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
 
     private static final Date POSTED_DATE_1 = new Date(100000);
     private static final Date POSTED_DATE_2 = new Date(200000);
+    private static final Date POSTED_DATE_3 = new Date(300000);
 
     private LoadPostedPlaylistsCommand command;
     private ApiUser user;
@@ -34,8 +36,8 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         user = testFixtures().insertUser();
-        playlist1 = createPostedPlaylistAt(POSTED_DATE_1);
-        playlist2 = createPostedPlaylistAt(POSTED_DATE_2);
+        playlist1 = createPostedPlaylistAt(POSTED_DATE_1, true);
+        playlist2 = createPostedPlaylistAt(POSTED_DATE_2, true);
 
         command = new LoadPostedPlaylistsCommand(propeller(), accountOperations);
 
@@ -63,8 +65,22 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
         expect(result).toEqual(Arrays.asList(playlist1));
     }
 
-    private PropertySet createPostedPlaylistAt(Date postedAt) {
-        PropertySet playlist = testFixtures().insertPostedPlaylist(user, postedAt).toPropertySet();
+    @Test
+    public void shouldNotIncludePlaylistsNotPresentInTheCollectionItemsTable() throws Exception {
+        PropertySet deletedPlaylist = createPostedPlaylistAt(POSTED_DATE_3, false);
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(10, Long.MAX_VALUE)).call();
+
+        expect(result).not.toContain(deletedPlaylist);
+        expect(result).toContain(playlist2, playlist1);
+    }
+
+    private PropertySet createPostedPlaylistAt(Date postedAt, boolean withCollection) {
+        ApiPlaylist apiPlaylist = testFixtures().insertPostedPlaylist(user, postedAt);
+        PropertySet playlist = apiPlaylist.toPropertySet();
+
+        if (withCollection) {
+            testFixtures().insertPlaylistCollection(apiPlaylist.getId(), apiPlaylist.getUser().getId());
+        }
 
         return PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.get(PlaylistProperty.URN)),
