@@ -108,7 +108,7 @@ public class EventLoggerUrlBuilder {
     }
 
     public String build(ScreenEvent event) {
-        final Uri.Builder builder = buildUriForPath("page_view", event.getTimeStamp())
+        final Uri.Builder builder = buildUriForPath("pageview", event.getTimeStamp())
                 .appendQueryParameter(USER, accountOperations.getLoggedInUserUrn().toString())
                 .appendQueryParameter(PAGE_NAME, event.get(ScreenEvent.KEY_SCREEN));
 

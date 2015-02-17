@@ -641,7 +641,7 @@ public class EventLoggerUrlBuilderTest {
     public void createsScreenEventUrl() throws Exception {
         ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
         final String url = eventLoggerUrlBuilder.build(screenEvent);
-        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/page_view?client_id=123&anonymous_id=9876&user=soundcloud%3Ausers%3A123&page_name=activity%3Amain&ts=" + screenEvent.getTimeStamp())));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/pageview?client_id=123&anonymous_id=9876&user=soundcloud%3Ausers%3A123&page_name=activity%3Amain&ts=" + screenEvent.getTimeStamp())));
     }
 
 }
