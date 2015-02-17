@@ -55,9 +55,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
         }
     };
 
-    private final Func1<List<PropertySet>, Observable<List<Urn>>> loadAllTrackUrns = new Func1<List<PropertySet>, Observable<List<Urn>>>() {
+    private final Func1<Object, Observable<List<Urn>>> loadAllTrackUrns = new Func1<Object, Observable<List<Urn>>>() {
         @Override
-        public Observable<List<Urn>> call(List<PropertySet> propertySets) {
+        public Observable<List<Urn>> call(Object unused) {
             return likeOperations.likedTrackUrns();
         }
     };
@@ -95,6 +95,11 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
         foregroundLifeCycle.add(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncFinishedOrIdleSubscriber()));
+
+        foregroundLifeCycle.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                .flatMap(loadAllTrackUrns)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new AllLikedTracksSubscriber()));
     }
 
     @Override

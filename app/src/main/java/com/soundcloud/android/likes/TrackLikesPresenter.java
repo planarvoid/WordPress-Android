@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
@@ -14,12 +15,18 @@ import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
+import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
@@ -41,6 +48,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         implements AdapterView.OnItemClickListener {
 
     private final LikeOperations likeOperations;
+    private final TrackOperations trackOperations;
     private final PlaybackOperations playbackOperations;
     private final PagedTracksAdapter adapter;
     private final TrackLikesActionMenuController actionMenuController;
@@ -51,8 +59,16 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     private Subscription creationLifeCycle = Subscriptions.empty();
     private CompositeSubscription viewLifeCycle;
 
+    private Func1<EntityStateChangedEvent, Observable<PropertySet>> loadTrack = new Func1<EntityStateChangedEvent, Observable<PropertySet>>() {
+        @Override
+        public Observable<PropertySet> call(EntityStateChangedEvent entityStateChangedEvent) {
+            return trackOperations.track(entityStateChangedEvent.getNextUrn());
+        }
+    };
+
     @Inject
     TrackLikesPresenter(LikeOperations likeOperations,
+                        TrackOperations trackOperations,
                         PlaybackOperations playbackOperations,
                         PagedTracksAdapter adapter,
                         TrackLikesActionMenuController actionMenuController,
@@ -61,6 +77,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
                         ImageOperations imageOperations, PullToRefreshWrapper pullToRefreshWrapper) {
         super(imageOperations, pullToRefreshWrapper);
         this.likeOperations = likeOperations;
+        this.trackOperations = trackOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
         this.actionMenuController = actionMenuController;
@@ -118,6 +135,15 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                        .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
+                        .flatMap(loadTrack)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new PrependItemToListSubscriber(adapter)),
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                        .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RemoveEntityListSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.OFFLINE_CONTENT, new DefaultSubscriber<OfflineContentEvent>() {
                     @Override
                     public void onNext(OfflineContentEvent event) {
@@ -173,4 +199,5 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
             }
         }
     }
+
 }

@@ -20,6 +20,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.propeller.PropertySet;
@@ -50,6 +51,7 @@ public class TrackLikesPresenterTest {
     private TrackLikesPresenter presenter;
 
     @Mock private LikeOperations likeOperations;
+    @Mock private TrackOperations trackOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PagedTracksAdapter adapter;
     @Mock private TrackLikesActionMenuController actionMenuController;
@@ -72,7 +74,7 @@ public class TrackLikesPresenterTest {
 
     @Before
     public void setup() {
-        presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
+        presenter = new TrackLikesPresenter(likeOperations, trackOperations, playbackOperations,
                 adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
                 eventBus, imageOperations, pullToRefreshWrapper);
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
