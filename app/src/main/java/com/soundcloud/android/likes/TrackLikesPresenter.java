@@ -146,17 +146,17 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
 
     private Subscription prependTrackOnLike() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
-                .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new RemoveEntityListSubscriber(adapter));
-    }
-
-    private Subscription removeTrackOnUnlike() {
-        return eventBus.queue(ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
                 .flatMap(loadTrack)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PrependItemToListSubscriber(adapter));
+    }
+
+    private Subscription removeTrackOnUnlike() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new RemoveEntityListSubscriber(adapter));
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
