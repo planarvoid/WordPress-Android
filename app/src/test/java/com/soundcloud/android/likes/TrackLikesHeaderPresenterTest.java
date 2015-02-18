@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -189,7 +191,28 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onDestroyView();
         likedTrackUrnsObservable.onNext(likedTrackUrns);
 
-        verify(headerView, never()).updateTrackCount(likedTrackUrns.size());
+        verify(headerView, never()).updateTrackCount(anyInt());
+    }
+
+    @Test
+    public void updateTrackCountOnEntityLikeEvent() {
+        when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
+        presenter.onViewCreated(layoutView, listView);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 5));
+
+        verify(headerView).updateTrackCount(2);
+    }
+
+    @Test
+    public void doNotUpdateTrackCountAfterViewIsDestroyedOnEntityLikeEvent() {
+        when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
+        presenter.onViewCreated(layoutView, listView);
+        presenter.onDestroyView();
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 5));
+
+        verify(headerView, never()).updateTrackCount(anyInt());
     }
 
     // Shuffle button click
