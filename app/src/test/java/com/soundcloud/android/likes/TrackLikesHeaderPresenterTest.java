@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-import static com.pivotallabs.greatexpectations.Expect.expect;
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -30,6 +30,8 @@ import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.support.v4.app.Fragment;
+import android.view.View;
+import android.widget.ListView;
 
 import java.util.List;
 
@@ -45,6 +47,8 @@ public class TrackLikesHeaderPresenterTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ListBinding<PropertySet, PropertySet> listBinding;
     @Mock private Fragment fragment;
+    @Mock private View layoutView;
+    @Mock private ListView listView;
     private TestEventBus eventBus = new TestEventBus();
     private List<Urn> likedTrackUrns;
 
@@ -168,17 +172,19 @@ public class TrackLikesHeaderPresenterTest {
         when(listBinding.getSource()).thenReturn(Observable.just(TestPropertySets.expectedLikedTrackForLikesScreen()).toList());
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
 
+        presenter.onViewCreated(layoutView, listView);
         presenter.onSubscribeListObservers(listBinding);
 
         verify(headerView).updateTrackCount(likedTrackUrns.size());
     }
 
     @Test
-    public void doNotUpdateTrackCountAfterViewIsDetroyed() {
+    public void doNotUpdateTrackCountAfterViewIsDestroyed() {
         when(listBinding.getSource()).thenReturn(Observable.just(TestPropertySets.expectedLikedTrackForLikesScreen()).toList());
         PublishSubject<List<Urn>> likedTrackUrnsObservable = PublishSubject.create();
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
 
+        presenter.onViewCreated(layoutView, listView);
         presenter.onSubscribeListObservers(listBinding);
         presenter.onDestroyView();
         likedTrackUrnsObservable.onNext(likedTrackUrns);

@@ -44,8 +44,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
     private final EventBus eventBus;
 
     private ConnectableObservable<List<Urn>> allLikedTrackUrns;
-    private CompositeSubscription viewLifeCycle;
     private CompositeSubscription foregroundLifeCycle;
+    private CompositeSubscription viewLifeCycle;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
