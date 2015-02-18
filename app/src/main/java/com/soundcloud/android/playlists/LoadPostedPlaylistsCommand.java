@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.commands.PagedQueryCommand;
@@ -25,7 +26,7 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
 
     @Override
     protected Query buildQuery(ChronologicalQueryParams input) {
-        return Query.from(Table.SoundView.name(), Table.CollectionItems.name())
+        return Query.from(Table.SoundView.name())
                 .select(
                         field(Table.SoundView + "." + TableColumns.SoundView._ID).as(TableColumns.SoundView._ID),
                         field(Table.SoundView + "." + TableColumns.SoundView.TITLE).as(TableColumns.SoundView.TITLE),
@@ -34,10 +35,11 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
                         field(Table.SoundView + "." + TableColumns.SoundView.LIKES_COUNT).as(TableColumns.SoundView.LIKES_COUNT),
                         field(Table.SoundView + "." + TableColumns.SoundView.SHARING).as(TableColumns.SoundView.SHARING),
                         field(Table.SoundView + "." + TableColumns.SoundView.CREATED_AT).as(TableColumns.SoundView.CREATED_AT))
-                .joinOn(Table.CollectionItems + "." + TableColumns.CollectionItems.ITEM_ID, Table.SoundView + "." + TableColumns.SoundView._ID)
-                .joinOn(Table.CollectionItems + "." + TableColumns.CollectionItems.COLLECTION_TYPE, Integer.toString(CollectionStorage.CollectionItemTypes.PLAYLIST))
-                .joinOn(Table.CollectionItems + "." + TableColumns.CollectionItems.USER_ID, Table.SoundView + "." + TableColumns.SoundView.USER_ID)
-                .whereEq(Table.SoundView + "." + TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .innerJoin(Table.CollectionItems.name(),
+                        on(Table.CollectionItems + "." + TableColumns.CollectionItems.ITEM_ID, Table.SoundView + "." + TableColumns.SoundView._ID)
+                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.PLAYLIST)
+                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.RESOURCE_TYPE, Table.SoundView + "." + TableColumns.SoundView._TYPE)
+                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.USER_ID, Table.SoundView + "." + TableColumns.SoundView.USER_ID))
                 .whereEq(Table.SoundView + "." + TableColumns.SoundView.USER_ID, accountOperations.getLoggedInUserUrn().getNumericId())
                 .whereLt(Table.SoundView + "." + TableColumns.SoundView.CREATED_AT, input.getTimestamp())
                 .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC);
