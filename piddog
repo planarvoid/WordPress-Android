@@ -1,3 +1,5 @@
+#!/bin/bash
+
 command -v pidcat >/dev/null 2>&1 || { echo >&2 "You need to install pidcat: brew install pidcat"; exit 1; }
 
 GREP_PATTERN=""
