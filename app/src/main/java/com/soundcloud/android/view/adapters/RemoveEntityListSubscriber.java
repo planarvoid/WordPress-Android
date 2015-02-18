@@ -21,6 +21,7 @@ public final class RemoveEntityListSubscriber extends DefaultSubscriber<EntitySt
             Urn itemUrn = adapter.getItem(position).get(EntityProperty.URN);
             if (itemUrn.equals(unlikedUrn)) {
                 removeItemFromAdapterAt(position);
+                break;
             }
         }
     }
