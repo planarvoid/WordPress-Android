@@ -3,12 +3,13 @@ package com.soundcloud.android.lightcycle;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.MenuItem;
 
 public abstract class LightCycleActionBarActivity extends ActionBarActivity {
-    protected final ActivityLightCycleDispatcher lightCycleDispatcher;
+    protected final ActivityLightCycleDispatcher<ActionBarActivity> lightCycleDispatcher;
 
     public LightCycleActionBarActivity() {
-        lightCycleDispatcher = new ActivityLightCycleDispatcher();
+        lightCycleDispatcher = new ActivityLightCycleDispatcher<>();
     }
 
     @Override
@@ -30,6 +31,11 @@ public abstract class LightCycleActionBarActivity extends ActionBarActivity {
     protected void onStart() {
         super.onStart();
         lightCycleDispatcher.onStart(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return lightCycleDispatcher.onOptionsItemSelected(this, item);
     }
 
     @Override

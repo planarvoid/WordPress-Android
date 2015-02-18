@@ -5,7 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -16,13 +16,13 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subscriptions.Subscriptions;
 
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class AdPlayerController extends DefaultActivityLightCycle {
+public class AdPlayerController extends DefaultLightCycleActivity<ActionBarActivity> {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
 
@@ -72,7 +72,7 @@ public class AdPlayerController extends DefaultActivityLightCycle {
     }
 
     @Override
-    public void onResume(FragmentActivity activity) {
+    public void onResume(ActionBarActivity activity) {
         subscription = Observable
                 .combineLatest(
                         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK),
@@ -84,7 +84,7 @@ public class AdPlayerController extends DefaultActivityLightCycle {
     }
 
     @Override
-    public void onPause(FragmentActivity activity) {
+    public void onPause(ActionBarActivity activity) {
         subscription.unsubscribe();
     }
 

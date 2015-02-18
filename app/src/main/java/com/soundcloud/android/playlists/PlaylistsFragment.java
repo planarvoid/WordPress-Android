@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
-import com.soundcloud.android.lightcycle.LightCycleFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.SlidingTabLayout;
 
@@ -19,7 +19,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class PlaylistsFragment extends LightCycleFragment {
+public class PlaylistsFragment extends LightCycleSupportFragment {
 
     // A ActionMenuController can be injected in the inner pager fragments
     // if we need more granularity for the menu actions control

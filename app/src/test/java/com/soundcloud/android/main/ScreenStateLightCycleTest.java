@@ -11,11 +11,11 @@ import org.mockito.Mock;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ScreenStateLightCycleTest {
-    @Mock private FragmentActivity activity;
+    @Mock private ActionBarActivity activity;
     
     private ScreenStateLightCycle lightCycle;
 

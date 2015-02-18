@@ -1,7 +1,7 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
 import org.jetbrains.annotations.Nullable;
@@ -12,11 +12,11 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
-public class NetworkConnectivityLightCycle extends DefaultActivityLightCycle {
+public class NetworkConnectivityLightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
     private static final int CONNECTIVITY_MSG = 0;
     private final Context context;
     private final Handler connHandler;
@@ -31,22 +31,22 @@ public class NetworkConnectivityLightCycle extends DefaultActivityLightCycle {
     }
 
     @Override
-    public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
     }
 
     @Override
-    public void onStart(FragmentActivity activity) {
+    public void onStart(ActionBarActivity activity) {
         connectivityListener.startListening(context);
     }
 
     @Override
-    public void onStop(FragmentActivity activity) {
+    public void onStop(ActionBarActivity activity) {
         connectivityListener.stopListening();
     }
 
     @Override
-    public void onDestroy(FragmentActivity activity) {
+    public void onDestroy(ActionBarActivity activity) {
         connectivityListener.unregisterHandler(connHandler);
     }
 

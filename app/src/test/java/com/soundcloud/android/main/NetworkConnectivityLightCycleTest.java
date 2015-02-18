@@ -22,14 +22,14 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class NetworkConnectivityLightCycleTest {
     @Captor ArgumentCaptor<Handler> handlerArgumentCaptor;
     @Captor ArgumentCaptor<Integer> whatArgumentCaptor;
     @Captor ArgumentCaptor<Intent> intentArgumentCaptor;
-    @Mock private FragmentActivity activity;
+    @Mock private ActionBarActivity activity;
     @Mock private NetworkInfo networkInfo;
     @Mock private NetworkConnectivityListener listener;
     @Mock private Context context;

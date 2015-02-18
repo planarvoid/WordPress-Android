@@ -2,6 +2,7 @@ package com.soundcloud.android.associations;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
@@ -14,6 +15,7 @@ import com.soundcloud.android.view.screen.ScreenPresenter;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 
 import javax.inject.Inject;
 
@@ -21,10 +23,13 @@ public class WhoToFollowActivity extends ScActivity {
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
+    @Inject ActionBarController actionBarController;
 
     public WhoToFollowActivity() {
-        lightCycleDispatcher.add(playerController);
-        lightCycleDispatcher.add(adPlayerController);
+        lightCycleDispatcher
+                .add(playerController)
+                .add(adPlayerController)
+                .add(actionBarController);
         presenter.attach(this);
     }
 
@@ -38,6 +43,13 @@ public class WhoToFollowActivity extends ScActivity {
                     .replace(getContentHolderViewId(), ScListFragment.newInstance(Content.SUGGESTED_USERS, Screen.WHO_TO_FOLLOW))
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
     @Override

@@ -2,17 +2,18 @@ package com.soundcloud.android.lightcycle;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 import android.view.View;
 
-public class LightCycleFragment extends Fragment {
+public class LightCycleSupportFragment extends Fragment {
 
-    private final FragmentLightCycleDispatcher lifeCycleDispatcher;
+    private final SupportFragmentLightCycleDispatcher lifeCycleDispatcher;
 
-    public LightCycleFragment() {
-        lifeCycleDispatcher = new FragmentLightCycleDispatcher();
+    public LightCycleSupportFragment() {
+        lifeCycleDispatcher = new SupportFragmentLightCycleDispatcher();
     }
 
-    public void addLifeCycleComponent(FragmentLightCycle lifeCycleComponent) {
+    public void addLifeCycleComponent(SupportFragmentLightCycle lifeCycleComponent) {
         lifeCycleDispatcher.add(lifeCycleComponent);
     }
 
@@ -38,6 +39,11 @@ public class LightCycleFragment extends Fragment {
     public void onResume() {
         super.onResume();
         lifeCycleDispatcher.onResume(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return lifeCycleDispatcher.onOptionsItemSelected(this, item);
     }
 
     @Override

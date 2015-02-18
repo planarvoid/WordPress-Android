@@ -1,12 +1,12 @@
 package com.soundcloud.android.image;
 
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
-public class ImageOperationsLightCycle extends DefaultActivityLightCycle {
+public class ImageOperationsLightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
     private final ImageOperations imageOperations;
 
     @Inject
@@ -15,7 +15,7 @@ public class ImageOperationsLightCycle extends DefaultActivityLightCycle {
     }
 
     @Override
-    public void onResume(FragmentActivity activity) {
+    public void onResume(ActionBarActivity activity) {
         //Ensures that ImageLoader will be resumed if the preceding activity was killed during scrolling
         imageOperations.resume();
     }

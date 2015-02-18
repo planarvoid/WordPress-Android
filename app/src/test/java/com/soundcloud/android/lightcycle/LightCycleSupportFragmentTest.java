@@ -16,16 +16,16 @@ import android.os.Bundle;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LightCycleFragmentTest {
+public class LightCycleSupportFragmentTest {
 
-    private LightCycleFragment fragment;
-    @Mock FragmentLightCycle component;
+    private LightCycleSupportFragment fragment;
+    @Mock SupportFragmentLightCycle component;
     @Mock Activity activity;
 
     @Before
     public void setup() {
         // registers all life cycle components, so need to do it before every test
-        fragment = new LightCycleFragment();
+        fragment = new LightCycleSupportFragment();
         fragment.addLifeCycleComponent(component);
         fragment.onCreate(null);
     }

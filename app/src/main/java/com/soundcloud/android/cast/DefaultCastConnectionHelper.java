@@ -12,10 +12,11 @@ import org.jetbrains.annotations.Nullable;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -63,13 +64,18 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void onResume(FragmentActivity activity) {
+    public void onResume(ActionBarActivity activity) {
         videoCastManager.startCastDiscovery();
         videoCastManager.incrementUiCounter();
     }
 
     @Override
-    public void onPause(FragmentActivity activity) {
+    public boolean onOptionsItemSelected(ActionBarActivity activity, MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onPause(ActionBarActivity activity) {
         videoCastManager.stopCastDiscovery();
         videoCastManager.decrementUiCounter();
     }
@@ -135,37 +141,37 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onNewIntent(FragmentActivity activity, Intent intent) {
+    public void onNewIntent(ActionBarActivity activity, Intent intent) {
         /* no-op */
     }
 
     @Override
-    public void onStart(FragmentActivity activity) {
+    public void onStart(ActionBarActivity activity) {
         /* no-op */
     }
 
     @Override
-    public void onStop(FragmentActivity activity) {
+    public void onStop(ActionBarActivity activity) {
         /* no-op */
     }
 
     @Override
-    public void onSaveInstanceState(FragmentActivity activity, Bundle bundle) {
+    public void onSaveInstanceState(ActionBarActivity activity, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onRestoreInstanceState(FragmentActivity activity, Bundle bundle) {
+    public void onRestoreInstanceState(ActionBarActivity activity, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onDestroy(FragmentActivity activity) {
+    public void onDestroy(ActionBarActivity activity) {
         /* no-op */
     }
 }

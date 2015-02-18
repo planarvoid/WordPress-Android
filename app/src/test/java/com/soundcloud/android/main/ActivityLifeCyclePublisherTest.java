@@ -12,10 +12,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ActivityLifeCyclePublisherTest {
-    @Mock private FragmentActivity activity;
+    @Mock private ActionBarActivity activity;
     private TestEventBus eventBus;
 
     private ActivityLifeCyclePublisher lightCycle;

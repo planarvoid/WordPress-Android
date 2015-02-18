@@ -17,7 +17,6 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -34,6 +33,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -45,13 +46,14 @@ public class SlidingPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ActionBarController actionBarController;
     @Mock private View layout;
-    @Mock private ScActivity activity;
+    @Mock private ActionBarActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
     @Mock private Window window;
     @Mock private View decorView;
     @Mock private FragmentManager fragmentManager;
     @Mock private PlayerFragment playerFragment;
+    @Mock private ActionBar actionBar;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
@@ -65,7 +67,7 @@ public class SlidingPlayerControllerTest {
         when(activity.getWindow()).thenReturn(window);
         when(window.getDecorView()).thenReturn(decorView);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
-        when(activity.getActionBarController()).thenReturn(actionBarController);
+        when(activity.getSupportActionBar()).thenReturn(actionBar);
         when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
         attachController();
     }
@@ -183,7 +185,7 @@ public class SlidingPlayerControllerTest {
         controller.onCreate(activity, createBundleWithExpandingCommand());
         controller.onResume(activity);
 
-        verify(actionBarController).setVisible(false);
+        verify(actionBar).hide();
     }
 
     @Test
@@ -292,14 +294,14 @@ public class SlidingPlayerControllerTest {
     public void setsCollapsingStateWhenPassingOverThreshold() {
         collapsePanel();
 
-        verify(actionBarController, times(1)).setVisible(true);
+        verify(actionBar, times(1)).show();
     }
 
     @Test
     public void setsExpandingStateWhenPassingUnderThreshold() {
         expandPanel();
 
-        verify(actionBarController, times(1)).setVisible(false);
+        verify(actionBar, times(1)).hide();
     }
 
     @Test

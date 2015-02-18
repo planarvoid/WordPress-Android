@@ -1,7 +1,7 @@
 package com.soundcloud.android.view;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncFailedException;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +16,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 @Deprecated // use ListPresenter or EmptyViewPresenter
-public class EmptyViewController extends DefaultFragmentLightCycle {
+public class EmptyViewController extends DefaultSupportFragmentLightCycle {
 
     private EmptyView emptyView;
     private int emptyViewStatus = EmptyView.Status.WAITING;

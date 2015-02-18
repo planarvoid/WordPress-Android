@@ -3,7 +3,6 @@ package com.soundcloud.android.search;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.actionbar.SearchActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
@@ -22,6 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import javax.inject.Inject;
@@ -33,15 +33,12 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private static final String INTENT_URL_QUERY_PARAM = "q";
     private static final String INTENT_URI_SEARCH_PATH = "/search";
 
-    private static final String STATE_QUERY = "query";
 
-    private SearchActionBarController searchActionBarController;
-    private String query;
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
     @Inject PlaybackOperations playbackOperations;
-    @Inject SearchActionBarController.Factory searchActionBarControllerFactory;
+    @Inject SearchActionBarController searchActionBarController;
 
     private final SearchActionBarController.SearchCallback searchCallback = new SearchActionBarController.SearchCallback() {
         @Override
@@ -62,8 +59,11 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     public SearchActivity() {
-        lightCycleDispatcher.add(playerController);
-        lightCycleDispatcher.add(adPlayerController);
+        lightCycleDispatcher
+                .add(playerController)
+                .add(adPlayerController)
+                .add(searchActionBarController);
+        searchActionBarController.setSearchCallback(searchCallback);
         presenter.attach(this);
     }
 
@@ -96,8 +96,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
         if (savedInstanceState == null) {
             handleIntent();
-        } else if (savedInstanceState.containsKey(STATE_QUERY)) {
-            query = savedInstanceState.getString(STATE_QUERY);
         }
     }
 
@@ -111,18 +109,12 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        if (ScTextUtils.isNotBlank(query)) {
-            searchActionBarController.setQuery(query);
-        }
-        return true;
-    }
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayShowCustomEnabled(false);
+        getMenuInflater().inflate(R.menu.search, menu);
 
-    @Override
-    protected ActionBarController createActionBarController() {
-        if (searchActionBarController == null) {
-            searchActionBarController = searchActionBarControllerFactory.create(this, searchCallback);
-        }
-        return searchActionBarController;
+        searchActionBarController.configureSearchState(this, menu);
+        return true;
     }
 
     private void addPlaylistTagsFragment() {
@@ -138,11 +130,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
                 .replace(R.id.container, fragment, tag)
                 .addToBackStack(tag)
                 .commit();
-    }
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.search;
     }
 
     @Override
@@ -191,7 +178,7 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     }
 
     private void showResultsFromIntent(String query) {
-        this.query = query;
+        searchActionBarController.setQuery(query);
         addContent(TabbedSearchFragment.newInstance(query), TabbedSearchFragment.TAG);
     }
 

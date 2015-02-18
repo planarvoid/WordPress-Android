@@ -6,7 +6,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -27,7 +27,7 @@ import android.widget.ListView;
 import javax.inject.Inject;
 
 @Deprecated // use ListPresenter
-public class ListViewController extends DefaultFragmentLightCycle {
+public class ListViewController extends DefaultSupportFragmentLightCycle {
 
     private final EmptyViewController emptyViewController;
     private final ImageOperations imageOperations;

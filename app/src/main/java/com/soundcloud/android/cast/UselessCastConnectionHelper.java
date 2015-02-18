@@ -1,11 +1,12 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 
-public class UselessCastConnectionHelper extends DefaultActivityLightCycle implements CastConnectionHelper  {
+public class UselessCastConnectionHelper extends DefaultLightCycleActivity<ActionBarActivity> implements CastConnectionHelper  {
 
     @Override
     public void addMediaRouterButton(Menu menu, int itemId) {

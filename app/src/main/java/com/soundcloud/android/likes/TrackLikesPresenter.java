@@ -131,6 +131,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         actionMenuController.onCreateOptionsMenu(menu, inflater);
     }
 
+    @Override
     public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
         return actionMenuController.onOptionsItemSelected(fragment, item);
     }

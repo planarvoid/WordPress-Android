@@ -6,6 +6,7 @@ import static rx.android.observables.AndroidObservable.bindActivity;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.UserOperations;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -66,12 +67,16 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject FeatureFlags featureFlags;
     @Inject PlayQueueManager playQueueManager;
     @Inject CastConnectionHelper castConnectionHelper;
+    @Inject ActionBarController actionBarController;
 
     public MainActivity() {
         // graph injection happens in ScActivity
-        lightCycleDispatcher.add(playerController);
-        lightCycleDispatcher.add(adPlayerController);
-        lightCycleDispatcher.add(inAppCampaignController);
+        lightCycleDispatcher
+                .add(playerController)
+                .add(adPlayerController)
+                .add(inAppCampaignController)
+                .add(actionBarController);
+
         presenter.attach(this);
     }
 
@@ -353,6 +358,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.main, menu);
+        restoreActionBar();
         if (navigationFragment != null) {
             return super.onCreateOptionsMenu(menu);
         }
