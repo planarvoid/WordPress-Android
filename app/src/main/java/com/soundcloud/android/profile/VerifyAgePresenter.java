@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.crop.util.VisibleForTesting;
-import com.soundcloud.android.lightcycle.DefaultActivityLightCycle;
+import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -26,7 +25,7 @@ import android.widget.Spinner;
 import javax.inject.Inject;
 import java.util.Calendar;
 
-public class VerifyAgePresenter extends DefaultActivityLightCycle {
+public class VerifyAgePresenter extends DefaultLightCycleActivity<Activity> {
     @InjectView(R.id.verify_month_spinner) Spinner monthInput;
     @InjectView(R.id.verify_year_input) EditText yearInput;
     @InjectView(R.id.verify_button) Button submitButton;
@@ -44,7 +43,7 @@ public class VerifyAgePresenter extends DefaultActivityLightCycle {
     }
 
     @Override
-    public void onCreate(FragmentActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(Activity activity, @Nullable Bundle bundle) {
         this.activity = activity;
         activity.setContentView(R.layout.verify_age);
 
