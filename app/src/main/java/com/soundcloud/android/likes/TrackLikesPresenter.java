@@ -65,6 +65,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     private Func1<EntityStateChangedEvent, Observable<PropertySet>> loadTrack = new Func1<EntityStateChangedEvent, Observable<PropertySet>>() {
         @Override
         public Observable<PropertySet> call(EntityStateChangedEvent entityStateChangedEvent) {
+            // This could actually just load the liked track cell representation, instead of the full representation
             return trackOperations.track(entityStateChangedEvent.getNextUrn());
         }
     };
