@@ -11,8 +11,8 @@ public final class PrependItemToListSubscriber extends DefaultSubscriber<Propert
     }
 
     @Override
-    public void onNext(final PropertySet track) {
-        adapter.prependItem(track);
+    public void onNext(final PropertySet item) {
+        adapter.prependItem(item);
         adapter.notifyDataSetChanged();
     }
 }
