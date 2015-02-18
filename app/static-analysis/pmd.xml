@@ -21,6 +21,7 @@
         <exclude name="UncommentedEmptyMethod"/>
         <!-- we do this for Dagger -->
         <exclude name="UncommentedEmptyConstructor"/>
+        <exclude name="UseVarargs"/>
     </rule>
     <rule ref="rulesets/java/empty.xml"/>
 <!--
