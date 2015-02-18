@@ -50,7 +50,9 @@ public class SyncableTrackItemPresenter extends TrackItemPresenter {
                 downloadProgressIcon.setVisibility(View.VISIBLE);
 
                 AnimUtils.runSpinClockwiseAnimationOn(itemView.getContext(), downloadProgressIcon);
-            } else if (track.contains(TrackProperty.OFFLINE_REQUESTED_AT) && !track.contains(TrackProperty.OFFLINE_REMOVED_AT)) {
+            } else if (track.contains(TrackProperty.OFFLINE_REQUESTED_AT)
+                    && !track.contains(TrackProperty.OFFLINE_REMOVED_AT)
+                    && !track.contains(TrackProperty.OFFLINE_UNAVAILABLE_AT)) {
                 downloadProgressIcon.setImageResource(R.drawable.track_downloadable);
                 downloadProgressIcon.setVisibility(View.VISIBLE);
             } else {

@@ -16,7 +16,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 35;
+    public static final int DATABASE_VERSION = 36;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -97,6 +97,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 35:
                             success = upgradeTo35(db, oldVersion);
+                            break;
+                        case 36:
+                            success = upgradeTo36(db, oldVersion);
                             break;
                         default:
                             break;
@@ -287,6 +290,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 35);
+        }
+        return false;
+    }
+
+    /**
+     * Added unavailable_at column to TrackDownloads table
+     */
+    private static boolean upgradeTo36(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.TrackDownloads.recreate(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 36);
         }
         return false;
     }

@@ -9,6 +9,7 @@ import com.soundcloud.android.utils.Log;
 import rx.Observable;
 
 import javax.inject.Inject;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -33,7 +34,7 @@ class DownloadOperations {
         return deleteOfflineContent.with(playQueueManager.getCurrentTrackUrn()).toObservable();
     }
 
-    private void deleteTrack(Urn urn) {
+    void deleteTrack(Urn urn) {
         try {
             fileStorage.deleteTrack(urn);
         } catch (EncryptionException e1) {
@@ -42,17 +43,27 @@ class DownloadOperations {
         }
     }
 
-    public DownloadResult download(DownloadRequest track) throws DownloadFailedException {
-        InputStream input = null;
+    public DownloadResult download(DownloadRequest track) {
         try {
-            input = strictSSLHttpClient.downloadFile(track.fileUrl);
-            fileStorage.storeTrack(track.urn, input);
-
-            Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
-            return new DownloadResult(track.urn);
-        } catch (Exception e) {
+            final StrictSSLHttpClient.DownloadResponse response = strictSSLHttpClient.downloadFile(track.fileUrl);
+            if (response.isUnavailable()) {
+                return DownloadResult.unavailable(track.urn);
+            } else if (response.isFailure()) {
+                return DownloadResult.failed(track.urn);
+            }
+            saveFile(track, response);
+            return DownloadResult.success(track.urn);
+        } catch (EncryptionException | IOException e) {
             deleteTrack(track.urn);
-            throw new DownloadFailedException(track, e);
+            return DownloadResult.failed(track.urn);
+        }
+    }
+
+    private void saveFile(DownloadRequest track, StrictSSLHttpClient.DownloadResponse response) throws IOException, EncryptionException {
+        final InputStream input = response.getInputStream();
+        try {
+            fileStorage.storeTrack(track.urn, input);
+            Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
         } finally {
             IOUtils.close(input);
         }

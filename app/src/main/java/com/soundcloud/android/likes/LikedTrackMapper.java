@@ -38,6 +38,9 @@ public class LikedTrackMapper extends RxResultMapper<PropertySet> {
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.REMOVED_AT)){
             propertySet.put(TrackProperty.OFFLINE_REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REMOVED_AT));
         }
+        if (cursorReader.isNotNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)){
+            propertySet.put(TrackProperty.OFFLINE_UNAVAILABLE_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.UNAVAILABLE_AT));
+        }
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.REQUESTED_AT)) {
             propertySet.put(TrackProperty.OFFLINE_REQUESTED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REQUESTED_AT));
         }

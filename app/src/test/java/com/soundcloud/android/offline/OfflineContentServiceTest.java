@@ -53,7 +53,7 @@ public class OfflineContentServiceTest {
         deletePendingRemoval = TestObservables.emptyObservable();
         downloadRequest1 = createDownloadRequest(123L);
         downloadRequest2 = createDownloadRequest(456L);
-        downloadResult1 = new DownloadResult(Urn.forTrack(123L));
+        downloadResult1 = DownloadResult.success(Urn.forTrack(123L));
         eventBus = new TestEventBus();
 
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
@@ -155,7 +155,7 @@ public class OfflineContentServiceTest {
         when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
-        service.onError(downloadRequest1);
+        service.onError(downloadResult1);
 
         final List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
         expect(offlineContentEvents.get(0).getKind()).toBe(OfflineContentEvent.IDLE);
@@ -183,7 +183,7 @@ public class OfflineContentServiceTest {
     public void updatesNotificationWhenLikedTrackDownloaded() {
         service.onSuccess(downloadResult1);
 
-        verify(notificationController).onProgressUpdate();
+        verify(notificationController).onDownloadSuccess();
     }
 
     @Test

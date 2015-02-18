@@ -1,8 +1,11 @@
 package com.soundcloud.android.offline;
 
+import static com.pivotallabs.greatexpectations.Expect.expect;
+import static com.soundcloud.android.offline.StrictSSLHttpClient.DownloadResponse;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.crypto.EncryptionException;
@@ -24,9 +27,10 @@ public class DownloadOperationsTest {
 
     @Mock private StrictSSLHttpClient httpClient;
     @Mock private SecureFileStorage fileStorage;
-    @Mock private InputStream inputStream;
+    @Mock private DownloadResponse response;
     @Mock private DeletePendingRemovalCommand deleteOfflineContent;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private InputStream downloadStream;
 
     private DownloadOperations operations;
 
@@ -37,68 +41,85 @@ public class DownloadOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(response);
+        when(response.isFailure()).thenReturn(false);
+        when(response.isUnavailable()).thenReturn(false);
+        when(response.getInputStream()).thenReturn(downloadStream);
     }
 
     @Test
-    public void downloadCallsHttpClientWithGivenFileUrl() throws IOException, DownloadFailedException {
+    public void downloadWritesToFileStorage() throws IOException, EncryptionException {
+        when(httpClient.downloadFile(streamUrl)).thenReturn(response);
+
         operations.download(downloadRequest);
 
-        verify(httpClient).downloadFile(downloadRequest.fileUrl);
+        InOrder inOrder = inOrder(fileStorage, downloadStream);
+        inOrder.verify(fileStorage).storeTrack(trackUrn, downloadStream);
+        inOrder.verify(downloadStream).close();
     }
 
     @Test
-    public void downloadWritesToFileStorage() throws IOException, EncryptionException, DownloadFailedException {
-        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
-
-        operations.download(downloadRequest);
-
-        InOrder inOrder = inOrder(fileStorage, inputStream);
-        inOrder.verify(fileStorage).storeTrack(trackUrn, inputStream);
-        inOrder.verify(inputStream).close();
-    }
-
-    @Test(expected = DownloadFailedException.class)
-    public void returnsDownloadExceptionWithTrackInfoWhenDownloadFailed() throws Exception {
+    public void returnsDownloadFailedWhenIOError() throws IOException {
         final IOException ioException = new IOException("Test IOException");
         when(httpClient.downloadFile(streamUrl)).thenThrow(ioException);
 
-        operations.download(downloadRequest);
+        expect(operations.download(downloadRequest).isSuccess()).toBeFalse();
     }
 
-    @Test(expected = DownloadFailedException.class)
-    public void returnsDownloadExceptionWhenEncryptionFailed() throws Exception {
+    @Test
+    public void returnsDownloadFailedWhenEncryptionFailed() throws IOException, EncryptionException {
         final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
-        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
-        doThrow(encryptionException).when(fileStorage).storeTrack(trackUrn, inputStream);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(response);
+        doThrow(encryptionException).when(fileStorage).storeTrack(trackUrn, downloadStream);
 
-        operations.download(downloadRequest);
+        expect(operations.download(downloadRequest).isSuccess()).toBeFalse();
     }
 
     @Test
-    public void deletesFileFromFailedDownload() throws IOException, EncryptionException {
-        final IOException ioException = new IOException("Test IOException");
-        when(httpClient.downloadFile(streamUrl)).thenThrow(ioException);
+    public void returnsDownloadFailedWhenServerError() throws IOException, EncryptionException {
+        when(httpClient.downloadFile(streamUrl)).thenReturn(response);
+        when(response.isFailure()).thenReturn(true);
+        when(response.isUnavailable()).thenReturn(false);
 
-        downloadAndSwallowException();
+        expect(operations.download(downloadRequest).isFailure()).toBeTrue();
+    }
+
+    @Test
+    public void returnsFileUnavailableWhenTrackUnavailable() throws IOException, EncryptionException {
+        when(httpClient.downloadFile(streamUrl)).thenReturn(response);
+        when(response.isFailure()).thenReturn(true);
+        when(response.isUnavailable()).thenReturn(true);
+
+        expect(operations.download(downloadRequest).isUnavailable()).toBeTrue();
+    }
+
+    @Test
+    public void deletesFileFromFailedIO() throws IOException, EncryptionException {
+        final IOException ioException = new IOException("Test IOException");
+        doThrow(ioException).when(fileStorage).storeTrack(trackUrn, downloadStream);
+
+        operations.download(downloadRequest);
 
         verify(fileStorage).deleteTrack(trackUrn);
     }
 
     @Test
-    public void deletesFileFromFailedEncryption() throws Exception {
+    public void deletesFileFromFailedEncryption() throws IOException, EncryptionException {
         final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
-        when(httpClient.downloadFile(streamUrl)).thenReturn(inputStream);
-        doThrow(encryptionException).when(fileStorage).storeTrack(trackUrn, inputStream);
+        when(httpClient.downloadFile(streamUrl)).thenReturn(response);
+        doThrow(encryptionException).when(fileStorage).storeTrack(trackUrn, downloadStream);
 
-        downloadAndSwallowException();
+        operations.download(downloadRequest);
 
         verify(fileStorage).deleteTrack(trackUrn);
     }
 
-    private void downloadAndSwallowException() {
-        try {
-            operations.download(downloadRequest);
-        } catch (DownloadFailedException e) {}
-    }
+    @Test
+    public void doesNotStoreFileWhenResponseIsNotSuccess() {
+        when(response.isFailure()).thenReturn(true);
 
+        operations.download(downloadRequest);
+
+        verifyZeroInteractions(fileStorage);
+    }
 }

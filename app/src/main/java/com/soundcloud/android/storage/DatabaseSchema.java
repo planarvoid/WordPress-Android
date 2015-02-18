@@ -197,7 +197,8 @@ final class DatabaseSchema {
             "_id INTEGER PRIMARY KEY," +
             "requested_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
             "downloaded_at INTEGER DEFAULT NULL," +
-            "removed_at INTEGER DEFAULT NULL" + // track marked for deletion
+            "removed_at INTEGER DEFAULT NULL," + // track marked for deletion
+            "unavailable_at INTEGER DEFAULT NULL" +
             ");";
 
     /**

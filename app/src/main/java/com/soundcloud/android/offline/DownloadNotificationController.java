@@ -23,7 +23,8 @@ class DownloadNotificationController {
     private final Provider<NotificationCompat.Builder> notificationBuilderProvider;
 
     private NotificationCompat.Builder progressNotification;
-    private int completedDownloads;
+    private int completed;
+    private int errors;
     private int totalDownloads;
 
     @Inject
@@ -36,33 +37,30 @@ class DownloadNotificationController {
     }
 
     public Notification onPendingRequests(int pending) {
-        totalDownloads = completedDownloads + pending;
+        totalDownloads = completed + pending + errors;
         progressNotification = notificationBuilderProvider.get();
 
         return updateProgressNotification();
     }
 
-    public void onProgressUpdate() {
-        completedDownloads++;
+    public void onDownloadSuccess() {
+        completed++;
+        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, updateProgressNotification());
+    }
+
+    public void onDownloadError() {
+        errors++;
         notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, updateProgressNotification());
     }
 
     public void onDownloadsFinished() {
-        if (totalDownloads > 0) {
+        if (totalDownloads != errors) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, buildCompletedNotification());
         }
 
-        completedDownloads = 0;
+        completed = 0;
         totalDownloads = 0;
-    }
-
-    public void onError() {
-        if (totalDownloads > 0) {
-            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, buildErrorNotification());
-        }
-
-        completedDownloads = 0;
-        totalDownloads = 0;
+        errors = 0;
     }
 
     private Notification buildCompletedNotification() {
@@ -76,28 +74,21 @@ class DownloadNotificationController {
         return completedNotification.build();
     }
 
-    private Notification buildErrorNotification() {
-        final NotificationCompat.Builder errorNotification = notificationBuilderProvider.get();
-
-        setDefaultConfiguration(errorNotification);
-        errorNotification.setOngoing(false);
-        errorNotification.setAutoCancel(true);
-        errorNotification.setContentTitle(resources.getString(R.string.offline_update_error_title));
-        errorNotification.setContentText(resources.getString(R.string.offline_update_error_message));
-        return errorNotification.build();
-    }
-
     private Notification updateProgressNotification() {
-        final int currentDownload = completedDownloads + 1;
+        final int currentDownload = getCurrentPosition() + 1;
         final String downloadDescription = resources.getQuantityString(R.plurals.downloading_track_of_tracks, totalDownloads, currentDownload, totalDownloads);
 
         setDefaultConfiguration(progressNotification);
         progressNotification.setOngoing(true);
         progressNotification.setContentTitle(resources.getString(R.string.offline_update_in_progress));
-        progressNotification.setProgress(totalDownloads, completedDownloads, false);
+        progressNotification.setProgress(totalDownloads, getCurrentPosition(), false);
         progressNotification.setContentText(downloadDescription);
 
         return progressNotification.build();
+    }
+
+    private int getCurrentPosition() {
+        return completed + errors;
     }
 
     private void setDefaultConfiguration(NotificationCompat.Builder builder) {

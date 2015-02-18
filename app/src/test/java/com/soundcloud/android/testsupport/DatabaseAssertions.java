@@ -167,7 +167,7 @@ public class DatabaseAssertions {
     public void assertDownloadResultsInserted(DownloadResult result) {
         assertThat(select(from(Table.TrackDownloads.name())
                     .whereEq(TableColumns.TrackDownloads._ID, result.getUrn().getNumericId())
-                    .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getDownloadedAt())), counts(1));
+                    .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
     }
 
     public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {

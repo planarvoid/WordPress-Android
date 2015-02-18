@@ -133,25 +133,33 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public void onSuccess(DownloadResult result) {
         Log.d(TAG, "Download finished " + result);
 
-        notificationController.onProgressUpdate();
+        notificationController.onDownloadSuccess();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFinished(result.getUrn()));
 
+        downloadNextOrFinish();
+    }
+
+    @Override
+    public void onError(DownloadResult result) {
+        Log.d(TAG, "Download failed " + result);
+
+        notificationController.onDownloadError();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFailed(result.getUrn()));
+
+        if (result.isFailure()) {
+            offlineContentScheduler.scheduleRetry();
+        }
+
+        downloadNextOrFinish();
+    }
+
+    private void downloadNextOrFinish() {
         if (requestsQueue.isEmpty()) {
             stop();
             notificationController.onDownloadsFinished();
         } else {
             download(requestsQueue.poll());
         }
-    }
-
-    @Override
-    public void onError(DownloadRequest request) {
-        Log.d(TAG, "Download failed " + request);
-
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFailed(request.urn));
-        offlineContentScheduler.scheduleRetry();
-        stop();
-        notificationController.onError();
     }
 
     private void download(DownloadRequest request) {

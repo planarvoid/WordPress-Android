@@ -35,7 +35,7 @@ public class LoadPendingDownloadsCommand extends Command<Object, List<DownloadRe
                 .joinOn(Likes + "." + TableColumns.Likes._ID, TrackDownloads + "." + _ID)
                 .select(TrackDownloads + "." + _ID, TableColumns.SoundView.STREAM_URL)
                 .whereEq(Sounds + "." + TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .whereNull(TrackDownloads + "." +REMOVED_AT)
+                .whereNull(TrackDownloads + "." + REMOVED_AT)
                 .whereNull(DOWNLOADED_AT)
                 .order(Likes + "." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC))
                 .toList(new DownloadRequestMapper());

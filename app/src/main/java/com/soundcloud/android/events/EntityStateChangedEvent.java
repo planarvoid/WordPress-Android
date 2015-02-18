@@ -61,9 +61,8 @@ public final class EntityStateChangedEvent {
         return new EntityStateChangedEvent(DOWNLOAD_FAILED,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
-                        TrackProperty.OFFLINE_DOWNLOADING.bind(false)
-                        // TODO: This will probably need to be a little bit more specific, but right now we just reset
-                        // the sync in progress icon on the item
+                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
+                        TrackProperty.OFFLINE_UNAVAILABLE_AT.bind(new Date())
                 )
         );
     }

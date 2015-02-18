@@ -1,7 +1,10 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
+import com.soundcloud.android.offline.commands.UpdateContentAsUnavailableCommand;
 import com.soundcloud.propeller.PropellerWriteException;
 
 import android.os.Handler;
@@ -20,6 +23,7 @@ public class DownloadHandler extends Handler {
     private final MainHandler mainHandler;
     private final DownloadOperations downloadOperations;
     private final StoreCompletedDownloadCommand storeCompletedDownload;
+    private final UpdateContentAsUnavailableCommand  updateContentAsUnavailable;
     private final AtomicBoolean downloading;
 
     public boolean isDownloading() {
@@ -28,42 +32,56 @@ public class DownloadHandler extends Handler {
 
     interface Listener {
         void onSuccess(DownloadResult result);
-        void onError(DownloadRequest request);
+        void onError(DownloadResult request);
     }
 
-    public DownloadHandler(Looper looper, MainHandler mainHandler, DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload) {
+    public DownloadHandler(Looper looper, MainHandler mainHandler, DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload, UpdateContentAsUnavailableCommand updateContentAsUnavailable) {
         super(looper);
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
         this.storeCompletedDownload = storeCompletedDownload;
+        this.updateContentAsUnavailable = updateContentAsUnavailable;
         downloading = new AtomicBoolean(false);
     }
 
     @VisibleForTesting
-    DownloadHandler(MainHandler mainHandler, DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload) {
+    DownloadHandler(MainHandler mainHandler, DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload, UpdateContentAsUnavailableCommand updateContentAsUnavailable) {
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
         this.storeCompletedDownload = storeCompletedDownload;
+        this.updateContentAsUnavailable = updateContentAsUnavailable;
         downloading = new AtomicBoolean(false);
     }
 
     @Override
     public void handleMessage(Message msg) {
         final DownloadRequest request = (DownloadRequest) msg.obj;
-        try {
-            downloading.set(true);
-            final DownloadResult result = downloadOperations.download(request);
-            storeCompletedDownload.with(result).call();
-            downloading.set(false);
-            sendMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
-        } catch (DownloadFailedException | PropellerWriteException e) {
-            downloading.set(false);
-            sendMessage(MainHandler.ACTION_DOWNLOAD_FAILED, request);
+        downloading.set(true);
+        final DownloadResult result = downloadOperations.download(request);
+        downloading.set(false);
+
+        if (result.isSuccess()) {
+            tryToStoreDownloadSuccess(result);
+        } else {
+            if (result.isUnavailable()) {
+                fireAndForget(updateContentAsUnavailable.call(result.getUrn()));
+            }
+            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
     }
 
-    private void sendMessage(int status, Object obj) {
-        mainHandler.sendMessage(mainHandler.obtainMessage(status, obj));
+    private void tryToStoreDownloadSuccess(DownloadResult result) {
+        try {
+            storeCompletedDownload.with(result).call();
+            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
+        } catch (PropellerWriteException e) {
+            downloadOperations.deleteTrack(result.getUrn());
+            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
+        }
+    }
+
+    private void sendDownloadResult(int status, DownloadResult result) {
+        mainHandler.sendMessage(mainHandler.obtainMessage(status, result));
     }
 
     void quit() {
@@ -75,15 +93,17 @@ public class DownloadHandler extends Handler {
     static class Builder {
         private final DownloadOperations downloadOperations;
         private final StoreCompletedDownloadCommand storeCompletedDownload;
+        private final UpdateContentAsUnavailableCommand updateContentAsUnavailable;
 
         @Inject
-        Builder(DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload) {
+        Builder(DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload, UpdateContentAsUnavailableCommand updateContentAsUnavailable) {
             this.downloadOperations = downloadOperations;
             this.storeCompletedDownload = storeCompletedDownload;
+            this.updateContentAsUnavailable = updateContentAsUnavailable;
         }
 
         DownloadHandler create(Listener listener) {
-            return new DownloadHandler(createLooper(), new MainHandler(listener), downloadOperations, storeCompletedDownload);
+            return new DownloadHandler(createLooper(), new MainHandler(listener), downloadOperations, storeCompletedDownload, updateContentAsUnavailable);
         }
 
         private Looper createLooper() {
@@ -109,10 +129,11 @@ public class DownloadHandler extends Handler {
         public void handleMessage(Message msg) {
             final Listener listener = listenerRef.get();
             if (listener != null) {
+                final DownloadResult result = (DownloadResult) msg.obj;
                 if (ACTION_DOWNLOAD_SUCCESS == msg.what) {
-                    listener.onSuccess((DownloadResult) msg.obj);
+                    listener.onSuccess(result);
                 } else if (ACTION_DOWNLOAD_FAILED == msg.what) {
-                    listener.onError((DownloadRequest) msg.obj);
+                    listener.onError(result);
                 }
             }
         }
