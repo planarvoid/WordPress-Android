@@ -4,6 +4,7 @@ import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_R
 import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_START_SYNC;
 
 import com.soundcloud.android.actionbar.menu.ActionMenuController;
+import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
@@ -18,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
-public class TrackLikesActionMenuController {
+public class TrackLikesActionMenuController extends DefaultFragmentLightCycle {
 
     private final Provider<ActionMenuController> actionMenuControllerProvider;
     private final OfflineContentOperations offlineOperations;
@@ -33,6 +34,7 @@ public class TrackLikesActionMenuController {
         this.offlineOperations = offlineOperations;
     }
 
+    @Override
     public void onResume(Fragment fragment) {
         actionMenuController = actionMenuControllerProvider.get();
         fragment.getActivity().supportInvalidateOptionsMenu();
@@ -48,7 +50,8 @@ public class TrackLikesActionMenuController {
         return actionMenuController.onOptionsItemSelected(fragment, item);
     }
 
-    public void onPause() {
+    @Override
+    public void onPause(Fragment fragment) {
         subscription.unsubscribe();
     }
 

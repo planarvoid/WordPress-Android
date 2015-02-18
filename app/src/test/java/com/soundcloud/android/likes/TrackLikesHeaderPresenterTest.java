@@ -29,6 +29,8 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
+import android.support.v4.app.Fragment;
+
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -42,6 +44,7 @@ public class TrackLikesHeaderPresenterTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ListBinding<PropertySet, PropertySet> listBinding;
+    @Mock private Fragment fragment;
     private TestEventBus eventBus = new TestEventBus();
     private List<Urn> likedTrackUrns;
 
@@ -69,7 +72,7 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        presenter.onResume();
+        presenter.onResume(fragment);
 
         verify(headerView).showDefaultState();
     }
@@ -79,7 +82,7 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
         when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
-        presenter.onResume();
+        presenter.onResume(fragment);
 
         verify(headerView).showDefaultState();
     }
@@ -90,7 +93,7 @@ public class TrackLikesHeaderPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
-        presenter.onResume();
+        presenter.onResume(fragment);
 
         verify(headerView).showSyncingState();
     }
@@ -101,8 +104,8 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.onStarted()).thenReturn(offlineSyncEvents);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        presenter.onResume();
-        presenter.onPause();
+        presenter.onResume(fragment);
+        presenter.onPause(fragment);
         offlineSyncEvents.onNext(OfflineContentEvent.start());
 
         verifyNoMoreInteractions(headerView);
@@ -114,8 +117,8 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.onStarted()).thenReturn(offlineSyncEvents);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        presenter.onResume();
-        presenter.onPause();
+        presenter.onResume(fragment);
+        presenter.onPause(fragment);
         offlineSyncEvents.onNext(OfflineContentEvent.stop());
 
         verifyNoMoreInteractions(headerView);
@@ -125,7 +128,7 @@ public class TrackLikesHeaderPresenterTest {
     @Test
     public void showHeaderDefaultOnSyncFinishedOrIdleWithDownloadedTracks() {
         when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        presenter.onResume();
+        presenter.onResume(fragment);
         verify(headerView).showDefaultState();
     }
 
@@ -134,7 +137,7 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        presenter.onResume();
+        presenter.onResume(fragment);
 
         verify(headerView).showDefaultState();
     }
@@ -144,7 +147,7 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
         when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
-        presenter.onResume();
+        presenter.onResume(fragment);
 
         verify(headerView).showDefaultState();
     }
@@ -155,7 +158,7 @@ public class TrackLikesHeaderPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
 
-        presenter.onResume();
+        presenter.onResume(fragment);
 
         verify(headerView).showDownloadedState();
     }
