@@ -3,11 +3,17 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentEventTest {
+
+    @Test
+    public void implementsEqualsAndHashcode() {
+        EqualsVerifier.forClass(OfflineContentEvent.class).verify();
+    }
 
     @Test
     public void createsEventForIdle() {

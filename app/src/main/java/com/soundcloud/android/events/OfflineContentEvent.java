@@ -1,9 +1,8 @@
 package com.soundcloud.android.events;
 
 import com.google.common.base.Objects;
-import com.soundcloud.android.model.Urn;
 
-public class OfflineContentEvent {
+public final class OfflineContentEvent {
 
     public static final int IDLE = 0;
     public static final int START = 1;
@@ -11,36 +10,30 @@ public class OfflineContentEvent {
     public static final int QUEUE_UPDATED = 3; //?
 
     private final int kind;
-    private final Urn downloadedItem;
 
-    public OfflineContentEvent(int kind, Urn downloadedItem) {
+    public OfflineContentEvent(int kind) {
         this.kind = kind;
-        this.downloadedItem = downloadedItem;
     }
 
     public static OfflineContentEvent idle() {
-        return new OfflineContentEvent(IDLE, Urn.NOT_SET);
+        return new OfflineContentEvent(IDLE);
     }
 
     public static OfflineContentEvent start() {
-        return new OfflineContentEvent(START, Urn.NOT_SET);
+        return new OfflineContentEvent(START);
     }
 
     public static OfflineContentEvent stop() {
-        return new OfflineContentEvent(STOP, Urn.NOT_SET);
+        return new OfflineContentEvent(STOP);
     }
 
     // is that really needed?
     public static OfflineContentEvent queueUpdate() {
-        return new OfflineContentEvent(QUEUE_UPDATED, Urn.NOT_SET);
+        return new OfflineContentEvent(QUEUE_UPDATED);
     }
 
     public int getKind() {
         return kind;
-    }
-
-    public Urn getUrn() {
-        return downloadedItem;
     }
 
     @Override
@@ -57,4 +50,22 @@ public class OfflineContentEvent {
             default: return "unknown";
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return kind == ((OfflineContentEvent) o).getKind();
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(kind);
+    }
+
 }

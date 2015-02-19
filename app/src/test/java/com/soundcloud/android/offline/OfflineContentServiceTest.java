@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.Message;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -101,12 +102,19 @@ public class OfflineContentServiceTest {
         startService();
 
         List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents.size()).toBe(3);
-        expect(offlineContentEvents.get(0).getKind()).toEqual(OfflineContentEvent.IDLE);
-        expect(offlineContentEvents.get(1).getKind()).toEqual(OfflineContentEvent.QUEUE_UPDATED);
-        expect(offlineContentEvents.get(2).getKind()).toEqual(OfflineContentEvent.START);
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start());
 
         expect(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getKind()).toEqual(EntityStateChangedEvent.DOWNLOAD_STARTED);
+    }
+
+    @Test
+    public void sendsStartAndStopEventIfServiceRunsButHasNoTracksToDownload() {
+        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(Observable.just(Collections.<DownloadRequest>emptyList()));
+
+        startService();
+
+        List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
     }
 
     @Test
@@ -114,9 +122,7 @@ public class OfflineContentServiceTest {
         stopService();
 
         List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents.size()).toBe(2);
-        expect(offlineContentEvents.get(0).getKind()).toEqual(OfflineContentEvent.IDLE);
-        expect(offlineContentEvents.get(1).getKind()).toEqual(OfflineContentEvent.STOP);
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.stop());
     }
 
     @Test
@@ -138,10 +144,7 @@ public class OfflineContentServiceTest {
         service.onSuccess(downloadResult1);
 
         final List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents.get(0).getKind()).toBe(OfflineContentEvent.IDLE);
-        expect(offlineContentEvents.get(1).getKind()).toEqual(OfflineContentEvent.QUEUE_UPDATED);
-        expect(offlineContentEvents.get(2).getKind()).toBe(OfflineContentEvent.START);
-        expect(offlineContentEvents.get(3).getKind()).toBe(OfflineContentEvent.STOP);
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
 
         List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(entityStateChangedEvents.get(0).getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_STARTED);
@@ -158,10 +161,7 @@ public class OfflineContentServiceTest {
         service.onError(downloadResult1);
 
         final List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents.get(0).getKind()).toBe(OfflineContentEvent.IDLE);
-        expect(offlineContentEvents.get(1).getKind()).toEqual(OfflineContentEvent.QUEUE_UPDATED);
-        expect(offlineContentEvents.get(2).getKind()).toBe(OfflineContentEvent.START);
-        expect(offlineContentEvents.get(3).getKind()).toBe(OfflineContentEvent.STOP);
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
 
         List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(entityStateChangedEvents.get(0).getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_STARTED);

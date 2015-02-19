@@ -48,13 +48,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private Subscription loadRequestsSubscription = Subscriptions.empty();
 
-    private final Action1<List<DownloadRequest>> updateNotification = new Action1<List<DownloadRequest>>() {
-        @Override
-        public void call(List<DownloadRequest> downloadRequests) {
-            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(downloadRequests.size()));
-        }
-    };
-
     private final Action1<List<DownloadRequest>> sendDownloadRequestsUpdated = new Action1<List<DownloadRequest>>() {
         @Override
         public void call(List<DownloadRequest> requests) {
@@ -118,10 +111,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
             loadRequestsSubscription = offlineContentOperations
                     .updateDownloadRequestsFromLikes()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnNext(sendDownloadRequestsUpdated)
-                    .doOnNext(updateNotification)
                     .subscribeOn(scheduler)
+                    .doOnNext(sendDownloadRequestsUpdated)
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new DownloadSubscriber());
         } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
             stop();
@@ -175,6 +167,30 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         return null;
     }
 
+    @Override
+    public void onDestroy() {
+        loadRequestsSubscription.unsubscribe();
+        super.onDestroy();
+    }
+
+    private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
+        @Override
+        public void onNext(List<DownloadRequest> requests) {
+            Log.d(TAG, "Updating download queue with " + requests.size() + " requests.");
+            requestsQueue.clear();
+            requestsQueue.addAll(requests);
+
+            if (!downloadHandler.isDownloading()) {
+                eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
+                if (requests.isEmpty()) {
+                    stop();
+                } else {
+                    startDownloading(requests);
+                }
+            }
+        }
+    }
+
     private void stop() {
         eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
 
@@ -186,26 +202,10 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         stopSelf();
     }
 
-    @Override
-    public void onDestroy() {
-        loadRequestsSubscription.unsubscribe();
-        super.onDestroy();
-    }
-
-    private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
-        @Override
-        public void onNext(List<DownloadRequest> requests) {
-            if (!requests.isEmpty()) {
-                Log.d(TAG, "Start offline sync with " + requests.size() + " queue.");
-
-                requestsQueue.clear();
-                requestsQueue.addAll(requests);
-                if (!downloadHandler.isDownloading()) {
-                    eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
-                    download(requestsQueue.poll());
-                }
-            }
-        }
+    private void startDownloading(List<DownloadRequest> requests) {
+        Log.d(TAG, "Starting offline downloads with " + requests.size() + " requests.");
+        startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(requests.size()));
+        download(requestsQueue.poll());
     }
 
 }

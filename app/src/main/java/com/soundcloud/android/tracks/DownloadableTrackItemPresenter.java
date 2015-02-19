@@ -13,15 +13,15 @@ import android.widget.ImageView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class SyncableTrackItemPresenter extends TrackItemPresenter {
+public class DownloadableTrackItemPresenter extends TrackItemPresenter {
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
 
     @Inject
-    public SyncableTrackItemPresenter(ImageOperations imageOperations,
-                                      TrackItemMenuController trackItemMenuController,
-                                      FeatureOperations featureOperations,
-                                      OfflineContentOperations offlineContentOperations) {
+    public DownloadableTrackItemPresenter(ImageOperations imageOperations,
+                                          TrackItemMenuController trackItemMenuController,
+                                          FeatureOperations featureOperations,
+                                          OfflineContentOperations offlineContentOperations) {
         super(imageOperations, trackItemMenuController);
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
