@@ -103,11 +103,19 @@ public class ModelFixtures {
     }
 
     public static ApiLike apiTrackLike() {
-        return new ApiLike(ModelFixtures.create(ApiTrack.class).getUrn(), new Date());
+        return apiTrackLike(ModelFixtures.create(ApiTrack.class));
+    }
+
+    public static ApiLike apiTrackLike(ApiTrack apiTrack) {
+        return new ApiLike(apiTrack.getUrn(), new Date());
     }
 
     public static ApiLike apiPlaylistLike() {
-        return new ApiLike(ModelFixtures.create(ApiPlaylist.class).getUrn(), new Date());
+        return apiPlaylistLike(ModelFixtures.create(ApiPlaylist.class));
+    }
+
+    public static ApiLike apiPlaylistLike(ApiPlaylist apiPlaylist) {
+        return new ApiLike(apiPlaylist.getUrn(), new Date());
     }
 
 }
