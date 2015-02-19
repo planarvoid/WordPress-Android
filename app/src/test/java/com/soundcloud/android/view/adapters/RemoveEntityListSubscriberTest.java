@@ -42,7 +42,7 @@ public class RemoveEntityListSubscriberTest {
     }
 
     @Test
-    public void onNextShouldNotifyDatasetChangedOnSuccessfulRemoval() {
+    public void onNextShouldNotifyDataSetChangedOnSuccessfulRemoval() {
         PropertySet item = PropertySet.from(EntityProperty.URN.bind(TRACK_URN));
         when(adapter.getCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
