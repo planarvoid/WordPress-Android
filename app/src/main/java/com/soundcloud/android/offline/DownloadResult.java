@@ -5,18 +5,44 @@ import com.soundcloud.android.model.Urn;
 
 public final class DownloadResult {
 
-    private final Urn urn;
-    private final boolean isSuccessful;
-    private final long downloadedAt;
+    private enum Status {SUCCESS, UNAVAILABLE, FAILURE}
 
-    DownloadResult(boolean success, Urn urn) {
+    private final Status status;
+    private final Urn urn;
+    private final long timestamp;
+
+    private DownloadResult(Status status, Urn urn) {
+        this.status = status;
         this.urn = urn;
-        this.isSuccessful = success;
-        this.downloadedAt = System.currentTimeMillis();
+        this.timestamp = System.currentTimeMillis();
     }
 
-    public long getDownloadedAt() {
-        return downloadedAt;
+    public static DownloadResult failed(Urn urn) {
+        return new DownloadResult(Status.FAILURE, urn);
+    }
+
+    public static DownloadResult unavailable(Urn urn) {
+        return new DownloadResult(Status.UNAVAILABLE, urn);
+    }
+
+    public static DownloadResult success(Urn urn) {
+        return new DownloadResult(Status.SUCCESS, urn);
+    }
+
+    public boolean isSuccess() {
+        return status == Status.SUCCESS;
+    }
+
+    public boolean isFailure() {
+        return status == Status.FAILURE;
+    }
+
+    public boolean isUnavailable() {
+        return status == Status.UNAVAILABLE;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public Urn getUrn() {
@@ -27,7 +53,6 @@ public final class DownloadResult {
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("urn", urn)
-                .add("isSuccessful", isSuccessful)
-                .add("downloadedAt", downloadedAt).toString();
+                .add("timestamp", timestamp).toString();
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -33,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -44,6 +46,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -137,6 +140,18 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     private boolean active, hasEditControlGroup, seenSavedMessage;
     private List<Recording> unsavedRecordings;
     private ProgressBar generatingWaveformProgressBar;
+    @Inject ActionBarController actionBarController;
+
+    public RecordActivity() {
+        lightCycleDispatcher.attach(actionBarController);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
     @Override
     public void onStart() {
@@ -221,10 +236,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     public void onAdjustTrimRight(float newPos, long moveTime) {
         recorder.onNewEndPosition(newPos, moveTime);
         configurePlaybackInfo();
-    }
-
-    public SoundRecorder getRecorder() {
-        return recorder;
     }
 
     @Override
@@ -419,7 +430,8 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     private ImageButton setupActionButton() {
         final ImageButton button = (ImageButton) findViewById(R.id.btn_action);
         button.setOnClickListener(new View.OnClickListener() {
-            @Override @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
+            @Override
+            @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
             public void onClick(View v) {
                 switch (currentState) {
                     case IDLE_RECORD:
@@ -435,7 +447,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                         recorder.stopRecording();
                         // XXX use prefs
                         if (accountOperations.getAccountDataBoolean(PublicApiUser.DataKeys.SEEN_CREATE_AUTOSAVE)) {
-                            showToast(R.string.create_autosave_message);
+                            AndroidUtils.showToast(RecordActivity.this, R.string.create_autosave_message);
                             accountOperations.setAccountData(PublicApiUser.DataKeys.SEEN_CREATE_AUTOSAVE, Boolean.TRUE.toString());
                         }
                         break;
@@ -745,7 +757,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             if (!TextUtils.isEmpty(recordErrorMessage)) {
                 txtRecordMessage.setMessage(recordErrorMessage);
             } else {
-                txtRecordMessage.loadSuggestion(null);
+                txtRecordMessage.loadSuggestion();
             }
         }
     }
@@ -784,7 +796,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         recordErrorMessage = null;
 
         try {
-            recorder.startRecording(txtRecordMessage.getCurrentSuggestionKey());
+            recorder.startRecording(txtRecordMessage.getCurrentSuggestion());
             waveDisplay.gotoRecordMode();
         } catch (IOException e) {
             onRecordingError(e.getMessage());
@@ -995,7 +1007,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     }
 
     private static enum Dialogs {
-        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING;
+        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING
     }
 
     public enum CreateState {

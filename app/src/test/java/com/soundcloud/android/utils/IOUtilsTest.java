@@ -17,6 +17,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 
 public class IOUtilsTest {
+
+    private static final long MB = 1024 * 1024;
+
     @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
 
     @Test
@@ -27,20 +30,19 @@ public class IOUtilsTest {
     }
 
     @Test
-    public void shouldGetUsableSpace() throws Exception {
-        final long mb = 1024*1024;
-        long usedSpace = 3 * mb;
-        long spaceLeft = 200 * mb;
-        long maxSpace = 10 * mb;
-        double maxPct = 0.1d;
+    public void maxUsableSpaceIsCappedBySpaceLeft() {
+        long spaceLeft = 20 * MB;
+        long maxSpace = 60 * MB;
 
-        expect(IOUtils.getUsableSpace(usedSpace, spaceLeft, maxSpace, maxPct)).toEqual(maxSpace);
+        expect(IOUtils.getMaxUsableSpace(spaceLeft, maxSpace)).toEqual(20 * MB);
+    }
 
-        spaceLeft = 5 * mb;
-        expect(IOUtils.getUsableSpace(usedSpace, spaceLeft, maxSpace, maxPct)).toEqual(838860L);
+    @Test
+    public void maxUsableSpaceIsCappedByMaxSpace() {
+        long spaceLeft = 200 * MB;
+        long maxSpace = 60 * MB;
 
-        maxPct = 0.01d;
-        expect(IOUtils.getUsableSpace(usedSpace, spaceLeft, maxSpace, maxPct)).toEqual(83886L);
+        expect(IOUtils.getMaxUsableSpace(spaceLeft, maxSpace)).toEqual(60 * MB);
     }
 
     @Test
@@ -107,7 +109,7 @@ public class IOUtilsTest {
     }
 
     @Test
-    public void cleanDirectoryShouldEmptyTheDirectory() throws IOException {
+    public void cleanDirShouldEmptyTheDirectory() throws IOException {
         tempFolder.newFile("file.txt");
         tempFolder.newFolder("folder1");
         tempFolder.newFile("folder1/file.txt");
@@ -115,9 +117,23 @@ public class IOUtilsTest {
         tempFolder.newFile("folder1/subFolder/file1.txt");
         tempFolder.newFile("folder1/subFolder/file2.txt");
 
-        IOUtils.cleanDirectory(tempFolder.getRoot());
+        IOUtils.cleanDir(tempFolder.getRoot());
+
         expect(tempFolder.getRoot().exists()).toBeTrue();
         expect(tempFolder.getRoot().list().length).toBe(0);
+    }
+
+    @Test
+    public void cleanDirsShouldEmptyEachDir() throws IOException {
+        File dir1 = tempFolder.newFolder("folder1");
+        File dir2 = tempFolder.newFolder("folder2");
+        tempFolder.newFile("folder1/file.txt");
+        tempFolder.newFile("folder2/file.txt");
+
+        IOUtils.cleanDirs(dir1, dir2);
+
+        expect(dir1.list().length).toBe(0);
+        expect(dir2.list().length).toBe(0);
     }
 
     @Test

@@ -13,6 +13,9 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.crypto.DeviceSecret;
+import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -23,6 +26,7 @@ import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
@@ -40,6 +44,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -55,6 +60,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     static final String SKIPPY_INIT_ERROR_COUNT_KEY = "SkippyAdapter.initErrorCount";
     static final String SKIPPY_INIT_SUCCESS_COUNT_KEY = "SkippyAdapter.initSuccessCount";
 
+    private static final int PLAY_TYPE_DEFAULT = 0;
+    private static final int PLAY_TYPE_STREAM_UNINTERRUPTED = 1; // for ads
+    private static final int PLAY_TYPE_OFFLINE = 2;
+
     private static final long POSITION_START = 0L;
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
@@ -68,6 +77,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final DeviceHelper deviceHelper;
     private final BufferUnderrunListener bufferUnderrunListener;
     private final SharedPreferences sharedPreferences;
+    private final SecureFileStorage secureFileStorage;
+    private final CryptoOperations cryptoOperations;
 
     private volatile String currentStreamUrl;
     private Urn currentTrackUrn;
@@ -77,11 +88,14 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
-                  LockUtil lockUtil, DeviceHelper deviceHelper, BufferUnderrunListener bufferUnderrunListener, SharedPreferences sharedPreferences) {
+                  LockUtil lockUtil, DeviceHelper deviceHelper, BufferUnderrunListener bufferUnderrunListener,
+                  SharedPreferences sharedPreferences, SecureFileStorage secureFileStorage, CryptoOperations cryptoOperations) {
         this.skippyFactory = skippyFactory;
         this.lockUtil = lockUtil;
         this.bufferUnderrunListener = bufferUnderrunListener;
         this.sharedPreferences = sharedPreferences;
+        this.secureFileStorage = secureFileStorage;
+        this.cryptoOperations = cryptoOperations;
         this.skippy = skippyFactory.create(this);
         this.accountOperations = accountOperations;
         this.urlBuilder = urlBuilder;
@@ -108,15 +122,20 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void play(PropertySet track, long fromPos) {
-        play(track, fromPos, false);
+        play(track, fromPos, PLAY_TYPE_DEFAULT);
     }
 
     @Override
     public void playUninterrupted(PropertySet track) {
-        play(track, POSITION_START, true);
+        play(track, POSITION_START, PLAY_TYPE_STREAM_UNINTERRUPTED);
     }
 
-    private void play(PropertySet track, long fromPos, boolean uninterrupted) {
+    @Override
+    public void playOffline(PropertySet track, long fromPos) {
+        play(track, fromPos, PLAY_TYPE_OFFLINE);
+    }
+
+    private void play(PropertySet track, long fromPos, int playType) {
         currentTrackUrn = track.get(TrackProperty.URN);
 
         if (!accountOperations.isUserLoggedIn()) {
@@ -142,7 +161,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         stateHandler.removeMessages(0);
         lastStateChangeProgress = 0;
 
-        final String trackUrl = buildStreamUrl();
+        final String trackUrl = buildStreamUrl(playType);
         if (trackUrl.equals(currentStreamUrl)) {
             // we are already playing it. seek and resume
             skippy.seek(fromPos);
@@ -150,10 +169,19 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         } else {
             currentStreamUrl = trackUrl;
 
-            if (uninterrupted){
-                skippy.playAd(currentStreamUrl, fromPos);
-            } else {
-                skippy.play(currentStreamUrl, fromPos);
+            switch (playType){
+                case PLAY_TYPE_STREAM_UNINTERRUPTED :
+                    skippy.playAd(currentStreamUrl, fromPos);
+                    break;
+
+                case PLAY_TYPE_OFFLINE :
+                    final DeviceSecret deviceSecret = cryptoOperations.checkAndGetDeviceKey();
+                    skippy.playOffline(currentStreamUrl, fromPos, deviceSecret.getKey(), deviceSecret.getInitVector());
+                    break;
+
+                default :
+                    skippy.play(currentStreamUrl, fromPos);
+                    break;
             }
 
         }
@@ -166,12 +194,17 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         eventBus.publish(EventQueue.TRACKING, new SkippyPlayEvent(currentConnectionType, shouldUseLocks));
     }
 
-    private String buildStreamUrl() {
+    private String buildStreamUrl(int playType) {
         checkState(accountOperations.isUserLoggedIn(), "SoundCloud User account does not exist");
-        Token token = accountOperations.getSoundCloudToken();
-        return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
-                .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
-                .build();
+
+        if (playType == PLAY_TYPE_OFFLINE){
+            return secureFileStorage.getFileUriForOfflineTrack(currentTrackUrn).toString();
+        } else {
+            Token token = accountOperations.getSoundCloudToken();
+            return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
+                    .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
+                    .build();
+        }
     }
 
     @Override

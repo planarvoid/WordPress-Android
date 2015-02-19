@@ -47,14 +47,13 @@ import java.util.List;
 import java.util.Locale;
 
 public final class IOUtils {
+
     private static final int BUFFER_SIZE = 8192;
 
-    private IOUtils() {
-    }
+    private IOUtils() {}
 
-    public static
     @NotNull
-    File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
+    public static File[] nullSafeListFiles(File f, @Nullable FilenameFilter filter) {
         if (f == null) {
             return new File[0];
         }
@@ -91,17 +90,6 @@ public final class IOUtils {
         } catch (IllegalArgumentException e) {
             // gets thrown when call to statfs fails
             Log.e(TAG, "getSpaceLeft(" + dir + ")", e);
-            return 0;
-        }
-    }
-
-    public static long getTotalSpace(File dir) {
-        try {
-            StatFs fs = new StatFs(dir.getAbsolutePath());
-            return (long) fs.getBlockSize() * (long) fs.getBlockCount();
-        } catch (IllegalArgumentException e) {
-            // gets thrown when call to statfs fails
-            Log.e(TAG, "getTotalSpace(" + dir + ")", e);
             return 0;
         }
     }
@@ -211,21 +199,6 @@ public final class IOUtils {
         }
     }
 
-    public static void cleanDirectory(File dir) {
-        if (dir.isDirectory()) {
-            File[] files = dir.listFiles();
-            if (files != null && files.length > 0) {
-                for (File aFile : files) {
-                    if (aFile.isDirectory()) {
-                        deleteDir(aFile);
-                    } else {
-                        deleteFile(aFile);
-                    }
-                }
-            }
-        }
-    }
-
     public static boolean deleteDir(File dir) {
         if (dir != null && dir.isDirectory()) {
             for (File f : nullSafeListFiles(dir, null)) {
@@ -243,6 +216,27 @@ public final class IOUtils {
             return dir.delete();
         }
         return false;
+    }
+
+    public static void cleanDir(File dir) {
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null && files.length > 0) {
+                for (File aFile : files) {
+                    if (aFile.isDirectory()) {
+                        deleteDir(aFile);
+                    } else {
+                        deleteFile(aFile);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void cleanDirs(File... dirs) {
+        for (File d : dirs) {
+            cleanDir(d);
+        }
     }
 
     public static File ensureUpdatedDirectory(File newDir, File deprecatedDir) {
@@ -269,20 +263,6 @@ public final class IOUtils {
         }
     }
 
-    public static boolean fileExistsCaseSensitive(final File f) {
-        if (f != null && f.exists() && f.getParentFile() != null) {
-            File[] files = nullSafeListFiles(f.getParentFile(), new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.equals(f.getName());
-                }
-            });
-            return files.length > 0;
-        } else {
-            return false;
-        }
-    }
-
     public static boolean nomedia(File dir) {
         if (!dir.isDirectory()) {
             return false;
@@ -301,8 +281,7 @@ public final class IOUtils {
         }
     }
 
-
-    public static void createCacheDirectories(Context c) {
+    public static void createCacheDirs() {
         if (isSDCardAvailable()) {
             // create external storage directory
             mkdirs(Consts.EXTERNAL_STORAGE_DIRECTORY);
@@ -318,20 +297,13 @@ public final class IOUtils {
         return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
     }
 
-
-    public static long getUsableSpace(File dir, long maxSpace, double maxPct) {
-        return getUsableSpace(getDirSize(dir), getSpaceLeft(dir), maxSpace, maxPct);
-    }
-
     /**
-     * @param usedSpace the currently used space by the cache
      * @param spaceLeft space left on the filesystem
      * @param maxSpace  the max space to use
-     * @param maxPct    percentage of free space to use
-     * @return total usable space
+     * @return max usable space
      */
-    public static long getUsableSpace(long usedSpace, long spaceLeft, long maxSpace, double maxPct) {
-        return Math.min((long) (Math.floor((usedSpace + spaceLeft) * maxPct)), maxSpace);
+    public static long getMaxUsableSpace(long spaceLeft, long maxSpace) {
+        return Math.min(maxSpace, spaceLeft);
     }
 
     public static String inMbFormatted(File... directories) {
@@ -442,8 +414,6 @@ public final class IOUtils {
     /**
      * Closes a cursor. These cannot use the {@link this#close(java.io.Closeable)}
      * function as cursors do not implement Closeable pre-honecomb
-     *
-     * @param cursor
      */
     public static void close(Cursor cursor) {
         if (cursor != null) {
@@ -460,9 +430,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @NotNull
-    File appendToFilename(File file, String text) {
+    public static File appendToFilename(File file, String text) {
         String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {
@@ -473,9 +442,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @Nullable
-    String extension(File file) {
+    public static String extension(File file) {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1 && lastDot != name.length() - 1) {
@@ -485,9 +453,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @NotNull
-    File changeExtension(File file, String ext) {
+    public static File changeExtension(File file, String ext) {
         final String name = file.getName();
         final int lastDot = name.lastIndexOf('.');
         if (lastDot != -1) {
@@ -497,9 +464,8 @@ public final class IOUtils {
         }
     }
 
-    public static
     @NotNull
-    File removeExtension(@NotNull File file) {
+    public static File removeExtension(@NotNull File file) {
         if (file.isDirectory()) {
             return file;
         }
@@ -522,7 +488,6 @@ public final class IOUtils {
             }
         }
     }
-
 
     /**
      * some phones have really low transfer rates when the screen is turned off, so request a full

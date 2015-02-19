@@ -1,7 +1,11 @@
 package com.soundcloud.android.tests.playlist;
 
-import com.soundcloud.android.framework.AccountAssistant;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -16,20 +20,24 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        AccountAssistant.loginAs(getInstrumentation(),
-                TestUser.playlistUser.getEmail(),
-                TestUser.playlistUser.getPassword());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-        setDependsOn(Flag.PLAYLIST_LIKES_SCREEN);
+        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
     }
 
     public void testDrawerShowsPlaylists() {
-        menuScreen.open();
-        PlaylistsScreen playlistsScreen = menuScreen.clickPlaylist();
-        playlistsScreen.touchLikedPlaylistsTab();
-        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
+        final PlaylistsScreen playlistsScreen = NavigationHelper.openLikedPlaylists(menuScreen);
+        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistOnCurrentPageAt(0);
         assertEquals("Should go to Playlist screen", true, playlistDetailsScreen.isVisible());
+    }
+
+    public void testLoadsNextPage() {
+        final PlaylistsScreen playlistsScreen = NavigationHelper.openLikedPlaylists(menuScreen);
+        int numberOfTracks = playlistsScreen.getLoadedTrackCount();
+        assertThat(numberOfTracks, is(greaterThan(0)));
+
+        playlistsScreen.scrollToBottomOfTracksListAndLoadMoreItems();
+
+        assertThat(playlistsScreen.getLoadedTrackCount(), is(greaterThan(numberOfTracks)));
     }
 
 }

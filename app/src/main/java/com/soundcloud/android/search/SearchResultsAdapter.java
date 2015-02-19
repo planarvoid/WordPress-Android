@@ -1,16 +1,16 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.main.FragmentLifeCycle;
+import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
-import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
-import com.soundcloud.android.tracks.TrackChangedSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -20,11 +20,12 @@ import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
+class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements SupportFragmentLightCycle<Fragment> {
 
     static final int TYPE_USER = 0;
     static final int TYPE_TRACK = 1;
@@ -76,60 +77,60 @@ class SearchResultsAdapter extends EndlessAdapter<PropertySet> implements Fragme
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
-                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this))
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackPresenter)),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(this))
         );
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView(Fragment fragment) {
         eventSubscriptions.unsubscribe();
     }
 
     @Override
-    public void onBind(Fragment owner) {
+    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onCreate(@Nullable Bundle bundle) {
+    public void onStart(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onStart() {
+    public void onResume(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onResume() {
+    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onPause(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onPause() {
+    public void onStop(Fragment fragment) {
         /* no-op */
     }
 
     @Override
-    public void onStop() {
+    public void onSaveInstanceState(Fragment fragment, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onSaveInstanceState(Bundle bundle) {
+    public void onRestoreInstanceState(Fragment fragment, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onRestoreInstanceState(Bundle bundle) {
-        /* no-op */
-    }
-
-    @Override
-    public void onDestroy() {
+    public void onDestroy(Fragment fragment) {
         /* no-op */
     }
 }

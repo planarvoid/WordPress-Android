@@ -47,7 +47,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Before
     public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, playbackServiceStateWrapper, proxyDetector);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, proxyDetector);
         trackSourceInfo = new TrackSourceInfo(Screen.YOUR_LIKES.get(), true);
 
 
@@ -179,11 +179,6 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
         localyticsProvider.handleTrackingEvent(createStopEventWithWithReason(PlaybackSessionEvent.STOP_REASON_ERROR));
         verify(localyticsSession).tagEvent(eq(LISTEN), stopEventAttributes.capture());
         expect(stopEventAttributes.getValue().get("stop_reason")).toEqual("playback_error");
-    }
-
-    private PlaybackSessionEvent createStopEventWithPercentListened(double percent) {
-        return PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, startEvent, 0L, (long) (startEvent.getTimeStamp() + DURATION * percent), "hls", "playa", "3g", PlaybackSessionEvent.STOP_REASON_BUFFERING
-        );
     }
 
     private PlaybackSessionEvent createStopEventWithDuration(int duration) {

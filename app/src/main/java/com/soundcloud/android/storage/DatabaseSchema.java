@@ -195,8 +195,10 @@ final class DatabaseSchema {
 
     static final String DATABASE_CREATE_TRACK_DOWNLOADS = "(" +
             "_id INTEGER PRIMARY KEY," +
-            "requested_at INTEGER NOT NULL," +
-            "downloaded_at INTEGER DEFAULT 0" +
+            "requested_at INTEGER DEFAULT CURRENT_TIMESTAMP," +
+            "downloaded_at INTEGER DEFAULT NULL," +
+            "removed_at INTEGER DEFAULT NULL," + // track marked for deletion
+            "unavailable_at INTEGER DEFAULT NULL" +
             ");";
 
     /**
@@ -242,6 +244,7 @@ final class DatabaseSchema {
             "_id INTEGER NOT NULL," +
             "_type INTEGER NOT NULL," +
             "created_at INTEGER NOT NULL," +
+            "added_at INTEGER DEFAULT NULL," +
             "removed_at INTEGER DEFAULT NULL," +
             "PRIMARY KEY (_id, _type)," +
             "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
@@ -302,12 +305,18 @@ final class DatabaseSchema {
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
             ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +
             ",Users." + TableColumns.Users.AVATAR_URL + " as " + TableColumns.SoundView.USER_AVATAR_URL +
+            ",TrackDownloads." + TableColumns.TrackDownloads.DOWNLOADED_AT + " as " + TableColumns.SoundView.OFFLINE_DOWNLOADED_AT +
+            ",TrackDownloads." + TableColumns.TrackDownloads.REMOVED_AT + " as " + TableColumns.SoundView.OFFLINE_REMOVED_AT +
             ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.PLAY_COUNT + ", 0) as " + TableColumns.SoundView.USER_PLAY_COUNT +
             ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.CACHED + ", 0) as " + TableColumns.SoundView.CACHED +
             ",COALESCE(TrackMetadata." + TableColumns.TrackMetadata.TYPE + ", 0) as " + TableColumns.SoundView._TYPE +
             " FROM Sounds" +
             " LEFT JOIN Users ON(" +
             "   Sounds." + TableColumns.Sounds.USER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
+            " LEFT OUTER JOIN TrackDownloads " +
+            "   ON (Sounds." + TableColumns.Sounds._ID + " = " + "TrackDownloads." + TableColumns.TrackDownloads._ID + " AND " +
+            "   Sounds." + TableColumns.Sounds._TYPE + " = " + TableColumns.Sounds.TYPE_TRACK + ")" +
+
             " LEFT OUTER JOIN TrackMetadata ON(" +
             "   TrackMetadata." + TableColumns.TrackMetadata._ID + " = " + "Sounds." + TableColumns.SoundView._ID + ")";
 
@@ -391,6 +400,14 @@ final class DatabaseSchema {
                 " LEFT JOIN SoundView ON(" +
                 "   SoundStream." + TableColumns.SoundStream.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
                 "   SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
+
+                // filter out duplicates
+                " LEFT JOIN SoundStream dupe ON(" +
+                "   dupe.sound_id = SoundStream.sound_id AND dupe.sound_type = SoundStream.sound_type AND " +
+                "   SoundStream.reposter_id IS NULL AND dupe.reposter_id IS NOT NULL" +
+                ")" +
+                " WHERE dupe._id IS NULL" +
+
                 " ORDER BY " + TableColumns.SoundStreamView.CREATED_AT + " DESC";
 
     /**

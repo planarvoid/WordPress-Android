@@ -22,7 +22,6 @@
     <string name="legal_summary">Informasi hukum</string>
     <string name="terms_of_use">Syarat Penggunaan</string>
     <string name="privacy_policy">Kebijakan Privasi</string>
-    <string name="visit_support">Kunjungi Dukungan</string>
     <string name="version">Versi</string>
     <string name="unavailable">Tidak tersedia</string>
     <string name="copyright_information">Informasi hak cipta</string>
@@ -32,7 +31,6 @@
     <string name="btn_following">Mengikuti</string>
     <string name="btn_save">Simpan</string>
     <string name="btn_skip">Lewati</string>
-    <string name="compressed">Terkompresi</string>
     <string name="configure">Konfigurasi</string>
     <string name="connect_progress">Memuat</string>
     <string name="connect_success">Berhasil terhubung dengan %1$s</string>
@@ -40,7 +38,6 @@
     <string name="delete">Hapus</string>
     <string name="comments">Komentar</string>
     <string name="new_connection_error">Ada masalah menambahkan jaringan</string>
-    <string name="raw">Data mentah</string>
     <string name="reset">Buang</string>
     <string name="share_fail_message">OK, itu tidak beres.</string>
     <string name="share_log_out">Keluar</string>
@@ -63,7 +60,6 @@
     <string name="accessibility_stats_user_reposted">Dikirim ulang olehmu</string>
     <string name="accessibility_like_action">Suka</string>
     <string name="accessibility_repost_action">Kirim ulang</string>
-    <string name="accessibility_comment_action">Komentar</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">menyukai %s</string>
@@ -164,8 +160,6 @@
     <string name="empty_user_tracks_text">%1$s belum mengunggah\nsuara publik sama sekali.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Terjadi masalah saat menghubungi SoundCloud.</string>
-    <string name="error_loading_title">Kesalahan jaringan</string>
     <string name="error_recording_message">Ada kesalahan selama perekaman.\n Perangkatmu mungkin tidak mendukung konfigurasi perekaman saat ini. Kamu dapat mengubah konfigurasi dalam pengaturan aplikasi.</string>
     <string name="error_unauthorized_message">Kami sedang mengalami masalah dengan akunmu dan kamu harus masuk lagi ke SoundCloud sebelum kamu dapat terus menggunakan aplikasi.</string>
     <string name="error_unauthorized_title">Kesalahan Akun</string>
@@ -377,45 +371,48 @@
     <string name="cloud_recorder_playback_event_title">Pemutaran sedang berlangsung</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default" tools:ignore="UnusedResources">Mengapa kamu tidak merekam suara jalanmu?</string>
-    <string name="rectip_memories_voice_notes" tools:ignore="UnusedResources">Rekam catatan suara sebagai pengingat serbaguna.</string>
-    <string name="rectip_memories_voice_blog" tools:ignore="UnusedResources">Gunakan tombol REC untuk membuat blog suara - apa yang akan kamu bagikan hari ini?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now" tools:ignore="UnusedResources">Apa yang kamu lakukan sekarang?</string>
-    <string name="rectip_memories_child_first_words" tools:ignore="UnusedResources">Abadikan momen penting: kata pertama seorang anak</string>
-    <string name="rectip_memories_sound_your_pet_makes" tools:ignore="UnusedResources">Abadikan momen penting: suara hewan peliharaanmu</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about" tools:ignore="UnusedResources">Abadikan momen penting: suara seseorang yang kamu sayangi</string>
-    <string name="rectip_memories_shopping_reminders" tools:ignore="UnusedResources">Mau belanja? Rekam pengingat supaya tidak lupa barang yang harus dibeli.</string>
-    <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">Punya ide bagus? Rekam dengan tombol REC.</string>
-    <string name="rectip_social_good_joke" tools:ignore="UnusedResources">Mendengar lelucon bagus belakangan ini? Ayo bagikan!</string>
-    <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">Menikmati percakapan seru? Abadikan saja untuk anak cucu!</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">Abadikan momen lucu dalam suara</string>
-    <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">Tahukah kamu bahwa kamu dapat menyimpan rekaman pribadimu jika tak ingin membaginya?</string>
-    <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">Sering kali alat perekam terbaik adalah yang selalu kamu bawa.</string>
-    <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">Suarakan dirimu!</string>
-    <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">Suarakan internet.</string>
-    <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">Suarakan dunia.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">Ekspresikan dirimu!</string>
-    <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">Mengapa tidak mencatat risalah rapat berikutnya?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">Gunakan tombol REC untuk merekam ide untuk lain waktu.</string>
-    <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">Gunakan tombol REC sebagai alat bantu pembelajaran: simpan catatanmu sambil lalu.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings" tools:ignore="UnusedResources">Kamu dapat menggunakan tombol REC untuk merekam wawancara dan rapat.</string>
-    <string name="rectip_environmental_ocean_waves" tools:ignore="UnusedResources">Rekam suara ombak laut di pantai</string>
-    <string name="rectip_environmental_vibrant_rush_hour" tools:ignore="UnusedResources">Abadikan suara keramaian kota pada jam sibuk</string>
-    <string name="rectip_environmental_crazy_sound" tools:ignore="UnusedResources">Mendengar suara unik? Abadikan dengan tombol REC!</string>
-    <string name="rectip_music_feel_inspired" tools:ignore="UnusedResources">Merasa terinspirasi? Abadikan idemu dengan tombol REC.</string>
-    <string name="rectip_music_track_idea" tools:ignore="UnusedResources">Punya ide untuk lagu baru? Simpan dengan tombol REC.</string>
-    <string name="rectip_music_tune_stuck" tools:ignore="UnusedResources">Ada nada terngiang dalam benakmu? Rekam dengan tombol REC.</string>
-    <string name="rectip_music_song_lyric_ideas" tools:ignore="UnusedResources">Punya ide untuk lirik lagu? Simpan langsung dengan tombol REC.</string>
-    <string name="rectip_events_whats_going_on" tools:ignore="UnusedResources">Apa yang terjadi sekarang?</string>
-    <string name="rectip_events_current_events_as_they_happen" tools:ignore="UnusedResources">Rekam peristiwa saat sedang terjadi dan bagikan dengan dunia.</string>
-    <string name="rectip_events_something_interesting" tools:ignore="UnusedResources">Ada hal menarik sedang terjadi? Abadikan momen itu dalam bentuk audio.</string>
-    <string name="rectip_events_citizen_reporter" tools:ignore="UnusedResources">Citizen Reporter? Sampaikan kepada dunia segala yang terjadi di tempatmu.</string>
-    <string name="rectip_private_happy_birthday" tools:ignore="UnusedResources">Mengucapkan Selamat Ulang Tahun kepada %s</string>
-    <string name="rectip_private_record_a_message" tools:ignore="UnusedResources">Mengapa tidak merekam pesan untuk %s?</string>
-    <string name="rectip_private_how_much_they_mean" tools:ignore="UnusedResources">Beri tahu %s betapa mereka berarti bagimu.</string>
-    <string name="rectip_private_send_reminder" tools:ignore="UnusedResources">Kirimi %s sebuah pengingat</string>
-    <string name="rectip_private_liked_their_sound" tools:ignore="UnusedResources">Beri tahu %s betapa kamu menyukai musik mereka</string>
-    <string name="rectip_private_leave_feedback" tools:ignore="UnusedResources">Beri masukan untuk %s</string>
+    <string-array name="record_suggestions">
+        <item>Mengapa kamu tidak merekam suara jalanmu?</item>
+
+        <item>Rekam catatan suara sebagai pengingat serbaguna.</item>
+        <item>Gunakan tombol REC untuk membuat blog suara - apa yang akan kamu bagikan hari ini?</item>
+        <item>Apa yang kamu lakukan sekarang?</item>
+        <item>Abadikan momen penting: kata pertama seorang anak</item>
+        <item>Abadikan momen penting: suara hewan peliharaanmu</item>
+        <item>Abadikan momen penting: suara seseorang yang kamu sayangi</item>
+        <item>Mau belanja? Rekam pengingat supaya tidak lupa barang yang harus dibeli.</item>
+        <item>Punya ide bagus? Rekam dengan tombol REC.</item>
+
+        <item>Mendengar lelucon bagus belakangan ini? Ayo bagikan!</item>
+        <item>Menikmati percakapan seru? Abadikan saja untuk anak cucu!</item>
+        <item>Abadikan momen lucu dalam suara</item>
+
+        <item>Tahukah kamu bahwa kamu dapat menyimpan rekaman pribadimu jika tak ingin membaginya?</item>
+        <item>Sering kali alat perekam terbaik adalah yang selalu kamu bawa.</item>
+        <item>Suarakan dirimu!</item>
+        <item>Suarakan internet.</item>
+        <item>Suarakan dunia.</item>
+        <item>Ekspresikan dirimu!</item>
+
+        <item>Mengapa tidak mencatat risalah rapat berikutnya?</item>
+        <item>Gunakan tombol REC untuk merekam ide untuk lain waktu.</item>
+        <item>Gunakan tombol REC sebagai alat bantu pembelajaran: simpan catatanmu sambil lalu.</item>
+        <item>Kamu dapat menggunakan tombol REC untuk merekam wawancara dan rapat.</item>
+
+        <item>Rekam suara ombak laut di pantai</item>
+        <item>Abadikan suara keramaian kota pada jam sibuk</item>
+        <item>Mendengar suara unik? Abadikan dengan tombol REC!</item>
+
+        <item>Merasa terinspirasi? Abadikan idemu dengan tombol REC.</item>
+        <item>Punya ide untuk lagu baru? Simpan dengan tombol REC.</item>
+        <item>Ada nada terngiang dalam benakmu? Rekam dengan tombol REC.</item>
+        <item>Punya ide untuk lirik lagu? Simpan langsung dengan tombol REC.</item>
+
+        <item>Apa yang terjadi sekarang?</item>
+        <item>Rekam peristiwa saat sedang terjadi dan bagikan dengan dunia.</item>
+        <item>Ada hal menarik sedang terjadi? Abadikan momen itu dalam bentuk audio.</item>
+        <item>Citizen Reporter? Sampaikan kepada dunia segala yang terjadi di tempatmu.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Cari SoundCloud</string>
@@ -435,10 +432,6 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">Detail Aplikasi</string>
     <string name="pref_basic_settings">Pengaturan Dasar</string>
-    <string name="pref_clear_cache">Hapus Cache Gambar</string>
-    <string name="pref_clear_cache_desc">Hapus cache aplikasi untuk mengosongkan memori</string>
-    <string name="pref_clear_stream_cache">Hapus Cache Streaming</string>
-    <string name="pref_clear_stream_cache_desc">Hapus cache streaming</string>
     <string name="pref_connection_and_data">Koneksi dan data</string>
     <string name="pref_help">Bantuan</string>
     <string name="pref_help_desc">Akses situs dukungan SoundCloud</string>
@@ -468,6 +461,10 @@
     <string name="wifi_settings_summary">Edit pengaturanmu. Gunakan Wi-Fi untuk kinerja terbaik.</string>
     <string name="cache_clearing">Bersihkan cache</string>
     <string name="cache_clearing_message">Menghapus berkas di cache ...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>Terkompresi</item>
+        <item>Data mentah</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Kamu harus kembali menghubungkan akun SoundCloud-mu.</string>
@@ -542,10 +539,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Ada kesalahan transfer kode %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Kesalahan Transfer Kode</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Kesalahan Transfer Kode</string>
-    <string name="dialog_transcoding_failed_title">Transfer kode gagal</string>
-    <string name="dialog_transcoding_failed_message">Ups, ada yang salah sehingga suara kamu tak dapat diputar. Kamu dapat menghapus suara dari daftar melalui situs web. Untuk informasi lebih lanjut, silakan hubungi kami.</string>
-    <string name="dialog_transcoding_processing_title">Pemrosesan suara</string>
-    <string name="dialog_transcoding_processing_message">Suaramu sedang diproses dan dapat dimainkan dalam beberapa detik.</string>
     <string name="dialog_cancel_upload_message">Batal mengunggah?</string>
     <string name="sc_upload_add_image">Tambahkan\nGambar</string>
     <string name="sc_upload_private">Pribadi</string>

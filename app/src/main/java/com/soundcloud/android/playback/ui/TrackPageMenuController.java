@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.associations.SoundAssociationOperations;
+import com.soundcloud.android.associations.LegacyRepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -37,7 +37,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private final FragmentActivity activity;
     private final PopupMenuWrapper popupMenuWrapper;
     private final PlayQueueManager playQueueManager;
-    private final SoundAssociationOperations associationOperations;
+    private final LegacyRepostOperations associationOperations;
     private final EventBus eventBus;
     private final String commentAtUnformatted;
 
@@ -47,7 +47,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private long commentPosition;
 
     private TrackPageMenuController(PlayQueueManager playQueueManager,
-                                    SoundAssociationOperations associationOperations,
+                                    LegacyRepostOperations associationOperations,
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     EventBus eventBus) {
@@ -196,13 +196,13 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     static class Factory {
         private final PlayQueueManager playQueueManager;
-        private final SoundAssociationOperations associationOperations;
+        private final LegacyRepostOperations associationOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
-                SoundAssociationOperations associationOperations,
+                LegacyRepostOperations associationOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 EventBus eventBus) {
             this.playQueueManager = playQueueManager;

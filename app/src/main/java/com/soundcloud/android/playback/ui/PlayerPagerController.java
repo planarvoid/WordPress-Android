@@ -11,8 +11,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -40,7 +38,6 @@ class PlayerPagerController {
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
     private final PlaybackOperations playbackOperations;
-    private final PlaybackToastViewController playbackToastViewController;
     private final PlayerPresenter presenter;
     private final AdsOperations adsOperations;
 
@@ -60,13 +57,6 @@ class PlayerPagerController {
         @Override
         public void handleMessage(Message msg) {
             playbackOperations.setPlayQueuePosition(getDisplayedPositionInPlayQueue());
-        }
-    };
-
-    private final Func1<Playa.StateTransition, Boolean> wasError = new Func1<Playa.StateTransition, Boolean>() {
-        @Override
-        public Boolean call(Playa.StateTransition stateTransition) {
-            return stateTransition.wasError();
         }
     };
 
@@ -122,7 +112,6 @@ class PlayerPagerController {
     @Inject
     public PlayerPagerController(TrackPagerAdapter adapter, PlayerPresenter playerPresenter, EventBus eventBus,
                                  PlayQueueManager playQueueManager, PlaybackOperations playbackOperations,
-                                 PlaybackToastViewController playbackToastViewController,
                                  Provider<PlayQueueDataSource> playQueueDataSwitcherProvider,
                                  PlayerPagerScrollListener playerPagerScrollListener, AdsOperations adsOperations) {
         this.adapter = adapter;
@@ -130,7 +119,6 @@ class PlayerPagerController {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
         this.playbackOperations = playbackOperations;
-        this.playbackToastViewController = playbackToastViewController;
         this.playQueueDataSwitcherProvider = playQueueDataSwitcherProvider;
         this.playerPagerScrollListener = playerPagerScrollListener;
         this.adsOperations = adsOperations;
@@ -163,14 +151,7 @@ class PlayerPagerController {
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
         setupTrackChangeSubscribers();
-        setupErrorSubscribers();
         setupScrollingSubscribers();
-    }
-
-    private void setupErrorSubscribers() {
-        subscription.add(eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED)
-                .filter(wasError)
-                .subscribe(new ErrorSubscriber()));
     }
 
     private void setupTrackChangeSubscribers() {
@@ -310,13 +291,6 @@ class PlayerPagerController {
         public void onNext(Integer args) {
             changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
             changeTracksHandler.sendEmptyMessageDelayed(CHANGE_TRACKS_MESSAGE, CHANGE_TRACKS_DELAY);
-        }
-    }
-
-    private final class ErrorSubscriber extends DefaultSubscriber<Playa.StateTransition> {
-        @Override
-        public void onNext(Playa.StateTransition newState) {
-            playbackToastViewController.showError(newState.getReason());
         }
     }
 

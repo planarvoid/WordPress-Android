@@ -85,6 +85,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private static final String EXTRA_TITLE_ID = "title";
     private static final String EXTRA_USERNAME = "username";
     private static final String EXTRA_SCREEN = "screen";
+    private static final String KEY_IS_RETAINED = "is_retained";
     private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
     private final BroadcastReceiver playbackStatusListener = new BroadcastReceiver() {
         @Override
@@ -164,6 +165,22 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return fragment;
     }
 
+    public static ScListFragment newInstance(Uri contentUri, int titleId, Screen screen, boolean isRetained) {
+        ScListFragment fragment = new ScListFragment();
+        Bundle args = createArguments(contentUri, titleId, screen);
+        args.putBoolean(KEY_IS_RETAINED, isRetained);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    protected static Bundle createArguments(Uri contentUri, int titleId, Screen screen) {
+        Bundle args = new Bundle();
+        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
+        args.putSerializable(EXTRA_SCREEN, screen);
+        args.putInt(EXTRA_TITLE_ID, titleId);
+        return args;
+    }
+
     @Nullable
     public ScListView getScListView() {
         return listView;
@@ -191,7 +208,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        setRetainInstance(getArguments().getBoolean(KEY_IS_RETAINED, true));
 
         SoundCloudApplication.getObjectGraph().inject(this);
 
@@ -217,9 +234,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         final LayoutParams layoutParams = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         ((ViewGroup) pullToRefreshLayout.findViewById(R.id.list_contents)).addView(emptyView, layoutParams);
 
-        pullToRefreshController.onBind(this);
         pullToRefreshController.setRefreshListener(this);
-        pullToRefreshController.onViewCreated(pullToRefreshLayout, savedInstanceState);
+        pullToRefreshController.onViewCreated(this, pullToRefreshLayout, savedInstanceState);
         configurePullToRefreshState();
 
         if (isRefreshing() || waitingOnInitialSync()) {
@@ -307,7 +323,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        pullToRefreshController.onDestroyView();
+        pullToRefreshController.onDestroyView(this);
 
         if (content == Content.ME_SOUNDS && adapter != null) {
             ((MyTracksAdapter) adapter).onDestroy();
@@ -446,14 +462,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Override
     public void onRefresh() {
         refresh(true);
-    }
-
-    protected static Bundle createArguments(Uri contentUri, int titleId, Screen screen) {
-        Bundle args = new Bundle();
-        args.putParcelable(EXTRA_CONTENT_URI, contentUri);
-        args.putSerializable(EXTRA_SCREEN, screen);
-        args.putInt(EXTRA_TITLE_ID, titleId);
-        return args;
     }
 
     protected EmptyView createEmptyView() {

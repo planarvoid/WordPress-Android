@@ -3,6 +3,7 @@ package com.soundcloud.android.configuration;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,8 +13,8 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.configuration.features.FeatureOperations;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -22,6 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+
+import java.util.HashMap;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ConfigurationOperationsTest {
@@ -69,9 +72,13 @@ public class ConfigurationOperationsTest {
 
     @Test
     public void updatesFeatures() {
+        final HashMap<String, Boolean> featuresAsAMap = new HashMap<>();
+        featuresAsAMap.put("feature_disabled", false);
+        featuresAsAMap.put("feature_enabled", true);
+
         operations.update();
 
-        verify(featureOperations).update(configuration.features);
+        verify(featureOperations).update(eq(featuresAsAMap));
     }
 
     @Test

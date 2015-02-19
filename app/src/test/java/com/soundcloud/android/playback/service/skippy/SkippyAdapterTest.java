@@ -23,6 +23,8 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.crypto.CryptoOperations;
+import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -32,6 +34,7 @@ import com.soundcloud.android.events.SkippyInitilizationFailedEvent;
 import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
@@ -57,6 +60,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Message;
 
 import java.io.IOException;
@@ -86,6 +90,8 @@ public class SkippyAdapterTest {
     @Mock private BufferUnderrunListener bufferUnderrunListener;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
+    @Mock private SecureFileStorage secureFileStorage;
+    @Mock private CryptoOperations cryptoOperations;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private Urn userUrn;
@@ -98,7 +104,7 @@ public class SkippyAdapterTest {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, new ApiUrlBuilder(httpProperties),
-                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper, bufferUnderrunListener, sharedPreferences);
+                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper, bufferUnderrunListener, sharedPreferences, secureFileStorage, cryptoOperations);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
@@ -193,6 +199,19 @@ public class SkippyAdapterTest {
         skippyAdapter.play(track);
 
         verify(skippy, times(2)).play(STREAM_URL, 0);
+    }
+
+    @Test
+    public void playOfflinePlaysOfflineOnSkippy() throws Exception {
+        final Uri uri = Uri.parse("asdf/123");
+        final byte[] key = new byte[0];
+        final byte[] iVector = new byte[0];
+        when(cryptoOperations.checkAndGetDeviceKey()).thenReturn(new DeviceSecret("asdf", key, iVector));
+        when(secureFileStorage.getFileUriForOfflineTrack(trackUrn)).thenReturn(uri);
+
+        skippyAdapter.playOffline(track, 123L);
+
+        verify(skippy).playOffline(uri.toString(), 123L, key, iVector);
     }
 
     @Test

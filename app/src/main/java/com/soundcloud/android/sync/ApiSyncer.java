@@ -55,7 +55,7 @@ import java.util.Set;
 
 
 /**
- * Performs the actual sync with the API. Used by {@link CollectionSyncRequest}.
+ * Performs the actual sync with the API. Used by {@link LegacySyncJob}.
  * <p/>
  * As a client, do not use this class directly, but use {@link com.soundcloud.android.sync.SyncInitiator} instead.
  * <p/>
@@ -151,7 +151,7 @@ public class ApiSyncer extends LegacySyncStrategy {
      * Safely sync activities, catching NPE caused by bad PublicApi responses, specifically :
      * https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/540f085ae3de5099bace67b3
      *
-     * Rethrows as IOException which will be caught in {@link CollectionSyncRequest#execute()}
+     * Rethrows as IOException which will be caught in {@link LegacySyncJob#execute()}
      */
     @SuppressWarnings({"PMD.AvoidCatchingGenericException"})
     private ApiSyncResult safeSyncActivities(Uri uri, String action) throws IOException {

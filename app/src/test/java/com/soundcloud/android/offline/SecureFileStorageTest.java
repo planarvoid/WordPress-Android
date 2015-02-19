@@ -15,6 +15,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.net.Uri;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +67,7 @@ public class SecureFileStorageTest {
 
         verify(operations).encryptStream(eq(inputStream), any(OutputStream.class));
     }
-
+    
     @Test
     public void storeTrackSavesDataToAFile() throws Exception {
         final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
@@ -75,4 +77,33 @@ public class SecureFileStorageTest {
         expect(file.exists()).toBeTrue();
     }
 
+    @Test
+    public void returnsFileUriForTrack() throws Exception {
+        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.fromFile(getEncryptedFile()));
+    }
+
+    @Test
+    public void returnsEmptyUriWhenUnableToGenerateFileUri() throws Exception {
+        when(operations.generateHashForUrn(TRACK_URN)).thenThrow(new EncryptionException("problems", new IOException()));
+        expect(storage.getFileUriForOfflineTrack(TRACK_URN)).toEqual(Uri.EMPTY);
+    }
+
+    @Test
+    public void deleteTrackRemovesTrackFromStorage() throws Exception {
+        final File file = createOfflineFile();
+        storage.deleteTrack(TRACK_URN);
+        expect(file.exists()).toBeFalse();
+    }
+
+    private File createOfflineFile() throws IOException {
+        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
+        storage.OFFLINE_DIR.mkdirs();
+        file.createNewFile();
+        expect(file.exists()).toBeTrue(); // just to ensure we have write permissions
+        return file;
+    }
+
+    private File getEncryptedFile() {
+        return new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
+    }
 }

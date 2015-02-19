@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.service.Playa.PlayaListener;
@@ -11,6 +12,8 @@ import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
@@ -33,6 +36,7 @@ public class StreamPlaya implements PlayaListener {
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences sharedPreferences;
     private final PlayerSwitcherInfo playerSwitcherInfo;
+    private final FeatureOperations featureOperations;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -43,11 +47,14 @@ public class StreamPlaya implements PlayaListener {
 
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo){
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo,
+                       FeatureOperations featureOperations){
+
         this.sharedPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
+        this.featureOperations = featureOperations;
         currentPlaya = bufferingPlayaDelegate;
 
         this.playerSwitcherInfo = playerSwitcherInfo;
@@ -90,19 +97,29 @@ public class StreamPlaya implements PlayaListener {
 
     public void play(PropertySet track) {
         lastTrackPlayed = track;
-        configureNextPlayaToUseViaPreferences();
-        currentPlaya.play(track);
+        configureNextPlayaToUseViaPreferences(track);
+
+        if (isAvailableOffline(track)){
+            currentPlaya.playOffline(track, 0);
+        } else {
+            currentPlaya.play(track);
+        }
     }
 
     public void play(PropertySet track, long fromPos) {
         lastTrackPlayed = track;
-        configureNextPlayaToUseViaPreferences();
-        currentPlaya.play(track, fromPos);
+        configureNextPlayaToUseViaPreferences(track);
+
+        if (isAvailableOffline(track)){
+            currentPlaya.playOffline(track, fromPos);
+        } else {
+            currentPlaya.play(track, fromPos);
+        }
     }
 
     public void playUninterrupted(PropertySet track) {
         lastTrackPlayed = track;
-        configureNextPlayaToUseViaPreferences();
+        configureNextPlayaToUseViaPreferences(track);
         currentPlaya.playUninterrupted(track);
     }
 
@@ -192,11 +209,13 @@ public class StreamPlaya implements PlayaListener {
         }
     }
 
-    private void configureNextPlayaToUseViaPreferences(){
-        configureNextPlayaToUse(getNextPlaya());
+    private void configureNextPlayaToUseViaPreferences(PropertySet track){
+        configureNextPlayaToUse(getNextPlaya(track));
     }
 
     private void configureNextPlayaToUse(Playa nextPlaya){
+        Log.i(TAG, "Configuring next player to use : " + nextPlaya);
+
         if (currentPlaya != null && currentPlaya != nextPlaya){
             currentPlaya.stopForTrackTransition();
         }
@@ -216,11 +235,15 @@ public class StreamPlaya implements PlayaListener {
     }
 
     @SuppressWarnings({"PMD.CompareObjectsWithEquals"})
-    private Playa getNextPlaya() {
+    private Playa getNextPlaya(PropertySet track) {
+
         if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()){
             return mediaPlayaDelegate;
 
         } else  if (isInForceSkippyMode()) {
+            return skippyPlayaDelegate;
+
+        } else if (isAvailableOffline(track)) {
             return skippyPlayaDelegate;
 
         } else if (lastPlaya == skippyPlayaDelegate){
@@ -237,6 +260,13 @@ public class StreamPlaya implements PlayaListener {
                 return mediaPlayaDelegate;
             }
         }
+    }
+
+    private boolean isAvailableOffline(PropertySet track){
+        return !skippyFailedToInitialize
+                && featureOperations.isOfflineContentEnabled()
+                && track.getOrElseNull(TrackProperty.OFFLINE_DOWNLOADED_AT) != null
+                && track.getOrElseNull(TrackProperty.OFFLINE_REMOVED_AT) == null;
     }
 
     private boolean isUsingSkippyPlaya() {

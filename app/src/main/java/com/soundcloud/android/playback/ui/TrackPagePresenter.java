@@ -10,7 +10,7 @@ import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -52,6 +52,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     private final PlayerOverlayController.Factory playerOverlayControllerFactory;
     private final TrackPageMenuController.Factory trackMenuControllerFactory;
     private final AdOverlayController.Factory adOverlayControllerFactory;
+    private final ErrorViewController.Factory errorControllerFactory;
     private final CastConnectionHelper castConnectionHelper;
     private final SlideAnimationHelper helper = new SlideAnimationHelper();
 
@@ -62,6 +63,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
                               PlayerOverlayController.Factory playerOverlayControllerFactory,
                               TrackPageMenuController.Factory trackMenuControllerFactory,
                               AdOverlayController.Factory adOverlayControllerFactory,
+                              ErrorViewController.Factory errorControllerFactory,
                               CastConnectionHelper castConnectionHelper) {
         this.waveformOperations = waveformOperations;
         this.listener = listener;
@@ -70,6 +72,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         this.playerOverlayControllerFactory = playerOverlayControllerFactory;
         this.trackMenuControllerFactory = trackMenuControllerFactory;
         this.adOverlayControllerFactory = adOverlayControllerFactory;
+        this.errorControllerFactory = errorControllerFactory;
         this.castConnectionHelper = castConnectionHelper;
     }
 
@@ -139,7 +142,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.footerUser.setText(track.getUserName());
         holder.footerTitle.setText(track.getTitle());
 
-        holder.timestamp.setVisibility(View.VISIBLE);
+        if (!holder.errorViewController.isShowingError()){
+            holder.timestamp.setVisibility(View.VISIBLE);
+        }
 
         setClickListener(this, holder.onClickViews);
     }
@@ -170,6 +175,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         holder.footerTitle.setText(ScTextUtils.EMPTY_STRING);
 
         holder.timestamp.setVisibility(View.GONE);
+        holder.errorViewController.hideError();
         return view;
     }
 
@@ -201,9 +207,9 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     @Override
-    public void onPlayableUpdated(View trackPage, PlayableUpdatedEvent playableUpdatedEvent) {
+    public void onPlayableUpdated(View trackPage, EntityStateChangedEvent trackChangedEvent) {
         final TrackPageHolder holder = getViewHolder(trackPage);
-        final PropertySet changeSet = playableUpdatedEvent.getChangeSet();
+        final PropertySet changeSet = trackChangedEvent.getNextChangeSet();
 
         if (changeSet.contains(PlayableProperty.IS_LIKED)) {
             holder.likeToggle.setChecked(changeSet.get(PlayableProperty.IS_LIKED));
@@ -216,7 +222,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             final boolean isReposted = changeSet.get(PlayableProperty.IS_REPOSTED);
             holder.menuController.setIsUserRepost(isReposted);
 
-            if (playableUpdatedEvent.isFromRepost()) {
+            if (trackChangedEvent.getKind() == EntityStateChangedEvent.REPOST) {
                 showRepostToast(trackPage.getContext(), isReposted);
             }
         }
@@ -237,7 +243,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         final TrackPageHolder viewHolder = getViewHolder(trackPage);
         viewHolder.waveformController.onBackground();
         castConnectionHelper.removeMediaRouterButton(viewHolder.mediaRouteButton);
-
     }
 
     @Override
@@ -254,8 +259,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void updateLikeStatus(View view, Urn trackUrn) {
-        boolean isLike = ((Checkable) view).isChecked();
-        listener.onToggleLike(isLike, trackUrn);
+        boolean addLike = ((Checkable) view).isChecked();
+        listener.onToggleLike(addLike, trackUrn);
     }
 
     private void setLikeCount(TrackPageHolder holder, int count) {
@@ -275,6 +280,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void setViewPlayState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+        updateErrorState(holder, state, isCurrentTrack);
+
         if (state.playSessionIsActive() && isCurrentTrack) {
             if (state.isPlayerPlaying()) {
                 holder.artworkController.showPlayingState(state.getProgress());
@@ -290,6 +297,14 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         }
 
         setTextBackgrounds(holder, state.playSessionIsActive());
+    }
+
+    private void updateErrorState(TrackPageHolder holder, StateTransition state, boolean isCurrentTrack) {
+        if (isCurrentTrack && state.wasError()) {
+            holder.errorViewController.showError(state.getReason());
+        } else {
+            holder.errorViewController.hideError();
+        }
     }
 
     private void setAdStateOnPlayerOverlay(TrackPageHolder holder, boolean isShown) {
@@ -308,7 +323,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         TrackPageHolder holder = getViewHolder(trackView);
         holder.waveformController.scrubStateChanged(ScrubController.SCRUB_STATE_NONE);
         holder.menuController.dismiss();
-
     }
 
     @Override
@@ -319,7 +333,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     }
 
     private void setProgressInternal(View trackPage, PlaybackProgress progress) {
-        for (ProgressAware view : getViewHolder(trackPage).progressAwares) {
+        for (ProgressAware view : getViewHolder(trackPage).progressAwareViews) {
             view.setProgress(progress);
         }
     }
@@ -342,9 +356,19 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
     public void onPlayerSlide(View trackView, float slideOffset) {
         TrackPageHolder holder = getViewHolder(trackView);
 
-        final Iterable<View> fullScreenViews = holder.adOverlayController.isNotVisibleInFullscreen() ? holder.fullScreenViews : holder.adOverlayIterable;
+        final Iterable<View> fullScreenViews = getFullScreenViews(holder);
         helper.configureViewsFromSlide(slideOffset, holder.footer, fullScreenViews, holder.playerOverlayControllers);
         holder.waveformController.onPlayerSlide(slideOffset);
+    }
+
+    private Iterable<View> getFullScreenViews(TrackPageHolder holder) {
+        if (holder.adOverlayController.isVisibleInFullscreen()) {
+            return holder.fullScreenAdViews;
+        } else if (holder.errorViewController.isShowingError()) {
+            return holder.fullScreenErrorViews;
+        } else {
+            return holder.fullScreenViews;
+        }
     }
 
     public boolean accept(View view) {
@@ -438,8 +462,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         holder.adOverlayController = adOverlayControllerFactory.create(trackView, createAdOverlayListener(holder));
 
-        final WaveformView waveform = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
-        holder.waveformController = waveformControllerFactory.create(waveform, holder.adOverlayController);
+        final WaveformView waveformView = (WaveformView) trackView.findViewById(R.id.track_page_waveform);
+        holder.waveformController = waveformControllerFactory.create(waveformView);
         holder.playerOverlayControllers = new PlayerOverlayController[] {
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_dark)),
                 playerOverlayControllerFactory.create(holder.artworkView.findViewById(R.id.artwork_overlay_image))
@@ -469,6 +493,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         holder.populateViewSets();
         trackView.setTag(holder);
+
+        holder.errorViewController = errorControllerFactory.create(trackView);
     }
 
     private AdOverlayController.AdOverlayListener createAdOverlayListener(final TrackPageHolder holder) {
@@ -477,10 +503,10 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             public void onAdOverlayShown(boolean fullscreen) {
                 setAdStateOnPlayerOverlay(holder, true);
                 setTextBackgrounds(holder, false);
-                holder.waveformController.setCollapsed();
+                holder.waveformController.hide();
 
-                if (fullscreen){
-                    AnimUtils.hideViews(holder.close, holder.more, holder.likeToggle, holder.title, holder.user);
+                if (fullscreen) {
+                    AnimUtils.hideViews(holder.hideOnAdViews);
                 }
             }
 
@@ -488,10 +514,10 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             public void onAdOverlayHidden(boolean fullscreen) {
                 setAdStateOnPlayerOverlay(holder, false);
                 setTextBackgrounds(holder, true);
-                holder.waveformController.setExpanded();
+                holder.waveformController.show();
 
-                if (fullscreen){
-                    AnimUtils.showViews(holder.close, holder.more, holder.likeToggle, holder.title, holder.user);
+                if (fullscreen) {
+                    AnimUtils.showViews(holder.hideOnAdViews);
                 }
             }
         };
@@ -502,13 +528,8 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         // Expanded player
         JaggedTextView title;
         JaggedTextView user;
-        WaveformViewController waveformController;
-        TrackPageMenuController menuController;
         TimestampView timestamp;
         PlayerTrackArtworkView artworkView;
-        PlayerArtworkController artworkController;
-        PlayerOverlayController[] playerOverlayControllers;
-        AdOverlayController adOverlayController;
         ToggleButton likeToggle;
         MediaRouteButton mediaRouteButton;
         View more;
@@ -517,11 +538,17 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         View nextButton;
         View previousButton;
         View playButton;
-        View playControlsHolder;
         View closeIndicator;
         View profileLink;
+        View playControlsHolder;
         View interstitialHolder;
 
+        WaveformViewController waveformController;
+        TrackPageMenuController menuController;
+        PlayerArtworkController artworkController;
+        PlayerOverlayController[] playerOverlayControllers;
+        AdOverlayController adOverlayController;
+        ErrorViewController errorViewController;
 
         // Footer player
         View footer;
@@ -531,12 +558,15 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         // View sets
         Iterable<View> fullScreenViews;
-        Iterable<View> adOverlayIterable;
+        Iterable<View> fullScreenAdViews;
+        Iterable<View> fullScreenErrorViews;
         Iterable<View> hideOnScrubViews;
+        Iterable<View> hideOnErrorViews;
+        Iterable<View> hideOnAdViews;
         Iterable<View> onClickViews;
-        Iterable<ProgressAware> progressAwares;
+        Iterable<ProgressAware> progressAwareViews;
 
-        private final Predicate<View> presentInConfig = new Predicate<View>() {
+        private static final Predicate<View> PRESENT_IN_CONFIG = new Predicate<View>() {
             @Override
             public boolean apply(@Nullable View v) {
                 return v != null;
@@ -544,14 +574,19 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
         };
 
         public void populateViewSets() {
-            List<View> hideViews = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton, bottomClose);
+            List<View> hideOnScrub = Arrays.asList(title, user, closeIndicator, nextButton, previousButton, playButton, bottomClose);
+            List<View> hideOnError = Arrays.asList(playButton, more, likeToggle, timestamp);
             List<View> clickViews = Arrays.asList(artworkView, close, bottomClose, playButton, footer, footerPlayToggle, likeToggle, profileLink);
 
             fullScreenViews = Arrays.asList(title, user, close, timestamp, interstitialHolder);
-            adOverlayIterable = Arrays.asList(interstitialHolder);
-            hideOnScrubViews = Iterables.filter(hideViews, presentInConfig);
-            onClickViews = Iterables.filter(clickViews, presentInConfig);
-            progressAwares = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
+            fullScreenAdViews = Arrays.asList(interstitialHolder);
+            fullScreenErrorViews = Arrays.asList(title, user, close, interstitialHolder);
+
+            hideOnScrubViews = Iterables.filter(hideOnScrub, PRESENT_IN_CONFIG);
+            hideOnErrorViews = Iterables.filter(hideOnError, PRESENT_IN_CONFIG);
+            onClickViews = Iterables.filter(clickViews, PRESENT_IN_CONFIG);
+            hideOnAdViews = Arrays.asList(close, more, likeToggle, title, user, timestamp);
+            progressAwareViews = Lists.<ProgressAware>newArrayList(waveformController, artworkController, timestamp, menuController);
         }
 
         private boolean hasNextButton() {

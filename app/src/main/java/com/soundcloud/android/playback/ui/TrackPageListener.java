@@ -2,13 +2,14 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -16,7 +17,7 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.propeller.PropertySet;
 import rx.Subscriber;
 
 import android.content.Context;
@@ -24,23 +25,27 @@ import android.content.Context;
 import javax.inject.Inject;
 
 class TrackPageListener extends PageListener {
-    private final SoundAssociationOperations associationOperations;
     private final PlayQueueManager playQueueManager;
+    private final LikeOperations likeOperations;
 
     @Inject
     public TrackPageListener(PlaybackOperations playbackOperations,
-                             SoundAssociationOperations associationOperations,
                              PlayQueueManager playQueueManager,
                              PlaySessionStateProvider playSessionStateProvider,
-                             EventBus eventBus) {
+                             EventBus eventBus, LikeOperations likeOperations) {
         super(playbackOperations, playSessionStateProvider, eventBus);
-        this.associationOperations = associationOperations;
         this.playQueueManager = playQueueManager;
+        this.likeOperations = likeOperations;
     }
 
-    public void onToggleLike(boolean isLike, Urn trackUrn) {
-        fireAndForget(associationOperations.toggleLike(trackUrn, isLike));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, ScreenElement.PLAYER.get(), playQueueManager.getScreenTag(), trackUrn));
+    public void onToggleLike(boolean addLike, Urn trackUrn) {
+            final PropertySet propertySet = PropertySet.from(PlayableProperty.URN.bind(trackUrn));
+            fireAndForget(addLike
+                    ? likeOperations.addLike(propertySet)
+                    : likeOperations.removeLike(propertySet));
+
+        eventBus.publish(EventQueue.TRACKING,
+                UIEvent.fromToggleLike(addLike, ScreenElement.PLAYER.get(), playQueueManager.getScreenTag(), trackUrn));
     }
 
     public void onGotoUser(final Context activityContext, final Urn userUrn) {

@@ -14,7 +14,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -22,7 +22,7 @@ import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @SuppressLint("ValidFragment")
-public class PlaylistDetailFragment extends DefaultFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class PlaylistDetailFragment extends LightCycleSupportFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String EXTRA_URN = "urn";
 
@@ -71,7 +71,7 @@ public class PlaylistDetailFragment extends DefaultFragment implements AdapterVi
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
     @Inject PlaylistPresenter playlistPresenter;
-    @Inject PlaybackToastViewController playbackToastViewController;
+    @Inject AdToastViewController adToastViewController;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     private PlaylistDetailsController controller;
@@ -155,7 +155,7 @@ public class PlaylistDetailFragment extends DefaultFragment implements AdapterVi
     }
 
     private void playFromBeginning() {
-        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastViewController));
+        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, adToastViewController));
     }
 
     private void addLifeCycleComponents() {
@@ -311,7 +311,7 @@ public class PlaylistDetailFragment extends DefaultFragment implements AdapterVi
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
-        final Observable<Urn> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
+        final Observable<List<Urn>> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
         playbackOperations
                 .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
@@ -397,8 +397,8 @@ public class PlaylistDetailFragment extends DefaultFragment implements AdapterVi
 
     private class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
 
-        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, PlaybackToastViewController playbackToastViewController) {
-            super(eventBus, playbackToastViewController);
+        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, AdToastViewController adToastViewController) {
+            super(eventBus, adToastViewController);
         }
 
         @Override

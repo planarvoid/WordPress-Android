@@ -6,6 +6,9 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
+
+import android.net.Uri;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -14,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class SecureFileStorage {
+public class SecureFileStorage {
+
+    private static final String TAG = "SecureFileStorage";
 
     private static final String DIRECTORY_NAME = "offline";
     private static final String ENC_FILE_EXTENSION = ".enc";
@@ -40,6 +45,19 @@ class SecureFileStorage {
         } finally {
             IOUtils.close(output);
         }
+    }
+
+    public boolean deleteTrack(Urn urn) throws EncryptionException {
+        return new File(OFFLINE_DIR, generateFileName(urn)).delete();
+    }
+
+    public Uri getFileUriForOfflineTrack(Urn urn) {
+        try {
+            return Uri.fromFile(new File(OFFLINE_DIR, generateFileName(urn)));
+        } catch (EncryptionException e) {
+            Log.e(TAG, "Unable to generate file uri ", e);
+        }
+        return Uri.EMPTY;
     }
 
     private String generateFileName(Urn urn) throws EncryptionException {

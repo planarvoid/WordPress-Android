@@ -8,7 +8,6 @@ public interface TempEndpoints {
     String PLAYLIST_TRACKS      = "/playlists/%d/tracks";
     String MY_PLAYLISTS         = "/me/playlists";
     String USER_PLAYLISTS       = "/users/%d/playlists";
-    String SEARCH               = "/search";
     String TRACK_SEARCH         = "/search/sounds";
 
     public interface e1 {
@@ -28,7 +27,6 @@ public interface TempEndpoints {
     }
 
     public interface i1 {
-        String ME_FACEBOOK_TOKEN  = "/i1/me/facebook_token";
         String MY_SHORTCUTS       = "/i1/me/shortcuts";
     }
 }

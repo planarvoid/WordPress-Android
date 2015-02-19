@@ -5,9 +5,9 @@ import com.google.common.base.Objects;
 import com.localytics.android.LocalyticsAmpSession;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.DeviceMetricsEvent;
@@ -23,6 +23,7 @@ import com.soundcloud.android.events.SkippyInitilizationSucceededEvent;
 import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
@@ -51,7 +52,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private final ProxyDetector proxyDetector;
     private final LocalyticsUIEventHandler uiEventHandler;
     private final LocalyticsOnboardingEventHandler onboardingEventHandler;
-    private final PlaybackStateProvider playbackStateWrapper;
     private final LocalyticsSearchEventHandler searchEventHandler;
 
     static {
@@ -62,28 +62,25 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     public LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsAmpSession,
                                        AccountOperations accountOperations,
                                        ProxyDetector proxyDetector) {
-        this(localyticsAmpSession, new PlaybackStateProvider(), accountOperations.getLoggedInUserId(), proxyDetector);
+        this(localyticsAmpSession, accountOperations.getLoggedInUserId(), proxyDetector);
     }
 
     @VisibleForTesting
     protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
-                                          PlaybackStateProvider playbackStateWrapper,
                                           long currentUserId,
                                           ProxyDetector proxyDetector) {
-        this(localyticsSession, playbackStateWrapper, proxyDetector);
+        this(localyticsSession, proxyDetector);
         localyticsSession.setCustomerId(getCustomerId(currentUserId));
     }
 
     @VisibleForTesting
     protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
-                                          PlaybackStateProvider playbackStateWrapper,
                                           ProxyDetector proxyDetector) {
         session = localyticsSession;
         this.proxyDetector = proxyDetector;
         uiEventHandler = new LocalyticsUIEventHandler(session);
         onboardingEventHandler = new LocalyticsOnboardingEventHandler(session);
         searchEventHandler = new LocalyticsSearchEventHandler(session);
-        this.playbackStateWrapper = playbackStateWrapper;
     }
 
     @Override
@@ -103,16 +100,15 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-        switch (event.getKind()) {
-            case ActivityLifeCycleEvent.ON_CREATE_EVENT:
-            case ActivityLifeCycleEvent.ON_RESUME_EVENT:
-                openSessionForActivity();
-                break;
-            case ActivityLifeCycleEvent.ON_PAUSE_EVENT:
-                closeSessionForActivity();
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown event kind: " + event.getKind());
+
+    }
+
+    @Override
+    public void handleUserSessionEvent(UserSessionEvent event) {
+        if (event == UserSessionEvent.OPENED) {
+            openSessionForActivity();
+        } else {
+            closeSessionForActivity();
         }
     }
 
@@ -241,11 +237,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
      */
     private void closeSessionForActivity() {
         ACTIVITY_SESSION_OPEN.set(false);
-        if (playbackStateWrapper.isSupposedToBePlaying()) {
-            Log.d(TAG, "Didn't close analytics session; playback service still alive and well!");
-        } else {
-            closeSession();
-        }
+        closeSession();
     }
 
     //TODO: Should be a standardized anonymous id
@@ -316,15 +308,10 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleDeviceMetricsEvent(DeviceMetricsEvent event) {
-        switch (event.getKind()) {
-            case DeviceMetricsEvent.KEY_DATABASE:
-                tagEvent(LocalyticsEvents.DeviceMetrics.DB_SIZE, event.getAttributes());
-                break;
-            case DeviceMetricsEvent.KEY_HAS_DEVICE_ID:
-                tagEvent(LocalyticsEvents.DeviceMetrics.DEVICE_ID, event.getAttributes());
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown device metrics event kind: " + event.getKind());
+        if (event.getKind().equals(DeviceMetricsEvent.KEY_DATABASE)) {
+            tagEvent(LocalyticsEvents.DeviceMetrics.DB_SIZE, event.getAttributes());
+        } else {
+            throw new IllegalArgumentException("Unknown device metrics event kind: " + event.getKind());
         }
     }
 }

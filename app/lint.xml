@@ -65,6 +65,8 @@
         <!-- these appear to be unused, but they will be pulled in by the holo dialogs lib we use -->
         <ignore path="res/layout/dialog_part_list.xml"/>
         <ignore path="res/layout/dialog_part_title.xml"/>
+        <!-- ignore Crashlytics plugin auto-generated code -->
+        <ignore path="res/values/com_crashlytics_export_strings.xml"/>
     </issue>
 
     <issue id="SetJavaScriptEnabled">

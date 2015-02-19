@@ -5,6 +5,7 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
@@ -18,6 +19,7 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
@@ -29,6 +31,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RadioButton;
@@ -40,22 +43,26 @@ import javax.inject.Inject;
 
 public class UploadActivity extends ScActivity implements ISimpleDialogListener {
 
+    private static final int REC_ANOTHER = 0, POST = 1;
+    public static final int DIALOG_PICK_IMAGE = 1;
+
     private RadioGroup rdoPrivacy;
     private RadioButton rdoPrivate, rdoPublic;
     private ConnectionListLayout connectionList;
     private Recording recording;
     private RecordingMetaDataLayout recordingMetadata;
     private boolean uploading;
-
-    @Inject ImageOperations imageOperations;
-    @Inject RecordOperations recordOperations;
-
     private RecordingStorage storage;
     private PublicCloudAPI oldCloudAPI;
 
-    private static final int REC_ANOTHER = 0, POST = 1;
+    @Inject ImageOperations imageOperations;
+    @Inject RecordOperations recordOperations;
+    @Inject ActionBarController actionBarController;
 
-    public static final int DIALOG_PICK_IMAGE = 1;
+    public UploadActivity() {
+        lightCycleDispatcher.attach(actionBarController);
+    }
+
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -86,6 +93,13 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
             setResult(RESULT_OK, null);
             finish();
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
     private void setUploadLayout(int layoutId) {
@@ -223,7 +237,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     }
 
     private void recordingNotFound() {
-        showToast(R.string.recording_not_found);
+        AndroidUtils.showToast(this, R.string.recording_not_found);
         finish();
     }
 

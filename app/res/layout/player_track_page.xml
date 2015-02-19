@@ -108,4 +108,11 @@
                 android:layout_height="match_parent" />
     </FrameLayout>
 
+    <ViewStub
+            android:id="@+id/track_page_error_stub"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inflatedId="@+id/track_page_error"
+            android:layout="@layout/track_page_error" />
+
 </RelativeLayout>

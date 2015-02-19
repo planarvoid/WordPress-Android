@@ -1,13 +1,9 @@
 package com.soundcloud.android.playback.widget;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
-import static com.soundcloud.android.playback.service.Playa.PlayaState;
-import static com.soundcloud.android.playback.service.Playa.Reason;
-import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForWidget;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -16,18 +12,20 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -59,8 +57,9 @@ public class PlayerWidgetControllerTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackOperations trackOperations;
-    @Mock private SoundAssociationOperations soundAssociationOps;
     @Mock private AdsOperations adsOperations;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private LikeOperations likeOperations;
 
     @Before
     public void setUp() {
@@ -70,7 +69,8 @@ public class PlayerWidgetControllerTest {
                 playSessionStateProvider,
                 playQueueManager,
                 trackOperations,
-                soundAssociationOps, eventBus);
+                eventBus,
+                likeOperations);
         when(context.getResources()).thenReturn(Robolectric.application.getResources());
         widgetTrack = expectedTrackForWidget();
         widgetTrackWithAd = expectedTrackForWidget().merge(audioAdProperties(Urn.forTrack(123L)));
@@ -88,7 +88,7 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterWithDefaultPlayStateFollowedByReceivedPlayStateOnSubscribeAndReceivePlaybackStateChangedEvent() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(PlayaState.PLAYING, Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
 
         InOrder inOrder = Mockito.inOrder(playerWidgetPresenter);
         inOrder.verify(playerWidgetPresenter).updatePlayState(eq(context), eq(false));
@@ -134,10 +134,10 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
         when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
-        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
@@ -150,10 +150,10 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
         when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
-        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
 
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
@@ -164,11 +164,11 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldNotUpdatePresenterWhenChangedTrackIsNotCurrentlyPlayingTrack() {
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(false);
-        PlayableUpdatedEvent event = PlayableUpdatedEvent.forLike(WIDGET_TRACK_URN, true, 1);
+        EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
 
         controller.subscribe();
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, event);
         verify(playerWidgetPresenter, never()).updateTrackInformation(any(Context.class), any(PropertySet.class));
     }
 
@@ -245,14 +245,14 @@ public class PlayerWidgetControllerTest {
     }
 
     @Test
-    public void shouldSetLikeOnReceivedWidgetLikeChanged() throws CreateModelException {
+    public void toggleLikeActionTriggersToggleLikeOperations() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
-        when(soundAssociationOps.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
+        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>never());
 
         controller.handleToggleLikeAction(true);
 
-        verify(soundAssociationOps).toggleLike(WIDGET_TRACK_URN, true);
+        verify(likeOperations).addLike(eq(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123)))));
     }
 
     @Test
@@ -260,7 +260,7 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
-        when(soundAssociationOps.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>never());
+        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>never());
 
         controller.handleToggleLikeAction(true);
 

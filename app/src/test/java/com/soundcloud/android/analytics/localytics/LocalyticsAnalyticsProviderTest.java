@@ -48,7 +48,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Before
     public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, null, 123L, proxyDetector);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, 123L, proxyDetector);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldSetCustomerIdToNullIfTheUserIsNotLoggedInWhenConstructed() throws Exception {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, null, -1, proxyDetector);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, -1, proxyDetector);
         verify(localyticsSession).setCustomerId(null);
     }
 

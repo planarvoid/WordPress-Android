@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
@@ -18,13 +18,13 @@ import org.mockito.Mock;
 public class ExpandPlayerSubscriberTest {
     private ExpandPlayerSubscriber subscriber;
 
-    private TestEventBus eventbus;
-    @Mock private PlaybackToastViewController toastViewController;
+    private TestEventBus eventBus;
+    @Mock private AdToastViewController toastViewController;
 
     @Before
     public void setUp() throws Exception {
-        eventbus = new TestEventBus();
-        subscriber = new ExpandPlayerSubscriber(eventbus, toastViewController);
+        eventBus = new TestEventBus();
+        subscriber = new ExpandPlayerSubscriber(eventBus, toastViewController);
     }
 
     @Test
@@ -32,14 +32,14 @@ public class ExpandPlayerSubscriberTest {
         subscriber.onCompleted();
 
         Robolectric.runUiThreadTasksIncludingDelayedTasks();
-        expect(eventbus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
+        expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
     }
 
     @Test
     public void subscriberShowAToastOnUnskippableError() {
-        subscriber.onError(new PlaybackOperations.UnSkippablePeriodException());
+        subscriber.onError(new PlaybackOperations.UnskippablePeriodException());
 
-        verify(toastViewController).showUnkippableAdToast();
+        verify(toastViewController).showUnskippableAdToast();
     }
 
     @Test
@@ -47,8 +47,9 @@ public class ExpandPlayerSubscriberTest {
         subscriber.onCompleted();
 
         Robolectric.runUiThreadTasksIncludingDelayedTasks();
-        UIEvent event = (UIEvent) eventbus.lastEventOn(EventQueue.TRACKING);
+        UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY);
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
     }
+
 }

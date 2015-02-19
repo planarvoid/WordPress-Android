@@ -12,7 +12,9 @@ import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActiv
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersSyncActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.settings.LicensesActivity;
 import com.soundcloud.android.settings.AccountSettingsActivity;
 import com.soundcloud.android.settings.ConfigurationFeaturesActivity;
 import com.soundcloud.android.settings.LegalActivity;
@@ -39,10 +41,12 @@ import dagger.Module;
                 ConfigurationFeaturesActivity.class,
                 NotificationSettingsActivity.class,
                 LegalActivity.class,
+                LicensesActivity.class,
                 WhoToFollowActivity.class,
                 SearchActivity.class,
                 SuggestedUsersCategoryActivity.class,
                 TrackCommentsActivity.class,
-                ProfileActivity.class
+                ProfileActivity.class,
+                VerifyAgeActivity.class
         }, includes = {AssociationsModule.class, AnalyticsModule.class})
 public class MainModule { }

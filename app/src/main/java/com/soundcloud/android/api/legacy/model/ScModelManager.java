@@ -225,24 +225,6 @@ public class ScModelManager {
     }
 
 
-    public
-    @Nullable
-    PublicApiPlaylist getPlaylist(long id) {
-        if (id < 0) {
-            return null;
-        }
-
-        PublicApiPlaylist p = playlistCache.get(id);
-        if (p == null) {
-            p = (PublicApiPlaylist) getModel(Content.PLAYLIST.forId(id));
-            if (p != null) {
-                playlistCache.put(p);
-            }
-        }
-        return p;
-    }
-
-
     public PublicApiTrack getCachedTrack(long id) {
         return trackCache.get(id);
     }

@@ -1,7 +1,6 @@
 package com.soundcloud.api;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.ConnectionReuseStrategy;

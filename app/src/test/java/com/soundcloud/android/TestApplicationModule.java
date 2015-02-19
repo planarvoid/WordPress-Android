@@ -15,6 +15,8 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.cast.CastSessionReconnector;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
@@ -29,7 +31,9 @@ import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
+import com.soundcloud.android.sync.entities.EntitySyncJob;
 import com.soundcloud.android.sync.likes.LikesSyncer;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
@@ -39,6 +43,7 @@ import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
 import android.accounts.AccountManager;
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -222,14 +227,35 @@ public class TestApplicationModule {
 
     @Provides
     @Named("TrackLikesSyncer")
-    LikesSyncer provideTrackLikesSyncer() {
+    LikesSyncer<ApiTrack> provideTrackLikesSyncer() {
         return mock(LikesSyncer.class);
     }
 
     @Provides
     @Named("PlaylistLikesSyncer")
-    LikesSyncer providePlaylistLikesSyncer() {
+    LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer() {
         return mock(LikesSyncer.class);
     }
+
+    @Provides
+    @Named("TracksSyncJob")
+    EntitySyncJob provideTracksSyncJob() {
+        return mock(EntitySyncJob.class);
+    }
+
+    @Provides
+    @Named("PlaylistsSyncJob")
+    EntitySyncJob providePlaylistsSyncJob() {
+        return mock(EntitySyncJob.class);
+    }
+
+    @Provides
+    public NetworkConnectionHelper provideNetworkConnectionHelper() {
+        return mock(NetworkConnectionHelper.class);
+    }
+
+    @Provides
+    NotificationManager provideNotificationManager() { return mock(NotificationManager.class); }
+
 }
 

@@ -4,8 +4,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.offline.SyncLikesDialogBuilder;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -17,7 +15,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
-import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -39,25 +36,18 @@ public class DeveloperSettings {
     public static final String DEV_HTTP_PROXY = "dev.http.proxy";
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";
-    public static final String DEV_OFFLINE_SYNC = "dev.offlineSync";
     public static final String DEV_CONFIG_FEATURES = "dev.configFeatures";
 
     private final SoundCloudApplication application;
-    private final OfflineContentOperations offlineOperations;
-    private final SyncLikesDialogBuilder syncDialogBuilder;
 
     @Inject
-    public DeveloperSettings(SoundCloudApplication application, OfflineContentOperations offlineOperations,
-                             SyncLikesDialogBuilder syncDialogBuilder) {
+    public DeveloperSettings(SoundCloudApplication application) {
         this.application = application;
-        this.offlineOperations = offlineOperations;
-        this.syncDialogBuilder = syncDialogBuilder;
     }
 
     public void setup(final PreferenceActivity activity) {
         activity.addPreferencesFromResource(R.xml.settings_dev);
         setupPreferenceListeners(activity);
-        setupOfflineSyncPreference(activity);
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
@@ -156,37 +146,6 @@ public class DeveloperSettings {
 
         SharedPreferencesUtils.listWithLabel((ListPreference) activity.findPreference(DEV_RECORDING_TYPE),
                 R.string.pref_dev_record_type);
-    }
-
-    private void setupOfflineSyncPreference(final PreferenceActivity activity) {
-        updateOfflineModeCheckBox(activity);
-
-        activity.findPreference(DEV_OFFLINE_SYNC).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (offlineOperations.isLikesOfflineSyncEnabled()) {
-                            offlineOperations.setLikesOfflineSync(false);
-                        } else {
-                            syncDialogBuilder
-                                    .create(activity)
-                                    .setNegativeButton(activity.getText(R.string.cancel),
-                                            new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    updateOfflineModeCheckBox(activity);
-                                                }
-                                            })
-                                    .show();
-                        }
-                        return true;
-                    }
-                });
-    }
-
-    private void updateOfflineModeCheckBox(PreferenceActivity activity) {
-        ((CheckBoxPreference) activity.findPreference(DEV_OFFLINE_SYNC))
-                .setChecked(offlineOperations.isLikesOfflineSyncEnabled());
     }
 
     private static class DeleteRecordings implements Runnable {

@@ -6,8 +6,8 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.main.DefaultFragmentLifeCycle;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.Pager;
@@ -26,12 +26,11 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
-public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
+@Deprecated // use ListPresenter
+public class ListViewController extends DefaultSupportFragmentLightCycle {
 
     private final EmptyViewController emptyViewController;
     private final ImageOperations imageOperations;
-
-    private HeaderViewController headerViewController;
 
     private AbsListView absListView;
     private ListAdapter adapter;
@@ -57,7 +56,7 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
      * apply an optional transformation of items before adding them to the adapter, e.g. when mapping to a view model.
      */
     public <T, R, CollT extends Iterable<T>>
-    void setAdapter(final EndlessAdapter<R> adapter, final Pager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
+    void setAdapter(final PagingItemAdapter<R> adapter, final Pager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
         this.adapter = adapter;
         this.pager = pager;
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
@@ -70,10 +69,10 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
     }
 
     /**
-     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.EndlessAdapter, rx.android.Pager)}, but does
+     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.PagingItemAdapter, rx.android.Pager)}, but does
      * not perform any item mapping.
      */
-    public <T, CollT extends Iterable<T>> void setAdapter(final EndlessAdapter<T> adapter, final Pager<CollT> pager) {
+    public <T, CollT extends Iterable<T>> void setAdapter(final PagingItemAdapter<T> adapter, final Pager<CollT> pager) {
         setAdapter(adapter, pager, UtilityFunctions.<CollT>identity());
     }
 
@@ -86,26 +85,10 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
         absListView.setOnItemClickListener(listComponent);
     }
 
-    /**
-     * Use this method to set a {@link com.soundcloud.android.view.HeaderViewController}
-     * to a {@link android.widget.ListView}.
-     */
-    public void setHeaderViewController(HeaderViewController headerViewController) {
-        Preconditions.checkNotNull(headerViewController, "Header view controller cannot be null");
-        this.headerViewController = headerViewController;
-        if (absListView instanceof ListView) {
-            final View view = this.headerViewController.getHeaderView();
-            if (adapter != null && view != null) {
-                final ListView listView = (ListView) absListView;
-                listView.addHeaderView(view, null, false);
-            }
-        }
-    }
-
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         Preconditions.checkNotNull(adapter, "You must set an adapter before calling onViewCreated");
-        emptyViewController.onViewCreated(view, savedInstanceState);
+        emptyViewController.onViewCreated(fragment, view, savedInstanceState);
 
         absListView = (AbsListView) view.findViewById(android.R.id.list);
         absListView.setEmptyView(emptyViewController.getEmptyView());
@@ -116,7 +99,7 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
             scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         }
         if (pager != null) {
-            scrollListener = new PagingScrollListener(pager, (EndlessAdapter) adapter, scrollListener);
+            scrollListener = new PagingScrollListener(pager, (PagingItemAdapter) adapter, scrollListener);
         }
 
         absListView.setOnScrollListener(scrollListener);
@@ -138,8 +121,8 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
     }
 
     @Override
-    public void onDestroyView() {
-        emptyViewController.onDestroyView();
+    public void onDestroyView(Fragment fragment) {
+        emptyViewController.onDestroyView(fragment);
         compatSetAdapter(null);
         absListView = null;
     }
@@ -153,18 +136,13 @@ public class ListViewController extends DefaultFragmentLifeCycle<Fragment> {
         return absListView;
     }
 
-    @VisibleForTesting
-    View getHeaderView() {
-        return headerViewController.getHeaderView();
-    }
-
     private static class PagingScrollListener implements AbsListView.OnScrollListener {
 
         private final Pager<?> pager;
-        private final EndlessAdapter<?> adapter;
+        private final PagingItemAdapter<?> adapter;
         private final OnScrollListener listenerDelegate;
 
-        PagingScrollListener(Pager<?> pager, EndlessAdapter<?> adapter, OnScrollListener listenerDelegate) {
+        PagingScrollListener(Pager<?> pager, PagingItemAdapter<?> adapter, OnScrollListener listenerDelegate) {
             this.pager = pager;
             this.adapter = adapter;
             this.listenerDelegate = listenerDelegate;

@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ public class ListViewControllerTest {
     @Mock private ListView listView;
     @Mock private AbsListView.OnScrollListener scrollListener;
     @Mock private Pager pager;
-    @Mock private EndlessAdapter pagedAdapter;
+    @Mock private PagingItemAdapter pagedAdapter;
 
     @Before
     public void setup() {
@@ -62,32 +62,32 @@ public class ListViewControllerTest {
 
     @Test
     public void shouldDelegateOnViewCreatedToEmptyViewController() {
-        controller.onViewCreated(view, bundle);
-        verify(emptyViewController).onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
+        verify(emptyViewController).onViewCreated(fragment, view, bundle);
     }
 
     @Test
     public void shouldDelegateOnDestroyViewToEmptyViewController() {
-        controller.onViewCreated(view, bundle);
-        controller.onDestroyView();
-        verify(emptyViewController).onDestroyView();
+        controller.onViewCreated(fragment, view, bundle);
+        controller.onDestroyView(fragment);
+        verify(emptyViewController).onDestroyView(fragment);
     }
 
     @Test
     public void shouldSetEmptyViewForListViewInOnViewCreated() {
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
         verify(listView).setEmptyView(emptyView);
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowIfNoAdapterIsSetAtTheTimeOnViewCreatedIsCalled() {
         controller.setAdapter(null);
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
     }
 
     @Test
     public void shouldSetAdapterForListViewInOnViewCreated() {
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
         verify(listView).setAdapter(adapter);
     }
 
@@ -95,7 +95,7 @@ public class ListViewControllerTest {
     public void shouldSetAdapterForGridViewInOnViewCreated() {
         GridView gridView = mock(GridView.class);
         when(view.findViewById(android.R.id.list)).thenReturn(gridView);
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
         verify(gridView).setAdapter(adapter);
     }
 
@@ -103,7 +103,7 @@ public class ListViewControllerTest {
     public void shouldSetDefaultImageScrollListenerInOnViewCreated() {
         when(imageOperations.createScrollPauseListener(false, true)).thenReturn(scrollListener);
 
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
 
         verify(listView).setOnScrollListener(scrollListener);
     }
@@ -113,14 +113,14 @@ public class ListViewControllerTest {
         when(imageOperations.createScrollPauseListener(false, true, scrollListener)).thenReturn(scrollListener);
         controller.setScrollListener(scrollListener);
 
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
 
         verify(listView).setOnScrollListener(scrollListener);
     }
 
     @Test
     public void shouldRegisterListComponentAsItemClickListenerWithListViewOnConnect() {
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
         controller.connect(reactiveListComponent, observable);
         verify(listView).setOnItemClickListener(reactiveListComponent);
     }
@@ -128,7 +128,7 @@ public class ListViewControllerTest {
     @Test
     public void shouldRegisterOnScrollListenerForPagedEndlessListsInOnViewCreated() {
         controller.setAdapter(pagedAdapter, pager);
-        controller.onViewCreated(view, bundle);
+        controller.onViewCreated(fragment, view, bundle);
 
         verify(listView).setOnScrollListener(isA(AbsListView.OnScrollListener.class));
     }
@@ -148,15 +148,15 @@ public class ListViewControllerTest {
 
     @Test
     public void shouldDetachAdapterFromListViewInOnDestroyView() {
-        controller.onViewCreated(view, bundle);
-        controller.onDestroyView();
+        controller.onViewCreated(fragment, view, bundle);
+        controller.onDestroyView(fragment);
         verify(listView).setAdapter(null);
     }
 
     @Test
     public void shouldReleaseListViewInOnDestroyView() {
-        controller.onViewCreated(view, bundle);
-        controller.onDestroyView();
+        controller.onViewCreated(fragment, view, bundle);
+        controller.onDestroyView(fragment);
         expect(controller.getListView()).toBeNull();
     }
 }

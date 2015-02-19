@@ -5,8 +5,11 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 
@@ -106,6 +109,40 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_REPOSTED.bind(true));
     }
 
+    public static PropertySet expectedLikedTrackForLikesScreen() {
+        return PropertySet.from(
+                TrackProperty.URN.bind(Urn.forTrack(123L)),
+                TrackProperty.TITLE.bind("squirlex galore"),
+                TrackProperty.CREATOR_NAME.bind("avieciie"),
+                TrackProperty.DURATION.bind(10),
+                TrackProperty.PLAY_COUNT.bind(4),
+                TrackProperty.LIKES_COUNT.bind(2),
+                LikeProperty.CREATED_AT.bind(new Date()),
+                TrackProperty.IS_PRIVATE.bind(false));
+    }
+
+    public static PropertySet expectedLikedPlaylistForPlaylistsScreen() {
+        return PropertySet.from(
+                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
+                PlaylistProperty.TITLE.bind("squirlex galore"),
+                PlaylistProperty.CREATOR_NAME.bind("avieciie"),
+                PlaylistProperty.TRACK_COUNT.bind(4),
+                PlaylistProperty.LIKES_COUNT.bind(2),
+                LikeProperty.CREATED_AT.bind(new Date()),
+                PlaylistProperty.IS_PRIVATE.bind(false));
+    }
+
+    public static PropertySet expectedPostedPlaylistsForPostedPlaylistsScreen() {
+        return PropertySet.from(
+                PlaylistProperty.URN.bind(Urn.forPlaylist(123L)),
+                PlaylistProperty.TITLE.bind("squirlex galore"),
+                PlaylistProperty.CREATOR_NAME.bind("avieciie"),
+                PlaylistProperty.TRACK_COUNT.bind(4),
+                PlaylistProperty.LIKES_COUNT.bind(2),
+                PlaylistProperty.CREATED_AT.bind(new Date()),
+                PlaylistProperty.IS_PRIVATE.bind(false));
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -122,4 +159,49 @@ public abstract class TestPropertySets {
         return expectedTrackForAnalytics(trackUrn, "allow", 1000);
     }
 
+    public static PropertySet fromApiTrack(){
+        return fromApiTrack(ModelFixtures.create(ApiTrack.class));
+    }
+
+    public static PropertySet fromApiTrack(ApiTrack apiTrack){
+        return fromApiTrack(apiTrack, false, false, false);
+    }
+
+
+    public static PropertySet fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted){
+            return PropertySet.from(
+                    TrackProperty.URN.bind(Urn.forTrack(apiTrack.getId())),
+                    PlayableProperty.TITLE.bind(apiTrack.getTitle()),
+                    PlayableProperty.DURATION.bind(apiTrack.getDuration()),
+                    PlayableProperty.CREATOR_NAME.bind(apiTrack.getUser().getUsername()),
+                    PlayableProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn()),
+                    TrackProperty.WAVEFORM_URL.bind(apiTrack.getWaveformUrl()),
+                    TrackProperty.STREAM_URL.bind(apiTrack.getStreamUrl()),
+                    TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
+                    TrackProperty.COMMENTS_COUNT.bind(apiTrack.getStats().getCommentsCount()),
+                    PlayableProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
+                    PlayableProperty.REPOSTS_COUNT.bind(apiTrack.getStats().getRepostsCount()),
+                    TrackProperty.MONETIZABLE.bind(apiTrack.isMonetizable()),
+                    TrackProperty.POLICY.bind(apiTrack.getPolicy()),
+                    PlayableProperty.IS_LIKED.bind(isLiked),
+                    PlayableProperty.PERMALINK_URL.bind(apiTrack.getPermalinkUrl()),
+                    PlayableProperty.IS_PRIVATE.bind(isPrivate),
+                    PlayableProperty.CREATED_AT.bind(apiTrack.getCreatedAt()),
+                    PlayableProperty.IS_REPOSTED.bind(isReposted));
+    }
+
+    public static PropertySet unlikedTrack(Urn trackUrn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(trackUrn),
+                PlayableProperty.IS_LIKED.bind(false)
+        );
+    }
+
+    public static PropertySet likedTrack(Urn trackUrn) {
+        return PropertySet.from(
+                PlayableProperty.URN.bind(trackUrn),
+                PlayableProperty.LIKES_COUNT.bind(12),
+                PlayableProperty.IS_LIKED.bind(true)
+        );
+    }
 }

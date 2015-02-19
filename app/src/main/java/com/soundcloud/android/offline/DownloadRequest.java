@@ -3,7 +3,7 @@ package com.soundcloud.android.offline;
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 
-final class DownloadRequest {
+public final class DownloadRequest {
     public final String fileUrl;
     public final Urn urn;
 

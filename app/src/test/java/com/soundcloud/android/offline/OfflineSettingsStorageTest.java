@@ -9,8 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
 
-import android.content.SharedPreferences;
-
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineSettingsStorageTest {
 
@@ -20,28 +18,27 @@ public class OfflineSettingsStorageTest {
 
     @Before
     public void setUp() throws Exception {
-        SharedPreferences prefs = new ScTestSharedPreferences();
-        storage = new OfflineSettingsStorage(prefs);
+        storage = new OfflineSettingsStorage(new ScTestSharedPreferences());
     }
 
     @Test
     public void savesOfflineLikesStatus() {
-        storage.setLikesOfflineSync(true);
-        expect(storage.isLikesOfflineSyncEnabled()).toBeTrue();
+        storage.setOfflineLikesEnabled(true);
+        expect(storage.isOfflineLikesEnabled()).toBeTrue();
     }
 
     @Test
     public void receivesUpdatesToLikeStatusChanges() {
-        storage.getLikesOfflineSyncChanged().subscribe(testObserver);
-        storage.setLikesOfflineSync(true);
+        storage.getOfflineLikesChanged().subscribe(testObserver);
+        storage.setOfflineLikesEnabled(true);
         expect(testObserver.getOnNextEvents().get(0)).toBeTrue();
     }
 
     @Test
     public void clearsSettingsStorage() {
-        storage.setLikesOfflineSync(true);
+        storage.setOfflineLikesEnabled(true);
         storage.clear();
-        expect(storage.isLikesOfflineSyncEnabled()).toBeFalse();
+        expect(storage.isOfflineLikesEnabled()).toBeFalse();
     }
 
 }

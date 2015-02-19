@@ -42,11 +42,4 @@ public class ContentTest {
         expect(Content.ME_ACTIVITIES.withQuery("a", "1", "b", "2"))
                 .toEqual("content://com.soundcloud.android.provider.ScContentProvider/me/activities/all/own?a=1&b=2");
     }
-
-    @Test
-    public void shouldCreateRequestWithQueryCopy() throws Exception {
-        Request request = Content.TRACK_SEARCH.request(Content.TRACK_SEARCH.uri.buildUpon().appendQueryParameter("tag","tagValue").build());
-        expect(request.getParams().size()).toBe(1);
-        expect(request.getParams().get("tag")).toEqual("tagValue");
-    }
 }

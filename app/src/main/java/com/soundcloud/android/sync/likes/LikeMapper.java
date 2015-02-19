@@ -18,6 +18,9 @@ class LikeMapper extends RxResultMapper<PropertySet> {
         }
 
         like.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));
+        if (cursorReader.isNotNull(TableColumns.Likes.ADDED_AT)) {
+            like.put(LikeProperty.ADDED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.ADDED_AT));
+        }
         if (cursorReader.isNotNull(TableColumns.Likes.REMOVED_AT)) {
             like.put(LikeProperty.REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.REMOVED_AT));
         }

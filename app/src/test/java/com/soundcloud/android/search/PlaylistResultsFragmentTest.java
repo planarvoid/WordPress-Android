@@ -23,7 +23,7 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -54,7 +54,7 @@ public class PlaylistResultsFragmentTest {
 
     @Mock private PlaylistDiscoveryOperations operations;
     @Mock private ListViewController listViewController;
-    @Mock private EndlessAdapter<ApiPlaylist> adapter;
+    @Mock private PagingItemAdapter<ApiPlaylist> adapter;
     @Mock private EmptyView emptyView;
     @Mock private Subscription subscription;
     @Mock private PlaylistDiscoveryOperations.PlaylistPager pager;

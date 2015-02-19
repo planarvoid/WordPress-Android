@@ -1,6 +1,7 @@
 package com.soundcloud.android.comments;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
@@ -19,6 +20,7 @@ import com.soundcloud.propeller.PropertySet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -33,10 +35,13 @@ public class TrackCommentsActivity extends ScActivity {
     @Inject ScreenPresenter presenter;
     @Inject FeatureFlags featureFlags;
     @Inject ImageOperations imageOperations;
+    @Inject ActionBarController actionBarController;
 
     public TrackCommentsActivity() {
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
+        lightCycleDispatcher
+                .attach(playerController)
+                .attach(adPlayerController)
+                .attach(actionBarController);
         presenter.attach(this);
     }
 
@@ -50,6 +55,13 @@ public class TrackCommentsActivity extends ScActivity {
         if (bundle == null) {
             attachCommentsFragment(commentedTrack);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
     private void attachCommentsFragment(PropertySet commentedTrack) {

@@ -3,7 +3,6 @@ package com.soundcloud.android.sync.likes;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
-import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;

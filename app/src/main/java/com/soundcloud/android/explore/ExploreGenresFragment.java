@@ -8,11 +8,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
@@ -29,7 +30,7 @@ import android.widget.ListView;
 import javax.inject.Inject;
 import java.util.Arrays;
 
-public class ExploreGenresFragment extends DefaultFragment
+public class ExploreGenresFragment extends LightCycleSupportFragment
         implements ReactiveListComponent<ConnectableObservable<GenreSection<ExploreGenre>>> {
 
     private static final Func1<ExploreGenresSections, Observable<GenreSection<ExploreGenre>>> GENRES_TO_SECTIONS =
@@ -72,7 +73,7 @@ public class ExploreGenresFragment extends DefaultFragment
                 .flatMap(GENRES_TO_SECTIONS)
                 .observeOn(mainThread())
                 .replay();
-        observable.subscribe(adapter);
+        observable.subscribe(new GenreSectionSubscriber());
         return observable;
     }
 
@@ -112,5 +113,24 @@ public class ExploreGenresFragment extends DefaultFragment
     public void onDestroy() {
         connectionSubscription.unsubscribe();
         super.onDestroy();
+    }
+
+    private final class GenreSectionSubscriber extends Subscriber<GenreSection<ExploreGenre>> {
+
+        @Override
+        public void onNext(GenreSection<ExploreGenre> section) {
+            adapter.onNext(section.getItems());
+            adapter.demarcateSection(section);
+        }
+
+        @Override
+        public void onCompleted() {
+            adapter.onCompleted();
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            adapter.onError(e);
+        }
     }
 }

@@ -18,8 +18,8 @@ import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -32,11 +32,10 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.view.adapters.CellPresenter;
-import com.soundcloud.android.view.adapters.PendingRecordingItemPresenter;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
-import com.soundcloud.android.tracks.TrackChangedSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -58,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Deprecated
 public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
 
     private static final int TYPE_PENDING_RECORDING = 0;
@@ -362,8 +362,8 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     @Override
     public void onViewCreated() {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackItemPresenter)),
-                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber())
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackItemPresenter)),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlayableChangedSubscriber())
         );
     }
 
@@ -372,18 +372,18 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         eventSubscriptions.unsubscribe();
     }
 
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
+    private final class PlayableChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
-        public void onNext(final PlayableUpdatedEvent event) {
+        public void onNext(final EntityStateChangedEvent event) {
             final int index = Iterables.indexOf(propertySets, new Predicate<PropertySet>() {
                 @Override
                 public boolean apply(PropertySet item) {
-                    return item.get(PlayableProperty.URN).equals(event.getUrn());
+                    return item.get(PlayableProperty.URN).equals(event.getNextUrn());
                 }
             });
 
             if (index > -1) {
-                propertySets.get(index).update(event.getChangeSet());
+                propertySets.get(index).update(event.getNextChangeSet());
                 notifyDataSetChanged();
             }
         }

@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -146,9 +146,9 @@ public class TrackPagerAdapterTest {
     @Test
     public void onPlayableChangedEventSetsLikeStatusOnTrackPage() {
         View currentPageView = getPageView();
-        PlayableUpdatedEvent likeEvent = PlayableUpdatedEvent.forLike(TRACK1_URN, true, 1);
+        EntityStateChangedEvent likeEvent = EntityStateChangedEvent.fromLike(TRACK1_URN, true, 1);
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, likeEvent);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, likeEvent);
 
         verify(trackPagePresenter).onPlayableUpdated(currentPageView, likeEvent);
     }
@@ -156,11 +156,11 @@ public class TrackPagerAdapterTest {
     @Test
     public void onPlayableChangedEventIsIgnoredForPlaylistAssociations() {
         getPageView();
-        PlayableUpdatedEvent likeEvent = PlayableUpdatedEvent.forLike(Urn.forPlaylist(123L), true, 1);
+        EntityStateChangedEvent likeEvent = EntityStateChangedEvent.fromLike(Urn.forPlaylist(123L), true, 1);
 
-        eventBus.publish(EventQueue.PLAYABLE_CHANGED, likeEvent);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, likeEvent);
 
-        verify(trackPagePresenter, never()).onPlayableUpdated(any(View.class), any(PlayableUpdatedEvent.class));
+        verify(trackPagePresenter, never()).onPlayableUpdated(any(View.class), any(EntityStateChangedEvent.class));
     }
 
     @Test

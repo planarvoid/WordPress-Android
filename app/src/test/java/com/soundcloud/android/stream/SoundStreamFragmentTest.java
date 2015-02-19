@@ -68,8 +68,12 @@ public class SoundStreamFragmentTest {
         when(soundStreamOperations.updatedStreamItems()).thenReturn(streamItems);
         when(listViewController.getEmptyView()).thenReturn(emptyView);
         when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
-        fragment = new SoundStreamFragment(soundStreamOperations, adapter, listViewController, pullToRefreshController,
-                playbackOperations, TestSubscribers.expandPlayerSubscriber());
+        fragment = new SoundStreamFragment(soundStreamOperations,
+                adapter,
+                listViewController,
+                pullToRefreshController,
+                playbackOperations,
+                TestSubscribers.expandPlayerSubscriber());
         fragment.onAttach(activity);
     }
 
@@ -132,7 +136,7 @@ public class SoundStreamFragmentTest {
     @Test
     public void shouldPlayTrackWhenClickingOnTrackItem() {
         Robolectric.shadowOf(fragment).setActivity(activity);
-        final Observable<Urn> streamTracks = just((Urn.forTrack(123)));
+        final Observable<List<Urn>> streamTracks = just((Urn.forTrack(123))).toList();
         when(soundStreamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
         when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
         fragment.onItemClick(null, null, 0, -1);

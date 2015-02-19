@@ -16,7 +16,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 33;
+    public static final int DATABASE_VERSION = 36;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -28,7 +28,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return instance;
     }
 
-    public static long getDatabaseFileSize(Context context){
+    public static long getDatabaseFileSize(Context context) {
         final File databasePath = context.getDatabasePath(DATABASE_NAME);
         return databasePath != null ? databasePath.length() : -1L;
     }
@@ -91,6 +91,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 33:
                             success = upgradeTo33(db, oldVersion);
+                            break;
+                        case 34:
+                            success = upgradeTo34(db, oldVersion);
+                            break;
+                        case 35:
+                            success = upgradeTo35(db, oldVersion);
+                            break;
+                        case 36:
+                            success = upgradeTo36(db, oldVersion);
                             break;
                         default:
                             break;
@@ -155,7 +164,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    // made SoundAssiciationView inner join
+    /**
+     * Made SoundAssociationView inner join
+     */
     private static boolean upgradeTo27(SQLiteDatabase database, int oldVersion) {
         try {
             Table.SoundAssociationView.recreate(database);
@@ -166,7 +177,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    // added policy, monetizable for new player / audio ads
+    /**
+     * Added policy, monetizable for new player / audio ads
+     */
     private static boolean upgradeTo28(SQLiteDatabase database, int oldVersion) {
         try {
             Table.Sounds.alterColumns(database);
@@ -179,7 +192,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    // added description to track table
+    /**
+     * Added description to track table
+     */
     private static boolean upgradeTo29(SQLiteDatabase database, int oldVersion) {
         try {
             Table.Sounds.alterColumns(database);
@@ -192,7 +207,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    // New SoundStream syncing + storage
+    /**
+     * New SoundStream syncing + storage
+     */
     private static boolean upgradeTo30(SQLiteDatabase database, int oldVersion) {
         try {
             Table.SoundStream.create(database);
@@ -204,7 +221,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    //added download queue table
+    /**
+     * Added Track Downloads table
+     */
     private static boolean upgradeTo31(SQLiteDatabase db, int oldVersion) {
         try {
             Table.TrackDownloads.create(db);
@@ -215,7 +234,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    //added Likes table
+    /**
+     * Added Likes table
+     */
     private static boolean upgradeTo32(SQLiteDatabase db, int oldVersion) {
         try {
             Table.Likes.create(db);
@@ -226,7 +247,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
-    // added promoted tracks
+    /**
+     * Added promoted tracks
+     */
     private static boolean upgradeTo33(SQLiteDatabase database, int oldVersion) {
         try {
             Table.PromotedTracks.create(database);
@@ -239,6 +262,50 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return false;
     }
 
+    /**
+     * Added added_at column to Likes table
+     */
+    private static boolean upgradeTo34(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.Likes.alterColumns(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 34);
+        }
+        return false;
+    }
+
+    /**
+     * Added removed_at column to TrackDownloads table
+     * Recreate SoundView and descendents after adding downloaded_at and removed_at
+     */
+    private static boolean upgradeTo35(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.TrackDownloads.recreate(db);
+            Table.SoundView.recreate(db);
+            Table.SoundAssociationView.recreate(db);
+            Table.PlaylistTracksView.recreate(db);
+            Table.SoundStreamView.recreate(db);
+            Table.ActivityView.recreate(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 35);
+        }
+        return false;
+    }
+
+    /**
+     * Added unavailable_at column to TrackDownloads table
+     */
+    private static boolean upgradeTo36(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.TrackDownloads.recreate(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 36);
+        }
+        return false;
+    }
 
     private static void handleUpgradeException(SQLException exception, int oldVersion, int newVersion) {
         final String message =

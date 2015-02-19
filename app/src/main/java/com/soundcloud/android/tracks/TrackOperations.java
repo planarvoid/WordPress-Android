@@ -1,8 +1,7 @@
 package com.soundcloud.android.tracks;
 
-import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -17,26 +16,23 @@ import java.util.List;
 
 public class TrackOperations {
 
-    @SuppressWarnings("UnusedDeclaration")
-    private static final String LOG_TAG = "TrackOperations";
-
-    private final TrackStorage trackStorage;
-    private final AccountOperations accountOperations;
+    private final LoadTrackCommand loadTrack;
+    private final LoadTrackDescriptionCommand loadTrackDescription;
     private final EventBus eventBus;
     private final SyncInitiator syncInitiator;
 
-    private final Action1<PropertySet> publishPlayableChanged = new Action1<PropertySet>() {
+    // TODO: should this be fired from the syncer instead?
+    private final Action1<PropertySet> publishTrackChanged = new Action1<PropertySet>() {
         @Override
         public void call(PropertySet propertySet) {
-            final PlayableUpdatedEvent event = PlayableUpdatedEvent.forUpdate(propertySet.get(TrackProperty.URN), propertySet);
-            eventBus.publish(EventQueue.PLAYABLE_CHANGED, event);
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(propertySet));
         }
     };
 
     @Inject
-    public TrackOperations(TrackStorage trackStorage, AccountOperations accountOperations, EventBus eventBus, SyncInitiator syncInitiator) {
-        this.trackStorage = trackStorage;
-        this.accountOperations = accountOperations;
+    public TrackOperations(LoadTrackCommand loadTrack, LoadTrackDescriptionCommand loadTrackDescription, EventBus eventBus, SyncInitiator syncInitiator) {
+        this.loadTrack = loadTrack;
+        this.loadTrackDescription = loadTrackDescription;
         this.eventBus = eventBus;
         this.syncInitiator = syncInitiator;
     }
@@ -49,7 +45,7 @@ public class TrackOperations {
         return Observable.concat(
                 fullTrackFromStorage(trackUrn),
                 syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn))
-                        .doOnNext(publishPlayableChanged)
+                        .doOnNext(publishTrackChanged)
         );
     }
 
@@ -64,11 +60,11 @@ public class TrackOperations {
     }
 
     private Observable<PropertySet> trackFromStorage(Urn trackUrn) {
-        return trackStorage.track(trackUrn, accountOperations.getLoggedInUserUrn());
+        return loadTrack.with(trackUrn).toObservable();
     }
 
     private Observable<PropertySet> fullTrackFromStorage(Urn trackUrn) {
-        return trackFromStorage(trackUrn).zipWith(trackStorage.trackDetails(trackUrn), PropertySetFunctions.mergeLeft());
+        return trackFromStorage(trackUrn).zipWith(loadTrackDescription.with(trackUrn).toObservable(), PropertySetFunctions.mergeLeft());
     }
 
     private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {

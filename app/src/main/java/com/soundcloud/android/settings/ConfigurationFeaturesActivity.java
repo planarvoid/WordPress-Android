@@ -1,6 +1,5 @@
 package com.soundcloud.android.settings;
 
-import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 
 import android.os.Bundle;
@@ -9,6 +8,7 @@ import android.preference.Preference;
 import android.preference.PreferenceScreen;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 public class ConfigurationFeaturesActivity extends ScSettingsActivity {
     @Inject FeatureOperations featureOperations;
@@ -18,20 +18,20 @@ public class ConfigurationFeaturesActivity extends ScSettingsActivity {
         super.onCreate(savedInstanceState);
         PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(this);
 
-        for (Feature feature : featureOperations.listFeatures()) {
-            addPreference(screen, feature);
+        for (Map.Entry<String, Boolean> feature : featureOperations.list().entrySet()) {
+            addPreference(screen, feature.getKey(), feature.getValue());
         }
         setPreferenceScreen(screen);
     }
 
-    private void addPreference(PreferenceScreen screen, Feature feature) {
+    private void addPreference(PreferenceScreen screen, String name, Boolean enabled) {
         CheckBoxPreference featurePref = new CheckBoxPreference(this);
-        featurePref.setTitle(feature.name);
-        featurePref.setChecked(feature.enabled);
+        featurePref.setTitle(name);
+        featurePref.setChecked(enabled);
         featurePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                featureOperations.update(new Feature(preference.getTitle().toString(), (boolean) o));
+                featureOperations.update(preference.getTitle().toString(), (boolean) o);
                 return true;
             }
         });

@@ -91,8 +91,8 @@ public class ProfileActivity extends ScActivity implements
     private int initialOtherFollowers;
 
     public ProfileActivity() {
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
+        lightCycleDispatcher.attach(playerController);
+        lightCycleDispatcher.attach(adPlayerController);
         presenter.attach(this);
     }
 
@@ -166,6 +166,7 @@ public class ProfileActivity extends ScActivity implements
                 toggleFollow.setVisibility(View.GONE);
             } else {
                 toggleFollow.setChecked(followingOperations.isFollowing(user.getUrn()));
+                setFollowersMessage();
                 toggleFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -329,12 +330,6 @@ public class ProfileActivity extends ScActivity implements
             pager.setCurrentItem(Tab.indexOf(intent.getStringExtra(Tab.EXTRA)));
             intent.removeExtra(Tab.EXTRA);
         }
-    }
-
-    @Override @SuppressWarnings("PMD.UselessOverridingMethod")
-    protected void onDataConnectionChanged(boolean isConnected) {
-        super.onDataConnectionChanged(isConnected);
-        // TODO : reload avatar
     }
 
     protected boolean isLoggedInUser() {

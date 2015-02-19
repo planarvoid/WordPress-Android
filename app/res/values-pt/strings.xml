@@ -22,7 +22,6 @@
     <string name="legal_summary">Informação legal</string>
     <string name="terms_of_use">Termos de uso</string>
     <string name="privacy_policy">Política de Privacidade</string>
-    <string name="visit_support">Visite o Apoio ao Cliente</string>
     <string name="version">Versão</string>
     <string name="unavailable">Indisponível</string>
     <string name="copyright_information">Informações sobre direitos autorais</string>
@@ -32,7 +31,6 @@
     <string name="btn_following">Seguindo</string>
     <string name="btn_save">Salvar</string>
     <string name="btn_skip">Pular</string>
-    <string name="compressed">Comprimido</string>
     <string name="configure">Configurar</string>
     <string name="connect_progress">Carregando</string>
     <string name="connect_success">Conexão com %1$s bem-sucedida</string>
@@ -40,7 +38,6 @@
     <string name="delete">Excluir</string>
     <string name="comments">Comentários</string>
     <string name="new_connection_error">Houve um problema ao adicionar a rede</string>
-    <string name="raw">Bruto</string>
     <string name="reset">Descartar</string>
     <string name="share_fail_message">OK, deu errado.</string>
     <string name="share_log_out">Sair</string>
@@ -63,7 +60,6 @@
     <string name="accessibility_stats_user_reposted">Republicado por você</string>
     <string name="accessibility_like_action">Curtir</string>
     <string name="accessibility_repost_action">Republicar</string>
-    <string name="accessibility_comment_action">Comentário</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">curtiu %s</string>
@@ -164,8 +160,6 @@
     <string name="empty_user_tracks_text">%1$s não carregou nenhum som público ainda.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Houve um problema ao entrar em contato com o Soundcloud.</string>
-    <string name="error_loading_title">Erro de rede</string>
     <string name="error_recording_message">Houve um erro durante a gravação.\nO seu dispositivo pode não suportar a configuração do registro atual. Você pode alterar as configurações nas configurações do aplicativo.</string>
     <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login no SoundCloud antes que possa continuar a usar o aplicativo.</string>
     <string name="error_unauthorized_title">Erro na conta</string>
@@ -223,6 +217,49 @@
     <string name="dashboard_notifications_title">%s novos sons</string>
     <string name="dashboard_notifications_title_single">1 novo som</string>
     <string name="dashboard_notifications_activity_message_repost">%1$s republicou %2$s</string>
+    <plurals name="dashboard_notifications_activity_message_activity" tools:ignore="UnusedQuantity">
+        <item quantity="one">de %2$s em %1$s</item>
+        <item quantity="two">Comentários e curtidas de %2$s e %3$s</item>
+        <item quantity="other">Comentários e curtidas de %2$s, %3$s e outros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment" tools:ignore="UnusedQuantity">
+        <item quantity="two">Comentários de %1$s e %2$s</item>
+        <item quantity="other">Comentários de %1$s, %2$s e outros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment_single_track" tools:ignore="UnusedQuantity">
+        <item quantity="one">novo comentário em %2$s de %3$s</item>
+        <item quantity="two">%1$d novos comentários em %2$s de %3$s e %4$s</item>
+        <item quantity="other">%1$d novos comentários em %2$s de %3$s, %4$s e outros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_like" tools:ignore="UnusedQuantity">
+        <item quantity="one">em %1$s</item>
+        <item quantity="two">em %1$s e %2$s</item>
+        <item quantity="other">em %1$s, %2$s e outros sons</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_activity">
+        <item quantity="one">1 nova atividade</item>
+        <item quantity="other">%d novas atividades</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_comment">
+        <item quantity="one">1 novo comentário</item>
+        <item quantity="other">%d novos comentários</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_like">
+        <item quantity="one">Nova curtida</item>
+        <item quantity="other">%d novas curtidas</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_activity">
+        <item quantity="one">1 nova atividade</item>
+        <item quantity="other">%d novas atividades</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_comment">
+        <item quantity="one">1 novo comentário</item>
+        <item quantity="other">%d novos comentários</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_like">
+        <item quantity="one">Uma nova curtida</item>
+        <item quantity="other">%d novas curtidas</item>
+    </plurals>
 
     <!-- __ONBOARDING -->
     <string name="suggested_users_genres_large_title">Escolha suas categorias favoritas</string>
@@ -377,45 +414,48 @@
     <string name="cloud_recorder_playback_event_title">Reprodução em andamento</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default" tools:ignore="UnusedResources">Por que não gravar os sons de sua rua ?.</string>
-    <string name="rectip_memories_voice_notes" tools:ignore="UnusedResources">Grave notas de voz como lembretes úteis.</string>
-    <string name="rectip_memories_voice_blog" tools:ignore="UnusedResources">Use o botão REC para criar um blog de voz – o que você compartilhará hoje?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now" tools:ignore="UnusedResources">O que você está fazendo agora?</string>
-    <string name="rectip_memories_child_first_words" tools:ignore="UnusedResources">Capture o momento: as primeiras palavras de uma criança</string>
-    <string name="rectip_memories_sound_your_pet_makes" tools:ignore="UnusedResources">Capture o momento: os sons que seu animal de estimação faz</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about" tools:ignore="UnusedResources">Capture o momento: a voz de alguém que você gosta</string>
-    <string name="rectip_memories_shopping_reminders" tools:ignore="UnusedResources">Indo às compras? Grave lembretes para que você não esqueça o que comprar.</string>
-    <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">Teve uma grande ideia? Capture-a com o botão REC.</string>
-    <string name="rectip_social_good_joke" tools:ignore="UnusedResources">Ouviu uma boa piada ultimamente? Compartilhe!</string>
-    <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">Está tendo uma grande conversa? Por que não gravá-la para a posteridade?</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">Capturar um momento hilariante em som</string>
-    <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">Você sabia que pode salvar as gravações privadas se não quiser compartilhá-las?</string>
-    <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">Às vezes, o melhor dispositivo de gravação é o que você tem.</string>
-    <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">Ativar som de si próprio!</string>
-    <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">Ativar  som da internet.</string>
-    <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">Ativar som do mundo.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">Expresse-se!</string>
-    <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">Por que não gravar os minutos da sua próxima reunião?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">Use o botão REC para capturar ideias para mais tarde.</string>
-    <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">Use o botão REC como auxiliar de estudo: armazenar as suas notas em movimento.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings" tools:ignore="UnusedResources">Você pode usar o botão REC para gravar entrevistas e reuniões.</string>
-    <string name="rectip_environmental_ocean_waves" tools:ignore="UnusedResources">Grave o som das ondas do mar na praia</string>
-    <string name="rectip_environmental_vibrant_rush_hour" tools:ignore="UnusedResources">Capture os sons de uma cidade vibrante, na hora mais movimentada</string>
-    <string name="rectip_environmental_crazy_sound" tools:ignore="UnusedResources">Ouviu um som louco? Capture-o com o botão REC!</string>
-    <string name="rectip_music_feel_inspired" tools:ignore="UnusedResources">Sentido-se inspirado? Capture a sua ideia com o botão REC.</string>
-    <string name="rectip_music_track_idea" tools:ignore="UnusedResources">Teve uma ideia para uma nova faixa? Salve-a com o botão REC.</string>
-    <string name="rectip_music_tune_stuck" tools:ignore="UnusedResources">Um som não sai da sua cabeça? Capture-o com o botão REC.</string>
-    <string name="rectip_music_song_lyric_ideas" tools:ignore="UnusedResources">Ideias para letras da música? Capture-as imediatamente com o botão REC.</string>
-    <string name="rectip_events_whats_going_on" tools:ignore="UnusedResources">O que está acontecendo agora?</string>
-    <string name="rectip_events_current_events_as_they_happen" tools:ignore="UnusedResources">Grave eventos atuais conforme eles acontecem e compartilhe-os com o mundo.</string>
-    <string name="rectip_events_something_interesting" tools:ignore="UnusedResources">Está acontecendo algo interessante? Capture o momento em áudio.</string>
-    <string name="rectip_events_citizen_reporter" tools:ignore="UnusedResources">Repórter-cidadão? Diga ao mundo o que está acontecendo onde você estiver.</string>
-    <string name="rectip_private_happy_birthday" tools:ignore="UnusedResources">Deseje um Feliz Aniversário para  %s</string>
-    <string name="rectip_private_record_a_message" tools:ignore="UnusedResources">Por que não gravar uma mensagem para %s?</string>
-    <string name="rectip_private_how_much_they_mean" tools:ignore="UnusedResources">Diga a %s o quanto eles significam para você.</string>
-    <string name="rectip_private_send_reminder" tools:ignore="UnusedResources">Enviar um lembrete para %s</string>
-    <string name="rectip_private_liked_their_sound" tools:ignore="UnusedResources">Diga a %s o quanto você gostou do seu som</string>
-    <string name="rectip_private_leave_feedback" tools:ignore="UnusedResources">Deixar um feedback para %s</string>
+    <string-array name="record_suggestions">
+        <item>Por que não gravar os sons de sua rua?</item>
+
+        <item>Grave notas de voz como lembretes úteis.</item>
+        <item>Use o botão REC para criar um blog de voz – o que você compartilhará hoje?</item>
+        <item>O que você está fazendo agora?</item>
+        <item>Capture o momento: as primeiras palavras de uma criança</item>
+        <item>Capture o momento: os sons que seu animal de estimação faz</item>
+        <item>Capture o momento: a voz de alguém que você gosta</item>
+        <item>Indo às compras? Grave lembretes para que você não esqueça o que comprar.</item>
+        <item>Teve uma grande ideia? Capture-a com o botão REC.</item>
+
+        <item>Ouviu uma boa piada ultimamente? Compartilhe!</item>
+        <item>Está tendo uma grande conversa? Por que não gravá-la para a posteridade?</item>
+        <item>Capturar um momento hilariante em som</item>
+
+        <item>Você sabia que pode salvar as gravações privadas se não quiser compartilhá-las?</item>
+        <item>Às vezes, o melhor dispositivo de gravação é o que você tem.</item>
+        <item>Ativar som de si próprio!</item>
+        <item>Ativar  som da internet.</item>
+        <item>Ativar som do mundo.</item>
+        <item>Expresse-se!</item>
+
+        <item>Por que não gravar os minutos da sua próxima reunião?</item>
+        <item>Use o botão REC para capturar ideias para mais tarde.</item>
+        <item>Use o botão REC como auxiliar de estudo: armazenar as suas notas em movimento.</item>
+        <item>Você pode usar o botão REC para gravar entrevistas e reuniões.</item>
+
+        <item>Grave o som das ondas do mar na praia</item>
+        <item>Capture os sons de uma cidade vibrante, na hora mais movimentada</item>
+        <item>Ouviu um som louco? Capture-o com o botão REC!</item>
+
+        <item>Sentido-se inspirado? Capture a sua ideia com o botão REC.</item>
+        <item>Teve uma ideia para uma nova faixa? Salve-a com o botão REC.</item>
+        <item>Um som não sai da sua cabeça? Capture-o com o botão REC.</item>
+        <item>Ideias para letras da música? Capture-as imediatamente com o botão REC.</item>
+
+        <item>O que está acontecendo agora?</item>
+        <item>Grave eventos atuais conforme eles acontecem e compartilhe-os com o mundo.</item>
+        <item>Está acontecendo algo interessante? Capture o momento em áudio.</item>
+        <item>Repórter-cidadão? Diga ao mundo o que está acontecendo onde você estiver.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Pesquisar no SoundCloud</string>
@@ -435,10 +475,6 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">Detalhes do aplicativo</string>
     <string name="pref_basic_settings">Configurações básicas</string>
-    <string name="pref_clear_cache">Excluir o cache de imagens</string>
-    <string name="pref_clear_cache_desc">Excluir o cache do aplicativo para liberar memória</string>
-    <string name="pref_clear_stream_cache">Excluir cache de transmissão</string>
-    <string name="pref_clear_stream_cache_desc">Excluir o cache de transmissão</string>
     <string name="pref_connection_and_data">Conexão e dados</string>
     <string name="pref_help">Ajuda</string>
     <string name="pref_help_desc">Acesse o site de suporte do SoundCloud</string>
@@ -468,6 +504,10 @@
     <string name="wifi_settings_summary">Editar suas configurações. Usar Wi-Fi para um melhor desempenho.</string>
     <string name="cache_clearing">Cache de eliminação</string>
     <string name="cache_clearing_message">Excluindo arquivos em cache...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>Comprimido</item>
+        <item>Bruto</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Você terá que reconectar sua conta do SoundCloud.</string>
@@ -514,6 +554,62 @@
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d s</string>
     <string name="format_abbreviated_minutes">%d min.</string>
+    <plurals name="elapsed_days">
+        <item quantity="one">1 dia</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">1 dia atrás</item>
+        <item quantity="other">%d dias atrás</item>
+    </plurals>
+    <plurals name="elapsed_hours">
+        <item quantity="one">1 hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">1 hora atrás</item>
+        <item quantity="other">%d horas atrás</item>
+    </plurals>
+    <plurals name="elapsed_minutes">
+        <item quantity="one">1 minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">1 hora atrás</item>
+        <item quantity="other">%d minutos atrás</item>
+    </plurals>
+    <plurals name="elapsed_months">
+        <item quantity="one">1 mês</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="elapsed_months_ago">
+        <item quantity="one">1 mês atrás</item>
+        <item quantity="other">%d meses atrás</item>
+    </plurals>
+    <plurals name="elapsed_seconds">
+        <item quantity="one">1 segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+    <plurals name="elapsed_seconds_ago">
+        <item quantity="one">1 segundo atrás</item>
+        <item quantity="other">%d segundos atrás</item>
+    </plurals>
+    <plurals name="elapsed_years">
+        <item quantity="one">1 ano</item>
+        <item quantity="other">%d anos</item>
+    </plurals>
+    <plurals name="elapsed_years_ago">
+        <item quantity="one">1 ano atrás</item>
+        <item quantity="other">%d anos atrás</item>
+    </plurals>
+    <plurals name="minutes_available">
+        <item quantity="one">1 minuto disponível</item>
+        <item quantity="other">%d minutos disponíveis</item>
+    </plurals>
+    <plurals name="seconds_available">
+        <item quantity="one">1 segundo disponível</item>
+        <item quantity="other">%d segundos disponíveis</item>
+    </plurals>
 
     <!-- __TOUR -->
     <string name="tour_title_1">Ouvir os sons do mundo</string>
@@ -542,10 +638,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Houve um erro de transcodificação %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Erro de transcodificação</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Erro de transcodificação</string>
-    <string name="dialog_transcoding_failed_title">Falha na transcodificação</string>
-    <string name="dialog_transcoding_failed_message">Ooops, algo deu errado e seu som não pode ser reproduzido. É possível remover o som da sua lista através do website. Para mais informações, entre em contato com o nosso apoio ao cliente.</string>
-    <string name="dialog_transcoding_processing_title">Processamento de som</string>
-    <string name="dialog_transcoding_processing_message">O seu som está sendo processado e poderá ser reproduzido em poucos segundos.</string>
     <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
     <string name="sc_upload_add_image">Adicionar Imagem</string>
     <string name="sc_upload_private">Privado</string>

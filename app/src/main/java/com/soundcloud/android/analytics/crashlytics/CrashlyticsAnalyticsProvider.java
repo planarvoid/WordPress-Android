@@ -8,6 +8,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 
 import javax.inject.Inject;
@@ -41,6 +42,9 @@ public class CrashlyticsAnalyticsProvider implements AnalyticsProvider {
             handleScreenEvent(event);
         }
     }
+
+    @Override
+    public void handleUserSessionEvent(UserSessionEvent event) {}
 
     private void handleScreenEvent(TrackingEvent event) {
         Crashlytics.setString("Screen", event.get(ScreenEvent.KEY_SCREEN));

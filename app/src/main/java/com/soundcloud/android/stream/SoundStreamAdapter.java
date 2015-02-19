@@ -2,14 +2,14 @@ package com.soundcloud.android.stream;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.main.FragmentLifeCycle;
+import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
-import com.soundcloud.android.view.adapters.ListContentChangedSubscriber;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
-import com.soundcloud.android.tracks.TrackChangedSubscriber;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -18,12 +18,12 @@ import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.MenuItem;
 import android.view.View;
 
 import javax.inject.Inject;
 
-@SuppressWarnings({"PMD.CallSuperFirst", "PMD.CallSuperLast"})
-class SoundStreamAdapter extends EndlessAdapter<PropertySet> implements FragmentLifeCycle<Fragment> {
+class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements SupportFragmentLightCycle {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
@@ -58,60 +58,60 @@ class SoundStreamAdapter extends EndlessAdapter<PropertySet> implements Fragment
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
+
+    }
+
+    @Override
+    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new TrackChangedSubscriber(this, trackPresenter)),
-                eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new ListContentChangedSubscriber(this))
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackPresenter)),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(this))
         );
     }
 
     @Override
-    public void onDestroyView() {
+    public void onStart(Fragment fragment) {
+
+    }
+
+    @Override
+    public void onResume(Fragment fragment) {
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onPause(Fragment fragment) {
+
+    }
+
+    @Override
+    public void onStop(Fragment fragment) {
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Fragment fragment, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onRestoreInstanceState(Fragment fragment, Bundle bundle) {
+
+    }
+
+    @Override
+    public void onDestroyView(Fragment fragment) {
         eventSubscriptions.unsubscribe();
     }
 
     @Override
-    public void onBind(Fragment owner) {
-
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle bundle) {
-
-    }
-
-    @Override
-    public void onStart() {
-
-    }
-
-    @Override
-    public void onResume() {
-
-    }
-
-    @Override
-    public void onPause() {
-
-    }
-
-    @Override
-    public void onStop() {
-
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onRestoreInstanceState(Bundle bundle) {
-
-    }
-
-    @Override
-    public void onDestroy() {
+    public void onDestroy(Fragment fragment) {
 
     }
 }

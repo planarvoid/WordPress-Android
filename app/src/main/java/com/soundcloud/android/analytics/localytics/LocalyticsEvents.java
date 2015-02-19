@@ -13,7 +13,6 @@ final class LocalyticsEvents {
     static final String STREAM_PROXY_CONFIGURED = "Stream proxy configured";
 
     static final class DeviceMetrics {
-        static final String DEVICE_ID = "Device id";
         static final String DB_SIZE = "Database size";
     }
 

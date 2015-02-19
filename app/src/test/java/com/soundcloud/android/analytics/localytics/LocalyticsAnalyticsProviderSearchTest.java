@@ -23,7 +23,7 @@ public class LocalyticsAnalyticsProviderSearchTest {
 
     @Before
     public void setUp() throws CreateModelException {
-        provider = new LocalyticsAnalyticsProvider(localyticsSession, null, 123L, proxyDetector);
+        provider = new LocalyticsAnalyticsProvider(localyticsSession, 123L, proxyDetector);
     }
 
     @Test

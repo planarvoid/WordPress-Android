@@ -55,7 +55,7 @@ public class RecordingDAOTest extends AbstractDAOTest<RecordingDAO> {
         expect(r2.user_id).toEqual(r.user_id);
         expect(r2.recipient_user_id).toEqual(r.recipient_user_id);
         expect(r2.upload_status).toEqual(r.upload_status);
-        expect(r2.tip_key).toEqual(r.tip_key);
+        expect(r2.tip).toEqual(r.tip);
 
         // just this recording
         cursor = resolver.query(r.toUri(), null, null, null, null);

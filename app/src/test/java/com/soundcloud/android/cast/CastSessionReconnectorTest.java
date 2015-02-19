@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -38,17 +38,17 @@ public class CastSessionReconnectorTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private CastConnectionHelper castConnectionHelper;
-    @Mock private PlaybackToastViewController playbackToastViewController;
+    @Mock private AdToastViewController adToastViewController;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Captor private ArgumentCaptor<CastConnectionListener> connectionListenerCaptor;
 
-    private final TestObservables.MockObservable<List<Urn>> mockObservable = TestObservables.emptyObservable();
+    private final Observable<List<Urn>> observable = TestObservables.emptyObservable();
     private final TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        castSessionReconnector = new CastSessionReconnector(playbackOperations, playQueueManager, castConnectionHelper, eventBus, playbackToastViewController, playSessionStateProvider);
+        castSessionReconnector = new CastSessionReconnector(playbackOperations, playQueueManager, castConnectionHelper, eventBus, adToastViewController, playSessionStateProvider);
         when(playbackOperations.playTrackWithRecommendations(any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
     }
 
@@ -103,7 +103,7 @@ public class CastSessionReconnectorTest {
     public void onMetaDataUpdatedShowsPlayerAfterPlayingTrackWithRecommendations() throws Exception {
         castSessionReconnector.startListening();
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
-        when(playbackOperations.playTrackWithRecommendations(URN, PlaySessionSource.EMPTY)).thenReturn(mockObservable);
+        when(playbackOperations.playTrackWithRecommendations(URN, PlaySessionSource.EMPTY)).thenReturn(observable);
 
         callOnMetadatUpdated();
 

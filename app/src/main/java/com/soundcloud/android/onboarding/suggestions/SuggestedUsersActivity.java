@@ -1,6 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -9,9 +10,17 @@ import com.soundcloud.android.main.ScActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 
+import javax.inject.Inject;
+
 public class SuggestedUsersActivity extends ScActivity {
+    @Inject ActionBarController actionBarController;
+
+    public SuggestedUsersActivity() {
+        lightCycleDispatcher.attach(actionBarController);
+    }
 
     @Override
     protected void onCreate(Bundle state) {
@@ -27,6 +36,13 @@ public class SuggestedUsersActivity extends ScActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.suggested_users, menu);
+        return true;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
@@ -36,6 +52,7 @@ public class SuggestedUsersActivity extends ScActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO : move to action bar controller ?
         if (item.getItemId() == R.id.finish) {
             startActivity(new Intent(this, SuggestedUsersSyncActivity.class));
             eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.onboardingComplete());
@@ -44,10 +61,5 @@ public class SuggestedUsersActivity extends ScActivity {
         } else {
             return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.suggested_users;
     }
 }

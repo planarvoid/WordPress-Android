@@ -16,7 +16,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -48,7 +48,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class SearchResultsFragment extends DefaultFragment
+public class SearchResultsFragment extends LightCycleSupportFragment
         implements ReactiveListComponent<ConnectableObservable<List<PropertySet>>> {
 
     static final String EXTRA_QUERY = "query";

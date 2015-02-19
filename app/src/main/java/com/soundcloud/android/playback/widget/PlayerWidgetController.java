@@ -3,12 +3,13 @@ package com.soundcloud.android.playback.widget;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayableUpdatedEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -16,7 +17,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackOperations;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
@@ -33,15 +33,15 @@ import javax.inject.Singleton;
 public class PlayerWidgetController {
 
     public static final String ACTION_LIKE_CHANGED = "com.soundcloud.android.widgetLike";
-    public static final String EXTRA_IS_LIKE = "isLike";
+    public static final String EXTRA_ADD_LIKE = "isLike";
 
     private final Context context;
     private final PlayerWidgetPresenter presenter;
     private final PlaySessionStateProvider playSessionsStateProvider;
     private final PlayQueueManager playQueueManager;
     private final TrackOperations trackOperations;
-    private final SoundAssociationOperations soundAssociationOps;
     private final EventBus eventBus;
+    private final LikeOperations likeOperations;
 
     private final Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>> onPlayQueueEventFunc = new Func1<CurrentPlayQueueTrackEvent, Observable<PropertySet>>() {
         @Override
@@ -52,19 +52,20 @@ public class PlayerWidgetController {
 
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
-                                  PlaySessionStateProvider playSessionsStateProvider, PlayQueueManager playQueueManager,
-                                  TrackOperations trackOperations, SoundAssociationOperations soundAssocicationOps, EventBus eventBus) {
+                                  PlaySessionStateProvider playSessionsStateProvider,
+                                  PlayQueueManager playQueueManager, TrackOperations trackOperations,
+                                  EventBus eventBus, LikeOperations likeOperations) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
         this.playQueueManager = playQueueManager;
         this.trackOperations = trackOperations;
-        this.soundAssociationOps = soundAssocicationOps;
         this.eventBus = eventBus;
+        this.likeOperations = likeOperations;
     }
 
     public void subscribe() {
-        eventBus.subscribe(EventQueue.PLAYABLE_CHANGED, new PlayableChangedSubscriber());
+        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new TrackChangedSubscriber());
         eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber());
         eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber());
 
@@ -97,34 +98,29 @@ public class PlayerWidgetController {
         return trackOperations.track(urn).map(PropertySetFunctions.mergeWith(metaData));
     }
 
-    // TODO: This method is not specific to the widget, it should be done in a more generic engagements controller
-    public void handleToggleLikeAction(boolean isLike) {
+    public void handleToggleLikeAction(boolean addLike) {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
-        fireAndForget(trackOperations.track(currentTrackUrn)
-                .flatMap(toggleLike(isLike))
-                .observeOn(AndroidSchedulers.mainThread()));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(),
-                currentTrackUrn));
+        toggleLike(addLike, currentTrackUrn);
+
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(), currentTrackUrn));
     }
 
-    private Func1<PropertySet, Observable<PropertySet>> toggleLike(final boolean isLike) {
-        return new Func1<PropertySet, Observable<PropertySet>>() {
-            @Override
-            public Observable<PropertySet> call(PropertySet track) {
-                return soundAssociationOps.toggleLike(track.get(TrackProperty.URN), isLike);
-            }
-        };
+    private void toggleLike(boolean addLike, Urn trackUrn) {
+        final PropertySet propertySet = PropertySet.from(PlayableProperty.URN.bind(trackUrn));
+        fireAndForget(addLike
+                ? likeOperations.addLike(propertySet)
+                : likeOperations.removeLike(propertySet));
     }
 
     /**
      * Listens for track changes emitted from our application layer via Rx and updates the widget
      * accordingly.
      */
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<PlayableUpdatedEvent> {
+    private final class TrackChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
-        public void onNext(final PlayableUpdatedEvent event) {
-            if (playQueueManager.isCurrentTrack(event.getUrn())) {
-                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getChangeSet()));
+        public void onNext(final EntityStateChangedEvent event) {
+            if (playQueueManager.isCurrentTrack(event.getNextUrn())) {
+                updatePlayableInformation(PropertySetFunctions.mergeWith(event.getNextChangeSet()));
             }
         }
     }

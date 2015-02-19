@@ -10,6 +10,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreGenresAdapterTest {
@@ -26,8 +27,10 @@ public class ExploreGenresAdapterTest {
 
     @Test
     public void shouldMakeFirstRowOfEachSectionASectionHeader() {
-        GenreSection section = new GenreSection(0, 0, Arrays.asList(new ExploreGenre(), new ExploreGenre()));
-        adapter.onNext(section);
+        final List<ExploreGenre> genres = Arrays.asList(new ExploreGenre(), new ExploreGenre());
+        adapter.onNext(genres);
+        GenreSection section = new GenreSection(0, 0, genres);
+        adapter.demarcateSection(section);
         InOrder inOrder = inOrder(cellPresenter);
         inOrder.verify(cellPresenter).setSectionForPosition(0, section, true);
         inOrder.verify(cellPresenter).setSectionForPosition(1, section, false);

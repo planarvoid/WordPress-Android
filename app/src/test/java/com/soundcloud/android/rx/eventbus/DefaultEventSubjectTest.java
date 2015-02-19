@@ -4,6 +4,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import rx.Observer;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class DefaultEventSubjectTest {
 
     private DefaultEventSubject<Integer> subject = DefaultEventSubject.create();

@@ -1,60 +1,78 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.OfflineContentEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
-import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
-import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
+import android.os.Message;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
+import javax.inject.Named;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
-@Singleton
-public class OfflineContentService extends Service {
+public class OfflineContentService extends Service implements DownloadHandler.Listener {
 
-    protected static final String TAG = "OfflineContent";
-    protected static final String ACTION_DOWNLOAD_TRACKS = "action_download_tracks";
+    static final String TAG = "OfflineContent";
+    @VisibleForTesting static final String ACTION_START_DOWNLOAD = "action_start_download";
+    @VisibleForTesting static final String ACTION_STOP_DOWNLOAD = "action_stop_download";
 
     @Inject DownloadOperations downloadOperations;
+    @Inject OfflineContentOperations offlineContentOperations;
     @Inject DownloadNotificationController notificationController;
+    @Inject EventBus eventBus;
+    @Inject OfflineContentScheduler offlineContentScheduler;
+    @Inject DownloadHandler.Builder builder;
+    @Inject @Named("Storage") Scheduler scheduler;
 
-    private Subscription subscription = Subscriptions.empty();
+    private final Queue<DownloadRequest> requestsQueue = new LinkedList<>();
+    private DownloadHandler downloadHandler;
+
+    private Subscription loadRequestsSubscription = Subscriptions.empty();
 
     private final Action1<List<DownloadRequest>> updateNotification = new Action1<List<DownloadRequest>>() {
         @Override
         public void call(List<DownloadRequest> downloadRequests) {
-            notificationController.onNewPendingRequests(downloadRequests.size());
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(downloadRequests.size()));
         }
     };
 
-    private final Func1<List<DownloadRequest>, Observable<DownloadResult>> toDownloadResult =
-            new Func1<List<DownloadRequest>, Observable<DownloadResult>>() {
-                @Override
-                public Observable<DownloadResult> call(List<DownloadRequest> downloadRequests) {
-                    return downloadOperations.processDownloadRequests(downloadRequests);
-                }
-            };
+    private final Action1<List<DownloadRequest>> sendDownloadRequestsUpdated = new Action1<List<DownloadRequest>>() {
+        @Override
+        public void call(List<DownloadRequest> requests) {
+            eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.queueUpdate());
+        }
+    };
 
-    public static void syncOfflineContent(Context context) {
-        context.startService(getDownloadIntent(context));
+    public static void start(Context context) {
+        context.startService(createIntent(context, ACTION_START_DOWNLOAD));
     }
 
-    private static Intent getDownloadIntent(Context context) {
+    public static void stop(Context context) {
+        context.startService(createIntent(context, ACTION_STOP_DOWNLOAD));
+    }
+
+    private static Intent createIntent(Context context, String action) {
         final Intent intent = new Intent(context, OfflineContentService.class);
-        intent.setAction(ACTION_DOWNLOAD_TRACKS);
+        intent.setAction(action);
         return intent;
     }
 
@@ -63,9 +81,26 @@ public class OfflineContentService extends Service {
     }
 
     @VisibleForTesting
-    OfflineContentService(DownloadOperations downloadOps, DownloadNotificationController notificationController) {
+    OfflineContentService(DownloadOperations downloadOps,
+                          OfflineContentOperations offlineContentOperations,
+                          DownloadNotificationController notificationController,
+                          EventBus eventBus,
+                          OfflineContentScheduler offlineContentScheduler,
+                          DownloadHandler.Builder builder,
+                          Scheduler scheduler) {
         this.downloadOperations = downloadOps;
+        this.offlineContentOperations = offlineContentOperations;
         this.notificationController = notificationController;
+        this.eventBus = eventBus;
+        this.offlineContentScheduler = offlineContentScheduler;
+        this.builder = builder;
+        this.scheduler = scheduler;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        downloadHandler = builder.create(this);
     }
 
     @Override
@@ -73,19 +108,66 @@ public class OfflineContentService extends Service {
         final String action = intent.getAction();
         Log.d(TAG, "Starting offlineContentService for action: " + action);
 
-        if (ACTION_DOWNLOAD_TRACKS.equalsIgnoreCase(action)) {
+        offlineContentScheduler.cancelPendingRetries();
+        if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
+            loadRequestsSubscription.unsubscribe();
 
-            startForeground(OFFLINE_NOTIFY_ID, notificationController.create());
-            subscription.unsubscribe();
+            fireAndForget(downloadOperations
+                    .deletePendingRemovals()
+                    .subscribeOn(scheduler));
 
-            subscription = downloadOperations
-                    .pendingDownloads()
-                    .doOnNext(updateNotification)
-                    .flatMap(toDownloadResult)
+            loadRequestsSubscription = offlineContentOperations
+                    .updateDownloadRequestsFromLikes()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DownloadResultSubscriber());
+                    .doOnNext(sendDownloadRequestsUpdated)
+                    .doOnNext(updateNotification)
+                    .subscribeOn(scheduler)
+                    .subscribe(new DownloadSubscriber());
+        } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
+            stop();
         }
         return START_NOT_STICKY;
+    }
+
+    @Override
+    public void onSuccess(DownloadResult result) {
+        Log.d(TAG, "Download finished " + result);
+
+        notificationController.onDownloadSuccess();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFinished(result.getUrn()));
+
+        downloadNextOrFinish();
+    }
+
+    @Override
+    public void onError(DownloadResult result) {
+        Log.d(TAG, "Download failed " + result);
+
+        notificationController.onDownloadError();
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFailed(result.getUrn()));
+
+        if (result.isFailure()) {
+            offlineContentScheduler.scheduleRetry();
+        }
+
+        downloadNextOrFinish();
+    }
+
+    private void downloadNextOrFinish() {
+        if (requestsQueue.isEmpty()) {
+            stop();
+            notificationController.onDownloadsFinished();
+        } else {
+            download(requestsQueue.poll());
+        }
+    }
+
+    private void download(DownloadRequest request) {
+        Log.d(TAG, "Download started " + request);
+
+        final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
+        downloadHandler.sendMessage(message);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadStarted(request.urn));
     }
 
     @Override
@@ -94,35 +176,36 @@ public class OfflineContentService extends Service {
     }
 
     private void stop() {
+        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
+
         Log.d(TAG, "Stopping the service");
-        stopForeground(true);
-        subscription.unsubscribe();
+        loadRequestsSubscription.unsubscribe();
+        downloadHandler.quit();
+
+        stopForeground(false);
         stopSelf();
     }
 
     @Override
     public void onDestroy() {
-        subscription.unsubscribe();
+        loadRequestsSubscription.unsubscribe();
         super.onDestroy();
     }
 
-    private final class DownloadResultSubscriber extends DefaultSubscriber<DownloadResult> {
+    private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
         @Override
-        public void onCompleted() {
-            stop();
-            notificationController.onCompleted();
-        }
+        public void onNext(List<DownloadRequest> requests) {
+            if (!requests.isEmpty()) {
+                Log.d(TAG, "Start offline sync with " + requests.size() + " queue.");
 
-        @Override
-        public void onNext(DownloadResult result) {
-            Log.d(TAG, "Downloaded track: " + result);
-            notificationController.onProgressUpdate();
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            //TODO: error handling and notifications
-            Log.e(TAG, "something bad happened", throwable);
+                requestsQueue.clear();
+                requestsQueue.addAll(requests);
+                if (!downloadHandler.isDownloading()) {
+                    eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
+                    download(requestsQueue.poll());
+                }
+            }
         }
     }
+
 }

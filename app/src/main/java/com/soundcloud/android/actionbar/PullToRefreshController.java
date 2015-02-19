@@ -2,7 +2,8 @@ package com.soundcloud.android.actionbar;
 
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.main.DefaultFragmentLifeCycle;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
+import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -20,7 +21,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PullToRefreshController extends DefaultFragmentLifeCycle<Fragment> {
+@Deprecated // use ListPresenter now, or use PullToRefreshWrapper directly
+public class PullToRefreshController extends DefaultSupportFragmentLightCycle {
 
     private final PullToRefreshWrapper wrapper;
 
@@ -51,12 +53,7 @@ public class PullToRefreshController extends DefaultFragmentLifeCycle<Fragment> 
     }
 
     @Override
-    public void onBind(Fragment fragment) {
-        // no-op
-    }
-
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         Preconditions.checkNotNull(refreshListener, "You must set a refresh listener before calling onViewCreated");
         MultiSwipeRefreshLayout swipeRefreshLayout;
         if (view instanceof SwipeRefreshLayout) {
@@ -80,7 +77,7 @@ public class PullToRefreshController extends DefaultFragmentLifeCycle<Fragment> 
     }
 
     @Override
-    public void onDestroyView() {
+    public void onDestroyView(Fragment fragment) {
         this.wasRefreshing = isRefreshing();
         refreshSubscription.unsubscribe();
         wrapper.detach();

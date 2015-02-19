@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -20,7 +21,7 @@ import android.os.Bundle;
 
 import java.io.IOException;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class ErrorUtilsTest {
 
     @Test

@@ -29,7 +29,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.IOUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -52,7 +51,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
-import javax.inject.Provider;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -413,7 +411,7 @@ public class TestHelper {
         r.upload_status = Recording.Status.NOT_YET_UPLOADED;
         r.artwork_path = r.getFile();
         r.resized_artwork_path = r.artwork_path;
-        r.tip_key = "something";
+        r.tip = "something";
 
         return r;
     }

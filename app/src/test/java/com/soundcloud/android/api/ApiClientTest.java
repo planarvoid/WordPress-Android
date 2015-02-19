@@ -1,7 +1,6 @@
 package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -9,23 +8,17 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.json.JsonTransformer;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.fakehttp.FakeHttpResponse;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.mockwebserver.MockResponse;
 import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,8 +42,6 @@ public class ApiClientTest {
 
     @Mock private FeatureFlags featureFlags;
     @Mock private JsonTransformer jsonTransformer;
-    @Mock private ApiWrapperFactory wrapperFactory;
-    @Mock private PublicApiWrapper publicApiWrapper;
     @Mock private HttpProperties httpProperties;
     @Mock private DeviceHelper deviceHelper;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
@@ -60,12 +51,11 @@ public class ApiClientTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
-        when(wrapperFactory.createWrapper(any(ApiRequest.class))).thenReturn(publicApiWrapper);
         when(deviceHelper.getUserAgent()).thenReturn("");
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
-        apiClient = new ApiClient(featureFlags, httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
-                wrapperFactory, deviceHelper, oAuth, unauthorisedRequestRegistry);
+        apiClient = new ApiClient(httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
+                deviceHelper, oAuth, unauthorisedRequestRegistry);
         mockWebServer.play();
     }
 
@@ -75,17 +65,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakeSuccessfulGetRequestWithApiWrapper() throws IOException {
-        when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(200, "ok"));
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
-        ApiResponse response = apiClient.fetchResponse(request);
-        expect(response.isSuccess()).toBeTrue();
-        expect(response.hasResponseBody()).toBeTrue();
-        expect(response.getResponseBody()).toEqual("ok");
-    }
-
-    @Test
-    public void shouldMakeSuccessfulGetRequestToPublicApiWithOkHttp() throws Exception {
+    public void shouldMakeSuccessfulGetRequestToPublicApi() throws Exception {
         fakePublicApiResponse(new MockResponse().setBody("ok"));
 
         ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
@@ -100,7 +80,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakeSuccessfulGetRequestToMobileApiWithOkHttp() throws Exception {
+    public void shouldMakeSuccessfulGetRequestToMobileApi() throws Exception {
         fakeApiMobileResponse(new MockResponse().setBody("ok"));
 
         ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
@@ -115,7 +95,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakeRequestToMobileApiWithAbsoluteUrlAndOkHttp() throws Exception {
+    public void shouldMakeRequestToMobileApiWithAbsoluteUrl() throws Exception {
         fakeApiMobileResponse(new MockResponse());
 
         ApiRequest request = ApiRequest.Builder.get(mockWebServer.getUrl(PATH).toString()).
@@ -128,7 +108,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldSendUserAgentHeaderWithOkHttp() throws Exception {
+    public void shouldSendUserAgentHeader() throws Exception {
         when(deviceHelper.getUserAgent()).thenReturn("agent");
         fakeApiMobileResponse(new MockResponse());
 
@@ -142,7 +122,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldRequestGzippedResponsesByDefaultWithOkHttp() throws Exception {
+    public void shouldRequestGzippedResponsesByDefault() throws Exception {
         fakeApiMobileResponse(new MockResponse());
 
         ApiRequest request = ApiRequest.Builder.get(mockWebServer.getUrl(PATH).toString()).
@@ -155,47 +135,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakeRequestToGivenUriWithApiWrapper() throws IOException {
-        when(publicApiWrapper.get(requestCaptor.capture())).thenReturn(new FakeHttpResponse(200, "ok"));
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
-        apiClient.fetchResponse(request);
-        expect(requestCaptor.getValue().toUrl()).toEqual(PATH);
-    }
-
-    @Test
-    public void shouldPrependBasePathWhenMakingRequestsToMobileApi() throws IOException {
-        when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/app/mobileapps");
-        when(publicApiWrapper.get(requestCaptor.capture())).thenReturn(new FakeHttpResponse(200, "ok"));
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
-        apiClient.fetchResponse(request);
-        expect(requestCaptor.getValue().toUrl()).toEqual("/app/mobileapps" + PATH);
-    }
-
-    @Test
-    public void shouldNotAppendAppPrefixIfAlreadyPresent() throws IOException {
-        when(httpProperties.getApiMobileBaseUriPath()).thenReturn("/app/mobileapps");
-        when(publicApiWrapper.get(requestCaptor.capture())).thenReturn(new FakeHttpResponse(200, "ok"));
-        ApiRequest request = ApiRequest.Builder.get(ApiClient.URI_APP_PREFIX).forPrivateApi(1).build();
-        apiClient.fetchResponse(request);
-        expect(requestCaptor.getValue().toUrl()).toEqual(ApiClient.URI_APP_PREFIX);
-    }
-
-    @Test
-    public void shouldMakeRequestWithQueryParameterAndApiWrapper() throws IOException {
-        when(publicApiWrapper.get(requestCaptor.capture())).thenReturn(new FakeHttpResponse(200, "ok"));
-        ApiRequest request = ApiRequest.Builder.get(PATH)
-                .forPublicApi()
-                .addQueryParam("key", "value")
-                .build();
-
-        apiClient.fetchResponse(request);
-        Request wrappedRequest = requestCaptor.getValue();
-
-        expect(wrappedRequest.getParams().get("key")).toEqual("value");
-    }
-
-    @Test
-    public void shouldMakeRequestWithQueryParameterAndOkHttp() throws Exception {
+    public void shouldMakeRequestWithQueryParameter() throws Exception {
         fakeApiMobileResponse(new MockResponse());
         ApiRequest request = ApiRequest.Builder.get(PATH)
                 .forPrivateApi(1)
@@ -210,7 +150,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldForwardRequestHeadersUsingOkHttp() throws Exception {
+    public void shouldForwardRequestHeaders() throws Exception {
         fakeApiMobileResponse(new MockResponse());
         ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).withHeader("key", "value").build();
 
@@ -221,7 +161,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldSynthesizeContentTypeHeaderWithVersionForMobileApiRequestsUsingOkHttp() throws Exception {
+    public void shouldSynthesizeContentTypeHeaderWithVersionForMobileApiRequests() throws Exception {
         fakeApiMobileResponse(new MockResponse());
         ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
 
@@ -232,7 +172,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldSynthesizeAcceptHeaderForPublicApiRequestsUsingOkHttp() throws Exception {
+    public void shouldSynthesizeAcceptHeaderForPublicApiRequests() throws Exception {
         fakePublicApiResponse(new MockResponse());
         ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
 
@@ -289,52 +229,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldFailRequestIfApiReturnsErrorCode() throws IOException {
-        when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(404, "not found"));
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
-        ApiResponse response = apiClient.fetchResponse(request);
-        expect(response.isSuccess()).toBeFalse();
-        expect(response.getFailure()).not.toBeNull();
-        expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.NOT_FOUND);
-    }
-
-    @Test
-    public void shouldFailRequestIfCallTerminatesWithIoException() throws IOException {
-        when(publicApiWrapper.get(any(Request.class))).thenThrow(new IOException());
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
-        ApiResponse response = apiClient.fetchResponse(request);
-        expect(response.isSuccess()).toBeFalse();
-        expect(response.getFailure()).not.toBeNull();
-        expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.NETWORK_ERROR);
-    }
-
-    @Test
-    public void shouldFailRequestIfCallTerminatesWithTokenException() throws IOException {
-        when(publicApiWrapper.get(any(Request.class))).thenThrow(new CloudAPI.InvalidTokenException(401, ""));
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
-        ApiResponse response = apiClient.fetchResponse(request);
-        expect(response.isSuccess()).toBeFalse();
-        expect(response.getFailure()).not.toBeNull();
-        expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.AUTH_ERROR);
-    }
-
-    @Test
-    public void shouldMakePostRequestWithJsonContentProvidedInRequestThroughApiWrapper() throws Exception {
-        when(publicApiWrapper.post(requestCaptor.capture())).thenReturn(new FakeHttpResponse(200, "ok"));
-        when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
-        ApiRequest request = ApiRequest.Builder.post(PATH)
-                .forPublicApi()
-                .withContent(new ApiTrack())
-                .build();
-        apiClient.fetchResponse(request);
-        final HttpPost wrappedRequest = requestCaptor.getValue().buildRequest(HttpPost.class);
-        expect(EntityUtils.toString(wrappedRequest.getEntity())).toEqual(JSON_DATA);
-        // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
-        expect(wrappedRequest.getFirstHeader("Content-Type").getValue()).toEqual("application/json");
-    }
-
-    @Test
-    public void shouldMakePostRequestToApiMobileWithJsonContentProvidedInRequestThroughOkHttp() throws Exception {
+    public void shouldMakePostRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
         fakeApiMobileResponse(new MockResponse());
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.Builder.post(PATH)
@@ -351,7 +246,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakePostRequestToApiMobileWithoutContentThroughOkHttp() throws Exception {
+    public void shouldMakePostRequestToApiMobileWithoutContent() throws Exception {
         fakeApiMobileResponse(new MockResponse());
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.Builder.post(PATH)
@@ -367,7 +262,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakePostRequestsToPublicApiWithoutCharsetsInContentTypeThroughOkHttp() throws Exception {
+    public void shouldMakePostRequestsToPublicApiWithoutCharsetsInContentType() throws Exception {
         fakePublicApiResponse(new MockResponse());
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.Builder.post(PATH)
@@ -384,7 +279,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakePutRequestToApiMobileWithJsonContentProvidedInRequestThroughOkHttp() throws Exception {
+    public void shouldMakePutRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
         fakeApiMobileResponse(new MockResponse());
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.Builder.put(PATH)
@@ -413,7 +308,7 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldSendDeleteRequestThroughOkHttp() throws Exception {
+    public void shouldSendDeleteRequest() throws Exception {
         fakeApiMobileResponse(new MockResponse());
         ApiRequest request = ApiRequest.Builder.delete(PATH)
                 .forPrivateApi(1)
@@ -428,11 +323,11 @@ public class ApiClientTest {
 
     @Test
     public void shouldFetchResourcesMappedToTypeSpecifiedInRequest() throws Exception {
+        fakeApiMobileResponse(new MockResponse().setBody(JSON_DATA));
         final ApiTrack mappedTrack = new ApiTrack();
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(mappedTrack);
-        when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(200, JSON_DATA));
         ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
-                .forPublicApi()
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         ApiTrack resource = apiClient.fetchMappedResponse(request);
@@ -441,10 +336,10 @@ public class ApiClientTest {
 
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfParsedToUnknownResource() throws Exception {
+        fakeApiMobileResponse(new MockResponse().setBody(JSON_DATA));
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(new UnknownResource());
-        when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(200, JSON_DATA));
         ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
-                .forPublicApi()
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         apiClient.fetchMappedResponse(request);
@@ -452,9 +347,9 @@ public class ApiClientTest {
 
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfResponseBodyIsBlank() throws Exception {
-        when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(200, ""));
+        fakeApiMobileResponse(new MockResponse().setBody(""));
         ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
-                .forPublicApi()
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         apiClient.fetchMappedResponse(request);
@@ -462,16 +357,15 @@ public class ApiClientTest {
 
     @Test(expected = ApiRequestException.class)
     public void shouldThrowMappingExceptionIfResponseWasUnsuccessful() throws Exception {
-        when(publicApiWrapper.get(any(Request.class))).thenReturn(new FakeHttpResponse(400, "bad request"));
+        fakeApiMobileResponse(new MockResponse().setResponseCode(500));
         ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
-                .forPublicApi()
+                .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         apiClient.fetchMappedResponse(request);
     }
 
     private void fakeApiMobileResponse(MockResponse... mockResponses) throws IOException {
-        when(featureFlags.isEnabled(Flag.OKHTTP)).thenReturn(true);
         for (MockResponse response : mockResponses) {
             mockWebServer.enqueue(response);
         }
@@ -479,7 +373,6 @@ public class ApiClientTest {
     }
 
     private void fakePublicApiResponse(MockResponse mockResponse) throws IOException {
-        when(featureFlags.isEnabled(Flag.OKHTTP)).thenReturn(true);
         mockWebServer.enqueue(mockResponse);
         when(httpProperties.getPublicApiBaseUrl()).thenReturn(mockWebServer.getUrl("").toString());
     }

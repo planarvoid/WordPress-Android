@@ -15,11 +15,10 @@ import com.soundcloud.android.sync.SyncStateManager;
 import android.content.AsyncQueryHandler;
 import android.content.Context;
 import android.database.Cursor;
+import android.os.Handler;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -33,13 +32,11 @@ import java.util.WeakHashMap;
     private static FollowStatus instance;
 
     private final WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener> listeners =
-            new WeakHashMap<FollowStatusChangedListener, FollowStatusChangedListener>();
+            new WeakHashMap<>();
 
     private AsyncQueryHandler asyncQueryHandler;
     private long last_sync_success = -1;
     private LocalCollection followingCollectionState;
-    private final Map<Long, Long> followedAtStamps = new HashMap<>();
-    private final Map<Long, Long> unFollowedAtStamps = new HashMap<>();
 
     private final Context context;
     private final SyncStateManager syncStateManager;
@@ -111,21 +108,29 @@ import java.util.WeakHashMap;
                 null, TableColumns.UserAssociations.REMOVED_AT + " IS NULL", null, null);
     }
 
-    /* package */ void toggleFollowing(long... userIds) {
+    /* package */ void addFollowing(long... userIds) {
+        for (long userId : userIds) {
+            followings.add(userId);
+        }
+        notifyOnFollowChanged();
+    }
 
-        synchronized (followings) {
-            for (long id : userIds) {
-                if (followings.contains(id)) {
-                    followings.remove(id);
-                } else {
-                    followings.add(id);
+    /* package */ void removeFollowing(long... userIds) {
+        for (long userId : userIds) {
+            followings.remove(userId);
+        }
+        notifyOnFollowChanged();
+    }
+
+    private void notifyOnFollowChanged() {
+        new Handler(context.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                for (FollowStatusChangedListener l : listeners.keySet()) {
+                    l.onFollowChanged();
                 }
             }
-        }
-
-        for (FollowStatusChangedListener l : listeners.keySet()) {
-            l.onFollowChanged();
-        }
+        });
     }
 
     private class FollowingQueryHandler extends AsyncQueryHandler {
@@ -143,25 +148,8 @@ import java.util.WeakHashMap;
                 }
                 cursor.close();
 
-                // update with anything that has occurred since last sync
-
-                for (Long id : followedAtStamps.keySet()) {
-                    if (followedAtStamps.get(id) > last_sync_success) {
-                        followings.add(id);
-                    }
-                }
-
-                for (Long id : unFollowedAtStamps.keySet()) {
-                    if (unFollowedAtStamps.get(id) > last_sync_success) {
-                        followings.remove(id);
-                    }
-                }
-
-                for (FollowStatusChangedListener l : listeners.keySet()) {
-                    l.onFollowChanged();
-                }
+                notifyOnFollowChanged();
             }
         }
     }
-
 }

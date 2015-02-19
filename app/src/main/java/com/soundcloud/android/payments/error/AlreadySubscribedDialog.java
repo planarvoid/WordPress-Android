@@ -6,10 +6,9 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 
-public class AlreadySubscribedDialog extends DialogFragment {
+public class AlreadySubscribedDialog extends UnrecoverableErrorDialog {
 
     private static final String TAG = "AlreadySubscribed";
 
@@ -32,5 +31,4 @@ public class AlreadySubscribedDialog extends DialogFragment {
                 .setPositiveButton(android.R.string.ok, listener)
                 .create();
     }
-
 }

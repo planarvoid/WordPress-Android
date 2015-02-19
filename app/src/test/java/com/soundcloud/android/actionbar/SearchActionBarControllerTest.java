@@ -20,10 +20,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.support.v7.app.ActionBar;
+
 @RunWith(SoundCloudTestRunner.class)
 public class SearchActionBarControllerTest {
 
     @Mock private SearchActivity activity;
+    @Mock private ActionBar actionBar;
     @Mock private PublicCloudAPI cloudAPI;
     @Mock private SearchCallback callback;
     @Mock private PlaybackOperations playbackOps;
@@ -33,8 +36,9 @@ public class SearchActionBarControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        actionBarController = new SearchActionBarController(activity, cloudAPI, callback, playbackOps, eventBus,
+        actionBarController = new SearchActionBarController(cloudAPI, playbackOps, eventBus,
                 TestSubscribers.expandPlayerSubscriber());
+        actionBarController.setSearchCallback(callback);
     }
 
     @Test

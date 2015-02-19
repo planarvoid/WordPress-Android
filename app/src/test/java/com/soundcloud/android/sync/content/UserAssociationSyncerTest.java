@@ -6,7 +6,7 @@ import static com.soundcloud.android.testsupport.TestHelper.addCannedResponse;
 import static com.soundcloud.android.testsupport.TestHelper.addIdResponse;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.TestHelper.assertFirstIdToBe;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,19 +19,20 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.Association;
-import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
+import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.HttpStatus;
@@ -41,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
@@ -55,31 +57,23 @@ public class UserAssociationSyncerTest {
     private static final long USER_ID = 133201L;
     UserAssociationSyncer userAssociationSyncer;
 
-    @Mock
-    private ContentResolver resolver;
-    @Mock
-    private UserAssociationStorage userAssociationStorage;
-    @Mock
-    private UserAssociation mockUserAssociation;
-    @Mock
-    private SuggestedUsersOperations suggestedUsersOperations;
-    @Mock
-    private AccountOperations accountOperations;
-    @Mock
-    private UserAssociation userAssociation;
-    @Mock
-    private PublicApiUser user;
-    @Mock
-    private FollowingOperations followingOperations;
-    @Mock
-    private ApiResponse apiResponse;
-
+    @Mock private ContentResolver resolver;
+    @Mock private UserAssociationStorage userAssociationStorage;
+    @Mock private UserAssociation mockUserAssociation;
+    @Mock private SuggestedUsersOperations suggestedUsersOperations;
+    @Mock private AccountOperations accountOperations;
+    @Mock private UserAssociation userAssociation;
+    @Mock private PublicApiUser user;
+    @Mock private FollowingOperations followingOperations;
+    @Mock private ApiResponse apiResponse;
+    @Mock private NotificationManager notificationManager;
+    @Mock private JsonTransformer jsonTransformer;
 
     @Before
     public void before() {
         TestHelper.setUserId(133201L);
         userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
-                resolver, userAssociationStorage, followingOperations, accountOperations);
+                resolver, userAssociationStorage, followingOperations, accountOperations, notificationManager, null);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
@@ -318,7 +312,7 @@ public class UserAssociationSyncerTest {
         when(userAssociation.hasToken()).thenReturn(true, true);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
-        when(followingOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Collection<UserAssociation>>error(new IOException()));
+        when(followingOperations.bulkFollowAssociations(anyListOf(UserAssociation.class))).thenReturn(Observable.<Collection<UserAssociation>>error(new IOException()));
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeFalse();
     }
 
@@ -327,13 +321,14 @@ public class UserAssociationSyncerTest {
         when(userAssociation.hasToken()).thenReturn(true, true);
         when(userAssociationStorage.hasFollowingsNeedingSync()).thenReturn(true);
         when(userAssociationStorage.getFollowingsNeedingSync()).thenReturn(newArrayList(userAssociation, userAssociation));
-        when(followingOperations.bulkFollowAssociations(anyList())).thenReturn(Observable.<Collection<UserAssociation>>empty());
+        when(followingOperations.bulkFollowAssociations(anyListOf(UserAssociation.class))).thenReturn(Observable.<Collection<UserAssociation>>empty());
         expect(userAssociationSyncer.syncContent(Content.ME_FOLLOWINGS.uri, ApiSyncService.ACTION_PUSH).success).toBeTrue();
     }
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
-        UserAssociationSyncer syncer = new UserAssociationSyncer(Robolectric.application, accountOperations, followingOperations);
+        UserAssociationSyncer syncer = new UserAssociationSyncer(
+                Robolectric.application, accountOperations, followingOperations, notificationManager, jsonTransformer);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 

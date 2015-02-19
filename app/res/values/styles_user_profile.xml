@@ -2,10 +2,13 @@
 <resources>
     <style name="Profile"/>
 
-    <style name="Profile.ToggleButton" parent="PlayerAction">
+    <style name="Profile.ToggleButton">
         <item name="android:minHeight">@dimen/follow_btn_height</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/btn_text_size</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">center</item>
         <item name="android:background">@drawable/btn_default_states</item>
         <item name="android:paddingLeft">10dp</item>
         <item name="android:paddingRight">10dp</item>

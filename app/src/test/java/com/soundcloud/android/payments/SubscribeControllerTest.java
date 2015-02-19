@@ -23,7 +23,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Intent;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -33,7 +33,7 @@ public class SubscribeControllerTest {
 
     @Mock private PaymentOperations paymentOperations;
     @Mock private PaymentErrorController paymentErrorController;
-    @Mock private FragmentActivity activity;
+    @Mock private ActionBarActivity activity;
 
     private SubscribeController controller;
     private View contentView;
@@ -49,25 +49,25 @@ public class SubscribeControllerTest {
 
     @Test
     public void onCreateSetsActivityContentView() {
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
         verify(activity).setContentView(R.layout.subscribe_activity);
     }
 
     @Test
     public void onCreateConnectsPaymentOperations() {
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
         verify(paymentOperations).connect(activity);
     }
 
     @Test
     public void onCreateBindsErrorHandler() {
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
         verify(paymentErrorController).bind(activity);
     }
 
     @Test
     public void onDestroyDisconnectsPaymentOperations() {
-        controller.onDestroy();
+        controller.onDestroy(activity);
         verify(paymentOperations).disconnect();
     }
 
@@ -76,7 +76,7 @@ public class SubscribeControllerTest {
         BillingResult billingResult = TestBillingResults.success();
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.PENDING));
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
         controller.handleBillingResult(billingResult);
 
         verify(paymentOperations).verify(billingResult.getPayload());
@@ -86,17 +86,17 @@ public class SubscribeControllerTest {
     public void cancelsTransactionForPlayBillingFailure() {
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
         controller.handleBillingResult(TestBillingResults.cancelled());
 
-        verify(paymentOperations).cancel("user cancelled");
+        verify(paymentOperations).cancel("payment failed");
     }
 
     @Test
     public void cancelsTransactionPlayBillingError() {
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
         controller.handleBillingResult(TestBillingResults.error());
 
         verify(paymentOperations).cancel(anyString());
@@ -106,7 +106,7 @@ public class SubscribeControllerTest {
     public void doesNotQueryProductDetailsIfBillingIsNotSupported() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.UNSUPPORTED));
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
 
         verify(paymentOperations, never()).queryProduct();
     }
@@ -116,7 +116,7 @@ public class SubscribeControllerTest {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(Observable.<PurchaseStatus>empty());
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
 
         verify(paymentOperations).queryStatus();
     }
@@ -126,7 +126,7 @@ public class SubscribeControllerTest {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
 
         verify(paymentOperations).queryProduct();
     }
@@ -138,7 +138,7 @@ public class SubscribeControllerTest {
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
         when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromSuccess(details)));
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
 
         expect(getText(R.id.subscribe_title)).toEqual(details.getTitle());
         expect(getText(R.id.subscribe_description)).toEqual(details.getDescription());
@@ -149,7 +149,7 @@ public class SubscribeControllerTest {
     public void startsSuccessActivityWhenPurchaseIsSuccess() {
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
 
-        controller.onCreate(activity);
+        controller.onCreate(activity, null);
         controller.handleBillingResult(TestBillingResults.success());
 
         verify(activity).finish();

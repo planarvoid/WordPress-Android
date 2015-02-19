@@ -121,6 +121,10 @@ public class Han  {
         return solo.getCurrentActivity().getString(resId, args);
     }
 
+    public String getQuantityString(int resId, int quantity, Object... args) {
+        return solo.getCurrentActivity().getResources().getQuantityString(resId, quantity, args);
+    }
+
     @Deprecated
     public GridView getCurrentGridView(){
         solo.waitForView(GridView.class);

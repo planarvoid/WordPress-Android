@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.ui.view.PlaybackToastViewController;
+import com.soundcloud.android.playback.ui.view.AdToastViewController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -51,12 +51,21 @@ public class PlaybackOperations {
         }
     };
 
+    private static final Func1<List<Urn>, List<Urn>> SHUFFLE_TRACKS = new Func1<List<Urn>, List<Urn>>() {
+        @Override
+        public List<Urn> call(List<Urn> trackUrns) {
+            List<Urn> shuffled = Lists.newArrayList(trackUrns);
+            Collections.shuffle(shuffled);
+            return shuffled;
+        }
+    };
+
     private final Context context;
     private final ScModelManager modelManager;
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final PlaybackToastViewController playbackToastViewController;
+    private final AdToastViewController adToastViewController;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
@@ -67,7 +76,7 @@ public class PlaybackOperations {
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider,
-                              PlaybackToastViewController playbackToastViewController, EventBus eventBus,
+                              AdToastViewController adToastViewController, EventBus eventBus,
                               AdsOperations adsOperations, AccountOperations accountOperations,
                               Provider<PlaybackStrategy> playbackStrategyProvider) {
         this.context = context;
@@ -75,7 +84,7 @@ public class PlaybackOperations {
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.playbackToastViewController = playbackToastViewController;
+        this.adToastViewController = adToastViewController;
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
@@ -90,8 +99,8 @@ public class PlaybackOperations {
         return playTracksList(Observable.from(trackUrns).toList(), trackUrn, position, playSessionSource, false);
     }
 
-    public Observable<List<Urn>> playTracks(Observable<Urn> allTracks, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
-        return playTracksList(allTracks.toList(), initialTrack, position, playSessionSource, false);
+    public Observable<List<Urn>> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
+        return playTracksList(allTracks, initialTrack, position, playSessionSource, false);
     }
 
     @Deprecated
@@ -109,6 +118,14 @@ public class PlaybackOperations {
         return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, true);
     }
 
+    public Observable<List<Urn>> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable, PlaySessionSource playSessionSource) {
+        return trackUrnsObservable
+                .filter(FILTER_EMPTY_TRACK_LIST)
+                .map(SHUFFLE_TRACKS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnNext(playNewQueueAction(0, playSessionSource, Urn.NOT_SET, true));
+    }
+
     private Observable<List<Urn>> playTracksList(Observable<List<Urn>> trackUrns, final Urn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, boolean loadRelated) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             return Observable.empty();
@@ -118,6 +135,32 @@ public class PlaybackOperations {
                 .filter(FILTER_EMPTY_TRACK_LIST)
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(playNewQueueAction(startPosition, playSessionSource, initialTrack, loadRelated));
+    }
+
+    private Action1<List<Urn>> playNewQueueAction(final int startPosition,
+                                                  final PlaySessionSource playSessionSource,
+                                                  final Urn initialTrackUrn,
+                                                  final boolean loadRecommended) {
+        return new Action1<List<Urn>>() {
+            @Override
+            public void call(List<Urn> trackUrns) {
+                final int updatedPosition = correctStartPositionAndDeduplicateList(trackUrns, startPosition, initialTrackUrn);
+                playNewQueue(trackUrns, updatedPosition, playSessionSource);
+                if (loadRecommended) {
+                    playQueueManager.fetchTracksRelatedToCurrentTrack();
+                }
+            }
+        };
+    }
+
+    private void playNewQueue(List<Urn> trackUrns, int startPosition, PlaySessionSource playSessionSource) {
+        if (shouldDisableSkipping()) {
+            throw new UnskippablePeriodException();
+        }
+
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
+        playCurrent();
     }
 
     public Observable<List<Urn>> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
@@ -162,7 +205,7 @@ public class PlaybackOperations {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastViewController.showUnkippableAdToast();
+            adToastViewController.showUnskippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !adsOperations.isCurrentTrackAudioAd()) {
@@ -176,7 +219,7 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            playbackToastViewController.showUnkippableAdToast();
+            adToastViewController.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
             playQueueManager.nextTrack();
@@ -220,22 +263,6 @@ public class PlaybackOperations {
         return intent;
     }
 
-    private Action1<List<Urn>> playNewQueueAction(final int startPosition,
-                                                       final PlaySessionSource playSessionSource,
-                                                       final Urn initialTrackUrn,
-                                                       final boolean loadRecommended) {
-        return new Action1<List<Urn>>() {
-            @Override
-            public void call(List<Urn> trackUrns) {
-                final int updatedPosition = correctStartPositionAndDeduplicateList(trackUrns, startPosition, initialTrackUrn);
-                playNewQueue(trackUrns, updatedPosition, playSessionSource);
-                if (loadRecommended) {
-                    playQueueManager.fetchTracksRelatedToCurrentTrack();
-                }
-            }
-        };
-    }
-
     private boolean shouldChangePlayQueue(Urn trackUrn, PlaySessionSource playSessionSource) {
         return !isCurrentTrack(trackUrn) || !isCurrentScreenSource(playSessionSource) || isPlaylist() && !isCurrentPlaylist(playSessionSource);
     }
@@ -254,16 +281,6 @@ public class PlaybackOperations {
 
     private boolean isCurrentTrack(Urn trackUrn) {
         return playQueueManager.isCurrentTrack(trackUrn);
-    }
-
-    private void playNewQueue(List<Urn> trackUrns, int startPosition, PlaySessionSource playSessionSource) {
-        if (shouldDisableSkipping()) {
-            throw new UnSkippablePeriodException();
-        }
-
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, playSessionSource);
-        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
-        playCurrent();
     }
 
     private int correctStartPositionAndDeduplicateList(List<Urn> trackUrns, int startPosition, Urn initialTrack) {
@@ -308,6 +325,5 @@ public class PlaybackOperations {
         return adjustedPosition;
     }
 
-    public static class UnSkippablePeriodException extends RuntimeException {
-    }
+    public static class UnskippablePeriodException extends RuntimeException {}
 }

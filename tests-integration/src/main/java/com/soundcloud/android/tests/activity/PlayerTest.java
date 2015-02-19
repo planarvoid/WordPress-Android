@@ -14,6 +14,7 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
 
+
 public class PlayerTest extends ActivityTest<MainActivity> {
     private VisualPlayerElement player;
     private StreamScreen streamScreen;

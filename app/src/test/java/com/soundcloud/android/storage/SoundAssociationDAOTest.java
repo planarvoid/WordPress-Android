@@ -4,16 +4,18 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes;
 import static com.soundcloud.android.testsupport.TestHelper.readJson;
 
-import com.soundcloud.android.api.legacy.model.Like;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
-import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,12 +36,14 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     private static final long TRACK_ID = 1L;
     private static final long PLAYLIST_ID = 2L;
 
-    private SQLiteDatabase database;
+    private final SQLiteDatabase database;
+    private final DatabaseFixtures testFixtures;
 
     public SoundAssociationDAOTest() {
         super(new SoundAssociationDAO(Robolectric.application.getContentResolver()));
-        DatabaseManager helper = new DatabaseManager(DefaultTestRunner.application);
+        DatabaseManager helper = DatabaseManager.getInstance(Robolectric.application);
         database = helper.getWritableDatabase();
+        testFixtures = new DatabaseFixtures(database);
     }
 
     @Before
@@ -53,12 +57,8 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         cv.put(TableColumns.CollectionItems.ITEM_ID, 1L);
         cv.put(TableColumns.CollectionItems.USER_ID, USER_ID);
         cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, CollectionItemTypes.FRIEND);
-        DatabaseManager helper = new DatabaseManager(DefaultTestRunner.application);
-        Content.COLLECTION_ITEMS.table.insertOrReplace(helper.getWritableDatabase(), cv);
+        Content.COLLECTION_ITEMS.table.insertOrReplace(database, cv);
         expect(resolver.query(Content.COLLECTION_ITEMS.uri, null, null, null, null).getCount()).toBe(1);
-
-        insertTrack();
-        insertPlaylist();
     }
 
     @Test
@@ -66,14 +66,14 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         expect(getDAO().queryAll()).toNumber(0);
 
         TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK);
-        TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
         TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
+        testFixtures.insertLikedTrack(new Date());
 
         TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST);
-        TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
         TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
+        testFixtures.insertLikedPlaylist(new Date());
 
-        expect(getDAO().queryAll()).toNumber(6);
+        expect(getDAO().queryAll().size()).toBe(6);
     }
 
     @Test
@@ -109,13 +109,10 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     }
 
     @Test
-    public void shouldInsertLikeForTrack() {
+    public void shouldFindLikeForTrack() {
         expect(Content.ME_LIKES).toHaveCount(0);
 
-        PublicApiTrack track = new PublicApiTrack(1);
-        SoundAssociation sa = new SoundAssociation(track, new Date(), SoundAssociation.Type.TRACK_LIKE);
-        sa.owner = new PublicApiUser(USER_ID);
-        getDAO().create(sa);
+        ApiTrack track = testFixtures.insertLikedTrack(new Date());
 
         expect(Content.ME_LIKES).toHaveCount(1);
         expect(Content.ME_LIKES).toHaveColumnAt(0, TableColumns.SoundAssociationView._ID, track.getId());
@@ -144,10 +141,7 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     public void shouldInsertLikeForPlaylist() {
         expect(Content.ME_LIKES).toHaveCount(0);
 
-        PublicApiPlaylist playlist = new PublicApiPlaylist(1);
-        SoundAssociation sa = new SoundAssociation(playlist, new Date(), SoundAssociation.Type.PLAYLIST_LIKE);
-        sa.owner = new PublicApiUser(USER_ID);
-        getDAO().create(sa);
+        ApiPlaylist playlist = testFixtures.insertLikedPlaylist(new Date());
 
         expect(Content.ME_LIKES).toHaveCount(1);
         expect(Content.ME_LIKES).toHaveColumnAt(0, TableColumns.SoundAssociationView._ID, playlist.getId());
@@ -173,19 +167,6 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
     }
 
     @Test
-    public void shouldRemoveLikeForTrack() {
-        SoundAssociation trackLike = TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
-        TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
-        expect(Content.ME_LIKES).toHaveCount(2);
-
-        expect(getDAO().delete(trackLike)).toBeTrue();
-
-        expect(Content.TRACKS).toHaveCount(1);
-        expect(Content.ME_LIKES).toHaveCount(1);
-        expect(Content.ME_LIKES).toHaveColumnAt(0, TableColumns.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
-    }
-
-    @Test
     public void shouldRemoveRepostForTrack() {
         SoundAssociation trackRepost = TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_REPOST);
         TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_REPOST);
@@ -196,19 +177,6 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
         expect(Content.TRACKS).toHaveCount(1);
         expect(Content.ME_REPOSTS).toHaveCount(1);
         expect(Content.ME_REPOSTS).toHaveColumnAt(0, TableColumns.SoundAssociationView._TYPE, Playable.DB_TYPE_PLAYLIST);
-    }
-
-    @Test
-    public void shouldRemoveLikeForPlaylist() {
-        SoundAssociation playlistLike = TestHelper.insertAsSoundAssociation(new PublicApiPlaylist(PLAYLIST_ID), SoundAssociation.Type.PLAYLIST_LIKE);
-        TestHelper.insertAsSoundAssociation(new PublicApiTrack(TRACK_ID), SoundAssociation.Type.TRACK_LIKE);
-        expect(Content.ME_LIKES).toHaveCount(2);
-
-        expect(getDAO().delete(playlistLike)).toBeTrue();
-
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.ME_LIKES).toHaveCount(1);
-        expect(Content.ME_LIKES).toHaveColumnAt(0, TableColumns.SoundAssociationView._TYPE, Playable.DB_TYPE_TRACK);
     }
 
     @Test
@@ -226,40 +194,16 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
     @Test
     public void shouldInsertAndQueryLikes() throws Exception {
-        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/sync/e1_likes.json");
-
-        // 3 likes, 12 dependencies
-        expect(getDAO().createCollection(holder.collection)).toEqual(3 + 12);
+        final ApiTrack track = testFixtures.insertLikedTrack(new Date(100));
+        final ApiPlaylist playlist1 = testFixtures.insertLikedPlaylist(new Date(200));
+        final ApiPlaylist playlist2 = testFixtures.insertLikedPlaylist(new Date(300));
 
         List<SoundAssociation> likes = getDAO().queryAll();
         expect(likes).toNumber(3);
 
-        expect(likes.get(0).getPlayable().title).toEqual("LOL");
-        expect(likes.get(1).getPlayable().title).toEqual("freddie evans at Excel Exhibition Centre");
-    }
-
-    @Test
-    public void shouldInsertQueryAndDeleteLikes() throws Exception {
-        SoundAssociationHolder holder = readJson(SoundAssociationHolder.class,
-                "/com/soundcloud/android/sync/e1_likes.json");
-
-        // 3 likes, 12 dependencies
-        expect(getDAO().createCollection(holder.collection)).toEqual(3 + 12);
-
-        Cursor c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(3);
-
-        List<Like> likes = new ArrayList<Like>();
-        while (c.moveToNext()) {
-            Like like = new Like(c);
-            likes.add(like);
-        }
-        expect(resolver.delete(Content.ME_LIKES.uri, TableColumns.CollectionItems.ITEM_ID + " = ?",
-                new String[]{String.valueOf(likes.get(0).getPlayable().getId())})).toEqual(1);
-
-        c = resolver.query(Content.ME_LIKES.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(2);
+        expect(likes.get(0).getPlayable().getId()).toEqual(playlist2.getId());
+        expect(likes.get(1).getPlayable().getId()).toEqual(playlist1.getId());
+        expect(likes.get(2).getPlayable().getId()).toEqual(track.getId());
     }
 
     @Test
@@ -281,71 +225,5 @@ public class SoundAssociationDAOTest extends AbstractDAOTest<SoundAssociationDAO
 
         expect(associations.get(0).getPlayable().title).toEqual("A trimmed test upload");
         expect(associations.get(1).getPlayable().title).toEqual("A faded + trimmed test upload");
-    }
-
-
-    /*
-    @Test
-    public void shouldPersistStreamItems() throws Exception {
-        DefaultTestRunner.application.setCurrentUserId(100L);
-        final ScModelManager manager = DefaultTestRunner.application.sModelManager;
-
-        SoundAssociationHolder sounds  = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("sounds_with_sets.json"),
-                SoundAssociationHolder.class);
-
-        expect(sounds).not.toBeNull();
-
-        expect(sounds.size()).toEqual(41);
-
-
-        expect(manager.writeCollection(sounds, ScResource.CacheUpdateMode.NONE)).toEqual(41); // 38 tracks, 3 sets
-
-
-        expect(SoundCloudDB.getStoredIds(DefaultTestRunner.application.getContentResolver(),
-                Content.ME_SOUNDS.uri, 0, 50).size()).toEqual(41);
-
-        CollectionHolder<SoundAssociation> newItems = SoundCloudApplication.sModelManager.loadLocalContent(
-                DefaultTestRunner.application.getContentResolver(), SoundAssociation.class, Content.ME_SOUNDS.uri);
-
-        expect(newItems.size()).toEqual(41);
-
-        expect(Content.ME_PLAYLISTS).toHaveCount(2); // does not include the repost
-
-    }
-
-
-    @Test
-    public void shouldInsertNewSoundAssociation() throws Exception {
-        DefaultTestRunner.application.setCurrentUserId(100L);
-        ScModelManager manager = DefaultTestRunner.application.sModelManager;
-
-        //initial population
-        SoundAssociationHolder old = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("sounds.json"),
-                SoundAssociationHolder.class);
-
-        expect(manager.writeCollection(old, ScResource.CacheUpdateMode.NONE)).toEqual(38); // 38 tracks and 3 diff users
-
-        Playlist p = manager.getModelFromStream(SyncAdapterServiceTest.class.getResourceAsStream("playlist.json"));
-        SoundAssociation soundAssociation1 = new SoundAssociation(p, new Date(System.currentTimeMillis()),SoundAssociation.Type.PLAYLIST);
-
-        final Uri uri = soundAssociation1.insert(DefaultTestRunner.application.getContentResolver(),Content.ME_SOUNDS.uri);
-        expect(uri).toEqual(Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/me/sounds/39"));
-    }
-    */
-
-    private void insertTrack() {
-        PublicApiTrack track = new PublicApiTrack(TRACK_ID);
-        track.user_id = USER_ID;
-        TestHelper.insertWithDependencies(track);
-        expect(Content.TRACKS).toHaveCount(1);
-    }
-
-    private void insertPlaylist() {
-        PublicApiPlaylist playlist = new PublicApiPlaylist(PLAYLIST_ID);
-        playlist.user_id = USER_ID;
-        TestHelper.insertWithDependencies(playlist);
-        expect(Content.PLAYLISTS).toHaveCount(1);
     }
 }

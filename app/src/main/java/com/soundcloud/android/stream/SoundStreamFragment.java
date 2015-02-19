@@ -8,7 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -37,7 +37,7 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
-public class SoundStreamFragment extends DefaultFragment
+public class SoundStreamFragment extends LightCycleSupportFragment
         implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
     @VisibleForTesting
@@ -131,7 +131,7 @@ public class SoundStreamFragment extends DefaultFragment
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.sound_stream_fragment, container, false);
+        return inflater.inflate(R.layout.default_list_with_refresh, container, false);
     }
 
     @Override
@@ -165,7 +165,10 @@ public class SoundStreamFragment extends DefaultFragment
         final Urn playableUrn = item.get(PlayableProperty.URN);
         if (playableUrn.isTrack()) {
             playbackOperations
-                    .playTracks(operations.trackUrnsForPlayback(), playableUrn, position, new PlaySessionSource(Screen.SIDE_MENU_STREAM))
+                    .playTracks(operations.trackUrnsForPlayback(),
+                            playableUrn,
+                            position,
+                            new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
         } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(getActivity(), playableUrn, Screen.SIDE_MENU_STREAM);

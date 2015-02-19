@@ -79,7 +79,6 @@ public enum Content {
     TRACK_SECRET_TOKEN("tracks/#/secret-token", null, 206, null, -1, null),
     TRACK_LIKERS("tracks/#/favoriters", Endpoints.TRACK_FAVORITERS, 207, PublicApiUser.class, -1, Table.Users),
     TRACK_REPOSTERS("tracks/#/reposters", TempEndpoints.e1.TRACK_REPOSTERS, 208, PublicApiUser.class, -1, Table.Users),
-    TRACK_SEARCH("search/tracks", TempEndpoints.TRACK_SEARCH, 209, PublicApiTrack.class, -1, null),
     TRACK_LOOKUP("tracks/q/*", Endpoints.TRACKS, 250, PublicApiTrack.class, -1, Table.Sounds),
 
     USERS("users", Endpoints.USERS, 301, PublicApiUser.class, -1, Table.Users),
@@ -200,10 +199,6 @@ public enum Content {
 
     public boolean isSyncable() {
         return id < SYNCABLE_CEILING && id > 0;
-    }
-
-    public boolean isCollectionItem() {
-        return table == Table.CollectionItems;
     }
 
     public boolean isActivitiesItem() {

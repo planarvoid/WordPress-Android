@@ -22,7 +22,6 @@
     <string name="legal_summary">Juridische informatie</string>
     <string name="terms_of_use">Gebruikersvoorwaarden</string>
     <string name="privacy_policy">Privacybeleid</string>
-    <string name="visit_support">Bezoek Helpdesk</string>
     <string name="version">Versie</string>
     <string name="unavailable">Niet beschikbaar</string>
     <string name="copyright_information">Copyright informatie</string>
@@ -32,7 +31,6 @@
     <string name="btn_following">Personen die u volgt</string>
     <string name="btn_save">Opslaan</string>
     <string name="btn_skip">Overslaan</string>
-    <string name="compressed">Gecomprimeerd</string>
     <string name="configure">Configureer</string>
     <string name="connect_progress">Aan het laden</string>
     <string name="connect_success">Succesvol verbonden met %1$s</string>
@@ -40,7 +38,6 @@
     <string name="delete">Verwijderen</string>
     <string name="comments">Reacties</string>
     <string name="new_connection_error">Er is een probleem opgetreden tijdens het toevoegen van het netwerk</string>
-    <string name="raw">Ruw</string>
     <string name="reset">Wegwerpen</string>
     <string name="share_fail_message">OK, dat ging mis.</string>
     <string name="share_log_out">Afmelden</string>
@@ -63,7 +60,6 @@
     <string name="accessibility_stats_user_reposted">Door u gedeeld</string>
     <string name="accessibility_like_action">Like</string>
     <string name="accessibility_repost_action">Delen</string>
-    <string name="accessibility_comment_action">Reactie</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">vond %s leuk</string>
@@ -164,8 +160,6 @@
     <string name="empty_user_tracks_text">%1$s heeft nog\ngeen publieke geluiden geüpload.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Er was een probleem tijdens het contact opnemen met SoundCloud.</string>
-    <string name="error_loading_title">Netwerkfout</string>
     <string name="error_recording_message">Er is een fout opgetreden tijdens het opnemen.\nUw apparaat ondersteunt de huidige opnameconfiguratie misschien niet. U kunt de configuraties veranderen bij de applicatieinstellingen.</string>
     <string name="error_unauthorized_message">We zijn een probleem tegengekomen met uw account. U moet opnieuw inloggen bij SoundCloud voordat u de app weer kunt gebruiken.</string>
     <string name="error_unauthorized_title">Accountfout</string>
@@ -377,45 +371,48 @@
     <string name="cloud_recorder_playback_event_title">Terugspelen aan de gang</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default" tools:ignore="UnusedResources">Waarom neemt u niet de geluiden van uw straat op?</string>
-    <string name="rectip_memories_voice_notes" tools:ignore="UnusedResources">Neem stemnotities op als handige herinneringen.</string>
-    <string name="rectip_memories_voice_blog" tools:ignore="UnusedResources">Gebruik de REC-knop om een stemblog aan te maken - wat ga je vandaag delen?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now" tools:ignore="UnusedResources">Wat bent u nu aan het doen?</string>
-    <string name="rectip_memories_child_first_words" tools:ignore="UnusedResources">Leg het moment vast: de eerste woorden van een kind</string>
-    <string name="rectip_memories_sound_your_pet_makes" tools:ignore="UnusedResources">Leg het moment vast: de geluiden die uw huisdier maakt</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about" tools:ignore="UnusedResources">Leg het moment vast: de stem van iemand om wie u geeft</string>
-    <string name="rectip_memories_shopping_reminders" tools:ignore="UnusedResources">Gaat u winkelen? Leg herinneringen vast, zodat u niet vergeet wat u wilt kopen.</string>
-    <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">Heeft u een geweldig idee? Leg het vast met de REC-knop.</string>
-    <string name="rectip_social_good_joke" tools:ignore="UnusedResources">Heeft u de laatste tijd een goede grap gehoord? Deel hem!</string>
-    <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">Bent u aan het genieten van een goed gesprek? Waarom neemt u het niet op?</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">Leg een hilarisch moment in geluid vast</string>
-    <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">Wist u dat u privé-opnames kunt opslaan als u ze niet wilt delen?</string>
-    <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">Soms is het beste opnameapparaat degene die u bij u heeft.</string>
-    <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">Geluid van uzelf aanzetten!</string>
-    <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">Zet het geluid van het internet aan.</string>
-    <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">Zet het geluid van de wereld aan.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">Druk jezelf uit!</string>
-    <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">Waarom neemt u niet de notulen van uw volgende vergadering op?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">Gebruik de REC-knop om ideeën voor later vast te leggen.</string>
-    <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">Gebruik de REC-knop als een ezelsbruggetje: bewaar uw notities onderweg.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings" tools:ignore="UnusedResources">U kunt de REC-knop gebruiken om interviews en vergaderingen op te nemen.</string>
-    <string name="rectip_environmental_ocean_waves" tools:ignore="UnusedResources">Neem het geluid van de oceaan golven bij het strand op</string>
-    <string name="rectip_environmental_vibrant_rush_hour" tools:ignore="UnusedResources">Leg de geluiden van een bruisende stad tijdens de spits vast</string>
-    <string name="rectip_environmental_crazy_sound" tools:ignore="UnusedResources">Heeft u een gek geluid gehoord? Leg het vast met de REC-knop!</string>
-    <string name="rectip_music_feel_inspired" tools:ignore="UnusedResources">Voelt u zich geïnspireerd? Leg uw idee vast met de REC-knop.</string>
-    <string name="rectip_music_track_idea" tools:ignore="UnusedResources">Heeft u een idee voor een nieuwe track? Sla het op met de REC-knop.</string>
-    <string name="rectip_music_tune_stuck" tools:ignore="UnusedResources">Heeft u een deuntje in uw hoofd? Leg het vast met de REC-knop.</string>
-    <string name="rectip_music_song_lyric_ideas" tools:ignore="UnusedResources">Ideeën voor songteksten? Leg ze direct vast met de REC-knop.</string>
-    <string name="rectip_events_whats_going_on" tools:ignore="UnusedResources">Wat is er gaande op het moment?</string>
-    <string name="rectip_events_current_events_as_they_happen" tools:ignore="UnusedResources">Neem actuele gebeurtenissen op terwijl ze gebeuren en deel ze met de wereld.</string>
-    <string name="rectip_events_something_interesting" tools:ignore="UnusedResources">Is er is interessants aan de hand? Leg het moment in audio vast.</string>
-    <string name="rectip_events_citizen_reporter" tools:ignore="UnusedResources">Burger als Verslaggever? Vertel de wereld wat er gebeurt op de plek waar u bent.</string>
-    <string name="rectip_private_happy_birthday" tools:ignore="UnusedResources">Wens %s een gelukkige verjaardag</string>
-    <string name="rectip_private_record_a_message" tools:ignore="UnusedResources">Waarom niet een bericht voor %s opnemen?</string>
-    <string name="rectip_private_how_much_they_mean" tools:ignore="UnusedResources">Vertel %s hoeveel ze voor u betekenen.</string>
-    <string name="rectip_private_send_reminder" tools:ignore="UnusedResources">Stuur %s een herinnering</string>
-    <string name="rectip_private_liked_their_sound" tools:ignore="UnusedResources">Vertel %s hoeveel u van hun geluid hebt genoten</string>
-    <string name="rectip_private_leave_feedback" tools:ignore="UnusedResources">Laat wat feedback achter voor %s</string>
+    <string-array name="record_suggestions">
+        <item>Waarom neemt u niet de geluiden van uw straat op?</item>
+
+        <item>Neem stemnotities op als handige herinneringen.</item>
+        <item>Gebruik de REC-knop om een stemblog aan te maken - wat ga je vandaag delen?</item>
+        <item>Wat bent u nu aan het doen?</item>
+        <item>Leg het moment vast: de eerste woorden van een kind</item>
+        <item>Leg het moment vast: de geluiden die uw huisdier maakt</item>
+        <item>Leg het moment vast: de stem van iemand om wie u geeft</item>
+        <item>Gaat u winkelen? Leg herinneringen vast, zodat u niet vergeet wat u wilt kopen.</item>
+        <item>Heeft u een geweldig idee? Leg het vast met de REC-knop.</item>
+
+        <item>Heeft u de laatste tijd een goede grap gehoord? Deel hem!</item>
+        <item>Bent u aan het genieten van een goed gesprek? Waarom neemt u het niet op?</item>
+        <item>Leg een hilarisch moment in geluid vast</item>
+
+        <item>Wist u dat u privé-opnames kunt opslaan als u ze niet wilt delen?</item>
+        <item>Soms is het beste opnameapparaat degene die u bij u heeft.</item>
+        <item>Geluid van uzelf aanzetten!</item>
+        <item>Zet het geluid van het internet aan.</item>
+        <item>Zet het geluid van de wereld aan.</item>
+        <item>Druk jezelf uit!</item>
+
+        <item>Waarom neemt u niet de notulen van uw volgende vergadering op?</item>
+        <item>Gebruik de REC-knop om ideeën voor later vast te leggen.</item>
+        <item>Gebruik de REC-knop als een ezelsbruggetje: bewaar uw notities onderweg.</item>
+        <item>U kunt de REC-knop gebruiken om interviews en vergaderingen op te nemen.</item>
+
+        <item>Neem het geluid van de oceaan golven bij het strand op</item>
+        <item>Leg de geluiden van een bruisende stad tijdens de spits vast</item>
+        <item>Heeft u een gek geluid gehoord? Leg het vast met de REC-knop!</item>
+
+        <item>Voelt u zich geïnspireerd? Leg uw idee vast met de REC-knop.</item>
+        <item>Heeft u een idee voor een nieuwe track? Sla het op met de REC-knop.</item>
+        <item>Heeft u een deuntje in uw hoofd? Leg het vast met de REC-knop.</item>
+        <item>Ideeën voor songteksten? Leg ze direct vast met de REC-knop.</item>
+
+        <item>Wat is er gaande op het moment?</item>
+        <item>Neem actuele gebeurtenissen op terwijl ze gebeuren en deel ze met de wereld.</item>
+        <item>Is er is interessants aan de hand? Leg het moment in audio vast.</item>
+        <item>Burger als Verslaggever? Vertel de wereld wat er gebeurt op de plek waar u bent.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Zoek in SoundCloud</string>
@@ -435,10 +432,6 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">Details van de App</string>
     <string name="pref_basic_settings">Basisinstellingen</string>
-    <string name="pref_clear_cache">Afbeeldingcache Wissen</string>
-    <string name="pref_clear_cache_desc">Wis de applicatiecache om geheugen vrij te maken</string>
-    <string name="pref_clear_stream_cache">Wis Streamcache</string>
-    <string name="pref_clear_stream_cache_desc">Wis de streamcache</string>
     <string name="pref_connection_and_data">Verbinding en data</string>
     <string name="pref_help">Help</string>
     <string name="pref_help_desc">Toegang tot de SoundCloud helpdesksite</string>
@@ -468,6 +461,10 @@
     <string name="wifi_settings_summary">Bewerk uw instellingen. Gebruik WiFi voor de beste prestaties.</string>
     <string name="cache_clearing">Cache ontruimen</string>
     <string name="cache_clearing_message">Cachebestanden aan het wissen ...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>Gecomprimeerd</item>
+        <item>Ruw</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">U moet uw SoundCloud-account opnieuw verbinden.</string>
@@ -542,10 +539,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Er is een fout opgetreden bij de transcodering van %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoderingsfout</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Transcoderingsfout</string>
-    <string name="dialog_transcoding_failed_title">Transcoderen mislukt</string>
-    <string name="dialog_transcoding_failed_message">Oeps, er ging iets mis en uw geluid kan niet worden afgespeeld. U kunt het geluid van uw lijst verwijderen via de website. Voor meer informatie kunt u contact opnemen met onze helpdesk.</string>
-    <string name="dialog_transcoding_processing_title">Geluidsverwerking</string>
-    <string name="dialog_transcoding_processing_message">Uw geluid wordt verwerkt en zal binnen enkele seconden afspeelbaar zijn.</string>
     <string name="dialog_cancel_upload_message">Upload annuleren?</string>
     <string name="sc_upload_add_image">Voeg\nAfbeelding\nToe</string>
     <string name="sc_upload_private">Privé</string>

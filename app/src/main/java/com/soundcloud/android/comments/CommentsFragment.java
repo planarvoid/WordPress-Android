@@ -5,12 +5,12 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -25,12 +25,12 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class CommentsFragment extends DefaultFragment implements ReactiveListComponent<Observable<List<Comment>>> {
+public class CommentsFragment extends LightCycleSupportFragment implements ReactiveListComponent<Observable<List<Comment>>> {
 
     static final String EXTRA_TRACK_URN = "track_urn";
 
     @Inject CommentsOperations operations;
-    @Inject EndlessAdapter<Comment> adapter;
+    @Inject PagingItemAdapter<Comment> adapter;
     @Inject ListViewController listViewController;
 
     private ConnectableObservable<List<Comment>> comments;

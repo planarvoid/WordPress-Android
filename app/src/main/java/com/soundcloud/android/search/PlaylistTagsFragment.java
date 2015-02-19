@@ -9,7 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewUtils;
@@ -34,7 +34,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistTagsFragment extends DefaultFragment implements ListenableScrollView.OnScrollListener,
+public class PlaylistTagsFragment extends LightCycleSupportFragment implements ListenableScrollView.OnScrollListener,
         ReactiveComponent<ConnectableObservable<List<String>>> {
 
     public static final String TAG = "playlist_tags";

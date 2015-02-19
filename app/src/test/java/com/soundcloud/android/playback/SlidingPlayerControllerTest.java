@@ -17,7 +17,6 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -34,6 +33,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -45,13 +46,14 @@ public class SlidingPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ActionBarController actionBarController;
     @Mock private View layout;
-    @Mock private ScActivity activity;
+    @Mock private ActionBarActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
     @Mock private Window window;
     @Mock private View decorView;
     @Mock private FragmentManager fragmentManager;
     @Mock private PlayerFragment playerFragment;
+    @Mock private ActionBar actionBar;
 
     private TestEventBus eventBus = new TestEventBus();
     private SlidingPlayerController controller;
@@ -65,7 +67,7 @@ public class SlidingPlayerControllerTest {
         when(activity.getWindow()).thenReturn(window);
         when(window.getDecorView()).thenReturn(decorView);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
-        when(activity.getActionBarController()).thenReturn(actionBarController);
+        when(activity.getSupportActionBar()).thenReturn(actionBar);
         when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
         attachController();
     }
@@ -80,7 +82,7 @@ public class SlidingPlayerControllerTest {
     public void hidePlayerWhenPlayQueueIsEmpty() {
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
-        controller.onResume();
+        controller.onResume(activity);
 
         verify(slidingPanel).hidePanel();
     }
@@ -89,7 +91,7 @@ public class SlidingPlayerControllerTest {
     public void doNotHidePlayerWhenPlayQueueIsNotEmpty() {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
-        controller.onResume();
+        controller.onResume(activity);
 
         verify(slidingPanel, never()).hidePanel();
     }
@@ -99,7 +101,7 @@ public class SlidingPlayerControllerTest {
         when(slidingPanel.isPanelHidden()).thenReturn(true);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
 
-        controller.onResume();
+        controller.onResume(activity);
 
         verify(slidingPanel).showPanel();
     }
@@ -109,22 +111,22 @@ public class SlidingPlayerControllerTest {
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
         when(slidingPanel.isPanelHidden()).thenReturn(false);
 
-        controller.onResume();
+        controller.onResume(activity);
 
         verify(slidingPanel, never()).showPanel();
     }
 
     @Test
     public void unsubscribesFromPlayerUIEvents() {
-        controller.onResume();
-        controller.onPause();
+        controller.onResume(activity);
+        controller.onPause(activity);
 
         eventBus.verifyUnsubscribed(EventQueue.PLAYER_COMMAND);
     }
 
     @Test
     public void expandsPlayerWhenVisiblePlayTriggeredEventIsReceived() {
-        controller.onResume();
+        controller.onResume(activity);
         when(slidingPanel.isPanelHidden()).thenReturn(false);
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
@@ -138,7 +140,7 @@ public class SlidingPlayerControllerTest {
         when(slidingPanel.isPanelHidden()).thenReturn(true);
         when(slidingPanel.getViewTreeObserver()).thenReturn(mock(ViewTreeObserver.class));
 
-        controller.onResume();
+        controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
 
         verify(slidingPanel).expandPanel();
@@ -146,7 +148,7 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void closesPlayerWhenPlayCloseEventIsReceived() {
-        controller.onResume();
+        controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.collapsePlayer());
 
         verify(slidingPanel).collapsePanel();
@@ -154,7 +156,7 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void onlyRespondsToPlayTriggeredPlayerUIEvent() {
-        controller.onResume();
+        controller.onResume(activity);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerExpanded());
 
         verify(slidingPanel, times(0)).expandPanel();
@@ -162,7 +164,7 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void showPanelWhenShowPlayerEventIsReceived() {
-        controller.onResume();
+        controller.onResume(activity);
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
 
@@ -171,7 +173,7 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void doesntInteractWithActionBarIfBundleIsNullOnRestoreState() {
-        controller.onCreate(null);
+        controller.onCreate(activity, null);
 
         verifyZeroInteractions(actionBarController);
     }
@@ -180,10 +182,10 @@ public class SlidingPlayerControllerTest {
     public void hidesActionBarIfExpandingStateStored() {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
 
-        controller.onCreate(createBundleWithExpandingCommand());
-        controller.onResume();
+        controller.onCreate(activity, createBundleWithExpandingCommand());
+        controller.onResume(activity);
 
-        verify(actionBarController).setVisible(false);
+        verify(actionBar).hide();
     }
 
     @Test
@@ -191,7 +193,7 @@ public class SlidingPlayerControllerTest {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
         Bundle bundle = new Bundle();
 
-        controller.onSaveInstanceState(bundle);
+        controller.onSaveInstanceState(activity, bundle);
 
         expect(bundle.getBoolean(EXTRA_EXPAND_PLAYER)).toBeTrue();
     }
@@ -209,8 +211,8 @@ public class SlidingPlayerControllerTest {
         Bundle bundle = new Bundle();
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, false);
 
-        controller.onCreate(bundle);
-        controller.onResume();
+        controller.onCreate(activity, bundle);
+        controller.onResume(activity);
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
@@ -244,8 +246,8 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void sendsExpandedEventWhenRestoringExpandedState() {
-        controller.onCreate(createBundleWithExpandingCommand());
-        controller.onResume();
+        controller.onCreate(activity, createBundleWithExpandingCommand());
+        controller.onResume(activity);
 
         PlayerUIEvent uiEvent = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(uiEvent.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
@@ -255,7 +257,7 @@ public class SlidingPlayerControllerTest {
     public void sendsExpandedPlayerEventWhenResumingToExpandedPlayer() {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
 
-        controller.onResume();
+        controller.onResume(activity);
 
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_EXPANDED);
@@ -265,7 +267,7 @@ public class SlidingPlayerControllerTest {
     public void sendsCollapsedPlayerEventWhenResumingToCollapsedPlayer() {
         when(slidingPanel.isPanelExpanded()).thenReturn(false);
 
-        controller.onResume();
+        controller.onResume(activity);
 
         PlayerUIEvent event = eventBus.lastEventOn(EventQueue.PLAYER_UI);
         expect(event.getKind()).toEqual(PlayerUIEvent.PLAYER_COLLAPSED);
@@ -273,7 +275,7 @@ public class SlidingPlayerControllerTest {
 
     @Test
     public void onPlayerSlideReportsSlidePositionToPlayerFragment() {
-        controller.onCreate(createBundleWithExpandingCommand());
+        controller.onCreate(activity, createBundleWithExpandingCommand());
         controller.onPanelSlide(slidingPanel, .33f);
 
         verify(playerFragment).onPlayerSlide(.33f);
@@ -282,8 +284,8 @@ public class SlidingPlayerControllerTest {
     @Test
     public void shouldExpandPlayerOnResumeIfIntentHasExtraCommand() {
         Intent intent = createIntentWithExpandingCommand();
-        controller.onNewIntent(intent);
-        controller.onResume();
+        controller.onNewIntent(activity, intent);
+        controller.onResume(activity);
 
         verify(slidingPanel).expandPanel();
     }
@@ -292,14 +294,14 @@ public class SlidingPlayerControllerTest {
     public void setsCollapsingStateWhenPassingOverThreshold() {
         collapsePanel();
 
-        verify(actionBarController, times(1)).setVisible(true);
+        verify(actionBar, times(1)).show();
     }
 
     @Test
     public void setsExpandingStateWhenPassingUnderThreshold() {
         expandPanel();
 
-        verify(actionBarController, times(1)).setVisible(false);
+        verify(actionBar, times(1)).hide();
     }
 
     @Test
@@ -342,7 +344,7 @@ public class SlidingPlayerControllerTest {
     private void attachController() {
         ArgumentCaptor<View.OnTouchListener> touchListenerArgumentCaptor = ArgumentCaptor.forClass(View.OnTouchListener.class);
 
-        controller.onBind(activity);
+        controller.onCreate(activity, null);
 
         verify(slidingPanel).setOnTouchListener(touchListenerArgumentCaptor.capture());
 

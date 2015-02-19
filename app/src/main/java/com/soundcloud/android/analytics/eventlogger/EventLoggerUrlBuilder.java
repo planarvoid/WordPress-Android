@@ -4,15 +4,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Strings;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 
@@ -70,9 +72,14 @@ public class EventLoggerUrlBuilder {
     private final String endpoint;
     private final DeviceHelper deviceHelper;
     private final ExperimentOperations experimentOperations;
+    private final AccountOperations accountOperations;
 
     @Inject
-    public EventLoggerUrlBuilder(Resources resources, ExperimentOperations experimentOperations, DeviceHelper deviceHelper) {
+    public EventLoggerUrlBuilder(Resources resources,
+                                 ExperimentOperations experimentOperations,
+                                 DeviceHelper deviceHelper,
+                                 AccountOperations accountOperations) {
+        this.accountOperations = accountOperations;
         this.appId = resources.getString(R.string.app_id);
         this.endpoint = resources.getString(R.string.event_logger_base_url);
         this.experimentOperations = experimentOperations;
@@ -97,7 +104,15 @@ public class EventLoggerUrlBuilder {
                 builder = click(event);
                 break;
         }
+        return builder.toString();
+    }
 
+    public String build(ScreenEvent event) {
+        final Uri.Builder builder = buildUriForPath("pageview", event.getTimeStamp())
+                .appendQueryParameter(USER, accountOperations.getLoggedInUserUrn().toString())
+                .appendQueryParameter(PAGE_NAME, event.get(ScreenEvent.KEY_SCREEN));
+
+        addExperimentParams(builder);
         return builder.toString();
     }
 
@@ -185,11 +200,8 @@ public class EventLoggerUrlBuilder {
         // add basic UI event params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/base-ui-event.md#android
         final Uri.Builder builder = buildUriForPath("audio", event.getTimeStamp());
+        addExperimentParams(builder);
         builder.appendQueryParameter(USER, event.get(PlaybackSessionEvent.KEY_USER_URN));
-        // add a/b experiment params
-        for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
-            builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
-        }
 
         // audio event specific params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio.md#android
@@ -239,6 +251,13 @@ public class EventLoggerUrlBuilder {
         }
 
         return builder.build().toString();
+    }
+
+    private void addExperimentParams(Uri.Builder builder) {
+        // add a/b experiment params
+        for (Map.Entry<String, Integer> entry : experimentOperations.getTrackingParams().entrySet()) {
+            builder.appendQueryParameter(entry.getKey(), String.valueOf(entry.getValue()));
+        }
     }
 
     private String getStopReason(PlaybackSessionEvent eventData) {

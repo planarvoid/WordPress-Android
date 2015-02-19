@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.sync.CollectionSyncRequestTest.NON_INTERACTIVE;
+import static com.soundcloud.android.sync.LegacySyncJobTest.NON_INTERACTIVE;
 import static com.xtremelabs.robolectric.Robolectric.addPendingHttpResponse;
 import static org.mockito.Mockito.mock;
 
@@ -10,6 +10,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.api.oauth.Token;
 import com.xtremelabs.robolectric.Robolectric;
@@ -76,7 +77,6 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
                 "empty_collection.json",
                 "empty_collection.json");
 
-
         syncStateManager.updateLastSyncSuccessTime(Content.ME_SOUNDS, 0);
 
         doPerformSyncWithValidToken(DefaultTestRunner.application, false, null);
@@ -98,9 +98,13 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         expect(result.notifications).toBeEmpty();
     }
 
-    @Test public void shouldNotPerformSyncWithNullToken(){
+    @Test
+    public void shouldNotPerformSyncWithNullToken(){
         SyncResult syncResult = new SyncResult();
-        expect(SyncAdapterService.performSync(Mockito.mock(SoundCloudApplication.class), null, syncResult, null, null, Mockito.mock(SyncServiceResultReceiver.Factory.class))).toBeFalse();
+        final SoundCloudApplication application = Mockito.mock(SoundCloudApplication.class);
+        final MyLikesStateProvider myLikesStateProvider = Mockito.mock(MyLikesStateProvider.class);
+        final SyncServiceResultReceiver.Factory resultReceiverFactory = Mockito.mock(SyncServiceResultReceiver.Factory.class);
+        expect(SyncAdapterService.performSync(application, null, syncResult, null, null, resultReceiverFactory, myLikesStateProvider)).toBeFalse();
         expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }

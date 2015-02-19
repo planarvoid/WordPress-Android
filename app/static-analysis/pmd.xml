@@ -8,7 +8,7 @@
     <rule ref="rulesets/java/basic.xml"/>
     <rule ref="rulesets/java/braces.xml"/>
     <rule ref="rulesets/java/codesize.xml">
-        <!-- This was too strict, doesn't account for ctors, equals, hashCode, to String, etc. -->
+        <!-- This was too strict, doesn't account for actors, equals, hashCode, to String, etc. -->
         <exclude name="TooManyMethods"/>
         <!-- One cyclomatic complexity check is enough -->
         <exclude name="StdCyclomaticComplexity"/>
@@ -21,6 +21,7 @@
         <exclude name="UncommentedEmptyMethod"/>
         <!-- we do this for Dagger -->
         <exclude name="UncommentedEmptyConstructor"/>
+        <exclude name="UseVarargs"/>
     </rule>
     <rule ref="rulesets/java/empty.xml"/>
 <!--

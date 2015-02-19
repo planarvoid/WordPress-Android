@@ -2,9 +2,6 @@ package com.soundcloud.android.api.legacy.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.json.Views;
@@ -30,7 +27,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;

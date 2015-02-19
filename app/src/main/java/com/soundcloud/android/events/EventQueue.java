@@ -3,11 +3,11 @@ package com.soundcloud.android.events;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
 import com.soundcloud.android.rx.eventbus.Queue;
+import com.soundcloud.android.sync.SyncResult;
 
 public final class EventQueue {
     public static final Queue<StateTransition> PLAYBACK_STATE_CHANGED = Queue.of(StateTransition.class).replay(StateTransition.DEFAULT).get();
     public static final Queue<PlaybackProgressEvent> PLAYBACK_PROGRESS = Queue.of(PlaybackProgressEvent.class).get();
-    public static final Queue<PlayableUpdatedEvent> PLAYABLE_CHANGED = Queue.of(PlayableUpdatedEvent.class).get();
     public static final Queue<ActivityLifeCycleEvent> ACTIVITY_LIFE_CYCLE = Queue.of(ActivityLifeCycleEvent.class).get();
     public static final Queue<PlayerLifeCycleEvent> PLAYER_LIFE_CYCLE = Queue.of(PlayerLifeCycleEvent.class).get();
     public static final Queue<CurrentUserChangedEvent> CURRENT_USER_CHANGED = Queue.of(CurrentUserChangedEvent.class).get();
@@ -16,6 +16,9 @@ public final class EventQueue {
     public static final Queue<PlayQueueEvent> PLAY_QUEUE = Queue.of(PlayQueueEvent.class).get();
     public static final Queue<CurrentPlayQueueTrackEvent> PLAY_QUEUE_TRACK = Queue.of(CurrentPlayQueueTrackEvent.class).replay().get();
     public static final Queue<AdOverlayEvent> AD_OVERLAY = Queue.of(AdOverlayEvent.class).replay().get();
+    public static final Queue<SyncResult> SYNC_RESULT = Queue.of(SyncResult.class).replay().get();
+    public static final Queue<EntityStateChangedEvent> ENTITY_STATE_CHANGED = Queue.of(EntityStateChangedEvent.class).get();
+    public static final Queue<OfflineContentEvent> OFFLINE_CONTENT = Queue.of(OfflineContentEvent.class).replay(OfflineContentEvent.idle()).get();
 
     // tracking event queues
     public static final Queue<TrackingEvent> TRACKING = Queue.of(TrackingEvent.class).get();

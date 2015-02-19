@@ -12,14 +12,13 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.cast.CastSessionReconnector;
+import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.LegacyModule;
-import com.soundcloud.android.offline.OfflineContentController;
-import com.soundcloud.android.onboarding.auth.FacebookSSOActivity;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlaySessionController;
@@ -30,8 +29,8 @@ import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
 import com.soundcloud.android.playback.widget.WidgetModule;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.settings.GeneralSettings;
@@ -43,12 +42,10 @@ import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
-import com.soundcloud.android.utils.ScTextUtils;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
@@ -100,9 +97,8 @@ public class SoundCloudApplication extends Application {
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
     @Inject CryptoOperations cryptoOperations;
-    @Inject OfflineContentController offlineContentController;
+    @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject CastSessionReconnector castSessionReconnector;
-    @Inject DeviceHelper deviceHelper;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -142,10 +138,9 @@ public class SoundCloudApplication extends Application {
             setupStrictMode();
         }
 
-
         memoryReporter.reportSystemMemoryStats();
 
-        IOUtils.createCacheDirectories(this);
+        IOUtils.createCacheDirs();
 
         // initialise skippy so it can do it's expensive one-shot ops
         skippyFactory.create().preload(this);
@@ -156,8 +151,6 @@ public class SoundCloudApplication extends Application {
         configOperations.update();
         setupCurrentUserAccount();
         generateDeviceKey();
-
-        FacebookSSOActivity.extendAccessTokenIfNeeded(this);
 
         playlistTagStorage.resetPopularTags();
 
@@ -172,9 +165,7 @@ public class SoundCloudApplication extends Application {
             castSessionReconnector.startListening();
         }
 
-        if (featureFlags.isEnabled(Flag.OFFLINE_SYNC_FROM_LIKES)) {
-            offlineContentController.subscribe();
-        }
+        configurationFeatureController.subscribe();
 
         publishDeviceMetrics();
     }
@@ -182,13 +173,6 @@ public class SoundCloudApplication extends Application {
     private void publishDeviceMetrics() {
         final long dbSize = DatabaseManager.getDatabaseFileSize(this);
         eventBus.publish(EventQueue.TRACKING, DeviceMetricsEvent.forDatabaseSize(dbSize));
-        final boolean hasDeviceId = ScTextUtils.isNotBlank(deviceHelper.getUDID());
-        eventBus.publish(EventQueue.TRACKING, DeviceMetricsEvent.forDeviceId(hasDeviceId));
-
-        // TODO: Remove for next release! We just want to figure out how often this happens.
-        if (!hasDeviceId) {
-            Crashlytics.logException(new MissingDeviceIdException());
-        }
     }
 
     private void generateDeviceKey() {

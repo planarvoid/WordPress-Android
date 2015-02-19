@@ -238,17 +238,17 @@ public class AdOverlayControllerTest {
     }
 
     @Test
-    public void isNotVisibleInFullscreenReturnsTrueIfLeaveBehindImageHasLoaded() throws Exception {
+    public void isVisibleInFullscreenReturnsFalseIfLeaveBehindImageHasLoaded() throws Exception {
         controller.initialize(leaveBehindForPlayerWithDisplayMetaData());
         controller.show();
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(controller.isNotVisibleInFullscreen()).toBeTrue();
+        expect(controller.isVisibleInFullscreen()).toBeFalse();
     }
 
     @Test
-    public void isNotVisibleInFullscreenReturnsFalseIfInterstitialImageHasLoaded() throws Exception {
+    public void isVisibleInFullscreenReturnsTrueIfInterstitialImageHasLoaded() throws Exception {
         when(resources.getBoolean(R.bool.allow_interstitials)).thenReturn(true);
         controller.initialize(interstitialForPlayer());
         controller.setExpanded();
@@ -256,7 +256,7 @@ public class AdOverlayControllerTest {
 
         captureImageListener().onLoadingComplete(null, null, null);
 
-        expect(controller.isNotVisibleInFullscreen()).toBeFalse();
+        expect(controller.isVisibleInFullscreen()).toBeTrue();
     }
 
     private ImageListener captureImageListener() {

@@ -11,7 +11,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -19,7 +19,7 @@ import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -34,7 +34,7 @@ import android.widget.AdapterView;
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
-public class PlaylistResultsFragment extends DefaultFragment
+public class PlaylistResultsFragment extends LightCycleSupportFragment
         implements ReactiveListComponent<ConnectableObservable<ApiPlaylistCollection>> {
 
     public static final String TAG = "playlist_results";
@@ -42,7 +42,7 @@ public class PlaylistResultsFragment extends DefaultFragment
 
     @Inject PlaylistDiscoveryOperations operations;
     @Inject ListViewController listViewController;
-    @Inject EndlessAdapter<ApiPlaylist> adapter;
+    @Inject PagingItemAdapter<ApiPlaylist> adapter;
     @Inject EventBus eventBus;
 
     private ConnectableObservable<ApiPlaylistCollection> observable;
@@ -65,7 +65,7 @@ public class PlaylistResultsFragment extends DefaultFragment
 
     @VisibleForTesting
     PlaylistResultsFragment(PlaylistDiscoveryOperations operations, ListViewController listViewController,
-                            EndlessAdapter<ApiPlaylist> adapter, EventBus eventBus) {
+                            PagingItemAdapter<ApiPlaylist> adapter, EventBus eventBus) {
         this.operations = operations;
         this.listViewController = listViewController;
         this.adapter = adapter;

@@ -15,7 +15,6 @@ import com.soundcloud.android.creators.record.reader.WavReader;
 import com.soundcloud.android.creators.upload.UploadService;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
@@ -86,7 +85,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public String description, genre;
     @Deprecated public double longitude;
     @Deprecated public double latitude;
-    public String tip_key;
+    public String tip;
     // assets
     @NotNull
     public File audio_path;
@@ -103,25 +102,21 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public boolean external_upload;
     public int upload_status;
     // private message to another user
-    @Deprecated private PublicApiUser recipient;
     private PlaybackStream playbackStream;
 
     public Recording() {
         // No-op constr for the Blueprint
     }
 
-    public Recording(File f) {
+    public Recording(@NotNull File f) {
         this(f, null);
     }
 
-    private Recording(File f, @Nullable String tip_key) {
-        if (f == null) {
-            throw new IllegalArgumentException("file is null");
-        }
+    private Recording(@NotNull File f, @Nullable String tip) {
         audio_path = f;
 
-        if (!TextUtils.isEmpty(tip_key)) {
-            this.tip_key = tip_key;
+        if (!TextUtils.isEmpty(tip)) {
+            this.tip = tip;
         }
     }
 
@@ -149,7 +144,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         if (usernameIdx != -1) { // gets joined in
             recipient_username = c.getString(usernameIdx);
         }
-        tip_key = c.getString(c.getColumnIndex(TableColumns.Recordings.TIP_KEY));
+        tip = c.getString(c.getColumnIndex(TableColumns.Recordings.TIP_KEY));
         service_ids = c.getString(c.getColumnIndex(TableColumns.Recordings.SERVICE_IDS));
         is_private = c.getInt(c.getColumnIndex(TableColumns.Recordings.IS_PRIVATE)) == 1;
         external_upload = c.getInt(c.getColumnIndex(TableColumns.Recordings.EXTERNAL_UPLOAD)) == 1;
@@ -183,7 +178,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         shared_ids = data.getString("shared_ids");
         recipient_user_id = data.getLong("recipient_user_id");
         recipient_username = data.getString("recipient_username");
-        tip_key = data.getString("tip_key");
+        tip = data.getString("tip_key");
         service_ids = data.getString("service_ids");
         is_private = data.getBoolean("is_private", false);
         external_upload = data.getBoolean("external_upload", false);
@@ -222,13 +217,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
 
     public File getAmplitudeFile() {
         return IOUtils.changeExtension(audio_path, AmplitudeData.EXTENSION);
-    }
-
-    @Override
-    public void putDependencyValues(BulkInsertMap destination) {
-        if (recipient != null) {
-            recipient.putDependencyValues(destination);
-        }
     }
 
     /**
@@ -273,7 +261,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
 
     public List<String> getTags() {
         // add machine tags
-        List<String> tags = new ArrayList<String>();
+        List<String> tags = new ArrayList<>();
         if (this.tags != null) {
             for (String t : this.tags) {
                 tags.add(t.contains(" ") ? "\"" + t + "\"" : t);
@@ -398,7 +386,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     }
 
     public Map<String, ?> toParamsMap(Resources resources) {
-        Map<String, Object> data = new HashMap<String, Object>();
+        Map<String, Object> data = new HashMap<>();
         title = sharingNote(resources);
 
         data.put(Params.Track.TITLE, title);
@@ -418,7 +406,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         }
 
         if (!TextUtils.isEmpty(service_ids)) {
-            List<String> ids = new ArrayList<String>();
+            List<String> ids = new ArrayList<>();
             Collections.addAll(ids, service_ids.split(","));
             data.put(Params.Track.POST_TO, ids);
             data.put(Params.Track.SHARING_NOTE, title);
@@ -427,7 +415,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         }
 
         if (!TextUtils.isEmpty(shared_emails)) {
-            List<String> ids = new ArrayList<String>();
+            List<String> ids = new ArrayList<>();
             Collections.addAll(ids, shared_emails.split(","));
             data.put(Params.Track.SHARED_EMAILS, ids);
         }
@@ -435,7 +423,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         if (recipient_user_id > 0) {
             data.put(Params.Track.SHARED_IDS, recipient_user_id);
         } else if (!TextUtils.isEmpty(shared_ids)) {
-            List<String> ids = new ArrayList<String>();
+            List<String> ids = new ArrayList<>();
             Collections.addAll(ids, shared_ids.split(","));
             data.put(Params.Track.SHARED_IDS, ids);
         }
@@ -524,7 +512,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     }
 
     @Override
-    public int compareTo(Recording recording) {
+    public int compareTo(@NotNull Recording recording) {
         return Long.valueOf(lastModified()).compareTo(recording.lastModified());
     }
 
@@ -608,24 +596,18 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         intent.setData(null);
     }
 
-    public static
-    @NotNull
-    Recording create() {
-        return create(null);
-    }
-
     /**
-     * @param tip_key the key of the suggestion (tip) that was present when recording started
+     * @param tip the name for the recording file
      * @return a recording initialised with a file path (which will be used for the recording).
      */
     public static
     @NotNull
-    Recording create(@Nullable String tip_key) {
+    Recording create(@Nullable String tip) {
         File file = new File(SoundRecorder.RECORD_DIR,
                 System.currentTimeMillis()
                         + "." + WavReader.EXTENSION);
 
-        return new Recording(file, tip_key);
+        return new Recording(file, tip);
     }
 
     @Override
@@ -644,7 +626,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
                 ", shared_emails='" + shared_emails + '\'' +
                 ", shared_ids='" + shared_ids + '\'' +
                 ", service_ids='" + service_ids + '\'' +
-                ", tip_key='" + tip_key + '\'' +
+                ", tip='" + tip + '\'' +
                 ", is_private=" + is_private +
                 ", external_upload=" + external_upload +
                 ", upload_status=" + upload_status +
@@ -683,7 +665,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         data.putString("genre", genre);
         data.putLong("recipient_user_id", recipient_user_id);
         data.putString("recipient_username", recipient_username);
-        data.putString("tip_key", tip_key);
+        data.putString("tip_key", tip);
         data.putString("service_ids", service_ids);
         data.putBoolean("is_private", is_private);
         data.putBoolean("external_upload", external_upload);
@@ -754,14 +736,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         this.user_id = userId;
     }
 
-    @Deprecated
-    private void setRecipient(PublicApiUser recipient) {
-        this.recipient = recipient;
-        recipient_user_id = recipient.getId();
-        recipient_username = recipient.getDisplayName();
-        is_private = true;
-    }
-
     private void addBaseContentValues(ContentValues cv) {
         final long currentUserId = SoundCloudApplication.instance.getAccountOperations().getLoggedInUserId();
         cv.put(TableColumns.Recordings.USER_ID, user_id > 0 ? user_id : currentUserId);
@@ -770,7 +744,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         cv.put(TableColumns.Recordings.TIMESTAMP, lastModified());
         cv.put(TableColumns.Recordings.DURATION, duration);
         cv.put(TableColumns.Recordings.EXTERNAL_UPLOAD, external_upload);
-        cv.put(TableColumns.Recordings.TIP_KEY, tip_key);
+        cv.put(TableColumns.Recordings.TIP_KEY, tip);
         cv.put(TableColumns.Recordings.UPLOAD_STATUS, upload_status);
         if (playbackStream != null) {
             cv.put(TableColumns.Recordings.TRIM_LEFT, playbackStream.getStartPos());

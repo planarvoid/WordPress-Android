@@ -222,13 +222,13 @@
 
         <activity android:exported="true" android:label="@string/app_name" android:name=".onboarding.OnboardActivity" android:theme="@style/Theme.ScAuth" android:windowSoftInputMode="adjustResize"/>
         <activity android:configChanges="orientation" android:label="@string/app_name" android:name=".onboarding.auth.RecoverActivity" android:theme="@style/Theme.ScAuth"/>
-        <activity android:name=".onboarding.auth.FacebookSSOActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 
         <activity android:label="@string/app_name" android:name="com.facebook.LoginActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
 
         <activity android:configChanges="orientation|keyboardHidden" android:label="Connect" android:name=".onboarding.auth.ConnectActivity" android:theme="@style/Theme.SoundCloud.NoActionBar">
         </activity>
 
+        <activity android:label="@string/age_verify_label" android:name=".profile.VerifyAgeActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud.NoBg">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.USER_BROWSER"/>
@@ -310,7 +310,7 @@
         </activity>
         <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity"/>
         <activity android:enabled="@bool/debug_feature_screen" android:label="@string/dev_configuration_features" android:name=".settings.ConfigurationFeaturesActivity"/>
-        <activity android:label="@string/title_about" android:name=".settings.AboutActivity"/>
+        <activity android:label="@string/title_about" android:name=".settings.LicensesActivity"/>
         <activity android:label="@string/title_legal" android:name=".settings.LegalActivity"/>
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
@@ -331,7 +331,7 @@
         <service android:name=".creators.record.SoundRecorderService"/>
         <service android:exported="false" android:name=".playback.service.PlaybackService"/>
         <service android:exported="false" android:name=".offline.OfflineContentService"/>
-        
+
         <service android:exported="false" android:name=".creators.upload.UploadService">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload"/>
@@ -366,6 +366,8 @@
                 <action android:name="com.soundcloud.android.playback.external.close"/>
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".offline.OfflineContentStartReceiver"/>
 
         <receiver android:label="SoundCloud Player" android:name=".playback.service.PlayerAppWidgetProvider">
           <intent-filter>

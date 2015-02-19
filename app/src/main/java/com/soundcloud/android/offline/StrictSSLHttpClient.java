@@ -28,7 +28,7 @@ class StrictSSLHttpClient {
         this.oAuth = oAuth;
     }
 
-    public InputStream downloadFile(String fileUrl) throws IOException {
+    public DownloadResponse downloadFile(String fileUrl) throws IOException {
         final Request request = new Request.Builder()
                 .url(fileUrl)
                 .addHeader(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent())
@@ -38,7 +38,7 @@ class StrictSSLHttpClient {
 
         final Response response = httpClient.newCall(request).execute();
         logResponse(response);
-        return response.body().byteStream();
+        return new DownloadResponse(response);
     }
 
     private void logRequest(Request request) {
@@ -49,4 +49,23 @@ class StrictSSLHttpClient {
         Log.d(TAG, "[OkHttp] " + response);
     }
 
+    static class DownloadResponse {
+        private final Response response;
+
+        public DownloadResponse(Response response) {
+            this.response = response;
+        }
+
+        public boolean isFailure() {
+            return !response.isSuccessful();
+        }
+
+        public boolean isUnavailable() {
+            return response.code() >= 400 && response.code() <= 499;
+        }
+
+        public InputStream getInputStream() {
+            return response.body().byteStream();
+        }
+    }
 }

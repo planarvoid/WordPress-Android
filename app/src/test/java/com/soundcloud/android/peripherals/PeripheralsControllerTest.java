@@ -1,7 +1,6 @@
 package com.soundcloud.android.peripherals;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,9 +11,9 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -61,7 +60,7 @@ public class PeripheralsControllerTest {
 
     @Test
     public void shouldSendBroadcastWithPlayingExtraOnReceivingPlaybackState() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         expect(secondBroadcast.getExtras().get("playing")).toEqual(true);
@@ -69,7 +68,7 @@ public class PeripheralsControllerTest {
 
     @Test
     public void shouldSendBroadcastWithPlayingExtraOnReceivingIdlePlayState() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(Playa.PlayaState.IDLE, Playa.Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.idle());
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         expect(secondBroadcast.getExtras().get("playing")).toEqual(false);
@@ -77,7 +76,7 @@ public class PeripheralsControllerTest {
 
     @Test
     public void shouldSendBroadcastWithPlayStateActionOnReceivingPlaybackStateChange() {
-        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE));
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, TestPlayStates.playing());
 
         Intent secondBroadcast = verifyTwoBroadcastsSentAndCaptureTheSecond();
         expect(secondBroadcast.getAction()).toEqual("com.android.music.playstatechanged");

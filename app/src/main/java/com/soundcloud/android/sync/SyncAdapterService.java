@@ -5,14 +5,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.api.oauth.Token;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.Account;
@@ -49,9 +50,10 @@ public class SyncAdapterService extends Service {
     public static final int REWIND_LAST_DAY = 2;
 
     private AbstractThreadedSyncAdapter syncAdapter;
-    private AccountOperations accountOperations;
 
+    @Inject AccountOperations accountOperations;
     @Inject SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory;
+    @Inject MyLikesStateProvider myLikesStateProvider;
 
     public SyncAdapterService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -60,7 +62,6 @@ public class SyncAdapterService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        accountOperations = SoundCloudApplication.fromContext(this).getAccountOperations();
         syncAdapter = new AbstractThreadedSyncAdapter(this, false) {
             private Looper looper;
 
@@ -82,7 +83,7 @@ public class SyncAdapterService extends Service {
 
                         looper.quit();
                     }
-                }, syncServiceResultReceiverFactory)) {
+                }, syncServiceResultReceiverFactory, myLikesStateProvider)) {
                     Looper.loop(); // wait for results to come in
                 }
                 PublicApiWrapper.setBackgroundMode(false);
@@ -125,7 +126,8 @@ public class SyncAdapterService extends Service {
                                final SyncResult syncResult,
                                @Nullable final Token token,
                                @Nullable final Runnable onResult,
-                               final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory) {
+                               final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory,
+                               MyLikesStateProvider myLikesStateProvider) {
         if (token == null || !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -143,7 +145,7 @@ public class SyncAdapterService extends Service {
         final SyncStateManager syncStateManager = new SyncStateManager(app);
         final PlaylistStorage playlistStorage = new PlaylistStorage();
 
-        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage);
+        final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage, myLikesStateProvider);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
             // ServiceResultReceiver does most of the work
             final SyncServiceResultReceiver syncServiceResultReceiver = syncServiceResultReceiverFactory.create(syncResult, extras, new SyncServiceResultReceiver.OnResultListener() {
@@ -166,7 +168,8 @@ public class SyncAdapterService extends Service {
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
                                         SyncStateManager syncStateManager,
-                                        PlaylistStorage playlistStorage) {
+                                        PlaylistStorage playlistStorage,
+                                        MyLikesStateProvider myLikesStateProvider) {
 
 
         final Intent syncIntent = new Intent(app, ApiSyncService.class);
@@ -206,6 +209,10 @@ public class SyncAdapterService extends Service {
         // see if there are any local playlists that need to be pushed
         if (new UserAssociationStorage(app).hasFollowingsNeedingSync()) {
             urisToSync.add(Content.ME_FOLLOWINGS.uri);
+        }
+
+        if (myLikesStateProvider.hasLocalChanges()){
+            urisToSync.add(Content.ME_LIKES.uri);
         }
 
         // see if there are any playlists with un-pushed track changes

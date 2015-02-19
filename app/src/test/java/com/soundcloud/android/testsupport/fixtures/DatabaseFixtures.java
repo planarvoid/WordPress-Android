@@ -8,7 +8,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.likes.ApiLike;
+import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
@@ -62,6 +62,7 @@ public class DatabaseFixtures {
     public long insertDescription(Urn trackUrn, String description) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.Sounds.DESCRIPTION, description);
         return insertInto(Table.Sounds, cv);
     }
@@ -82,6 +83,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
         cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
+        cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
 
         final long id = insertInto(Table.Sounds, cv);
         playlist.setId(id);
@@ -96,6 +98,14 @@ public class DatabaseFixtures {
         cv.put(TableColumns.PlaylistTracks.POSITION, position);
         insertInto(Table.PlaylistTracks, cv);
         return apiTrack;
+    }
+
+    public ApiPlaylist insertPostedPlaylist(ApiUser user, Date postedDate) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setCreatedAt(postedDate);
+        playlist.setUser(user);
+        insertPlaylist(playlist);
+        return playlist;
     }
 
     public ApiUser insertUser() {
@@ -114,7 +124,7 @@ public class DatabaseFixtures {
         return id;
     }
 
-    private long insertLike(long id, int type, Date createdAt) {
+    public long insertLike(long id, int type, Date createdAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Likes._ID, id);
         cv.put(TableColumns.Likes._TYPE, type);
@@ -137,6 +147,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrack(Date likedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertUser(track.getUser());
         insertLike(insertTrack(track), TableColumns.Sounds.TYPE_TRACK, likedDate);
         return track;
     }
@@ -150,8 +161,17 @@ public class DatabaseFixtures {
         return track;
     }
 
+    public ApiTrack insertLikedTrackPendingAddition(Date likedDate) {
+        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        insertLike(insertTrack(track), TableColumns.Sounds.TYPE_TRACK, new Date(0));
+        database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
+                + " WHERE _id=" + track.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_TRACK);
+        return track;
+    }
+
     public ApiPlaylist insertLikedPlaylist(Date likedDate) {
-        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        ApiPlaylist playlist = insertPlaylist();
         insertLike(insertPlaylist(playlist), TableColumns.Sounds.TYPE_PLAYLIST, likedDate);
         return playlist;
     }
@@ -160,6 +180,15 @@ public class DatabaseFixtures {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         insertLike(insertPlaylist(playlist), TableColumns.Sounds.TYPE_PLAYLIST, new Date(0));
         database.execSQL("UPDATE Likes SET removed_at=" + unlikedDate.getTime()
+                + " WHERE _id=" + playlist.getUrn().getNumericId()
+                + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
+        return playlist;
+    }
+
+    public ApiPlaylist insertLikedPlaylistPendingAddition(Date likedDate) {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertLike(insertPlaylist(playlist), TableColumns.Sounds.TYPE_PLAYLIST, new Date(0));
+        database.execSQL("UPDATE Likes SET added_at=" + likedDate.getTime()
                 + " WHERE _id=" + playlist.getUrn().getNumericId()
                 + " AND _type=" + TableColumns.Sounds.TYPE_PLAYLIST);
         return playlist;
@@ -177,6 +206,15 @@ public class DatabaseFixtures {
         cv.put(TableColumns.CollectionItems.USER_ID, userId);
         cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, CollectionStorage.CollectionItemTypes.LIKE);
+        return insertInto(Table.CollectionItems, cv);
+    }
+
+    public long insertPlaylistCollection(long playlistId, long userId) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
+        cv.put(TableColumns.CollectionItems.USER_ID, userId);
+        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.PLAYLIST);
+        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         return insertInto(Table.CollectionItems, cv);
     }
 
@@ -232,7 +270,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
         cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE,TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         cv.put(TableColumns.Activities.TYPE, "playlist-repost");
         cv.put(TableColumns.Activities.USER_ID, reposter.getId());
         cv.put(TableColumns.Activities.CREATED_AT, timestamp);
@@ -280,7 +318,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertTrackPost(long trackId, long timestamp) {
+    public long insertStreamTrackPost(long trackId, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, trackId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
@@ -288,7 +326,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertTrackRepost(long trackId, long timestamp, long reposterId) {
+    public long insertStreamTrackRepost(long trackId, long timestamp, long reposterId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, trackId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
@@ -297,7 +335,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertPlaylistPost(long playlistId, long timestamp) {
+    public long insertStreamPlaylistPost(long playlistId, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, playlistId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
@@ -305,7 +343,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertPlaylistRepost(long playlistId, long timestamp, long reposterId) {
+    public long insertStreamPlaylistRepost(long playlistId, long timestamp, long reposterId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, playlistId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
@@ -314,10 +352,34 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertRequestedTrackDownload(long timestamp, Urn trackUrn) {
+    public long insertRequestedTrackDownload(Urn trackUrn, long addedTimestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, timestamp);
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, addedTimestamp);
+        return insertInto(Table.TrackDownloads, cv);
+    }
+
+    public long insertCompletedTrackDownload(Urn trackUrn, long completedTimestamp) {
+        return insertCompletedTrackDownload(trackUrn, completedTimestamp, completedTimestamp);
+    }
+
+    public long insertCompletedTrackDownload(Urn trackUrn, long requestedAtTimestamp, long completedTimestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
+        cv.put(TableColumns.TrackDownloads.DOWNLOADED_AT, completedTimestamp);
+        return insertInto(Table.TrackDownloads, cv);
+    }
+
+    public long insertTrackDownloadPendingRemoval(Urn trackUrn, long removedAtTimestamp) {
+        return insertTrackDownloadPendingRemoval(trackUrn, removedAtTimestamp, removedAtTimestamp);
+    }
+
+    public long insertTrackDownloadPendingRemoval(Urn trackUrn, long requestedAtTimestamp, long removedAtTimestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
+        cv.put(TableColumns.TrackDownloads.REMOVED_AT, removedAtTimestamp);
         return insertInto(Table.TrackDownloads, cv);
     }
 

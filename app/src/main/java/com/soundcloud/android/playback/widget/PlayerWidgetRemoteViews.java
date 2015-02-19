@@ -43,7 +43,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
         super(parcel);
     }
 
-    /* package */ void linkButtonsWidget(Context context, Urn trackUrn, Urn userUrn, boolean wasLiked) {
+    /* package */ void linkButtonsWidget(Context context, Urn trackUrn, Urn userUrn, boolean addLike) {
         linkPlayerControls(context);
 
         setOnClickPendingIntent(R.id.title_txt, PendingIntent.getActivity(context,
@@ -55,7 +55,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
                     PENDING_INTENT_REQUEST_CODE, userProfile, PendingIntent.FLAG_CANCEL_CURRENT));
 
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);
-            toggleLike.putExtra(PlayerWidgetController.EXTRA_IS_LIKE, !wasLiked);
+            toggleLike.putExtra(PlayerWidgetController.EXTRA_ADD_LIKE, addLike);
             setOnClickPendingIntent(R.id.btn_like, PendingIntent.getBroadcast(context,
                     PENDING_INTENT_REQUEST_CODE, toggleLike, PendingIntent.FLAG_CANCEL_CURRENT));
         }

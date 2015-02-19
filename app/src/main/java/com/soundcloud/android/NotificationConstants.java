@@ -8,4 +8,5 @@ public final class NotificationConstants {
     public static final int DASHBOARD_NOTIFY_STREAM_ID = 4;
     public static final int DASHBOARD_NOTIFY_ACTIVITIES_ID = 5;
     public static final int OFFLINE_NOTIFY_ID = 6;
+    public static final int FOLLOW_BLOCKED_NOTIFICATION_ID = 7;
 }

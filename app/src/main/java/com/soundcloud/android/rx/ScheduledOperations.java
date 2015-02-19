@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 
+@Deprecated // inject a Scheduler instead and call subscribeOn yourself.
 public abstract class ScheduledOperations {
 
     private Scheduler subscribeOn;

@@ -10,6 +10,7 @@ import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -29,7 +30,7 @@ class StoreLikesCommand extends StoreCommand<Collection<PropertySet>> {
         for (PropertySet like : input) {
             values.add(buildContentValuesForLike(like));
         }
-        return database.bulkInsert(Table.Likes, values);
+        return database.bulkInsert(Table.Likes, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     private ContentValues buildContentValuesForLike(PropertySet like) {

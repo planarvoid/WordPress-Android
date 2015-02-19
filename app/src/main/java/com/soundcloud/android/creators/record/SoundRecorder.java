@@ -182,7 +182,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         }
     }
 
-    public RecordStream getRecordStream() {
+    public @NotNull RecordStream getRecordStream() {
         return recordStream;
     }
 
@@ -216,7 +216,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     // Sets output file path, call directly after construction/reset.
     @NotNull @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    public Recording startRecording(@Nullable String tip_key) throws IOException {
+    public Recording startRecording(@NotNull String tip) throws IOException {
         if (!IOUtils.isSDCardAvailable()) {
             throw new IOException(context.getString(R.string.record_insert_sd_card));
         } else if (!remainingTimeCalculator.isDiskSpaceAvailable()) {
@@ -226,7 +226,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         remainingTimeCalculator.reset();
         if (state != State.RECORDING) {
             if (recording == null) {
-                recording = Recording.create(tip_key);
+                recording = Recording.create(tip);
 
                 recordStream.setWriters(recording.getRawFile(),
                         shouldEncodeWhileRecording() ? recording.getEncodedFile() : null);
@@ -334,6 +334,13 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         //release();
     }
 
+    private void release() {
+        if (audioRecord != null) {
+            audioRecord.release();
+        }
+        audioTrack.release();
+    }
+
     public long getRecordingElapsedTime() {
         return recordStream.getDuration();
     }
@@ -398,13 +405,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         if (playbackStream != null) {
             previewTrim(playbackStream.setEndPositionByPercent(newPos, moveTime));
         }
-    }
-
-    /**
-     * @return the remaining recording time, in seconds
-     */
-    public long timeRemaining() {
-        return remainingTimeCalculator.timeRemaining();
     }
 
     public float[] getTrimWindow() {
@@ -523,13 +523,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
                 .putExtra(EXTRA_DURATION, getPlaybackDuration()));
     }
 
-    private void release() {
-        if (audioRecord != null) {
-            audioRecord.release();
-        }
-        audioTrack.release();
-    }
-
     private State startReadingInternal(State newState) {
         Log.d(TAG, "startReading(" + newState + ")");
 
@@ -580,7 +573,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         appWidgetProvider.notifyChange(context, intent);
     }
 
-    /* package, for testing */ void setPlaybackStream(PlaybackStream stream) {
+    /* package, for testing */ void setPlaybackStream(@NotNull PlaybackStream stream) {
         playbackStream = stream;
     }
 
@@ -613,7 +606,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
     }
 
     private class PlayerThread extends Thread {
-        private final Queue<TrimPreview> previewQueue = new ConcurrentLinkedQueue<TrimPreview>();
+        private final Queue<TrimPreview> previewQueue = new ConcurrentLinkedQueue<>();
 
         PlayerThread() {
             super("PlayerThread");

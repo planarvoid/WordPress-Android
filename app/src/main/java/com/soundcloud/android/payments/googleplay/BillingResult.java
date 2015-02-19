@@ -7,7 +7,7 @@ public class BillingResult {
 
     public static final int REQUEST_CODE = 1001;
 
-    private static final String FAIL_REASON_CANCELLED = "user cancelled";
+    private static final String FAIL_REASON_CANCELLED = "payment failed";
     private static final String FAIL_REASON_ERROR = "billing error: ";
     private static final String FAIL_REASON_UNKNOWN = "unknown";
 

@@ -1,8 +1,5 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import com.soundcloud.android.events.ConnectionType;
-
-import com.soundcloud.android.events.PlayerType;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -11,16 +8,21 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -58,12 +60,14 @@ public class EventLoggerUrlBuilderTest {
     @Mock private TrackSourceInfo trackSourceInfo;
     @Mock private ExperimentOperations experimentOperations;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private AccountOperations accountOperations;
 
     private Urn userUrn = Urn.forUser(123L);
     private EventLoggerUrlBuilder eventLoggerUrlBuilder;
 
     @Before
     public void setUp() throws Exception {
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         when(resources.getString(R.string.app_id)).thenReturn(APP_ID);
         when(resources.getString(R.string.event_logger_base_url)).thenReturn("http://eventlogger.soundcloud.com");
         when(trackSourceInfo.getOriginScreen()).thenReturn("origin");
@@ -71,7 +75,7 @@ public class EventLoggerUrlBuilderTest {
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
         when(deviceHelper.getUDID()).thenReturn("9876");
 
-        eventLoggerUrlBuilder = new EventLoggerUrlBuilder(resources, experimentOperations, deviceHelper);
+        eventLoggerUrlBuilder = new EventLoggerUrlBuilder(resources, experimentOperations, deviceHelper, accountOperations);
     }
 
     @Test
@@ -631,6 +635,13 @@ public class EventLoggerUrlBuilderTest {
         PlaybackErrorEvent playbackErrorEvent = new PlaybackErrorEvent("category", PlaybackProtocol.HTTPS, "cdn-uri", PlaybackErrorEvent.BITRATE_128, PlaybackErrorEvent.FORMAT_MP3);
         final String url = eventLoggerUrlBuilder.build(playbackErrorEvent);
         assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_error?client_id=123&anonymous_id=9876&protocol=https&os=SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)&bitrate=128&format=mp3&url=cdn-uri&errorCode=category&ts=" + playbackErrorEvent.getTimestamp())));
+    }
+
+    @Test
+    public void createsScreenEventUrl() throws Exception {
+        ScreenEvent screenEvent = ScreenEvent.create(Screen.ACTIVITIES);
+        final String url = eventLoggerUrlBuilder.build(screenEvent);
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/pageview?client_id=123&anonymous_id=9876&user=soundcloud%3Ausers%3A123&page_name=activity%3Amain&ts=" + screenEvent.getTimeStamp())));
     }
 
 }

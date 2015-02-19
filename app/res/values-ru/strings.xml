@@ -22,7 +22,6 @@
     <string name="legal_summary">Правовая информация</string>
     <string name="terms_of_use">Правила использования</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
-    <string name="visit_support">Посетите страницу \"Поддержка\"</string>
     <string name="version">Версия</string>
     <string name="unavailable">Недоступно</string>
     <string name="copyright_information">Авторские права</string>
@@ -32,7 +31,6 @@
     <string name="btn_following">Подписан</string>
     <string name="btn_save">Сохранить</string>
     <string name="btn_skip">Пропустить</string>
-    <string name="compressed">Сжат</string>
     <string name="configure">Настроить</string>
     <string name="connect_progress">Идет загрузка</string>
     <string name="connect_success">Связь с %1$s успешно установлена</string>
@@ -40,7 +38,6 @@
     <string name="delete">Удалить</string>
     <string name="comments">Комментарии</string>
     <string name="new_connection_error">Не удалось добавить сеть</string>
-    <string name="raw">Сырые</string>
     <string name="reset">Удалить</string>
     <string name="share_fail_message">Похоже, что-то пошло не так.</string>
     <string name="share_log_out">Выйти</string>
@@ -62,7 +59,6 @@
     <string name="accessibility_stats_user_reposted">Переопубликовано вами</string>
     <string name="accessibility_like_action">Нравится</string>
     <string name="accessibility_repost_action">Переопубликовать</string>
-    <string name="accessibility_comment_action">Комментировать</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">понравилось %s</string>
@@ -119,8 +115,7 @@
     <string name="facebook_authentication_failed_message">Повторите попытку через некоторое время или войдите, используя имя пользователя и пароль SoundCloud.</string>
     <string name="authentication_recover_password_msg">Введите ваш адрес электронной почты и мы вышлем вам ссылку, с помощью которой вы сможете поменять пароль. Вопросы? Обратитесь в службу поддержки.</string>
     <string name="authentication_blocked_title">Не удалось пройти регистрацию</string>
-    <string name="authentication_blocked_message">Наши программы-роботы считают, что эта авторизация очень похожа на спам. Если вы считаете, что это не так, <a href="http://help.soundcloud.com/customer/portal/emails/new">обратитесь в службу поддержки</a>
-  </string>
+    <string name="authentication_blocked_message">Наши программы-роботы считают, что эта авторизация очень похожа на спам. Если вы считаете, что это не так, <a href="http://help.soundcloud.com/customer/portal/emails/new">обратитесь в службу поддержки</a></string>
     <string name="authentication_captcha_message">Не удается пройти авторизацию. Пожалуйста, прежде, чем авторизоваться снова, авторизуйтесь на мобильной версии веб-сайта.</string>
     <string name="authentication_email_taken_message">Этот адрес электронной почты уже зарегистрирован. Введите другой адрес или авторизуйтесь</string>
     <string name="authentication_email_invalid_message">Домен, указанный вами, скорее всего не поддерживает функцию приема сообщений. Проверьте правильность написания.</string>
@@ -160,8 +155,6 @@
     <string name="empty_user_tracks_text">%1$s не имеет закачанной \nмузыки в открытом доступе.</string>
 
     <!-- __ERRORS -->
-    <string name="error_loading_message">Не удалось связаться с SoundCloud.</string>
-    <string name="error_loading_title">Ошибка сети</string>
     <string name="error_recording_message">Произошел сбой во время записи.\n Возможно ваше устройство не поддерживает текущую конфигурацию записи. Вы можете изменить конфигурацию в настройках приложения.</string>
     <string name="error_unauthorized_message">Возникла проблема с вашей учетной записью. Чтобы продолжить использовать приложение, нужно, чтобы вы повторно вошли в SoundCloud.</string>
     <string name="error_unauthorized_title">Проблема с учетной записью</string>
@@ -356,45 +349,48 @@
     <string name="cloud_recorder_playback_event_title">Идет воспроизведение</string>
 
     <!-- __RECORD TIPS -->
-    <string name="rectip_default" tools:ignore="UnusedResources">Почему бы не записать звуки вашей улицы?</string>
-    <string name="rectip_memories_voice_notes" tools:ignore="UnusedResources">Записывайте голосовые заметки и используйте как удобные напоминания.</string>
-    <string name="rectip_memories_voice_blog" tools:ignore="UnusedResources">Создайте свой голосовой блог с помощью кнопки REC – о чем вы расскажете сегодня?</string>
-    <string name="rectip_memories_what_are_you_doing_right_now" tools:ignore="UnusedResources">Что вы делаете сейчас?</string>
-    <string name="rectip_memories_child_first_words" tools:ignore="UnusedResources">Запечатлейте момент: первые слова ребенка</string>
-    <string name="rectip_memories_sound_your_pet_makes" tools:ignore="UnusedResources">Запечатлейте момент: звуки вашего питомца</string>
-    <string name="rectip_memories_voice_of_someone_you_care_about" tools:ignore="UnusedResources">Запечатлейте момент: голос близкого вам чеовека</string>
-    <string name="rectip_memories_shopping_reminders" tools:ignore="UnusedResources">Идете за покупками? Записывайте напоминания, чтобы не забывать, что вы хотели купить.</string>
-    <string name="rectip_memories_great_idea" tools:ignore="UnusedResources">Появилась отличная идея? Запечатлейте ее с помощью кнопки REC.</string>
-    <string name="rectip_social_good_joke" tools:ignore="UnusedResources">Услышали хорошую шутку? Поделитесь ею с другими!</string>
-    <string name="rectip_social_great_conversaion" tools:ignore="UnusedResources">У вас интересный разговор с кем-либо? Почему бы не записать и запечатлеть его на память?</string>
-    <string name="rectip_social_hilarious_moment" tools:ignore="UnusedResources">Запечатлейте забавный момент в звуке</string>
-    <string name="rectip_general_did_you_know" tools:ignore="UnusedResources">Вы знаете, что вы можете сохранять личные записи, если не хотите делиться ими с другими?</string>
-    <string name="rectip_general_best_recording_device" tools:ignore="UnusedResources">Иногда лучшее записывающее устройство – это то, которое у вас с собой в нужный момент.</string>
-    <string name="rectip_general_unmute_yourself" tools:ignore="UnusedResources">Добавьте больше звука в свою жизнь!</string>
-    <string name="rectip_general_unmute_internet" tools:ignore="UnusedResources">Добавьте больше звука в Интернет.</string>
-    <string name="rectip_general_unmute_the_world" tools:ignore="UnusedResources">Добавьте звука окружающему миру.</string>
-    <string name="rectip_general_express_yourself" tools:ignore="UnusedResources">Выразите себя!</string>
-    <string name="rectip_general_professional_minutes_of_meeting" tools:ignore="UnusedResources">Почему бы не записать ход вашей следующей встречи?</string>
-    <string name="rectip_general_professional_capture_ideas_for_later" tools:ignore="UnusedResources">Запечатлейте свои идеи с помощью кнопки REC.</string>
-    <string name="rectip_general_professional_study_aid" tools:ignore="UnusedResources">Используйте кнопку REC как инструмент обучения: делайте заметки на ходу.</string>
-    <string name="rectip_general_professional_record_interviews_and_meetings" tools:ignore="UnusedResources">Вы можете использовать кнопку REC для записи интервью и встреч.</string>
-    <string name="rectip_environmental_ocean_waves" tools:ignore="UnusedResources">Запишите звук морских волн на пляже</string>
-    <string name="rectip_environmental_vibrant_rush_hour" tools:ignore="UnusedResources">Запечатлейте звуки оживленного города в час пик</string>
-    <string name="rectip_environmental_crazy_sound" tools:ignore="UnusedResources">Слышали убойный звук? Запечатлейте его с помощью кнопки REC!</string>
-    <string name="rectip_music_feel_inspired" tools:ignore="UnusedResources">Почувствовали вдохновение? Запечатлейте свою идею с помощью кнопки REC.</string>
-    <string name="rectip_music_track_idea" tools:ignore="UnusedResources">У вас появилась идея для новой композиции? Сохраните ее с помощью кнопки REC.</string>
-    <string name="rectip_music_tune_stuck" tools:ignore="UnusedResources">В голове крутится назойливая мелодия? Словите ее с помощью кнопки REC.</string>
-    <string name="rectip_music_song_lyric_ideas" tools:ignore="UnusedResources">Идея для текста новой песни? Сохраните ее сейчас же с помощью кнопки REC.</string>
-    <string name="rectip_events_whats_going_on" tools:ignore="UnusedResources">Что нового?</string>
-    <string name="rectip_events_current_events_as_they_happen" tools:ignore="UnusedResources">Мгновенно записывайте происходящие события и делитесь ими со всеми.</string>
-    <string name="rectip_events_something_interesting" tools:ignore="UnusedResources">Происходит что-то интересное? Запечатлейте момент, сделав аудиозапись.</string>
-    <string name="rectip_events_citizen_reporter" tools:ignore="UnusedResources">Вы доблестный репортер? Расскажите всем, чему вы стали свидетелем.</string>
-    <string name="rectip_private_happy_birthday" tools:ignore="UnusedResources">Поздравьте %s с Днем Рождения</string>
-    <string name="rectip_private_record_a_message" tools:ignore="UnusedResources">Почему бы не сделать запись для %s?</string>
-    <string name="rectip_private_how_much_they_mean" tools:ignore="UnusedResources">Расскажите %s, как много он/она значит для вас.</string>
-    <string name="rectip_private_send_reminder" tools:ignore="UnusedResources">Отправьте %s напоминание</string>
-    <string name="rectip_private_liked_their_sound" tools:ignore="UnusedResources">Расскажите %s, насколько вам понравилась их музыка</string>
-    <string name="rectip_private_leave_feedback" tools:ignore="UnusedResources">Оставьте %s небольшой комментарий</string>
+    <string-array name="record_suggestions">
+        <item>Почему бы не записать звуки вашей улицы?</item>
+
+        <item>Записывайте голосовые заметки и используйте как удобные напоминания.</item>
+        <item>Создайте свой голосовой блог с помощью кнопки REC – о чем вы расскажете сегодня?</item>
+        <item>Что вы делаете сейчас?</item>
+        <item>Запечатлейте момент: первые слова ребенка</item>
+        <item>Запечатлейте момент: звуки вашего питомца</item>
+        <item>Запечатлейте момент: голос близкого вам чеовека</item>
+        <item>Идете за покупками? Записывайте напоминания, чтобы не забывать, что вы хотели купить.</item>
+        <item>Появилась отличная идея? Запечатлейте ее с помощью кнопки REC.</item>
+
+        <item>Услышали хорошую шутку? Поделитесь ею с другими!</item>
+        <item>У вас интересный разговор с кем-либо? Почему бы не записать и запечатлеть его на память?</item>
+        <item>Запечатлейте забавный момент в звуке</item>
+
+        <item>Вы знаете, что вы можете сохранять личные записи, если не хотите делиться ими с другими?</item>
+        <item>Иногда лучшее записывающее устройство – это то, которое у вас с собой в нужный момент.</item>
+        <item>Добавьте больше звука в свою жизнь!</item>
+        <item>Добавьте больше звука в Интернет.</item>
+        <item>Добавьте звука окружающему миру.</item>
+        <item>Выразите себя!</item>
+
+        <item>Почему бы не записать ход вашей следующей встречи?</item>
+        <item>Запечатлейте свои идеи с помощью кнопки REC.</item>
+        <item>Используйте кнопку REC как инструмент обучения: делайте заметки на ходу.</item>
+        <item>Вы можете использовать кнопку REC для записи интервью и встреч.</item>
+
+        <item>Запишите звук морских волн на пляже</item>
+        <item>Запечатлейте звуки оживленного города в час пик</item>
+        <item>Слышали убойный звук? Запечатлейте его с помощью кнопки REC!</item>
+
+        <item>Почувствовали вдохновение? Запечатлейте свою идею с помощью кнопки REC.</item>
+        <item>У вас появилась идея для новой композиции? Сохраните ее с помощью кнопки REC.</item>
+        <item>В голове крутится назойливая мелодия? Словите ее с помощью кнопки REC.</item>
+        <item>Идея для текста новой песни? Сохраните ее сейчас же с помощью кнопки REC.</item>
+
+        <item>Что нового?</item>
+        <item>Мгновенно записывайте происходящие события и делитесь ими со всеми.</item>
+        <item>Происходит что-то интересное? Запечатлейте момент, сделав аудиозапись.</item>
+        <item>Вы доблестный репортер? Расскажите всем, чему вы стали свидетелем.</item>
+    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Поиск по SoundCloud</string>
@@ -414,10 +410,6 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">О приложении</string>
     <string name="pref_basic_settings">Базовые настройки</string>
-    <string name="pref_clear_cache">Очистить кэш изображений</string>
-    <string name="pref_clear_cache_desc">Очистить кэш приложения, чтобы освободить память</string>
-    <string name="pref_clear_stream_cache">Очистить кэш ленты</string>
-    <string name="pref_clear_stream_cache_desc">Очистить кэш ленты</string>
     <string name="pref_connection_and_data">Соединение и данные</string>
     <string name="pref_help">Справка</string>
     <string name="pref_help_desc">Перейти на сайт поддержки SoundCloud</string>
@@ -447,6 +439,10 @@
     <string name="wifi_settings_summary">Измените настройки. Для наилучшего результата, используйте Wi-Fi.</string>
     <string name="cache_clearing">Идет очистка кэша</string>
     <string name="cache_clearing_message">Удаление кэшированных файлов ...</string>
+    <string-array name="pref_dev_record_type_entries">
+        <item>Сжат</item>
+        <item>Сырые</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Вам нужно заново привязать свою учетную запись SoundCloud.</string>
@@ -513,10 +509,6 @@
     <string name="cloud_uploader_notification_transcoding_error_message">Произошел сбой перекодирования %s</string>
     <string name="cloud_uploader_notification_transcoding_error_ticker">Сбой перекодирования</string>
     <string name="cloud_uploader_notification_transcoding_error_title">Сбой перекодирования</string>
-    <string name="dialog_transcoding_failed_title">Сбой перекодирования</string>
-    <string name="dialog_transcoding_failed_message">Упс, что-то не так – ваша запись не может быть воспроизведена. Вы можете зайти на веб-сайт и удалить ее из списка. Чтобы узнать подробнее, свяжитесь с нашей службой поддержки.</string>
-    <string name="dialog_transcoding_processing_title">Обработка записи</string>
-    <string name="dialog_transcoding_processing_message">Ваша запись обрабатывается и будет воспроизведена через несколько секунд.</string>
     <string name="dialog_cancel_upload_message">Отменить загрузку?</string>
     <string name="sc_upload_add_image">Добавить\nизображение</string>
     <string name="sc_upload_private">Личное</string>

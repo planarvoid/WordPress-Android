@@ -9,14 +9,14 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.main.DefaultFragment;
+import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;
@@ -33,14 +33,14 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 
 @SuppressLint("ValidFragment")
-public class ExploreTracksFragment extends DefaultFragment
+public class ExploreTracksFragment extends LightCycleSupportFragment
         implements RefreshableListComponent<ConnectableObservable<SuggestedTracksCollection>> {
 
     static final String SCREEN_TAG_EXTRA = "screen_tag";
 
     private String trackingTag;
 
-    @Inject EndlessAdapter<ApiTrack> adapter;
+    @Inject PagingItemAdapter<ApiTrack> adapter;
     @Inject PlaybackOperations playbackOperations;
     @Inject ExploreTracksOperations operations;
     @Inject PullToRefreshController pullToRefreshController;
@@ -65,7 +65,7 @@ public class ExploreTracksFragment extends DefaultFragment
     }
 
     @VisibleForTesting
-    ExploreTracksFragment(EndlessAdapter<ApiTrack> adapter,
+    ExploreTracksFragment(PagingItemAdapter<ApiTrack> adapter,
                           PlaybackOperations playbackOperations,
                           ExploreTracksOperations operations,
                           PullToRefreshController pullToRefreshController,

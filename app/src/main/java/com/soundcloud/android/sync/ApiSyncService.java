@@ -11,7 +11,6 @@ import com.soundcloud.android.utils.Log;
 import android.app.Service;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.content.SyncResult;
 import android.os.IBinder;
 
 import javax.inject.Inject;
@@ -39,13 +38,14 @@ public class ApiSyncService extends Service {
 
     public static final int MAX_TASK_LIMIT = 3;
 
-    @Inject SyncIntent.Factory syncIntentFactory;
+    @Inject SyncRequestFactory syncIntentSyncRequestFactory;
 
     private int activeTaskCount;
 
-    /* package */ final List<SyncIntent> syncIntents = new ArrayList<>();
-    /* package */ final LinkedList<CollectionSyncRequest> pendingRequests = new LinkedList<>();
-    /* package */ final List<CollectionSyncRequest> runningRequests = new ArrayList<>();
+    @SuppressWarnings({"PMD.LooseCoupling"}) // for some reason PMD thinks I should use an interface here, which doesnt seem to work
+    /* package */ final LinkedList<SyncJob> pendingJobs = new LinkedList<>();
+    /* package */ final List<SyncRequest> syncRequests = new ArrayList<>();
+    /* package */ final List<SyncJob> runningJobs = new ArrayList<>();
 
     public ApiSyncService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -63,7 +63,7 @@ public class ApiSyncService extends Service {
         super.onStart(intent, startId);
         Log.d(LOG_TAG, "startListening("+intent+")");
         if (intent != null){
-            enqueueRequest(syncIntentFactory.create(intent));
+            enqueueRequest(syncIntentSyncRequestFactory.create(intent));
         }
         flushSyncRequests();
     }
@@ -81,56 +81,81 @@ public class ApiSyncService extends Service {
         return null;
     }
 
-    /* package */ void enqueueRequest(SyncIntent syncIntent) {
-        syncIntents.add(syncIntent);
-        for (CollectionSyncRequest request : syncIntent.collectionSyncRequests) {
-            if (!runningRequests.contains(request)) {
-                if (!pendingRequests.contains(request)) {
-                    if (syncIntent.isUIRequest) {
-                        pendingRequests.add(0, request);
-                    } else {
-                        pendingRequests.add(request);
-                    }
-                    request.onQueued();
-                } else if (syncIntent.isUIRequest && !pendingRequests.getFirst().equals(request)) {
-                    // move the original object up in the queue, since it has already been initialized with onQueued()
-                    final CollectionSyncRequest existing = pendingRequests.get(pendingRequests.indexOf(request));
-                    pendingRequests.remove(existing);
-                    pendingRequests.addFirst(existing);
+    void enqueueRequest(SyncRequest syncRequest) {
+
+        syncRequests.add(syncRequest);
+        for (SyncJob syncJob : syncRequest.getPendingJobs()) {
+            if (!runningJobs.contains(syncJob)) {
+                if (!pendingJobs.contains(syncJob)) {
+                    addItemToPendingRequests(syncRequest, syncJob);
+                    syncJob.onQueued();
+
+                } else if (syncRequest.isHighPriority()) {
+                    moveRequestToTop(syncJob);
+
+                }
+            } else {
+                Log.d(LOG_TAG, "Job already running for : " + syncJob);
+            }
+        }
+    }
+
+    private void addItemToPendingRequests(SyncRequest syncRequest, SyncJob syncJob) {
+        Log.d(LOG_TAG, "Adding sync job to queue : " + syncJob);
+        if (syncRequest.isHighPriority()) {
+            pendingJobs.add(0, syncJob);
+        } else {
+            pendingJobs.add(syncJob);
+        }
+    }
+
+    private void moveRequestToTop(SyncJob syncJob) {
+        Log.d(LOG_TAG, "Moving sync job to front of queue : " + syncJob);
+
+        final SyncJob existing = pendingJobs.get(pendingJobs.indexOf(syncJob));
+        pendingJobs.remove(existing);
+        pendingJobs.addFirst(existing);
+    }
+
+    /* package */ void onSyncJobCompleted(SyncJob syncJob){
+
+        for (SyncRequest syncRequest : new ArrayList<>(syncRequests)) {
+
+            if (syncRequest.isWaitingForJob(syncJob)){
+                syncRequest.processJobResult(syncJob);
+
+                if (syncRequest.isSatisfied()){
+                    syncRequest.finish();
+                    syncRequests.remove(syncRequest);
                 }
             }
         }
-    }
-
-    /* package */ void onUriSyncResult(CollectionSyncRequest syncRequest){
-        for (SyncIntent syncIntent : new ArrayList<>(syncIntents)) {
-
-            if (syncIntent.onUriResult(syncRequest)){
-                syncIntents.remove(syncIntent);
-            }
-        }
-        runningRequests.remove(syncRequest);
+        runningJobs.remove(syncJob);
     }
 
     /* package */ void flushSyncRequests() {
-        if (pendingRequests.isEmpty() && runningRequests.isEmpty()) {
-            // make sure all sync intents are finished (should have been handled before)
-            for (SyncIntent i : syncIntents) {
-                i.finish();
-            }
+        if (pendingJobs.isEmpty() && runningJobs.isEmpty()) {
+            finishAllRequests();
             stopSelf();
         } else {
-            while (activeTaskCount < MAX_TASK_LIMIT && !pendingRequests.isEmpty()) {
-                final CollectionSyncRequest syncRequest = pendingRequests.poll();
-                runningRequests.add(syncRequest);
+            while (activeTaskCount < MAX_TASK_LIMIT && !pendingJobs.isEmpty()) {
+                final SyncJob syncJob = pendingJobs.poll();
+                runningJobs.add(syncJob);
 
                 // actual execution of the request
-                new ApiTask().executeOnThreadPool(syncRequest);
+                new ApiTask().executeOnThreadPool(syncJob);
             }
         }
     }
 
-    private class ApiTask extends ParallelAsyncTask<CollectionSyncRequest, CollectionSyncRequest, Void> {
+    private void finishAllRequests() {
+        // make sure all sync intents are finished (should have been handled before)
+        for (SyncRequest syncRequest : syncRequests) {
+            syncRequest.finish();
+        }
+    }
+
+    private class ApiTask extends ParallelAsyncTask<SyncJob, SyncJob, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -138,17 +163,18 @@ public class ApiSyncService extends Service {
         }
 
         @Override
-        protected Void doInBackground(final CollectionSyncRequest... tasks) {
-            for (CollectionSyncRequest task : tasks) {
-                publishProgress(task.execute());
+        protected Void doInBackground(final SyncJob... syncJobs) {
+            for (SyncJob syncJob : syncJobs) {
+                syncJob.run();
+                publishProgress(syncJob);
             }
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(CollectionSyncRequest... progress) {
-            for (CollectionSyncRequest request : progress) {
-                onUriSyncResult(request);
+        protected void onProgressUpdate(SyncJob... progress) {
+            for (SyncJob syncJob : progress) {
+                onSyncJobCompleted(syncJob);
             }
         }
 
@@ -157,12 +183,5 @@ public class ApiSyncService extends Service {
             activeTaskCount--;
             flushSyncRequests();
         }
-    }
-
-    public static void appendSyncStats(SyncResult from, SyncResult to) {
-        to.stats.numAuthExceptions += from.stats.numAuthExceptions;
-        to.stats.numIoExceptions += from.stats.numIoExceptions;
-        to.stats.numParseExceptions += from.stats.numParseExceptions;
-        // TODO more stats?
     }
 }

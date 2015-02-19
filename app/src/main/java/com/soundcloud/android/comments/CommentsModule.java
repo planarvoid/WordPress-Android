@@ -1,7 +1,7 @@
 package com.soundcloud.android.comments;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.view.adapters.EndlessAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import dagger.Module;
 import dagger.Provides;
 
@@ -13,8 +13,8 @@ import dagger.Provides;
 public class CommentsModule {
 
     @Provides
-    EndlessAdapter<Comment> provideCommentsAdapter(CommentPresenter presenter) {
-        return new EndlessAdapter<>(presenter);
+    PagingItemAdapter<Comment> provideCommentsAdapter(CommentPresenter presenter) {
+        return new PagingItemAdapter<>(presenter);
     }
 
 }

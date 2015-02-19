@@ -17,10 +17,10 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.legacy.model.SoundAssociationTest;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.sync.ApiSyncerTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 @RunWith(DefaultTestRunner.class)
-public class CollectionStorageTest {
+public class CollectionStorageTest extends StorageIntegrationTest {
     final static long USER_ID = 1L;
 
     private ContentResolver resolver;
@@ -114,15 +114,10 @@ public class CollectionStorageTest {
         SoundAssociationHolder sounds = TestHelper.readJson(SoundAssociationHolder.class, SoundAssociationTest.class, "sounds.json");
         TestHelper.bulkInsert(Content.ME_SOUNDS.uri,sounds.collection);
 
-        SoundAssociationHolder likes = TestHelper.readJson(SoundAssociationHolder.class, ApiSyncerTest.class, "e1_likes.json");
-        TestHelper.bulkInsert(Content.ME_LIKES.uri, likes.collection);
-
         expect(Content.ME_SOUNDS).toHaveCount(38);
-        expect(Content.ME_LIKES).toHaveCount(3);
 
         storage.clear();
         expect(Content.ME_SOUNDS).toHaveCount(0);
-        expect(Content.ME_LIKES).toHaveCount(0);
     }
 
     public static List<PublicApiTrack> createTracks() {

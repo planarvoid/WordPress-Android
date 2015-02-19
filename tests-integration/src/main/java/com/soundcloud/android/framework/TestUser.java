@@ -74,4 +74,6 @@ public class TestUser {
     public static final TestUser streamUser     = new TestUser("sofia-tester",          "scstreamuser@gmail.com",       "s0undcl0ud");
     public static final TestUser privateUser    = new TestUser("privateTrackUser",      "privatetrackuser@gmail.com",   "S0undCl0ud");
     public static final TestUser subscribeUser  = new TestUser("scandsubscribe",        "scandsubscribe@gmail.com",     "s0undcl0ud");
+    public static final TestUser likesUser      = new TestUser("sctestlike",            "soundcloudtestlike@gmail.com", "passwordyeah77");
+    public static final TestUser offlineUser    = new TestUser("sctestoffline",         "sctestoffline@gmail.com",      "passwordyeah88");
 }

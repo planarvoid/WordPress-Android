@@ -1,30 +1,26 @@
 package com.soundcloud.android.view.adapters;
 
-import static rx.android.OperatorPaged.Page;
+import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 
 import com.soundcloud.android.R;
-import rx.Observer;
-import rx.Subscription;
-import rx.android.OperatorPaged;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
+import com.soundcloud.android.utils.ErrorUtils;
 
-import android.os.Parcelable;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 
-public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
-        implements AbsListView.OnScrollListener, Observer<Page<? extends Iterable<T>>> {
+public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>> {
 
     private final int progressItemLayoutResId;
 
-    private Page<? extends Iterable<T>> currentPage = OperatorPaged.emptyPage();
-
     private AppendState appendState = AppendState.IDLE;
+    private View.OnClickListener onErrorRetryListener;
 
     protected enum AppendState {
-        IDLE, LOADING, ERROR;
+        IDLE, LOADING, ERROR
+    }
+
+    public PagingItemAdapter(CellPresenter<T> cellPresenter) {
+        this(R.layout.list_loading_item, cellPresenter);
     }
 
     public PagingItemAdapter(int progressItemLayoutResId, CellPresenter<T> cellPresenter) {
@@ -33,12 +29,12 @@ public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
     }
 
     public PagingItemAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
-        this(R.layout.list_loading_item, cellPresenterEntities);
+        super(cellPresenterEntities);
+        this.progressItemLayoutResId = R.layout.list_loading_item;
     }
 
-    public PagingItemAdapter(int progressItemLayoutResId, CellPresenterEntity<T>... cellPresenterEntities) {
-        super(cellPresenterEntities);
-        this.progressItemLayoutResId = progressItemLayoutResId;
+    public void setOnErrorRetryListener(View.OnClickListener onErrorRetryListener) {
+        this.onErrorRetryListener = onErrorRetryListener;
     }
 
     @Override
@@ -89,12 +85,7 @@ public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
                 appendingLayout.setBackgroundResource(R.drawable.list_selector_gray);
                 appendingLayout.findViewById(R.id.list_loading_view).setVisibility(View.GONE);
                 appendingLayout.findViewById(R.id.list_loading_retry_view).setVisibility(View.VISIBLE);
-                appendingLayout.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        loadNextPage();
-                    }
-                });
+                appendingLayout.setOnClickListener(onErrorRetryListener);
                 break;
             default:
                 throw new IllegalStateException("Unexpected idle state with progress row");
@@ -102,8 +93,8 @@ public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
     }
 
     private void setNewAppendState(AppendState newState) {
+        assertOnUiThread("Adapter should always be uses on UI Thread. Tracking issue #2377");
         appendState = newState;
-        notifyDataSetChanged();
     }
 
     @Override
@@ -113,52 +104,35 @@ public class PagingItemAdapter<T extends Parcelable> extends ItemAdapter<T>
 
     @Override
     public int getItemViewType(int position) {
+        if (isIdle() && position == items.size()) {
+            ErrorUtils.handleSilentException(new IllegalStateException(
+                    "This position is invalid in Idle state. Tracking issue #2377; position=" + position + "; items="
+                            + items.size() + "; count=" + getCount()));
+        }
+        
         return appendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE
                  : super.getItemViewType(position);
     }
 
-    public Subscription loadNextPage() {
-        if (currentPage.hasNextPage()) {
-            setNewAppendState(AppendState.LOADING);
-            return currentPage.getNextPage().observeOn(AndroidSchedulers.mainThread()).subscribe(this);
-        } else {
-            return Subscriptions.empty();
-        }
+    public void setLoading() {
+        setNewAppendState(AppendState.LOADING);
+        notifyDataSetChanged();
     }
 
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-    }
-
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        if (appendState == AppendState.IDLE) {
-            int lookAheadSize = visibleItemCount * 2;
-            boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
-
-            if (lastItemReached) {
-                loadNextPage();
-            }
-        }
-    }
-
-    @Override
-    public void onCompleted() {
+    public boolean isIdle() {
+        return appendState == AppendState.IDLE;
     }
 
     @Override
     public void onError(Throwable e) {
-        e.printStackTrace();
+        super.onError(e);
         setNewAppendState(AppendState.ERROR);
+        notifyDataSetChanged();
     }
 
     @Override
-    public void onNext(Page<? extends Iterable<T>> page) {
-        currentPage = page;
-        for (T item : page.getPagedCollection()) {
-            addItem(item);
-        }
-        notifyDataSetChanged();
+    public void onNext(Iterable<T> items) {
         setNewAppendState(AppendState.IDLE);
+        super.onNext(items);
     }
 }

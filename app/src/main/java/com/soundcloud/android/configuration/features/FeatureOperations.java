@@ -1,9 +1,14 @@
 package com.soundcloud.android.configuration.features;
 
+import rx.Observable;
+
 import javax.inject.Inject;
-import java.util.List;
+import java.util.Map;
 
 public class FeatureOperations {
+
+    private static final String OFFLINE_CONTENT = "offline_sync";
+    private static final String OFFLINE_CONTENT_UPSELL = "offline_sync_upsell";
 
     private final FeatureStorage featureStorage;
 
@@ -12,19 +17,32 @@ public class FeatureOperations {
         this.featureStorage = featureStorage;
     }
 
-    public void update(List<Feature> features) {
-        featureStorage.updateFeature(features);
+    public void update(Map<String, Boolean> features) {
+        featureStorage.update(features);
     }
 
-    public void update(Feature feature) {
-        featureStorage.updateFeature(feature);
+    public void update(String name, boolean value) {
+        featureStorage.update(name, value);
     }
 
-    public List<Feature> listFeatures() {
-        return featureStorage.listFeatures();
+    public Map<String, Boolean> list() {
+        return featureStorage.list();
     }
 
-    public boolean isEnabled(String featureName, boolean defaultValue) {
-        return featureStorage.isEnabled(featureName, defaultValue);
+    public boolean isOfflineContentEnabled() {
+        return featureStorage.isEnabled(OFFLINE_CONTENT, false);
     }
+
+    public boolean isOfflineContentUpsellEnabled() {
+        return featureStorage.isEnabled(OFFLINE_CONTENT_UPSELL, false);
+    }
+
+    public Observable<Boolean> offlineContentEnabled() {
+         return getUpdates(OFFLINE_CONTENT);
+    }
+
+    private Observable<Boolean> getUpdates(String name) {
+        return featureStorage.getUpdates(name);
+    }
+
 }

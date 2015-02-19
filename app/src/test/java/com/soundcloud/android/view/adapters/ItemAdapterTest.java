@@ -8,12 +8,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,40 +25,70 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class ItemAdapterTest {
 
-    @Mock
-    private CellPresenter cellPresenter;
+    @Mock private CellPresenter cellPresenter;
 
-    private ItemAdapter<PublicApiTrack> adapter;
+    private ItemAdapter<String> adapter;
 
     @Before
     public void setup() {
-        adapter = new ItemAdapter<PublicApiTrack>(cellPresenter) {};
+        adapter = new ItemAdapter<String>(cellPresenter);
     }
 
     @Test
     public void shouldAddItems() {
         expect(adapter.getCount()).toBe(0);
-        adapter.addItem(new PublicApiTrack());
+        adapter.addItem("item");
         expect(adapter.getCount()).toBe(1);
     }
 
     @Test
+    public void shouldAddItemsFromObservableSequence() {
+        Observable.just(Arrays.asList("one", "two", "three")).subscribe(adapter);
+        expect(adapter.getCount()).toBe(3);
+    }
+
+    @Test
     public void shouldGetItem() {
-        PublicApiTrack item = new PublicApiTrack();
-        adapter.addItem(item);
-        expect(adapter.getItem(0)).toBe(item);
+        adapter.addItem("item");
+        expect(adapter.getItem(0)).toEqual("item");
     }
 
     @Test
     public void shouldGetItems() {
-        adapter.addItem(new PublicApiTrack(1));
-        adapter.addItem(new PublicApiTrack(2));
+        adapter.addItem("item1");
+        adapter.addItem("item2");
 
-        List<PublicApiTrack> items = adapter.getItems();
+        List<String> items = adapter.getItems();
 
         expect(items.size()).toEqual(2);
-        expect(items.get(0)).toEqual(new PublicApiTrack(1));
-        expect(items.get(1)).toEqual(new PublicApiTrack(2));
+        expect(items.get(0)).toEqual("item1");
+        expect(items.get(1)).toEqual("item2");
+    }
+
+    @Test
+    public void shouldPrependItem() {
+        adapter.addItem("item1");
+
+        adapter.prependItem("item0");
+
+        List<String> items = adapter.getItems();
+        expect(items.size()).toEqual(2);
+        expect(items.get(0)).toEqual("item0");
+        expect(items.get(1)).toEqual("item1");
+    }
+
+    @Test
+    public void shouldRemoveItemAtPosition() {
+        adapter.addItem("item1");
+        adapter.addItem("item2");
+        adapter.addItem("item3");
+
+        adapter.removeAt(1);
+
+        List<String> items = adapter.getItems();
+        expect(items.size()).toEqual(2);
+        expect(items.get(0)).toEqual("item1");
+        expect(items.get(1)).toEqual("item3");
     }
 
     @Test
@@ -69,7 +99,7 @@ public class ItemAdapterTest {
     @Test
     public void shouldCreateItemViewWithPresenter() {
         FrameLayout parent = mock(FrameLayout.class);
-        adapter.addItem(new PublicApiTrack());
+        adapter.addItem("item");
         adapter.getView(0, null, parent);
         verify(cellPresenter).createItemView(0, parent);
     }
@@ -79,7 +109,7 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         CellPresenter presenterOne = mock(CellPresenter.class);
         CellPresenter presenterTwo = mock(CellPresenter.class);
-        adapter = new ItemAdapter<PublicApiTrack>(
+        adapter = new ItemAdapter<String>(
                 new ItemAdapter.CellPresenterEntity(0, presenterOne),
                 new ItemAdapter.CellPresenterEntity(1, presenterTwo)) {
             @Override
@@ -100,24 +130,22 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         View itemView = mock(View.class);
         when(cellPresenter.createItemView(0, parent)).thenReturn(itemView);
-        PublicApiTrack item = new PublicApiTrack();
-        adapter.addItem(item);
+        adapter.addItem("item");
 
         adapter.getView(0, null, parent);
-        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList(item));
+        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList("item"));
     }
 
     @Test
     public void shouldConvertItemView() {
         FrameLayout parent = mock(FrameLayout.class);
         View convertView = mock(View.class);
-        PublicApiTrack item = new PublicApiTrack();
-        adapter.addItem(item);
+        adapter.addItem("item");
 
         View itemView = adapter.getView(0, convertView, parent);
         expect(itemView).toBe(convertView);
         verify(cellPresenter, never()).createItemView(anyInt(), any(ViewGroup.class));
-        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList(item));
+        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList("item"));
     }
 
 }

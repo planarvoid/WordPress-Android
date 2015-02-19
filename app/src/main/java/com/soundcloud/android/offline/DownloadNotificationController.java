@@ -23,7 +23,8 @@ class DownloadNotificationController {
     private final Provider<NotificationCompat.Builder> notificationBuilderProvider;
 
     private NotificationCompat.Builder progressNotification;
-    private int completedDownloads;
+    private int completed;
+    private int errors;
     private int totalDownloads;
 
     @Inject
@@ -35,56 +36,65 @@ class DownloadNotificationController {
         this.notificationBuilderProvider = notificationBuilderProvider;
     }
 
-    public Notification create() {
+    public Notification onPendingRequests(int pending) {
+        totalDownloads = completed + pending + errors;
         progressNotification = notificationBuilderProvider.get();
 
-        setDefaultConfiguration(progressNotification);
-        progressNotification.setOngoing(true);
-        progressNotification.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-        progressNotification.setContentTitle(resources.getString(R.string.offline_sync_started));
-        return progressNotification.build();
+        return updateProgressNotification();
     }
 
-    public void onNewPendingRequests(int pending) {
-        this.totalDownloads = completedDownloads + pending;
-        update();
+    public void onDownloadSuccess() {
+        completed++;
+        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, updateProgressNotification());
     }
 
-    public void onProgressUpdate() {
-        this.completedDownloads++;
-        update();
+    public void onDownloadError() {
+        errors++;
+        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, updateProgressNotification());
     }
 
-    public void onCompleted() {
-        completedDownloads = 0;
+    public void onDownloadsFinished() {
+        if (totalDownloads != errors) {
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, buildCompletedNotification());
+        }
+
+        completed = 0;
         totalDownloads = 0;
+        errors = 0;
+    }
 
+    private Notification buildCompletedNotification() {
         final NotificationCompat.Builder completedNotification = notificationBuilderProvider.get();
 
         setDefaultConfiguration(completedNotification);
         completedNotification.setOngoing(false);
-        completedNotification.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
         completedNotification.setAutoCancel(true);
-        completedNotification.setContentTitle(resources.getString(R.string.offline_sync_completed_title));
-        completedNotification.setContentText(resources.getString(R.string.offline_sync_completed_message));
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, completedNotification.build());
+        completedNotification.setContentTitle(resources.getString(R.string.offline_update_completed_title));
+        completedNotification.setContentText(resources.getString(R.string.offline_update_completed_message));
+        return completedNotification.build();
     }
 
-    private void update() {
-        final String downloadDescription = resources.getQuantityString(R.plurals.downloading_track_of_tracks, totalDownloads, completedDownloads, totalDownloads);
+    private Notification updateProgressNotification() {
+        final int currentDownload = getCurrentPosition() + 1;
+        final String downloadDescription = resources.getQuantityString(R.plurals.downloading_track_of_tracks, totalDownloads, currentDownload, totalDownloads);
 
         setDefaultConfiguration(progressNotification);
         progressNotification.setOngoing(true);
-        progressNotification.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-        progressNotification.setContentTitle(resources.getString(R.string.offline_sync_in_progress));
-        progressNotification.setProgress(totalDownloads, completedDownloads, false);
+        progressNotification.setContentTitle(resources.getString(R.string.offline_update_in_progress));
+        progressNotification.setProgress(totalDownloads, getCurrentPosition(), false);
         progressNotification.setContentText(downloadDescription);
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, progressNotification.build());
+
+        return progressNotification.build();
+    }
+
+    private int getCurrentPosition() {
+        return completed + errors;
     }
 
     private void setDefaultConfiguration(NotificationCompat.Builder builder) {
         builder.setSmallIcon(R.drawable.ic_notification_cloud);
         builder.setContentIntent(getPendingIntent());
+        builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
     }
 
     private PendingIntent getPendingIntent() {
@@ -93,7 +103,7 @@ class DownloadNotificationController {
     }
 
     private Intent getIntent() {
-        return new Intent(Actions.STREAM)
+        return new Intent(Actions.LIKES)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
     }

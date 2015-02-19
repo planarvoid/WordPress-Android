@@ -179,7 +179,11 @@ public class FollowingOperations {
     public void updateLocalStatus(boolean shouldFollow, long... userIds) {
         final boolean hadNoFollowings = followStatus.isEmpty();
         // update followings ID cache
-        followStatus.toggleFollowing(userIds);
+        if (shouldFollow) {
+            followStatus.addFollowing(userIds);
+        } else {
+            followStatus.removeFollowing(userIds);
+        }
         // make sure the cache reflects the new state of each following
         for (long userId : userIds) {
             final PublicApiUser cachedUser = modelManager.getCachedUser(userId);

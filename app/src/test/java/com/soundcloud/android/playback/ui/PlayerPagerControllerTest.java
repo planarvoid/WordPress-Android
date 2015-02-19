@@ -82,7 +82,7 @@ public class PlayerPagerControllerTest {
         };
 
         controller = new PlayerPagerController(adapter, presenter, eventBus,
-                playQueueManager, playbackOperations, null, playQueueDataControllerProvider, playerPagerScrollListener, adsOperations);
+                playQueueManager, playbackOperations, playQueueDataControllerProvider, playerPagerScrollListener, adsOperations);
         when(playQueueManager.getCurrentPosition()).thenReturn(1);
         when(container.findViewById(anyInt())).thenReturn(viewPager);
         when(viewPager.getContext()).thenReturn(Robolectric.application);
@@ -394,10 +394,10 @@ public class PlayerPagerControllerTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromAudioAdRemoved());
 
-
         scrollStateObservable.onNext(ViewPager.SCROLL_STATE_IDLE);
 
         verify(adapter, times(2)).setCurrentData(fullQueueData);
         verify(viewPager).setCurrentItem(2, false);
     }
+
 }

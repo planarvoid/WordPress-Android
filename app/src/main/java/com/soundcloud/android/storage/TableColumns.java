@@ -35,7 +35,8 @@ public final class TableColumns {
     public static final class Likes implements BaseColumns {
         public static final String _TYPE = "_type";
         public static final String CREATED_AT = "created_at";
-        public static final String REMOVED_AT = "removed_at";
+        public static final String ADDED_AT = "added_at"; // local additions
+        public static final String REMOVED_AT = "removed_at"; // local removals
     }
 
     public static class PromotedTracks implements BaseColumns {
@@ -282,6 +283,8 @@ public final class TableColumns {
     public final static class TrackDownloads implements BaseColumns {
         public static final String REQUESTED_AT = "requested_at";
         public static final String DOWNLOADED_AT = "downloaded_at";
+        public static final String REMOVED_AT = "removed_at";
+        public static final String UNAVAILABLE_AT = "unavailable_at";
     }
 
     public static class SoundView extends ResourceTable implements BaseColumns {
@@ -327,10 +330,15 @@ public final class TableColumns {
         public static final String USER_REPOST = "sound_user_repost";
         public static final String USER_PLAY_COUNT = "sound_user_play_count";
 
+        public static final String OFFLINE_DOWNLOADED_AT = "sound_offline_downloaded_at";
+        public static final String OFFLINE_REMOVED_AT = "sound_offline_removed_at";
+
+        @Deprecated
         public static final String CACHED = "sound_cached";
 
         public static final String[] ALL_VIEW_FIELDS = {
-                USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT, CACHED
+                USER_ID, USERNAME, USER_PERMALINK, USER_AVATAR_URL, USER_LIKE, USER_REPOST, USER_PLAY_COUNT,
+                OFFLINE_DOWNLOADED_AT, OFFLINE_REMOVED_AT, CACHED
         };
         public static final String[] ALL_FIELDS;
 

@@ -1,6 +1,7 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
@@ -18,7 +19,12 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     private Category category;
     private SuggestedUsersCategoryFragment categoryFragment;
 
+    @Inject ActionBarController actionBarController;
     @Inject FollowingOperations followingOperations;
+
+    public SuggestedUsersCategoryActivity() {
+        lightCycleDispatcher.attach(actionBarController);
+    }
 
     @Override
     protected void onCreate(Bundle state) {
@@ -42,6 +48,18 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.suggested_users_category, menu);
+        if (category.isFollowed(followingOperations.getFollowedUserIds())) {
+            menu.findItem(R.id.menu_select_all).setVisible(false);
+        } else {
+            menu.findItem(R.id.menu_deselect_all).setVisible(false);
+        }
+        return true;
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         if (shouldTrackScreen()) {
@@ -54,18 +72,8 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        if (category.isFollowed(followingOperations.getFollowedUserIds())){
-            menu.findItem(R.id.menu_select_all).setVisible(false);
-        } else {
-            menu.findItem(R.id.menu_deselect_all).setVisible(false);
-        }
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // TODO : move this to action bar controller ?
         final long itemId = item.getItemId();
         if (itemId == R.id.menu_select_all || itemId == R.id.menu_deselect_all) {
             categoryFragment.toggleFollowings(itemId == R.id.menu_select_all);
@@ -74,10 +82,5 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
         } else {
             return super.onOptionsItemSelected(item);
         }
-    }
-
-    @Override
-    public int getMenuResourceId() {
-        return R.menu.suggested_users_category;
     }
 }

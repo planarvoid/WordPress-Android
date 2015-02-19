@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.inOrder;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -9,64 +8,49 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import rx.Subscriber;
+import rx.Observer;
 
-import android.net.Uri;
 import android.os.Bundle;
+
+import java.io.IOException;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ResultReceiverAdapterTest {
 
     private ResultReceiverAdapter adapter;
 
-    @Mock
-    private Subscriber<Boolean> subscriber;
+    @Mock private Observer<SyncResult> observer;
 
     @Before
-    public void setup() {
-        adapter = new ResultReceiverAdapter(subscriber, Uri.parse("content://abc"));
+    public void setUp() throws Exception {
+        adapter = new ResultReceiverAdapter(observer);
     }
 
     @Test
-    public void resultReceiverAdapterShouldForwardChangeFlagForGivenResourceToSubscriberWhenSyncFinished() {
+    public void resultReceiverAdapterShouldForwardSyncResultSuccessToSubscriberWhenSyncFinished() {
         final Bundle resultData = new Bundle();
-        resultData.putBoolean("content://abc", true);
+        SyncResult resultEvent = SyncResult.success("action", true);
+        resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, resultEvent);
+
         adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
-        InOrder inOrder = inOrder(subscriber);
-        inOrder.verify(subscriber).onNext(true);
-        inOrder.verify(subscriber).onCompleted();
+
+        InOrder inOrder = inOrder(observer);
+        inOrder.verify(observer).onNext(resultEvent);
+        inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
 
     @Test
-    public void resultReceiverAdapterShouldForwardChangeFlagForGivenResourceToSubscriberWhenAppendingSyncFinished() {
+    public void resultReceiverAdapterShouldForwardSyncResultFailureToSubscriberWhenSyncFinished() {
         final Bundle resultData = new Bundle();
-        resultData.putBoolean("content://abc", true);
-        adapter.onReceiveResult(ApiSyncService.STATUS_APPEND_FINISHED, resultData);
-        InOrder inOrder = inOrder(subscriber);
-        inOrder.verify(subscriber).onNext(true);
-        inOrder.verify(subscriber).onCompleted();
-        inOrder.verifyNoMoreInteractions();
-    }
+        IOException exception = new IOException();
+        SyncResult resultEvent = SyncResult.failure("action", exception);
+        resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, resultEvent);
 
-    @Test
-    public void resultReceiverAdapterShouldForwardErrorToSubscriberWhenSyncFailed() {
-        adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_ERROR, new Bundle());
-        InOrder inOrder = inOrder(subscriber);
-        inOrder.verify(subscriber).onError(isA(SyncFailedException.class));
-        inOrder.verifyNoMoreInteractions();
-    }
+        adapter.onReceiveResult(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
 
-    @Test
-    public void resultReceiverAdapterShouldForwardErrorToSubscriberWhenAppendingSyncFailed() {
-        adapter.onReceiveResult(ApiSyncService.STATUS_APPEND_ERROR, new Bundle());
-        InOrder inOrder = inOrder(subscriber);
-        inOrder.verify(subscriber).onError(isA(SyncFailedException.class));
+        InOrder inOrder = inOrder(observer);
+        inOrder.verify(observer).onError(exception);
         inOrder.verifyNoMoreInteractions();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void shouldThrowExceptionOnUnexpectedSyncStatus() {
-        adapter.onReceiveResult(12345, new Bundle());
     }
 }

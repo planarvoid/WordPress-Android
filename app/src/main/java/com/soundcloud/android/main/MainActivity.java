@@ -5,15 +5,13 @@ import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.UserOperations;
+import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.associations.LikesListFragment;
 import com.soundcloud.android.campaigns.InAppCampaignController;
 import com.soundcloud.android.cast.CastConnectionHelper;
-import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
@@ -23,11 +21,11 @@ import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import rx.subscriptions.CompositeSubscription;
@@ -69,12 +67,15 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject FeatureFlags featureFlags;
     @Inject PlayQueueManager playQueueManager;
     @Inject CastConnectionHelper castConnectionHelper;
+    @Inject ActionBarController actionBarController;
 
     public MainActivity() {
-        SoundCloudApplication.getObjectGraph().inject(this);
-        addLifeCycleComponent(playerController);
-        addLifeCycleComponent(adPlayerController);
-        addLifeCycleComponent(inAppCampaignController);
+        // graph injection happens in ScActivity
+        lightCycleDispatcher
+                .attach(playerController)
+                .attach(adPlayerController)
+                .attach(inAppCampaignController)
+                .attach(actionBarController);
 
         presenter.attach(this);
     }
@@ -101,7 +102,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
         castConnectionHelper.reconnectSessionIfPossible();
 
-        if (featureFlags.isEnabled(Flag.RELOAD_LAST_PLAYQUEUE) && playQueueManager.shouldReloadQueue()){
+        if (featureFlags.isEnabled(Flag.RELOAD_LAST_PLAYQUEUE) && playQueueManager.shouldReloadQueue()) {
             playQueueManager.loadPlayQueueAsync(true);
         }
     }
@@ -227,13 +228,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             return;
         }
 
-        if (!isProfile(position) && lastSelection != NO_SELECTION) {
-            Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
-            if (current != null) {
-                getSupportFragmentManager().beginTransaction().remove(current).commit();
-            }
-        }
-
         displayContentDelayed(position, setTitle);
     }
 
@@ -247,6 +241,13 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         drawerHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
+                if (!isProfile(position) && lastSelection != NO_SELECTION) {
+                    Fragment current = getSupportFragmentManager().findFragmentById(R.id.container);
+                    if (current != null) {
+                        getSupportFragmentManager().beginTransaction().remove(current).commit();
+                    }
+                }
+
                 displayFragment(position, setTitle);
             }
         }, DRAWER_SELECT_DELAY_MILLIS);
@@ -309,7 +310,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayPlaylists() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(PLAYLISTS_FRAGMENT_TAG);
         if (fragment == null) {
-            fragment = ScListFragment.newInstance(Content.ME_PLAYLISTS.uri, R.string.side_menu_playlists, Screen.SIDE_MENU_PLAYLISTS);
+            fragment = new PlaylistsFragment();
             attachFragment(fragment, PLAYLISTS_FRAGMENT_TAG, R.string.side_menu_playlists);
         }
     }
@@ -317,11 +318,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void displayLikes() {
         Fragment fragment = getSupportFragmentManager().findFragmentByTag(LIKES_FRAGMENT_TAG);
         if (fragment == null) {
-            if (featureFlags.isEnabled(Flag.TRACK_LIKES_SCREEN)) {
-                fragment = new TrackLikesFragment();
-            } else {
-                fragment = new LikesListFragment();
-            }
+            fragment = new TrackLikesFragment();
             attachFragment(fragment, LIKES_FRAGMENT_TAG, R.string.side_menu_likes);
         }
     }
@@ -361,6 +358,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getMenuInflater().inflate(R.menu.main, menu);
+        restoreActionBar();
         if (navigationFragment != null) {
             return super.onCreateOptionsMenu(menu);
         }

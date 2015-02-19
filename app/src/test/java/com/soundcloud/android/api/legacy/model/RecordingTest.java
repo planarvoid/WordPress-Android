@@ -152,7 +152,7 @@ public class RecordingTest {
         r.upload_status = Recording.Status.NOT_YET_UPLOADED;
         r.artwork_path = r.getFile();
         r.resized_artwork_path = r.artwork_path;
-        r.tip_key = "something";
+        r.tip = "something";
 
         return r;
     }
@@ -386,13 +386,13 @@ public class RecordingTest {
 
     @Test
     public void shouldCreateRecordingWithWavFileExtensionByDefault() throws Exception {
-        Recording r = Recording.create();
+        Recording r = Recording.create(null);
         expect(IOUtils.extension(r.getFile())).toEqual(WavReader.EXTENSION);
     }
 
     @Test
     public void shouldHaveEncodedFilenameBasedOnFilename() throws Exception {
-        Recording r = Recording.create();
+        Recording r = Recording.create(null);
         expect(IOUtils.extension(r.getEncodedFile())).toEqual(VorbisReader.EXTENSION);
         expect(r.getEncodedFile().getName()).not.toContain(WavReader.EXTENSION);
     }

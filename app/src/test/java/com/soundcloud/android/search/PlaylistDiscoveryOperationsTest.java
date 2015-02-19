@@ -107,6 +107,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         Multimap<String, String> parameters = ArrayListMultimap.create();
         parameters.put("tag", "electronic");
+        parameters.put("limit", String.valueOf(20));
 
         ArgumentCaptor<ApiRequest> resultCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiScheduler).mappedResponse(resultCaptor.capture());

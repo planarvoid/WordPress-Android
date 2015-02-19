@@ -287,7 +287,10 @@ public class UserAssociationStorage extends ScheduledOperations {
                     following.clearLocalSyncState();
                     return userAssociationDAO.update(following);
                 case PENDING_REMOVAL:
+                    following.clearLocalSyncState();
                     return followingsDAO.delete(following);
+                default:
+                    return false;
             }
         }
         return false;

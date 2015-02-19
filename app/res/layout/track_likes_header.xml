@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res/com.soundcloud.android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+    <LinearLayout android:id="@+id/header"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:padding="@dimen/default_list_item_padding">
+
+        <ImageView
+            android:id="@+id/sync_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/likes_sync_state_margin_right"/>
+
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/header_text"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                app:custom_font="fonts/Roboto-Regular.ttf" />
+
+        <com.soundcloud.android.view.CustomButton
+                android:id="@+id/shuffle_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.List.Main"
+                android:layout_marginLeft="10dp"
+                android:enabled="false"
+                android:text="@string/shuffle"
+                android:drawableLeft="@drawable/ic_shuffle"
+                android:drawablePadding="8dp"
+                android:paddingLeft="@dimen/default_list_item_padding"
+                android:paddingRight="@dimen/default_list_item_padding"
+                android:background="@drawable/btn_default_states"
+                app:custom_font="fonts/Roboto-Regular.ttf" />
+    </LinearLayout>
+
+    <View android:layout_width="match_parent"
+          android:layout_height="@dimen/likes_header_divider"
+          android:layout_below="@id/header"
+          android:background="@drawable/divider_list_grey" />
+</RelativeLayout>

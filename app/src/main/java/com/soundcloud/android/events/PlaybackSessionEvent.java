@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
-import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -103,6 +103,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public boolean isPlayEvent() {
         return EVENT_KIND_PLAY.equals(kind);
+    }
+
+    public boolean isBufferingEvent() {
+        return stopReason == STOP_REASON_BUFFERING;
     }
 
     public boolean isStopEvent() {

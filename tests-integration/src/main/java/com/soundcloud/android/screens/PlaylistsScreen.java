@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
@@ -7,12 +8,10 @@ import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 
-import android.widget.AbsListView;
+import android.widget.ListView;
 
 public class PlaylistsScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
-
-    private static String LIKED_PLAYLIST_TAB = "LIKED PLAYLISTS";
 
     public PlaylistsScreen(Han solo) {
         super(solo);
@@ -23,15 +22,27 @@ public class PlaylistsScreen extends Screen {
         return new PlaylistDetailsScreen(testDriver);
     }
 
-    public PlaylistDetailsScreen clickPlaylist(With matcher) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver.scrollToBottom(getCurrentListView());
-        testDriver.findElement(matcher).click();
+    public PlaylistDetailsScreen clickPlaylistOnCurrentPageAt(int index) {
+        playlistsListOnCurrentPage().getItemAt(index).click();
         return new PlaylistDetailsScreen(testDriver);
     }
 
     public void touchLikedPlaylistsTab() {
-        touchTab(LIKED_PLAYLIST_TAB);
+        touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
+    }
+
+    public void touchPostedPlaylistsTab() {
+        touchTab(testDriver.getString(R.string.your_playlists_tab).toUpperCase());
+    }
+
+    public int getLoadedTrackCount(){
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return playlistsList().getAdapter().getCount();
+    }
+
+    public void scrollToBottomOfTracksListAndLoadMoreItems() {
+        playlistsList().scrollToBottom();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     private ViewPagerElement getViewPager() {
@@ -48,8 +59,8 @@ public class PlaylistsScreen extends Screen {
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
-    private AbsListView getCurrentListView() {
-        return testDriver.getCurrentListView();
+    private ListElement playlistsListOnCurrentPage() {
+        return new ListElement(getViewPager().getCurrentPage(ListView.class), testDriver.getSolo());
     }
 
     private void touchTab(String tabText) {

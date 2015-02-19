@@ -29,10 +29,10 @@ public class ApiStreamItemTest {
     }
 
     @Test
-    public void getCreatedAtWithTrackPostReturnsTrackCreatedAtDate() throws Exception {
+    public void getCreatedAtWithTrackPostReturnsPostCreatedAtDate() throws Exception {
         final ApiTrackPost apiTrackPost = ModelFixtures.create(ApiTrackPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackPost);
-        expect(streamItem.getCreatedAtTime()).toEqual(apiTrackPost.getApiTrack().getCreatedAt().getTime());
+        expect(streamItem.getCreatedAtTime()).toEqual(apiTrackPost.getCreatedAtTime());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class ApiStreamItemTest {
     public void getCreatedAtWithPlaylistPostReturnsPlaylistCreatedAtDate() throws Exception {
         final ApiPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiPlaylistPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistPost);
-        expect(streamItem.getCreatedAtTime()).toEqual(apiPlaylistPost.getApiPlaylist().getCreatedAt().getTime());
+        expect(streamItem.getCreatedAtTime()).toEqual(apiPlaylistPost.getCreatedAtTime());
     }
 
     @Test

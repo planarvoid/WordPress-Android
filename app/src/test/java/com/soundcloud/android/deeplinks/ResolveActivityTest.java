@@ -89,4 +89,19 @@ public class ResolveActivityTest {
         expected.putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
         expect(shadowOf(activity).getNextStartedActivity()).toEqual(expected);
     }
+    
+    @Test
+    public void shouldNotDetectFacebookIntentForIntentWithoutAction() throws Exception {
+        expect(activity.isFacebookAction(new Intent())).toBeFalse();
+    }
+
+    @Test
+    public void shouldNotDetectFacebookIntentForIntentWithIncorrectAppId() throws Exception {
+        expect(activity.isFacebookAction(new Intent("com.facebook.application.123"))).toBeFalse();
+    }
+
+    @Test
+    public void shouldDetectFacebookIntent() throws Exception {
+        expect(activity.isFacebookAction(new Intent("com.facebook.application.19507961798"))).toBeTrue();
+    }
 }

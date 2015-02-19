@@ -22,9 +22,8 @@ import javax.inject.Inject;
 
 public class SettingsActivity extends ScSettingsActivity {
 
-    static final int DIALOG_STREAM_CACHE_DELETING = 0;
-    static final int DIALOG_USER_LOGOUT_CONFIRM = 1;
-    static final int DIALOG_IMAGE_CACHE_DELETING = 2;
+    static final int DIALOG_USER_LOGOUT_CONFIRM = 0;
+    static final int DIALOG_CACHE_DELETING = 1;
 
     private ProgressDialog deleteDialog;
 
@@ -56,7 +55,6 @@ public class SettingsActivity extends ScSettingsActivity {
 
     @Override
     protected void onResume() {
-        generalSettings.updateClearCacheTitles(this);
         super.onResume();
         if (shouldTrackScreen()) {
             eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SETTINGS_MAIN));
@@ -66,38 +64,25 @@ public class SettingsActivity extends ScSettingsActivity {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case DIALOG_STREAM_CACHE_DELETING:
+            case DIALOG_CACHE_DELETING:
                 if (deleteDialog == null) {
                     deleteDialog = new ProgressDialog(this);
                     deleteDialog.setTitle(R.string.cache_clearing);
                     deleteDialog.setMessage(getString(R.string.cache_clearing_message));
-                    deleteDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     deleteDialog.setIndeterminate(true);
                     deleteDialog.setCancelable(false);
                 }
                 return deleteDialog;
-            case DIALOG_IMAGE_CACHE_DELETING:
-                final ProgressDialog dialog = new ProgressDialog(this);
-                dialog.setTitle(R.string.cache_clearing);
-                dialog.setMessage(getString(R.string.cache_clearing_message));
-                return dialog;
             case DIALOG_USER_LOGOUT_CONFIRM:
                 return createLogoutDialog();
+            default:
+                return super.onCreateDialog(id);
         }
-        return super.onCreateDialog(id);
     }
 
     void safeShowDialog(int dialogId) {
         if (!isFinishing()) {
             showDialog(dialogId);
-        }
-    }
-
-    void updateDeleteDialog(int current, int max) {
-        if (deleteDialog != null) {
-            deleteDialog.setIndeterminate(false);
-            deleteDialog.setProgress(current);
-            deleteDialog.setMax(max);
         }
     }
 

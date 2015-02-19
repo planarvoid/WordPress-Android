@@ -1,14 +1,18 @@
 package com.soundcloud.android.tests.payments;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.End2End;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.SubscribeScreen;
 import com.soundcloud.android.screens.SettingsScreen;
+import com.soundcloud.android.screens.SubscribeScreen;
 import com.soundcloud.android.screens.SubscribeSuccessScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.TestUser;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
 
@@ -28,6 +32,7 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
 
     @End2End
     public void testUserCanSubscribe() {
+        resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
@@ -38,6 +43,7 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
 
     @End2End
     public void testInvalidPayment() {
+        resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
@@ -49,6 +55,18 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
     @Override
     protected void observeToastsHelper() {
         toastObserver.observe();
+    }
+
+    private void resetTestAccount() {
+        try {
+            URL url = new URL("http://buckster-test.int.s-cloud.net/api/users/122411702/consumer_subscriptions/active");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("DELETE");
+            connection.setRequestProperty("X-Access-Token", "gimme.hugs");
+            connection.getResponseCode();
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to reset test user subscription state");
+        }
     }
 
 }

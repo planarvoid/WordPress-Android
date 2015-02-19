@@ -194,54 +194,7 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncLikes() throws Exception {
-        TestHelper.addResourceResponse(getClass(), "/e1/users/" + String.valueOf(USER_ID)
-                + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes_mini.json");
-
-        ApiSyncResult result = sync(Content.ME_LIKES.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-        expect(Content.TRACKS).toHaveCount(1);
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.ME_LIKES).toHaveCount(2);
-    }
-
-    @Test
-    public void syncOnLikesWithMissingTrackRemovedMissingTrack() throws Exception {
-        TestHelper.addResourceResponse(getClass(), "/e1/users/" + String.valueOf(USER_ID)
-                + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes_mini_missing_track.json");
-
-        ApiSyncResult result = sync(Content.ME_LIKES.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-        expect(Content.TRACKS).toHaveCount(0);
-        expect(Content.PLAYLISTS).toHaveCount(1);
-        expect(Content.ME_LIKES).toHaveCount(1);
-    }
-
-    @Test
-    public void shouldSyncSoundsAndLikes() throws Exception {
-        ApiSyncResult result = syncMeSounds();
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-        TestHelper.addResourceResponse(getClass(), "/e1/users/" + String.valueOf(USER_ID)
-                + "/likes?limit=200&representation=mini&linked_partitioning=1", "e1_likes_mini.json");
-
-        result = sync(Content.ME_LIKES.uri);
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-        expect(Content.TRACKS).toHaveCount(49); // 48 tracks + from /me/sounds + 1 track from /me/likes
-        expect(Content.ME_SOUNDS).toHaveCount(50); // 48 tracks + 2 playlists from /me/sounds
-        expect(Content.ME_LIKES).toHaveCount(2); // 1 track + 1 playlist like
-    }
-
-    @Test
     public void shouldSyncMyShortcuts() throws Exception {
-
         TestHelper.addPendingHttpResponse(getClass(), "all_shortcuts.json");
         sync(Content.ME_SHORTCUTS.uri);
         expect(Content.ME_SHORTCUTS).toHaveCount(461);

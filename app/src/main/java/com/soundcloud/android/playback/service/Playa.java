@@ -15,9 +15,11 @@ import java.util.EnumSet;
 @SuppressWarnings({"PMD.ExcessivePublicCount"})
 public interface Playa {
 
+    @Deprecated // remove this when we get rid of or simplify mediaplayer
     void play(PropertySet track);
     void play(PropertySet track, long fromPos);
     void playUninterrupted(PropertySet track);
+    void playOffline(PropertySet track, long fromPos);
     boolean resume();
     void pause();
     long seek(long ms, boolean performSeek);
@@ -49,13 +51,7 @@ public interface Playa {
         // used to pass various additional meta data with the event, often for tracking/analytics
         private final SparseArray<String> extraAttributes = new SparseArray<String>(2);
 
-        public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE);
-
-        // TODO: make private and use blueprints in tests
-        @Deprecated
-        public StateTransition(PlayaState newState, Reason reason) {
-            this(newState, reason, Urn.NOT_SET);
-        }
+        public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.NOT_SET);
 
         public StateTransition(PlayaState newState, Reason reason, Urn trackUrn) {
             this(newState, reason, trackUrn, 0, 0);

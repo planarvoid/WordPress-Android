@@ -1,31 +1,13 @@
 package com.soundcloud.android.sync.likes;
 
-import com.google.common.reflect.TypeToken;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiMapperException;
-import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.commands.ApiResourceCommand;
+import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreCommand;
-import com.soundcloud.android.likes.ApiLike;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.sync.ApiSyncResult;
-import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import android.net.Uri;
-
-import javax.inject.Inject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -33,69 +15,66 @@ import java.util.Date;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
 
-public class LikesSyncer implements SyncStrategy {
+public class LikesSyncer<ApiModel> implements Callable<Boolean> {
 
     private static final Comparator<PropertySet> LIKES_COMPARATOR = new PropertySetComparator<>(LikeProperty.TARGET_URN);
 
-    private final ApiClient apiClient;
-    private final ApiResourceCommand fetchLikedResources;
+    private final FetchLikesCommand fetchLikes;
+    private final BulkFetchCommand<ApiModel> fetchLikedResources;
+    private final PushLikeAdditionsCommand pushLikeAdditions;
+    private final PushLikeDeletionsCommand pushLikeDeletions;
     private final LoadLikesCommand loadLikes;
+    private final LoadLikesPendingAdditionCommand loadLikesPendingAddition;
     private final LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
-    private final StoreCommand storeLikedResources;
+    private final StoreCommand<Iterable<ApiModel>> storeLikedResources;
     private final StoreLikesCommand storeLikes;
     private final RemoveLikesCommand removeLikes;
-    private final AccountOperations accountOperations;
-    private final ApiEndpoints fetchLikesEndpoint;
-    private final ApiEndpoints writeLikesEndpoint;
 
-    @Inject
     @SuppressWarnings("PMD.ExcessiveParameterList") // We will run into this a lot with commands...
-    LikesSyncer(ApiClient apiClient, ApiResourceCommand fetchLikedResources, LoadLikesCommand loadLikes,
-                LoadLikesPendingRemovalCommand loadLikesPendingRemoval, StoreCommand storeLikedResources,
-                StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes, AccountOperations accountOperations,
-                ApiEndpoints fetchLikesEndpoint, ApiEndpoints writeLikesEndpoint) {
-        this.apiClient = apiClient;
+    LikesSyncer(FetchLikesCommand fetchLikes,
+                BulkFetchCommand<ApiModel> fetchLikedResources,
+                PushLikeAdditionsCommand pushLikeAdditions,
+                PushLikeDeletionsCommand pushLikeDeletions,
+                LoadLikesCommand loadLikes,
+                LoadLikesPendingAdditionCommand loadLikesPendingAddition,
+                LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
+                StoreCommand<Iterable<ApiModel>> storeLikedResources,
+                StoreLikesCommand storeLikes,
+                RemoveLikesCommand removeLikes) {
+        this.fetchLikes = fetchLikes;
+        this.pushLikeAdditions = pushLikeAdditions;
+        this.pushLikeDeletions = pushLikeDeletions;
         this.loadLikes = loadLikes;
+        this.loadLikesPendingAddition = loadLikesPendingAddition;
         this.loadLikesPendingRemoval = loadLikesPendingRemoval;
         this.removeLikes = removeLikes;
         this.fetchLikedResources = fetchLikedResources;
         this.storeLikedResources = storeLikedResources;
         this.storeLikes = storeLikes;
-        this.accountOperations = accountOperations;
-        this.fetchLikesEndpoint = fetchLikesEndpoint;
-        this.writeLikesEndpoint = writeLikesEndpoint;
     }
 
-    @NotNull
     @Override
-    public ApiSyncResult syncContent(@Deprecated Uri uri, @Nullable String action) throws Exception {
-        final LikesSyncResult result = performSync();
-
-        if (result.hasLocalAdditions()) {
-            final ArrayList<Urn> urns = new ArrayList<>(result.localAdditions.size());
-            for (PropertySet like : result.localAdditions) {
-                urns.add(like.get(LikeProperty.TARGET_URN));
-            }
-            fetchLikedResources.with(urns).andThen(storeLikedResources).call();
-        }
-
-        return (result.hasChanged())
-                ? ApiSyncResult.fromSuccessfulChange(uri)
-                : ApiSyncResult.fromSuccessWithoutChange(uri);
-    }
-
-    private LikesSyncResult performSync() throws Exception {
-        final NavigableSet<PropertySet> remoteLikes = fetchLikes(fetchLikesEndpoint);
+    public Boolean call() throws Exception {
+        final NavigableSet<PropertySet> remoteLikes = fetchLikes.call();
 
         final Set<PropertySet> localLikes = new TreeSet<>(LIKES_COMPARATOR);
         localLikes.addAll(loadLikes.call());
+        final Set<PropertySet> localAdditions = new TreeSet<>(LIKES_COMPARATOR);
+        localAdditions.addAll(loadLikesPendingAddition.call());
+
         final Set<PropertySet> localRemovals = new TreeSet<>(LIKES_COMPARATOR);
         localRemovals.addAll(loadLikesPendingRemoval.call());
 
-        final Set<PropertySet> pendingRemoteAdditions = getSetDifference(localLikes, remoteLikes);
+        final Set<PropertySet> pendingRemoteAdditions = getSetDifference(localAdditions, remoteLikes);
         final Set<PropertySet> pendingLocalAdditions = getSetDifference(remoteLikes, localLikes, localRemovals);
-        final Set<PropertySet> pendingLocalRemovals = getSetDifference(localRemovals, remoteLikes);
+
+        final Set<PropertySet> localLikesWithoutAdditions = getSetDifference(localLikes, localAdditions);
+        // clean items that no longer exist remotely
+        final Set<PropertySet> pendingLocalRemovals = getSetDifference(localLikesWithoutAdditions, remoteLikes);
+        // dirty local removals that do not need removing remotely
+        pendingLocalRemovals.addAll(getSetDifference(localRemovals, remoteLikes));
 
         // For likes that are flagged for removal locally, but that have actually been re-added remotely, we have
         // we have to switch them from the remote removals set over to the local additions set.
@@ -110,14 +89,26 @@ public class LikesSyncer implements SyncStrategy {
             }
         }
 
-        pushPendingAdditionsToApi(pendingRemoteAdditions);
-        pushPendingRemovalsToApi(pendingLocalRemovals, pendingRemoteRemovals);
-        writePendingUpdatesToLocalStorage(pendingLocalAdditions, pendingLocalRemovals);
+        pushPendingAdditionsToApi(pendingRemoteAdditions, pendingLocalAdditions);
+        pushPendingRemovalsToApi(pendingRemoteRemovals, pendingLocalRemovals);
+        writePendingRemovalsToLocalStorage(pendingLocalRemovals);
 
-        return new LikesSyncResult(pendingLocalAdditions, pendingLocalRemovals);
+        fetchAndWriteNewLikedEntities(pendingLocalAdditions);
+        writePendingAdditionsToLocalStorage(pendingLocalAdditions);
+
+        return !(pendingLocalAdditions.isEmpty() && pendingLocalRemovals.isEmpty());
     }
 
-    @SafeVarargs
+    private void fetchAndWriteNewLikedEntities(Set<PropertySet> pendingLocalAdditions) throws Exception {
+        if (!pendingLocalAdditions.isEmpty()) {
+            final ArrayList<Urn> urns = new ArrayList<>(pendingLocalAdditions.size());
+            for (PropertySet like : pendingLocalAdditions) {
+                urns.add(like.get(LikeProperty.TARGET_URN));
+            }
+            fetchLikedResources.with(urns).andThen(storeLikedResources).call();
+        }
+    }
+
     private final Set<PropertySet> getSetDifference(Set<PropertySet> set, Set<PropertySet>... without) {
         final Set<PropertySet> difference = new TreeSet<>(LIKES_COMPARATOR);
         difference.addAll(set);
@@ -134,74 +125,31 @@ public class LikesSyncer implements SyncStrategy {
         return intersection;
     }
 
-    private void pushPendingAdditionsToApi(Set<PropertySet> pendingRemoteAdditions) {
-        for (PropertySet like : pendingRemoteAdditions) {
-            final String path = writeLikesEndpoint.path(like.get(LikeProperty.TARGET_URN).getNumericId());
-            final ApiRequest request = ApiRequest.Builder.put(path).forPublicApi().build();
-            // We're not checking the result here, relying on eventual consistency. Anything that fails pushing,
-            // will simply be re-attempted during the next sync.
-            // TODO: should we check for things like unexpected status codes?
-            apiClient.fetchResponse(request);
+    private void pushPendingAdditionsToApi(Set<PropertySet> pendingRemoteAdditions, Set<PropertySet> pendingLocalAdditions) throws Exception {
+        if (!pendingRemoteAdditions.isEmpty()) {
+            final Collection<PropertySet> successfulAdditions = pushLikeAdditions.with(pendingRemoteAdditions).call();
+            // make sure we replace the existing local records with server side data
+            pendingLocalAdditions.addAll(successfulAdditions);
         }
     }
 
-    private void pushPendingRemovalsToApi(Set<PropertySet> pendingLocalRemovals,
-                                          Set<PropertySet> pendingRemoteRemovals) {
-        for (PropertySet like : pendingRemoteRemovals) {
-            final String path = writeLikesEndpoint.path(like.get(LikeProperty.TARGET_URN).getNumericId());
-            final ApiRequest request = ApiRequest.Builder.delete(path).forPublicApi().build();
-            final ApiResponse response = apiClient.fetchResponse(request);
-            // make sure we'll drop successful removals from the local database
-            if (response.isSuccess()) {
-                pendingLocalRemovals.add(like);
-            }
+    private void pushPendingRemovalsToApi(Set<PropertySet> pendingRemoteRemovals, Set<PropertySet> pendingLocalRemovals) throws Exception {
+        if (!pendingRemoteRemovals.isEmpty()) {
+            final Collection<PropertySet> successfulDeletions = pushLikeDeletions.with(pendingRemoteRemovals).call();
+            // make sure we also remove successful remote deletions from local storage
+            pendingLocalRemovals.addAll(successfulDeletions);
         }
     }
 
-    private void writePendingUpdatesToLocalStorage(Set<PropertySet> pendingLocalAdditions,
-                                                   Set<PropertySet> pendingLocalRemovals) throws PropellerWriteException {
-        // TODO: we should check whether these are succesful
-        if (!pendingLocalRemovals.isEmpty()) {
-            removeLikes.with(pendingLocalRemovals).call();
-        }
-
+    private void writePendingAdditionsToLocalStorage(Set<PropertySet> pendingLocalAdditions) throws PropellerWriteException {
         if (!pendingLocalAdditions.isEmpty()) {
             storeLikes.with(pendingLocalAdditions).call();
         }
     }
 
-    private NavigableSet<PropertySet> fetchLikes(ApiEndpoints endpoint)
-            throws ApiMapperException, IOException, ApiRequestException {
-        final Urn userUrn = accountOperations.getLoggedInUserUrn();
-        final ApiRequest<ModelCollection<ApiLike>> request =
-                ApiRequest.Builder.<ModelCollection<ApiLike>>get(endpoint.path(userUrn))
-                        .forPrivateApi(1)
-                        .forResource(new TypeToken<ModelCollection<ApiLike>>() {
-                        })
-                        .build();
-        final ModelCollection<ApiLike> apiLikes = apiClient.fetchMappedResponse(request);
-        final NavigableSet<PropertySet> result = new TreeSet<>(LIKES_COMPARATOR);
-        for (ApiLike like : apiLikes) {
-            result.add(like.toPropertySet());
-        }
-        return result;
-    }
-
-    private static final class LikesSyncResult {
-        private final Collection<PropertySet> localAdditions;
-        private final Collection<PropertySet> localRemovals;
-
-        private LikesSyncResult(Collection<PropertySet> localAdditions, Collection<PropertySet> localRemovals) {
-            this.localAdditions = localAdditions;
-            this.localRemovals = localRemovals;
-        }
-
-        boolean hasChanged() {
-            return !(localAdditions.isEmpty() && localRemovals.isEmpty());
-        }
-
-        boolean hasLocalAdditions() {
-            return !localAdditions.isEmpty();
+    private void writePendingRemovalsToLocalStorage(Set<PropertySet> pendingLocalRemovals) throws PropellerWriteException {
+        if (!pendingLocalRemovals.isEmpty()) {
+            removeLikes.with(pendingLocalRemovals).call();
         }
     }
 }

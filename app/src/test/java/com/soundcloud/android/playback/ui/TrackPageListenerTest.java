@@ -2,23 +2,24 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.associations.SoundAssociationOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.propeller.PropertySet;
@@ -37,9 +38,10 @@ public class TrackPageListenerTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private SoundAssociationOperations soundAssociationOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
+    @Mock private FeatureFlags featureFlags;
+    @Mock private LikeOperations likeOperations;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -48,23 +50,32 @@ public class TrackPageListenerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TrackPageListener(playbackOperations,
-                soundAssociationOperations, playQueueManager,
-                playSessionStateProvider, eventBus);
+                playQueueManager,
+                playSessionStateProvider, eventBus, likeOperations);
     }
 
     @Test
-    public void onToggleLikeTogglesLikeViaAssociationOperations() {
-        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+    public void onToggleUnlikedTrackLikesViaLikesOperations() {
+        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
-        verify(soundAssociationOperations).toggleLike(TRACK_URN, true);
+        verify(likeOperations).addLike(PropertySet.from(PlayableProperty.URN.bind(TRACK_URN)));
+    }
+
+    @Test
+    public void onToggleLikedTrackLikesViaUnlikesOperations() {
+        when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
+
+        listener.onToggleLike(false, TRACK_URN);
+
+        verify(likeOperations).removeLike(PropertySet.from(PlayableProperty.URN.bind(TRACK_URN)));
     }
 
     @Test
     public void onToggleLikeEmitsLikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
-        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -75,7 +86,7 @@ public class TrackPageListenerTest {
     @Test
     public void onToggleLikeEmitsUnlikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
-        when(soundAssociationOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
 

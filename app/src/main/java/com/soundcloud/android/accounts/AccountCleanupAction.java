@@ -1,7 +1,5 @@
 package com.soundcloud.android.accounts;
 
-import static com.soundcloud.android.onboarding.auth.FacebookSSOActivity.FBToken;
-
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.cache.ConnectionsCache;
@@ -13,11 +11,10 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
-
-import android.content.Context;
 
 import javax.inject.Inject;
 
@@ -25,7 +22,6 @@ class AccountCleanupAction implements Action0 {
 
     private static final String TAG = "AccountCleanup";
 
-    private final Context context;
     private final CollectionStorage collectionStorage;
     private final ActivitiesStorage activitiesStorage;
     private final UserAssociationStorage userAssociationStorage;
@@ -36,15 +32,15 @@ class AccountCleanupAction implements Action0 {
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final ClearSoundStreamCommand clearSoundStreamCommand;
     private final OfflineSettingsStorage offlineSettingsStorage;
+    private final RemoveAllLikesCommand removeAllLikesCommand;
 
     @Inject
-    AccountCleanupAction(Context context, SyncStateManager syncStateManager,
-                         CollectionStorage collectionStorage, ActivitiesStorage activitiesStorage,
-                         UserAssociationStorage userAssociationStorage, PlaylistTagStorage tagStorage,
-                         SoundRecorder soundRecorder, FeatureStorage featureStorage,
+    AccountCleanupAction(SyncStateManager syncStateManager, CollectionStorage collectionStorage,
+                         ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
+                         PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                         ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage) {
-        this.context = context;
+                         ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage,
+                         RemoveAllLikesCommand removeAllLikesCommand) {
         this.syncStateManager = syncStateManager;
         this.collectionStorage = collectionStorage;
         this.activitiesStorage = activitiesStorage;
@@ -55,32 +51,33 @@ class AccountCleanupAction implements Action0 {
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.clearSoundStreamCommand = clearSoundStreamCommand;
         this.offlineSettingsStorage = offlineSettingsStorage;
+        this.removeAllLikesCommand = removeAllLikesCommand;
     }
 
     @Override
     public void call() {
         Log.d(TAG, "Purging user data...");
 
+        clearCollections();
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         syncStateManager.clear();
         collectionStorage.clear();
         activitiesStorage.clear(null);
-        clearSoundStream();
         userAssociationStorage.clear();
         tagStorage.clear();
         offlineSettingsStorage.clear();
         featureStorage.clear();
         soundRecorder.reset();
-        FBToken.clear(context);
         FollowingOperations.clearState();
         ConnectionsCache.reset();
     }
 
-    private void clearSoundStream()  {
+    private void clearCollections()  {
         try {
+            removeAllLikesCommand.call();
             clearSoundStreamCommand.call();
         } catch (PropellerWriteException e) {
-            Log.e(TAG, "Could not clear SoundStream ", e);
+            Log.e(TAG, "Could not clear collections ", e);
         }
 
     }
