@@ -318,7 +318,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertTrackPost(long trackId, long timestamp) {
+    public long insertStreamTrackPost(long trackId, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, trackId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
@@ -326,7 +326,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertTrackRepost(long trackId, long timestamp, long reposterId) {
+    public long insertStreamTrackRepost(long trackId, long timestamp, long reposterId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, trackId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
@@ -335,7 +335,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertPlaylistPost(long playlistId, long timestamp) {
+    public long insertStreamPlaylistPost(long playlistId, long timestamp) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, playlistId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
@@ -343,7 +343,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertPlaylistRepost(long playlistId, long timestamp, long reposterId) {
+    public long insertStreamPlaylistRepost(long playlistId, long timestamp, long reposterId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.SoundStream.SOUND_ID, playlistId);
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
