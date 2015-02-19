@@ -385,7 +385,7 @@ public class TrackPagerAdapterTest {
 
         View currentPageView = (View) adapter.instantiateItem(container, 0);
 
-        verify(trackPagePresenter).onForeground(currentPageView);
+        verify(trackPagePresenter, times(2)).onForeground(currentPageView);
     }
 
     @Test
