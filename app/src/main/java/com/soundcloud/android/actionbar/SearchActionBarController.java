@@ -109,8 +109,8 @@ public class SearchActionBarController extends ActionBarController {
     }
 
     public void setQuery(String query) {
+        this.query = query;
         if (isInitialised()) {
-            this.query = query;
             searchView.setQuery(query, false);
             searchView.setSuggestionsAdapter(null);
             clearFocus();
