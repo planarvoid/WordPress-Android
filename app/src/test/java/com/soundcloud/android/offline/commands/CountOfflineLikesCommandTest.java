@@ -10,9 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class OfflineTrackCountCommandTest extends StorageIntegrationTest {
+public class CountOfflineLikesCommandTest extends StorageIntegrationTest {
 
-    private OfflineTrackCountCommand command;
+    private CountOfflineLikesCommand command;
 
     private static final Urn TRACK1_URN = Urn.forTrack(101L);
     private static final long TRACK1_DOWNLOAD_COMPLETION_TIMESTAMP = 1L;
@@ -22,7 +22,7 @@ public class OfflineTrackCountCommandTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        command = new OfflineTrackCountCommand(propeller());
+        command = new CountOfflineLikesCommand(propeller());
     }
 
     @Test

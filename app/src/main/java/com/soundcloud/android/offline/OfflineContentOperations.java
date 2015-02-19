@@ -4,8 +4,8 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
+import com.soundcloud.android.offline.commands.CountOfflineLikesCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
-import com.soundcloud.android.offline.commands.OfflineTrackCountCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -23,7 +23,7 @@ public class OfflineContentOperations {
     private final LoadPendingDownloadsCommand loadPendingDownloads;
     private final UpdateOfflineContentCommand updateOfflineContent;
     private final UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval;
-    private final OfflineTrackCountCommand offlineTrackCount;
+    private final CountOfflineLikesCommand offlineTrackCount;
 
     private final EventBus eventBus;
     private final OfflineSettingsStorage settingsStorage;
@@ -83,7 +83,7 @@ public class OfflineContentOperations {
                                     LoadPendingDownloadsCommand loadPendingCommand,
                                     UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval,
                                     OfflineSettingsStorage settingsStorage,
-                                    EventBus eventBus, OfflineTrackCountCommand offlineTrackCount) {
+                                    EventBus eventBus, CountOfflineLikesCommand offlineTrackCount) {
         this.updateOfflineContent = updateOfflineContent;
         this.settingsStorage = settingsStorage;
         this.loadLikedTrackUrns = loadLikedTrackUrns;

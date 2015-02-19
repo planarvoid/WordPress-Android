@@ -9,9 +9,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.likes.LoadLikedTrackUrnsCommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.commands.CountOfflineLikesCommand;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
-import com.soundcloud.android.offline.commands.OfflineTrackCountCommand;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
@@ -41,7 +41,7 @@ public class OfflineContentOperationsTest {
     private static final List<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN);
     private static final int DOWNLOAD_LIKED_TRACKS_COUNT = 4;
 
-    @Mock private OfflineTrackCountCommand offlineTrackCount;
+    @Mock private CountOfflineLikesCommand offlineTrackCount;
     @Mock private LoadPendingDownloadsCommand loadPendingDownloads;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private UpdateOfflineContentCommand updateOfflineContent;

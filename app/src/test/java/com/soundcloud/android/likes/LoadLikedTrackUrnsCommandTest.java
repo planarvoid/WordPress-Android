@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest{
+public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
 
     private LoadLikedTrackUrnsCommand command;
 

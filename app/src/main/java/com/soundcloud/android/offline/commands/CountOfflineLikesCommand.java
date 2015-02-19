@@ -13,13 +13,13 @@ import com.soundcloud.propeller.query.Query;
 
 import javax.inject.Inject;
 
-public class OfflineTrackCountCommand extends Command<Object, Integer, OfflineTrackCountCommand> {
+public class CountOfflineLikesCommand extends Command<Object, Integer, CountOfflineLikesCommand> {
 
     public static final String COUNT_COLUMN = "TotalDownloaded";
     private final PropellerDatabase database;
 
     @Inject
-    OfflineTrackCountCommand(PropellerDatabase database) {
+    CountOfflineLikesCommand(PropellerDatabase database) {
         this.database = database;
     }
 
