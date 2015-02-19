@@ -14,7 +14,7 @@ public class LightCycleSupportFragment extends Fragment {
     }
 
     public void addLifeCycleComponent(SupportFragmentLightCycle lifeCycleComponent) {
-        lifeCycleDispatcher.add(lifeCycleComponent);
+        lifeCycleDispatcher.attach(lifeCycleComponent);
     }
 
     @Override

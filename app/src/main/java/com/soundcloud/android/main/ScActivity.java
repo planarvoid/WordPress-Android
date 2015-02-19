@@ -45,14 +45,14 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     public ScActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         lightCycleDispatcher
-                .add(activityLifeCyclePublisher)
-                .add(networkConnectivityLightCycle)
-                .add(unauthorisedRequestLightCycle)
-                .add(userRemovedLightCycle)
-                .add(imageOperationsLightCycle)
-                .add(castConnectionHelper)
-                .add(accountPlaybackControlLightCycle)
-                .add(screenStateLightCycle);
+                .attach(activityLifeCyclePublisher)
+                .attach(networkConnectivityLightCycle)
+                .attach(unauthorisedRequestLightCycle)
+                .attach(userRemovedLightCycle)
+                .attach(imageOperationsLightCycle)
+                .attach(castConnectionHelper)
+                .attach(accountPlaybackControlLightCycle)
+                .attach(screenStateLightCycle);
     }
 
     // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle

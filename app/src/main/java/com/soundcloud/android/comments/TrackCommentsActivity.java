@@ -39,9 +39,9 @@ public class TrackCommentsActivity extends ScActivity {
 
     public TrackCommentsActivity() {
         lightCycleDispatcher
-                .add(playerController)
-                .add(adPlayerController)
-                .add(actionBarController);
+                .attach(playerController)
+                .attach(adPlayerController)
+                .attach(actionBarController);
         presenter.attach(this);
     }
 

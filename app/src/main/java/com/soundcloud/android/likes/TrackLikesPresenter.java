@@ -68,8 +68,8 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
 
-        add(actionMenuController);
-        add(headerPresenter);
+        attach(actionMenuController);
+        attach(headerPresenter);
         setHeaderPresenter(headerPresenter);
     }
 

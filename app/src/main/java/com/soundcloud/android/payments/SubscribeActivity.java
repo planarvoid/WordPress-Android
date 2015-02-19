@@ -13,7 +13,7 @@ public class SubscribeActivity extends ScActivity {
     @Inject SubscribeController controller;
 
     public SubscribeActivity() {
-        lightCycleDispatcher.add(controller);
+        lightCycleDispatcher.attach(controller);
     }
 
     @VisibleForTesting

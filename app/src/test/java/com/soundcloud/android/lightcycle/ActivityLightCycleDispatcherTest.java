@@ -25,8 +25,8 @@ public class ActivityLightCycleDispatcherTest {
     @Before
     public void setUp() throws Exception {
         dispatcher = new ActivityLightCycleDispatcher()
-                .add(lightCycleComponent1)
-                .add(lightCycleComponent2);
+                .attach(lightCycleComponent1)
+                .attach(lightCycleComponent2);
     }
 
     @Test
@@ -113,8 +113,8 @@ public class ActivityLightCycleDispatcherTest {
     public void dispatchOnlyOnceToDuplicatesComponents() {
         final Bundle bundle = new Bundle();
         dispatcher
-                .add(lightCycleComponent1)
-                .add(lightCycleComponent1)
+                .attach(lightCycleComponent1)
+                .attach(lightCycleComponent1)
                 .onCreate(activity, bundle);
 
         verify(lightCycleComponent1, times(1)).onCreate(activity, bundle);

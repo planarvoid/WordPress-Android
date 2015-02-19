@@ -25,8 +25,8 @@ public class SupportFragmentLightCycleDispatcherTest {
     @Before
     public void setUp() throws Exception {
         dispatcher = new SupportFragmentLightCycleDispatcher()
-                .add(lifeCycleComponent1)
-                .add(lifeCycleComponent2);
+                .attach(lifeCycleComponent1)
+                .attach(lifeCycleComponent2);
     }
 
     @Test

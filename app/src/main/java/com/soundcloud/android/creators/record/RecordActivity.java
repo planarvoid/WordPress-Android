@@ -143,7 +143,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     @Inject ActionBarController actionBarController;
 
     public RecordActivity() {
-        lightCycleDispatcher.add(actionBarController);
+        lightCycleDispatcher.attach(actionBarController);
     }
 
     @Override

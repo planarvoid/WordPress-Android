@@ -27,9 +27,9 @@ public class WhoToFollowActivity extends ScActivity {
 
     public WhoToFollowActivity() {
         lightCycleDispatcher
-                .add(playerController)
-                .add(adPlayerController)
-                .add(actionBarController);
+                .attach(playerController)
+                .attach(adPlayerController)
+                .attach(actionBarController);
         presenter.attach(this);
     }
 

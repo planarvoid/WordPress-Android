@@ -10,14 +10,14 @@ import android.view.MenuItem;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class ActivityLightCycleDispatcher<T extends Activity> implements ActivityLightCycle<T> {
+public class ActivityLightCycleDispatcher<T extends Activity> implements ActivityLightCycle<T> {
     private final Set<ActivityLightCycle<T>> activityLightCycles;
 
     public ActivityLightCycleDispatcher() {
         this.activityLightCycles = new HashSet<>();
     }
 
-    public ActivityLightCycleDispatcher<T> add(ActivityLightCycle<T> component) {
+    public ActivityLightCycleDispatcher<T> attach(ActivityLightCycle<T> component) {
         this.activityLightCycles.add(component);
         return this;
     }

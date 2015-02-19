@@ -13,7 +13,7 @@ public class SuggestedUsersSyncActivity extends ScActivity {
     @Inject ActionBarController actionBarController;
 
     public SuggestedUsersSyncActivity() {
-        lightCycleDispatcher.add(actionBarController);
+        lightCycleDispatcher.attach(actionBarController);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class SupportFragmentLightCycleDispatcher<T extends Fragment> implements 
         this.fragmentLightCycles = new HashSet<>();
     }
 
-    public SupportFragmentLightCycleDispatcher<T> add(SupportFragmentLightCycle<T> lightCycle) {
+    public SupportFragmentLightCycleDispatcher<T> attach(SupportFragmentLightCycle<T> lightCycle) {
         fragmentLightCycles.add(lightCycle);
         return this;
     }

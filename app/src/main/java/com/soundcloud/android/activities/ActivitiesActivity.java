@@ -27,9 +27,9 @@ public class ActivitiesActivity extends ScActivity {
 
     public ActivitiesActivity() {
         lightCycleDispatcher
-                .add(playerController)
-                .add(adPlayerController)
-                .add(actionBarController);
+                .attach(playerController)
+                .attach(adPlayerController)
+                .attach(actionBarController);
         presenter.attach(this);
     }
 
