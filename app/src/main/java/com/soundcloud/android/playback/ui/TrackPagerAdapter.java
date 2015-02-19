@@ -222,6 +222,11 @@ public class TrackPagerAdapter extends PagerAdapter {
         final PlayerPagePresenter presenter = getPresenter(trackPageData);
         presenter.clearItemView(view);
 
+        if (isForeground){
+            // this will attach the cast button
+            presenter.onForeground(view);
+        }
+
         if (!subscribedTrackViews.contains(view)) {
             subscribeToPlayEvents(presenter, view);
             subscribedTrackViews.add(view);
