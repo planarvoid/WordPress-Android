@@ -4,7 +4,7 @@ import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_R
 import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_START_SYNC;
 
 import com.soundcloud.android.actionbar.menu.ActionMenuController;
-import com.soundcloud.android.lightcycle.DefaultFragmentLightCycle;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
-public class TrackLikesActionMenuController extends DefaultFragmentLightCycle {
+public class TrackLikesActionMenuController extends DefaultSupportFragmentLightCycle {
 
     private final Provider<ActionMenuController> actionMenuControllerProvider;
     private final OfflineContentOperations offlineOperations;
