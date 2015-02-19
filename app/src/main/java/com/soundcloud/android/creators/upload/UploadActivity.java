@@ -60,7 +60,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     @Inject ActionBarController actionBarController;
 
     public UploadActivity() {
-        lightCycleDispatcher.add(actionBarController);
+        lightCycleDispatcher.attach(actionBarController);
     }
 
 

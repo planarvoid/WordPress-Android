@@ -60,9 +60,9 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
 
     public SearchActivity() {
         lightCycleDispatcher
-                .add(playerController)
-                .add(adPlayerController)
-                .add(searchActionBarController);
+                .attach(playerController)
+                .attach(adPlayerController)
+                .attach(searchActionBarController);
         searchActionBarController.setSearchCallback(searchCallback);
         presenter.attach(this);
     }

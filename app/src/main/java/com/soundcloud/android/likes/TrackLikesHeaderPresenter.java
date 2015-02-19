@@ -5,6 +5,7 @@ import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -24,6 +25,7 @@ import rx.observables.ConnectableObservable;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.ListView;
 
@@ -31,7 +33,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class TrackLikesHeaderPresenter implements View.OnClickListener, ListHeaderPresenter {
+public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle implements View.OnClickListener, ListHeaderPresenter {
 
 
     private final TrackLikesHeaderView headerView;
@@ -83,7 +85,8 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener, ListHead
         headerView.attachToList(listView);
     }
 
-    public void onResume() {
+    @Override
+    public void onResume(Fragment fragment) {
         foregroundLifeCycle = new CompositeSubscription();
         foregroundLifeCycle.add(offlineContentOperations.onStarted()
                 .observeOn(AndroidSchedulers.mainThread())
@@ -94,7 +97,8 @@ public class TrackLikesHeaderPresenter implements View.OnClickListener, ListHead
                 .subscribe(new SyncFinishedOrIdleSubscriber()));
     }
 
-    public void onPause() {
+    @Override
+    public void onPause(Fragment fragment) {
         foregroundLifeCycle.unsubscribe();
     }
 

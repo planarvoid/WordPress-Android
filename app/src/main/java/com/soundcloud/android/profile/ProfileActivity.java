@@ -91,8 +91,8 @@ public class ProfileActivity extends ScActivity implements
     private int initialOtherFollowers;
 
     public ProfileActivity() {
-        lightCycleDispatcher.add(playerController);
-        lightCycleDispatcher.add(adPlayerController);
+        lightCycleDispatcher.attach(playerController);
+        lightCycleDispatcher.attach(adPlayerController);
         presenter.attach(this);
     }
 

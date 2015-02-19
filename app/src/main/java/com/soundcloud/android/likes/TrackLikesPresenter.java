@@ -68,6 +68,8 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
 
+        attach(actionMenuController);
+        attach(headerPresenter);
         setHeaderPresenter(headerPresenter);
     }
 
@@ -133,26 +135,14 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
 
     @Override
     public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
+        // TODO : remove that after merging https://github.com/soundcloud/SoundCloud-Android/pull/2780
         return actionMenuController.onOptionsItemSelected(fragment, item);
     }
 
-    @Override
-    public void onResume(Fragment fragment) {
-        super.onResume(fragment);
-        actionMenuController.onResume(fragment);
-        headerPresenter.onResume();
-    }
-
-    @Override
-    public void onPause(Fragment fragment) {
-        actionMenuController.onPause();
-        headerPresenter.onPause();
-        super.onPause(fragment);
-    }
 
     @Override
     public void onDestroyView(Fragment fragment) {
-        headerPresenter.onDestroyView();
+        // TODO create subscription light cycle
         viewLifeCycle.unsubscribe();
         super.onDestroyView(fragment);
     }

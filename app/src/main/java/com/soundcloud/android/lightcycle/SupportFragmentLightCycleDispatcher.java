@@ -10,14 +10,14 @@ import android.view.View;
 import java.util.HashSet;
 import java.util.Set;
 
-public final class SupportFragmentLightCycleDispatcher<T extends Fragment> implements SupportFragmentLightCycle<T> {
+public class SupportFragmentLightCycleDispatcher<T extends Fragment> implements SupportFragmentLightCycle<T> {
     private final Set<SupportFragmentLightCycle<T>> fragmentLightCycles;
 
     public SupportFragmentLightCycleDispatcher() {
         this.fragmentLightCycles = new HashSet<>();
     }
 
-    public SupportFragmentLightCycleDispatcher<T> add(SupportFragmentLightCycle<T> lightCycle) {
+    public SupportFragmentLightCycleDispatcher<T> attach(SupportFragmentLightCycle<T> lightCycle) {
         fragmentLightCycles.add(lightCycle);
         return this;
     }

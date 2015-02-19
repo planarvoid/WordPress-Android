@@ -72,10 +72,10 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     public MainActivity() {
         // graph injection happens in ScActivity
         lightCycleDispatcher
-                .add(playerController)
-                .add(adPlayerController)
-                .add(inAppCampaignController)
-                .add(actionBarController);
+                .attach(playerController)
+                .attach(adPlayerController)
+                .attach(inAppCampaignController)
+                .attach(actionBarController);
 
         presenter.attach(this);
     }

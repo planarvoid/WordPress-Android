@@ -117,19 +117,19 @@ public class TrackLikesPresenterTest {
     @Test
     public void shouldRedirectOnResumeToHeaderPresenter() {
         presenter.onResume(fragment);
-        verify(headerPresenter).onResume();
+        verify(headerPresenter).onResume(fragment);
     }
 
     @Test
     public void shouldRedirectOnPauseToActionMenuController() {
         presenter.onPause(fragment);
-        verify(actionMenuController).onPause();
+        verify(actionMenuController).onPause(fragment);
     }
 
     @Test
     public void shouldRedirectOnPauseToHeaderPresenter() {
         presenter.onPause(fragment);
-        verify(headerPresenter).onPause();
+        verify(headerPresenter).onPause(fragment);
     }
 
     @Test

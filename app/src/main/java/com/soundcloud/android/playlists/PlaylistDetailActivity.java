@@ -51,8 +51,8 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     public PlaylistDetailActivity() {
-        lightCycleDispatcher.add(playerController);
-        lightCycleDispatcher.add(adPlayerController);
+        lightCycleDispatcher.attach(playerController);
+        lightCycleDispatcher.attach(adPlayerController);
         presenter.attach(this);
     }
 
