@@ -140,6 +140,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
                 eventBus.subscribe(PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
                 eventBus.subscribe(OFFLINE_CONTENT, new OfflineSyncStopped()),
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                // TODO: Extract how the prependTrackOnLike and removeTrackOnUnlike sequence is created into an operations class for this screen
                 prependTrackOnLike(),
                 removeTrackOnUnlike()
         );
