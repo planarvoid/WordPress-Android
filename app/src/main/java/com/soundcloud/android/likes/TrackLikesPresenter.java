@@ -1,8 +1,12 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
+import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT;
+import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -14,12 +18,18 @@ import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
+import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
@@ -41,6 +51,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         implements AdapterView.OnItemClickListener {
 
     private final LikeOperations likeOperations;
+    private final TrackOperations trackOperations;
     private final PlaybackOperations playbackOperations;
     private final PagedTracksAdapter adapter;
     private final TrackLikesActionMenuController actionMenuController;
@@ -51,8 +62,17 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     private Subscription creationLifeCycle = Subscriptions.empty();
     private CompositeSubscription viewLifeCycle;
 
+    private Func1<EntityStateChangedEvent, Observable<PropertySet>> loadTrack = new Func1<EntityStateChangedEvent, Observable<PropertySet>>() {
+        @Override
+        public Observable<PropertySet> call(EntityStateChangedEvent entityStateChangedEvent) {
+            // This could actually just load the liked track cell representation, instead of the full representation
+            return trackOperations.track(entityStateChangedEvent.getNextUrn());
+        }
+    };
+
     @Inject
     TrackLikesPresenter(LikeOperations likeOperations,
+                        TrackOperations trackOperations,
                         PlaybackOperations playbackOperations,
                         PagedTracksAdapter adapter,
                         TrackLikesActionMenuController actionMenuController,
@@ -61,6 +81,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
                         ImageOperations imageOperations, PullToRefreshWrapper pullToRefreshWrapper) {
         super(imageOperations, pullToRefreshWrapper);
         this.likeOperations = likeOperations;
+        this.trackOperations = trackOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
         this.actionMenuController = actionMenuController;
@@ -77,7 +98,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        creationLifeCycle = eventBus.queue(EventQueue.OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
+        creationLifeCycle = eventBus.queue(OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
 
         getListBinding().connect();
     }
@@ -116,17 +137,28 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         listView.setOnItemClickListener(this);
 
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                eventBus.subscribe(EventQueue.OFFLINE_CONTENT, new DefaultSubscriber<OfflineContentEvent>() {
-                    @Override
-                    public void onNext(OfflineContentEvent event) {
-                        if (event.getKind() == OfflineContentEvent.STOP) {
-                            adapter.notifyDataSetChanged();
-                        }
-                    }
-                })
+                eventBus.subscribe(PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
+                eventBus.subscribe(OFFLINE_CONTENT, new OfflineSyncStopped()),
+                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                // TODO: Extract how the prependTrackOnLike and removeTrackOnUnlike sequence is created into an operations class for this screen
+                prependTrackOnLike(),
+                removeTrackOnUnlike()
         );
+    }
+
+    private Subscription prependTrackOnLike() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
+                .flatMap(loadTrack)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new PrependItemToListSubscriber(adapter));
+    }
+
+    private Subscription removeTrackOnUnlike() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new RemoveEntityListSubscriber(adapter));
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -173,4 +205,14 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
             }
         }
     }
+
+    private class OfflineSyncStopped extends DefaultSubscriber<OfflineContentEvent> {
+        @Override
+        public void onNext(OfflineContentEvent event) {
+            if (event.getKind() == OfflineContentEvent.STOP) {
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
 }

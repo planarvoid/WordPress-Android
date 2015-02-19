@@ -37,6 +37,20 @@ public final class EntityStateChangedEvent {
         }
     };
 
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isTrackLike() && event.getNextChangeSet().get(TrackProperty.IS_LIKED);
+        }
+    };
+
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isTrackLike() && !event.getNextChangeSet().get(TrackProperty.IS_LIKED);
+        }
+    };
+
     private final int kind;
     private final Map<Urn, PropertySet> changeMap;
 

@@ -57,8 +57,16 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable
         return items;
     }
 
+    public void prependItem(ItemT item) {
+        items.add(0, item);
+    }
+
     public void addItem(ItemT item) {
         items.add(item);
+    }
+
+    public void removeAt(int position) {
+        items.remove(position);
     }
 
     public void clear() {

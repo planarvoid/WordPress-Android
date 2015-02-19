@@ -66,6 +66,32 @@ public class ItemAdapterTest {
     }
 
     @Test
+    public void shouldPrependItem() {
+        adapter.addItem("item1");
+
+        adapter.prependItem("item0");
+
+        List<String> items = adapter.getItems();
+        expect(items.size()).toEqual(2);
+        expect(items.get(0)).toEqual("item0");
+        expect(items.get(1)).toEqual("item1");
+    }
+
+    @Test
+    public void shouldRemoveItemAtPosition() {
+        adapter.addItem("item1");
+        adapter.addItem("item2");
+        adapter.addItem("item3");
+
+        adapter.removeAt(1);
+
+        List<String> items = adapter.getItems();
+        expect(items.size()).toEqual(2);
+        expect(items.get(0)).toEqual("item1");
+        expect(items.get(1)).toEqual("item3");
+    }
+
+    @Test
     public void shouldDefaultToIdentityForItemIdFunction() {
         expect(adapter.getItemId(1)).toBe(1L);
     }

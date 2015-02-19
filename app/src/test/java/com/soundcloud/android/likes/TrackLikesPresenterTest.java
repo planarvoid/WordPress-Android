@@ -8,9 +8,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -20,6 +22,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.propeller.PropertySet;
@@ -47,9 +50,12 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesPresenterTest {
 
+    public static final Urn TRACK_URN = Urn.forTrack(123);
+
     private TrackLikesPresenter presenter;
 
     @Mock private LikeOperations likeOperations;
+    @Mock private TrackOperations trackOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PagedTracksAdapter adapter;
     @Mock private TrackLikesActionMenuController actionMenuController;
@@ -72,7 +78,7 @@ public class TrackLikesPresenterTest {
 
     @Before
     public void setup() {
-        presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
+        presenter = new TrackLikesPresenter(likeOperations, trackOperations, playbackOperations,
                 adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
                 eventBus, imageOperations, pullToRefreshWrapper);
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
@@ -151,7 +157,7 @@ public class TrackLikesPresenterTest {
     public void shouldPlayLikedTracksOnListItemClick() {
         PropertySet clickedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
         when(listView.getItemAtPosition(0)).thenReturn(clickedTrack);
-        final List<Urn> likedUrns = Arrays.asList(Urn.forTrack(123));
+        final List<Urn> likedUrns = Arrays.asList(TRACK_URN);
         final Observable<List<Urn>> likedUrnsObservable = Observable.just(likedUrns);
         when(likeOperations.likedTrackUrns()).thenReturn(likedUrnsObservable);
         when(playbackOperations.playTracks(
@@ -211,5 +217,30 @@ public class TrackLikesPresenterTest {
         presenter.onDestroyView(fragment);
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldPrependTrackOnLikedEvent() {
+        PropertySet track = TestPropertySets.fromApiTrack();
+        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(track));
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK_URN, true, 5));
+
+        verify(adapter).prependItem(track);
+    }
+
+    @Test
+    public void shouldRemoveTrackOnUnlikedEvent() {
+        PropertySet item = PropertySet.from(EntityProperty.URN.bind(TRACK_URN));
+        when(adapter.getCount()).thenReturn(1);
+        when(adapter.getItem(0)).thenReturn(item);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK_URN, false, 5));
+
+        verify(adapter).removeAt(0);
     }
 }
