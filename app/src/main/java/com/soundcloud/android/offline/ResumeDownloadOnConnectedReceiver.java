@@ -42,7 +42,7 @@ public class ResumeDownloadOnConnectedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (connectionHelper.networkIsConnected()) {
+        if (connectionHelper.isNetworkConnected()) {
             OfflineContentService.start(context);
         }
     }

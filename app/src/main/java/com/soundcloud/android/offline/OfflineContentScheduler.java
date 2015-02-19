@@ -41,7 +41,7 @@ public class OfflineContentScheduler {
     }
 
     public void scheduleRetry(){
-        if (!networkConnectionHelper.networkIsConnected()){
+        if (!networkConnectionHelper.isNetworkConnected()){
             resumeOnConnectedReceiver.register();
         }
         scheduleDelayedRetry(System.currentTimeMillis() + RETRY_DELAY);

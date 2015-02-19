@@ -163,21 +163,21 @@ public class NetworkConnectionHelperTest {
     @Test
     public void shouldReturnFalseWhenCheckingConnectivityAndNetworkInfoIsNull() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(null);
-        expect(networkConnectionHelper.networkIsConnected()).toBeFalse();
+        expect(networkConnectionHelper.isNetworkConnected()).toBeFalse();
     }
 
     @Test
     public void shouldReturnFalseWhenCheckingConnectivityAndNetworkIsNotConnectedOrConnecting() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(false);
-        expect(networkConnectionHelper.networkIsConnected()).toBeFalse();
+        expect(networkConnectionHelper.isNetworkConnected()).toBeFalse();
     }
 
     @Test
     public void shouldReturnTrueWhenCheckingConnectivityAndNetworkIsConnectedOrConnecting() {
         when(connectivityManager.getActiveNetworkInfo()).thenReturn(networkInfo);
         when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
-        expect(networkConnectionHelper.networkIsConnected()).toBeTrue();
+        expect(networkConnectionHelper.isNetworkConnected()).toBeTrue();
     }
 
     @Test

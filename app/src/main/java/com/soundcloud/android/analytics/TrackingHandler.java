@@ -76,7 +76,7 @@ class TrackingHandler extends Handler {
     private void flushTrackingEvents(Message flushMessage) {
         final String backend = (String) flushMessage.obj;
 
-        if (networkConnectionHelper.networkIsConnected()) {
+        if (networkConnectionHelper.isNetworkConnected()) {
             Log.d(EventTracker.TAG, "flushing tracking events (backend = " + backend + ")");
             List<TrackingRecord> events = backend == null ? storage.getPendingEvents() : storage.getPendingEventsForBackend(backend);
 

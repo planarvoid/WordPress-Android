@@ -47,7 +47,7 @@ public class OfflineContentSchedulerTest {
 
     @Test
     public void schedulerRetryDoesNotRegistersConnectionListenerToRetryIfAlreadyConnected() throws Exception {
-        when(networkConnectionHelper.networkIsConnected()).thenReturn(true);
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         scheduler.scheduleRetry();
         verify(resumeReceiver, never()).register();
     }

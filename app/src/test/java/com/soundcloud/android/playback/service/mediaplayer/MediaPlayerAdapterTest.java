@@ -368,7 +368,7 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void playUrlShouldSetErrorStateWithNotFoundIfProxyObservableCallsOnErrorWhileConnected() {
-        when(networkConnectionHelper.networkIsConnected()).thenReturn(true);
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         when(streamProxy.uriObservable(streamUrlWithId, null)).thenReturn(Observable.<Uri>error(new IOException("uhoh")));
         mediaPlayerAdapter.play(track);
 

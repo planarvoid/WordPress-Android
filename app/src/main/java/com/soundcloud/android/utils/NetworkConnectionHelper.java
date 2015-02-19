@@ -55,7 +55,7 @@ public class NetworkConnectionHelper {
         }
     }
 
-    public boolean networkIsConnected(){
+    public boolean isNetworkConnected(){
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }

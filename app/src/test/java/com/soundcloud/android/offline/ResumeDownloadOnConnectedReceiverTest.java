@@ -79,7 +79,7 @@ public class ResumeDownloadOnConnectedReceiverTest {
 
     @Test
     public void onReceiveStartsSyncServiceIfConnected() throws Exception {
-        when(networkConnectionHelper.networkIsConnected()).thenReturn(true);
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
 
         receiver.onReceive(Robolectric.application, null);
 

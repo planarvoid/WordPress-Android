@@ -33,7 +33,7 @@ public class TrackingHandlerTest {
 
     @Before
     public void before() {
-        when(networkConnectionHelper.networkIsConnected()).thenReturn(true);
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
         trackingHandler = new TrackingHandler(Robolectric.application.getMainLooper(), networkConnectionHelper, storage, api);
     }
 
@@ -52,7 +52,7 @@ public class TrackingHandlerTest {
 
     @Test
     public void shouldNotFlushTrackingEventsWithNoConnection() throws Exception {
-        when(networkConnectionHelper.networkIsConnected()).thenReturn(false);
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(false);
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
         verifyZeroInteractions(storage);
     }

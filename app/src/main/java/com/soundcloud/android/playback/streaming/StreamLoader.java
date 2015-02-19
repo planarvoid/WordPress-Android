@@ -256,7 +256,7 @@ public class StreamLoader {
     }
 
     private boolean isConnected() {
-        return forceOnline || connectivityHelper.networkIsConnected();
+        return forceOnline || connectivityHelper.isNetworkConnected();
     }
 
     private DataTask startDataTask(StreamItem item, Range chunkRange, int prio) {

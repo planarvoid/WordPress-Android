@@ -547,7 +547,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private Reason getTranslatedReason() {
         switch (internalState) {
             case ERROR:
-                return networkConnectionHelper.networkIsConnected() ? Reason.ERROR_NOT_FOUND : Reason.ERROR_FAILED;
+                return networkConnectionHelper.isNetworkConnected() ? Reason.ERROR_NOT_FOUND : Reason.ERROR_FAILED;
             case COMPLETED:
                 return Reason.TRACK_COMPLETE;
             default:
