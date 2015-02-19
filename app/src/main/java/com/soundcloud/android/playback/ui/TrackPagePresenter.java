@@ -453,7 +453,6 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
         // set initial media route button state
         holder.mediaRouteButton = (MediaRouteButton) trackView.findViewById(R.id.media_route_button);
-        castConnectionHelper.addMediaRouterButton(holder.mediaRouteButton);
 
         holder.footer = trackView.findViewById(R.id.footer_controls);
         holder.footerPlayToggle = (ToggleButton) trackView.findViewById(R.id.footer_toggle);
