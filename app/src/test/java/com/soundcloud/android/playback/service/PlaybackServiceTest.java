@@ -154,6 +154,16 @@ public class PlaybackServiceTest {
     }
 
     @Test
+    public void onStartWithNullIntentStopsSelf() throws Exception {
+        playbackService.onCreate();
+        playbackService.onStartCommand(null, 0, 0);
+        Robolectric.runUiThreadTasksIncludingDelayedTasks();
+
+        ShadowService service = Robolectric.shadowOf(playbackService);
+        expect(service.isStoppedBySelf()).toBeTrue();
+    }
+
+    @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
         when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
