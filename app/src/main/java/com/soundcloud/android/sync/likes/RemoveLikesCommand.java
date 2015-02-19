@@ -16,9 +16,12 @@ import java.util.List;
 
 class RemoveLikesCommand extends StoreCommand<Collection<PropertySet>> {
 
+    private final int type;
+
     @Inject
-    RemoveLikesCommand(PropellerDatabase database) {
+    RemoveLikesCommand(PropellerDatabase database, int type) {
         super(database);
+        this.type = type;
     }
 
     @Override
@@ -27,6 +30,8 @@ class RemoveLikesCommand extends StoreCommand<Collection<PropertySet>> {
         for (PropertySet like : input) {
             ids.add(like.get(LikeProperty.TARGET_URN).getNumericId());
         }
-        return database.delete(Table.Likes, new WhereBuilder().whereIn(TableColumns.Likes._ID, ids));
+        return database.delete(Table.Likes, new WhereBuilder()
+                .whereIn(TableColumns.Likes._ID, ids)
+                .whereEq(TableColumns.Likes._TYPE, type));
     }
 }

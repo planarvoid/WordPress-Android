@@ -10,6 +10,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
 import dagger.Provides;
 
@@ -25,7 +26,8 @@ public class LikesSyncModule {
             @Named("TrackLikeAdditions") PushLikeAdditionsCommand pushLikeAdditions,
             @Named("TrackLikeDeletions") PushLikeDeletionsCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
-            StoreTracksCommand storeTracks, StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes) {
+            StoreTracksCommand storeTracks, StoreLikesCommand storeLikes,
+            @Named("RemoveTrackLikes") RemoveLikesCommand removeLikes) {
         return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS), fetchTracks, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_TRACK),
                 loadLikesPendingAddition.with(Sounds.TYPE_TRACK), loadLikesPendingRemoval.with(Sounds.TYPE_TRACK), storeTracks, storeLikes,
                 removeLikes);
@@ -38,7 +40,8 @@ public class LikesSyncModule {
             @Named("PlaylistLikeAdditions") PushLikeAdditionsCommand pushLikeAdditions,
             @Named("PlaylistLikeDeletions") PushLikeDeletionsCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
-            StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes, RemoveLikesCommand removeLikes) {
+            StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes,
+            @Named("RemovePlaylistLikes") RemoveLikesCommand removeLikes) {
         return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_PLAYLISTS), fetchPlaylists, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_PLAYLIST),
                 loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST), loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST), storePlaylists, storeLikes,
                 removeLikes);
@@ -66,5 +69,17 @@ public class LikesSyncModule {
     @Named("PlaylistLikeDeletions")
     PushLikeDeletionsCommand providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
         return new PushLikeDeletionsCommand(apiClient, ApiEndpoints.DELETE_PLAYLIST_LIKES);
+    }
+
+    @Provides
+    @Named("RemoveTrackLikes")
+    RemoveLikesCommand provideRemoveTrackLikesCommand(PropellerDatabase database) {
+        return new RemoveLikesCommand(database, Sounds.TYPE_TRACK);
+    }
+
+    @Provides
+    @Named("RemovePlaylistLikes")
+    RemoveLikesCommand provideRemovePlaylistLikesCommand(PropellerDatabase database) {
+        return new RemoveLikesCommand(database, Sounds.TYPE_PLAYLIST);
     }
 }
