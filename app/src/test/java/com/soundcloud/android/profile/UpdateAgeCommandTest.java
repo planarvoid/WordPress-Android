@@ -30,7 +30,7 @@ public class UpdateAgeCommandTest {
 
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(response);
 
-        BirthdayInfo info = new BirthdayInfo(10, 1972);
+        BirthdayInfo info = BirthdayInfo.buildFrom(10, 1972);
         UpdateAgeCommand command = new UpdateAgeCommand(apiClient).with(info);
         assertThat(command.call(), is(true));
 

@@ -99,7 +99,7 @@
     <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
     <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
     <string name="authentication_add_info_username_hint">Your username</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">By signing up I agree to the Terms of Use and Privacy policy of SoundCloud.</string>
+    <string name="onboarding_agreement_statement">By signing up I agree to the Terms of Use and Privacy policy of SoundCloud.</string>
     <string name="authentication_choose_a_password">At least 6 characters</string>
     <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
     <string name="authentication_error_invalid_email">Please enter a valid email.</string>
@@ -313,6 +313,16 @@
     <string name="try_again">Try Again</string>
     <string name="finish">Finish</string>
     <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
+    <string name="birthday">Birthday</string>
+    <string name="gender">Gender</string>
+    <string name="onboarding_create_account">Create an account</string>
+    <string name="onboarding_enter_year">Enter year</string>
+    <string name="onboarding_indicate_gender">Indicate your gender</string>
+    <string name="onboarding_custom_gender_hint">Enter gender</string>
+    <string name="onboarding_gender_option_female">Female</string>
+    <string name="onboarding_gender_option_male">Male</string>
+    <string name="onboarding_gender_option_custom">Custom</string>
+    <string name="onboarding_gender_option_nopref">Prefer not to say</string>
 
     <!-- __ONBOARDING CATEGORIES -->
     <string tools:ignore="UnusedResources" name="category_facebook_friends">Facebook Friends</string>
@@ -706,7 +716,7 @@
     <string name="tour_text_2">All kinds of new and\nunique music &amp; audio</string>
     <string name="tour_title_3">Connect &amp; Share</string>
     <string name="tour_text_3">Find music &amp; audio creators\nto hear and follow,\nshare the sounds you love</string>
-    <string name="tour_signup_header">Or sign up with your email address</string>
+    <string name="tour_signup_button">Sign up with your email address</string>
     <string name="tour_login_header">Or sign in with your account</string>
 
     <!-- __UPLOAD -->
@@ -756,8 +766,10 @@
     <string name="age_verify_birthday">Your birthday</string>
     <string name="age_verify_year_hint">Enter year</string>
     <string name="age_verify_button">Verify age</string>
-    <string-array name="birth_month_options">
-        <item>Select month</item>
+
+    <!-- MONTH PICKER DIALOG -->
+    <string name="select_month">Select month</string>
+    <string-array name="select_month_options">
         <item>January</item>
         <item>February</item>
         <item>March</item>

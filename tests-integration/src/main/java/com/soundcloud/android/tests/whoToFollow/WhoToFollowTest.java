@@ -1,21 +1,22 @@
 package com.soundcloud.android.tests.whoToFollow;
 
 
-import static com.soundcloud.android.framework.TestUser.generateEmail;
-
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.HomeScreen;
-import com.soundcloud.android.screens.auth.SignUpScreen;
+import com.soundcloud.android.screens.auth.SignUpBasicsScreen;
+import com.soundcloud.android.screens.auth.SignUpMethodScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.tests.ActivityTest;
+
+import static com.soundcloud.android.framework.TestUser.generateEmail;
 
 public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
     private Waiter waiter;
     protected HomeScreen homeScreen;
-    protected SignUpScreen signUpScreen;
+    protected SignUpMethodScreen signUpScreen;
     protected SuggestedUsersScreen suggestedUsersScreen;
     protected SuggestedUsersCategoryScreen suggestedUsersCategoryScreen;
 
@@ -25,7 +26,7 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
     public void setUp() throws Exception {
         super.setUp();
-        signUpScreen  = new SignUpScreen(solo);
+        signUpScreen  = new SignUpMethodScreen(solo);
         waiter = new Waiter(solo);
     }
 
@@ -68,16 +69,18 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
     private void createNewUser() {
         homeScreen = new HomeScreen(solo);
-        homeScreen.clickSignUpButton();
+        SignUpMethodScreen signUpMethodScreen = homeScreen.clickSignUpButton();
+        SignUpBasicsScreen signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
+
 
         // TODO : Re-use the same user
-        signUpScreen.typeEmail(generateEmail());
-        signUpScreen.typePassword("password123");
+        signUpBasicsScreen.typeEmail(generateEmail());
+        signUpBasicsScreen.typePassword("password123");
 
-        signUpScreen.signup();
-        signUpScreen.acceptTerms();
-        signUpScreen.skipInfo();
-        suggestedUsersScreen = signUpScreen.waitForSuggestedUsers();
+        signUpBasicsScreen.signup();
+        signUpBasicsScreen.acceptTerms();
+        signUpBasicsScreen.skipSignUpDetails();
+        suggestedUsersScreen = signUpBasicsScreen.waitForSuggestedUsers();
     }
 
 }

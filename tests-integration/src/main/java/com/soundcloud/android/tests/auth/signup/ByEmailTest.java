@@ -2,27 +2,26 @@ package com.soundcloud.android.tests.auth.signup;
 
 import static com.soundcloud.android.framework.TestUser.generateEmail;
 
-import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailTest extends SignUpTest {
-    private ProfileScreen userProfile;
-
-    public ByEmailTest() {
-        super();
-    }
 
     public void testUserFollowSingleSuccess() throws Exception {
-        signUpScreen = homeScreen.clickSignUpButton();
+        signUpMethodScreen = homeScreen.clickSignUpButton();
+        signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
 
         // TODO : Re-use the same user
-        signUpScreen.typeEmail(generateEmail());
-        signUpScreen.typePassword("password123");
+        signUpBasicsScreen.typeEmail(generateEmail());
+        signUpBasicsScreen.typePassword("password123");
+        signUpBasicsScreen.chooseBirthMonth("May");
+        signUpBasicsScreen.typeBirthYear("1995");
+        signUpBasicsScreen.chooseGender("Custom");
+        signUpBasicsScreen.typeCustomGender("Genderqueer");
 
-        signUpScreen.signup();
-        signUpScreen.acceptTerms();
-        signUpScreen.skipInfo();
-        suggestedUsersScreen = signUpScreen.waitForSuggestedUsers();
+        signUpBasicsScreen.signup();
+        signUpBasicsScreen.acceptTerms();
+        signUpBasicsScreen.skipSignUpDetails();
+        suggestedUsersScreen = signUpBasicsScreen.waitForSuggestedUsers();
 
         assertTrue(suggestedUsersScreen.hasContent());
         assertTrue(suggestedUsersScreen.hasMusicSection());

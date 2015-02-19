@@ -1,13 +1,5 @@
 package com.soundcloud.android.onboarding;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static java.lang.Math.max;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.tasks.ParallelAsyncTask;
-import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -23,6 +15,14 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.tasks.ParallelAsyncTask;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static java.lang.Math.max;
 
 public class TourLayout extends FrameLayout {
     public static final int IMAGE_LOADED = 1;
@@ -125,10 +125,9 @@ public class TourLayout extends FrameLayout {
                                 size.x,
                                 size.y
                         );
-                    } catch (Error ignored) { // will catch OOM
+                    } catch (Error | Exception ignored) {
                         Log.w(TAG, ignored);
-                    } catch (Exception ignored) {
-                        Log.w(TAG, ignored);
+                        ErrorUtils.handleSilentException(ignored);
                     }
                     publishProgress(Pair.create(layout, bitmap));
                 }
@@ -136,7 +135,7 @@ public class TourLayout extends FrameLayout {
             }
 
             @Override
-            protected void onProgressUpdate(Pair<TourLayout, Bitmap>... result) {
+            protected final void onProgressUpdate(Pair<TourLayout, Bitmap>... result) {
                 result[0].first.onBitmapLoaded(result[0].second);
             }
         }.executeOnThreadPool(layouts);

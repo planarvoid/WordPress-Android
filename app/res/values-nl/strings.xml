@@ -85,7 +85,7 @@
     <string name="authentication_add_info_add_image_msg">Lach! Deze afbeelding zal op uw profiel verschijnen.</string>
     <string name="authentication_add_info_msg">Bijna klaar. Kies nu een gebruikersnaam en voeg een foto aan uw profiel toe om het te personaliseren.</string>
     <string name="authentication_add_info_username_hint">Uw gebruikersnaam</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">Door mij aan te melden, ga ik akkoord met de Gebruiksvoorwaarden en het Privacybeleid van SoundCloud.</string>
+    <string name="onboarding_agreement_statement">Door mij aan te melden, ga ik akkoord met de Gebruiksvoorwaarden en het Privacybeleid van SoundCloud.</string>
     <string name="authentication_choose_a_password">Minstens 6 tekens</string>
     <string name="authentication_error_incomplete_fields">Vul a.u.b. alle velden in.</string>
     <string name="authentication_error_invalid_email">Voer a.u.b. een geldig e-mailadres in.</string>
@@ -519,7 +519,6 @@
     <string name="tour_text_2">Vele soorten nieuwe en\nunieke muziek en audio</string>
     <string name="tour_title_3">Verbind &amp; Deel</string>
     <string name="tour_text_3">Vind muziek &amp; audio makers\nom te horen en volgen,\ndeel de geluiden waar u van houd</string>
-    <string name="tour_signup_header">Of meld u aan met uw e-mailadres</string>
     <string name="tour_login_header">Of log in met uw account</string>
 
     <!-- __UPLOAD -->

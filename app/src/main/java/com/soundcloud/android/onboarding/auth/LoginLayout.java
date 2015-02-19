@@ -1,15 +1,19 @@
 package com.soundcloud.android.onboarding.auth;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.OnEditorAction;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -21,7 +25,11 @@ import android.widget.TextView;
 public class LoginLayout extends AuthLayout {
     private static final String BUNDLE_EMAIL = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
-    @Nullable private LoginHandler loginHandler;
+    @NotNull private LoginHandler loginHandler; // null at creation but must be set before using
+
+    @InjectView(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
+    @InjectView(R.id.txt_password) EditText passwordField;
+    @InjectView(R.id.btn_login) Button loginButton;
 
     public LoginLayout(Context context) {
         super(context);
@@ -35,11 +43,11 @@ public class LoginLayout extends AuthLayout {
         super(context, attrs, defStyle);
     }
 
-    public LoginHandler getLoginHandler() {
+    public @NotNull LoginHandler getLoginHandler() {
         return loginHandler;
     }
 
-    public void setLoginHandler(LoginHandler loginHandler) {
+    public void setLoginHandler(@NotNull LoginHandler loginHandler) {
         this.loginHandler = loginHandler;
     }
 
@@ -53,7 +61,7 @@ public class LoginLayout extends AuthLayout {
         return bundle;
     }
 
-    public void setState(@Nullable Bundle bundle) {
+    public void setStateFromBundle(@Nullable Bundle bundle) {
         if (bundle == null) {
             return;
         }
@@ -65,81 +73,64 @@ public class LoginLayout extends AuthLayout {
         passwordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
     }
 
-    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
 
-        final Context context = getContext();
+        ButterKnife.inject(this);
 
-        final AutoCompleteTextView emailField = (AutoCompleteTextView) findViewById(R.id.auto_txt_email_address);
-        final EditText passwordField = (EditText) findViewById(R.id.txt_password);
-        final Button loginButton = (Button) findViewById(R.id.btn_login);
-        final Button cancelButton = (Button) findViewById(R.id.btn_cancel);
-
-        passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @SuppressWarnings({"SimplifiableIfStatement"})
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean done = actionId == EditorInfo.IME_ACTION_DONE;
-                boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
-                boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
-
-                if (done || pressedEnter && downAction) {
-                    return loginButton.performClick();
-                } else {
-                    return false;
-                }
-            }
-        });
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 getContext(), R.layout.onboard_email_dropdown_item, AndroidUtils.listEmails(getContext()));
         emailField.setAdapter(adapter);
         emailField.setThreshold(0);
-
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
-                    AndroidUtils.showToast(context, R.string.authentication_error_incomplete_fields);
-                } else {
-
-                    final String email = emailField.getText().toString();
-                    final String password = passwordField.getText().toString();
-
-                    if (getLoginHandler() != null) {
-                        getLoginHandler().onLogin(email, password);
-                    }
-                }
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getLoginHandler() != null) {
-                    getLoginHandler().onCancelLogin();
-                }
-
-                InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
-                imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
-            }
-        });
 
         ScTextUtils.clickify(((TextView) findViewById(R.id.txt_i_forgot_my_password)),
                 getResources().getString(R.string.authentication_I_forgot_my_password),
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
-                        if (getLoginHandler() != null) {
-                            getLoginHandler().onRecover(emailField.getText().toString());
-                        }
+                        getLoginHandler().onRecoverPassword(emailField.getText().toString());
                     }
                 }, true, false);
     }
 
+    @OnEditorAction(R.id.txt_password) @SuppressWarnings({"SimplifiableIfStatement"})
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        boolean done = actionId == EditorInfo.IME_ACTION_DONE;
+        boolean pressedEnter = event != null && event.getKeyCode() == KeyEvent.KEYCODE_ENTER;
+        boolean downAction = event != null && event.getAction() == KeyEvent.ACTION_DOWN;
+
+        if (done || pressedEnter && downAction) {
+            return loginButton.performClick();
+        } else {
+            return false;
+        }
+    }
+
+    @OnClick(R.id.btn_login)
+    public void onLoginClick() {
+        if (emailField.getText().length() == 0 || passwordField.getText().length() == 0) {
+            AndroidUtils.showToast(getContext(), R.string.authentication_error_incomplete_fields);
+        } else {
+
+            final String email = emailField.getText().toString();
+            final String password = passwordField.getText().toString();
+
+            getLoginHandler().onLogin(email, password);
+        }
+    }
+
+    @OnClick(R.id.btn_cancel)
+    public void onCancelClick() {
+        getLoginHandler().onCancelLogin();
+
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(passwordField.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(emailField.getWindowToken(), 0);
+    }
+
     @Override
-    AuthHandler getAuthHandler() {
+    protected AuthHandler getAuthHandler() {
         return loginHandler;
     }
 
@@ -148,6 +139,6 @@ public class LoginLayout extends AuthLayout {
 
         void onCancelLogin();
 
-        void onRecover(String email);
+        void onRecoverPassword(String email);
     }
 }

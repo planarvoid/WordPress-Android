@@ -35,7 +35,7 @@ public final class Consts {
         public static final int MAKE_CONNECTION = 9004;
 
         public static final int SIGNUP_VIA_FACEBOOK = 8001;
-        public static final int RECOVER_CODE = 8002;
+        public static final int RECOVER_PASSWORD_CODE = 8002;
         public static final int SIGNUP_VIA_GOOGLE = 8003;
         public static final int RECOVER_FROM_PLAY_SERVICES_ERROR = 8004;
     }

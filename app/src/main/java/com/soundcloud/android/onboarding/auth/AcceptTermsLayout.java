@@ -27,8 +27,6 @@ public class AcceptTermsLayout extends RelativeLayout {
 
         void onShowPrivacyPolicy();
 
-        void onShowCookiePolicy();
-
         void onRejectTerms();
     }
 

@@ -85,7 +85,7 @@
     <string name="authentication_add_info_add_image_msg">Souriez ! Cette image apparaîtra sur votre profil.</string>
     <string name="authentication_add_info_msg">C\'est presque fini. Choisissez maintenant un nom d\'utilisateur et ajoutez une photo pour personnaliser votre profil.</string>
     <string name="authentication_add_info_username_hint">Votre nom d\'utilisateur</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">En m\'inscrivant, j\'accepte les Conditions d\'utilisation et la Politique de confidentialité de SoundCloud.</string>
+    <string name="onboarding_agreement_statement">En m\'inscrivant, j\'accepte les Conditions d\'utilisation et la Politique de confidentialité de SoundCloud.</string>
     <string name="authentication_choose_a_password">Au moins 6 caractères</string>
     <string name="authentication_error_incomplete_fields">Veuillez remplir tous les champs.</string>
     <string name="authentication_error_invalid_email">Veuillez entrer un email valide.</string>
@@ -519,7 +519,6 @@
     <string name="tour_text_2">Tous genres de musiques et\nsons nouveaux &amp; inédits</string>
     <string name="tour_title_3">Connectez-vous et partagez</string>
     <string name="tour_text_3">Trouvez la musique et les créateurs audio\nà entendre et à suivre,\npartagez les sons que vous aimez</string>
-    <string name="tour_signup_header">Ou connectez-vous avec votre adresse email</string>
     <string name="tour_login_header">Ou connectez-vous avec votre compte</string>
 
     <!-- __UPLOAD -->

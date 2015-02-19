@@ -30,21 +30,21 @@ import android.widget.Toast;
 
 import java.io.File;
 
-public class UserDetailsLayout extends RelativeLayout {
+public class SignupDetailsLayout extends RelativeLayout {
     private static final String BUNDLE_USERNAME = "BUNDLE_USERNAME";
     private static final String BUNDLE_FILE = "BUNDLE_FILE";
     @Nullable private UserDetailsHandler userDetailsHandler;
     @Nullable private File avatarFile;
 
-    public UserDetailsLayout(Context context) {
+    public SignupDetailsLayout(Context context) {
         super(context);
     }
 
-    public UserDetailsLayout(Context context, AttributeSet attrs) {
+    public SignupDetailsLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public UserDetailsLayout(Context context, AttributeSet attrs, int defStyle) {
+    public SignupDetailsLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
@@ -164,7 +164,7 @@ public class UserDetailsLayout extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSkipDetails();
+                    getUserDetailsHandler().onSkipUserDetails();
                 }
             }
         });
@@ -173,7 +173,7 @@ public class UserDetailsLayout extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 if (getUserDetailsHandler() != null) {
-                    getUserDetailsHandler().onSubmitDetails(username.getText().toString(), avatarFile);
+                    getUserDetailsHandler().onSubmitUserDetails(username.getText().toString(), avatarFile);
                 }
             }
         });
@@ -217,9 +217,9 @@ public class UserDetailsLayout extends RelativeLayout {
     }
 
     public interface UserDetailsHandler {
-        void onSubmitDetails(String username, File avatarFile);
+        void onSubmitUserDetails(String username, File avatarFile);
 
-        void onSkipDetails();
+        void onSkipUserDetails();
 
         FragmentActivity getFragmentActivity();
     }

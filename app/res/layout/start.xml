@@ -47,11 +47,15 @@
                           style="@style/SignUp.Content.Stub"/>
 
                 <ViewStub android:id="@+id/sign_up_stub"
-                          android:layout="@layout/signup"
+                          android:layout="@layout/signup_method"
+                          style="@style/SignUp.Content.Stub"/>
+
+                <ViewStub android:id="@+id/sign_up_basic_stub"
+                          android:layout="@layout/signup_basics"
                           style="@style/SignUp.Content.Stub"/>
 
                 <ViewStub android:id="@+id/user_details_stub"
-                          android:layout="@layout/signup_details"
+                          android:layout="@layout/signup_user_details"
                           style="@style/SignUp.Content.Stub"/>
 
                 <ViewStub android:id="@+id/accept_terms_stub"

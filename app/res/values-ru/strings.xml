@@ -81,7 +81,7 @@
     <string name="authentication_add_info_add_image_msg">Улыбнитесь! Это изображение будет показано в вашем профиле.</string>
     <string name="authentication_add_info_msg">Почти готово. Теперь добавьте своему профилю индивидуальности: выберите имя пользователя и загрузите фотографию.</string>
     <string name="authentication_add_info_username_hint">Имя пользователя</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">Регистрируясь, я соглашаюсь с \"Условиями использования\" и \"Политикой конфиденциальности\" SoundCloud.</string>
+    <string name="onboarding_agreement_statement">Регистрируясь, я соглашаюсь с \"Условиями использования\" и \"Политикой конфиденциальности\" SoundCloud.</string>
     <string name="authentication_choose_a_password">Не менее 6 символов</string>
     <string name="authentication_error_incomplete_fields">Пожалуйста, заполните все поля.</string>
     <string name="authentication_error_invalid_email">Пожалуйста, введите существующий адрес электронной почты.</string>
@@ -489,7 +489,6 @@
     <string name="tour_text_2">Новая и уникальная музыка \nи аудио любых жанров</string>
     <string name="tour_title_3">Связаться и поделиться</string>
     <string name="tour_text_3">Найдите создателей музыки и аудио, \nслушайте их, подписывайтесь, и\nделитесь музыкой, которая вам понравилась</string>
-    <string name="tour_signup_header">Или зарегистрируйтесь со своим адресом электронной почты</string>
     <string name="tour_login_header">Или войдите, используя свою учетную запись</string>
 
     <!-- __UPLOAD -->

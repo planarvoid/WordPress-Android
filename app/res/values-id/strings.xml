@@ -85,7 +85,7 @@
     <string name="authentication_add_info_add_image_msg">Senyum! Gambar ini akan muncul di profilmu.</string>
     <string name="authentication_add_info_msg">Hampir selesai. Sekarang pilih nama pengguna dan tambahkan foto untuk melengkapi profil kamu.</string>
     <string name="authentication_add_info_username_hint">Nama pengguna kamu</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">Dengan mendaftar, saya setuju dengan Syarat Penggunaan dan Kebijakan Privasi SoundCloud.</string>
+    <string name="onboarding_agreement_statement">Dengan mendaftar, saya setuju dengan Syarat Penggunaan dan Kebijakan Privasi SoundCloud.</string>
     <string name="authentication_choose_a_password">Minimal 6 karakter</string>
     <string name="authentication_error_incomplete_fields">Silakan isi semua kolom.</string>
     <string name="authentication_error_invalid_email">Silakan masukkan surel yang valid.</string>
@@ -519,7 +519,6 @@
     <string name="tour_text_2">Semua jenis musik dan\naudio yang baru serta unik</string>
     <string name="tour_title_3">Hubungkan dan Bagikan</string>
     <string name="tour_text_3">Cari musik dan pencipta audio\nuntuk didengar dan diikuti,\nbagi suara yang kamu sukai</string>
-    <string name="tour_signup_header">Atau mendaftar dengan alamat surelmu</string>
     <string name="tour_login_header">Atau masuk dengan akunmu</string>
 
     <!-- __UPLOAD -->
