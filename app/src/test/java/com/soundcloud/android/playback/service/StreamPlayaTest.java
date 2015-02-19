@@ -11,8 +11,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -30,8 +30,6 @@ import org.mockito.Mock;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.Date;
-
 @RunWith(SoundCloudTestRunner.class)
 public class StreamPlayaTest {
 
@@ -47,7 +45,7 @@ public class StreamPlayaTest {
     @Mock private BufferingPlaya bufferingPlaya;
     @Mock private Playa.PlayaListener playaListener;
     @Mock private StreamPlaya.PlayerSwitcherInfo playerSwitcherInfo;
-    @Mock private FeatureOperations featureOperations;
+    @Mock private OfflinePlaybackOperations offlinePlaybackOps;
 
     private PropertySet track;
 
@@ -68,7 +66,7 @@ public class StreamPlayaTest {
     }
 
     private void instantiateStreamPlaya() {
-        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, playerSwitcherInfo, featureOperations);
+        streamPlayerWrapper = new StreamPlaya(context, sharedPreferences, mediaPlayerAdapter, skippyAdapter, bufferingPlaya, playerSwitcherInfo, offlinePlaybackOps);
         streamPlayerWrapper.setListener(playaListener);
     }
 
@@ -170,10 +168,9 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOfflineOnSkippyIfTrackIsAvailableOfflineAndNotMarkedForRemoval() throws Exception {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+    public void playCallsPlayOfflineOnSkippyIfTrackShouldBePlayedOffline() throws Exception {
+        when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(true);
         instantiateStreamPlaya();
-        track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
 
         streamPlayerWrapper.play(track);
 
@@ -182,9 +179,8 @@ public class StreamPlayaTest {
 
     @Test
     public void playCallsPlayOfflineOnSkippyWithResumeTimeIfTrackIsAvailableOfflineAndNotMarkedForRemoval() throws Exception {
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(true);
         instantiateStreamPlaya();
-        track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
 
         streamPlayerWrapper.play(track, 123);
 
@@ -195,7 +191,6 @@ public class StreamPlayaTest {
     public void playCallsPlayOnMediaPlayerIfTrackAvailableOfflineAndSkippyFailedToInitialize() throws Exception {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
-        track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
 
         streamPlayerWrapper.play(track);
 
@@ -203,10 +198,9 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOnMediaPlayerIfTrackAvailableOfflineButMarkedForRemoval() throws Exception {
+    public void playCallsPlayOnMediaPlayerIfTrackShouldNotBePlayedOffline() throws Exception {
+        when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(false);
         instantiateStreamPlaya();
-        track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
-        track.put(TrackProperty.OFFLINE_REMOVED_AT, new Date(2000L));
 
         streamPlayerWrapper.play(track);
 
@@ -214,10 +208,9 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOnSkippyIfSkippyModeForcedAndTrackAvailableOfflineButMarkedForRemoval() throws Exception {
+    public void playCallsPlayOnSkippyIfSkippyModeForcedAndTrackShouldNotBePlayedOffline() throws Exception {
+        when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(false);
         instantiateStreamPlaya();
-        track.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
-        track.put(TrackProperty.OFFLINE_REMOVED_AT, new Date(2000L));
         when(sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false)).thenReturn(true);
 
         streamPlayerWrapper.play(track);

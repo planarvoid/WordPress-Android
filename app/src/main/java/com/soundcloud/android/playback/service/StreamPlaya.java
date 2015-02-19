@@ -2,8 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.service.Playa.PlayaListener;
 import com.soundcloud.android.playback.service.Playa.PlayaState;
@@ -12,7 +12,6 @@ import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
 import com.soundcloud.android.settings.GeneralSettings;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 
@@ -36,7 +35,7 @@ public class StreamPlaya implements PlayaListener {
     private final BufferingPlaya bufferingPlayaDelegate;
     private final SharedPreferences sharedPreferences;
     private final PlayerSwitcherInfo playerSwitcherInfo;
-    private final FeatureOperations featureOperations;
+    private final OfflinePlaybackOperations offlinePlaybackOperations;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -48,13 +47,13 @@ public class StreamPlaya implements PlayaListener {
     @Inject
     public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
                        SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo,
-                       FeatureOperations featureOperations){
+                       OfflinePlaybackOperations offlinePlaybackOperations) {
 
         this.sharedPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
-        this.featureOperations = featureOperations;
+        this.offlinePlaybackOperations = offlinePlaybackOperations;
         currentPlaya = bufferingPlayaDelegate;
 
         this.playerSwitcherInfo = playerSwitcherInfo;
@@ -263,10 +262,7 @@ public class StreamPlaya implements PlayaListener {
     }
 
     private boolean isAvailableOffline(PropertySet track){
-        return !skippyFailedToInitialize
-                && featureOperations.isOfflineContentEnabled()
-                && track.getOrElseNull(TrackProperty.OFFLINE_DOWNLOADED_AT) != null
-                && track.getOrElseNull(TrackProperty.OFFLINE_REMOVED_AT) == null;
+        return !skippyFailedToInitialize && offlinePlaybackOperations.shouldPlayOffline(track);
     }
 
     private boolean isUsingSkippyPlaya() {
