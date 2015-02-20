@@ -72,6 +72,7 @@ public class UserDetailsLayout extends RelativeLayout {
 
     public File generateTempAvatarFile() {
         avatarFile = ImageUtils.createTempAvatarFile();
+        avatarFile.setWritable(true, false);
         return avatarFile;
     }
 
