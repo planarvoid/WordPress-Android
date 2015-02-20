@@ -189,6 +189,31 @@ public class AnalyticsEngineTrackingTest {
     }
 
     @Test
+    public void doesNotSendDuplicateUserSessionEvent() throws CreateModelException {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(Activity.class));
+        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
+        eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionStopEventWithReason(PlaybackSessionEvent.STOP_REASON_BUFFERING));
+
+        verify(analyticsProviderOne, times(2)).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getAllValues().get(0)).toBe(UserSessionEvent.CLOSED);
+        expect(sessionEventCaptor.getAllValues().get(1)).toBe(UserSessionEvent.OPENED);
+    }
+
+    @Test
+    public void sendOpenSessionWhenSessionIsReopened() throws CreateModelException {
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(Activity.class));
+        eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(Activity.class));
+
+        verify(analyticsProviderOne, times(3)).handleUserSessionEvent(sessionEventCaptor.capture());
+
+        expect(sessionEventCaptor.getAllValues().get(0)).toBe(UserSessionEvent.OPENED);
+        expect(sessionEventCaptor.getAllValues().get(1)).toBe(UserSessionEvent.CLOSED);
+        expect(sessionEventCaptor.getAllValues().get(2)).toBe(UserSessionEvent.OPENED);
+    }
+
+    @Test
     public void userCloseSessionWhenApplicationInBackgroundAndPlaySessionsStopped() throws CreateModelException {
         eventBus.publish(EventQueue.TRACKING, TestEvents.playbackSessionPlayEvent());
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(Activity.class));
