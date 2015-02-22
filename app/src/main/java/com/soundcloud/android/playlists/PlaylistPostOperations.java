@@ -8,7 +8,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -21,7 +20,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-class PlaylistOperations {
+class PlaylistPostOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
@@ -59,11 +58,11 @@ class PlaylistOperations {
     };
 
     @Inject
-    PlaylistOperations(PlaylistStorage playlistStorage,
-                              LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
-                              SyncInitiator syncInitiator,
-                              @Named("Storage") Scheduler scheduler,
-                              NetworkConnectionHelper networkConnectionHelper) {
+    PlaylistPostOperations(PlaylistStorage playlistStorage,
+                           LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
+                           SyncInitiator syncInitiator,
+                           @Named("Storage") Scheduler scheduler,
+                           NetworkConnectionHelper networkConnectionHelper) {
         this.playlistStorage = playlistStorage;
         this.loadPostedPlaylistsCommand = loadPostedPlaylistsCommand;
         this.syncInitiator = syncInitiator;

@@ -38,7 +38,7 @@ import android.content.SyncResult;
 import android.os.Bundle;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LegacyPlaylistOperationsTest {
+public class LegacyPlaylistPostOperationsTest {
 
     private LegacyPlaylistOperations playlistOperations;
     private PublicApiPlaylist playlist;

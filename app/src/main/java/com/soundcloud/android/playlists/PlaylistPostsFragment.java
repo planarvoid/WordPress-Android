@@ -32,7 +32,7 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
         implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
 
     @Inject PlaylistPostsAdapter adapter;
-    @Inject PlaylistOperations playlistOperations;
+    @Inject PlaylistPostOperations playlistPostOperations;
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
 
@@ -42,7 +42,7 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
     public PlaylistPostsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
 
-        listViewController.setAdapter(adapter, playlistOperations.postedPlaylistsPager());
+        listViewController.setAdapter(adapter, playlistPostOperations.postedPlaylistsPager());
         pullToRefreshController.setRefreshListener(this, adapter);
 
         addLifeCycleComponent(listViewController);
@@ -52,11 +52,11 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
 
     @VisibleForTesting
     PlaylistPostsFragment(PlaylistPostsAdapter adapter,
-                          PlaylistOperations playlistOperations,
+                          PlaylistPostOperations playlistPostOperations,
                           ListViewController listViewController,
                           PullToRefreshController pullToRefreshController) {
         this.adapter = adapter;
-        this.playlistOperations = playlistOperations;
+        this.playlistPostOperations = playlistPostOperations;
         this.listViewController = listViewController;
         this.pullToRefreshController = pullToRefreshController;
     }
@@ -91,7 +91,7 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> buildObservable() {
-        return pagedObservable(playlistOperations.postedPlaylists());
+        return pagedObservable(playlistPostOperations.postedPlaylists());
     }
 
     @Override
@@ -102,12 +102,12 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
 
     @Override
     public ConnectableObservable<List<PropertySet>> refreshObservable() {
-        return pagedObservable(playlistOperations.updatedPostedPlaylists());
+        return pagedObservable(playlistPostOperations.updatedPostedPlaylists());
     }
 
     private ConnectableObservable<List<PropertySet>> pagedObservable(Observable<List<PropertySet>> source) {
         final ConnectableObservable<List<PropertySet>> observable =
-                playlistOperations.postedPlaylistsPager().page(source).observeOn(mainThread()).replay();
+                playlistPostOperations.postedPlaylistsPager().page(source).observeOn(mainThread()).replay();
         observable.subscribe(adapter);
         return observable;
     }

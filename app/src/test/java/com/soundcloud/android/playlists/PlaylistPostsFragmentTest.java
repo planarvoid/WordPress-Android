@@ -39,7 +39,7 @@ public class PlaylistPostsFragmentTest {
 
     private PlaylistPostsFragment fragment;
 
-    @Mock private PlaylistOperations playlistOperations;
+    @Mock private PlaylistPostOperations playlistPostOperations;
     @Mock private PlaylistPostsAdapter adapter;
     @Mock private ListViewController listViewController;
     @Mock private PullToRefreshController pullToRefreshController;
@@ -52,11 +52,11 @@ public class PlaylistPostsFragmentTest {
     @Before
     public void setUp() throws Exception {
         Observable<List<PropertySet>> postedPlaylists = withSubscription(subscription, just(PropertySet.create())).toList();
-        when(playlistOperations.postedPlaylists()).thenReturn(postedPlaylists);
-        when(playlistOperations.postedPlaylistsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(playlistPostOperations.postedPlaylists()).thenReturn(postedPlaylists);
+        when(playlistPostOperations.postedPlaylistsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         context = Robolectric.application;
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(context));
-        fragment = new PlaylistPostsFragment(adapter, playlistOperations, listViewController, pullToRefreshController);
+        fragment = new PlaylistPostsFragment(adapter, playlistPostOperations, listViewController, pullToRefreshController);
     }
 
     @Test

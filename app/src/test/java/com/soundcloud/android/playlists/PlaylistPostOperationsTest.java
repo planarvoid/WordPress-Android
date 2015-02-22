@@ -1,7 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playlists.PlaylistOperations.PAGE_SIZE;
+import static com.soundcloud.android.playlists.PlaylistPostOperations.PAGE_SIZE;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
@@ -32,9 +32,9 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistOperationsTest {
+public class PlaylistPostOperationsTest {
 
-    private PlaylistOperations operations;
+    private PlaylistPostOperations operations;
     private List<PropertySet> postedPlaylists;
 
     @Mock private Observer<List<PropertySet>> observer;
@@ -48,7 +48,7 @@ public class PlaylistOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new PlaylistOperations(
+        operations = new PlaylistPostOperations(
                 playlistStorage,
                 loadPostedPlaylistsCommand,
                 syncInitiator,
