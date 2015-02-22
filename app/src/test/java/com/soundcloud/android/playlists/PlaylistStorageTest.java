@@ -5,7 +5,6 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.PropertySet;
@@ -14,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observer;
-import rx.observers.TestObserver;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -29,7 +27,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlaylistStorage(testScheduler());
+        storage = new PlaylistStorage(propeller());
     }
 
     @Test
@@ -62,19 +60,4 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                 PropertySet.from(PlaylistProperty.URN.bind(unlikedPlaylist.getUrn()), PlaylistProperty.IS_LIKED.bind(false))
         );
     }
-
-    @Test
-    public void trackUrnsLoadsUrnsOfAllTrackItemsInAGivenPlaylist() {
-        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
-        ApiTrack thirdTrack = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
-        ApiTrack firstTrack = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
-        ApiTrack secondTrack = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
-
-        TestObserver<Urn> observer = new TestObserver<>();
-        storage.trackUrns(apiPlaylist.getUrn()).subscribe(observer);
-        expect(observer.getOnNextEvents()).toContainExactly(
-                firstTrack.getUrn(), secondTrack.getUrn(), thirdTrack.getUrn()
-        );
-    }
-
 }

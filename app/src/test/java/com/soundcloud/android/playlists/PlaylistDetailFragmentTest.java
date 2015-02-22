@@ -65,7 +65,7 @@ public class PlaylistDetailFragmentTest {
     @Mock private PlaylistDetailsController controller;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
-    @Mock private PlaylistPostOperations playlistPostOperations;
+    @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistEngagementsController playlistEngagementsController;
     @Mock private ItemAdapter adapter;
@@ -79,7 +79,7 @@ public class PlaylistDetailFragmentTest {
                 controllerProvider,
                 playbackOperations,
                 legacyPlaylistOperations,
-                playlistPostOperations,
+                playlistOperations,
                 eventBus,
                 imageOperations,
                 playlistEngagementsController,
@@ -134,7 +134,7 @@ public class PlaylistDetailFragmentTest {
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         Observable<List<Urn>> trackLoadDescriptor = Observable.empty();
-        when(playlistPostOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
@@ -164,7 +164,7 @@ public class PlaylistDetailFragmentTest {
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         Observable<List<Urn>> trackLoadDescriptor = Observable.empty();
-        when(playlistPostOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(trackLoadDescriptor);
         View layout = createFragmentView();
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
@@ -188,7 +188,7 @@ public class PlaylistDetailFragmentTest {
     public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        when(playlistPostOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<List<Urn>>empty());
+        when(playlistOperations.trackUrnsForPlayback(playlist.getUrn())).thenReturn(Observable.<List<Urn>>empty());
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         View layout = createFragmentView();
         ToggleButton toggleButton = getToggleButton(layout);

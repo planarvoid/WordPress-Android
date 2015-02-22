@@ -49,7 +49,6 @@ public class PlaylistPostOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new PlaylistPostOperations(
-                playlistStorage,
                 loadPostedPlaylistsCommand,
                 syncInitiator,
                 scheduler, networkConnectionHelper);

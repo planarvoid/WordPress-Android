@@ -63,7 +63,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject LegacyPlaylistOperations legacyPlaylistOperations;
-    @Inject PlaylistPostOperations playlistPostOperations;
+    @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject ImageOperations imageOperations;
     @Inject PlaylistEngagementsController playlistEngagementsController;
@@ -132,7 +132,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     PlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
                            PlaybackOperations playbackOperations,
                            LegacyPlaylistOperations legacyPlaylistOperations,
-                           PlaylistPostOperations playlistPostOperations,
+                           PlaylistOperations playlistOperations,
                            EventBus eventBus,
                            ImageOperations imageOperations,
                            PlaylistEngagementsController playlistEngagementsController,
@@ -143,7 +143,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.controllerProvider = controllerProvider;
         this.playbackOperations = playbackOperations;
         this.legacyPlaylistOperations = legacyPlaylistOperations;
-        this.playlistPostOperations = playlistPostOperations;
+        this.playlistOperations = playlistOperations;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
         this.playlistEngagementsController = playlistEngagementsController;
@@ -311,7 +311,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
-        final Observable<List<Urn>> allTracks = playlistPostOperations.trackUrnsForPlayback(playlist.getUrn());
+        final Observable<List<Urn>> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
         playbackOperations
                 .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);

@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
@@ -12,33 +11,22 @@ import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
-import rx.Observable;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class PlaylistStorage {
     private static final String COLUMN_IS_LIKED = "is_liked";
 
-    private final DatabaseScheduler scheduler;
     private final PropellerDatabase database;
 
 
     @Inject
-    public PlaylistStorage(DatabaseScheduler databaseScheduler) {
-        this.database = databaseScheduler.database();
-        this.scheduler = databaseScheduler;
-    }
-
-    public Observable<Urn> trackUrns(final Urn playlistUrn) {
-        Query query = Query.from(Table.PlaylistTracks.name())
-                .select(PlaylistTracks.TRACK_ID)
-                .whereEq(PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
-                .order(PlaylistTracks.POSITION, Query.ORDER_ASC);
-        return scheduler.scheduleQuery(query).map(new TrackUrnMapper());
+    public PlaylistStorage(PropellerDatabase database) {
+        this.database = database;
     }
 
     /**
@@ -97,10 +85,4 @@ public class PlaylistStorage {
         }
     }
 
-    private static final class TrackUrnMapper extends RxResultMapper<Urn> {
-        @Override
-        public Urn map(CursorReader cursorReader) {
-            return Urn.forTrack(cursorReader.getLong(PlaylistTracks.TRACK_ID));
-        }
-    }
 }
