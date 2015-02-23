@@ -38,7 +38,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -164,13 +163,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         actionMenuController.onCreateOptionsMenu(menu, inflater);
     }
-
-    @Override
-    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
-        // TODO : remove that after merging https://github.com/soundcloud/SoundCloud-Android/pull/2780
-        return actionMenuController.onOptionsItemSelected(fragment, item);
-    }
-
 
     @Override
     public void onDestroyView(Fragment fragment) {

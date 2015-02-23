@@ -21,12 +21,7 @@ public class TrackLikesFragment extends LightCycleSupportFragment {
         setRetainInstance(true);
         setHasOptionsMenu(true);
         SoundCloudApplication.getObjectGraph().inject(this);
-        addLifeCycleComponents();
-    }
-
-    private void addLifeCycleComponents() {
         addLifeCycleComponent(presenter);
-        //addLifeCycleComponent(adapter.getLifeCycleHandler());
     }
 
     @Override

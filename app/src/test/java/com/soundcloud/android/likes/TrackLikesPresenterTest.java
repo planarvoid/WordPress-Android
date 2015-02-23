@@ -103,12 +103,6 @@ public class TrackLikesPresenterTest {
     }
 
     @Test
-    public void shouldRedirectOnCreateOptionsMenuToActionMenuController() {
-        presenter.onCreateOptionsMenu(menu, menuInflater);
-        verify(actionMenuController).onCreateOptionsMenu(menu, menuInflater);
-    }
-
-    @Test
     public void shouldRedirectOnOptionsItemSelectedToActionMenuController() {
         presenter.onOptionsItemSelected(fragment, menuItem);
         verify(actionMenuController).onOptionsItemSelected(fragment, menuItem);
