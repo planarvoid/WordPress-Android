@@ -5,6 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,21 +41,21 @@ public class OfflineContentServiceTest {
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private DownloadHandler.Builder handlerFactory;
     @Mock private DownloadHandler downloadHandler;
-    private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
 
+    private final DownloadRequest downloadRequest1 = createDownloadRequest(123L);
+    private final DownloadRequest downloadRequest2 = createDownloadRequest(456L);
+    private final DownloadResult downloadResult1 = DownloadResult.success(Urn.forTrack(123L));
+    private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(Urn.forTrack(123L));
+    private final DownloadResult failedResult1 = DownloadResult.failed(Urn.forTrack(123L));
+
+    private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
-    private DownloadRequest downloadRequest1;
-    private DownloadRequest downloadRequest2;
-    private DownloadResult downloadResult1;
     private TestEventBus eventBus;
     private Message downloadMessage;
 
     @Before
     public void setUp() {
         deletePendingRemoval = TestObservables.emptyObservable();
-        downloadRequest1 = createDownloadRequest(123L);
-        downloadRequest2 = createDownloadRequest(456L);
-        downloadResult1 = DownloadResult.success(Urn.forTrack(123L));
         eventBus = new TestEventBus();
 
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
@@ -64,6 +65,7 @@ public class OfflineContentServiceTest {
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         downloadMessage = new Message();
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
+        when(downloadOperations.isValidNetwork()).thenReturn(true);
 
         service.onCreate();
     }
@@ -168,6 +170,50 @@ public class OfflineContentServiceTest {
         expect(entityStateChangedEvents.get(1).getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_FAILED);
         expect(entityStateChangedEvents.get(1).getChangeMap().keySet()).toContainExactly(downloadRequest1.urn);
 
+    }
+
+    @Test
+    public void stopAndScheduleRetryWhenTrackDownloadFailed() {
+        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+
+        startService();
+        service.onError(failedResult1);
+
+        verify(offlineContentScheduler).scheduleRetry();
+        verify(downloadHandler).quit();
+    }
+
+    @Test
+    public void connectionErrorNotificationWhenTrackDownloadFailed() {
+        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+
+        startService();
+        service.onError(failedResult1);
+
+        verify(notificationController).onConnectionError();
+    }
+
+    @Test
+    public void continueDownloadNextTrackWhenTrackUnavailableForDownload() {
+        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+
+        startService();
+        service.onError(unavailableTrackResult1);
+
+        verify(notificationController).onDownloadError();
+        verify(downloadHandler, times(2)).sendMessage(downloadMessage);
+    }
+
+    @Test
+    public void stopAndScheduleRetryWhenNoValidNetworkOnNewDownload() {
+        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+
+        startService();
+        when(downloadOperations.isValidNetwork()).thenReturn(false);
+        service.onSuccess(unavailableTrackResult1);
+
+        verify(offlineContentScheduler).scheduleRetry();
+        verify(downloadHandler).quit();
     }
 
     @Test

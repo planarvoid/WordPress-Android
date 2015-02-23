@@ -7,8 +7,8 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -30,6 +30,8 @@ public class SettingsActivity extends ScSettingsActivity {
     @Inject ApplicationProperties applicationProperties;
     @Inject GeneralSettings generalSettings;
     @Inject DeveloperSettings developerSettings;
+    @Inject OfflineSettings offlineSettings;
+
     @Inject FeatureFlags featureFlags;
 
     public SettingsActivity() {}
@@ -49,6 +51,7 @@ public class SettingsActivity extends ScSettingsActivity {
         }
 
         if (applicationProperties.isDebugBuild()) {
+            offlineSettings.setup(this);
             developerSettings.setup(this);
         }
     }

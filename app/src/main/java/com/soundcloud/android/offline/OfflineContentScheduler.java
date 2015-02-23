@@ -3,7 +3,6 @@ package com.soundcloud.android.offline;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -23,16 +22,16 @@ public class OfflineContentScheduler {
     private final Context context;
     private final AlarmManager alarmManager;
     private final ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver;
-    private final NetworkConnectionHelper networkConnectionHelper;
+    private final DownloadOperations downloadOperations;
+
 
     @Inject
     public OfflineContentScheduler(Context context, AlarmManager alarmManager,
-                                   ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver,
-                                   NetworkConnectionHelper networkConnectionHelper) {
+                                   ResumeDownloadOnConnectedReceiver resumeOnConnectedReceiver, DownloadOperations downloadOperations) {
         this.context = context;
         this.alarmManager = alarmManager;
         this.resumeOnConnectedReceiver = resumeOnConnectedReceiver;
-        this.networkConnectionHelper = networkConnectionHelper;
+        this.downloadOperations = downloadOperations;
     }
 
     public void cancelPendingRetries(){
@@ -41,7 +40,7 @@ public class OfflineContentScheduler {
     }
 
     public void scheduleRetry(){
-        if (!networkConnectionHelper.isNetworkConnected()){
+        if (!downloadOperations.isValidNetwork()){
             resumeOnConnectedReceiver.register();
         }
         scheduleDelayedRetry(System.currentTimeMillis() + RETRY_DELAY);

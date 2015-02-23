@@ -35,10 +35,18 @@ public class OfflineSettingsStorageTest {
     }
 
     @Test
+    public void savesWifiOnlyFlag() {
+        storage.setWifiOnlyEnabled(false);
+        expect(storage.isWifiOnlyEnabled()).toBeFalse();
+    }
+
+    @Test
     public void clearsSettingsStorage() {
         storage.setOfflineLikesEnabled(true);
         storage.clear();
+
         expect(storage.isOfflineLikesEnabled()).toBeFalse();
+        expect(storage.isWifiOnlyEnabled()).toBeTrue();
     }
 
 }

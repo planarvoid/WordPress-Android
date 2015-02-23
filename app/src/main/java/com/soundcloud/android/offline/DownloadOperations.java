@@ -6,6 +6,7 @@ import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -18,16 +19,26 @@ class DownloadOperations {
     private final SecureFileStorage fileStorage;
     private final DeletePendingRemovalCommand deleteOfflineContent;
     private final PlayQueueManager playQueueManager;
+    private final NetworkConnectionHelper connectionHelper;
+    private final OfflineSettingsStorage offlineSettings;
 
     @Inject
     public DownloadOperations(StrictSSLHttpClient httpClient,
                               SecureFileStorage fileStorage,
                               DeletePendingRemovalCommand deleteOfflineContent,
-                              PlayQueueManager playQueueManager) {
+                              PlayQueueManager playQueueManager,
+                              NetworkConnectionHelper connectionHelper,
+                              OfflineSettingsStorage offlineSettings) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
         this.playQueueManager = playQueueManager;
+        this.connectionHelper = connectionHelper;
+        this.offlineSettings = offlineSettings;
+    }
+
+    boolean isValidNetwork() {
+        return connectionHelper.isWifiConnected() || (!offlineSettings.isWifiOnlyEnabled() && connectionHelper.isNetworkConnected());
     }
 
     Observable<List<Urn>> deletePendingRemovals() {

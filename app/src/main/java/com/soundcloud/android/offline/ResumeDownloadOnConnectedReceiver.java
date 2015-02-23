@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import com.soundcloud.android.utils.NetworkConnectionHelper;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,18 +13,18 @@ import javax.inject.Singleton;
 public class ResumeDownloadOnConnectedReceiver extends BroadcastReceiver {
 
     private final Context context;
-    private final NetworkConnectionHelper connectionHelper;
+    private final DownloadOperations downloadOperations;
     private boolean isRegistered;
 
     @Inject
-    ResumeDownloadOnConnectedReceiver(Context context, NetworkConnectionHelper connectionHelper) {
+    ResumeDownloadOnConnectedReceiver(Context context, DownloadOperations downloadOperations) {
         this.context = context;
-        this.connectionHelper = connectionHelper;
+        this.downloadOperations = downloadOperations;
     }
 
     void register() {
         if (!isRegistered) {
-            IntentFilter filter = new IntentFilter();
+            final IntentFilter filter = new IntentFilter();
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
             context.registerReceiver(this, filter);
             isRegistered = true;
@@ -42,7 +40,7 @@ public class ResumeDownloadOnConnectedReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (connectionHelper.isNetworkConnected()) {
+        if (downloadOperations.isValidNetwork()) {
             OfflineContentService.start(context);
         }
     }

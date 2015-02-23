@@ -56,11 +56,17 @@ class DownloadNotificationController {
     public void onDownloadsFinished() {
         if (totalDownloads != errors) {
             notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, buildCompletedNotification());
+        } else {
+            notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
 
         completed = 0;
         totalDownloads = 0;
         errors = 0;
+    }
+
+    public void onConnectionError() {
+        notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
     }
 
     private Notification buildCompletedNotification() {

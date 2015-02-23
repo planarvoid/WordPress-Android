@@ -12,6 +12,7 @@ import javax.inject.Named;
 public class OfflineSettingsStorage {
 
     private static final String OFFLINE_LIKES_ENABLED = "offline_likes";
+    private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
 
     private final SharedPreferences sharedPreferences;
 
@@ -40,6 +41,14 @@ public class OfflineSettingsStorage {
 
     public void setOfflineLikesEnabled(final boolean enabled) {
         sharedPreferences.edit().putBoolean(OFFLINE_LIKES_ENABLED, enabled).apply();
+    }
+
+    public boolean isWifiOnlyEnabled() {
+        return sharedPreferences.getBoolean(OFFLINE_WIFI_ONLY, true);
+    }
+
+    public void setWifiOnlyEnabled(boolean wifiOnly) {
+        sharedPreferences.edit().putBoolean(OFFLINE_WIFI_ONLY, wifiOnly).apply();
     }
 
     public Observable<Boolean> getOfflineLikesChanged() {

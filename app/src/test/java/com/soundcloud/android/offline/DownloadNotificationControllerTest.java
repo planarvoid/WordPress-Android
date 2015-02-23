@@ -68,7 +68,7 @@ public class DownloadNotificationControllerTest {
         reset(notificationBuilder, notificationManager);
         notificationController.onDownloadsFinished();
 
-        verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+        verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
     }
 
     @Test
@@ -147,6 +147,13 @@ public class DownloadNotificationControllerTest {
         verify(notificationBuilder).setProgress(2, 1, false);
         verify(notificationBuilder).setContentText(getQuantifiedDownloadString(2, 2));
         verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
+    public void removesNotificationOnConnectionError() {
+        notificationController.onConnectionError();
+
+        verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
     }
 
     private String getQuantifiedDownloadString(int completed, int queueSize) {

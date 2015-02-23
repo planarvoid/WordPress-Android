@@ -115,6 +115,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .doOnNext(sendDownloadRequestsUpdated)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new DownloadSubscriber());
+
         } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
             stop();
         }
@@ -139,19 +140,33 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFailed(result.getUrn()));
 
         if (result.isFailure()) {
-            offlineContentScheduler.scheduleRetry();
+            stopAndRetryLater();
+        } else {
+            downloadNextOrFinish();
         }
-
-        downloadNextOrFinish();
     }
 
     private void downloadNextOrFinish() {
         if (requestsQueue.isEmpty()) {
-            stop();
-            notificationController.onDownloadsFinished();
+            stopAndFinish();
         } else {
-            download(requestsQueue.poll());
+            if (downloadOperations.isValidNetwork()) {
+                download(requestsQueue.poll());
+            } else {
+                stopAndRetryLater();
+            }
         }
+    }
+
+    private void stopAndFinish() {
+        stop();
+        notificationController.onDownloadsFinished();
+    }
+
+    private void stopAndRetryLater() {
+        offlineContentScheduler.scheduleRetry();
+        stop();
+        notificationController.onConnectionError();
     }
 
     private void download(DownloadRequest request) {

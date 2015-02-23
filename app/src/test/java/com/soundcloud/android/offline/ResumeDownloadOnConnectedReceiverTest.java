@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,12 +29,12 @@ public class ResumeDownloadOnConnectedReceiverTest {
     private ResumeDownloadOnConnectedReceiver receiver;
 
     @Mock private Context context;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private DownloadOperations downloadOperations;
     @Captor private ArgumentCaptor<IntentFilter> intentFilterCaptor;
 
     @Before
     public void setUp() throws Exception {
-        receiver = new ResumeDownloadOnConnectedReceiver(context, networkConnectionHelper);
+        receiver = new ResumeDownloadOnConnectedReceiver(context, downloadOperations);
     }
 
     @Test
@@ -78,13 +77,23 @@ public class ResumeDownloadOnConnectedReceiverTest {
     }
 
     @Test
-    public void onReceiveStartsSyncServiceIfConnected() throws Exception {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+    public void onReceiveStartsSyncServiceWhenValidNetwork() throws Exception {
+        when(downloadOperations.isValidNetwork()).thenReturn(true);
 
         receiver.onReceive(Robolectric.application, null);
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
         expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START_DOWNLOAD);
         expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+    }
+
+    @Test
+    public void onReceiveDoesNotStartOfflineServiceWhenNetworkNotValid() throws Exception {
+        when(downloadOperations.isValidNetwork()).thenReturn(false);
+
+        receiver.onReceive(Robolectric.application, null);
+
+        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
+        expect(startService).toBeNull();
     }
 }

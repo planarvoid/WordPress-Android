@@ -50,7 +50,7 @@ public class DownloadHandler extends Handler {
         this.downloadOperations = downloadOperations;
         this.storeCompletedDownload = storeCompletedDownload;
         this.updateContentAsUnavailable = updateContentAsUnavailable;
-        downloading = new AtomicBoolean(false);
+        this.downloading = new AtomicBoolean(false);
     }
 
     @Override

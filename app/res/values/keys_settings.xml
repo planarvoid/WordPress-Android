@@ -36,6 +36,9 @@
     <!-- Subscription settings -->
     <string name="key_subscription_buy">buySubscription</string>
 
+    <!-- Offline sync settings -->
+    <string name="key_offline_wifi_only">offline.wifiOnlySync</string>
+
     <!-- Dev settings -->
     <string name="key_dev_recording_type">dev.defaultRecordingType</string>
     <string name="key_dev_clear_notifications">dev.clearNotifications</string>

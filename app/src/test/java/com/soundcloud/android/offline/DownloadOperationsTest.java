@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +32,8 @@ public class DownloadOperationsTest {
     @Mock private DeletePendingRemovalCommand deleteOfflineContent;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private InputStream downloadStream;
+    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private OfflineSettingsStorage offlineSettings;
 
     private DownloadOperations operations;
 
@@ -40,7 +43,8 @@ public class DownloadOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager);
+        operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
+                connectionHelper, offlineSettings);
         when(httpClient.downloadFile(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
         when(response.isUnavailable()).thenReturn(false);
@@ -121,5 +125,38 @@ public class DownloadOperationsTest {
         operations.download(downloadRequest);
 
         verifyZeroInteractions(fileStorage);
+    }
+
+    @Test
+    public void invalidNetworkWhenDisconnected() {
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+
+        expect(operations.isValidNetwork()).toBeFalse();
+    }
+
+    @Test
+    public void validNetworkWhenConnectedAndAllNetworkAllowed() {
+        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(false);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+
+        expect(operations.isValidNetwork()).toBeTrue();
+    }
+
+    @Test
+    public void invalidNetworkWhenNotConnectedOnWifiAndOnlyWifiAllowed() {
+        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(false);
+
+        expect(operations.isValidNetwork()).toBeFalse();
+    }
+
+    @Test
+    public void validNetworkWhenConnectedOnWifiAndOnlyWifiAllowed() {
+        when(offlineSettings.isWifiOnlyEnabled()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(true);
+
+        expect(operations.isValidNetwork()).toBeTrue();
     }
 }

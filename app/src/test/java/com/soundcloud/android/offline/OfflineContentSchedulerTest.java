@@ -7,7 +7,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowPendingIntent;
 import org.junit.Before;
@@ -24,19 +23,19 @@ import android.content.Intent;
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentSchedulerTest {
 
-    private static long RETRY_TIME = 1000;
+    private final static long RETRY_TIME = 1000;
 
     private OfflineContentScheduler scheduler;
 
     @Mock private AlarmManager alarmManager;
     @Mock private ResumeDownloadOnConnectedReceiver resumeReceiver;
-    @Mock private NetworkConnectionHelper networkConnectionHelper;
+    @Mock private DownloadOperations downloadOperations;
     @Captor private ArgumentCaptor<PendingIntent> intentArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
         scheduler = new OfflineContentScheduler(Robolectric.application, alarmManager,
-                resumeReceiver, networkConnectionHelper);
+                resumeReceiver, downloadOperations);
     }
 
     @Test
@@ -47,7 +46,7 @@ public class OfflineContentSchedulerTest {
 
     @Test
     public void schedulerRetryDoesNotRegistersConnectionListenerToRetryIfAlreadyConnected() throws Exception {
-        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        when(downloadOperations.isValidNetwork()).thenReturn(true);
         scheduler.scheduleRetry();
         verify(resumeReceiver, never()).register();
     }
