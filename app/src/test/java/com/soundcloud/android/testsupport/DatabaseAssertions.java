@@ -129,6 +129,20 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))), counts(1));
     }
 
+    public void assertPlaylistTracklist(long playlistId, List<Urn> tracklist){
+        for (int i = 0; i < tracklist.size(); i++){
+            assertThat(select(from(Table.PlaylistTracks.name())
+                    .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
+                    .whereEq(TableColumns.PlaylistTracks.TRACK_ID, tracklist.get(i).getNumericId())
+                    .whereEq(TableColumns.PlaylistTracks.POSITION,i)), counts(1));
+        }
+
+        // assert no additional tracks
+        assertThat(select(from(Table.PlaylistTracks.name())
+                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
+                .whereGe(TableColumns.PlaylistTracks.POSITION,tracklist.size())), counts(0));
+    }
+
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())

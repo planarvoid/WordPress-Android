@@ -51,6 +51,11 @@ public enum ApiEndpoints {
     // profile
     MY_DOB("/you/profile/dob"),
 
+    // playlist
+    PLAYLIST_WITH_TRACKS("/playlists/%s/info"),
+    PLAYLIST_ADD_TRACK("/playlists/%s/tracks"),
+    PLAYLIST_REMOVE_TRACK("/playlists/%s/tracks/%s"),
+
     // other
     EXPERIMENTS("/experiments/%s"),
     HLS_STREAM("/tracks/%s/streams/hls"),

@@ -1,10 +1,13 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
+import com.soundcloud.android.sync.likes.DefaultSyncJob;
+import com.soundcloud.android.sync.likes.SingleJobRequest;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
-import com.soundcloud.android.sync.likes.SingleJobRequest;
+import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import dagger.Lazy;
 
 import android.content.Intent;
@@ -18,6 +21,7 @@ class SyncRequestFactory {
     private final Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob;
     private final Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob;
     private final EntitySyncRequestFactory entitySyncRequestFactory;
+    private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final EventBus eventBus;
 
     @Inject
@@ -25,11 +29,13 @@ class SyncRequestFactory {
                               Lazy<SyncTrackLikesJob> lazySyncTrackLikesJob,
                               Lazy<SyncPlaylistLikesJob> lazySyncPlaylistLikesJob,
                               EntitySyncRequestFactory entitySyncRequestFactory,
+                              SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
                               EventBus eventBus) {
         this.syncIntentFactory = syncIntentFactory;
         this.lazySyncTrackLikesJob =  lazySyncTrackLikesJob;
         this.lazySyncPlaylistLikesJob = lazySyncPlaylistLikesJob;
         this.entitySyncRequestFactory = entitySyncRequestFactory;
+        this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.eventBus = eventBus;
     }
 
@@ -46,6 +52,11 @@ class SyncRequestFactory {
         } else if (SyncActions.SYNC_TRACKS.equals(intent.getAction())
                 || SyncActions.SYNC_PLAYLISTS.equals(intent.getAction())) {
             return entitySyncRequestFactory.create(intent);
+
+        } else if (SyncActions.SYNC_PLAYLIST.equals(intent.getAction())) {
+            Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
+            return new SingleJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
+                    intent.getAction(), true, getReceiverFromIntent(intent), eventBus);
         }
 
         return syncIntentFactory.create(intent);

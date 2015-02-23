@@ -100,6 +100,22 @@ public class DatabaseFixtures {
         return apiTrack;
     }
 
+    public ApiTrack insertPlaylistTrackPendingAddition(ApiPlaylist playlist, int position, Date additionDate) {
+        final ApiTrack apiTrack = insertPlaylistTrack(playlist, position);
+        database.execSQL("UPDATE PlaylistTracks SET added_at=" + additionDate.getTime()
+                + " WHERE playlist_id=" + playlist.getId()
+                + " AND track_id=" + apiTrack.getId());
+        return apiTrack;
+    }
+
+    public ApiTrack insertPlaylistTrackPendingRemoval(ApiPlaylist playlist, int position, Date removalDate) {
+        final ApiTrack apiTrack = insertPlaylistTrack(playlist, position);
+        database.execSQL("UPDATE PlaylistTracks SET removed_at=" + removalDate.getTime()
+                + " WHERE playlist_id=" + playlist.getId()
+                + " AND track_id=" + apiTrack.getId());
+        return apiTrack;
+    }
+
     public ApiPlaylist insertPostedPlaylist(ApiUser user, Date postedDate) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setCreatedAt(postedDate);

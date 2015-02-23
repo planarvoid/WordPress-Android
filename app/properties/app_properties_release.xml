@@ -27,4 +27,6 @@
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_configuration_features">false</bool>
+    <bool name="feature_playlist_posts_fragment">false</bool>
+    <bool name="feature_new_playlist_syncer">false</bool>
 </resources>

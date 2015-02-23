@@ -74,6 +74,7 @@ final class DatabaseSchema {
             "track_id INTEGER," +
             "position INTEGER," +
             "added_at INTEGER," +
+            "removed_at INTEGER," +
             "PRIMARY KEY (track_id, position, playlist_id) ON CONFLICT IGNORE" +
             ");";
 

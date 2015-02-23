@@ -4,11 +4,13 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
+import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,10 +27,13 @@ public class SyncRequestFactoryTest {
     @Mock private SyncTrackLikesJob syncTrackLikesJob;
     @Mock private SyncPlaylistLikesJob syncPlaylistLikesJob;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
+    @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
 
     @Before
     public void setUp() throws Exception {
-        syncRequestFactory = new SyncRequestFactory(syncIntentFactory, lazyOf(syncTrackLikesJob), lazyOf(syncPlaylistLikesJob), entitySyncRequestFactory, new TestEventBus());
+        syncRequestFactory = new SyncRequestFactory(syncIntentFactory,
+                lazyOf(syncTrackLikesJob), lazyOf(syncPlaylistLikesJob),
+                entitySyncRequestFactory, singlePlaylistSyncerFactory, new TestEventBus());
     }
 
     @Test
@@ -57,6 +62,14 @@ public class SyncRequestFactoryTest {
         final Intent intent = new Intent(SyncActions.SYNC_PLAYLISTS);
         syncRequestFactory.create(intent);
         verify(entitySyncRequestFactory).create(intent);
+    }
+
+    @Test
+    public void createSyncSinglePlaylistRequestFromSyncPlaylistIntent() throws Exception {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        final Intent intent = new Intent(SyncActions.SYNC_PLAYLIST).putExtra(SyncExtras.URN, playlistUrn);
+        syncRequestFactory.create(intent);
+        verify(singlePlaylistSyncerFactory).create(playlistUrn);
     }
 
 

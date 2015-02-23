@@ -16,7 +16,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 36;
+    public static final int DATABASE_VERSION = 37;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -100,6 +100,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 36:
                             success = upgradeTo36(db, oldVersion);
+                            break;
+                        case 37:
+                            success = upgradeTo37(db, oldVersion);
                             break;
                         default:
                             break;
@@ -303,6 +306,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 36);
+        }
+        return false;
+    }
+
+    /**
+     * Added removed_at column to PlaylistTracks
+     */
+    private static boolean upgradeTo37(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.PlaylistTracks.alterColumns(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 37);
         }
         return false;
     }

@@ -415,6 +415,7 @@ public final class TableColumns {
         public static final String TRACK_ID = "track_id";
         public static final String POSITION = "position";
         public static final String ADDED_AT = "added_at";
+        public static final String REMOVED_AT = "removed_at";
     }
 
     /**
