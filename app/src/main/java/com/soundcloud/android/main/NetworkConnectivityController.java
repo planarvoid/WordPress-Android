@@ -16,7 +16,7 @@ import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
-public class NetworkConnectivityLightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
+public class NetworkConnectivityController extends DefaultLightCycleActivity<ActionBarActivity> {
     private static final int CONNECTIVITY_MSG = 0;
     private final Context context;
     private final Handler connHandler;
@@ -24,7 +24,7 @@ public class NetworkConnectivityLightCycle extends DefaultLightCycleActivity<Act
     private Boolean isConnected;
 
     @Inject
-    public NetworkConnectivityLightCycle(Context context, NetworkConnectivityListener connectivityListener) {
+    public NetworkConnectivityController(Context context, NetworkConnectivityListener connectivityListener) {
         this.context = context;
         this.connectivityListener = connectivityListener;
         this.connHandler = new ConnectivityHandler();

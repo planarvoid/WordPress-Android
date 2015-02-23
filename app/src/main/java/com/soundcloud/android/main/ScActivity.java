@@ -30,7 +30,7 @@ import javax.inject.Inject;
 public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject CastConnectionHelper castConnectionHelper;
     @Inject ActivityLifeCyclePublisher activityLifeCyclePublisher;
-    @Inject NetworkConnectivityLightCycle networkConnectivityLightCycle;
+    @Inject NetworkConnectivityController networkConnectivityController;
     @Inject UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
     @Inject UserRemovedLightCycle userRemovedLightCycle;
     @Inject ImageOperationsController imageOperationsController;
@@ -46,7 +46,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
         SoundCloudApplication.getObjectGraph().inject(this);
         lightCycleDispatcher
                 .attach(activityLifeCyclePublisher)
-                .attach(networkConnectivityLightCycle)
+                .attach(networkConnectivityController)
                 .attach(unauthorisedRequestLightCycle)
                 .attach(userRemovedLightCycle)
                 .attach(imageOperationsController)

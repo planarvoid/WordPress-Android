@@ -25,7 +25,7 @@ import android.os.Message;
 import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class NetworkConnectivityLightCycleTest {
+public class NetworkConnectivityControllerTest {
     @Captor ArgumentCaptor<Handler> handlerArgumentCaptor;
     @Captor ArgumentCaptor<Integer> whatArgumentCaptor;
     @Captor ArgumentCaptor<Intent> intentArgumentCaptor;
@@ -34,12 +34,12 @@ public class NetworkConnectivityLightCycleTest {
     @Mock private NetworkConnectivityListener listener;
     @Mock private Context context;
 
-    private NetworkConnectivityLightCycle lightCycle;
+    private NetworkConnectivityController lightCycle;
 
     @Before
     public void setUp() throws Exception {
         when(networkInfo.isConnectedOrConnecting()).thenReturn(true);
-        lightCycle = new NetworkConnectivityLightCycle(context, listener);
+        lightCycle = new NetworkConnectivityController(context, listener);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class NetworkConnectivityLightCycleTest {
 
     @Test
     public void isConnectedWhenNoListener() {
-        lightCycle = new NetworkConnectivityLightCycle(context, null);
+        lightCycle = new NetworkConnectivityController(context, null);
 
         expect(lightCycle.isConnected()).toBeTrue();
     }
