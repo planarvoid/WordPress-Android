@@ -129,7 +129,9 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
                 .map(toPlaybackSessionStatus)
                 .startWith(false);
 
-        return Observable.combineLatest(activityLifeCycle, playbackSessionEvents, combineToSessionEvent).distinct();
+        return Observable
+                .combineLatest(activityLifeCycle, playbackSessionEvents, combineToSessionEvent)
+                .distinctUntilChanged();
     }
 
     @Override
