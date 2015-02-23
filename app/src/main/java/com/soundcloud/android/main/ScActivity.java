@@ -55,17 +55,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
                 .attach(screenStateProvider);
     }
 
-    // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
-    @Override
-    public void setTitle(CharSequence title) {
-        getSupportActionBar().setTitle(title);
-    }
-
-    @Override
-    public void setTitle(int titleId) {
-        getSupportActionBar().setTitle(titleId);
-    }
-
     @Override
     public boolean onSearchRequested() {
         // just focus on the search tab, don't show default android search dialog
