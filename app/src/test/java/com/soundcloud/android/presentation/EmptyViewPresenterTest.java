@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
@@ -120,5 +121,25 @@ public class EmptyViewPresenterTest {
         presenter.onViewCreated(fragment, layout, null);
         presenter.onDestroyView(fragment);
         expect(presenter.getEmptyView()).toBeNull();
+    }
+
+    @Test
+    public void shouldDispatchOnViewCreatedToLightCycleComponents() {
+        SupportFragmentLightCycle lightCycle = mock(SupportFragmentLightCycle.class);
+        presenter.attach(lightCycle);
+
+        presenter.onViewCreated(fragment, layout, null);
+
+        verify(lightCycle).onViewCreated(fragment, layout, null);
+    }
+
+    @Test
+    public void shouldDispatchOnDestroyViewToLightCycleComponents() {
+        SupportFragmentLightCycle lightCycle = mock(SupportFragmentLightCycle.class);
+        presenter.attach(lightCycle);
+
+        presenter.onDestroyView(fragment);
+
+        verify(lightCycle).onDestroyView(fragment);
     }
 }

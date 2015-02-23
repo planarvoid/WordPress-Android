@@ -18,6 +18,7 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(fragment, view, savedInstanceState);
         emptyView = (EmptyView) view.findViewById(android.R.id.empty);
         emptyView.setStatus(emptyViewStatus);
         emptyView.setOnRetryListener(new EmptyView.RetryListener() {
@@ -34,6 +35,7 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
     @Override
     public void onDestroyView(Fragment fragment) {
         emptyView = null;
+        super.onDestroyView(fragment);
     }
 
     protected EmptyView getEmptyView() {

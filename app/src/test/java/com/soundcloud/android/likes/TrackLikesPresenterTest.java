@@ -143,7 +143,7 @@ public class TrackLikesPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
-        headerPresenter.onDestroyView();
+        headerPresenter.onDestroyView(fragment);
     }
 
     @Test
