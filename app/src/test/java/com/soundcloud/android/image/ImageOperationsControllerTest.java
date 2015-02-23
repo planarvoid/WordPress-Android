@@ -11,19 +11,19 @@ import org.mockito.Mock;
 import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ImageOperationsLightCycleTest {
-    private ImageOperationsLightCycle imageOperationsLightCycle;
+public class ImageOperationsControllerTest {
+    private ImageOperationsController imageOperationsController;
     @Mock private ImageOperations imageOperations;
     @Mock private ActionBarActivity activity;
 
     @Before
     public void setUp() throws Exception {
-        imageOperationsLightCycle = new ImageOperationsLightCycle(imageOperations);
+        imageOperationsController = new ImageOperationsController(imageOperations);
     }
 
     @Test
     public void resumeImageOperationsOnResume() {
-        imageOperationsLightCycle.onResume(activity);
+        imageOperationsController.onResume(activity);
 
         verify(imageOperations).resume();
     }

@@ -6,11 +6,11 @@ import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
-public class ImageOperationsLightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
+public class ImageOperationsController extends DefaultLightCycleActivity<ActionBarActivity> {
     private final ImageOperations imageOperations;
 
     @Inject
-    public ImageOperationsLightCycle(ImageOperations imageOperations) {
+    public ImageOperationsController(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 
