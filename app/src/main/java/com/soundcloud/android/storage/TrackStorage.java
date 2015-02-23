@@ -20,6 +20,7 @@ import rx.Subscriber;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -130,14 +131,24 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
             public void call(Subscriber<? super List<Urn>> observer) {
 
                 final boolean isActivityCursor = Content.match(uri).isActivitiesItem();
-                final String idColumn = isActivityCursor ? TableColumns.ActivityView.SOUND_ID : TableColumns.SoundView._ID;
-                final String typeColumn = isActivityCursor ? TableColumns.ActivityView.SOUND_TYPE : TableColumns.SoundView._TYPE;
+                final String idColumn;
+                final String fullIdColumn;
+                final String fullTypeColumn;
+                if (isActivityCursor) {
+                    idColumn = TableColumns.ActivityView.SOUND_ID;
+                    fullIdColumn = Table.ActivityView + "." + TableColumns.ActivityView.SOUND_ID;
+                    fullTypeColumn = Table.ActivityView + "." + TableColumns.ActivityView.SOUND_TYPE;
+                } else {
+                    idColumn = TableColumns.SoundView._ID;
+                    fullIdColumn = Table.SoundView + "." + TableColumns.SoundView._ID + " as " + BaseColumns._ID;
+                    fullTypeColumn = Table.SoundView + "." + TableColumns.SoundView._TYPE;
+                }
 
                 // if playlist, adjust load uri to request the tracks instead of meta_data
                 final Uri adjustedUri = (Content.match(uri) == Content.PLAYLIST) ?
                         Content.PLAYLIST_TRACKS.forQuery(uri.getLastPathSegment()) : uri;
 
-                Cursor cursor = resolver.query(adjustedUri, new String[]{idColumn}, typeColumn + " = ?",
+                Cursor cursor = resolver.query(adjustedUri, new String[] { fullIdColumn }, fullTypeColumn + " = ?",
                         new String[]{String.valueOf(Playable.DB_TYPE_TRACK)}, null);
                 if (!observer.isUnsubscribed()) {
                     try {
