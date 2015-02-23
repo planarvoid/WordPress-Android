@@ -81,6 +81,9 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.TITLE, playlist.getTitle());
         cv.put(TableColumns.Sounds.USER_ID, playlist.getUser().getId());
         cv.put(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount());
+        cv.put(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount());
+        cv.put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl());
+        cv.put(TableColumns.Sounds.SHARING, playlist.getSharing().value());
         cv.put(TableColumns.Sounds.DURATION, playlist.getDuration());
         cv.put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount());
         cv.put(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime());
@@ -216,12 +219,11 @@ public class DatabaseFixtures {
         return like;
     }
 
-    public long insertLegacyPlaylistLike(long playlistId, long userId) {
+    public long insertPlaylistRepostCollectionItem(long playlistId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
-        cv.put(TableColumns.CollectionItems.USER_ID, userId);
-        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, CollectionStorage.CollectionItemTypes.LIKE);
+        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.REPOST);
+        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         return insertInto(Table.CollectionItems, cv);
     }
 

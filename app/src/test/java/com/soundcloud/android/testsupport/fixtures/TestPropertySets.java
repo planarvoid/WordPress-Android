@@ -5,6 +5,8 @@ import static com.google.common.collect.Lists.newArrayList;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
+import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -203,5 +205,22 @@ public abstract class TestPropertySets {
                 PlayableProperty.LIKES_COUNT.bind(12),
                 PlayableProperty.IS_LIKED.bind(true)
         );
+    }
+
+    public static PropertySet fromApiPlaylist(ApiPlaylist apiPlaylist, boolean isLiked, boolean isReposted) {
+        return PropertySet.from(
+                TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
+                PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
+                PlayableProperty.DURATION.bind(apiPlaylist.getDuration()),
+                PlayableProperty.CREATOR_NAME.bind(apiPlaylist.getUser().getUsername()),
+                PlayableProperty.CREATOR_URN.bind(apiPlaylist.getUser().getUrn()),
+                PlayableProperty.LIKES_COUNT.bind(apiPlaylist.getStats().getLikesCount()),
+                PlayableProperty.REPOSTS_COUNT.bind(apiPlaylist.getStats().getRepostsCount()),
+                PlayableProperty.PERMALINK_URL.bind(apiPlaylist.getPermalinkUrl()),
+                PlayableProperty.CREATED_AT.bind(apiPlaylist.getCreatedAt()),
+                PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing())),
+                PlayableProperty.IS_LIKED.bind(isLiked),
+                PlayableProperty.IS_REPOSTED.bind(isReposted),
+                PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));
     }
 }

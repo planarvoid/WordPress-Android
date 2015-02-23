@@ -8,6 +8,7 @@ import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
+@Deprecated
 public abstract class SingleResourceQueryCommand<I> extends Command<I, PropertySet, SingleResourceQueryCommand<I>> {
 
     private final PropellerDatabase database;
@@ -30,6 +31,7 @@ public abstract class SingleResourceQueryCommand<I> extends Command<I, PropertyS
     @Override
     public PropertySet call() throws Exception {
         final QueryResult queryResult = database.query(buildQuery(input));
-        return queryResult.isEmpty() ? PropertySet.create() : mapper.map(queryResult.iterator().next());
+        return queryResult.isEmpty() ? PropertySet.create() :
+                mapper.map(queryResult.iterator().next());
     }
 }
