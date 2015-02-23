@@ -176,18 +176,22 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
         @Override
         public void onNext(List<DownloadRequest> requests) {
-            Log.d(TAG, "Updating download queue with " + requests.size() + " requests.");
-            requestsQueue.clear();
-            requestsQueue.addAll(requests);
+            updateRequestQueue(requests);
 
             if (!downloadHandler.isDownloading()) {
                 eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
-                if (requests.isEmpty()) {
-                    stop();
-                } else {
-                    startDownloading(requests);
-                }
+                downloadNextOrFinish();
             }
+        }
+    }
+
+    private void updateRequestQueue(List<DownloadRequest> requests) {
+        Log.d(TAG, "Updating download queue with " + requests.size() + " requests.");
+        requestsQueue.clear();
+        requestsQueue.addAll(requests);
+
+        if (!requestsQueue.isEmpty()) {
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(requestsQueue.size()));
         }
     }
 
@@ -200,12 +204,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         stopForeground(false);
         stopSelf();
-    }
-
-    private void startDownloading(List<DownloadRequest> requests) {
-        Log.d(TAG, "Starting offline downloads with " + requests.size() + " requests.");
-        startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(requests.size()));
-        download(requestsQueue.poll());
     }
 
 }

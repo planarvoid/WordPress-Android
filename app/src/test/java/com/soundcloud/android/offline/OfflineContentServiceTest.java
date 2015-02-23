@@ -180,6 +180,16 @@ public class OfflineContentServiceTest {
     }
 
     @Test
+    public void updatesNotificationWhenAnotherTrackLikedDuringDownload() {
+        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(buildDownloadRequestObservable(downloadRequest2, createDownloadRequest(678)));
+        when(downloadHandler.isDownloading()).thenReturn(true);
+
+        startService();
+
+        verify(notificationController).onPendingRequests(2);
+    }
+
+    @Test
     public void updatesNotificationWhenLikedTrackDownloaded() {
         service.onSuccess(downloadResult1);
 
@@ -191,15 +201,6 @@ public class OfflineContentServiceTest {
         service.onSuccess(downloadResult1);
 
         verify(notificationController).onDownloadsFinished();
-    }
-
-    @Test
-    public void startServiceWithDownloadActionCancelsAnyExistingRetrySchedulings() {
-        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(Observable.<List<DownloadRequest>>empty());
-
-        startService();
-
-        verify(offlineContentScheduler).cancelPendingRetries();
     }
 
     @Test
@@ -222,6 +223,15 @@ public class OfflineContentServiceTest {
         pendingRequestsSubject.onNext(Arrays.asList(downloadRequest1, downloadRequest2));
         verify(notificationController, never()).onPendingRequests(anyInt());
         verify(downloadHandler).quit();
+    }
+
+    @Test
+    public void startServiceWithDownloadActionCancelsAnyExistingRetryScheduling() {
+        when(offlineContentOperations.updateDownloadRequestsFromLikes()).thenReturn(Observable.<List<DownloadRequest>>empty());
+
+        startService();
+
+        verify(offlineContentScheduler).cancelPendingRetries();
     }
 
     private int startService() {
