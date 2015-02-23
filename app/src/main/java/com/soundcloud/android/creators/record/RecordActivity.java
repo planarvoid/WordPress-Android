@@ -513,7 +513,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             newState = CreateState.RECORD;
         } else {
 
-            Recording recording = Recording.fromIntent(intent, this, getCurrentUserId());
+            Recording recording = Recording.fromIntent(intent, this, accountOperations.getLoggedInUserUrn().getNumericId());
             if (recording != null) {
 
                 // failsafe, if they try to play an uploading recording
@@ -559,7 +559,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             unsavedRecordings = recordings.getUnsavedRecordings(
                     SoundRecorder.RECORD_DIR,
                     recorder.getRecording(),
-                    getCurrentUserId());
+                    accountOperations.getLoggedInUserUrn().getNumericId());
 
             if (!unsavedRecordings.isEmpty()) {
                 showDialog(Dialogs.UNSAVED_RECORDING.ordinal());

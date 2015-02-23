@@ -333,7 +333,7 @@ public class ProfileActivity extends ScActivity implements
     }
 
     protected boolean isLoggedInUser() {
-        return user != null && user.getId() == getCurrentUserId();
+        return user != null && user.getId() == accountOperations.getLoggedInUserUrn().getNumericId();
     }
 
     private void loadYou() {

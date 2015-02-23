@@ -73,7 +73,7 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
         storage = new RecordingStorage();
 
         final Intent intent = getIntent();
-        if (intent != null && (recording = Recording.fromIntent(intent, this, getCurrentUserId())) != null) {
+        if (intent != null && (recording = Recording.fromIntent(intent, this, accountOperations.getLoggedInUserUrn().getNumericId())) != null) {
             setUploadLayout(R.layout.sc_upload);
             recordingMetadata.setRecording(recording, false);
 

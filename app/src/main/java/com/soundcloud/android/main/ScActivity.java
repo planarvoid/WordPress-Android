@@ -40,8 +40,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject protected EventBus eventBus;
     @Inject protected AccountOperations accountOperations;
 
-    private long currentUserId;
-
     public ScActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
         lightCycleDispatcher
@@ -72,14 +70,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
             castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
         }
         return true;
-    }
-
-    public long getCurrentUserId() {
-        // TODO : inline ?
-        if (currentUserId == 0) {
-            currentUserId = accountOperations.getLoggedInUserId();
-        }
-        return currentUserId;
     }
 
     /**
