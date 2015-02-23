@@ -9,7 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -97,14 +96,9 @@ public class ProfileActivity extends ScActivity implements
     }
 
     @Deprecated
-    public static boolean startFromPlayable(Context context, Playable playable) {
-        if (playable != null) {
-            context.startActivity(
-                    new Intent(context, ProfileActivity.class)
-                            .putExtra(EXTRA_USER_ID, playable.getUserId()));
+    public static boolean start(Context context, Urn urn) {
+            context.startActivity(getIntent(context, urn));
             return true;
-        }
-        return false;
     }
 
     public static Intent getIntent(Context context, Urn userUrn) {

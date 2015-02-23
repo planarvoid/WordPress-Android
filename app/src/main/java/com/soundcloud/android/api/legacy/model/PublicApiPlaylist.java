@@ -230,10 +230,6 @@ public class PublicApiPlaylist extends Playable {
         return System.currentTimeMillis() - last_updated > Consts.ResourceStaleTimes.PLAYLIST;
     }
 
-    public boolean isStreamable() {
-        return true;
-    }
-
 
     public int getTrackCount() {
         return Math.max(tracks.size(), track_count);

@@ -2,8 +2,6 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.playback.views.PlayablePresenterItem;
-import com.soundcloud.propeller.PropertySet;
 
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -47,11 +45,7 @@ class PlaylistPresenter {
         return this;
     }
 
-    public void setPlayable(PropertySet propertySet) {
-        setPlayable(new PlayablePresenterItem(propertySet));
-    }
-
-    public void setPlayable(PlayablePresenterItem item) {
+    public void setPlaylist(PlaylistInfo item) {
         titleView.setText(item.getTitle());
         usernameView.setText(item.getCreatorName());
         imageOperations.displayWithPlaceholder(item.getUrn(), artworkSize, artworkView);

@@ -402,8 +402,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
 
     public abstract int getTypeId();
 
-    public abstract boolean isStreamable();
-
     public boolean isPublic() {
         return sharing.isPublic();
     }
@@ -427,13 +425,6 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
 
     protected static boolean isTrackCursor(Cursor cursor) {
         return cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds._TYPE)) == DB_TYPE_TRACK;
-    }
-
-    public void updateAssociations(PropertySet changeSet) {
-        user_like = changeSet.getOrElse(PlayableProperty.IS_LIKED, user_like);
-        likes_count = changeSet.getOrElse(PlayableProperty.LIKES_COUNT, likes_count);
-        user_repost = changeSet.getOrElse(PlayableProperty.IS_REPOSTED, user_repost);
-        reposts_count = changeSet.getOrElse(PlayableProperty.REPOSTS_COUNT, reposts_count);
     }
 
     @Override

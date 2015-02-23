@@ -9,8 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -29,7 +27,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
@@ -54,7 +51,6 @@ import android.widget.ToggleButton;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @SuppressLint("ValidFragment")
 public class PlaylistDetailFragment extends LightCycleSupportFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -62,7 +58,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     public static final String EXTRA_URN = "urn";
 
     @Inject PlaylistDetailsController.Provider controllerProvider;
-    @Inject LegacyPlaylistOperations legacyPlaylistOperations;
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject ImageOperations imageOperations;
@@ -79,14 +74,14 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private ListView listView;
     private View progressView;
 
-    private Observable<PublicApiPlaylist> loadPlaylist;
+    private Observable<PlaylistInfo> loadPlaylist;
     private Subscription playlistSubscription = Subscriptions.empty();
     private Subscription eventSubscription = Subscriptions.empty();
 
     private View headerUsernameText;
     private TextView infoHeaderText;
     private ToggleButton playToggle;
-    private PublicApiPlaylist playlist;
+    private PlaylistInfo playlistInfo;
 
     private boolean listShown;
     private boolean playOnLoad;
@@ -98,7 +93,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                 playToggle.setChecked(false);
             }
 
-            if (playQueueManager.isCurrentPlaylist(playlist.getUrn())) {
+            if (playQueueManager.isCurrentPlaylist(playlistInfo.getUrn())) {
                 playbackOperations.togglePlayback();
             } else  {
                 playFromBeginning();
@@ -109,7 +104,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ProfileActivity.startFromPlayable(getActivity(), playlist);
+            ProfileActivity.start(getActivity(), playlistInfo.getCreatorUrn());
         }
     };
 
@@ -131,7 +126,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @VisibleForTesting
     PlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
                            PlaybackOperations playbackOperations,
-                           LegacyPlaylistOperations legacyPlaylistOperations,
                            PlaylistOperations playlistOperations,
                            EventBus eventBus,
                            ImageOperations imageOperations,
@@ -142,7 +136,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.controllerProvider = controllerProvider;
         this.playbackOperations = playbackOperations;
-        this.legacyPlaylistOperations = legacyPlaylistOperations;
         this.playlistOperations = playlistOperations;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
@@ -167,7 +160,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        loadPlaylist = bindFragment(this, legacyPlaylistOperations.loadPlaylist(getPlaylistUrn()).cache());
+        loadPlaylist = bindFragment(this, playlistOperations.playlistInfo(getPlaylistUrn()).cache());
         if (savedInstanceState == null){
             playOnLoad = getActivity().getIntent().getBooleanExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, false);
         }
@@ -201,7 +194,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     @Override
     public void onRefresh() {
-        playlistSubscription = legacyPlaylistOperations.refreshPlaylist(getPlaylistUrn())
+        playlistSubscription = playlistOperations.updatedPlaylistInfo(getPlaylistUrn())
                 .observeOn(mainThread())
                 .subscribe(new RefreshSubscriber());
     }
@@ -212,12 +205,12 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
         eventSubscription = eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
                 new DefaultSubscriber<Playa.StateTransition>() {
-            @Override
-            public void onNext(Playa.StateTransition event) {
-                playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn())
-                        && event.playSessionIsActive());
-            }
-        });
+                    @Override
+                    public void onNext(Playa.StateTransition event) {
+                        playToggle.setChecked(playQueueManager.isCurrentPlaylist(getPlaylistUrn())
+                                && event.playSessionIsActive());
+                    }
+                });
     }
 
     @Override
@@ -247,8 +240,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private Urn getPlaylistUrn() {
         // if possible, use the instance to get the ID as it can change during syncing
-        if (playlist != null) {
-            return playlist.getUrn();
+        if (playlistInfo != null) {
+            return playlistInfo.getUrn();
         }
         return getArguments().getParcelable(EXTRA_URN);
     }
@@ -308,23 +301,23 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private void playTracksAtPosition(int trackPosition, Subscriber playbackSubscriber) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
-        playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
-        final Observable<List<Urn>> allTracks = playlistOperations.trackUrnsForPlayback(playlist.getUrn());
+        final Observable<List<Urn>> allTracks = playlistOperations.trackUrnsForPlayback(playlistInfo.getUrn());
         playbackOperations
                 .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
     }
 
-    protected void refreshMetaData(PublicApiPlaylist playlist) {
-        this.playlist = playlist;
-        playlistPresenter.setPlayable(playlist.toPropertySet());
-        playlistEngagementsController.setPlayable(playlist);
-        infoHeaderText.setText(createHeaderText(playlist));
+    protected void refreshMetaData(PlaylistInfo playlistInfo) {
+        this.playlistInfo = playlistInfo;
+        playlistPresenter.setPlaylist(playlistInfo);
+        playlistEngagementsController.setPlaylistInfo(playlistInfo);
+        infoHeaderText.setText(createHeaderText(playlistInfo));
 
         // don't register clicks before we have a valid playlist
-        final List<PublicApiTrack> tracks = playlist.getTracks();
+        final List<PropertySet> tracks = playlistInfo.getTracks();
         if (tracks != null && tracks.size() > 0) {
             if (playToggle.getVisibility() != View.VISIBLE) {
                 playToggle.setVisibility(View.VISIBLE);
@@ -338,25 +331,24 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         headerUsernameText.setEnabled(true);
     }
 
-    private String createHeaderText(PublicApiPlaylist playlist) {
+    private String createHeaderText(PlaylistInfo playlist) {
         final String trackCount = getResources().getQuantityString(
                 R.plurals.number_of_sounds, playlist.getTrackCount(), playlist.getTrackCount());
-        final String duration = ScTextUtils.formatTimestamp(playlist.duration, TimeUnit.MILLISECONDS);
-        return getString(R.string.playlist_info_header_text, trackCount, duration);
+        return getString(R.string.playlist_info_header_text, trackCount, playlist.getDuration());
     }
 
-    private void updateTracksAdapter(PublicApiPlaylist playlist) {
+    private void updateTracksAdapter(PlaylistInfo playlist) {
         final ItemAdapter<PropertySet> adapter = controller.getAdapter();
         adapter.clear();
-        for (PublicApiTrack track : playlist.getTracks()) {
-            adapter.addItem(track.toPropertySet());
+        for (PropertySet track : playlist.getTracks()) {
+            adapter.addItem(track);
         }
         adapter.notifyDataSetChanged();
     }
 
-    private class PlaylistSubscriber extends DefaultSubscriber<PublicApiPlaylist> {
+    private class PlaylistSubscriber extends DefaultSubscriber<PlaylistInfo> {
         @Override
-        public void onNext(PublicApiPlaylist playlist) {
+        public void onNext(PlaylistInfo playlist) {
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
             updateTracksAdapter(playlist);
@@ -409,5 +401,4 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             }
         }
     }
-
 }

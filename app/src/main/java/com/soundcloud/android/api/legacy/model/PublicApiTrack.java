@@ -252,12 +252,6 @@ public class PublicApiTrack extends Playable {
         return state == null;
     }
 
-    @JsonIgnore
-    @Override
-    public boolean isStreamable() {
-        return !TextUtils.isEmpty(stream_url) && (state == null || state.isStreamable());
-    }
-
     public boolean isProcessing() {
         return state != null && state.isProcessing();
     }

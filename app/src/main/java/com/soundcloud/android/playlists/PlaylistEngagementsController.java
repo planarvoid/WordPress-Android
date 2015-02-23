@@ -6,7 +6,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.associations.LegacyRepostOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -41,7 +40,7 @@ public class PlaylistEngagementsController {
     @Nullable private ImageButton shareButton;
 
     private Context context;
-    private Playable playable;
+    private PlaylistInfo playlistInfo;
     private OriginProvider originProvider;
 
     private final LegacyRepostOperations soundAssociationOps;
@@ -80,13 +79,13 @@ public class PlaylistEngagementsController {
                 @Override
                 public void onClick(View view) {
                     final boolean addLike = toggleLike.isChecked();
-                    if (playable != null) {
-                        final PropertySet propertySet = playable.toPropertySet();
+                    if (playlistInfo != null) {
+                        final PropertySet propertySet = playlistInfo.getSourceSet();
 
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
                                 Screen.PLAYLIST_DETAILS.get(),
                                 PlaylistEngagementsController.this.originProvider.getScreenTag(),
-                                playable.getUrn()));
+                                playlistInfo.getUrn()));
 
                         fireAndForget(addLike
                                 ? likeOperations.addLike(propertySet)
@@ -101,10 +100,10 @@ public class PlaylistEngagementsController {
             toggleRepost.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (playable != null) {
+                    if (playlistInfo != null) {
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
-                                PlaylistEngagementsController.this.originProvider.getScreenTag(), playable.getUrn()));
-                        fireAndForget(soundAssociationOps.toggleRepost(playable.getUrn(), toggleRepost.isChecked()));
+                                PlaylistEngagementsController.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
+                        fireAndForget(soundAssociationOps.toggleRepost(playlistInfo.getUrn(), toggleRepost.isChecked()));
                     }
                 }
             });
@@ -115,9 +114,9 @@ public class PlaylistEngagementsController {
             shareButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (playable != null) {
+                    if (playlistInfo != null) {
                         eventBus.publish(EventQueue.TRACKING,
-                                UIEvent.fromShare(PlaylistEngagementsController.this.originProvider.getScreenTag(), playable.getUrn()));
+                                UIEvent.fromShare(PlaylistEngagementsController.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
                         sendShareIntent();
                     }
                 }
@@ -126,7 +125,7 @@ public class PlaylistEngagementsController {
     }
 
     private void sendShareIntent() {
-        if (playable.isPrivate()) {
+        if (playlistInfo.isPrivate()) {
             return;
         }
 
@@ -140,16 +139,17 @@ public class PlaylistEngagementsController {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playable.getTitle()));
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playlistInfo.getTitle()));
         shareIntent.putExtra(Intent.EXTRA_TEXT, buildText());
         return shareIntent;
     }
 
     private String buildText() {
-        if (ScTextUtils.isNotBlank(playable.getUsername())) {
-            return context.getString(R.string.share_track_by_artist_on_soundcloud, playable.getTitle(), playable.getUsername(), playable.permalink_url);
+        if (ScTextUtils.isNotBlank(playlistInfo.getCreatorName())) {
+            return context.getString(R.string.share_track_by_artist_on_soundcloud,
+                    playlistInfo.getTitle(), playlistInfo.getCreatorName(), playlistInfo.getPermalinkUrl());
         }
-        return context.getString(R.string.share_track_on_soundcloud, playable.getTitle(), playable.permalink_url);
+        return context.getString(R.string.share_track_on_soundcloud, playlistInfo.getTitle(), playlistInfo.getPermalinkUrl());
     }
 
     void startListeningForChanges() {
@@ -157,9 +157,9 @@ public class PlaylistEngagementsController {
         subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new DefaultSubscriber<EntityStateChangedEvent>() {
             @Override
             public void onNext(EntityStateChangedEvent event) {
-                if (playable != null && playable.getUrn().equals(event.getNextUrn())) {
+                if (playlistInfo != null && playlistInfo.getUrn().equals(event.getNextUrn())) {
                     final PropertySet changeSet = event.getNextChangeSet();
-                    playable.updateAssociations(changeSet);
+                    playlistInfo.update(changeSet);
 
                     if (changeSet.contains(PlayableProperty.IS_LIKED)) {
                         updateLikeButton(
@@ -184,25 +184,24 @@ public class PlaylistEngagementsController {
         this.originProvider = originProvider;
     }
 
-    void setPlayable(@NotNull Playable playable) {
-        Log.d("SoundAssociations", "playable changed! " + playable.getId());
-        this.playable = playable;
+    void setPlaylistInfo(@NotNull PlaylistInfo playlistInfo) {
+        this.playlistInfo = playlistInfo;
 
         if (toggleLike != null) {
-            updateLikeButton(this.playable.likes_count, this.playable.user_like);
+            updateLikeButton(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
         }
 
         if (toggleRepost != null) {
-            updateRepostButton(this.playable.reposts_count, this.playable.user_repost);
+            updateRepostButton(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
         }
 
-        boolean showRepost = this.playable.isPublic() && this.playable.getUserId() != accountOperations.getLoggedInUserId();
+        boolean showRepost = this.playlistInfo.isPublic() && !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
         if (toggleRepost != null) {
             toggleRepost.setVisibility(showRepost ? View.VISIBLE : View.GONE);
         }
 
         if (shareButton != null) {
-            shareButton.setVisibility(this.playable.isPublic() ? View.VISIBLE : View.GONE);
+            shareButton.setVisibility(this.playlistInfo.isPublic() ? View.VISIBLE : View.GONE);
         }
     }
 

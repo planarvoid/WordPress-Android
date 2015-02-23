@@ -23,10 +23,11 @@ public class PlaylistOperationsTest {
 
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     @Mock private Observer<List<Urn>> urnListObserver;
+    @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
 
     @Before
     public void setUp() throws Exception {
-        operations = new PlaylistOperations(Schedulers.immediate(), loadPlaylistTrackUrns);
+        operations = new PlaylistOperations(Schedulers.immediate(), loadPlaylistTrackUrns, legacyPlaylistOperations);
     }
 
     @Test
