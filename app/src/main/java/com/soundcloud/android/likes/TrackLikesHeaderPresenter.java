@@ -108,7 +108,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
         foregroundLifeCycle.unsubscribe();
     }
 
-    public void onDestroyView() {
+    @Override
+    public void onDestroyView(Fragment fragment) {
         headerView.onDestroyView();
         viewLifeCycle.unsubscribe();
     }
@@ -127,7 +128,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())
                 .replay();
-        allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber());
+        viewLifeCycle.add(allLikedTrackUrns.subscribe(new AllLikedTracksSubscriber()));
         viewLifeCycle.add(allLikedTrackUrns.connect());
     }
 

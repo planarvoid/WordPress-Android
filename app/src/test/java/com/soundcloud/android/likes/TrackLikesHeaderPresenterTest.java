@@ -188,7 +188,7 @@ public class TrackLikesHeaderPresenterTest {
 
         presenter.onViewCreated(layoutView, listView);
         presenter.onSubscribeListObservers(listBinding);
-        presenter.onDestroyView();
+        presenter.onDestroyView(fragment);
         likedTrackUrnsObservable.onNext(likedTrackUrns);
 
         verify(headerView, never()).updateTrackCount(anyInt());
@@ -208,7 +208,7 @@ public class TrackLikesHeaderPresenterTest {
     public void doNotUpdateTrackCountAfterViewIsDestroyedOnEntityLikeEvent() {
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
         presenter.onViewCreated(layoutView, listView);
-        presenter.onDestroyView();
+        presenter.onDestroyView(fragment);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 5));
 
