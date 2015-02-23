@@ -15,12 +15,12 @@ import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
-public class UserRemovedLightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
+public class UserRemovedController extends DefaultLightCycleActivity<ActionBarActivity> {
     private final EventBus eventBus;
     private Subscription userEventSubscription = Subscriptions.empty();
 
     @Inject
-    public UserRemovedLightCycle(EventBus eventBus) {
+    public UserRemovedController(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 

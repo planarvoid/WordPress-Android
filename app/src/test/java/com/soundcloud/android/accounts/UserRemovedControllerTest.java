@@ -16,15 +16,15 @@ import org.mockito.Mock;
 import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class UserRemovedLightCycleTest {
+public class UserRemovedControllerTest {
     @Mock private ActionBarActivity activity;
     private TestEventBus eventBus;
-    private UserRemovedLightCycle lightCycle;
+    private UserRemovedController lightCycle;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        lightCycle = new UserRemovedLightCycle(eventBus);
+        lightCycle = new UserRemovedController(eventBus);
     }
 
     @Test

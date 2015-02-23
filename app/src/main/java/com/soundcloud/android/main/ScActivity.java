@@ -6,8 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.AccountPlaybackController;
+import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.accounts.LogoutActivity;
-import com.soundcloud.android.accounts.UserRemovedLightCycle;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.android.lightcycle.LightCycleActionBarActivity;
@@ -32,7 +32,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject ActivityLifeCyclePublisher activityLifeCyclePublisher;
     @Inject NetworkConnectivityController networkConnectivityController;
     @Inject UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
-    @Inject UserRemovedLightCycle userRemovedLightCycle;
+    @Inject UserRemovedController userRemovedController;
     @Inject ImageOperationsController imageOperationsController;
     @Inject AccountPlaybackController accountPlaybackController;
     @Inject ScreenStateProvider screenStateProvider;
@@ -48,7 +48,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
                 .attach(activityLifeCyclePublisher)
                 .attach(networkConnectivityController)
                 .attach(unauthorisedRequestLightCycle)
-                .attach(userRemovedLightCycle)
+                .attach(userRemovedController)
                 .attach(imageOperationsController)
                 .attach(castConnectionHelper)
                 .attach(accountPlaybackController)
