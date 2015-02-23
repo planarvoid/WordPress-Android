@@ -14,16 +14,16 @@ import org.mockito.Mock;
 import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class AccountPlaybackControlLightCycleTest {
+public class AccountPlaybackControllerTest {
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ActionBarActivity activity;
 
-    private AccountPlaybackControlLightCycle lightCycle;
+    private AccountPlaybackController lightCycle;
 
     @Before
     public void setUp() throws Exception {
-       lightCycle = new AccountPlaybackControlLightCycle(accountOperations, playbackOperations);
+       lightCycle = new AccountPlaybackController(accountOperations, playbackOperations);
     }
 
     @Test
