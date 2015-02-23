@@ -14,14 +14,14 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ScreenStateLightCycleTest {
+public class ScreenStateProviderTest {
     @Mock private ActionBarActivity activity;
     
-    private ScreenStateLightCycle lightCycle;
+    private ScreenStateProvider lightCycle;
 
     @Before
     public void setUp() throws Exception {
-        lightCycle = new ScreenStateLightCycle();
+        lightCycle = new ScreenStateProvider();
     }
 
     @Test

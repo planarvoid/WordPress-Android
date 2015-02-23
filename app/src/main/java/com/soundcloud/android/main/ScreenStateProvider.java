@@ -8,7 +8,7 @@ import android.support.v7.app.ActionBarActivity;
 
 import javax.inject.Inject;
 
-class ScreenStateLightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
+class ScreenStateProvider extends DefaultLightCycleActivity<ActionBarActivity> {
     private static final String BUNDLE_CONFIGURATION_CHANGE = "BUNDLE_CONFIGURATION_CHANGE";
 
     private boolean onCreateCalled;
@@ -16,7 +16,7 @@ class ScreenStateLightCycle extends DefaultLightCycleActivity<ActionBarActivity>
     private boolean isForeground;
 
     @Inject
-    public ScreenStateLightCycle() {
+    public ScreenStateProvider() {
         // For dagger
     }
 

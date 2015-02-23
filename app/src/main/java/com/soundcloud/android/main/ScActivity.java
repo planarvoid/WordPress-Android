@@ -35,7 +35,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject UserRemovedLightCycle userRemovedLightCycle;
     @Inject ImageOperationsController imageOperationsController;
     @Inject AccountPlaybackController accountPlaybackController;
-    @Inject ScreenStateLightCycle screenStateLightCycle;
+    @Inject ScreenStateProvider screenStateProvider;
 
     @Inject protected EventBus eventBus;
     @Inject protected AccountOperations accountOperations;
@@ -52,7 +52,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
                 .attach(imageOperationsController)
                 .attach(castConnectionHelper)
                 .attach(accountPlaybackController)
-                .attach(screenStateLightCycle);
+                .attach(screenStateProvider);
     }
 
     // TODO: Ugly, but the support library (r19) does not update the AB title correctly via setTitle
@@ -74,7 +74,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     }
 
     public boolean isForeground() {
-        return screenStateLightCycle.isForeground();
+        return screenStateProvider.isForeground();
     }
 
     @Override
@@ -137,7 +137,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
 
     protected boolean shouldTrackScreen() {
         // What does it mean ? Is there a bug here ? #2664
-        return !screenStateLightCycle.isConfigurationChange() || screenStateLightCycle.isReallyResuming();
+        return !screenStateProvider.isConfigurationChange() || screenStateProvider.isReallyResuming();
     }
 
     @Override
