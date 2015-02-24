@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -38,7 +38,7 @@ public class CastSessionReconnectorTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private CastConnectionHelper castConnectionHelper;
-    @Mock private AdToastViewController adToastViewController;
+    @Mock private PlaybackToastHelper playbackToastHelper;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 
     @Captor private ArgumentCaptor<CastConnectionListener> connectionListenerCaptor;
@@ -48,7 +48,7 @@ public class CastSessionReconnectorTest {
 
     @Before
     public void setUp() throws Exception {
-        castSessionReconnector = new CastSessionReconnector(playbackOperations, playQueueManager, castConnectionHelper, eventBus, adToastViewController, playSessionStateProvider);
+        castSessionReconnector = new CastSessionReconnector(playbackOperations, playQueueManager, castConnectionHelper, eventBus, playbackToastHelper, playSessionStateProvider);
         when(playbackOperations.playTrackWithRecommendations(any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
     }
 

@@ -6,7 +6,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
@@ -19,9 +19,9 @@ import java.util.List;
 public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     public static final int EXPAND_DELAY_MILLIS = 100;
     private final EventBus eventBus;
-    private final AdToastViewController adToastViewController;
+    private final PlaybackToastHelper playbackToastHelper;
 
-    private final Handler expandDelayHandler = new Handler(){
+    private final Handler expandDelayHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.expandPlayer());
@@ -30,20 +30,20 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     };
 
     @Inject
-    public ExpandPlayerSubscriber(EventBus eventBus, AdToastViewController adToastViewController) {
+    public ExpandPlayerSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
         this.eventBus = eventBus;
-        this.adToastViewController = adToastViewController;
+        this.playbackToastHelper = playbackToastHelper;
     }
 
     @Override
-    public void onCompleted() {
+    public void onNext(List<Urn> args) {
         expandDelayHandler.sendEmptyMessageDelayed(0, EXPAND_DELAY_MILLIS);
     }
 
     @Override
     public void onError(Throwable e) {
         if (e instanceof UnskippablePeriodException) {
-            adToastViewController.showUnskippableAdToast();
+            playbackToastHelper.showUnskippableAdToast();
         }
     }
 }

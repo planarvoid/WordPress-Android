@@ -11,7 +11,7 @@ import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -28,7 +28,7 @@ public class PlayerPagerScrollListenerTest {
 
     @Mock PlayQueueManager playQueueManager;
     @Mock PlayerTrackPager playerTrackPager;
-    @Mock AdToastViewController adToastViewController;
+    @Mock PlaybackToastHelper playbackToastHelper;
     @Mock AdsOperations adsOperations;
     @Mock TrackPagerAdapter adapter;
 
@@ -39,7 +39,7 @@ public class PlayerPagerScrollListenerTest {
     @Before
     public void setUp() {
         observer = new TestObserver<>();
-        pagerScrollListener = new PlayerPagerScrollListener(playQueueManager, adToastViewController, eventBus, adsOperations);
+        pagerScrollListener = new PlayerPagerScrollListener(playQueueManager, playbackToastHelper, eventBus, adsOperations);
         pagerScrollListener.initialize(playerTrackPager, adapter);
         pagerScrollListener.getPageChangedObservable().subscribe(observer);
     }
@@ -106,14 +106,14 @@ public class PlayerPagerScrollListenerTest {
 
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(adToastViewController).showUnskippableAdToast();
+        verify(playbackToastHelper).showUnskippableAdToast();
     }
 
     @Test
     public void doesNotShowBlocksSwipeToastWhenSwipeOnTrackPage() {
         pagerScrollListener.onPageScrollStateChanged(ViewPager.SCROLL_STATE_IDLE);
 
-        verify(adToastViewController, never()).showUnskippableAdToast();
+        verify(playbackToastHelper, never()).showUnskippableAdToast();
     }
 
     @Test

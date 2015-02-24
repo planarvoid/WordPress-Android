@@ -1,7 +1,8 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlaybackUtils.correctStartPositionAndDeduplicateList;
+
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
@@ -15,10 +16,9 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.utils.ErrorUtils;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -31,9 +31,7 @@ import android.net.Uri;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class PlaybackOperations {
@@ -65,7 +63,7 @@ public class PlaybackOperations {
     private final TrackStorage trackStorage;
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final AdToastViewController adToastViewController;
+    private final PlaybackToastHelper playbackToastHelper;
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
@@ -76,7 +74,7 @@ public class PlaybackOperations {
     public PlaybackOperations(Context context, ScModelManager modelManager, TrackStorage trackStorage,
                               PlayQueueManager playQueueManager,
                               PlaySessionStateProvider playSessionStateProvider,
-                              AdToastViewController adToastViewController, EventBus eventBus,
+                              PlaybackToastHelper playbackToastHelper, EventBus eventBus,
                               AdsOperations adsOperations, AccountOperations accountOperations,
                               Provider<PlaybackStrategy> playbackStrategyProvider) {
         this.context = context;
@@ -84,7 +82,7 @@ public class PlaybackOperations {
         this.trackStorage = trackStorage;
         this.playQueueManager = playQueueManager;
         this.playSessionStateProvider = playSessionStateProvider;
-        this.adToastViewController = adToastViewController;
+        this.playbackToastHelper = playbackToastHelper;
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
@@ -205,7 +203,7 @@ public class PlaybackOperations {
 
     public void previousTrack() {
         if (shouldDisableSkipping()) {
-            adToastViewController.showUnskippableAdToast();
+            playbackToastHelper.showUnskippableAdToast();
         } else {
             if (playSessionStateProvider.getLastProgressEvent().getPosition() >= PROGRESS_THRESHOLD_FOR_TRACK_CHANGE
                     && !adsOperations.isCurrentTrackAudioAd()) {
@@ -219,7 +217,7 @@ public class PlaybackOperations {
 
     public void nextTrack() {
         if (shouldDisableSkipping()) {
-            adToastViewController.showUnskippableAdToast();
+            playbackToastHelper.showUnskippableAdToast();
         } else {
             publishSkipEventIfAudioAd();
             playQueueManager.nextTrack();
@@ -281,48 +279,6 @@ public class PlaybackOperations {
 
     private boolean isCurrentTrack(Urn trackUrn) {
         return playQueueManager.isCurrentTrack(trackUrn);
-    }
-
-    private int correctStartPositionAndDeduplicateList(List<Urn> trackUrns, int startPosition, Urn initialTrack) {
-        int updatedPosition;
-        if (startPosition < trackUrns.size() && trackUrns.get(startPosition).equals(initialTrack)) {
-            updatedPosition = startPosition;
-        } else {
-            updatedPosition = trackUrns.indexOf(initialTrack);
-        }
-
-        if (updatedPosition < 0) {
-            ErrorUtils.handleSilentException(new IllegalStateException("Attempting to play an adapter track that's not in the list"));
-            updatedPosition = 0;
-        }
-
-        return getDeduplicatedList(trackUrns, updatedPosition);
-    }
-
-    /**
-     * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
-     * Returns the new startPosition
-     */
-    private int getDeduplicatedList(List<Urn> trackUrns, int startPosition) {
-        final Set<Urn> seenTracks = Sets.newHashSetWithExpectedSize(trackUrns.size());
-        final Urn playedTrack = trackUrns.get(startPosition);
-
-        int i = 0;
-        Iterator<Urn> iterator = trackUrns.iterator();
-        int adjustedPosition = startPosition;
-        while (iterator.hasNext()) {
-            final Urn track = iterator.next();
-            if (i != adjustedPosition && (seenTracks.contains(track) || track.equals(playedTrack))) {
-                iterator.remove();
-                if (i < adjustedPosition) {
-                    adjustedPosition--;
-                }
-            } else {
-                seenTracks.add(track);
-                i++;
-            }
-        }
-        return adjustedPosition;
     }
 
     public static class UnskippablePeriodException extends RuntimeException {}

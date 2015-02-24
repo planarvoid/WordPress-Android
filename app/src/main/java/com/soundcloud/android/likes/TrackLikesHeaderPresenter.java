@@ -9,6 +9,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -37,9 +38,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
 
     private final TrackLikesHeaderView headerView;
     private final LikeOperations likeOperations;
-    private final OfflineContentOperations offlineContentOperations;
     private final FeatureOperations featureOperations;
-    private final PlaybackOperations playbackOperations;
+    private final OfflineContentOperations offlineContentOperations;
+    private final OfflinePlaybackOperations playbackOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
 
@@ -65,7 +66,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
     public TrackLikesHeaderPresenter(TrackLikesHeaderView headerView,
                                      LikeOperations likeOperations,
                                      OfflineContentOperations offlineContentOperations,
-                                     FeatureOperations featureOperations, PlaybackOperations playbackOperations,
+                                     FeatureOperations featureOperations,
+                                     OfflinePlaybackOperations playbackOperations,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      EventBus eventBus) {
         this.headerView = headerView;
@@ -117,7 +119,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
     @Override
     public void onClick(View view) {
         playbackOperations
-                .playTracksShuffled(allLikedTrackUrns, new PlaySessionSource(Screen.SIDE_MENU_LIKES))
+                .playTracksShuffled(new PlaySessionSource(Screen.SIDE_MENU_LIKES))
                 .doOnCompleted(sendShuffleLikesAnalytics)
                 .subscribe(expandPlayerSubscriberProvider.get());
     }

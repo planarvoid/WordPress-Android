@@ -14,7 +14,7 @@ import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
@@ -56,7 +56,7 @@ public class TrackLikesPresenterTest {
 
     @Mock private LikeOperations likeOperations;
     @Mock private TrackOperations trackOperations;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private PagedTracksAdapter adapter;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
@@ -149,13 +149,11 @@ public class TrackLikesPresenterTest {
 
     @Test
     public void shouldPlayLikedTracksOnListItemClick() {
-        PropertySet clickedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
-        when(listView.getItemAtPosition(0)).thenReturn(clickedTrack);
+        final PropertySet clickedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
         final List<Urn> likedUrns = Arrays.asList(TRACK_URN);
         final Observable<List<Urn>> likedUrnsObservable = Observable.just(likedUrns);
-        when(likeOperations.likedTrackUrns()).thenReturn(likedUrnsObservable);
-        when(playbackOperations.playTracks(
-                eq(likedUrnsObservable), eq(clickedTrack.get(TrackProperty.URN)), eq(0), isA(PlaySessionSource.class)))
+        when(listView.getItemAtPosition(0)).thenReturn(clickedTrack);
+        when(playbackOperations.playLikes(eq(clickedTrack.get(TrackProperty.URN)), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(likedUrnsObservable);
 
         presenter.onItemClick(listView, view, 0, 0);

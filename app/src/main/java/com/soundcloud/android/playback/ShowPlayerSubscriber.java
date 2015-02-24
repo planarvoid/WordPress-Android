@@ -4,7 +4,7 @@ import static com.soundcloud.android.playback.PlaybackOperations.UnskippablePeri
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.model.Urn;
@@ -13,12 +13,12 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class ShowPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
-    private final AdToastViewController adToastViewController;
+    private final PlaybackToastHelper playbackToastHelper;
     private final EventBus eventBus;
 
     @Inject
-    public ShowPlayerSubscriber(EventBus eventBus, AdToastViewController adToastViewController) {
-        this.adToastViewController = adToastViewController;
+    public ShowPlayerSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
+        this.playbackToastHelper = playbackToastHelper;
         this.eventBus = eventBus;
     }
 
@@ -30,7 +30,7 @@ public class ShowPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     @Override
     public void onError(Throwable e) {
         if (e instanceof UnskippablePeriodException) {
-            adToastViewController.showUnskippableAdToast();
+            playbackToastHelper.showUnskippableAdToast();
         }
     }
 }

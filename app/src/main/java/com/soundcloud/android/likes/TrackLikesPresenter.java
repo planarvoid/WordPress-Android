@@ -10,8 +10,8 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
@@ -51,7 +51,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
 
     private final LikeOperations likeOperations;
     private final TrackOperations trackOperations;
-    private final PlaybackOperations playbackOperations;
+    private final OfflinePlaybackOperations playbackOperations;
     private final PagedTracksAdapter adapter;
     private final TrackLikesActionMenuController actionMenuController;
     private final TrackLikesHeaderPresenter headerPresenter;
@@ -72,7 +72,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     @Inject
     TrackLikesPresenter(LikeOperations likeOperations,
                         TrackOperations trackOperations,
-                        PlaybackOperations playbackOperations,
+                        OfflinePlaybackOperations playbackOperations,
                         PagedTracksAdapter adapter,
                         TrackLikesActionMenuController actionMenuController,
                         TrackLikesHeaderPresenter headerPresenter,
@@ -184,7 +184,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         Urn initialTrack = ((PropertySet) adapterView.getItemAtPosition(position)).get(TrackProperty.URN);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
         playbackOperations
-                .playTracks(likeOperations.likedTrackUrns(), initialTrack, position, playSessionSource)
+                .playLikes(initialTrack, position, playSessionSource)
                 .subscribe(expandPlayerSubscriberProvider.get());
     }
 
