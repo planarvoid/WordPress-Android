@@ -6,7 +6,7 @@ import com.soundcloud.android.model.Urn;
 import javax.inject.Inject;
 
 public class SinglePlaylistSyncerFactory {
-    private final LoadPlaylistTracksCommand loadUnpushedTracksForPlaylist;
+    private final LoadPlaylistTracksWithChangesCommand loadUnpushedTracksForPlaylist;
     private final PushPlaylistAdditionsCommand pushPlaylistAdditions;
     private final PushPlaylistRemovalsCommand pushPlaylistRemovals;
     private final FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;
@@ -16,7 +16,7 @@ public class SinglePlaylistSyncerFactory {
     private final ReplacePlaylistTracksCommand replacePlaylistTracks;
 
     @Inject
-    public SinglePlaylistSyncerFactory(LoadPlaylistTracksCommand loadUnpushedTracksForPlaylist,
+    public SinglePlaylistSyncerFactory(LoadPlaylistTracksWithChangesCommand loadUnpushedTracksForPlaylist,
                                        PushPlaylistAdditionsCommand pushPlaylistAdditions,
                                        PushPlaylistRemovalsCommand pushPlaylistRemovals,
                                        FetchPlaylistWithTracksCommand fetchPlaylistWithTracks,

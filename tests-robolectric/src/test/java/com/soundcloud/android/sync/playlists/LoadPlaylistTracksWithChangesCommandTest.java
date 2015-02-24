@@ -16,13 +16,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest {
+public class LoadPlaylistTracksWithChangesCommandTest extends StorageIntegrationTest {
 
-    private LoadPlaylistTracksCommand command;
+    private LoadPlaylistTracksWithChangesCommand command;
 
     @Before
     public void setup() {
-        command = new LoadPlaylistTracksCommand(propeller());
+        command = new LoadPlaylistTracksWithChangesCommand(propeller());
     }
 
     @Test

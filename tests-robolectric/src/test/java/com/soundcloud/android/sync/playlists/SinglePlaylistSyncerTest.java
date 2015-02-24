@@ -31,7 +31,7 @@ public class SinglePlaylistSyncerTest {
 
     private SinglePlaylistSyncer singlePlaylistSyncer;
 
-    @Mock private LoadPlaylistTracksCommand loadPlaylistTracks;
+    @Mock private LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     @Mock private PushPlaylistAdditionsCommand pushPlaylistAdditions;
     @Mock private PushPlaylistRemovalsCommand pushPlaylistRemovals;
     @Mock private FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;

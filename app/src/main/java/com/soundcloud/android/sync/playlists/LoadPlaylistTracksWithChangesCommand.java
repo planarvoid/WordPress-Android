@@ -14,12 +14,12 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadPlaylistTracksCommand extends Command<Urn, List<PropertySet>, LoadPlaylistTracksCommand> {
+class LoadPlaylistTracksWithChangesCommand extends Command<Urn, List<PropertySet>, LoadPlaylistTracksWithChangesCommand> {
 
     private final PropellerDatabase database;
 
     @Inject
-    LoadPlaylistTracksCommand(PropellerDatabase database) {
+    LoadPlaylistTracksWithChangesCommand(PropellerDatabase database) {
         this.database = database;
     }
 

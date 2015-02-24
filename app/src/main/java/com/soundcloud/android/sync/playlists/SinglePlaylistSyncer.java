@@ -18,7 +18,7 @@ import java.util.concurrent.Callable;
 
 class SinglePlaylistSyncer implements Callable<Boolean> {
 
-    private final LoadPlaylistTracksCommand loadPlaylistTracks;
+    private final LoadPlaylistTracksWithChangesCommand loadPlaylistTracks;
     private final PushPlaylistAdditionsCommand pushPlaylistAdditions;
     private final PushPlaylistRemovalsCommand pushPlaylistRemovals;
     private final FetchPlaylistWithTracksCommand fetchPlaylistWithTracks;
@@ -29,7 +29,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
 
     SinglePlaylistSyncer(FetchPlaylistWithTracksCommand fetchPlaylistWithTracks,
                          RemovePlaylistCommand removePlaylist,
-                         LoadPlaylistTracksCommand loadPlaylistTracks,
+                         LoadPlaylistTracksWithChangesCommand loadPlaylistTracks,
                          PushPlaylistAdditionsCommand pushPlaylistAdditions,
                          PushPlaylistRemovalsCommand pushPlaylistRemovals,
                          StoreTracksCommand storeTracks,
