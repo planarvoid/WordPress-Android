@@ -1,8 +1,11 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.crop.util.VisibleForTesting;
+
 import android.content.SyncResult;
 import android.net.Uri;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class ApiSyncResult {
@@ -75,24 +78,34 @@ public class ApiSyncResult {
     }
 
     public static ApiSyncResult fromUnexpectedResponse(Uri uri, int statusCode) {
+        return fromUnexpectedResponse(uri, statusCode, new Random());
+    }
+
+    @VisibleForTesting
+    static ApiSyncResult fromUnexpectedResponse(Uri uri, int statusCode, Random random) {
         final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
 
         if (statusCode >= 500){
             // http://developer.android.com/reference/android/content/SyncResult.html#delayUntil
-            apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(UNEXPECTED_RESPONSE_MINIMUM_DELAY, UNEXPECTED_RESPONSE_DELAY_RANGE);
+            apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(random, UNEXPECTED_RESPONSE_MINIMUM_DELAY, UNEXPECTED_RESPONSE_DELAY_RANGE);
         }
 
         return apiSyncResult;
     }
 
     public static ApiSyncResult fromGeneralFailure(Uri uri) {
+        return fromGeneralFailure(uri, new Random());
+    }
+
+    @VisibleForTesting
+    static ApiSyncResult fromGeneralFailure(Uri uri, Random random) {
         final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
-        apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(GENERAL_ERROR_MINIMUM_DELAY, GENERAL_ERROR_DELAY_RANGE);
+        apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(random, GENERAL_ERROR_MINIMUM_DELAY, GENERAL_ERROR_DELAY_RANGE);
         return apiSyncResult;
     }
 
-    private static long getRandomizedDelayTime(long minimumDelay, long range) {
-        return TimeUnit.MINUTES.toSeconds((long) (minimumDelay + Math.random() * range));
+    private static long getRandomizedDelayTime(Random random, int minimumDelay, int range) {
+        return TimeUnit.MINUTES.toSeconds(minimumDelay + random.nextInt(range + 1));
     }
 
     @Override

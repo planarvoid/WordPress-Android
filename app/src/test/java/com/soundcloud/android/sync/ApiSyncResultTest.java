@@ -1,17 +1,24 @@
 package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.net.Uri;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApiSyncResultTest {
 
     private static final Uri URI = Uri.parse("some/uri");
+    @Mock private Random random;
 
     @Test
     public void fromSuccessfulChangeIsSuccessful() throws Exception {
@@ -74,15 +81,31 @@ public class ApiSyncResultTest {
     }
 
     @Test
-    public void fromUnexpectedResponseCodesAddsDelayTimeFor5XX() throws Exception {
-        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500);
-        expect(apiSyncResult.syncResult.delayUntil).toBeGreaterThan((long) (ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY * 60));
-        expect(apiSyncResult.syncResult.delayUntil).toBeLessThan((long) ((ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY + ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE) * 60));
+    public void fromUnexpectedResponseCodesAddsMaxDelayTimeFor5XX() throws Exception {
+        final int inclusiveRange = ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE + 1;
+        when(random.nextInt(inclusiveRange)).thenReturn(ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE);
+
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500, random);
+
+        final int expectedDurationsInMinutes = ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY + ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE;
+        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
+    }
+
+    @Test
+    public void fromUnexpectedResponseCodesAddsMinDelayTimeFor5XX() throws Exception {
+        final int inclusiveRange = ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE + 1;
+        when(random.nextInt(inclusiveRange)).thenReturn(0);
+
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500, random);
+
+        final int expectedDurationsInMinutes = ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY;
+        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(expectedDurationsInMinutes));
     }
 
     @Test
     public void fromUnexpectedResponseCodesDoesNotAddDelayTimeFor4XX() throws Exception {
-        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 404);
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 404, random);
+        verifyZeroInteractions(random);
         expect(apiSyncResult.syncResult.delayUntil).toEqual(0L);
     }
 
