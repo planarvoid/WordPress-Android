@@ -6,7 +6,8 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.content.ContentValues;
 
@@ -20,12 +21,13 @@ class StorePoliciesCommand extends StoreCommand<Iterable<PolicyInfo>> {
     }
 
     @Override
-    protected WriteResult store() {
+    protected TxnResult store() {
         return database.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
                 for (PolicyInfo policy : input) {
-                    step(propeller.upsert(Table.Sounds, buildPolicyContentValues(policy)));
+                    step(propeller.update(Table.Sounds, buildPolicyContentValues(policy),
+                            new WhereBuilder().whereEq(TableColumns.Sounds._ID, policy.getTrackUrn().getNumericId())));
                 }
             }
         });

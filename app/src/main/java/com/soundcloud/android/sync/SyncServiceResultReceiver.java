@@ -60,6 +60,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
                 SyncResult serviceResult = resultData.getParcelable(ApiSyncService.EXTRA_SYNC_RESULT);
                 result.stats.numAuthExceptions = serviceResult.stats.numAuthExceptions;
                 result.stats.numIoExceptions = serviceResult.stats.numIoExceptions;
+                result.delayUntil = serviceResult.delayUntil;
                 break;
             }
 

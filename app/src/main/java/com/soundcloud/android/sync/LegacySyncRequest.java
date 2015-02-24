@@ -132,7 +132,8 @@ import java.util.Set;
             syncAdapterResult.stats.numAuthExceptions += legacySyncJob.getResult().syncResult.stats.numAuthExceptions;
             syncAdapterResult.stats.numIoExceptions += legacySyncJob.getResult().syncResult.stats.numIoExceptions;
             syncAdapterResult.stats.numParseExceptions += legacySyncJob.getResult().syncResult.stats.numParseExceptions;
-            // TODO more stats?
+            // This is called for multiple jobs per request, so always maintain the highest delay from any of the jobs
+            syncAdapterResult.delayUntil = Math.max(legacySyncJob.getResult().syncResult.delayUntil, syncAdapterResult.delayUntil);
         }
     }
 

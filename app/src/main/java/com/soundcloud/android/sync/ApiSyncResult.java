@@ -3,10 +3,19 @@ package com.soundcloud.android.sync;
 import android.content.SyncResult;
 import android.net.Uri;
 
+import java.util.concurrent.TimeUnit;
+
 public class ApiSyncResult {
+
     public static final int UNCHANGED = 0;
     public static final int REORDERED = 1;
     public static final int CHANGED   = 2;
+
+    protected static final int UNEXPECTED_RESPONSE_MINIMUM_DELAY = 20;
+    protected static final int UNEXPECTED_RESPONSE_DELAY_RANGE = 40;
+
+    protected static final int GENERAL_ERROR_MINIMUM_DELAY = 10;
+    protected static final int GENERAL_ERROR_DELAY_RANGE = 20;
 
     public final Uri uri;
     public final SyncResult syncResult = new SyncResult();
@@ -65,9 +74,25 @@ public class ApiSyncResult {
         return r;
     }
 
+    public static ApiSyncResult fromUnexpectedResponse(Uri uri, int statusCode) {
+        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
+
+        if (statusCode >= 500){
+            // http://developer.android.com/reference/android/content/SyncResult.html#delayUntil
+            apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(UNEXPECTED_RESPONSE_MINIMUM_DELAY, UNEXPECTED_RESPONSE_DELAY_RANGE);
+        }
+
+        return apiSyncResult;
+    }
+
     public static ApiSyncResult fromGeneralFailure(Uri uri) {
-        // for now, the defaults are fine
-        return new ApiSyncResult(uri);
+        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
+        apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(GENERAL_ERROR_MINIMUM_DELAY, GENERAL_ERROR_DELAY_RANGE);
+        return apiSyncResult;
+    }
+
+    private static long getRandomizedDelayTime(long minimumDelay, long range) {
+        return TimeUnit.MINUTES.toSeconds((long) (minimumDelay + Math.random() * range));
     }
 
     @Override

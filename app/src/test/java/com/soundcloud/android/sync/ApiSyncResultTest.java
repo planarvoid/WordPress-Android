@@ -74,8 +74,28 @@ public class ApiSyncResultTest {
     }
 
     @Test
+    public void fromUnexpectedResponseCodesAddsDelayTimeFor5XX() throws Exception {
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 500);
+        expect(apiSyncResult.syncResult.delayUntil).toBeGreaterThan((long) (ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY * 60));
+        expect(apiSyncResult.syncResult.delayUntil).toBeLessThan((long) ((ApiSyncResult.UNEXPECTED_RESPONSE_MINIMUM_DELAY + ApiSyncResult.UNEXPECTED_RESPONSE_DELAY_RANGE) * 60));
+    }
+
+    @Test
+    public void fromUnexpectedResponseCodesDoesNotAddDelayTimeFor4XX() throws Exception {
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromUnexpectedResponse(URI, 404);
+        expect(apiSyncResult.syncResult.delayUntil).toEqual(0L);
+    }
+
+    @Test
     public void fromGeneralFailureIsUnsuccessful() throws Exception {
         final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI);
         expect(apiSyncResult.success).toBeFalse();
+    }
+
+    @Test
+    public void fromGeneralFailureAddsDelayTime() throws Exception {
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI);
+        expect(apiSyncResult.syncResult.delayUntil).toBeGreaterThan((long) (ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY * 60));
+        expect(apiSyncResult.syncResult.delayUntil).toBeLessThan((long) ((ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY + ApiSyncResult.GENERAL_ERROR_DELAY_RANGE) * 60));
     }
 }
