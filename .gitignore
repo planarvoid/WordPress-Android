@@ -56,7 +56,7 @@ coverage-error.log
 client_secrets.json
 
 app/res/values/app_properties*.xml
-tests-integration/res/values/test_properties*.xml
+app/src/androidTest/res/values/test_properties.xml
 
 # RVM, in case you use RVM + Replicant
 .rvmrc
