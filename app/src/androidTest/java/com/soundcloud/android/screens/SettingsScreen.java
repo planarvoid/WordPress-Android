@@ -1,0 +1,24 @@
+package com.soundcloud.android.screens;
+
+import com.soundcloud.android.settings.SettingsActivity;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.R;
+
+public class SettingsScreen extends Screen {
+    private static final Class ACTIVITY = SettingsActivity.class;
+
+    public SettingsScreen(Han solo) {
+        super(solo);
+    }
+
+    public SubscribeScreen clickSubscribe() {
+        testDriver.clickOnText(R.string.pref_subscription_buy_title);
+        return new SubscribeScreen(testDriver);
+    }
+
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
+    }
+
+}

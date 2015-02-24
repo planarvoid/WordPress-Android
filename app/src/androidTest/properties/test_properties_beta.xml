@@ -1,0 +1,4 @@
+<!-- Test properties for BETA releases -->
+<resources>
+    <bool name="run_ads_tests">true</bool>
+</resources>
