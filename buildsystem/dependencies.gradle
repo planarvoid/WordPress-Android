@@ -69,7 +69,6 @@ ext {
   greatExpectationsVersion = '0.14'
   modelCitizenVersion = '0.8.1'
   equalsVerifierVersion = '1.4.1'
-  mockWebServerVersion = '2.2.0'
   jsonVersion = '20080701'
   guavaVersion = '14.0.1'
 
@@ -125,7 +124,6 @@ ext {
       greatExpectations:  "com.github.xian:great-expectations:${greatExpectationsVersion}",
       modelCitizen:       "com.tobedevoured.modelcitizen:core:${modelCitizenVersion}",
       equalsVerifier:     "nl.jqno.equalsverifier:equalsverifier:${equalsVerifierVersion}",
-      mockWebServer:      "com.squareup.okhttp:mockwebserver:${mockWebServerVersion}",
       json:               "org.json:json:${jsonVersion}",
       propellerTest:      "com.soundcloud.propeller:propeller:${propellerVersion}:tests",
       guavaRepack:        "com.google.guava:guava-repack:${guavaRepackVersion}",

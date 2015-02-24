@@ -6,20 +6,16 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.mockwebserver.MockResponse;
-import com.squareup.okhttp.mockwebserver.MockWebServer;
-import com.squareup.okhttp.mockwebserver.RecordedRequest;
-import org.junit.After;
+import com.squareup.okhttp.Request;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
-import java.io.IOException;
-
-@Ignore
 @RunWith(SoundCloudTestRunner.class)
 public class StrickSSLHttpClientTest {
 
@@ -29,9 +25,10 @@ public class StrickSSLHttpClientTest {
 
     @Mock private DeviceHelper deviceHelper;
     @Mock private OAuth oAuth;
+    @Mock private OkHttpClient okHttp;
+    @Mock private Call httpCall;
+    @Captor private ArgumentCaptor<Request> requestCaptor;
 
-    private OkHttpClient okHttp = new OkHttpClient();
-    private MockWebServer server = new MockWebServer();
     private StrictSSLHttpClient httpClient;
 
     @Before
@@ -39,41 +36,28 @@ public class StrickSSLHttpClientTest {
         httpClient = new StrictSSLHttpClient(okHttp, deviceHelper, oAuth);
         when(deviceHelper.getUserAgent()).thenReturn(USER_AGENT);
         when(oAuth.getAuthorizationHeaderValue()).thenReturn(OAUTH_TOKEN);
-        playMockResponse();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        server.shutdown();
+        when(okHttp.newCall(requestCaptor.capture())).thenReturn(httpCall);
     }
 
     @Test
     public void downloadFileRequestUsesGivenUrl() throws Exception {
-        httpClient.downloadFile(server.getUrl(FILE_PATH).toString());
+        httpClient.downloadFile(FILE_PATH);
 
-        final RecordedRequest request = server.takeRequest();
-        expect(request.getPath()).toMatch(FILE_PATH);
+        expect(requestCaptor.getValue().urlString()).toMatch(FILE_PATH);
     }
 
     @Test
     public void downloadFileRequestIncludesDeviceHeader() throws Exception {
-        httpClient.downloadFile(server.getUrl(FILE_PATH).toString());
+        httpClient.downloadFile(FILE_PATH);
 
-        final RecordedRequest request = server.takeRequest();
-        expect(request.getHeader("User-Agent")).toEqual(USER_AGENT);
+        expect(requestCaptor.getValue().header("User-Agent")).toEqual(USER_AGENT);
     }
 
     @Test
     public void downloadFileRequestIncludesOAuthToken() throws Exception {
-        httpClient.downloadFile(server.getUrl(FILE_PATH).toString());
+        httpClient.downloadFile(FILE_PATH);
 
-        final RecordedRequest request = server.takeRequest();
-        expect(request.getHeader("Authorization")).toEqual(OAUTH_TOKEN);
-    }
-
-    private void playMockResponse() throws IOException {
-        server.enqueue(new MockResponse());
-        server.play();
+        expect(requestCaptor.getValue().header("Authorization")).toEqual(OAUTH_TOKEN);
     }
 
 }

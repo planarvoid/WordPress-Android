@@ -29,7 +29,6 @@ dependencies {
   testCompile testingLibraries.greatExpectations
   testCompile testingLibraries.modelCitizen
   testCompile testingLibraries.equalsVerifier
-  testCompile testingLibraries.mockWebServer
   testCompile testingLibraries.json
   testCompile testingLibraries.propellerTest
 
