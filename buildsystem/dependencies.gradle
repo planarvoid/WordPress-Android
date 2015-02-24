@@ -5,7 +5,6 @@ allprojects {
     maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
     maven { url 'http://maven.int.s-cloud.net/content/repositories/thirdparty_releases' }
     maven { url 'http://download.crashlytics.com/maven' }
-    maven { url '/home/mobile/installs/android-sdk/extras/android/m2repository' }
     maven { url 'http://maven.int.s-cloud.net/content/repositories/snapshots' }
   }
 }
