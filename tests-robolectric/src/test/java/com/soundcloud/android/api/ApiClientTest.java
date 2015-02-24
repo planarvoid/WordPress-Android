@@ -21,6 +21,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -29,6 +30,7 @@ import org.mockito.Mock;
 
 import java.io.IOException;
 
+@Ignore
 @RunWith(SoundCloudTestRunner.class)
 public class ApiClientTest {
 

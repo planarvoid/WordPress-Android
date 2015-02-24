@@ -26,8 +26,12 @@ import java.lang.reflect.Method;
 
 public class SoundCloudTestRunner extends RobolectricTestRunner {
 
+    private static final File MANIFEST = new File("app/AndroidManifest.xml");
+    private static final File RESOURCES = new File("app/res");
+    private static final File ASSETS = new File("app/assets");
+
     public SoundCloudTestRunner(Class testClass) throws InitializationError {
-        super(testClass, new RobolectricConfig(new File("../app")));
+        super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));
     }
 
     @Override

@@ -39,8 +39,12 @@ import java.lang.reflect.Method;
 public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;
 
+    private static final File MANIFEST = new File("app/AndroidManifest.xml");
+    private static final File RESOURCES = new File("app/res");
+    private static final File ASSETS = new File("app/assets");
+
     public DefaultTestRunner(Class testClass) throws InitializationError {
-        super(testClass,new RobolectricConfig(new File("../app")));
+        super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));
 
         // remove native calls + replace with shadows
         addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.VorbisEncoder");

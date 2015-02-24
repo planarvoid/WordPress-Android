@@ -31,7 +31,7 @@ public class SoundCloudApplicationTest {
     public void shouldOnlyHaveOneLauncherActivity() throws Exception {
         DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
         f.setNamespaceAware(true);
-        Document doc = f.newDocumentBuilder().parse(new File("../app/AndroidManifest.xml"));
+        Document doc = f.newDocumentBuilder().parse(new File("app/AndroidManifest.xml"));
         NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//activity/intent-filter/category").evaluate(doc, XPathConstants.NODESET);
         int launchers = 0;
         for (int i = 0; i < nl.getLength(); i++) {
@@ -51,7 +51,7 @@ public class SoundCloudApplicationTest {
     public void shouldHaveOpenGLEnabled() throws Exception {
         DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
         f.setNamespaceAware(true);
-        Document doc = f.newDocumentBuilder().parse(new File("../app/AndroidManifest.xml"));
+        Document doc = f.newDocumentBuilder().parse(new File("app/AndroidManifest.xml"));
         NodeList nl = (NodeList) XPathFactory.newInstance().newXPath().compile("//application").evaluate(doc, XPathConstants.NODESET);
         expect(nl.getLength()).toEqual(1);
         Node app = nl.item(0);
