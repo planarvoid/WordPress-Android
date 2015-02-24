@@ -1,4 +1,4 @@
-<!-- Test properties for DEBUG releases -->
+<!-- Test properties for DEBUG builds -->
 <resources>
     <bool name="run_ads_tests">true</bool>
 </resources>
