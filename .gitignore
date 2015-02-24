@@ -45,7 +45,8 @@ reg_ids.yaml
 
 # Gradle
 .gradle
-./build/
+.gradletasknamecache
+build
 
 # test data
 tests-*.sqlite

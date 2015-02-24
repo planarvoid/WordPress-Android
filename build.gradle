@@ -1,0 +1,35 @@
+def buildSrcDir = 'buildsystem'
+apply from: "${buildSrcDir}/dependencies.gradle"
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:1.0.1'
+    classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4'
+  }
+}
+
+task wrapper(type: Wrapper) {
+  description 'Creates the gradle wrapper.'
+  gradleVersion '2.2.1'
+}
+
+allprojects {
+  ext {
+    manifestSrcFile = 'AndroidManifest.xml'
+    javaSrcDirs = 'src/main/java'
+    resSrcDirs = 'res'
+    assetsSrcDirs = 'assets'
+
+    testApplicationId = 'com.soundcloud.android.tests'
+    testInstrumentationRunner = 'com.soundcloud.android.framework.runner.RandomizingRunner'
+  }
+  repositories {
+    mavenLocal()
+    mavenCentral()
+  }
+}
+

@@ -1,0 +1,61 @@
+apply plugin: 'com.android.application'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+
+def sourceSetMain = rootProject.extensions.getByName('ext').getAt('javaSrcDirs')
+def staticAnalysisDirPath = "${projectDir}/static-analysis"
+
+def includeSrcPatternApplication = 'com/soundcloud/android/**/*.java'
+def includeSrcPatternApi = 'com/soundcloud/api/**/*.java'
+def excludeSrcPatternRClass = 'com/soundcloud/android/**/R.java'
+def excludeSrcPatternGeneratedFiles = '**/gen/**'
+
+task checkstyle(type: Checkstyle) {
+  description 'Checks whether Java source code complies with coding rules.'
+  ignoreFailures true
+  showViolations false
+  configFile = file("${staticAnalysisDirPath}/checkstyle.xml")
+
+  source sourceSetMain
+  include includeSrcPatternApplication
+  include includeSrcPatternApi
+  exclude excludeSrcPatternRClass
+  exclude excludeSrcPatternGeneratedFiles
+
+  classpath = files()
+}
+
+task findbugs(type: FindBugs) {
+  description 'Uses static analysis to look for bugs in Java code.'
+  ignoreFailures true
+  effort = 'max'
+  reportLevel = 'high'
+  excludeFilter = file("${staticAnalysisDirPath}/findbugs-exclude.xml")
+  classes = files("$project.buildDir/intermediates/classes/")
+
+  source sourceSetMain
+  include includeSrcPatternApplication
+  include includeSrcPatternApi
+  exclude excludeSrcPatternRClass
+  exclude excludeSrcPatternGeneratedFiles
+
+  classpath = files()
+}
+
+task pmd(type: Pmd) {
+  description 'Finds common programming flaws throw static analysis of code.'
+  ignoreFailures true
+  ruleSetFiles = files("${staticAnalysisDirPath}/pmd.xml")
+
+  source sourceSetMain
+  include includeSrcPatternApplication
+  include includeSrcPatternApi
+  exclude excludeSrcPatternRClass
+  exclude excludeSrcPatternGeneratedFiles
+
+  reports {
+    xml.enabled = true
+    html.enabled = false
+  }
+}

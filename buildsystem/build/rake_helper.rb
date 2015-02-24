@@ -88,7 +88,7 @@ module Build
     end
 
     def codestyle_task
-      desc "set up shared codestyle in IntelliJ IDEA"
+      desc "set up shared codestyle in Android Studio"
       task :setup_codestyle do
         template = File.join(Rake.original_dir, '.idea-codestyle.xml')
         pref_dirs = Dir.glob(ENV['HOME'] +'/Library/Preferences/*AndroidStudio*').

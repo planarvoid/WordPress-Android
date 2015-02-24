@@ -1,0 +1,182 @@
+buildscript {
+  repositories {
+    maven { url 'http://download.crashlytics.com/maven' }
+  }
+  dependencies {
+    classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+  }
+}
+
+def buildSrcDir = 'buildsystem'
+apply from: "${buildSrcDir}/versionizer.gradle"
+apply from: "${buildSrcDir}/static_analysis.gradle"
+apply from: "${buildSrcDir}/ci.gradle"
+
+apply plugin: 'com.android.application'
+apply plugin: 'maven'
+apply plugin: 'android-apt'
+apply plugin: 'crashlytics'
+
+def globalConfiguration = rootProject.extensions.getByName('ext')
+
+android {
+  compileSdkVersion globalConfiguration.getAt('androidCompileSdkVersion')
+  buildToolsVersion globalConfiguration.getAt('androidBuildToolsVersion')
+
+  defaultConfig {
+    minSdkVersion globalConfiguration.getAt('androidMinSdkVersion')
+    targetSdkVersion globalConfiguration.getAt('androidTargetSdkVersion')
+    testApplicationId globalConfiguration.getAt('testApplicationId')
+    testInstrumentationRunner globalConfiguration.getAt('testInstrumentationRunner')
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_7
+    targetCompatibility JavaVersion.VERSION_1_7
+  }
+
+  sourceSets {
+    main {
+      manifest.srcFile globalConfiguration.getAt('manifestSrcFile')
+      java.srcDirs globalConfiguration.getAt('javaSrcDirs')
+      res.srcDirs globalConfiguration.getAt('resSrcDirs')
+      assets.srcDirs globalConfiguration.getAt('assetsSrcDirs')
+      aidl.srcDirs globalConfiguration.getAt('javaSrcDirs')
+    }
+  }
+
+  signingConfigs {
+    debug {
+      storeFile file('../debug.keystore')
+      storePassword 'android'
+      keyAlias 'androiddebugkey'
+      keyPassword 'android'
+    }
+
+    release {
+      def propertiesFile = project.file('release.properties')
+      if (propertiesFile.exists()) {
+        def releaseProperties = new Properties()
+        releaseProperties.load(new FileInputStream(propertiesFile))
+        storeFile project.file(releaseProperties.getProperty('keyStore'))
+        storePassword releaseProperties.getProperty('keyStorePassword')
+        keyAlias releaseProperties.getProperty('keyAlias')
+        keyPassword releaseProperties.getProperty('keyAliasPassword')
+      }
+    }
+  }
+
+  buildTypes {
+    debug {
+      versionNameSuffix '-debug'
+      debuggable true
+      signingConfig signingConfigs.debug
+    }
+    release {
+      versionNameSuffix '-release'
+      debuggable false
+      minifyEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+      shrinkResources true
+      signingConfig signingConfigs.release
+    }
+    end2end.initWith(buildTypes.release)
+    end2end {
+      versionNameSuffix '-end2end'
+    }
+    beta.initWith(buildTypes.release)
+    beta {
+      versionNameSuffix '-beta'
+    }
+  }
+
+  lintOptions {
+    abortOnError false
+  }
+
+  packagingOptions {
+    exclude 'META-INF/DEPENDENCIES'
+    exclude 'META-INF/LICENSE'
+    exclude 'META-INF/NOTICE'
+  }
+
+  dexOptions {
+    incremental true
+    jumboMode true
+  }
+}
+
+/* Duplicate transitive dependencies on commons-logging, so exclude it.
+ (e.g. Dependency commons-logging:commons-logging:1.1.1 is ignored for debug as it may be
+ conflicting with the internal version provided by Android.
+ */
+configurations {
+  all*.exclude group: 'commons-logging', module: 'commons-logging'
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
+  maven { url 'http://maven.int.s-cloud.net/content/repositories/thirdparty_releases' }
+  maven { url 'http://download.crashlytics.com/maven' }
+  maven { url '/home/mobile/installs/android-sdk/extras/android/m2repository' }
+  maven { url 'http://maven.int.s-cloud.net/content/repositories/snapshots' }
+}
+
+dependencies {
+  def libraries = rootProject.ext.libraries
+  def acceptanceTestLibraries = rootProject.ext.acceptanceTestLibraries
+
+  /* Compile/Dev Time */
+  apt libraries.daggerCompiler
+  provided libraries.findBugsAnnotations
+  provided libraries.findBugsJsr305
+  provided libraries.intellijAnnotations
+
+  /* SoundCloud Libraries */
+  compile libraries.propeller
+  compile libraries.skippy
+  compile libraries.soundCloudVorbisEncoder
+
+  /* 3rd Party Libraries */
+  compile libraries.comscore
+  compile libraries.adjustAndroid
+  compile libraries.dagger
+  compile libraries.guavaRepack
+  compile libraries.crashlytics
+  compile libraries.jacksonRespack
+  compile libraries.okHttp
+  provided libraries.httpClient
+  compile (libraries.httpmime) { exclude group: 'org.apache.httpcomponents', module: 'httpclient' }
+  compile libraries.localytics
+  compile libraries.slidingUpPanel
+  compile libraries.androidCrop
+  compile libraries.rxAndroid
+  compile libraries.rxJava
+  compile libraries.rxJavaComputationExpressions
+  compile libraries.rxJavaAsyncUtil
+  compile libraries.rxJavaDebug
+  compile libraries.universalImageLoader
+  compile libraries.androidStyledDialogs
+  compile libraries.nineOldAndroids
+  compile libraries.facebookRebound
+  compile(libraries.facebookAndroidSdk) {
+      // see https://github.com/mente/facebook-api-android-aar/issues/11
+      transitive = true
+  }
+  compile libraries.butterKnife
+  compile libraries.castCompanionLibrary
+  compile libraries.undoBar
+
+  /* Android ... keep order! */
+  compile libraries.androidSupportLibrary
+  compile libraries.androidAppCompatLibrary
+  compile libraries.androidMediaRouterLibrary
+  compile libraries.androidPlayServicesBase
+  compile libraries.androidPlayServicesCast
+
+  /* Acceptance Tests */
+  androidTestCompile acceptanceTestLibraries.hamcrest
+  androidTestCompile acceptanceTestLibraries.robotium
+}
