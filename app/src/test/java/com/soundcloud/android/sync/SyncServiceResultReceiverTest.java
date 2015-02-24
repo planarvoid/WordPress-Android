@@ -4,16 +4,11 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.ContentStats;
-import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamSyncOperations;
-import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,11 +19,6 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SyncServiceResultReceiverTest {
@@ -62,6 +52,18 @@ public class SyncServiceResultReceiverTest {
         syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_ERROR, resultData);
 
         expect(syncResult.stats.numIoExceptions).toEqual(12L);
+    }
+
+    @Test
+    public void syncErrorCopiesDelayUntilToSyncResult() throws Exception {
+        final Bundle resultData = new Bundle();
+        final SyncResult syncResultArg = new SyncResult();
+        syncResultArg.delayUntil = 1000;
+
+        resultData.putParcelable(ApiSyncService.EXTRA_SYNC_RESULT, syncResultArg);
+        syncServiceResultReceiver.onReceiveResult(ApiSyncService.STATUS_SYNC_ERROR, resultData);
+
+        expect(syncResult.delayUntil).toEqual(1000L);
     }
 
     @Test

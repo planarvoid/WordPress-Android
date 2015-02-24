@@ -98,7 +98,7 @@ public class LegacySyncJob implements SyncJob {
         } catch (CloudAPI.InvalidTokenException e) {
             handleSyncException(ApiSyncResult.fromAuthException(contentUri), e);
         } catch (PublicCloudAPI.UnexpectedResponseException e) {
-            handleSyncException(ApiSyncResult.fromGeneralFailure(contentUri), e);
+            handleSyncException(ApiSyncResult.fromUnexpectedResponse(contentUri, e.getStatusCode()), e);
         } catch (IOException e) {
             handleSyncException(ApiSyncResult.fromIOException(contentUri), e);
         } catch (Exception e) {
