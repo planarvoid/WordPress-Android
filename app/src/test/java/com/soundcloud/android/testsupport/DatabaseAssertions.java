@@ -129,18 +129,33 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))), counts(1));
     }
 
-    public void assertPlaylistTracklist(long playlistId, List<Urn> tracklist){
-        for (int i = 0; i < tracklist.size(); i++){
+    public void assertPlaylistTracklist(long playlistId, List<Urn> tracklist) {
+        for (int i = 0; i < tracklist.size(); i++) {
             assertThat(select(from(Table.PlaylistTracks.name())
                     .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
                     .whereEq(TableColumns.PlaylistTracks.TRACK_ID, tracklist.get(i).getNumericId())
-                    .whereEq(TableColumns.PlaylistTracks.POSITION,i)), counts(1));
+                    .whereEq(TableColumns.PlaylistTracks.POSITION, i)), counts(1));
         }
 
         // assert no additional tracks
         assertThat(select(from(Table.PlaylistTracks.name())
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
-                .whereGe(TableColumns.PlaylistTracks.POSITION,tracklist.size())), counts(0));
+                .whereGe(TableColumns.PlaylistTracks.POSITION, tracklist.size())), counts(0));
+    }
+
+    public void assertPlaylistPostInserted(ApiPlaylist playlist) {
+        assertThat(select(from(Table.Sounds.name())
+                .whereEq(TableColumns.Sounds._ID, playlist.getId())
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Sounds.TITLE, playlist.getTitle())
+                .whereEq(TableColumns.Sounds.DURATION, playlist.getDuration())
+                .whereEq(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime())
+                .whereEq(TableColumns.Sounds.SHARING, playlist.getSharing().value())
+                .whereEq(TableColumns.Sounds.USER_ID, playlist.getUser().getId())
+                .whereEq(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount())
+                .whereEq(TableColumns.Sounds.REPOSTS_COUNT, playlist.getStats().getRepostsCount())
+                .whereEq(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount())
+                .whereEq(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))), counts(1));
     }
 
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {

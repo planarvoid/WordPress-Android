@@ -14,6 +14,7 @@ import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.posts.ApiPost;
 import org.hamcrest.Matchers;
 
 import android.content.ContentValues;
@@ -225,6 +226,40 @@ public class DatabaseFixtures {
         cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.REPOST);
         cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         return insertInto(Table.CollectionItems, cv);
+    }
+
+    public long insertPlaylistPost(long playlistId, long createdAt) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Posts._ID, playlistId);
+        cv.put(TableColumns.Posts._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.Posts.IS_REPOST, false);
+        cv.put(TableColumns.Posts.CREATED_AT, createdAt);
+        return insertInto(Table.Posts, cv);
+    }
+
+    public ApiPost insertTrackPost(ApiPost apiPost){
+        insertTrackPost(apiPost.getTargetUrn().getNumericId(),
+                apiPost.getCreatedAt().getTime(),
+                apiPost.isRepost());
+        return apiPost;
+    }
+
+    public long insertTrackPost(long id, long createdAt, boolean isRepost) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Posts._ID, id);
+        cv.put(TableColumns.Posts._TYPE, TableColumns.Sounds.TYPE_TRACK);
+        cv.put(TableColumns.Posts.IS_REPOST, isRepost);
+        cv.put(TableColumns.Posts.CREATED_AT, createdAt);
+        return insertInto(Table.Posts, cv);
+    }
+
+    public long insertPlaylistPost(long playlistId, long createdAt, boolean isRepost) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Posts._ID, playlistId);
+        cv.put(TableColumns.Posts._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.Posts.IS_REPOST, isRepost);
+        cv.put(TableColumns.Posts.CREATED_AT, createdAt);
+        return insertInto(Table.Posts, cv);
     }
 
     public long insertPlaylistCollection(long playlistId, long userId) {

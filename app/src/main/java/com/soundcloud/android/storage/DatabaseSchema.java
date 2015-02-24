@@ -251,6 +251,17 @@ final class DatabaseSchema {
             "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
             ");";
 
+    static final String DATABASE_CREATE_POSTS = "(" +
+            "_id INTEGER NOT NULL," +
+            "_type INTEGER NOT NULL," +
+            "is_repost BOOLEAN DEFAULT 0," +
+            "created_at INTEGER NOT NULL," +
+            "added_at INTEGER DEFAULT NULL," +
+            "removed_at INTEGER DEFAULT NULL," +
+            "PRIMARY KEY (_id, _type, is_repost)," +
+            "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
+            ");";
+
     /**
      * {@link com.soundcloud.android.storage.TableColumns.UserAssociations}
      */

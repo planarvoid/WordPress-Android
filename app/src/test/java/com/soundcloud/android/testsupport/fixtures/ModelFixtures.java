@@ -10,6 +10,7 @@ import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
+import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.testsupport.blueprints.AffiliationActivityBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiAudioAdBlueprint;
 import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;
@@ -127,11 +128,19 @@ public class ModelFixtures {
         );
     }
 
-    public static ApiPlaylistWithTracks apiPlaylistWithTracks(List<ApiTrack> tracks){
+    public static ApiPlaylistWithTracks apiPlaylistWithTracks(List<ApiTrack> tracks) {
         return new ApiPlaylistWithTracks(
                 ModelFixtures.create(ApiPlaylist.class),
                 new ModelCollection<ApiTrack>(tracks)
         );
+    }
+
+    public static ApiPost apiTrackPost() {
+        return apiTrackPost(ModelFixtures.create(ApiTrack.class));
+    }
+
+    public static ApiPost apiTrackPost(ApiTrack apiTrack) {
+        return new ApiPost(apiTrack.getUrn(), new Date(), false);
     }
 
 }

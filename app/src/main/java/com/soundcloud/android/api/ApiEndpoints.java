@@ -48,6 +48,9 @@ public enum ApiEndpoints {
     CREATE_PLAYLIST_LIKES("/likes/playlists/create"),
     DELETE_PLAYLIST_LIKES("/likes/playlists/delete"),
 
+    // posts
+    MY_PLAYLISTS_POSTS("/me/profiles/posts-and-reposts"), //does not exist yet
+
     // profile
     MY_DOB("/you/profile/dob"),
 
