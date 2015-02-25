@@ -68,9 +68,17 @@ public class PlaylistPostOperationsTest {
 
         operations.postedPlaylists().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toEqual(firstPage);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        expectObserverOnNextEventToEqual(firstPage);
+    }
+
+    @Test
+    public void syncAndLoadEmptyPlaylistPostsResultsWithEmptyResults() throws Exception {
+        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+
+        operations.postedPlaylists().subscribe(observer);
+
+        expectObserverOnNextEventToEqual(Collections.<PropertySet>emptyList());
     }
 
     @Test
@@ -81,9 +89,7 @@ public class PlaylistPostOperationsTest {
 
         operations.postedPlaylists().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toEqual(postedPlaylists);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        expectObserverOnNextEventToEqual(postedPlaylists);
     }
 
     @Test
@@ -144,9 +150,7 @@ public class PlaylistPostOperationsTest {
         operations.postedPlaylistsPager().page(operations.postedPlaylists()).subscribe(observer);
         operations.postedPlaylistsPager().next();
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toEqual(postedPlaylists);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        expectObserverOnNextEventToEqual(postedPlaylists);
     }
 
     @Test
@@ -156,11 +160,14 @@ public class PlaylistPostOperationsTest {
 
         operations.updatedPostedPlaylists().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toEqual(postedPlaylists);
-        expect(observer.getOnCompletedEvents()).toNumber(1);
+        expectObserverOnNextEventToEqual(postedPlaylists);
     }
 
+    private void expectObserverOnNextEventToEqual(List<PropertySet> firstPage) {
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toEqual(firstPage);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
 
     private List<PropertySet> createPageOfPostedPlaylists(int size){
         List<PropertySet> page = new ArrayList<>(size);

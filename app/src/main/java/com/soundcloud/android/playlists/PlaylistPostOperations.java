@@ -8,6 +8,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -49,10 +50,10 @@ class PlaylistPostOperations {
         }
     };
 
-    private final Func1<Boolean, Observable<List<PropertySet>>> handleSyncResult = new Func1<Boolean, Observable<List<PropertySet>>>() {
+    private final Func1<Object, ChronologicalQueryParams> toInitalPageParams = new Func1<Object, ChronologicalQueryParams>() {
         @Override
-        public Observable<List<PropertySet>> call(Boolean syncSuccess) {
-            return postedPlaylists();
+        public ChronologicalQueryParams call(Object unused) {
+            return new ChronologicalQueryParams(PAGE_SIZE, Long.MAX_VALUE);
         }
     };
 
@@ -72,7 +73,7 @@ class PlaylistPostOperations {
     }
 
     Observable<List<PropertySet>> updatedPostedPlaylists() {
-        return syncInitiator.refreshPostedPlaylists().flatMap(handleSyncResult);
+        return syncInitiator.refreshPostedPlaylists().map(toInitalPageParams).flatMap(loadPostedPlaylistsCommand);
     }
 
     Pager<List<PropertySet>> postedPlaylistsPager() {
