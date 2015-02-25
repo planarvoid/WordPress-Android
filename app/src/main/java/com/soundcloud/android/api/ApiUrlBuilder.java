@@ -1,14 +1,13 @@
 package com.soundcloud.android.api;
 
-import android.content.res.Resources;
-import android.net.Uri;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.oauth.OAuth;
 
-import java.util.Map;
+import android.content.res.Resources;
+import android.net.Uri;
 
 import javax.inject.Inject;
+import java.util.Map;
 
 public class ApiUrlBuilder {
 

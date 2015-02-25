@@ -1,13 +1,16 @@
 package com.soundcloud.android.image;
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.TransitionDrawable;
-import android.net.Uri;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.image.ImageOptionsFactory.DELAY_BEFORE_LOADING;
+import static com.soundcloud.android.image.ImageOptionsFactory.PlaceholderTransitionDisplayer;
+import static com.xtremelabs.robolectric.Robolectric.shadowOf;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 import com.google.common.cache.Cache;
 import com.nostra13.universalimageloader.cache.disc.DiskCache;
@@ -27,7 +30,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowBitmapDrawable;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,28 +38,24 @@ import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-
 import rx.Observable;
 import rx.Subscriber;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.image.ImageOptionsFactory.DELAY_BEFORE_LOADING;
-import static com.soundcloud.android.image.ImageOptionsFactory.PlaceholderTransitionDisplayer;
-import static com.xtremelabs.robolectric.Robolectric.shadowOf;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.isNull;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.TransitionDrawable;
+import android.net.Uri;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ImageOperationsTest {

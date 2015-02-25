@@ -1,5 +1,12 @@
 package com.soundcloud.android.api;
 
+import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
@@ -12,7 +19,6 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.api.Request;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.OkHttpClient;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,13 +28,6 @@ import org.mockito.Mock;
 
 import java.io.IOException;
 import java.util.Collections;
-
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.anyMap;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApiClientTest {

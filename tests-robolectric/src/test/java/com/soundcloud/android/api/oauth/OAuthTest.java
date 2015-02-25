@@ -1,18 +1,17 @@
 package com.soundcloud.android.api.oauth;
 
+import static com.soundcloud.android.Expect.expect;
+import static java.util.AbstractMap.SimpleEntry;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Map;
-
-import static com.soundcloud.android.Expect.expect;
-import static java.util.AbstractMap.SimpleEntry;
-import static org.mockito.Mockito.when;
 
 
 @RunWith(SoundCloudTestRunner.class)

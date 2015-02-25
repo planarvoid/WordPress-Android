@@ -16,15 +16,13 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-
 import org.apache.http.HttpStatus;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.inject.Inject;
 
 public class ApiClient {
 

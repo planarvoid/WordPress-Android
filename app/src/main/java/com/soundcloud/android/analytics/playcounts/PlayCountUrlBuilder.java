@@ -1,13 +1,13 @@
 package com.soundcloud.android.analytics.playcounts;
 
-import android.net.Uri;
-
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
+
+import android.net.Uri;
 
 import javax.inject.Inject;
 

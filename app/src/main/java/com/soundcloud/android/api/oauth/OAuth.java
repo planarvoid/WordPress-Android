@@ -1,20 +1,18 @@
 package com.soundcloud.android.api.oauth;
 
-import android.support.v4.util.ArrayMap;
-import android.text.TextUtils;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
-
 import org.apache.http.Header;
 import org.apache.http.auth.AUTH;
 import org.apache.http.message.BasicHeader;
 
+import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
+
+import javax.inject.Inject;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Random;
-
-import javax.inject.Inject;
 
 public class OAuth {
     public static final String[] DEFAULT_SCOPES = {Token.SCOPE_NON_EXPIRING};

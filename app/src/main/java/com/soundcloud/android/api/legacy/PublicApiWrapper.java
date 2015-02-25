@@ -1,15 +1,5 @@
 package com.soundcloud.android.api.legacy;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -31,7 +21,6 @@ import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
-
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -42,6 +31,19 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.SSLCertificateSocketFactory;
+import android.net.SSLSessionCache;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.Log;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -61,10 +63,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 

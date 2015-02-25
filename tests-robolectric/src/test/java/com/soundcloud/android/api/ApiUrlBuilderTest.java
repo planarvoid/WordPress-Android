@@ -1,20 +1,19 @@
 package com.soundcloud.android.api;
 
-import android.content.res.Resources;
+import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.util.Collections;
+import android.content.res.Resources;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.when;
+import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApiUrlBuilderTest {

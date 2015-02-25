@@ -1,11 +1,5 @@
 package com.soundcloud.android.framework;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Instrumentation;
-import android.content.Context;
-import android.util.Log;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
@@ -19,6 +13,13 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
+import rx.Subscription;
+
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Instrumentation;
+import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +28,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import rx.Subscription;
-
 public final class AccountAssistant {
 
     private static final long INJECTION_TIMEOUT = 10000;
 
-    private AccountAssistant() {}
+    private AccountAssistant() {
+    }
+
     private static final String TAG = AccountAssistant.class.getSimpleName();
 
     private static final Lock lock = new ReentrantLock();
@@ -54,7 +55,7 @@ public final class AccountAssistant {
             Log.i(TAG, "Already logged in");
             return account;
         } else if (account != null && !account.name.equals(username)) {
-            if(!logOut(instrumentation)){
+            if (!logOut(instrumentation)) {
                 throw new RuntimeException("Could not log out of SoundCloud Account");
             }
         }
@@ -116,7 +117,7 @@ public final class AccountAssistant {
     public static boolean logOut(Context context) throws Exception {
         Log.i(TAG, "Logging out");
         Account account = getAccount(context);
-        if(account == null){
+        if (account == null) {
             return false;
         }
 
@@ -152,7 +153,6 @@ public final class AccountAssistant {
 
         return true;
     }
-
 
 
     public static Account getAccount(Context context) {

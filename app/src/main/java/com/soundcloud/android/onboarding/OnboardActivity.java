@@ -1,29 +1,10 @@
 package com.soundcloud.android.onboarding;
 
-import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.AccountManager;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.showView;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.NonCachingTokenCachingStrategy;
@@ -70,8 +51,33 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
-
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 import org.jetbrains.annotations.Nullable;
+
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -80,14 +86,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
-
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class OnboardActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener, ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
 

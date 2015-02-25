@@ -15,7 +15,6 @@ import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
-import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -44,7 +43,6 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;

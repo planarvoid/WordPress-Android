@@ -1,5 +1,9 @@
 package com.soundcloud.android.analytics.playcounts;
 
+import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
+
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
@@ -11,15 +15,10 @@ import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-
-import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayCountUrlBuilderTest {
