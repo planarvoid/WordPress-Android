@@ -92,6 +92,28 @@ public class LikeOperationsTest {
     }
 
     @Test
+    public void syncAndLoadEmptyTrackLikesResults() {
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
+
+        operations.likedTracks().subscribe(observer);
+
+        verify(observer).onNext(Collections.<PropertySet>emptyList());
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void syncAndLoadEmptyPlaylistLikesResults() {
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
+
+        operations.likedPlaylists().subscribe(observer);
+
+        verify(observer).onNext(Collections.<PropertySet>emptyList());
+        verify(observer).onCompleted();
+    }
+
+    @Test
     public void likedTracksReturnsLikedTracksFromStorage() {
         List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(likedTracks));
