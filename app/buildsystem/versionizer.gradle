@@ -61,7 +61,7 @@ android {
     }
   }
 
-  task('bumpVersionCode') << {
+  task bumpVersion << {
     def manifestFile = file('AndroidManifest.xml')
     def manifestText = manifestFile.getText()
     def pattern = Pattern.compile('versionCode=\"(\\d+)\"')
