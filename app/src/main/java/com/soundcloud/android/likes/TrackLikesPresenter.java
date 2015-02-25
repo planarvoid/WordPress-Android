@@ -97,9 +97,8 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        creationLifeCycle = eventBus.queue(OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
-
         getListBinding().connect();
+        creationLifeCycle = eventBus.queue(OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
     }
 
     @Override
