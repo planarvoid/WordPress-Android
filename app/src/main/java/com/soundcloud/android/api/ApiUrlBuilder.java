@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.net.Uri;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.api.oauth.OAuth;
 
 import java.util.Map;
 
@@ -13,17 +14,19 @@ public class ApiUrlBuilder {
 
     private final String mobileApiBaseUrl;
     private final String publicApiBaseUrl;
+    private final OAuth oAuth;
     private Uri.Builder uriBuilder;
 
     @Inject
-    public ApiUrlBuilder(Resources resources) {
+    public ApiUrlBuilder(Resources resources, OAuth oAuth) {
+        this.oAuth = oAuth;
         this.mobileApiBaseUrl = resources.getString(R.string.mobile_api_base_url);
         this.publicApiBaseUrl = resources.getString(R.string.public_api_base_url);
     }
 
     public ApiUrlBuilder from(ApiEndpoints endpoint, Object... pathParams) {
         uriBuilder = Uri.parse(mobileApiBaseUrl + endpoint.unencodedPath(pathParams)).buildUpon();
-        return this;
+        return withOAuthClientIdParam();
     }
 
     public ApiUrlBuilder from(ApiRequest<?> request) {
@@ -36,7 +39,11 @@ public class ApiUrlBuilder {
                     ? mobileApiBaseUrl : publicApiBaseUrl;
             uriBuilder = Uri.parse(baseUri + request.getUri()).buildUpon();
         }
-        return this;
+        return withOAuthClientIdParam();
+    }
+
+    private ApiUrlBuilder withOAuthClientIdParam() {
+        return withQueryParam(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
     }
 
     public ApiUrlBuilder withQueryParams(Map<String, ?> params) {

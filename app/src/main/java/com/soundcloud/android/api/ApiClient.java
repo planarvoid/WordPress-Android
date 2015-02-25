@@ -16,13 +16,15 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+
 import org.apache.http.HttpStatus;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 import java.util.Map;
+
+import javax.inject.Inject;
 
 public class ApiClient {
 
@@ -54,7 +56,8 @@ public class ApiClient {
         try {
             final com.squareup.okhttp.Request.Builder builder = new com.squareup.okhttp.Request.Builder();
 
-            builder.url(resolveFullUrl(request));
+            final Map<String, String> existingParams = transformQueryParameters(request);
+            builder.url(urlBuilder.from(request).withQueryParams(existingParams).build());
             setHttpHeaders(request, builder);
 
             switch (request.getMethod()) {
@@ -123,15 +126,6 @@ public class ApiClient {
         } else {
             return RequestBody.create(mediaType, ScTextUtils.EMPTY_STRING);
         }
-    }
-
-    private String resolveFullUrl(ApiRequest request) {
-        final Map<String, String> existingParams = transformQueryParameters(request);
-        final ApiUrlBuilder builder = urlBuilder.from(request).withQueryParams(existingParams);
-        if (!existingParams.containsKey(OAuth.PARAM_CLIENT_ID)) {
-            builder.withQueryParam(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
-        }
-        return builder.build();
     }
 
     public <ResourceType> ResourceType fetchMappedResponse(ApiRequest<ResourceType> request) throws IOException, ApiRequestException, ApiMapperException {
