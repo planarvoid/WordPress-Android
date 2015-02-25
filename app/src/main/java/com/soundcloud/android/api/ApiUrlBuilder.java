@@ -1,22 +1,28 @@
 package com.soundcloud.android.api;
 
+import android.content.res.Resources;
 import android.net.Uri;
 
-import javax.inject.Inject;
+import com.soundcloud.android.R;
+
 import java.util.Map;
+
+import javax.inject.Inject;
 
 public class ApiUrlBuilder {
 
-    private final HttpProperties httpProperties;
+    private final String mobileApiBaseUrl;
+    private final String publicApiBaseUrl;
     private Uri.Builder uriBuilder;
 
     @Inject
-    public ApiUrlBuilder(HttpProperties httpProperties) {
-        this.httpProperties = httpProperties;
+    public ApiUrlBuilder(Resources resources) {
+        this.mobileApiBaseUrl = resources.getString(R.string.mobile_api_base_url);
+        this.publicApiBaseUrl = resources.getString(R.string.public_api_base_url);
     }
 
     public ApiUrlBuilder from(ApiEndpoints endpoint, Object... pathParams) {
-        uriBuilder = Uri.parse(httpProperties.getMobileApiBaseUrl() + endpoint.unencodedPath(pathParams)).buildUpon();
+        uriBuilder = Uri.parse(mobileApiBaseUrl + endpoint.unencodedPath(pathParams)).buildUpon();
         return this;
     }
 
@@ -27,7 +33,7 @@ public class ApiUrlBuilder {
         } else {
             // we expand the relative URI to contain the proper scheme and API host
             final String baseUri = request.isPrivate()
-                    ? httpProperties.getMobileApiBaseUrl() : httpProperties.getPublicApiBaseUrl();
+                    ? mobileApiBaseUrl : publicApiBaseUrl;
             uriBuilder = Uri.parse(baseUri + request.getUri()).buildUpon();
         }
         return this;
@@ -56,10 +62,5 @@ public class ApiUrlBuilder {
 
     public String build() {
         return uriBuilder.toString();
-    }
-
-    @Deprecated // only exists for Apache client legacy code
-    HttpProperties getHttpProperties() {
-        return httpProperties;
     }
 }

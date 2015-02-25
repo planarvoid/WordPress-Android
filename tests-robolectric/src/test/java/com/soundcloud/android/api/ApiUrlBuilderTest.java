@@ -1,9 +1,10 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.when;
+import android.content.res.Resources;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,18 +12,21 @@ import org.mockito.Mock;
 
 import java.util.Collections;
 
+import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.when;
+
 @RunWith(SoundCloudTestRunner.class)
 public class ApiUrlBuilderTest {
 
     private ApiUrlBuilder urlBuilder;
 
-    @Mock HttpProperties httpProperties;
+    @Mock private Resources resources;
 
     @Before
     public void setup() {
-        when(httpProperties.getMobileApiBaseUrl()).thenReturn("https://api-mobile.soundcloud.com");
-        when(httpProperties.getPublicApiBaseUrl()).thenReturn("https://api.soundcloud.com");
-        urlBuilder = new ApiUrlBuilder(httpProperties);
+        when(resources.getString(R.string.mobile_api_base_url)).thenReturn("https://api-mobile.soundcloud.com");
+        when(resources.getString(R.string.public_api_base_url)).thenReturn("https://api.soundcloud.com");
+        urlBuilder = new ApiUrlBuilder(resources);
     }
 
     @Test
