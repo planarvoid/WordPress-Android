@@ -1,10 +1,17 @@
 package com.soundcloud.android.framework;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
+import android.app.Instrumentation;
+import android.content.Context;
+import android.util.Log;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -12,14 +19,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.soundcloud.android.api.oauth.Token;
-import rx.Subscription;
-
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Instrumentation;
-import android.content.Context;
-import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +26,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import rx.Subscription;
 
 public final class AccountAssistant {
 
@@ -174,7 +175,7 @@ public final class AccountAssistant {
     static ApiWrapper createApiWrapper(Context context) {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         waitForAccountOperationsToBeInjected(context);
-        final HttpProperties properties = new HttpProperties(context.getResources());
-        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), application.getAccountOperations());
+        final OAuth oAuth = new OAuth(application.getAccountOperations());
+        return new ApiWrapper(oAuth.getClientId(), oAuth.getClientSecret(), application.getAccountOperations());
     }
 }

@@ -1,38 +1,39 @@
 package com.soundcloud.android.analytics.playcounts;
 
-import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.when;
-
-import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.HttpProperties;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+
+import static com.soundcloud.android.matchers.SoundCloudMatchers.urlEqualTo;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.when;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayCountUrlBuilderTest {
 
     private PlayCountUrlBuilder urlBuilder;
 
-    @Mock HttpProperties httpProperties;
+    @Mock OAuth oauth;
     @Mock AccountOperations accountOperations;
 
     @Before
     public void setup() {
-        when(httpProperties.getClientId()).thenReturn("ABCDEF");
+        when(oauth.getClientId()).thenReturn("ABCDEF");
         when(accountOperations.getSoundCloudToken()).thenReturn(Token.EMPTY);
-        urlBuilder = new PlayCountUrlBuilder(httpProperties, accountOperations);
+        urlBuilder = new PlayCountUrlBuilder(oauth, accountOperations);
     }
 
     @Test

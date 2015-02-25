@@ -1,5 +1,15 @@
 package com.soundcloud.android.api.legacy;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.SSLCertificateSocketFactory;
+import android.net.SSLSessionCache;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -11,16 +21,17 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
+
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -31,19 +42,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -63,6 +61,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
@@ -92,15 +94,16 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Deprecated
     public PublicApiWrapper(Context context) {
-        this(context, new HttpProperties(context), SoundCloudApplication.fromContext(context).getAccountOperations(),
+        this(context, new OAuth(SoundCloudApplication.fromContext(context).getAccountOperations()),
+                SoundCloudApplication.fromContext(context).getAccountOperations(),
                 new ApplicationProperties(context.getResources()));
 
     }
 
     @Deprecated
-    public PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
+    public PublicApiWrapper(Context context, OAuth oauth, AccountOperations accountOperations,
                             ApplicationProperties applicationProperties) {
-        this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
+        this(context, buildObjectMapper(), oauth.getClientId(), oauth.getClientSecret(),
                 accountOperations, applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
     }

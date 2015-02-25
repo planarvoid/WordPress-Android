@@ -1,10 +1,29 @@
 package com.soundcloud.android.onboarding;
 
-import static com.soundcloud.android.Consts.RequestCodes;
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
-import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
+import android.accounts.AccountAuthenticatorResponse;
+import android.accounts.AccountManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.util.Log;
+import android.view.ContextThemeWrapper;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.view.animation.Animation;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import com.facebook.FacebookOperationCanceledException;
 import com.facebook.NonCachingTokenCachingStrategy;
@@ -17,7 +36,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -52,33 +70,8 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
-import org.jetbrains.annotations.Nullable;
 
-import android.accounts.AccountAuthenticatorResponse;
-import android.accounts.AccountManager;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.view.animation.Animation;
-import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -87,6 +80,14 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+
+import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
+
+import static com.soundcloud.android.Consts.RequestCodes;
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.showView;
+import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 public class OnboardActivity extends FragmentActivity implements AuthTaskFragment.OnAuthResultListener, ISimpleDialogListener, LoginLayout.LoginHandler, SignUpLayout.SignUpHandler, UserDetailsLayout.UserDetailsHandler, AcceptTermsLayout.AcceptTermsHandler {
 
@@ -125,7 +126,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     private AccountAuthenticatorResponse accountAuthenticatorResponse;
     private Bundle resultBundle;
 
-    private HttpProperties httpProperties;
+    private OAuth oauth;
 
     // a bullshit fix for https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f4054fabb27481b26624a
     // We need to redo onboarding, so this is just a quick fix to prevent the crashes during the sign in flow
@@ -170,7 +171,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        httpProperties = new HttpProperties();
+        oauth = new OAuth(SoundCloudApplication.instance.getAccountOperations());
         applicationProperties = new ApplicationProperties(getResources());
         oldCloudAPI = new PublicApi(this);
 
@@ -999,7 +1000,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     }
 
     private void onCaptchaRequested() {
-        String uriString = String.format(Locale.US, SIGNUP_WITH_CAPTCHA_URI, httpProperties.getClientId());
+        String uriString = String.format(Locale.US, SIGNUP_WITH_CAPTCHA_URI, oauth.getClientId());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
         startActivity(intent);
     }
