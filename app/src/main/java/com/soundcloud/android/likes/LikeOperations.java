@@ -161,19 +161,6 @@ public class LikeOperations {
                 .subscribeOn(scheduler);
     }
 
-    private <CollT extends List> Func1<CollT, Observable<CollT>> returnIfNonEmptyOr(final Observable<CollT> syncAndLoadObservable) {
-        return new Func1<CollT, Observable<CollT>>() {
-            @Override
-            public Observable<CollT> call(CollT result) {
-                if (result.isEmpty()) {
-                    return syncAndLoadObservable;
-                } else {
-                    return Observable.just(result);
-                }
-            }
-        };
-    }
-
     public Observable<List<Urn>> likedTrackUrns() {
         return loadLikedTrackUrnsCommand.toObservable().subscribeOn(scheduler);
     }
