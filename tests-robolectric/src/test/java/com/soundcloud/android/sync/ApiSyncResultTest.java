@@ -111,14 +111,28 @@ public class ApiSyncResultTest {
 
     @Test
     public void fromGeneralFailureIsUnsuccessful() throws Exception {
-        final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI);
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI, random);
         expect(apiSyncResult.success).toBeFalse();
     }
 
     @Test
-    public void fromGeneralFailureAddsDelayTime() throws Exception {
-        final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI);
-        expect(apiSyncResult.syncResult.delayUntil).toBeGreaterThan((long) (ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY * 60));
-        expect(apiSyncResult.syncResult.delayUntil).toBeLessThan((long) ((ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY + ApiSyncResult.GENERAL_ERROR_DELAY_RANGE) * 60));
+    public void fromGeneralFailureAddsMinDelayTime() throws Exception {
+        final int inclusiveRange = ApiSyncResult.GENERAL_ERROR_DELAY_RANGE + 1;
+        when(random.nextInt(inclusiveRange)).thenReturn(0);
+
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI, random);
+
+        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY));
+    }
+
+    @Test
+    public void fromGeneralFailureAddsMaxDelayTime() throws Exception {
+        final int inclusiveRange = ApiSyncResult.GENERAL_ERROR_DELAY_RANGE + 1;
+        when(random.nextInt(inclusiveRange)).thenReturn(ApiSyncResult.GENERAL_ERROR_DELAY_RANGE);
+
+        final ApiSyncResult apiSyncResult = ApiSyncResult.fromGeneralFailure(URI, random);
+
+        long expectedTimeInSeconds = ApiSyncResult.GENERAL_ERROR_MINIMUM_DELAY + ApiSyncResult.GENERAL_ERROR_DELAY_RANGE;
+        expect(apiSyncResult.syncResult.delayUntil).toEqual(TimeUnit.MINUTES.toSeconds(expectedTimeInSeconds));
     }
 }
