@@ -24,6 +24,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.functions.Action0;
+import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
@@ -37,7 +38,6 @@ public class PlaylistPostOperationsTest {
     private PlaylistPostOperations operations;
     private List<PropertySet> postedPlaylists;
 
-    @Mock private Observer<List<PropertySet>> observer;
     @Mock private LoadPostedPlaylistsCommand loadPostedPlaylistsCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
@@ -45,6 +45,7 @@ public class PlaylistPostOperationsTest {
     @Mock private PlaylistStorage playlistStorage;
 
     private Scheduler scheduler = Schedulers.immediate();
+    private TestObserver<List<PropertySet>> observer;
 
     @Before
     public void setUp() throws Exception {
@@ -54,25 +55,42 @@ public class PlaylistPostOperationsTest {
                 scheduler, networkConnectionHelper);
 
         postedPlaylists = Arrays.asList(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
+        observer = new TestObserver<>();
 
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
+    }
+
+    @Test
+    public void syncAndLoadPlaylistPostsWhenInitialPlaylistPostsLoadReturnsEmptyList() {
+        final List<PropertySet> firstPage = createPageOfPostedPlaylists(PAGE_SIZE);
+        when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(firstPage));
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.just(true));
+
+        operations.postedPlaylists().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toEqual(firstPage);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
     @Test
     public void postedPlaylistsReturnsPostedPlaylistsFromStorage() {
         when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.postedPlaylists().subscribe(observer);
 
-        verify(observer).onNext(postedPlaylists);
-        verify(observer).onCompleted();
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toEqual(postedPlaylists);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
     @Test
     public void postedPlaylistsRequestsUpdatesFromSyncerWhenOnWifi() {
         when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
         operations.postedPlaylists().subscribe(observer);
@@ -84,6 +102,7 @@ public class PlaylistPostOperationsTest {
     public void postedPlaylistsDoesNotRequestsUpdatesFromSyncerWhenOffWifi() {
         when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(false);
 
         operations.postedPlaylists().subscribe(observer);
@@ -95,6 +114,7 @@ public class PlaylistPostOperationsTest {
     public void postedPlaylistsRequestsDoesNotUpdateEmptyListFromSyncer() {
         when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.postedPlaylists().subscribe(observer);
 
@@ -106,6 +126,7 @@ public class PlaylistPostOperationsTest {
         final List<PropertySet> firstPage = createPageOfPostedPlaylists(PAGE_SIZE);
         when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.postedPlaylistsPager().page(operations.postedPlaylists()).subscribe(observer);
         operations.postedPlaylistsPager().next();
@@ -118,13 +139,14 @@ public class PlaylistPostOperationsTest {
     public void playlistPagerFinishesIfLastPageIncomplete() throws Exception {
         when(loadPostedPlaylistsCommand.toObservable()).thenReturn(Observable.just(postedPlaylists));
         when(syncInitiator.syncPlaylistPosts()).thenReturn(Observable.<SyncResult>empty());
+        when(syncInitiator.refreshPostedPlaylists()).thenReturn(Observable.<Boolean>empty());
 
         operations.postedPlaylistsPager().page(operations.postedPlaylists()).subscribe(observer);
         operations.postedPlaylistsPager().next();
 
-        InOrder inOrder = inOrder(observer);
-        inOrder.verify(observer).onNext(postedPlaylists);
-        inOrder.verify(observer).onCompleted();
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toEqual(postedPlaylists);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
     @Test
@@ -134,10 +156,9 @@ public class PlaylistPostOperationsTest {
 
         operations.updatedPostedPlaylists().subscribe(observer);
 
-        InOrder inOrder = inOrder(observer, syncInitiator);
-        inOrder.verify(syncInitiator).refreshPostedPlaylists();
-        inOrder.verify(observer).onNext(postedPlaylists);
-        inOrder.verify(observer).onCompleted();
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toEqual(postedPlaylists);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
 

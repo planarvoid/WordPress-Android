@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -111,7 +112,7 @@ public class LikeOperations {
                 .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
                 .toObservable()
                 .doOnNext(requestTracksSyncAction)
-                .flatMap(returnIfNonEmptyOr(updatedLikedTracks()));
+                .lift(new OperatorSwitchOnEmptyList<>(updatedLikedTracks()));
     }
 
     public Observable<List<PropertySet>> updatedLikedTracks() {
@@ -128,7 +129,7 @@ public class LikeOperations {
                 .toObservable()
                 .doOnNext(requestPlaylistsSyncAction)
                 .subscribeOn(scheduler)
-                .flatMap(returnIfNonEmptyOr(updatedLikedPlaylists()));
+                .lift(new OperatorSwitchOnEmptyList<>(updatedLikedPlaylists()));
     }
 
     public Observable<List<PropertySet>> updatedLikedPlaylists() {

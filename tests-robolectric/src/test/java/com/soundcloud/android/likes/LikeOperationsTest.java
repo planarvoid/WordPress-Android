@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
@@ -64,6 +65,30 @@ public class LikeOperationsTest {
         when(storeLikeCommand.toObservable()).thenReturn(
                 Observable.just(TestPropertySets.likedTrack(Urn.forTrack(123))));
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
+    }
+
+    @Test
+    public void syncAndLoadTrackLikesWhenInitialTrackLoadReturnsEmptyList() {
+        List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedTracks));
+        when(syncInitiator.syncTrackLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
+
+        operations.likedTracks().subscribe(observer);
+
+        verify(observer).onNext(likedTracks);
+        verify(observer).onCompleted();
+    }
+
+    @Test
+    public void syncAndLoadPlaylistLikesWhenInitialPlaylistLoadReturnsEmptyList() {
+        List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedPlaylists));
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
+
+        operations.likedPlaylists().subscribe(observer);
+
+        verify(observer).onNext(likedPlaylists);
+        verify(observer).onCompleted();
     }
 
     @Test
