@@ -122,11 +122,9 @@ public class ApiWrapper implements CloudAPI {
     private String defaultContentType;
     private String defaultAcceptEncoding;
 
-    public ApiWrapper(String clientId,
-                      String clientSecret,
-                      AccountOperations accountOperations) {
+    public ApiWrapper(OAuth oAuth, AccountOperations accountOperations) {
         this.accountOperations = accountOperations;
-        this.oAuth = new OAuth(clientId, clientSecret, accountOperations);
+        this.oAuth = oAuth;
     }
 
     @Override

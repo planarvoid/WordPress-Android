@@ -176,6 +176,6 @@ public final class AccountAssistant {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         waitForAccountOperationsToBeInjected(context);
         final OAuth oAuth = new OAuth(application.getAccountOperations());
-        return new ApiWrapper(oAuth.getClientId(), oAuth.getClientSecret(), application.getAccountOperations());
+        return new ApiWrapper(oAuth, application.getAccountOperations());
     }
 }

@@ -94,25 +94,25 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Deprecated
     public PublicApiWrapper(Context context) {
-        this(context, new OAuth(SoundCloudApplication.fromContext(context).getAccountOperations()),
+        this(context,
                 SoundCloudApplication.fromContext(context).getAccountOperations(),
                 new ApplicationProperties(context.getResources()));
 
     }
 
     @Deprecated
-    public PublicApiWrapper(Context context, OAuth oauth, AccountOperations accountOperations,
+    public PublicApiWrapper(Context context, AccountOperations accountOperations,
                             ApplicationProperties applicationProperties) {
-        this(context, buildObjectMapper(), oauth.getClientId(), oauth.getClientSecret(),
+        this(context, buildObjectMapper(), new OAuth(accountOperations),
                 accountOperations, applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
     }
 
-    private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret,
+    private PublicApiWrapper(Context context, ObjectMapper mapper, OAuth oAuth,
                              AccountOperations accountOperations, ApplicationProperties applicationProperties,
                              UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                              DeviceHelper deviceHelper) {
-        super(clientId, clientSecret, accountOperations);
+        super(oAuth, accountOperations);
         // context can be null in tests
         if (context == null) {
             return;

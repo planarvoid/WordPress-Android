@@ -1,31 +1,12 @@
 package com.soundcloud.api;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.fail;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.api.fakehttp.FakeHttpLayer;
 import com.soundcloud.api.fakehttp.RequestMatcher;
-import com.soundcloud.android.api.oauth.OAuth;
-import com.soundcloud.android.api.oauth.Token;
+
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
@@ -56,6 +37,24 @@ import org.mockito.Mock;
 import java.io.IOException;
 import java.net.URI;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.fail;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApiWrapperTest {
@@ -64,12 +63,15 @@ public class ApiWrapperTest {
     private final static String TEST_CLIENT_SECRET = "testClientSecret";
     final FakeHttpLayer layer = new FakeHttpLayer();
 
+    @Mock private OAuth oAuth;
     @Mock private AccountOperations accountOperations;
 
     @Before
     public void setup() {
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
-        api = new ApiWrapper(TEST_CLIENT_ID, TEST_CLIENT_SECRET, accountOperations) {
+        when(oAuth.getClientId()).thenReturn(TEST_CLIENT_ID);
+        when(oAuth.getClientSecret()).thenReturn(TEST_CLIENT_SECRET);
+        api = new ApiWrapper(oAuth, accountOperations) {
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
                                                          ClientConnectionManager conman,
@@ -346,7 +348,7 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientNPE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", accountOperations) {
+        ApiWrapper broken = new ApiWrapper(oAuth, accountOperations) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -366,7 +368,7 @@ public class ApiWrapperTest {
     @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientIAE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", accountOperations) {
+        ApiWrapper broken = new ApiWrapper(oAuth, accountOperations) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -386,7 +388,7 @@ public class ApiWrapperTest {
     public void shouldSafeExecute() throws Exception {
 
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", accountOperations) {
+        ApiWrapper broken = new ApiWrapper(oAuth, accountOperations) {
             @Override
             public HttpClient getHttpClient() {
                 return client;

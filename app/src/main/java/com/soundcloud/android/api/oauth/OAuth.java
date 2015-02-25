@@ -57,11 +57,11 @@ public class OAuth {
     }
 
     public String getClientId() {
-        return CLIENT_ID;
+        return clientId;
     }
 
     public String getClientSecret() {
-        return deobfuscate(CLIENT_SECRET);
+        return clientSecret;
     }
 
     /**
