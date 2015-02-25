@@ -16,6 +16,7 @@ import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListBinding;
@@ -46,7 +47,7 @@ public class TrackLikesHeaderPresenterTest {
     @Mock private LikeOperations likeOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private FeatureOperations featureOperations;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private ListBinding<PropertySet, PropertySet> listBinding;
     @Mock private Fragment fragment;
     @Mock private View layoutView;
@@ -215,10 +216,9 @@ public class TrackLikesHeaderPresenterTest {
         verify(headerView, never()).updateTrackCount(anyInt());
     }
 
-    // Shuffle button click
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
-        when(playbackOperations.playTracksShuffled(any(Observable.class), any(PlaySessionSource.class)))
+        when(playbackOperations.playTracksShuffled(any(PlaySessionSource.class)))
                 .thenReturn(Observable.<List<Urn>>empty());
         presenter.onClick(null);
         expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toEqual(UIEvent.KIND_SHUFFLE_LIKES);

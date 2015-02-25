@@ -20,7 +20,7 @@ import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.ui.view.AdToastViewController;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -66,7 +66,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
     @Inject PlaylistPresenter playlistPresenter;
-    @Inject AdToastViewController adToastViewController;
+    @Inject PlaybackToastHelper playbackToastHelper;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
 
     private PlaylistDetailsController controller;
@@ -95,7 +95,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
             if (playQueueManager.isCurrentPlaylist(playlistInfo.getUrn())) {
                 playbackOperations.togglePlayback();
-            } else  {
+            } else {
                 playFromBeginning();
             }
         }
@@ -148,7 +148,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void playFromBeginning() {
-        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, adToastViewController));
+        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastHelper));
     }
 
     private void addLifeCycleComponents() {
@@ -161,7 +161,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         super.onCreate(savedInstanceState);
 
         loadPlaylist = bindFragment(this, playlistOperations.playlistInfo(getPlaylistUrn()).cache());
-        if (savedInstanceState == null){
+        if (savedInstanceState == null) {
             playOnLoad = getActivity().getIntent().getBooleanExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, false);
         }
     }
@@ -389,8 +389,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
 
-        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, AdToastViewController adToastViewController) {
-            super(eventBus, adToastViewController);
+        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
+            super(eventBus, playbackToastHelper);
         }
 
         @Override
