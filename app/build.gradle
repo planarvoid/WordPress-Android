@@ -54,7 +54,7 @@ android {
     }
 
     release {
-      def propertiesFile = project.file('release.properties')
+      def propertiesFile = project.file('../release.properties')
       if (propertiesFile.exists()) {
         def releaseProperties = new Properties()
         releaseProperties.load(new FileInputStream(propertiesFile))
