@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ToggleButton;
 
@@ -72,6 +73,9 @@ public class PlaylistEngagementsController {
     void bindView(View rootView, OriginProvider originProvider) {
         this.context = rootView.getContext();
         this.originProvider = originProvider;
+
+        final ViewGroup holder = (ViewGroup) rootView.findViewById(R.id.playlist_action_bar_holder);
+        View.inflate(rootView.getContext(), R.layout.playlist_action_bar, holder);
 
         toggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
         if (toggleLike != null) {
