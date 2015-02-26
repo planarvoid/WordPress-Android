@@ -99,10 +99,10 @@ public class MenuScreen {
         return new ExploreScreen(testDriver);
     }
 
-    public LikesScreen clickLikes() {
+    public TrackLikesScreen clickLikes() {
         likesMenuItem().click();
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return new LikesScreen(testDriver);
+        return new TrackLikesScreen(testDriver);
     }
 
     public PlaylistsScreen clickPlaylist() {

@@ -2,7 +2,7 @@ package com.soundcloud.android.framework.helpers;
 
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.screens.ActivitiesScreen;
-import com.soundcloud.android.screens.LikesScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.Screen;
@@ -29,8 +29,8 @@ public class NavigationHelper {
         return screen.actionBar().clickWhoToFollowOverflowButton();
     }
 
-    public static LikesScreen openLikedTracks(MenuScreen menu, Waiter waiter) {
-        LikesScreen likesScreen = menu.open().clickLikes();
+    public static TrackLikesScreen openLikedTracks(MenuScreen menu, Waiter waiter) {
+        TrackLikesScreen likesScreen = menu.open().clickLikes();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return likesScreen;
     }

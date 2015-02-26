@@ -14,11 +14,11 @@ import com.soundcloud.android.tests.likes.LikesActionBarElement;
 
 import java.util.List;
 
-public class LikesScreen extends Screen {
+public class TrackLikesScreen extends Screen {
 
     protected static final Class ACTIVITY = MainActivity.class;
 
-    public LikesScreen(Han solo) {
+    public TrackLikesScreen(Han solo) {
         super(solo);
     }
 

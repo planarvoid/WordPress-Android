@@ -24,9 +24,9 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     @Override
-    public LikesScreen clickLikes() {
+    public TrackLikesScreen clickLikes() {
         likesMenuItem().click();
-        return new LikesScreen(testDriver);
+        return new TrackLikesScreen(testDriver);
     }
 
     @Override

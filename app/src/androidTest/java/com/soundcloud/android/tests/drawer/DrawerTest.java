@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.drawer;
 
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.LikesScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
@@ -49,7 +49,7 @@ public class DrawerTest extends ActivityTest<LauncherActivity> {
 
     public void testDrawerOpensLikes() {
         menuScreen.open();
-        LikesScreen likesScreen = menuScreen.clickLikes();
+        TrackLikesScreen likesScreen = menuScreen.clickLikes();
         assertEquals("Should go to Likes screen", true, likesScreen.isVisible());
     }
 

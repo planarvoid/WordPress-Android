@@ -1,7 +1,7 @@
 package com.soundcloud.android.tests.tablet;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.LikesScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.MenuScreenTablet;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -40,7 +40,7 @@ public class FixedNavTest extends ActivityTest<MainActivity> {
     }
 
     public void ignoreFixedNavOpensLikes() {
-        LikesScreen likesScreen = tabletMenu.clickLikes();
+        TrackLikesScreen likesScreen = tabletMenu.clickLikes();
         assertEquals("Should go to Likes screen", true, likesScreen.isVisible());
         assertEquals("Nav should be visible on tablet LIKES", true, tabletMenu.isOpened());
     }
