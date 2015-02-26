@@ -17,7 +17,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -44,7 +43,7 @@ public class TrackLikesHeaderPresenterTest {
     private TrackLikesHeaderPresenter presenter;
 
     @Mock private TrackLikesHeaderView headerView;
-    @Mock private LikeOperations likeOperations;
+    @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;

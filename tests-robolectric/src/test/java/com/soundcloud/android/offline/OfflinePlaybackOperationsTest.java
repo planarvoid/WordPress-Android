@@ -7,7 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.features.FeatureOperations;
-import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.LoadOfflineTrackUrnsCommand;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -35,7 +35,7 @@ public class OfflinePlaybackOperationsTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private LikeOperations likeOperations;
+    @Mock private TrackLikeOperations likeOperations;
     @Mock private LoadOfflineTrackUrnsCommand loadOfflineUrnsCommand;
     @Mock private PlaybackToastHelper toastHelper;
 

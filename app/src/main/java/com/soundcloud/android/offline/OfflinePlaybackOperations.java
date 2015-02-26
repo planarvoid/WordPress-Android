@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.configuration.features.FeatureOperations;
-import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.LoadOfflineTrackUrnsCommand;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -22,7 +22,7 @@ import java.util.List;
 
 public class OfflinePlaybackOperations {
 
-    private final LikeOperations likeOperations;
+    private final TrackLikeOperations likeOperations;
     private final FeatureOperations featureOperations;
     private final PlaybackOperations playbackOperations;
     private final NetworkConnectionHelper connectionHelper;
@@ -33,7 +33,7 @@ public class OfflinePlaybackOperations {
 
     @Inject
     public OfflinePlaybackOperations(FeatureOperations featureOperations, NetworkConnectionHelper connectionHelper,
-                                     PlaybackOperations playbackOperations, LikeOperations likeOperations,
+                                     PlaybackOperations playbackOperations, TrackLikeOperations likeOperations,
                                      PlaybackToastHelper playbackToastHelper,
                                      LoadOfflineTrackUrnsCommand offlineLikesUrnsCommand,
                                      @Named("Storage") Scheduler scheduler) {

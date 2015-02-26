@@ -49,7 +49,7 @@ import java.util.List;
 class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         implements AdapterView.OnItemClickListener {
 
-    private final LikeOperations likeOperations;
+    private final TrackLikeOperations likeOperations;
     private final TrackOperations trackOperations;
     private final OfflinePlaybackOperations playbackOperations;
     private final PagedTracksAdapter adapter;
@@ -70,7 +70,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     };
 
     @Inject
-    TrackLikesPresenter(LikeOperations likeOperations,
+    TrackLikesPresenter(TrackLikeOperations likeOperations,
                         TrackOperations trackOperations,
                         OfflinePlaybackOperations playbackOperations,
                         PagedTracksAdapter adapter,

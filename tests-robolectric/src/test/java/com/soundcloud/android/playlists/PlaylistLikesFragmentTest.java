@@ -9,7 +9,7 @@ import static rx.Observable.just;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -40,7 +40,7 @@ public class PlaylistLikesFragmentTest {
 
     private PlaylistLikesFragment fragment;
 
-    @Mock private LikeOperations likeOperations;
+    @Mock private PlaylistLikeOperations likeOperations;
     @Mock private PlaylistLikesAdapter adapter;
     @Mock private ListViewController listViewController;
     @Mock private PullToRefreshController pullToRefreshController;

@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.accounts.AccountsModule;
 import com.soundcloud.android.activities.ActivitiesModule;
-import com.soundcloud.android.associations.LegacyLikesModule;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.RecordModule;
 import com.soundcloud.android.explore.ExploreModule;
@@ -23,7 +22,6 @@ import dagger.Module;
         ActivitiesModule.class,
         SearchModule.class,
         ExploreModule.class,
-        LegacyLikesModule.class,
         MainModule.class,
         PlayerModule.class,
         PlaylistsModule.class,
