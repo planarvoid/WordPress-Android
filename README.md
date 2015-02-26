@@ -51,11 +51,11 @@ You can run all or individual unit tests using Gradle. `cd` into the parent modu
 
 to run all tests, or
 
-    ./gradlew test --tests *TrackingApiTest
+    $ ./gradlew test --tests *TrackingApiTest
 
 to run all test inside a class, or
 
-    ./gradlew test --tests *TrackingApiTest.shouldSetUserAgentHeader
+    $ ./gradlew test --tests *TrackingApiTest.shouldSetUserAgentHeader
     
 to run one single test.
 
@@ -69,6 +69,13 @@ In your Run/Debug configuration you should have one called: `robolectric-tests` 
 
 You should also setup your default run configuration for JUnit so it looks like this:
 ![JUnit default run config][JUnit default run config]
+
+## Useful Gradle commands
+
+    $ ./gradlew clean               --> Performs a clean up of the whole project.
+    $ ./gradlew tasks [--all]       --> Shows all available tasks for the project.
+    $ ./gradlew staticAnalysis      --> Performs a full static analysis of the codebase.
+    $ ./gradlew :app:dependencies   --> Shows a tree with all dependencies of the Android main app.
 
 ## [Wiki][wiki] topics
 
