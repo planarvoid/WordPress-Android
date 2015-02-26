@@ -70,10 +70,17 @@ final class DatabaseSchema {
             "track_count INTEGER DEFAULT -1," +
             "playlist_type VARCHAR(255)," +
             "user_id INTEGER," +
-            "monetizable BOOLEAN DEFAULT 0," +
-            "policy TEXT," +
             "DESCRIPTION TEXT," +
             "PRIMARY KEY (_id, _type) ON CONFLICT IGNORE" +
+            ");";
+
+    static final String DATABASE_CREATE_TRACK_POLICIES = "(" +
+            "track_id INTEGER, " +
+            "monetizable BOOLEAN DEFAULT 0," +
+            "syncable BOOLEAN DEFAULT 0," +
+            "policy TEXT," +
+            "last_updated INTEGER, " +
+            "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
             ");";
 
     static final String DATABASE_CREATE_PLAYLIST_TRACKS = "(" +
@@ -317,9 +324,10 @@ final class DatabaseSchema {
             ",Sounds." + TableColumns.Sounds.SHARED_TO_COUNT + " as " + TableColumns.SoundView.SHARED_TO_COUNT +
             ",Sounds." + TableColumns.Sounds.TRACKS_URI + " as " + TableColumns.SoundView.TRACKS_URI +
             ",Sounds." + TableColumns.Sounds.TRACK_COUNT + " as " + TableColumns.SoundView.TRACK_COUNT +
-            ",Sounds." + TableColumns.Sounds.MONETIZABLE + " as " + TableColumns.SoundView.MONETIZABLE +
-            ",Sounds." + TableColumns.Sounds.POLICY + " as " + TableColumns.SoundView.POLICY +
             ",Sounds." + TableColumns.Sounds.DESCRIPTION + " as " + TableColumns.SoundView.DESCRIPTION +
+            ",TrackPolicies." + TableColumns.TrackPolicies.MONETIZABLE + " as " + TableColumns.SoundView.POLICIES_MONETIZABLE +
+            ",TrackPolicies." + TableColumns.TrackPolicies.POLICY + " as " + TableColumns.SoundView.POLICIES_POLICY +
+            ",TrackPolicies." + TableColumns.TrackPolicies.SYNCABLE + " as " + TableColumns.SoundView.POLICIES_SYNCABLE +
             ",Users." + TableColumns.Users._ID + " as " + TableColumns.SoundView.USER_ID +
             ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundView.USERNAME +
             ",Users." + TableColumns.Users.PERMALINK + " as " + TableColumns.SoundView.USER_PERMALINK +
@@ -335,7 +343,8 @@ final class DatabaseSchema {
             " LEFT OUTER JOIN TrackDownloads " +
             "   ON (Sounds." + TableColumns.Sounds._ID + " = " + "TrackDownloads." + TableColumns.TrackDownloads._ID + " AND " +
             "   Sounds." + TableColumns.Sounds._TYPE + " = " + TableColumns.Sounds.TYPE_TRACK + ")" +
-
+            " LEFT OUTER JOIN TrackPolicies ON(" +
+            "   Sounds." + TableColumns.Sounds._ID + " = " + "TrackPolicies." + TableColumns.TrackPolicies.TRACK_ID + ")" +
             " LEFT OUTER JOIN TrackMetadata ON(" +
             "   TrackMetadata." + TableColumns.TrackMetadata._ID + " = " + "Sounds." + TableColumns.SoundView._ID + ")";
 

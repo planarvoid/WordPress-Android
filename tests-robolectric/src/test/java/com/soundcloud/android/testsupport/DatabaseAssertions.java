@@ -54,11 +54,20 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.SHARING, track.getSharing().value())
                 .whereEq(TableColumns.Sounds.USER_ID, track.getUser().getId())
                 .whereEq(TableColumns.Sounds.COMMENTABLE, track.isCommentable())
-                .whereEq(TableColumns.Sounds.MONETIZABLE, track.isMonetizable())
                 .whereEq(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount())
                 .whereEq(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
                 .whereEq(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount())
                 .whereEq(TableColumns.Sounds.COMMENT_COUNT, track.getStats().getCommentsCount())), counts(1));
+
+        assertTrackPolicyInserted(track);
+    }
+
+    private void assertTrackPolicyInserted(ApiTrack track) {
+        assertThat(select(from(Table.TrackPolicies.name())
+                .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())
+                .whereEq(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable())
+                .whereEq(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable())
+                .whereEq(TableColumns.TrackPolicies.POLICY, track.getPolicy())), counts(1));
     }
 
     public void assertLikedTrackPendingAddition(PropertySet track) {
@@ -159,7 +168,7 @@ public class DatabaseAssertions {
                                 .whereEq(TableColumns.PromotedTracks.URN, promotedTrack.getUrn())
                                 .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedTrack.getPromoter().getId()),
                         promotedTrack)
-                ), counts(1));
+        ), counts(1));
     }
 
     public void assertPromotionWithoutPromoterInserted(ApiPromotedTrack promotedTrack) {
@@ -190,8 +199,8 @@ public class DatabaseAssertions {
 
     public void assertDownloadResultsInserted(DownloadResult result) {
         assertThat(select(from(Table.TrackDownloads.name())
-                    .whereEq(TableColumns.TrackDownloads._ID, result.getUrn().getNumericId())
-                    .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
+                .whereEq(TableColumns.TrackDownloads._ID, result.getUrn().getNumericId())
+                .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
     }
 
     public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {

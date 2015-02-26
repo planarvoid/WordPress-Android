@@ -171,7 +171,7 @@ public class PublicApiTrack extends Playable {
 
     public PublicApiTrack(Cursor cursor) {
         super(cursor);
-        policy = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.POLICY));
+        policy = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.POLICIES_POLICY));
         state = State.fromString(cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.STATE)));
         track_type = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TRACK_TYPE));
 
@@ -352,10 +352,6 @@ public class PublicApiTrack extends Playable {
 
         if (stream_url != null) {
             cv.put(TableColumns.Sounds.STREAM_URL, stream_url);
-        }
-        if (policy != null) {
-            cv.put(TableColumns.Sounds.POLICY, policy);
-            cv.put(TableColumns.Sounds.MONETIZABLE, isMonetizable());
         }
         if (state != null) {
             cv.put(TableColumns.Sounds.STATE, state.name);

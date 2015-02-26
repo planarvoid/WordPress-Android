@@ -14,8 +14,8 @@ public class PolicyInfoTest {
 
     @Test
     public void hasLegibleToString() {
-        final PolicyInfo monetizable = new PolicyInfo(SCANDROIDAD1_MONETIZABLE_WITHOUT_LEAVEBEHIND, true, "monetizable");
+        final PolicyInfo monetizable = new PolicyInfo(SCANDROIDAD1_MONETIZABLE_WITHOUT_LEAVEBEHIND, true, "monetizable", true);
 
-        expect(monetizable.toString()).toEqual("PolicyInfo{urn=soundcloud:tracks:172426518, monetizable=true, policy=monetizable}");
+        expect(monetizable.toString()).toEqual("PolicyInfo{trackUrn=soundcloud:tracks:172426518, monetizable=true, policy=monetizable, syncable=true}");
     }
 }

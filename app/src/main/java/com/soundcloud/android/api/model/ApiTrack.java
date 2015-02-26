@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.legacy.model.TrackStats;
@@ -38,10 +39,12 @@ public class ApiTrack extends ScModel implements PropertySetSource {
     private Date createdAt;
     private String artworkUrl;
     private String permalinkUrl;
-    private boolean monetizable;
-    private String policy;
     private Sharing sharing = Sharing.UNDEFINED;
     private TrackStats stats;
+
+    private boolean monetizable;
+    private String policy;
+    private boolean syncable;
 
     public ApiTrack() { /* for Deserialization */ }
 
@@ -55,12 +58,13 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         this.streamUrl = in.readString();
         this.waveformUrl = in.readString();
         this.artworkUrl = in.readString();
-        this.userTags = new ArrayList<String>();
+        this.userTags = new ArrayList<>();
         in.readStringList(this.userTags);
         this.createdAt = (Date) in.readSerializable();
         this.permalinkUrl = in.readString();
         this.monetizable = in.readByte() != 0;
         this.policy = in.readString();
+        this.syncable = in.readByte() != 0;
     }
 
     public ApiTrack(String urn) {
@@ -200,6 +204,15 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         this.policy = policy;
     }
 
+    public boolean isSyncable() {
+        return syncable;
+    }
+
+    @JsonProperty("syncable")
+    public void setSyncable(boolean syncable) {
+        this.syncable = syncable;
+    }
+
     @JsonProperty("_embedded")
     public void setRelatedResources(RelatedResources relatedResources) {
         this.user = relatedResources.user;
@@ -227,6 +240,7 @@ public class ApiTrack extends ScModel implements PropertySetSource {
         dest.writeString(this.permalinkUrl);
         dest.writeByte(this.monetizable ? (byte) 1 : (byte) 0);
         dest.writeString(this.policy);
+        dest.writeByte(this.syncable ? (byte) 1 : (byte) 0);
     }
 
     public Boolean isPrivate() {
@@ -235,23 +249,23 @@ public class ApiTrack extends ScModel implements PropertySetSource {
 
     @Override
     public String toString() {
-        return "ApiTrack{" +
-                "title='" + title + '\'' +
-                ", genre='" + genre + '\'' +
-                ", user=" + user +
-                ", commentable=" + commentable +
-                ", duration=" + duration +
-                ", streamUrl='" + streamUrl + '\'' +
-                ", waveformUrl='" + waveformUrl + '\'' +
-                ", userTags=" + userTags +
-                ", createdAt=" + createdAt +
-                ", artworkUrl='" + artworkUrl + '\'' +
-                ", permalinkUrl='" + permalinkUrl + '\'' +
-                ", monetizable=" + monetizable +
-                ", policy='" + policy + '\'' +
-                ", sharing=" + sharing +
-                ", stats=" + stats +
-                '}';
+        return Objects.toStringHelper(this)
+                .add("title", title)
+                .add("genre", genre)
+                .add("user", user)
+                .add("commentable", commentable)
+                .add("duration", duration)
+                .add("streamUrl", streamUrl)
+                .add("waveformUrl", waveformUrl)
+                .add("userTags", userTags)
+                .add("createdAt", createdAt)
+                .add("artworkUrl", artworkUrl)
+                .add("permalinkUrl", permalinkUrl)
+                .add("monetizable", monetizable)
+                .add("syncable", syncable)
+                .add("policy", policy)
+                .add("sharing", sharing)
+                .add("stats", stats).toString();
     }
 
     @Override
@@ -265,6 +279,7 @@ public class ApiTrack extends ScModel implements PropertySetSource {
                 TrackProperty.WAVEFORM_URL.bind(getWaveformUrl()),
                 TrackProperty.PERMALINK_URL.bind(getPermalinkUrl()),
                 TrackProperty.MONETIZABLE.bind(isMonetizable()),
+                TrackProperty.SYNCABLE.bind(isSyncable()),
                 TrackProperty.POLICY.bind(getPolicy()),
                 TrackProperty.PLAY_COUNT.bind(getStats().getPlaybackCount()),
                 TrackProperty.COMMENTS_COUNT.bind(getStats().getCommentsCount()),
