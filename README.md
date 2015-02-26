@@ -51,11 +51,11 @@ You can run all or individual unit tests using Gradle. `cd` into the parent modu
 
 to run all tests, or
 
-    $ ./gradlew test -Dtest.single=TrackingApiTest
+    ./gradlew test --tests *TrackingApiTest
 
 to run all test inside a class, or
 
-    $ ./gradlew test -Dtest.single=TrackingApiTest
+    ./gradlew test --tests *TrackingApiTest.shouldSetUserAgentHeader
     
 to run one single test.
 
