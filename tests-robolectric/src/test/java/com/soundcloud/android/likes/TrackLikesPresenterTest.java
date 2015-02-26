@@ -83,6 +83,8 @@ public class TrackLikesPresenterTest {
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
     }
 
     @Test
