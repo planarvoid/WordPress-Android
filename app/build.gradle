@@ -55,7 +55,7 @@ android {
 
     release {
       def propertiesFile = project.file('../release.properties')
-      if (propertiesFile.exists()) {
+      if (propertiesFile.exists() && propertiesFile.canRead()) {
         def releaseProperties = new Properties()
         releaseProperties.load(new FileInputStream(propertiesFile))
         storeFile project.file(releaseProperties.getProperty('keyStore'))
