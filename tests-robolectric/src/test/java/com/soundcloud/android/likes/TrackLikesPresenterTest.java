@@ -107,30 +107,6 @@ public class TrackLikesPresenterTest {
     }
 
     @Test
-    public void shouldRedirectOnResumeToActionMenuController() {
-        presenter.onResume(fragment);
-        verify(actionMenuController).onResume(fragment);
-    }
-
-    @Test
-    public void shouldRedirectOnResumeToHeaderPresenter() {
-        presenter.onResume(fragment);
-        verify(headerPresenter).onResume(fragment);
-    }
-
-    @Test
-    public void shouldRedirectOnPauseToActionMenuController() {
-        presenter.onPause(fragment);
-        verify(actionMenuController).onPause(fragment);
-    }
-
-    @Test
-    public void shouldRedirectOnPauseToHeaderPresenter() {
-        presenter.onPause(fragment);
-        verify(headerPresenter).onPause(fragment);
-    }
-
-    @Test
     public void shouldRedirectOnDestroyViewToHeaderPresenter() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
