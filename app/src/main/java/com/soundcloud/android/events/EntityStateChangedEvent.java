@@ -51,6 +51,13 @@ public final class EntityStateChangedEvent {
         }
     };
 
+    public static final Func1<EntityStateChangedEvent, Urn> TO_URN = new Func1<EntityStateChangedEvent, Urn>() {
+        @Override
+        public Urn call(EntityStateChangedEvent entityStateChangedEvent) {
+            return entityStateChangedEvent.getNextUrn();
+        }
+    };
+
     private final int kind;
     private final Map<Urn, PropertySet> changeMap;
 

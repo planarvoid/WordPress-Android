@@ -1,9 +1,11 @@
 package com.soundcloud.android.likes;
 
 import static com.google.common.collect.Iterables.getLast;
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -28,6 +30,7 @@ public class TrackLikeOperations {
 
     private final LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
     private final LoadLikedTracksCommand loadLikedTracksCommand;
+    private final LoadLikedTrackCommand loadLikedTrackCommand;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
@@ -52,16 +55,31 @@ public class TrackLikeOperations {
     @Inject
     public TrackLikeOperations(LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand,
                                LoadLikedTracksCommand loadLikedTracksCommand,
+                               LoadLikedTrackCommand loadLikedTrackCommand,
                                SyncInitiator syncInitiator,
                                EventBus eventBus,
                                @Named("Storage") Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;
+        this.loadLikedTrackCommand = loadLikedTrackCommand;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
+    }
+
+    public Observable<PropertySet> onTrackLiked(){
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_LIKED_FILTER)
+                .map(EntityStateChangedEvent.TO_URN)
+                .flatMap(loadLikedTrackCommand);
+    }
+
+    public Observable<Urn> onTrackUnliked() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_TRACK_UNLIKED_FILTER)
+                .map(EntityStateChangedEvent.TO_URN);
     }
 
     public Observable<List<PropertySet>> likedTracks() {

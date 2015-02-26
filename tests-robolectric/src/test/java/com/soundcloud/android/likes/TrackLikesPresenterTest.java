@@ -8,11 +8,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -211,28 +209,4 @@ public class TrackLikesPresenterTest {
         eventBus.verifyUnsubscribed();
     }
 
-    @Test
-    public void shouldPrependTrackOnLikedEvent() {
-        PropertySet track = TestPropertySets.fromApiTrack();
-        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(track));
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK_URN, true, 5));
-
-        verify(adapter).prependItem(track);
-    }
-
-    @Test
-    public void shouldRemoveTrackOnUnlikedEvent() {
-        PropertySet item = PropertySet.from(EntityProperty.URN.bind(TRACK_URN));
-        when(adapter.getCount()).thenReturn(1);
-        when(adapter.getItem(0)).thenReturn(item);
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK_URN, false, 5));
-
-        verify(adapter).removeAt(0);
-    }
 }

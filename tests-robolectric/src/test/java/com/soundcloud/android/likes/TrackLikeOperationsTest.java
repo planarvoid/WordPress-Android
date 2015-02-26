@@ -8,11 +8,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -24,6 +28,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.functions.Action0;
+import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
@@ -39,6 +44,7 @@ public class TrackLikeOperationsTest {
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private LoadLikedTracksCommand loadLikedTracksCommand;
     @Mock private LoadLikedTrackUrnsCommand loadLikedTrackUrnsCommand;
+    @Mock private LoadLikedTrackCommand loadLikedTrackCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
@@ -51,6 +57,7 @@ public class TrackLikeOperationsTest {
         operations = new TrackLikeOperations(
                 loadLikedTrackUrnsCommand,
                 loadLikedTracksCommand,
+                loadLikedTrackCommand,
                 syncInitiator,
                 eventBus,
                 scheduler,
@@ -167,6 +174,29 @@ public class TrackLikeOperationsTest {
 
         verify(observer).onNext(Collections.<PropertySet>emptyList());
         verify(observer).onCompleted();
+    }
+
+    @Test
+    public void onTrackLikedEventReturnsTrackInfoFromLike() throws Exception {
+        final PropertySet likedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
+        when(loadLikedTrackCommand.toObservable()).thenReturn(Observable.just(likedTrack));
+
+        final TestObserver<PropertySet> observer = new TestObserver<>();
+        operations.onTrackLiked().subscribe(observer);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(likedTrack.get(TrackProperty.URN), true, 5));
+
+        expect(observer.getOnNextEvents()).toContainExactly(likedTrack);
+    }
+
+    @Test
+    public void onTrackUnlikedEventReturnsUnlikedTrackUrn() throws Exception {
+        final Urn unlikedTrackUrn = Urn.forTrack(123L);
+        final TestObserver<Urn> observer = new TestObserver<>();
+        operations.onTrackUnliked().subscribe(observer);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(unlikedTrackUrn, false, 5));
+
+        expect(observer.getOnNextEvents()).toContainExactly(unlikedTrackUrn);
     }
 
     private List<PropertySet> createPageOfTrackLikes(int size){
