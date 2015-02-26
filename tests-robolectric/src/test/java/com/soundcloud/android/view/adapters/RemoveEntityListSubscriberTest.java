@@ -5,7 +5,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -21,7 +20,7 @@ public class RemoveEntityListSubscriberTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private ItemAdapter<PropertySet> adapter;
-    private PublishSubject<EntityStateChangedEvent> observable;
+    private PublishSubject<Urn> observable;
 
     @Before
     public void setUp() throws Exception {
@@ -36,7 +35,7 @@ public class RemoveEntityListSubscriberTest {
         when(adapter.getCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
-        observable.onNext(EntityStateChangedEvent.fromLike(TRACK_URN, false, 5));
+        observable.onNext(TRACK_URN);
 
         verify(adapter).removeAt(0);
     }
@@ -47,7 +46,7 @@ public class RemoveEntityListSubscriberTest {
         when(adapter.getCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
-        observable.onNext(EntityStateChangedEvent.fromLike(TRACK_URN, false, 5));
+        observable.onNext(TRACK_URN);
 
         verify(adapter).notifyDataSetChanged();
     }
@@ -58,7 +57,7 @@ public class RemoveEntityListSubscriberTest {
         when(adapter.getCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
-        observable.onNext(EntityStateChangedEvent.fromLike(Urn.forTrack(9L), false, 5));
+        observable.onNext(Urn.forTrack(9L));
 
         verify(adapter, never()).removeAt(anyInt());
         verify(adapter, never()).notifyDataSetChanged();
