@@ -23,3 +23,7 @@ staticAnalysis.mustRunAfter assembleCI
 task buildCI(dependsOn: [assembleCI, staticAnalysis]) {
   description 'Builds application for CI and executes static analysis.'
 }
+
+task generateRelease (dependsOn: ['assembleRelease']) {
+  description = 'Generates a release version of the app by incrementing version code and name and signing the apk.'
+}
