@@ -20,7 +20,7 @@ public class RemoveOfflinePlaylistCommandTest extends StorageIntegrationTest {
 
     @Test
     public void removesPlaylistInOfflineContentTable() throws PropellerWriteException {
-        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
 
         command.with(playlistUrn).call();
 

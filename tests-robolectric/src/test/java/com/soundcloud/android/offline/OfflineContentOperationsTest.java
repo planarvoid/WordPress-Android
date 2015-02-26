@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,13 +13,16 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.CountOfflineLikesCommand;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
+import com.soundcloud.android.offline.commands.RemoveOfflinePlaylistCommand;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
+import com.soundcloud.android.offline.commands.StoreOfflinePlaylistCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
@@ -43,6 +47,8 @@ public class OfflineContentOperationsTest {
 
     @Mock private CountOfflineLikesCommand offlineTrackCount;
     @Mock private LoadPendingDownloadsCommand loadPendingDownloads;
+    @Mock private StoreOfflinePlaylistCommand storeOfflinePlaylist;
+    @Mock private RemoveOfflinePlaylistCommand removeOfflinePlaylist;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private UpdateOfflineContentCommand updateOfflineContent;
     @Mock private DeletePendingRemovalCommand deleteOfflineContent;
@@ -78,7 +84,7 @@ public class OfflineContentOperationsTest {
                 updateContentAsPendingRemoval,
                 settingsStorage,
                 eventBus,
-                offlineTrackCount);
+                offlineTrackCount, storeOfflinePlaylist, removeOfflinePlaylist);
     }
 
     @Test
@@ -191,5 +197,31 @@ public class OfflineContentOperationsTest {
         operations.onStarted().subscribe(observer);
 
         expect(observer.getOnNextEvents()).toContainExactly(event);
+    }
+
+    @Test
+    public void makePlaylistAvailableOfflineStoresAsOfflineContent() throws Exception {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        TestObserver<Boolean> observer = new TestObserver<>();
+        when(storeOfflinePlaylist.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(123L)));
+
+        operations.makePlaylistAvailableOffline(playlistUrn).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(true);
+        expect(storeOfflinePlaylist.getInput()).toBe(playlistUrn);
+    }
+
+    @Test
+    public void makePlaylistUnavailableOfflineRemovesOfflineContentPlaylist() throws Exception {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        TestObserver<Boolean> observer = new TestObserver<>();
+        ChangeResult deleteResult = mock(ChangeResult.class);
+        when(deleteResult.success()).thenReturn(true);
+        when(removeOfflinePlaylist.toObservable()).thenReturn(Observable.<WriteResult>just(deleteResult));
+
+        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(true);
+        expect(removeOfflinePlaylist.getInput()).toBe(playlistUrn);
     }
 }

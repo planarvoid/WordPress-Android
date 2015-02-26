@@ -45,7 +45,8 @@ class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand>
                         TableColumns.SoundView.SHARING,
                         TableColumns.SoundView.CREATED_AT,
                         exists(likeQuery()).as(TableColumns.SoundView.USER_LIKE),
-                        exists(repostQuery()).as(TableColumns.SoundView.USER_REPOST)
+                        exists(repostQuery()).as(TableColumns.SoundView.USER_REPOST),
+                        exists(isMarkedForOfflineQuery()).as(PlaylistItemMapper.IS_MARKED_FOR_OFFLINE)
                 )
                 .whereEq(TableColumns.SoundView._ID, input.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
@@ -65,4 +66,11 @@ class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand>
                 .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, REPOST)
                 .whereEq(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
     }
+
+    private Query isMarkedForOfflineQuery() {
+        return Query.from(Table.OfflineContent.name(), Table.Sounds.name())
+                .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, Table.OfflineContent.name() + "." + TableColumns.Likes._ID)
+                .whereEq(Table.OfflineContent + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+    }
+
 }

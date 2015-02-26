@@ -37,7 +37,7 @@ public class LoadPlaylistCommandTest extends StorageIntegrationTest {
 
         PropertySet playlist = command.with(apiPlaylist.getUrn()).call();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false));
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class LoadPlaylistCommandTest extends StorageIntegrationTest {
 
         PropertySet playlist = command.with(apiPlaylist.getUrn()).call();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, true, false));
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, true, false, false));
     }
 
     @Test
@@ -56,6 +56,15 @@ public class LoadPlaylistCommandTest extends StorageIntegrationTest {
 
         PropertySet playlist = command.with(apiPlaylist.getUrn()).call();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, true));
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, true, false));
+    }
+
+    @Test
+    public void loadsMarkedForOfflineAvailabilityPlaylistFromDatabase() throws Exception {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
+
+        PropertySet playlist = command.with(apiPlaylist.getUrn()).call();
+
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true));
     }
 }
