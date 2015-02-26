@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens;
 
-import static com.soundcloud.android.framework.with.With.text;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -14,6 +12,8 @@ import com.soundcloud.android.tests.likes.LikesActionBarElement;
 
 import java.util.List;
 
+import static com.soundcloud.android.framework.with.With.text;
+
 public class TrackLikesScreen extends Screen {
 
     protected static final Class ACTIVITY = MainActivity.class;
@@ -22,16 +22,9 @@ public class TrackLikesScreen extends Screen {
         super(solo);
     }
 
-    public VisualPlayerElement clickItem(int index) {
-        likesList().getItemAt(index).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
-        visualPlayerElement.waitForExpandedPlayer();
-        return visualPlayerElement;
-    }
-
-    public VisualPlayerElement clickLastTrack() {
-        int size = tracks().size();
-        tracks().get(size - 1).click();
+    public VisualPlayerElement clickTrack(int index) {
+        final int trackIndexInList = index + 1;
+        likesList().getItemAt(trackIndexInList).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
@@ -70,12 +63,12 @@ public class TrackLikesScreen extends Screen {
         return testDriver.isElementDisplayed(text(syncInProgress));
     }
 
-    private ViewElement syncIcon() {
-        return testDriver.findElement(With.id(R.id.sync_state));
-    }
-
     public boolean isSyncIconVisible() {
         return syncIcon().isVisible();
+    }
+
+    private ViewElement syncIcon() {
+        return testDriver.findElement(With.id(R.id.sync_state));
     }
 
     private ListElement likesList() {

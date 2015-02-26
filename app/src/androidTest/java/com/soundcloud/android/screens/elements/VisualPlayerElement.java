@@ -1,17 +1,17 @@
 package com.soundcloud.android.screens.elements;
 
+import android.graphics.Rect;
+import android.support.v4.view.ViewPager;
+import android.view.View;
+
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
-import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.WhyAdsScreen;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-
-import android.graphics.Rect;
-import android.support.v4.view.ViewPager;
-import android.view.View;
+import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.WhyAdsScreen;
 
 import java.util.concurrent.TimeUnit;
 
@@ -125,12 +125,20 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.interstitial_now_playing_title));
     }
 
+    private TextElement progress() {
+        return new TextElement(solo.findElement(With.id(R.id.timestamp_progress)));
+    }
+
     public boolean isExpanded() {
         return  getPlayerHeight() - getFullScreenHeight() == 0;
     }
 
     public boolean isCollapsed() {
         return footerPlayer().isVisible();
+    }
+
+    public boolean isExpendedPlayerPlaying() {
+        return waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
 
     public void tapFooter() {
@@ -293,5 +301,21 @@ public class VisualPlayerElement extends Element {
 
     private ViewElement menu() {
         return solo.findElement(With.id(R.id.track_page_more));
+    }
+
+    private static class TextChangedCondition implements Condition {
+
+        private final String original;
+        private final TextElement textElement;
+
+        private TextChangedCondition(TextElement textElement) {
+            this.textElement = textElement;
+            original = textElement.getText();
+        }
+
+        @Override
+        public boolean isSatisfied() {
+            return !textElement.getText().equals(original);
+        }
     }
 }
