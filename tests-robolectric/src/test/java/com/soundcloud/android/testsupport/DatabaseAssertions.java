@@ -108,12 +108,6 @@ public class DatabaseAssertions {
         ), counts(1));
     }
 
-    public void assertPlaylistsInserted(List<ApiPlaylist> playlists){
-        for (ApiPlaylist playlist : playlists) {
-            assertPlaylistInserted(playlist);
-        }
-    }
-
     public void assertPlaylistInserted(ApiPlaylist playlist) {
         assertThat(select(from(Table.Sounds.name())
                 .whereEq(TableColumns.Sounds._ID, playlist.getId())
@@ -121,6 +115,7 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.TITLE, playlist.getTitle())
                 .whereEq(TableColumns.Sounds.DURATION, playlist.getDuration())
                 .whereEq(TableColumns.Sounds.CREATED_AT, playlist.getCreatedAt().getTime())
+                .whereEq(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl())
                 .whereEq(TableColumns.Sounds.SHARING, playlist.getSharing().value())
                 .whereEq(TableColumns.Sounds.USER_ID, playlist.getUser().getId())
                 .whereEq(TableColumns.Sounds.LIKES_COUNT, playlist.getStats().getLikesCount())

@@ -35,7 +35,7 @@ public class ApiPlaylistBlueprint {
     List<String> tags = Arrays.asList("tag1", "tag2", "tag3");
 
     @Default(force = true)
-    Integer trackCount = 5;
+    Integer trackCount = 2;
 
     @Default
     String artworkUrl = "http://assets.soundcloud.com/1";

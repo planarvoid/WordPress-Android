@@ -9,6 +9,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -36,14 +37,13 @@ public class SyncInitiatorTest {
     private Subscriber<Boolean> legacySyncSubscriber = new TestSubscriber<Boolean>();
     private Subscriber<SyncResult> syncSubscriber = new TestSubscriber<SyncResult>();
 
-    @Mock
-    private AccountOperations accountOperations;
-    @Mock
-    private ResultReceiver resultReceiver;
+    @Mock private AccountOperations accountOperations;
+    @Mock private ResultReceiver resultReceiver;
+    @Mock private FeatureFlags featureFlags;
 
     @Before
     public void setup() {
-        initiator = new SyncInitiator(Robolectric.application, accountOperations);
+        initiator = new SyncInitiator(Robolectric.application, accountOperations, featureFlags);
     }
 
     @Test

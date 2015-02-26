@@ -1,27 +1,34 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 class PlaylistInfo {
 
-    private final PropertySet sourceSet;
-    private final List<PropertySet> tracks;
+    @NotNull private final PropertySet sourceSet;
+    @NotNull private final List<PropertySet> tracks;
 
-    PlaylistInfo(PublicApiPlaylist publicApiPlaylist) {
-        sourceSet = publicApiPlaylist.toPropertySet();
-        tracks = CollectionUtils.toPropertySets(publicApiPlaylist.getTracks());
-    }
-
-    PlaylistInfo(PropertySet sourceSet, List<PropertySet> tracks) {
+    PlaylistInfo(@NotNull PropertySet sourceSet, @NotNull List<PropertySet> tracks) {
         this.sourceSet = sourceSet;
         this.tracks = tracks;
+    }
+
+    public boolean isLocalPlaylist(){
+        return sourceSet.contains(PlaylistProperty.URN) && sourceSet.get(PlaylistProperty.URN).getNumericId() < 0;
+    }
+
+    public boolean isMissingMetaData() {
+        return sourceSet.size() == 0;
+    }
+
+    public boolean needsTracks() {
+        return getTracks().isEmpty() && getTrackCount() > 0;
     }
 
     public Urn getUrn() {
@@ -88,5 +95,23 @@ class PlaylistInfo {
 
     public void update(PropertySet source) {
         this.sourceSet.update(source);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PlaylistInfo)) {
+            return false;
+        }
+
+        PlaylistInfo that = (PlaylistInfo) o;
+        return sourceSet.equals(that.sourceSet) && tracks.equals(that.tracks);
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hashCode(sourceSet, tracks);
     }
 }

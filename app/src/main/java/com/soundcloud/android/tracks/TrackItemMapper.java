@@ -64,6 +64,6 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
     }
 
     private Urn readTrackUrn(CursorReader cursorReader) {
-        return Urn.forTrack(cursorReader.getInt(SoundView._ID));
+        return Urn.forTrack(cursorReader.getLong(SoundView._ID));
     }
 }

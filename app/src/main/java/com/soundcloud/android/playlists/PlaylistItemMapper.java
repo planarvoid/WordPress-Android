@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.RxResultMapper;
@@ -24,19 +25,22 @@ public class PlaylistItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlaylistProperty.TRACK_COUNT, cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
         propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
         propertySet.put(PlaylistProperty.REPOSTS_COUNT, cursorReader.getInt(TableColumns.SoundView.REPOSTS_COUNT));
-        propertySet.put(PlaylistProperty.PERMALINK_URL, cursorReader.getString(TableColumns.SoundView.PERMALINK_URL));
         propertySet.put(PlaylistProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.SoundView.CREATED_AT));
         propertySet.put(PlaylistProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
         propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(TableColumns.SoundView.USER_REPOST));
+
+        // we were not inserting this for a while, so we could have some remaining missing values. eventually this should always exist
+        final String permalinkUrl = cursorReader.getString(TableColumns.SoundView.PERMALINK_URL);
+        propertySet.put(PlaylistProperty.PERMALINK_URL, permalinkUrl != null ? permalinkUrl : ScTextUtils.EMPTY_STRING);
         return propertySet;
     }
 
     private Urn readSoundUrn(CursorReader cursorReader) {
-        return Urn.forPlaylist(cursorReader.getInt(BaseColumns._ID));
+        return Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID));
     }
 
     private Urn readCreatorUrn(CursorReader cursorReader) {
-        return Urn.forUser(cursorReader.getInt(TableColumns.SoundView.USER_ID));
+        return Urn.forUser(cursorReader.getLong(TableColumns.SoundView.USER_ID));
     }
 }

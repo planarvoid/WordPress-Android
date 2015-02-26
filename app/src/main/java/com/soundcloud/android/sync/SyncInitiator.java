@@ -2,6 +2,8 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -9,6 +11,7 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
+import rx.functions.Func1;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -31,9 +34,18 @@ public class SyncInitiator {
 
     private final Context context;
     private final AccountOperations accountOperations;
+    private final FeatureFlags featureFlags;
+
+    private final Func1<SyncResult, Boolean> convertToLegacyResult = new Func1<SyncResult, Boolean>() {
+        @Override
+        public Boolean call(SyncResult syncResult) {
+            return syncResult.wasChanged();
+        }
+    };
 
     @Inject
-    public SyncInitiator(Context context, AccountOperations accountOperations) {
+    public SyncInitiator(Context context, AccountOperations accountOperations, FeatureFlags featureFlags) {
+        this.featureFlags = featureFlags;
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;
     }
@@ -137,9 +149,25 @@ public class SyncInitiator {
         });
     }
 
+    private Observable<SyncResult> requestSyncObservable(final String syncAction, final Urn urn) {
+        return Observable.create(new Observable.OnSubscribe<SyncResult>() {
+            @Override
+            public void call(Subscriber<? super SyncResult> subscriber) {
+                requestSync(syncAction, urn, new ResultReceiverAdapter(subscriber));
+            }
+        });
+    }
+
     private void requestSync(String action, ResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(action)
+                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver));
+    }
+
+    private void requestSync(String action, Urn urn, ResultReceiverAdapter resultReceiver) {
+        context.startService(new Intent(context, ApiSyncService.class)
+                .setAction(action)
+                .putExtra(SyncExtras.URN, urn)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver));
     }
 
@@ -173,13 +201,18 @@ public class SyncInitiator {
     }
 
     public Observable<Boolean> syncPlaylist(final Urn playlistUrn) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
-            @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                final Uri contentUri = Content.PLAYLIST.forId(playlistUrn.getNumericId());
-                requestPlaylistSync(new LegacyResultReceiverAdapter(subscriber, contentUri));
-            }
-        });
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SYNCER)){
+            return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn).map(convertToLegacyResult);
+        } else {
+            return Observable.create(new Observable.OnSubscribe<Boolean>() {
+                @Override
+                public void call(Subscriber<? super Boolean> subscriber) {
+                    final Uri contentUri = Content.PLAYLIST.forId(playlistUrn.getNumericId());
+                    requestPlaylistSync(new LegacyResultReceiverAdapter(subscriber, contentUri));
+                }
+            });
+        }
+
     }
 
     private void requestPlaylistSync(LegacyResultReceiverAdapter resultReceiver) {

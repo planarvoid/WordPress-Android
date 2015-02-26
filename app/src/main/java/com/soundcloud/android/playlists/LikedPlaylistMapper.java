@@ -29,7 +29,7 @@ public class LikedPlaylistMapper extends RxResultMapper<PropertySet> {
     }
 
     private Urn readSoundUrn(CursorReader cursorReader) {
-        return Urn.forPlaylist(cursorReader.getInt(BaseColumns._ID));
+        return Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID));
     }
 
 }

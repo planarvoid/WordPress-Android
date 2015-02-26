@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -21,6 +22,13 @@ public class LoadPlaylistCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         command = new LoadPlaylistCommand(propeller());
+    }
+
+    @Test
+    public void returnsEmptyPropertySetIfNotStored() throws Exception {
+        PropertySet playlist = command.with(Urn.forPlaylist(123)).call();
+
+        expect(playlist).toEqual(PropertySet.create());
     }
 
     @Test

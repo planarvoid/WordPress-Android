@@ -55,7 +55,7 @@ public class PlaylistGridPresenterTest {
         expect(viewHolder.title.getText()).toEqual(playlist.getTitle());
         expect(viewHolder.username.getText()).toEqual(playlist.getUsername());
         expect(viewHolder.tagList.getText()).toEqual("#tag1, #tag2");
-        expect(viewHolder.trackCount.getText()).toEqual("5 tracks");
+        expect(viewHolder.trackCount.getText()).toEqual("2 tracks");
     }
 
     @Test

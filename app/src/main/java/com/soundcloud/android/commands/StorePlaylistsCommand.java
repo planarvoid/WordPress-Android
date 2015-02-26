@@ -32,6 +32,7 @@ public class StorePlaylistsCommand extends StoreCommand<Iterable<ApiPlaylist>> {
                 .put(TableColumns.Sounds.TRACK_COUNT, playlist.getTrackCount())
                 .put(TableColumns.Sounds.USER_ID, playlist.getUser().getId())
                 .put(TableColumns.Sounds.TAG_LIST, TextUtils.join(" ", playlist.getTags()))
+                .put(TableColumns.Sounds.PERMALINK_URL, playlist.getPermalinkUrl())
                 .get();
     }
 

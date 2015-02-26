@@ -93,7 +93,7 @@ class UpdateLikeCommand extends Command<PropertySet, PropertySet, UpdateLikeComm
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
 
-            propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getInt(BaseColumns._ID)));
+            propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getLong(BaseColumns._ID)));
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
 
             return propertySet;
