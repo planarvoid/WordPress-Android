@@ -29,15 +29,24 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
         clearOfflineContent(context);
         enableOfflineSync(getActivity());
+        likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
     }
 
-    public void testTracksShouldPlayOffline() throws Exception {
-        likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
+    public void testPlayTrackWhenContentDownloaded() throws Exception {
         likesScreen.actionBar().clickSyncLikesButton().clickKeepLikesSynced();
         likesScreen.waitForLikesSyncToFinish();
         networkManager.switchWifiOff();
 
         assertTrue(likesScreen.clickTrack(0).isExpendedPlayerPlaying());
+    }
+
+    public void testShowToastWhenContentNotDownloaded() throws Exception {
+        networkManager.switchWifiOff();
+        toastObserver.observe();
+        likesScreen.clickTrack(0);
+        toastObserver.stopObserving();
+
+        assertTrue(toastObserver.wasToastObserved("Track is not available offline"));
     }
 
 }
