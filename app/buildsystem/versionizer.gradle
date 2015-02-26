@@ -12,8 +12,16 @@ android {
     }
   }
 
-  // Generate a task for each build in order to copy the adequate properties file.
+
   tasks.whenTaskAdded { currentTask ->
+    // We need to make the release generation task to depend on
+    // the increment of both version code and name
+    if (currentTask.name == 'generateReleaseBuildConfig') {
+      currentTask.dependsOn incrementVersionCode
+      currentTask.dependsOn incrementVersionName
+    }
+
+    // Generate a task for each build in order to copy the adequate properties file.
     project.('android').buildTypes.all { build ->
       def buildName = build.name
       def generateBuildConfigTask = "generate${buildName.capitalize()}BuildConfig".toString()
@@ -91,8 +99,8 @@ android {
       def month = currentDate.substring(3, 5)
       def day = currentDate.substring(6, 8)
 
-      def mNextVersionName = "${year}.${month}.${day}"
-      def manifestContent = matcherVersionNumber.replaceAll("versionName=\"" + mNextVersionName + "\"")
+      def nextVersionName = "${year}.${month}.${day}"
+      def manifestContent = matcherVersionNumber.replaceAll('versionName=\"' + nextVersionName + '\"')
 
       manifestFile.write(manifestContent)
     }
