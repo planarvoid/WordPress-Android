@@ -3,6 +3,7 @@ package com.soundcloud.android.events;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
@@ -44,10 +45,24 @@ public final class EntityStateChangedEvent {
         }
     };
 
+    public static final Func1<? super EntityStateChangedEvent,Boolean> IS_PLAYLIST_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isPlaylistLike() && event.getNextChangeSet().get(PlaylistProperty.IS_LIKED);
+        }
+    };
+
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isTrackLike() && !event.getNextChangeSet().get(TrackProperty.IS_LIKED);
+        }
+    };
+
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_UNLIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isPlaylistLike() && !event.getNextChangeSet().get(PlaylistProperty.IS_LIKED);
         }
     };
 
@@ -156,5 +171,9 @@ public final class EntityStateChangedEvent {
 
     public boolean isTrackLike() {
         return isSingularChange() && getNextUrn().isTrack() && kind == LIKE;
+    }
+
+    public boolean isPlaylistLike() {
+        return isSingularChange() && getNextUrn().isPlaylist() && kind == LIKE;
     }
 }

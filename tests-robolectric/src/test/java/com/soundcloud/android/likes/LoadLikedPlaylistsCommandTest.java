@@ -53,7 +53,7 @@ public class LoadLikedPlaylistsCommandTest extends StorageIntegrationTest {
         expect(result).toEqual(Lists.<PropertySet>newArrayList(expectedLikedPlaylistFor(playlist1, LIKED_DATE_1)));
     }
 
-    private PropertySet expectedLikedPlaylistFor(PropertySet playlist, Date likedAt) {
+    static PropertySet expectedLikedPlaylistFor(PropertySet playlist, Date likedAt) {
         return PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.get(PlaylistProperty.URN)),
                 PlaylistProperty.TITLE.bind(playlist.get(PlaylistProperty.TITLE)),

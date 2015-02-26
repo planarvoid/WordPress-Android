@@ -1,9 +1,12 @@
 package com.soundcloud.android.likes;
 
 import static com.google.common.collect.Iterables.getLast;
+import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -26,6 +29,7 @@ public class PlaylistLikeOperations {
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
     private final LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
+    private final LoadLikedPlaylistCommand loadLikedPlaylistCommand;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
@@ -50,16 +54,32 @@ public class PlaylistLikeOperations {
 
     @Inject
     public PlaylistLikeOperations(LoadLikedPlaylistsCommand loadLikedPlaylistsCommand,
+                                  LoadLikedPlaylistCommand loadLikedPlaylistCommand,
                                   SyncInitiator syncInitiator,
                                   EventBus eventBus,
                                   @Named("Storage") Scheduler scheduler,
                                   NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedPlaylistsCommand = loadLikedPlaylistsCommand;
+        this.loadLikedPlaylistCommand = loadLikedPlaylistCommand;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
     }
+
+    public Observable<PropertySet> onPlaylistLiked(){
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_PLAYLIST_LIKED_FILTER)
+                .map(EntityStateChangedEvent.TO_URN)
+                .flatMap(loadLikedPlaylistCommand);
+    }
+
+    public Observable<Urn> onPlaylistUnliked() {
+        return eventBus.queue(ENTITY_STATE_CHANGED)
+                .filter(EntityStateChangedEvent.IS_PLAYLIST_UNLIKED_FILTER)
+                .map(EntityStateChangedEvent.TO_URN);
+    }
+
 
     public Observable<List<PropertySet>> likedPlaylists() {
         return likedPlaylists(Long.MAX_VALUE);

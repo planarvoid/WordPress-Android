@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PagedPlaylistsAdapter;
 import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.playlists.PlaylistLikesPresenter;
@@ -62,6 +63,8 @@ public class PlaylistLikesPresenterTest {
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedPlaylists()).thenReturn(Observable.<List<PropertySet>>empty());
         when(likeOperations.likedPlaylistsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(likeOperations.onPlaylistLiked()).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
         when(listView.getContext()).thenReturn(Robolectric.application);
     }
 

@@ -11,9 +11,12 @@ import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
+import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
 
@@ -59,7 +62,9 @@ public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PropertyS
         getEmptyView().setMessageText(R.string.list_empty_liked_playlists_message);
 
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
+                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                likeOperations.onPlaylistLiked().observeOn(AndroidSchedulers.mainThread()).subscribe(new PrependItemToListSubscriber(adapter)),
+                likeOperations.onPlaylistUnliked().observeOn(AndroidSchedulers.mainThread()).subscribe(new RemoveEntityListSubscriber(adapter))
         );
     }
 

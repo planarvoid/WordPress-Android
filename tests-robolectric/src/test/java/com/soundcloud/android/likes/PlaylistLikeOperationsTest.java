@@ -8,6 +8,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
@@ -24,6 +28,7 @@ import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
 import rx.functions.Action0;
+import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
@@ -38,6 +43,7 @@ public class PlaylistLikeOperationsTest {
 
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
+    @Mock private LoadLikedPlaylistCommand loadLikedPlaylistCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
@@ -49,6 +55,7 @@ public class PlaylistLikeOperationsTest {
     public void setUp() throws Exception {
         operations = new PlaylistLikeOperations(
                 loadLikedPlaylistsCommand,
+                loadLikedPlaylistCommand,
                 syncInitiator,
                 eventBus,
                 scheduler, networkConnectionHelper);
@@ -164,6 +171,29 @@ public class PlaylistLikeOperationsTest {
 
         verify(observer).onNext(Collections.<PropertySet>emptyList());
         verify(observer).onCompleted();
+    }
+
+    @Test
+    public void onPlaylistLikedEventReturnsPlaylistInfoFromLike() throws Exception {
+        final PropertySet likedPlaylist = TestPropertySets.expectedLikedPlaylistForPlaylistsScreen();
+        when(loadLikedPlaylistCommand.toObservable()).thenReturn(Observable.just(likedPlaylist));
+
+        final TestObserver<PropertySet> observer = new TestObserver<>();
+        operations.onPlaylistLiked().subscribe(observer);
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(likedPlaylist.get(PlaylistProperty.URN), true, 5));
+
+        expect(observer.getOnNextEvents()).toContainExactly(likedPlaylist);
+    }
+
+    @Test
+    public void onPlaylistUnlikedEventReturnsUnlikedPlaylistUrn() throws Exception {
+        final Urn unlikedPlaylistUrn = Urn.forPlaylist(123L);
+        final TestObserver<Urn> observer = new TestObserver<>();
+        operations.onPlaylistUnliked().subscribe(observer);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(unlikedPlaylistUrn, false, 5));
+
+        expect(observer.getOnNextEvents()).toContainExactly(unlikedPlaylistUrn);
     }
 
     private List<PropertySet> createPageOfPlaylistLikes(int size){

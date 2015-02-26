@@ -125,7 +125,7 @@ public abstract class TestPropertySets {
 
     public static PropertySet expectedLikedPlaylistForPlaylistsScreen() {
         return PropertySet.from(
-                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
+                PlaylistProperty.URN.bind(Urn.forPlaylist(123L)),
                 PlaylistProperty.TITLE.bind("squirlex galore"),
                 PlaylistProperty.CREATOR_NAME.bind("avieciie"),
                 PlaylistProperty.TRACK_COUNT.bind(4),
