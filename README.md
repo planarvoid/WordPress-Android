@@ -41,7 +41,7 @@ Select Next and confirm the import of the parent project. In case you are asked 
 
 Android Studio will automatically download and manage dependencies and will ask you to reload the project. 
 
-## Setup up code style
+## Setup code style
 
 Make sure you are using SoundCloud code style on Android Studio by going to: 
 File -> Other Settings -> Default Settings -> Code Style and apply: `SoundCloud-Android` scheme.
