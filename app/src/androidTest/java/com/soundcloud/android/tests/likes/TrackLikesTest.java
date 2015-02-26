@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
@@ -47,6 +48,24 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         likesScreen.scrollToBottomOfTracksListAndLoadMoreItems();
 
         assertThat(likesScreen.getLoadedTrackCount(), is(greaterThan(numberOfTracks)));
+    }
+
+    public void testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
+        TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
+        final int initialLikedTracksCount = likesScreen.getLoadedTrackCount();
+
+        final VisualPlayerElement player = likesScreen.clickTrack(0);
+
+        player.tapToggleLikeButton();
+        player.pressBackToCollapse();
+
+        assertThat(likesScreen.getLoadedTrackCount(), equalTo(initialLikedTracksCount - 1));
+
+        player.tapFooter();
+        player.tapToggleLikeButton();
+        player.pressBackToCollapse();
+
+        assertThat(likesScreen.getLoadedTrackCount(), equalTo(initialLikedTracksCount));
     }
 
 }

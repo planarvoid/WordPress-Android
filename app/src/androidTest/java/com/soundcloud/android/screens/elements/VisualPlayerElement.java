@@ -1,9 +1,5 @@
 package com.soundcloud.android.screens.elements;
 
-import android.graphics.Rect;
-import android.support.v4.view.ViewPager;
-import android.view.View;
-
 import com.robotium.solo.Condition;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
@@ -12,6 +8,10 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.WhyAdsScreen;
+
+import android.graphics.Rect;
+import android.support.v4.view.ViewPager;
+import android.view.View;
 
 import java.util.concurrent.TimeUnit;
 
@@ -119,6 +119,10 @@ public class VisualPlayerElement extends Element {
 
     private ViewElement interstitial() {
         return solo.findElement(With.id(R.id.interstitial));
+    }
+
+    private ViewElement toggleLike() {
+        return solo.findElement(With.id(R.id.track_page_like));
     }
 
     private ViewElement interstitialNowPlaying() {
@@ -297,6 +301,11 @@ public class VisualPlayerElement extends Element {
     public PlayerMenuElement clickMenu() {
         menu().click();
         return new PlayerMenuElement(solo);
+    }
+
+    public void tapToggleLikeButton() {
+        waitForExpandedPlayer();
+        toggleLike().click();
     }
 
     private ViewElement menu() {
