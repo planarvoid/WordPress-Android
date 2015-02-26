@@ -40,6 +40,13 @@ Open Android Studio, select "Import project", select `build.gradle` from the roo
 Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
 
 Android Studio will automatically download and manage dependencies and will ask you to reload the project. 
+
+## Setup up code style
+
+Make sure you are using SoundCloud code style on Android Studio by going to: 
+File -> Other Settings -> Default Settings -> Code Style and apply: `SoundCloud-Android` scheme.
+
+![Android code style][Android code style]
     
 ## Running tests
 
@@ -53,7 +60,7 @@ to run all tests, or
 
     $ ./gradlew test --tests *TrackingApiTest
 
-to run all test inside a class, or
+to run all tests inside a class, or
 
     $ ./gradlew test --tests *TrackingApiTest.shouldSetUserAgentHeader
     
@@ -68,6 +75,7 @@ Add a file `local.properties` to the app directory containing the path to the An
 In your Run/Debug configuration you should have one called: `robolectric-tests` which will execute all unit tests.
 
 You should also setup your default run configuration for JUnit so it looks like this:
+
 ![JUnit default run config][JUnit default run config]
 
 ## Useful Gradle commands
@@ -95,4 +103,5 @@ You should also setup your default run configuration for JUnit so it looks like 
 [android-guide]: https://github.com/soundcloud/SoundCloud-Android/wiki/Android-Guidelines
 [java-syntax]: https://github.com/soundcloud/SoundCloud-Android/wiki/Java-Syntax-Conventions
 [JUnit default run config]: http://f.cl.ly/items/3q3m3v2U0C1b0w1c2D2G/default_junit_run_configuration.png
+[Android code style]: http://f.cl.ly/items/1j0U3Q0i330b3G2D3G1D/codestye_soundcloud.png
 
