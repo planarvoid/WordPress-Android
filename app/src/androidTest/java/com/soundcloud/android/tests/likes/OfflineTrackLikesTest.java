@@ -12,6 +12,8 @@ import com.soundcloud.android.screens.SyncYourLikesScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineSync;
+
 public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
     public OfflineTrackLikesTest() {
@@ -34,7 +36,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadActionAvailableWhenUserSubscribed() {
-        ConfigurationHelper.enableOfflineSync(getActivity());
+        enableOfflineSync(getActivity());
 
         final TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
 
@@ -43,7 +45,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
-        ConfigurationHelper.enableOfflineSync(getActivity());
+        enableOfflineSync(getActivity());
 
         final TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
         final SyncYourLikesScreen syncLikesDialog = likesScreen.actionBar().clickSyncLikesButton();

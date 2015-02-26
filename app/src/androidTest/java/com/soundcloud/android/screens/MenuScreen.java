@@ -1,16 +1,16 @@
 package com.soundcloud.android.screens;
 
+import android.os.Build;
+
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.viewelements.TextElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.ActionBarElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.TextElement;
-import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.with.With;
-
-import android.os.Build;
 
 import java.util.List;
 
@@ -49,6 +49,10 @@ public class MenuScreen {
         return menuContainer().getItemAt(0);
     }
 
+    private ViewElement streamMenuItem() {
+        return menuContainer().getItemAt(1);
+    }
+
     protected ViewElement exploreMenuItem() {
         return menuContainer().getItemAt(2);
     }
@@ -85,6 +89,12 @@ public class MenuScreen {
         List<ViewElement> menuDrawers = testDriver.findElements(With.id(R.id.navigation_fragment_id));
         ViewElement menuDrawer = menuDrawers.isEmpty() ? null : menuDrawers.get(0);
         return menuDrawer != null && menuDrawer.isVisible();
+    }
+
+    public StreamScreen clickStream() {
+        streamMenuItem().click();
+        waiter.waitForDrawerToClose();
+        return new StreamScreen(testDriver);
     }
 
     public ProfileScreen clickUserProfile() {

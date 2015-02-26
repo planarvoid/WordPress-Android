@@ -1,16 +1,21 @@
 package com.soundcloud.android.screens;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.likes.LikesActionBarElement;
 
 import java.util.List;
+
+import javax.annotation.Nullable;
 
 import static com.soundcloud.android.framework.with.With.text;
 
@@ -75,9 +80,19 @@ public class TrackLikesScreen extends Screen {
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
-    private List<ViewElement> tracks() {
+    public List<TrackItemElement> tracks(With with) {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return testDriver.findElements(With.id(R.id.track_list_item));
+        return Lists.transform(testDriver.findElements(with), new Function<ViewElement, TrackItemElement>() {
+            @Nullable
+            @Override
+            public TrackItemElement apply(@Nullable ViewElement viewElement) {
+                return new TrackItemElement(viewElement);
+            }
+        });
+    }
+
+    public List<TrackItemElement> tracks() {
+        return tracks(With.id(R.id.track_list_item));
     }
 
     @Override
@@ -97,5 +112,4 @@ public class TrackLikesScreen extends Screen {
     protected Class getActivity() {
         return ACTIVITY;
     }
-
 }

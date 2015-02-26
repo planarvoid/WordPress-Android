@@ -1,10 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
-
-import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
-
 import com.soundcloud.android.framework.with.With;
 
 import java.util.List;
@@ -16,13 +13,12 @@ public class TrackItemMenuElement {
         testDriver = solo;
     }
 
+    public void toggleLike() {
+        menuItems().get(0).click();
+    }
 
     public void clickAdToPlaylist() {
         menuItems().get(1).click();
-    }
-
-    public String getLikeItemTitle() {
-        return new TextElement(menuItems().get(0)).getText().toString();
     }
 
     private ViewElement container() {
