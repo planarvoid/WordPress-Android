@@ -217,4 +217,15 @@ public class DatabaseAssertions {
         return new QueryBinding(this.database, query);
     }
 
+    public void assertPlaylistMarkedForOfflineSync(Urn playlistUrn) {
+        assertThat(select(from(Table.OfflineContent.name())
+                .whereEq(TableColumns.OfflineContent._ID, playlistUrn.getNumericId())
+                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)), counts(1));
+    }
+
+    public void assertPlaylistNotMarkedForOfflineSync(Urn playlistUrn) {
+        assertThat(select(from(Table.OfflineContent.name())
+                .whereEq(TableColumns.OfflineContent._ID, playlistUrn.getNumericId())
+                .whereEq(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST)), counts(0));
+    }
 }

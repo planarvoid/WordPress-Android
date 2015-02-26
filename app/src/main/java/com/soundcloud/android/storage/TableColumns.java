@@ -295,6 +295,12 @@ public final class TableColumns {
         public static final String UNAVAILABLE_AT = "unavailable_at";
     }
 
+    public final static class OfflineContent implements BaseColumns {
+        public static final String _TYPE = "_type";
+
+        public static final int TYPE_PLAYLIST = Sounds.TYPE_PLAYLIST;
+    }
+
     public static class SoundView extends ResourceTable implements BaseColumns {
         public static final String LAST_UPDATED = Sounds.LAST_UPDATED;
         public static final String PERMALINK = Sounds.PERMALINK;

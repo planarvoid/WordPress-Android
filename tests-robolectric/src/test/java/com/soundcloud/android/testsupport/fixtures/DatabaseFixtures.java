@@ -441,4 +441,13 @@ public class DatabaseFixtures {
         assertThat(id, Matchers.greaterThanOrEqualTo(0L));
         return id;
     }
+
+    public Urn insertPlaylistMarkedForOfflineSync() {
+        final ApiPlaylist apiPlaylist = insertPlaylist();
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.OfflineContent._ID, apiPlaylist.getUrn().getNumericId());
+        cv.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
+        insertInto(Table.OfflineContent, cv);
+        return apiPlaylist.getUrn();
+    }
 }
