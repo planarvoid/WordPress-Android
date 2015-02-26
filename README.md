@@ -2,13 +2,10 @@
 
 ## Building
 
-Make sure the [Android SDK][] and Maven (3.1+ required) are installed.
+Make sure both [Android SDK][] and [Android Studio][] are installed.
 
     $ brew tap homebrew/versions
     $ brew install android-sdk android-ndk homebrew/versions/maven # OSX - you'll also need XCode CLI tools
-    $ mv /usr/bin/mvn{,.old}
-    $ mvn -version
-    Apache Maven 3.2.2 (45f7c067; 2014-06-17T15:51:42+02:00)
     
 
 Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
@@ -18,7 +15,12 @@ Add these lines to your shell's startup script (e.g. .bash_profile, .zshrc)
     export ANDROID_SDK_ROOT=$ANDROID_HOME
     export ANDROID_SDK_HOME=$ANDROID_HOME
 
-    export JAVA_HOME=$(/usr/libexec/java_home -v 1.7)
+Make sure you are using JDK 8:
+
+    export JAVA_HOME=$(/usr/libexec/java_home -v 1.8)
+    
+or you can use [Jenv][] as your Java Environment Manager.
+    
 
 Run
 
@@ -28,49 +30,44 @@ Clone and build this project:
 
     $ git clone git@github.com:soundcloud/SoundCloud-Android.git
     $ cd SoundCloud-Android
-    $ bundle install
-    $ rake build
-    $ adb install app/target/soundcloud-android-X.Y.Z-debug.apk
+    $ ./gradlew assembleDebug
+    $ ./gradlew installDebug
 
-## Opening the project in Intellij IDEA
+## Opening the project in Android Studio
 
-Make sure there are no leftover config files in the project (`git clean -dfx`).
+Open Android Studio, select "Import project", select `build.gradle` from the root project directory.
 
-Copy the current debug configuration into the app resource dir:
+Select Next and confirm the import of the parent project. In case you are asked to use the `gradle wrapper`, just say Yes.
 
-    $ cp app/properties/app_properties_debug.xml app/res/values/
-
-Open IntelliJ, select "Import project", select `pom.xml` from the root project directory.
-
-Select Next and confirm the import of the parent project.
-
-IDEA will automatically download and manage dependencies. 
-
-To set up shared codestyle settings for Intellij:
-
-    $ rake setup_codestyle 
+Android Studio will automatically download and manage dependencies and will ask you to reload the project. 
     
 ## Running tests
 
 ### Robolectric tests on command line
 
-You can run all or individual unit tests using Maven. `cd` into the parent module, then run
+You can run all or individual unit tests using Gradle. `cd` into the parent module, then run
 
-    $ mvn test -DfailIfNoTests=false
+    $ ./gradlew test
 
 to run all tests, or
 
-    $ mvn test -DfailIfNoTests=false -Dtest=FooTest,BarTest,BazTest#shouldHonk
+    $ ./gradlew test -Dtest.single=TrackingApiTest
 
-to run individual tests.
+to run all test inside a class, or
 
-### Robolectric tests in IDEA
+    $ ./gradlew test -Dtest.single=TrackingApiTest
+    
+to run one single test.
+
+### Robolectric tests in Android Studio
 
 Add a file `local.properties` to the app directory containing the path to the Android SDK:
 
     $ echo "sdk.dir=$ANDROID_HOME" > app/local.properties
 
-Change the default JUnit Run/Debug configuration to look like this:
+In your Run/Debug configuration you should have one called: `robolectric-tests` which will execute all unit tests.
+
+You should also setup your default run configuration for JUnit so it looks like this:
 ![JUnit default run config][JUnit default run config]
 
 ## [Wiki][wiki] topics
@@ -82,11 +79,13 @@ Change the default JUnit Run/Debug configuration to look like this:
 * [Java syntax][java-syntax]
 
 [Android SDK]: http://developer.android.com/sdk/index.html
+[Android Studio]: http://developer.android.com/sdk/index.html
+[Jenv]: http://www.jenv.be/
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas
 [integration-tests]: https://github.com/soundcloud/SoundCloud-Android/wiki/Integration-tests
 [android-guide]: https://github.com/soundcloud/SoundCloud-Android/wiki/Android-Guidelines
 [java-syntax]: https://github.com/soundcloud/SoundCloud-Android/wiki/Java-Syntax-Conventions
-[JUnit default run config]: http://f.cl.ly/items/153m2C2d001j0Y1L1K02/Screen%20Shot%202012-11-27%20at%2012.57.25%20PM.png
+[JUnit default run config]: http://cl.ly/image/280c0H1l1g2P
 
