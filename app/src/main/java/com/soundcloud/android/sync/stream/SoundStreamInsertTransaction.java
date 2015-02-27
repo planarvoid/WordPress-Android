@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.stream;
 
 import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylistContentValues;
+import static com.soundcloud.android.commands.StoreTracksCommand.buildPolicyContentValues;
 import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;
 import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
 
@@ -36,14 +37,18 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
             step(propeller.upsert(Table.Users, getContentValuesForSoundOwner(streamItem)));
             step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
 
+            if (isTrack(streamItem)) {
+                step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(streamItem.getTrack().get())));
+            }
+
             final Optional<ApiUser> reposter = streamItem.getReposter();
-            if (reposter.isPresent()){
+            if (reposter.isPresent()) {
                 step(propeller.upsert(Table.Users, buildUserContentValues(reposter.get())));
             }
 
-            if (streamItem.isPromotedStreamItem()){
+            if (streamItem.isPromotedStreamItem()) {
                 final Optional<ApiUser> promoter = streamItem.getPromoter();
-                if (promoter.isPresent()){
+                if (promoter.isPresent()) {
                     step(propeller.upsert(Table.Users, buildUserContentValues(promoter.get())));
                 }
 
@@ -55,9 +60,13 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
         }
     }
 
+    private boolean isTrack(ApiStreamItem streamItem) {
+        return streamItem.getTrack().isPresent();
+    }
+
     private ContentValues getContentValuesForSoundOwner(ApiStreamItem streamItem) {
         final Optional<ApiTrack> track = streamItem.getTrack();
-        if (track.isPresent()){
+        if (track.isPresent()) {
             return buildUserContentValues(track.get().getUser());
         } else {
             return buildUserContentValues(streamItem.getPlaylist().get().getUser());
@@ -67,7 +76,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
     private ContentValues getContentValuesForSoundTable(ApiStreamItem streamItem) {
         final Optional<ApiTrack> track = streamItem.getTrack();
-        if (track.isPresent()){
+        if (track.isPresent()) {
             return buildTrackContentValues(track.get());
         } else {
             return buildPlaylistContentValues(streamItem.getPlaylist().get());
@@ -81,7 +90,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
                 .put(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime());
 
         final Optional<ApiUser> reposter = streamItem.getReposter();
-        if (reposter.isPresent()){
+        if (reposter.isPresent()) {
             builder.put(TableColumns.SoundStream.REPOSTER_ID, reposter.get().getId());
         }
         return builder;
@@ -105,7 +114,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
                 .put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, urlJoiner.join(streamItem.getTrackingTrackPlayedUrls()));
 
         final Optional<ApiUser> promoter = streamItem.getPromoter();
-        if (promoter.isPresent()){
+        if (promoter.isPresent()) {
             builder.put(TableColumns.PromotedTracks.PROMOTER_ID, promoter.get().getId());
         }
         return builder.get();

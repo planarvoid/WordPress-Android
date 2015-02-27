@@ -19,6 +19,7 @@ public enum Table implements com.soundcloud.propeller.Table {
     PromotedTracks(false, DatabaseSchema.DATABASE_CREATE_PROMOTED_TRACKS),
     Sounds(PrimaryKey.of(TableColumns.Sounds._ID, TableColumns.Sounds._TYPE), false, DatabaseSchema.DATABASE_CREATE_SOUNDS, TableColumns.Sounds.ALL_FIELDS),
     TrackMetadata(false, DatabaseSchema.DATABASE_CREATE_TRACK_METADATA, TableColumns.TrackMetadata.ALL_FIELDS),
+    TrackPolicies(PrimaryKey.of(TableColumns.TrackPolicies.TRACK_ID), false, DatabaseSchema.DATABASE_CREATE_TRACK_POLICIES, TableColumns.TrackPolicies.ALL_FIELDS),
     Users(false, DatabaseSchema.DATABASE_CREATE_USERS, TableColumns.Users.ALL_FIELDS),
     Comments(false, DatabaseSchema.DATABASE_CREATE_COMMENTS),
     Activities(false, DatabaseSchema.DATABASE_CREATE_ACTIVITIES),
@@ -207,9 +208,7 @@ public enum Table implements com.soundcloud.propeller.Table {
         // copy current data to tmp table
         final String sql = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", tmpTable, toCols, fromCols, table);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "executing " + sql);
-        }
+        Log.d(TAG, "executing " + sql);
         db.execSQL(sql);
 
         // recreate current table with new schema
@@ -218,13 +217,22 @@ public enum Table implements com.soundcloud.propeller.Table {
 
         // and copy old data from tmp
         final String copy = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", table, toCols, toCols, tmpTable);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "executing " + copy);
-        }
+
+        Log.d(TAG, "executing " + copy);
         db.execSQL(copy);
         db.execSQL("DROP table " + tmpTable);
 
         return toAppendCols;
+    }
+
+    public static void migrate(SQLiteDatabase db, String toTable, List<String> toColumns,
+                               String fromTable, List<String> fromColumns) {
+        final String toCols = TextUtils.join(",", toColumns);
+        final String fromCols = TextUtils.join(",", fromColumns);
+        final String sql = String.format(Locale.ENGLISH, "INSERT INTO %s (%s) SELECT %s from %s", toTable, toCols, fromCols, fromTable);
+
+        Log.d(TAG, "migrating " + sql);
+        db.execSQL(sql);
     }
 
     /**
@@ -232,7 +240,6 @@ public enum Table implements com.soundcloud.propeller.Table {
      * SQLite - UPSERT *not* INSERT or REPLACE
      * </a>
      */
-
     public int upsert(SQLiteDatabase db, ContentValues[] values) {
         if (fields == null || fields.length == 0) {
             throw new IllegalStateException("no fields defined");
@@ -244,7 +251,7 @@ public enum Table implements com.soundcloud.propeller.Table {
                 continue;
             }
             long id = v.getAsLong(BaseColumns._ID);
-            List<Object> bindArgs = new ArrayList<Object>();
+            List<Object> bindArgs = new ArrayList<>();
             StringBuilder sb = new StringBuilder(5000);
             sb.append("INSERT OR REPLACE INTO ").append(name()).append('(')
                     .append(TextUtils.join(",", fields))

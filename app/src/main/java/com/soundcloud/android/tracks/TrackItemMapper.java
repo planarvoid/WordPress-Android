@@ -26,7 +26,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));
         propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
         propertySet.put(PlayableProperty.REPOSTS_COUNT, cursorReader.getInt(SoundView.REPOSTS_COUNT));
-        propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.MONETIZABLE));
+        propertySet.put(TrackProperty.MONETIZABLE, cursorReader.getBoolean(SoundView.POLICIES_MONETIZABLE));
         propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
         propertySet.put(PlayableProperty.PERMALINK_URL, cursorReader.getString(SoundView.PERMALINK_URL));
         propertySet.put(PlayableProperty.IS_REPOSTED, cursorReader.getBoolean(SoundView.USER_REPOST));
@@ -38,7 +38,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
     }
 
     private void putOptionalFields(CursorReader cursorReader, PropertySet propertySet) {
-        final String policy = cursorReader.getString(SoundView.POLICY);
+        final String policy = cursorReader.getString(SoundView.POLICIES_POLICY);
         if (policy != null) {
             propertySet.put(TrackProperty.POLICY, policy);
         }
