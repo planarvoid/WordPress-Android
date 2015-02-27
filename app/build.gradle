@@ -121,6 +121,7 @@ dependencies {
 
   /* Compile/Dev Time */
   apt libraries.daggerCompiler
+  apt project(":libraries:lightcycle:lightcycle-processor")
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
   provided libraries.intellijAnnotations
