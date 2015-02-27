@@ -2,19 +2,19 @@ package com.soundcloud.android.lightcycle;
 
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.robolectric.Robolectric;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(LightCycleTestRunner.class)
 public class SupportFragmentLightCycleDispatcherTest {
     @Mock private SupportFragmentLightCycle lifeCycleComponent1;
     @Mock private SupportFragmentLightCycle lifeCycleComponent2;
@@ -24,6 +24,7 @@ public class SupportFragmentLightCycleDispatcherTest {
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         dispatcher = new SupportFragmentLightCycleDispatcher()
                 .attach(lifeCycleComponent1)
                 .attach(lifeCycleComponent2);

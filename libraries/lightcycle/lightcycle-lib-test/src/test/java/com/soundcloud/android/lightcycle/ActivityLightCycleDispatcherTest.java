@@ -3,27 +3,26 @@ package com.soundcloud.android.lightcycle;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-@RunWith(SoundCloudTestRunner.class)
+@RunWith(LightCycleTestRunner.class)
 public class ActivityLightCycleDispatcherTest {
     @Mock private ActivityLightCycle lightCycleComponent1;
     @Mock private ActivityLightCycle lightCycleComponent2;
     @Mock private FragmentActivity activity;
-    @Mock private ActionBarController actionBarController;
     private ActivityLightCycleDispatcher dispatcher;
 
     @Before
     public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
         dispatcher = new ActivityLightCycleDispatcher()
                 .attach(lightCycleComponent1)
                 .attach(lightCycleComponent2);
@@ -38,6 +37,7 @@ public class ActivityLightCycleDispatcherTest {
         verify(lightCycleComponent1).onCreate(activity, bundle);
         verify(lightCycleComponent2).onCreate(activity, bundle);
     }
+
 
     @Test
     public void dispatchOnNewIntent() {
