@@ -232,7 +232,7 @@ public class PlaylistEngagementsPresenterTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromRepost(playlistInfo.getUrn(), true, playlistInfo.getRepostsCount()));
-        verify(engagementsView).updateRepostButton(playlistInfo.getRepostsCount(), true);
+        verify(engagementsView).showAndUpdateRepostItem(playlistInfo.getRepostsCount(), true);
     }
 
     @Test
@@ -243,7 +243,7 @@ public class PlaylistEngagementsPresenterTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true, 1));
 
         verify(engagementsView, never()).updateLikeItem(anyInt(), eq(true));
-        verify(engagementsView, never()).updateRepostButton(anyInt(), eq(true));
+        verify(engagementsView, never()).showAndUpdateRepostItem(anyInt(), eq(true));
     }
 
     @Test
