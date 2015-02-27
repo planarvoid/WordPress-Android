@@ -153,7 +153,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private void addLifeCycleComponents() {
         pullToRefreshController.setRefreshListener(this);
-        addLifeCycleComponent(pullToRefreshController);
+        attachLightCycle(pullToRefreshController);
     }
 
     @Override

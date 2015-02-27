@@ -74,7 +74,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
 
     private void addLifeCycleComponents() {
         listViewController.setScrollListener(new AbsListViewParallaxer(null));
-        addLifeCycleComponent(listViewController);
+        attachLightCycle(listViewController);
     }
 
     @Override

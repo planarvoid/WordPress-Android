@@ -84,8 +84,8 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
         listViewController.setAdapter(adapter, operations.pager());
         listViewController.setScrollListener(new AbsListViewParallaxer(null));
         pullToRefreshController.setRefreshListener(this, adapter);
-        addLifeCycleComponent(this.listViewController);
-        addLifeCycleComponent(this.pullToRefreshController);
+        attachLightCycle(this.listViewController);
+        attachLightCycle(this.pullToRefreshController);
     }
 
     @Override

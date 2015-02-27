@@ -118,8 +118,8 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     }
 
     private void addLifeCycleComponents() {
-        addLifeCycleComponent(listViewController);
-        addLifeCycleComponent(adapter);
+        attachLightCycle(listViewController);
+        attachLightCycle(adapter);
     }
 
     @Override

@@ -87,9 +87,9 @@ public class SoundStreamFragment extends LightCycleSupportFragment
         listViewController.setAdapter(adapter, operations.pager());
         pullToRefreshController.setRefreshListener(this, adapter);
 
-        addLifeCycleComponent(listViewController);
-        addLifeCycleComponent(pullToRefreshController);
-        addLifeCycleComponent(adapter);
+        attachLightCycle(listViewController);
+        attachLightCycle(pullToRefreshController);
+        attachLightCycle(adapter);
     }
 
     @Override

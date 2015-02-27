@@ -19,7 +19,7 @@ public class PlaylistLikesFragment extends LightCycleSupportFragment {
 
     public PlaylistLikesFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        addLifeCycleComponent(presenter);
+        attachLightCycle(presenter);
     }
 
     @Override

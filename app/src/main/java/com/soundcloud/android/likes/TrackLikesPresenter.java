@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -49,12 +50,13 @@ import java.util.List;
 class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         implements AdapterView.OnItemClickListener {
 
+    @LightCycle final TrackLikesActionMenuController actionMenuController;
+    @LightCycle final TrackLikesHeaderPresenter headerPresenter;
+
     private final TrackLikeOperations likeOperations;
     private final TrackOperations trackOperations;
     private final OfflinePlaybackOperations playbackOperations;
     private final PagedTracksAdapter adapter;
-    private final TrackLikesActionMenuController actionMenuController;
-    private final TrackLikesHeaderPresenter headerPresenter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
 
@@ -88,8 +90,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
 
-        attach(actionMenuController);
-        attach(headerPresenter);
         setHeaderPresenter(headerPresenter);
     }
 

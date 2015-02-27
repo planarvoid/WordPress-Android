@@ -72,7 +72,7 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
     public PlaylistTagsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-        addLifeCycleComponent(emptyViewController);
+        attachLightCycle(emptyViewController);
     }
 
     @Override
