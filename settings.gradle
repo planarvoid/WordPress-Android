@@ -1,1 +1,4 @@
-include ':app', ':tests-robolectric'
+include ':app'
+include ':tests-robolectric'
+include ':libraries:lightcycle:lightcycle-lib'
+include ':libraries:lightcycle:lightcycle-robolectric'

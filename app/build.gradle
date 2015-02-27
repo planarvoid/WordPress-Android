@@ -167,6 +167,11 @@ dependencies {
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesCast
 
+
+  def lightcycle = project(':libraries:lightcycle:lightcycle-lib')
+  compile lightcycle
+
+
   /* Acceptance Tests */
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
