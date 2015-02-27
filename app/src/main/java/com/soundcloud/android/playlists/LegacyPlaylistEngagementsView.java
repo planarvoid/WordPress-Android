@@ -17,26 +17,14 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-public class LegacyPlaylistEngagementsView implements PlaylistEngagementsView {
+public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
 
     @InjectView(R.id.toggle_like) ToggleButton likeToggle;
     @InjectView(R.id.toggle_repost) ToggleButton repostToggle;
     @InjectView(R.id.btn_share) ImageButton shareButton;
 
-    private final Context context;
-    private final Resources resources;
-
-    private OnEngagementListener listener;
-
-    @Inject
     public LegacyPlaylistEngagementsView(Context context, Resources resources) {
-        this.context = context;
-        this.resources = resources;
-    }
-
-    @Override
-    public void setOnEngagement(OnEngagementListener listener) {
-        this.listener = listener;
+        super(context, resources);
     }
 
     public void onViewCreated(View view) {
@@ -47,21 +35,21 @@ public class LegacyPlaylistEngagementsView implements PlaylistEngagementsView {
         likeToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onToggleLike(likeToggle.isChecked());
+                getListener().onToggleLike(likeToggle.isChecked());
             }
         });
 
         repostToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onToggleRepost(repostToggle.isChecked());
+                getListener().onToggleRepost(repostToggle.isChecked());
             }
         });
 
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onShare();
+                getListener().onShare();
             }
         });
     }
@@ -83,33 +71,6 @@ public class LegacyPlaylistEngagementsView implements PlaylistEngagementsView {
                 count,
                 userReposted,
                 R.string.accessibility_stats_user_reposted);
-    }
-
-    private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
-                                    int checkedStringId) {
-        final String buttonLabel = ScTextUtils.shortenLargeNumber(count);
-        button.setTextOn(buttonLabel);
-        button.setTextOff(buttonLabel);
-        button.setChecked(checked);
-        button.invalidate();
-
-        if (AndroidUtils.accessibilityFeaturesAvailable(context)
-                && TextUtils.isEmpty(button.getContentDescription())) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(resources.getString(actionStringID));
-
-            if (count >= 0) {
-                builder.append(", ");
-                builder.append(resources.getQuantityString(descriptionPluralID, count, count));
-            }
-
-            if (checked) {
-                builder.append(", ");
-                builder.append(resources.getString(checkedStringId));
-            }
-
-            button.setContentDescription(builder.toString());
-        }
     }
 
     @Override

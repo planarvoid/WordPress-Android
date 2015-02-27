@@ -1,27 +1,79 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
+
+import android.content.Context;
+import android.content.res.Resources;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.ToggleButton;
 
-public interface PlaylistEngagementsView {
-    void onViewCreated(View view);
+public abstract class PlaylistEngagementsView {
 
-    void setOnEngagement(OnEngagementListener listener);
+    private final Context context;
+    private final Resources resources;
 
-    void showRepostToggle();
+    private OnEngagementListener listener;
 
-    void hideRepostToggle();
+    protected PlaylistEngagementsView(Context context, Resources resources) {
+        this.context = context;
+        this.resources = resources;
+    }
 
-    void showShareButton();
+    public OnEngagementListener getListener() {
+        return listener;
+    }
 
-    void hideShareButton();
+    abstract void onViewCreated(View view);
 
-    void updateLikeButton(int likesCount, boolean likedByUser);
+    void setOnEngagement(OnEngagementListener listener){
+        this.listener = listener;
+    }
 
-    void updateRepostButton(int repostsCount, boolean repostedByUser);
+    abstract void showRepostToggle();
+
+    abstract void hideRepostToggle();
+
+    abstract void showShareButton();
+
+    abstract void hideShareButton();
+
+    abstract void updateLikeButton(int likesCount, boolean likedByUser);
+
+    abstract void updateRepostButton(int repostsCount, boolean repostedByUser);
 
     public interface OnEngagementListener {
         void onToggleLike(boolean isLiked);
         void onToggleRepost(boolean isReposted);
         void onShare();
+    }
+
+    protected void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
+                                    int checkedStringId) {
+        final String buttonLabel = ScTextUtils.shortenLargeNumber(count);
+        button.setTextOn(buttonLabel);
+        button.setTextOff(buttonLabel);
+        button.setChecked(checked);
+        button.invalidate();
+
+        if (AndroidUtils.accessibilityFeaturesAvailable(context)
+                && TextUtils.isEmpty(button.getContentDescription())) {
+            final StringBuilder builder = new StringBuilder();
+            builder.append(resources.getString(actionStringID));
+
+            if (count >= 0) {
+                builder.append(", ");
+                builder.append(resources.getQuantityString(descriptionPluralID, count, count));
+            }
+
+            if (checked) {
+                builder.append(", ");
+                builder.append(resources.getString(checkedStringId));
+            }
+
+            button.setContentDescription(builder.toString());
+        }
     }
 }
