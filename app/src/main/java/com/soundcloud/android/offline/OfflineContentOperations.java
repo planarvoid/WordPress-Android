@@ -130,7 +130,7 @@ public class OfflineContentOperations {
         return settingsStorage.isOfflineLikesEnabled();
     }
 
-    public Observable<Boolean> getSettingsStatus() {
+    public Observable<Boolean> getOfflineLikesSettingsStatus() {
         return settingsStorage.getOfflineLikesChanged();
     }
 
