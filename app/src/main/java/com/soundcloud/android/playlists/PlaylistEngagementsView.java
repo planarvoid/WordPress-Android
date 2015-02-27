@@ -32,17 +32,15 @@ public abstract class PlaylistEngagementsView {
         this.listener = listener;
     }
 
-    abstract void showRepostToggle();
+    abstract void showAndUpdateRepostItem(int repostsCount, boolean repostedByUser);
 
-    abstract void hideRepostToggle();
+    abstract void hideRepostItem();
 
-    abstract void showShareButton();
+    abstract void showShareItem();
 
-    abstract void hideShareButton();
+    abstract void hideShareItem();
 
-    abstract void updateLikeButton(int likesCount, boolean likedByUser);
-
-    abstract void updateRepostButton(int repostsCount, boolean repostedByUser);
+    abstract void updateLikeItem(int likesCount, boolean likedByUser);
 
     public interface OnEngagementListener {
         void onToggleLike(boolean isLiked);

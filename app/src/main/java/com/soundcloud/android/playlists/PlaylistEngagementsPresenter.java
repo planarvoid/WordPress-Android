@@ -87,20 +87,20 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
     void setPlaylistInfo(@NotNull PlaylistInfo playlistInfo) {
         this.playlistInfo = playlistInfo;
 
-        playlistEngagementsView.updateLikeButton(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
-        playlistEngagementsView.updateRepostButton(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
+        playlistEngagementsView.updateLikeItem(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
+
 
         boolean showRepost = this.playlistInfo.isPublic() && !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
         if(showRepost) {
-            playlistEngagementsView.showRepostToggle();
+            playlistEngagementsView.showAndUpdateRepostItem(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
         } else {
-            playlistEngagementsView.hideRepostToggle();
+            playlistEngagementsView.hideRepostItem();
         }
 
         if(this.playlistInfo.isPublic()) {
-            playlistEngagementsView.showShareButton();
+            playlistEngagementsView.showShareItem();
         } else {
-            playlistEngagementsView.hideShareButton();
+            playlistEngagementsView.hideShareItem();
         }
     }
 
@@ -170,12 +170,12 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
                 playlistInfo.update(changeSet);
 
                 if (changeSet.contains(PlayableProperty.IS_LIKED)) {
-                    playlistEngagementsView.updateLikeButton(
+                    playlistEngagementsView.updateLikeItem(
                             changeSet.get(PlayableProperty.LIKES_COUNT),
                             changeSet.get(PlayableProperty.IS_LIKED));
                 }
                 if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
-                    playlistEngagementsView.updateRepostButton(
+                    playlistEngagementsView.showAndUpdateRepostItem(
                             changeSet.get(PlayableProperty.REPOSTS_COUNT),
                             changeSet.get(PlayableProperty.IS_REPOSTED));
                 }

@@ -3,19 +3,29 @@ package com.soundcloud.android.playlists;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
+import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ToggleButton;
 
-public class NewPlaylistEngagementsView extends PlaylistEngagementsView {
+public class NewPlaylistEngagementsView extends PlaylistEngagementsView implements PopupMenuWrapperListener {
 
     @InjectView(R.id.toggle_like) ToggleButton likeToggle;
+    @InjectView(R.id.overflow_button) View overflowButton;
 
-    public NewPlaylistEngagementsView(Context context, Resources resources) {
+    private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
+    private PopupMenuWrapper popupMenuWrapper;
+
+    public NewPlaylistEngagementsView(Context context, Resources resources, PopupMenuWrapper.Factory popupMenuWrapperFactory) {
         super(context, resources);
+        this.popupMenuWrapperFactory = popupMenuWrapperFactory;
     }
 
     @Override
@@ -24,36 +34,49 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView {
         View engagementsView = View.inflate(view.getContext(), R.layout.new_playlist_action_bar, holder);
         ButterKnife.inject(this, engagementsView);
 
+        popupMenuWrapper = popupMenuWrapperFactory.build(view.getContext(), overflowButton);
+        popupMenuWrapper.inflate(R.menu.playlist_details_actions);
+        popupMenuWrapper.setOnMenuItemClickListener(this);
+
         likeToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getListener().onToggleLike(likeToggle.isChecked());
             }
         });
+
+        overflowButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupMenuWrapper.show();
+            }
+        });
     }
 
     @Override
-    public void showRepostToggle() {
-
+    public void showAndUpdateRepostItem(int repostsCount, boolean repostedByUser) {
+        popupMenuWrapper.setItemVisible(R.id.repost, !repostedByUser);
+        popupMenuWrapper.setItemVisible(R.id.unpost, repostedByUser);
     }
 
     @Override
-    public void hideRepostToggle() {
-
+    public void hideRepostItem() {
+        popupMenuWrapper.setItemVisible(R.id.repost, false);
+        popupMenuWrapper.setItemVisible(R.id.unpost, false);
     }
 
     @Override
-    public void showShareButton() {
-
+    public void showShareItem() {
+        popupMenuWrapper.setItemVisible(R.id.share, true);
     }
 
     @Override
-    public void hideShareButton() {
-
+    public void hideShareItem() {
+        popupMenuWrapper.setItemVisible(R.id.share, false);
     }
 
     @Override
-    public void updateLikeButton(int likesCount, boolean likedByUser) {
+    public void updateLikeItem(int likesCount, boolean likedByUser) {
         updateToggleButton(likeToggle,
                 R.string.accessibility_like_action,
                 R.plurals.accessibility_stats_likes,
@@ -63,7 +86,24 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView {
     }
 
     @Override
-    public void updateRepostButton(int repostsCount, boolean repostedByUser) {
+    public void onDismiss() {
+        // no-op
+    }
 
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        switch (menuItem.getItemId()) {
+            case R.id.repost:
+                getListener().onToggleRepost(true);
+                return true;
+            case R.id.unpost:
+                getListener().onToggleRepost(false);
+                return true;
+            case R.id.share:
+                getListener().onShare();
+                return true;
+            default:
+                throw new IllegalArgumentException("Unexpected menu item clicked " + menuItem);
+        }
     }
 }

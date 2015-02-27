@@ -218,7 +218,7 @@ public class PlaylistEngagementsPresenterTest {
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(playlistInfo.getUrn(), true, playlistInfo.getLikesCount()));
-        verify(engagementsView).updateLikeButton(playlistInfo.getLikesCount(), true);
+        verify(engagementsView).updateLikeItem(playlistInfo.getLikesCount(), true);
 
     }
 
@@ -228,7 +228,7 @@ public class PlaylistEngagementsPresenterTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromLike(playlistInfo.getUrn(), true, playlistInfo.getLikesCount()));
-        verify(engagementsView).updateLikeButton(playlistInfo.getLikesCount(), true);
+        verify(engagementsView).updateLikeItem(playlistInfo.getLikesCount(), true);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromRepost(playlistInfo.getUrn(), true, playlistInfo.getRepostsCount()));
@@ -242,7 +242,7 @@ public class PlaylistEngagementsPresenterTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(2L), true, 1));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true, 1));
 
-        verify(engagementsView, never()).updateLikeButton(anyInt(), eq(true));
+        verify(engagementsView, never()).updateLikeItem(anyInt(), eq(true));
         verify(engagementsView, never()).updateRepostButton(anyInt(), eq(true));
     }
 
