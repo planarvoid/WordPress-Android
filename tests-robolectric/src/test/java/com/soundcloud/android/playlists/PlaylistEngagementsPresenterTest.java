@@ -12,7 +12,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
@@ -46,7 +45,6 @@ import rx.Subscription;
 
 import android.content.Context;
 import android.content.Intent;
-import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import java.util.List;
@@ -55,7 +53,6 @@ import java.util.List;
 public class PlaylistEngagementsPresenterTest {
 
     private PlaylistEngagementsPresenter controller;
-    private ViewGroup rootView;
     private PlaylistInfo playlistInfo;
     private TestEventBus eventBus = new TestEventBus();
 
@@ -66,15 +63,15 @@ public class PlaylistEngagementsPresenterTest {
     @Mock private LikeOperations likeOperations;
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
     @Mock private PlaylistEngagementsView engagementsView;
+    @Mock private ViewGroup rootView;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
 
     @Before
     public void setup() {
-        LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        rootView = (ViewGroup) inflater.inflate(R.layout.playlist_action_bar, null);
         controller = new PlaylistEngagementsPresenter(eventBus, soundAssocOps, accountOperations, likeOperations, engagementsView);
+        when(rootView.getContext()).thenReturn(Robolectric.application);
         controller.bindView(rootView);
         controller.startListeningForChanges();
         playlistInfo = createPublicPlaylistInfo();

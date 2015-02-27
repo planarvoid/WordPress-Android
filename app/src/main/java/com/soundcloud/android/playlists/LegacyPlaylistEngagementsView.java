@@ -3,9 +3,7 @@ package com.soundcloud.android.playlists;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.soundcloud.android.R;
-import com.soundcloud.android.associations.LegacyRepostOperations;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +41,7 @@ public class LegacyPlaylistEngagementsView implements PlaylistEngagementsView {
 
     public void onViewCreated(View view) {
         final ViewGroup holder = (ViewGroup) view.findViewById(R.id.playlist_action_bar_holder);
-        View engagementsView = View.inflate(view.getContext(), R.layout.playlist_action_bar, holder);
+        View engagementsView = View.inflate(view.getContext(), R.layout.legacy_playlist_action_bar, holder);
         ButterKnife.inject(this, engagementsView);
 
         likeToggle.setOnClickListener(new View.OnClickListener() {

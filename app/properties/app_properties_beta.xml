@@ -28,4 +28,5 @@
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_configuration_features">false</bool>
     <bool name="feature_new_playlist_syncer">false</bool>
+    <bool name="feature_new_playlist_engagements">false</bool>
 </resources>

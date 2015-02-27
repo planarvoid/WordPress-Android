@@ -46,8 +46,12 @@ public class PlaylistsModule {
     }
 
     @Provides
-    public PlaylistEngagementsView providePlaylistEngagementsView(Context context, Resources resources) {
-        return new LegacyPlaylistEngagementsView(context, resources);
+    public PlaylistEngagementsView providePlaylistEngagementsView(Context context, Resources resources, FeatureFlags featureFlags) {
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
+            return new NewPlaylistEngagementsView(context, resources);
+        } else {
+            return new LegacyPlaylistEngagementsView(context, resources);
+        }
     }
 
 }
