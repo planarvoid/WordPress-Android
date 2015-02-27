@@ -48,9 +48,9 @@ import android.widget.ToggleButton;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistEngagementsControllerTest {
+public class PlaylistEngagementsPresenterTest {
 
-    private PlaylistEngagementsController controller;
+    private PlaylistEngagementsPresenter controller;
     private ViewGroup rootView;
     private PlaylistInfo playlistInfo;
     private TestEventBus eventBus = new TestEventBus();
@@ -66,7 +66,7 @@ public class PlaylistEngagementsControllerTest {
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.playlist_action_bar, null);
-        controller = new PlaylistEngagementsController(eventBus, soundAssocOps, accountOperations, likeOperations);
+        controller = new PlaylistEngagementsPresenter(eventBus, soundAssocOps, accountOperations, likeOperations);
         controller.bindView(rootView);
         controller.startListeningForChanges();
         playlistInfo = createPublicPlaylistInfo();

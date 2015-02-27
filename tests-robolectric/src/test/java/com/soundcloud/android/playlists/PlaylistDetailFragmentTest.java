@@ -68,7 +68,7 @@ public class PlaylistDetailFragmentTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
-    @Mock private PlaylistEngagementsController playlistEngagementsController;
+    @Mock private PlaylistEngagementsPresenter playlistEngagementsPresenter;
     @Mock private ItemAdapter adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
@@ -82,7 +82,7 @@ public class PlaylistDetailFragmentTest {
                 playlistOperations,
                 eventBus,
                 imageOperations,
-                playlistEngagementsController,
+                playlistEngagementsPresenter,
                 ptrController,
                 playQueueManager,
                 new PlaylistPresenter(imageOperations),
@@ -222,7 +222,7 @@ public class PlaylistDetailFragmentTest {
      public void engagementsControllerStartsListeningInOnStart() throws Exception {
         createFragmentView();
         fragment.onStart();
-        verify(playlistEngagementsController).startListeningForChanges();
+        verify(playlistEngagementsPresenter).startListeningForChanges();
     }
 
     @Test
@@ -243,7 +243,7 @@ public class PlaylistDetailFragmentTest {
     public void engagementsControllerStopsListeningInOnStop() throws Exception {
         createFragmentView();
         fragment.onStop();
-        verify(playlistEngagementsController).stopListeningForChanges();
+        verify(playlistEngagementsPresenter).stopListeningForChanges();
     }
 
     @Test
@@ -282,7 +282,7 @@ public class PlaylistDetailFragmentTest {
     @Test
     public void setsPlayableOnEngagementsControllerWhenPlaylistIsReturned() throws Exception {
         createFragmentView();
-        verify(playlistEngagementsController).setPlaylistInfo(playlistInfo);
+        verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo);
     }
 
     @Test
@@ -292,9 +292,9 @@ public class PlaylistDetailFragmentTest {
                 Observable.from(Arrays.asList(playlistInfo, updatedPlaylistInfo)));
         createFragmentView();
 
-        InOrder inOrder = Mockito.inOrder(playlistEngagementsController);
-        inOrder.verify(playlistEngagementsController).setPlaylistInfo(playlistInfo);
-        inOrder.verify(playlistEngagementsController).setPlaylistInfo(updatedPlaylistInfo);
+        InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo);
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(updatedPlaylistInfo);
     }
 
 

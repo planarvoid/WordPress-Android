@@ -61,7 +61,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject ImageOperations imageOperations;
-    @Inject PlaylistEngagementsController playlistEngagementsController;
+    @Inject PlaylistEngagementsPresenter engagementsPresenter;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
@@ -129,7 +129,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            PlaylistOperations playlistOperations,
                            EventBus eventBus,
                            ImageOperations imageOperations,
-                           PlaylistEngagementsController playlistEngagementsController,
+                           PlaylistEngagementsPresenter engagementsPresenter,
                            PullToRefreshController pullToRefreshController,
                            PlayQueueManager playQueueManager,
                            PlaylistPresenter playlistPresenter,
@@ -139,7 +139,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.playlistOperations = playlistOperations;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
-        this.playlistEngagementsController = playlistEngagementsController;
+        this.engagementsPresenter = engagementsPresenter;
         this.pullToRefreshController = pullToRefreshController;
         this.playQueueManager = playQueueManager;
         this.playlistPresenter = playlistPresenter;
@@ -222,13 +222,13 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Override
     public void onStart() {
         super.onStart();
-        playlistEngagementsController.startListeningForChanges();
+        engagementsPresenter.startListeningForChanges();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        playlistEngagementsController.stopListeningForChanges();
+        engagementsPresenter.stopListeningForChanges();
     }
 
     @Override
@@ -267,7 +267,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                 .setArtwork((ImageView) detailsView.findViewById(R.id.artwork),
                         ApiImageSize.getFullImageSize(getActivity().getResources()));
 
-        playlistEngagementsController.bindView(detailsView, new OriginProvider() {
+        engagementsPresenter.bindView(detailsView, new OriginProvider() {
             @Override
             public String getScreenTag() {
                 return Screen.fromBundle(getArguments()).get();
@@ -313,7 +313,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     protected void refreshMetaData(PlaylistInfo playlistInfo) {
         this.playlistInfo = playlistInfo;
         playlistPresenter.setPlaylist(playlistInfo);
-        playlistEngagementsController.setPlaylistInfo(playlistInfo);
+        engagementsPresenter.setPlaylistInfo(playlistInfo);
         infoHeaderText.setText(createHeaderText(playlistInfo));
 
         // don't register clicks before we have a valid playlist

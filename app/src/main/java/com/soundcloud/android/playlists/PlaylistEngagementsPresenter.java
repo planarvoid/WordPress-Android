@@ -32,7 +32,7 @@ import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-public class PlaylistEngagementsController {
+public class PlaylistEngagementsPresenter {
 
     private static final String SHARE_TYPE = "text/plain";
 
@@ -52,8 +52,10 @@ public class PlaylistEngagementsController {
     private CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject
-    public PlaylistEngagementsController(EventBus eventBus, LegacyRepostOperations soundAssociationOps,
-                                         AccountOperations accountOperations, LikeOperations likeOperations) {
+    public PlaylistEngagementsPresenter(EventBus eventBus,
+                                        LegacyRepostOperations soundAssociationOps,
+                                        AccountOperations accountOperations,
+                                        LikeOperations likeOperations) {
         this.eventBus = eventBus;
         this.soundAssociationOps = soundAssociationOps;
         this.accountOperations = accountOperations;
@@ -88,7 +90,7 @@ public class PlaylistEngagementsController {
 
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
                                 Screen.PLAYLIST_DETAILS.get(),
-                                PlaylistEngagementsController.this.originProvider.getScreenTag(),
+                                PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
                                 playlistInfo.getUrn()));
 
                         fireAndForget(addLike
@@ -106,7 +108,7 @@ public class PlaylistEngagementsController {
                 public void onClick(View view) {
                     if (playlistInfo != null) {
                         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
-                                PlaylistEngagementsController.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
+                                PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
                         fireAndForget(soundAssociationOps.toggleRepost(playlistInfo.getUrn(), toggleRepost.isChecked()));
                     }
                 }
@@ -120,7 +122,7 @@ public class PlaylistEngagementsController {
                 public void onClick(View v) {
                     if (playlistInfo != null) {
                         eventBus.publish(EventQueue.TRACKING,
-                                UIEvent.fromShare(PlaylistEngagementsController.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
+                                UIEvent.fromShare(PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
                         sendShareIntent();
                     }
                 }
