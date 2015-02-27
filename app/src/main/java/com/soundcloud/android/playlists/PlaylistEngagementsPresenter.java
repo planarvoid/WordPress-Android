@@ -7,16 +7,19 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
+import rx.Observable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -38,6 +41,8 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
     private final PlaylistEngagementsView playlistEngagementsView;
+    private final FeatureOperations featureOperations;
+    private final OfflineContentOperations offlineOperations;
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
@@ -46,12 +51,16 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
                                         LegacyRepostOperations soundAssociationOps,
                                         AccountOperations accountOperations,
                                         LikeOperations likeOperations,
-                                        PlaylistEngagementsView playlistEngagementsView) {
+                                        PlaylistEngagementsView playlistEngagementsView,
+                                        FeatureOperations featureOperations,
+                                        OfflineContentOperations offlineOperations) {
         this.eventBus = eventBus;
         this.soundAssociationOps = soundAssociationOps;
         this.accountOperations = accountOperations;
         this.likeOperations = likeOperations;
         this.playlistEngagementsView = playlistEngagementsView;
+        this.featureOperations = featureOperations;
+        this.offlineOperations = offlineOperations;
     }
 
     void bindView(View rootView) {
@@ -107,6 +116,31 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
         } else {
             playlistEngagementsView.hideShareItem();
         }
+
+        updateOfflineAvailability();
+    }
+
+    private void updateOfflineAvailability() {
+        if (featureOperations.isOfflineContentEnabled()) {
+            playlistEngagementsView.showOfflineAvailability(playlistInfo.isOfflineAvailable());
+        } else if (featureOperations.isOfflineContentUpsellEnabled()) {
+            playlistEngagementsView.showUpsell();
+        } else {
+            playlistEngagementsView.hideOfflineContentOptions();
+        }
+    }
+
+    @Override
+    public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
+        Observable<Boolean> observable = isMarkedForOffline
+                ? offlineOperations.makePlaylistAvailableOffline(playlistInfo.getUrn())
+                : offlineOperations.makePlaylistUnavailableOffline(playlistInfo.getUrn());
+        fireAndForget(observable);
+    }
+
+    @Override
+    public void onUpsell() {
+        // No-op
     }
 
     @Override
@@ -174,15 +208,18 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
                 final PropertySet changeSet = event.getNextChangeSet();
                 playlistInfo.update(changeSet);
 
-                if (changeSet.contains(PlayableProperty.IS_LIKED)) {
+                if (changeSet.contains(PlaylistProperty.IS_LIKED)) {
                     playlistEngagementsView.updateLikeItem(
                             changeSet.get(PlayableProperty.LIKES_COUNT),
                             changeSet.get(PlayableProperty.IS_LIKED));
                 }
-                if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
+                if (changeSet.contains(PlaylistProperty.IS_REPOSTED)) {
                     playlistEngagementsView.showAndUpdateRepostItem(
                             changeSet.get(PlayableProperty.REPOSTS_COUNT),
                             changeSet.get(PlayableProperty.IS_REPOSTED));
+                }
+                if (changeSet.contains(PlaylistProperty.IS_MARKED_FOR_OFFLINE)) {
+                    updateOfflineAvailability();
                 }
             }
         }

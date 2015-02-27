@@ -75,6 +75,21 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
     }
 
     @Override
+    void showOfflineAvailability(boolean isAvailable) {
+        // no-op
+    }
+
+    @Override
+    void showUpsell() {
+        // no-op
+    }
+
+    @Override
+    void hideOfflineContentOptions() {
+        // no-op
+    }
+
+    @Override
     public void showShareItem() {
         shareButton.setVisibility(View.VISIBLE);
     }

@@ -66,6 +66,27 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @Override
+    void showOfflineAvailability(boolean isAvailable) {
+        popupMenuWrapper.setItemVisible(R.id.make_offline_available, !isAvailable);
+        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
+        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    @Override
+    void showUpsell() {
+        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, true);
+        popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
+        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
+    }
+
+    @Override
+    void hideOfflineContentOptions() {
+        popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);
+        popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, false);
+        popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    @Override
     public void showShareItem() {
         popupMenuWrapper.setItemVisible(R.id.share, true);
     }
@@ -107,6 +128,14 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
             case R.id.share:
                 getListener().onShare();
                 return true;
+            case R.id.make_offline_available:
+                getListener().onMakeOfflineAvailable(true);
+                return true;
+            case R.id.make_offline_unavailable:
+                getListener().onMakeOfflineAvailable(false);
+                return true;
+            case R.id.upsell_offline_content:
+                getListener().onUpsell();
             default:
                 throw new IllegalArgumentException("Unexpected menu item clicked " + menuItem);
         }

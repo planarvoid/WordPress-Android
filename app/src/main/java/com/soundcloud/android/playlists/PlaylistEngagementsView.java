@@ -38,6 +38,12 @@ public abstract class PlaylistEngagementsView {
 
     abstract void hideRepostItem();
 
+    abstract void showOfflineAvailability(boolean isAvailable);
+
+    abstract void showUpsell();
+
+    abstract void hideOfflineContentOptions();
+
     abstract void showShareItem();
 
     abstract void hideShareItem();
@@ -48,6 +54,8 @@ public abstract class PlaylistEngagementsView {
         void onToggleLike(boolean isLiked);
         void onToggleRepost(boolean isReposted);
         void onShare();
+        void onMakeOfflineAvailable(boolean isMarkedForOffline);
+        void onUpsell();
     }
 
     protected void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,

@@ -18,6 +18,7 @@ import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.offline.commands.StoreOfflinePlaylistCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncActions;
@@ -25,6 +26,7 @@ import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerWriteException;
+import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
@@ -223,5 +225,33 @@ public class OfflineContentOperationsTest {
 
         expect(observer.getOnNextEvents()).toContainExactly(true);
         expect(removeOfflinePlaylist.getInput()).toBe(playlistUrn);
+    }
+
+    @Test
+    public void makePlaylistAvailableOfflineEmitsMarkedForOfflineEntityChangeEvent() throws Exception {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        when(storeOfflinePlaylist.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(123L)));
+
+        operations.makePlaylistAvailableOffline(playlistUrn).subscribe(new TestObserver<Boolean>());
+
+        EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        PropertySet eventPropertySet = event.getChangeMap().get(playlistUrn);
+        expect(eventPropertySet.get(PlaylistProperty.URN)).toEqual(playlistUrn);
+        expect(eventPropertySet.get(PlaylistProperty.IS_MARKED_FOR_OFFLINE)).toEqual(true);
+    }
+
+    @Test
+    public void makePlaylistUnavailableOfflineEmitsUnmarkedForOfflineEntityChangeEvent() throws Exception {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        ChangeResult deleteResult = mock(ChangeResult.class);
+        when(deleteResult.success()).thenReturn(true);
+        when(removeOfflinePlaylist.toObservable()).thenReturn(Observable.<WriteResult>just(deleteResult));
+
+        operations.makePlaylistUnavailableOffline(playlistUrn).subscribe(new TestObserver<Boolean>());
+
+        EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        PropertySet eventPropertySet = event.getChangeMap().get(playlistUrn);
+        expect(eventPropertySet.get(PlaylistProperty.URN)).toEqual(playlistUrn);
+        expect(eventPropertySet.get(PlaylistProperty.IS_MARKED_FOR_OFFLINE)).toEqual(false);
     }
 }

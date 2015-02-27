@@ -19,12 +19,14 @@ import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -42,6 +44,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
+import rx.observers.TestObserver;
+import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 import android.content.Context;
 import android.content.Intent;
@@ -54,6 +59,7 @@ public class PlaylistEngagementsPresenterTest {
 
     private PlaylistEngagementsPresenter controller;
     private PlaylistInfo playlistInfo;
+    PublishSubject<Boolean> publishSubject;
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private LegacyRepostOperations soundAssocOps;
@@ -64,13 +70,18 @@ public class PlaylistEngagementsPresenterTest {
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
     @Mock private PlaylistEngagementsView engagementsView;
     @Mock private ViewGroup rootView;
+    @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private FeatureOperations featureOperations;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
 
     @Before
     public void setup() {
-        controller = new PlaylistEngagementsPresenter(eventBus, soundAssocOps, accountOperations, likeOperations, engagementsView);
+        controller = new PlaylistEngagementsPresenter(eventBus,
+                soundAssocOps, accountOperations,
+                likeOperations, engagementsView,
+                featureOperations, offlineContentOperations);
         when(rootView.getContext()).thenReturn(Robolectric.application);
         controller.bindView(rootView);
         controller.startListeningForChanges();
@@ -78,6 +89,7 @@ public class PlaylistEngagementsPresenterTest {
 
         verify(engagementsView).setOnEngagement(listenerCaptor.capture());
         onEngagementListener = listenerCaptor.getValue();
+        publishSubject = PublishSubject.create();
     }
 
     @After
@@ -158,7 +170,7 @@ public class PlaylistEngagementsPresenterTest {
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual(playlistInfo.getTitle() + " - SoundCloud");
-        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain("Listen to " + playlistInfo.getTitle() +" by " + playlistInfo.getCreatorName() +" #np on #SoundCloud\\n" + playlistInfo.getPermalinkUrl());
+        expect(shareIntent.getStringExtra(Intent.EXTRA_TEXT)).toContain("Listen to " + playlistInfo.getTitle() + " by " + playlistInfo.getCreatorName() + " #np on #SoundCloud\\n" + playlistInfo.getPermalinkUrl());
     }
 
     @Test
@@ -247,6 +259,26 @@ public class PlaylistEngagementsPresenterTest {
     }
 
     @Test
+    public void shouldUpdateOfflineAvailabilityOnMarkedForOfflineChange() {
+        controller.setPlaylistInfo(playlistInfo);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(playlistInfo.getUrn(), true));
+
+        verify(engagementsView).showOfflineAvailability(true);
+    }
+
+    @Test
+    public void shouldUpdateOfflineAvailabilityOnUnmarkedForOfflineChange() {
+        controller.setPlaylistInfo(playlistInfo);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(playlistInfo.getUrn(), false));
+
+        verify(engagementsView).showOfflineAvailability(false);
+    }
+
+    @Test
     public void shouldGetContextFromOriginProvider() {
         OriginProvider originProvider = new OriginProvider() {
             @Override
@@ -264,6 +296,60 @@ public class PlaylistEngagementsPresenterTest {
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.SEARCH_MAIN.get());
     }
 
+    @Test
+    public void makeOfflineAvailableUsesOfflineOperationsToMakeOfflineAvailable() {
+        controller.setPlaylistInfo(playlistInfo);
+        when(offlineContentOperations.makePlaylistAvailableOffline(playlistInfo.getUrn())).thenReturn(publishSubject);
+
+        onEngagementListener.onMakeOfflineAvailable(true);
+
+        expect(publishSubject.hasObservers()).toBeTrue();
+    }
+
+    @Test
+    public void makeOfflineUnavailableUsesOfflineOperationsToMakeOfflineUnavailable() {
+        controller.setPlaylistInfo(playlistInfo);
+        when(offlineContentOperations.makePlaylistUnavailableOffline(playlistInfo.getUrn())).thenReturn(publishSubject);
+
+        onEngagementListener.onMakeOfflineAvailable(false);
+
+        expect(publishSubject.hasObservers()).toBeTrue();
+    }
+
+    @Test
+    public void showsOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedAvailable() throws Exception {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(true));
+
+        verify(engagementsView).showOfflineAvailability(true);
+    }
+
+    @Test
+    public void showsNotOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedUnavailable() throws Exception {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(false));
+
+        verify(engagementsView).showOfflineAvailability(false);
+    }
+
+    @Test
+    public void showsUpsellWhenOfflineContentIsNotEnabledAndAllowedToShowUpsell() throws Exception {
+        when(featureOperations.isOfflineContentUpsellEnabled()).thenReturn(true);
+
+        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(true));
+
+        verify(engagementsView).showUpsell();
+    }
+
+    @Test
+    public void hidesOfflineOptionsWhenOfflineContentIsNotEnabledAndNotAllowedToShowUpsell() throws Exception {
+        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(true));
+
+        verify(engagementsView).hideOfflineContentOptions();
+    }
+
     private PlaylistInfo createPublicPlaylistInfo() {
         return createPlaylistInfoWithSharing(Sharing.PUBLIC);
     }
@@ -273,12 +359,24 @@ public class PlaylistEngagementsPresenterTest {
     }
 
     private PlaylistInfo createPlaylistInfoWithSharing(Sharing sharing) {
+        final PropertySet sourceSet = createPlaylistProperties(sharing, false);
+        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 10));
+        return new PlaylistInfo(sourceSet, tracks);
+    }
+
+    private PlaylistInfo createPlaylistInfoWithOfflineAvailability(boolean markedForOffline) {
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, markedForOffline);
+        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 10));
+        return new PlaylistInfo(sourceSet, tracks);
+    }
+
+    private PropertySet createPlaylistProperties(Sharing sharing, boolean markedForOffline){
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setSharing(sharing);
         final PropertySet sourceSet = playlist.toPropertySet();
+        sourceSet.put(PlaylistProperty.IS_MARKED_FOR_OFFLINE, markedForOffline);
         sourceSet.put(PlaylistProperty.IS_LIKED, false);
         sourceSet.put(PlaylistProperty.IS_REPOSTED, false);
-        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 10));
-        return new PlaylistInfo(sourceSet, tracks);
+        return sourceSet;
     }
 }

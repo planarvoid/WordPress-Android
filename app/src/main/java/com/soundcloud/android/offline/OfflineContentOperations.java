@@ -16,6 +16,7 @@ import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -118,12 +119,16 @@ public class OfflineContentOperations {
         settingsStorage.setOfflineLikesEnabled(isEnabled);
     }
 
-    public Observable<Boolean> makePlaylistAvailableOffline(Urn playlistUrn){
-        return storeOfflinePlaylist.with(playlistUrn).toObservable().map(writeResultToSuccess);
+    public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn){
+        return storeOfflinePlaylist.with(playlistUrn).toObservable()
+                .map(writeResultToSuccess)
+                .doOnNext(publishMarkedForOfflineChange(playlistUrn, true));
     }
 
-    public Observable<Boolean> makePlaylistUnavailableOffline(Urn playlistUrn){
-        return removeOfflinePlaylist.with(playlistUrn).toObservable().map(writeResultToSuccess);
+    public Observable<Boolean> makePlaylistUnavailableOffline(final Urn playlistUrn){
+        return removeOfflinePlaylist.with(playlistUrn).toObservable()
+                .map(writeResultToSuccess)
+                .doOnNext(publishMarkedForOfflineChange(playlistUrn, false));
     }
 
     public boolean isOfflineLikesEnabled() {
@@ -163,5 +168,14 @@ public class OfflineContentOperations {
         return eventBus.queue(EventQueue.OFFLINE_CONTENT)
                 .filter(OFFLINE_SYNC_FINISHED_OR_IDLE)
                 .flatMap(offlineTrackCount);
+    }
+
+    private Action1<Boolean> publishMarkedForOfflineChange(final Urn playlistUrn, final boolean isMarkedOffline) {
+        return new Action1<Boolean>() {
+            @Override
+            public void call(Boolean aBoolean) {
+                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(playlistUrn, isMarkedOffline));
+            }
+        };
     }
 }

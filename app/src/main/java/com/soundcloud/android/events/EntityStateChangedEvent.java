@@ -23,6 +23,7 @@ public final class EntityStateChangedEvent {
     public static final int DOWNLOAD_FAILED = 3;
     public static final int LIKE = 4;
     public static final int REPOST = 5;
+    public static final int MARKED_FOR_OFFLINE = 6;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -127,6 +128,12 @@ public final class EntityStateChangedEvent {
                 PlayableProperty.URN.bind(urn),
                 PlayableProperty.IS_REPOSTED.bind(reposted),
                 PlayableProperty.REPOSTS_COUNT.bind(repostCount)));
+    }
+
+    public static EntityStateChangedEvent fromMarkedForOffline(Urn urn, boolean isMarkedForOffline) {
+        return new EntityStateChangedEvent(MARKED_FOR_OFFLINE, PropertySet.from(
+                PlayableProperty.URN.bind(urn),
+                PlaylistProperty.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
     }
 
     EntityStateChangedEvent(int kind, Collection<PropertySet> changedEntities) {

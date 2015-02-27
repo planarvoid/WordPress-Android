@@ -755,6 +755,8 @@
         <item quantity="one">1 track</item>
         <item quantity="other">%1$d of %2$d tracks</item>
     </plurals>
+    <string name="make_offline_available">Make available offline</string>
+    <string name="make_offline_unavailable">Remove from offline listening</string>
 
     <!-- AGE VERFICATION -->
     <string name="age_verify_label">Verify Age</string>
