@@ -1,11 +1,14 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playlists.PlaylistEngagementsView.OnEngagementListener;
 import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +38,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
@@ -43,7 +48,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
-import android.widget.ToggleButton;
 
 import java.util.List;
 
@@ -61,15 +65,22 @@ public class PlaylistEngagementsPresenterTest {
     @Mock private FeatureFlags featureFlags;
     @Mock private LikeOperations likeOperations;
     @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
+    @Mock private PlaylistEngagementsView engagementsView;
+
+    @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
+    private OnEngagementListener onEngagementListener;
 
     @Before
     public void setup() {
         LayoutInflater inflater = (LayoutInflater) Robolectric.application.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         rootView = (ViewGroup) inflater.inflate(R.layout.playlist_action_bar, null);
-        controller = new PlaylistEngagementsPresenter(eventBus, soundAssocOps, accountOperations, likeOperations);
+        controller = new PlaylistEngagementsPresenter(eventBus, soundAssocOps, accountOperations, likeOperations, engagementsView);
         controller.bindView(rootView);
         controller.startListeningForChanges();
         playlistInfo = createPublicPlaylistInfo();
+
+        verify(engagementsView).setOnEngagement(listenerCaptor.capture());
+        onEngagementListener = listenerCaptor.getValue();
     }
 
     @After
@@ -82,7 +93,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
         when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.just(PropertySet.create()));
 
-        rootView.findViewById(R.id.toggle_like).performClick();
+        onEngagementListener.onToggleLike(true);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_LIKE);
@@ -94,9 +105,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
         when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.just(PropertySet.create()));
 
-        ToggleButton likeToggle = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        likeToggle.setChecked(true);
-        likeToggle.performClick();
+        onEngagementListener.onToggleLike(false);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_UNLIKE);
@@ -108,7 +117,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
         when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
-        rootView.findViewById(R.id.toggle_repost).performClick();
+        onEngagementListener.onToggleRepost(true);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_REPOST);
@@ -120,9 +129,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
         when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
-        ToggleButton repostToggle = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        repostToggle.setChecked(true);
-        repostToggle.performClick();
+        onEngagementListener.onToggleRepost(false);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_UNREPOST);
@@ -133,7 +140,7 @@ public class PlaylistEngagementsPresenterTest {
     public void shouldPublishUIEventWhenSharingPlayable() {
         controller.setPlaylistInfo(playlistInfo);
 
-        rootView.findViewById(R.id.btn_share).performClick();
+        onEngagementListener.onShare();
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_SHARE);
@@ -142,7 +149,7 @@ public class PlaylistEngagementsPresenterTest {
 
     @Test
     public void shouldNotPublishUIEventWhenTrackIsNull() {
-        rootView.findViewById(R.id.btn_share).performClick();
+        onEngagementListener.onShare();
         expect(eventBus.eventsOn(EventQueue.TRACKING)).toBeEmpty();
     }
 
@@ -150,7 +157,7 @@ public class PlaylistEngagementsPresenterTest {
     public void shouldSendShareIntentWhenSharingPlayable() {
         controller.setPlaylistInfo(playlistInfo);
 
-        rootView.findViewById(R.id.btn_share).performClick();
+        onEngagementListener.onShare();
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual(playlistInfo.getTitle() + " - SoundCloud");
@@ -162,7 +169,7 @@ public class PlaylistEngagementsPresenterTest {
         playlistInfo = createPlaylistInfoFromPrivatePlaylist();
         controller.setPlaylistInfo(playlistInfo);
 
-        rootView.findViewById(R.id.btn_share).performClick();
+        onEngagementListener.onShare();
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent).toBeNull();
@@ -171,45 +178,32 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldLikePlaylistWhenCheckingLikeButton() {
         controller.setPlaylistInfo(playlistInfo);
-
-        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        expect(likeButton.isChecked()).toBeFalse();
-
         when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.just(PropertySet.create()));
 
-        likeButton.performClick();
+        onEngagementListener.onToggleLike(true);
 
         verify(likeOperations).addLike(eq(playlistInfo.getSourceSet()));
-        expect(likeButton.isChecked()).toBeTrue();
     }
 
     @Test
     public void shouldRepostTrackWhenCheckingRepostButton() {
         controller.setPlaylistInfo(playlistInfo);
-
-        ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        expect(repostButton.isChecked()).toBeFalse();
-
         when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
-        repostButton.performClick();
+        onEngagementListener.onToggleRepost(true);
 
         verify(soundAssocOps).toggleRepost(eq(playlistInfo.getUrn()), eq(true));
-        expect(repostButton.isChecked()).toBeTrue();
     }
 
     @Test
     public void shouldUnsubscribeFromOngoingSubscriptionsWhenActivityDestroyed() {
         controller.setPlaylistInfo(playlistInfo);
 
-        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        expect(likeButton.isChecked()).toBeFalse();
-
         final Subscription likeSubscription = mock(Subscription.class);
         final Observable observable = TestObservables.fromSubscription(likeSubscription);
         when(likeOperations.addLike(any(PropertySet.class))).thenReturn(observable);
 
-        likeButton.performClick();
+        onEngagementListener.onToggleLike(true);
 
         controller.stopListeningForChanges();
 
@@ -227,40 +221,32 @@ public class PlaylistEngagementsPresenterTest {
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(playlistInfo.getUrn(), true, playlistInfo.getLikesCount()));
-        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        expect(likeButton.isChecked()).toBeTrue();
+        verify(engagementsView).updateLikeButton(playlistInfo.getLikesCount(), true);
+
     }
 
     @Test
     public void shouldUpdateLikeOrRepostButtonWhenCurrentPlayableChanged() {
         controller.setPlaylistInfo(playlistInfo);
 
-        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        expect(likeButton.isChecked()).toBeFalse();
-        ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        expect(repostButton.isChecked()).toBeFalse();
-
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromLike(playlistInfo.getUrn(), true, playlistInfo.getLikesCount()));
-        expect(likeButton.isChecked()).toBeTrue();
+        verify(engagementsView).updateLikeButton(playlistInfo.getLikesCount(), true);
+
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromRepost(playlistInfo.getUrn(), true, playlistInfo.getRepostsCount()));
-        expect(repostButton.isChecked()).toBeTrue();
+        verify(engagementsView).updateRepostButton(playlistInfo.getRepostsCount(), true);
     }
 
     @Test
     public void shouldNotUpdateLikeOrRepostButtonStateForOtherPlayables() {
         controller.setPlaylistInfo(playlistInfo);
 
-        ToggleButton likeButton = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        expect(likeButton.isChecked()).toBeFalse();
-        ToggleButton repostButton = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        expect(repostButton.isChecked()).toBeFalse();
-
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(2L), true, 1));
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true, 1));
-        expect(likeButton.isChecked()).toBeFalse();
-        expect(repostButton.isChecked()).toBeFalse();
+
+        verify(engagementsView, never()).updateLikeButton(anyInt(), eq(true));
+        verify(engagementsView, never()).updateRepostButton(anyInt(), eq(true));
     }
 
     @Test
@@ -275,7 +261,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setOriginProvider(originProvider);
         controller.setPlaylistInfo(playlistInfo);
 
-        rootView.findViewById(R.id.btn_share).performClick();
+        onEngagementListener.onShare();
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getAttributes().get("context")).toEqual(Screen.SEARCH_MAIN.get());

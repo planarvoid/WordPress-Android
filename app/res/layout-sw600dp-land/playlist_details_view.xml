@@ -27,12 +27,12 @@
     <ToggleButton android:id="@+id/toggle_play_pause"
                   style="@style/PlaylistPlayToggle" />
 
-    <include layout="@layout/playlist_action_bar"
-             android:id="@+id/playlist_action_bar"
-             android:layout_below="@id/artwork_divider"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:layout_alignParentBottom="true"
-             android:layout_margin="5dp" />
+    <FrameLayout
+        android:id="@+id/playlist_action_bar_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/artwork_divider"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="5dp" />
 
 </RelativeLayout>

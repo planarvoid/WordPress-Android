@@ -14,31 +14,20 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 
-public class PlaylistEngagementsPresenter {
+public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnEngagementListener {
 
     private static final String SHARE_TYPE = "text/plain";
-
-    @Nullable private ToggleButton toggleLike;
-    @Nullable private ToggleButton toggleRepost;
-    @Nullable private ImageButton shareButton;
 
     private Context context;
     private PlaylistInfo playlistInfo;
@@ -48,6 +37,7 @@ public class PlaylistEngagementsPresenter {
     private final AccountOperations accountOperations;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
+    private final PlaylistEngagementsView playlistEngagementsView;
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
@@ -55,11 +45,13 @@ public class PlaylistEngagementsPresenter {
     public PlaylistEngagementsPresenter(EventBus eventBus,
                                         LegacyRepostOperations soundAssociationOps,
                                         AccountOperations accountOperations,
-                                        LikeOperations likeOperations) {
+                                        LikeOperations likeOperations,
+                                        PlaylistEngagementsView playlistEngagementsView) {
         this.eventBus = eventBus;
         this.soundAssociationOps = soundAssociationOps;
         this.accountOperations = accountOperations;
         this.likeOperations = likeOperations;
+        this.playlistEngagementsView = playlistEngagementsView;
     }
 
     void bindView(View rootView) {
@@ -75,111 +67,13 @@ public class PlaylistEngagementsPresenter {
     void bindView(View rootView, OriginProvider originProvider) {
         this.context = rootView.getContext();
         this.originProvider = originProvider;
-
-        final ViewGroup holder = (ViewGroup) rootView.findViewById(R.id.playlist_action_bar_holder);
-        View.inflate(rootView.getContext(), R.layout.playlist_action_bar, holder);
-
-        toggleLike = (ToggleButton) rootView.findViewById(R.id.toggle_like);
-        if (toggleLike != null) {
-            toggleLike.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final boolean addLike = toggleLike.isChecked();
-                    if (playlistInfo != null) {
-                        final PropertySet propertySet = playlistInfo.getSourceSet();
-
-                        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
-                                Screen.PLAYLIST_DETAILS.get(),
-                                PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
-                                playlistInfo.getUrn()));
-
-                        fireAndForget(addLike
-                                ? likeOperations.addLike(propertySet)
-                                : likeOperations.removeLike(propertySet));
-                    }
-                }
-            });
-        }
-
-        toggleRepost = (ToggleButton) rootView.findViewById(R.id.toggle_repost);
-        if (toggleRepost != null) {
-            toggleRepost.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (playlistInfo != null) {
-                        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(toggleRepost.isChecked(),
-                                PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
-                        fireAndForget(soundAssociationOps.toggleRepost(playlistInfo.getUrn(), toggleRepost.isChecked()));
-                    }
-                }
-            });
-        }
-
-        shareButton = (ImageButton) rootView.findViewById(R.id.btn_share);
-        if (shareButton != null) {
-            shareButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (playlistInfo != null) {
-                        eventBus.publish(EventQueue.TRACKING,
-                                UIEvent.fromShare(PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
-                        sendShareIntent();
-                    }
-                }
-            });
-        }
-    }
-
-    private void sendShareIntent() {
-        if (playlistInfo.isPrivate()) {
-            return;
-        }
-
-        Intent shareIntent = buildShareIntent();
-        if (shareIntent != null) {
-            context.startActivity(shareIntent);
-        }
-    }
-
-    private Intent buildShareIntent() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        shareIntent.setType(SHARE_TYPE);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playlistInfo.getTitle()));
-        shareIntent.putExtra(Intent.EXTRA_TEXT, buildText());
-        return shareIntent;
-    }
-
-    private String buildText() {
-        if (ScTextUtils.isNotBlank(playlistInfo.getCreatorName())) {
-            return context.getString(R.string.share_track_by_artist_on_soundcloud,
-                    playlistInfo.getTitle(), playlistInfo.getCreatorName(), playlistInfo.getPermalinkUrl());
-        }
-        return context.getString(R.string.share_track_on_soundcloud, playlistInfo.getTitle(), playlistInfo.getPermalinkUrl());
+        playlistEngagementsView.onViewCreated(rootView);
+        playlistEngagementsView.setOnEngagement(this);
     }
 
     void startListeningForChanges() {
         subscription = new CompositeSubscription();
-        subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new DefaultSubscriber<EntityStateChangedEvent>() {
-            @Override
-            public void onNext(EntityStateChangedEvent event) {
-                if (playlistInfo != null && playlistInfo.getUrn().equals(event.getNextUrn())) {
-                    final PropertySet changeSet = event.getNextChangeSet();
-                    playlistInfo.update(changeSet);
-
-                    if (changeSet.contains(PlayableProperty.IS_LIKED)) {
-                        updateLikeButton(
-                                changeSet.get(PlayableProperty.LIKES_COUNT),
-                                changeSet.get(PlayableProperty.IS_LIKED));
-                    }
-                    if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
-                        updateRepostButton(
-                                changeSet.get(PlayableProperty.REPOSTS_COUNT),
-                                changeSet.get(PlayableProperty.IS_REPOSTED));
-                    }
-                }
-            }
-        }));
+        subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateLikeOrRepost()));
     }
 
     void stopListeningForChanges() {
@@ -193,72 +87,99 @@ public class PlaylistEngagementsPresenter {
     void setPlaylistInfo(@NotNull PlaylistInfo playlistInfo) {
         this.playlistInfo = playlistInfo;
 
-        if (toggleLike != null) {
-            updateLikeButton(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
-        }
-
-        if (toggleRepost != null) {
-            updateRepostButton(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
-        }
+        playlistEngagementsView.updateLikeButton(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
+        playlistEngagementsView.updateRepostButton(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
 
         boolean showRepost = this.playlistInfo.isPublic() && !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
-        if (toggleRepost != null) {
-            toggleRepost.setVisibility(showRepost ? View.VISIBLE : View.GONE);
+        if(showRepost) {
+            playlistEngagementsView.showRepostToggle();
+        } else {
+            playlistEngagementsView.hideRepostToggle();
         }
 
-        if (shareButton != null) {
-            shareButton.setVisibility(this.playlistInfo.isPublic() ? View.VISIBLE : View.GONE);
+        if(this.playlistInfo.isPublic()) {
+            playlistEngagementsView.showShareButton();
+        } else {
+            playlistEngagementsView.hideShareButton();
         }
     }
 
+    @Override
+    public void onToggleLike(boolean isLiked) {
+        if (playlistInfo != null) {
+            final PropertySet propertySet = playlistInfo.getSourceSet();
 
-    private void updateLikeButton(int count, boolean userLiked) {
-        updateToggleButton(toggleLike,
-                R.string.accessibility_like_action,
-                R.plurals.accessibility_stats_likes,
-                count,
-                userLiked,
-                R.string.accessibility_stats_user_liked);
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLiked,
+                    Screen.PLAYLIST_DETAILS.get(),
+                    PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
+                    playlistInfo.getUrn()));
+
+            fireAndForget(isLiked
+                    ? likeOperations.addLike(propertySet)
+                    : likeOperations.removeLike(propertySet));
+        }
     }
 
-    private void updateRepostButton(int count, boolean userReposted) {
-        updateToggleButton(toggleRepost,
-                R.string.accessibility_repost_action,
-                R.plurals.accessibility_stats_reposts,
-                count,
-                userReposted,
-                R.string.accessibility_stats_user_reposted);
+    @Override
+    public void onToggleRepost(boolean isReposted) {
+        if (playlistInfo != null) {
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(isReposted,
+                    PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
+            fireAndForget(soundAssociationOps.toggleRepost(playlistInfo.getUrn(), isReposted));
+        }
     }
 
-    private void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,
-                                    int checkedStringId) {
-        if (button == null) {
+    @Override
+    public void onShare() {
+        if (playlistInfo != null) {
+            eventBus.publish(EventQueue.TRACKING,
+                    UIEvent.fromShare(PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
+            sendShareIntent();
+        }
+    }
+
+    private void sendShareIntent() {
+        if (playlistInfo.isPrivate()) {
             return;
         }
-        Log.d(LegacyRepostOperations.TAG, Thread.currentThread().getName() + ": update button state: count = " + count + "; checked = " + checked);
-        final String buttonLabel = ScTextUtils.shortenLargeNumber(count);
-        button.setTextOn(buttonLabel);
-        button.setTextOff(buttonLabel);
-        button.setChecked(checked);
-        button.invalidate();
+        context.startActivity(buildShareIntent());
+    }
 
+    private Intent buildShareIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        shareIntent.setType(SHARE_TYPE);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playlistInfo.getTitle()));
+        shareIntent.putExtra(Intent.EXTRA_TEXT, buildShareIntentText());
+        return shareIntent;
+    }
 
-        if (AndroidUtils.accessibilityFeaturesAvailable(context)
-                && TextUtils.isEmpty(button.getContentDescription())) {
-            final StringBuilder builder = new StringBuilder();
-            builder.append(context.getResources().getString(actionStringID));
+    private String buildShareIntentText() {
+        if (ScTextUtils.isNotBlank(playlistInfo.getCreatorName())) {
+            return context.getString(R.string.share_track_by_artist_on_soundcloud,
+                    playlistInfo.getTitle(), playlistInfo.getCreatorName(), playlistInfo.getPermalinkUrl());
+        }
+        return context.getString(R.string.share_track_on_soundcloud, playlistInfo.getTitle(), playlistInfo.getPermalinkUrl());
+    }
 
-            if (count >= 0) {
-                builder.append(", ");
-                builder.append(context.getResources().getQuantityString(descriptionPluralID, count, count));
+    private class UpdateLikeOrRepost extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(EntityStateChangedEvent event) {
+            if (playlistInfo != null && playlistInfo.getUrn().equals(event.getNextUrn())) {
+                final PropertySet changeSet = event.getNextChangeSet();
+                playlistInfo.update(changeSet);
+
+                if (changeSet.contains(PlayableProperty.IS_LIKED)) {
+                    playlistEngagementsView.updateLikeButton(
+                            changeSet.get(PlayableProperty.LIKES_COUNT),
+                            changeSet.get(PlayableProperty.IS_LIKED));
+                }
+                if (changeSet.contains(PlayableProperty.IS_REPOSTED)) {
+                    playlistEngagementsView.updateRepostButton(
+                            changeSet.get(PlayableProperty.REPOSTS_COUNT),
+                            changeSet.get(PlayableProperty.IS_REPOSTED));
+                }
             }
-
-            if (checked) {
-                builder.append(", ");
-                builder.append(context.getResources().getString(checkedStringId));
-            }
-
-            button.setContentDescription(builder.toString());
         }
     }
 
