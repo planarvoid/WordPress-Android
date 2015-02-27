@@ -93,7 +93,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         pushPendingRemovalsToApi(pendingRemoteRemovals, pendingLocalRemovals);
         writePendingRemovalsToLocalStorage(pendingLocalRemovals);
 
-        fetchAndWriteNewLikedEntities(pendingLocalAdditions);
+        fetchAndWriteNewLikedEntities(getSetDifference(pendingLocalAdditions, pendingRemoteAdditions));
         writePendingAdditionsToLocalStorage(pendingLocalAdditions);
 
         return !(pendingLocalAdditions.isEmpty() && pendingLocalRemovals.isEmpty());
