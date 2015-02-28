@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 
 import android.os.Bundle;
@@ -19,12 +20,8 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     private Category category;
     private SuggestedUsersCategoryFragment categoryFragment;
 
-    @Inject ActionBarController actionBarController;
+    @Inject @LightCycle ActionBarController actionBarController;
     @Inject FollowingOperations followingOperations;
-
-    public SuggestedUsersCategoryActivity() {
-        lightCycleDispatcher.attach(actionBarController);
-    }
 
     @Override
     protected void onCreate(Bundle state) {
