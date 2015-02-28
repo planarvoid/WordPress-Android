@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispatcher {
+public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private EmptyView emptyView;
     private int emptyViewStatus = EmptyView.Status.WAITING;
