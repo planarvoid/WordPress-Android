@@ -19,10 +19,10 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
 
     @Inject
     public DownloadableTrackItemPresenter(ImageOperations imageOperations,
-                                          TrackItemMenuController trackItemMenuController,
+                                          TrackItemMenuPresenter trackItemMenuPresenter,
                                           FeatureOperations featureOperations,
                                           OfflineContentOperations offlineContentOperations) {
-        super(imageOperations, trackItemMenuController);
+        super(imageOperations, trackItemMenuPresenter);
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
     }

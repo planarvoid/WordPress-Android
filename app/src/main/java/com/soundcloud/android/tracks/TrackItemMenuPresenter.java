@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public final class TrackItemMenuController implements PopupMenuWrapperListener {
+public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     private final PlayQueueManager playQueueManager;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final LoadTrackCommand loadTrackCommand;
@@ -39,11 +39,11 @@ public final class TrackItemMenuController implements PopupMenuWrapperListener {
     private Subscription trackSubscription = Subscriptions.empty();
 
     @Inject
-    TrackItemMenuController(PlayQueueManager playQueueManager,
-                            PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                            LoadTrackCommand loadTrackCommand,
-                            EventBus eventBus, Context context,
-                            LikeOperations likeOperations) {
+    TrackItemMenuPresenter(PlayQueueManager playQueueManager,
+                           PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                           LoadTrackCommand loadTrackCommand,
+                           EventBus eventBus, Context context,
+                           LikeOperations likeOperations) {
         this.playQueueManager = playQueueManager;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.loadTrackCommand = loadTrackCommand;

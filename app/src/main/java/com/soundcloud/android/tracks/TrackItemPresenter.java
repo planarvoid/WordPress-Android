@@ -24,14 +24,14 @@ import java.util.concurrent.TimeUnit;
 public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
-    private final TrackItemMenuController trackItemMenuController;
+    private final TrackItemMenuPresenter trackItemMenuPresenter;
 
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackItemPresenter(ImageOperations imageOperations, TrackItemMenuController trackItemMenuController) {
+    public TrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter) {
         this.imageOperations = imageOperations;
-        this.trackItemMenuController = trackItemMenuController;
+        this.trackItemMenuPresenter = trackItemMenuPresenter;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                trackItemMenuController.show((FragmentActivity) button.getContext(), button, track);
+                trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track);
             }
         });
     }
