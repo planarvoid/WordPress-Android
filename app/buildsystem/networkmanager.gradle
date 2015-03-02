@@ -5,18 +5,19 @@ def file = "androidnetworkmanager-${version}.apk"
 def destFile = "${file}"
 
 task downloadNetworkManagerApk(type:Exec) {
-  description 'Downloads the Android Network Manager APK from the Maven repo'
+  description 'Downloads the Android Network Manager APK from the Maven repo.'
   def srcFile = "http://maven.int.s-cloud.net/content/repositories/releases/com/soundcloud/androidnetworkmanager/" +
   "androidnetworkmanager/${version}/${file}"
   commandLine "/usr/local/bin/wget", "-O", "${destFile}", "${srcFile}"
 }
 
 task installNetworkManagerApk(type:Exec, dependsOn: 'downloadNetworkManagerApk') {
-  description 'Downloads and installs the Android Network Manager APK from the Maven repo'
+  description 'Downloads and installs the Android Network Manager APK from the Maven repo.'
   commandLine "/usr/local/bin/adb", "install", "-r", "${destFile}"
 }
 
 task runAcceptanceTests() {
+  description 'Intalls NetworkManager and installs and runs the tests for Debug build on connected devices.'
   doFirst { installNetworkManagerApk.execute() }
   doLast { connectedAndroidTest.execute() }
 }
