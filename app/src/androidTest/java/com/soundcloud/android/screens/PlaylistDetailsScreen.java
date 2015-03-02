@@ -23,6 +23,10 @@ public class PlaylistDetailsScreen extends Screen {
         tracksListElement().scrollToBottom();
     }
 
+    public void clickBack() {
+        testDriver.goBack();
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
@@ -40,6 +44,11 @@ public class PlaylistDetailsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.toggle_play_pause));
     }
 
+
+    private ViewElement likeToggle() {
+        return testDriver.findElement(With.id(R.id.toggle_like));
+    }
+
     public void clickHeaderPlay() {
         headerPlayToggle().click();
         waiter.waitForPlaybackToBePlaying();
@@ -52,6 +61,14 @@ public class PlaylistDetailsScreen extends Screen {
 
     public boolean isPlayToggleChecked() {
         return headerPlayToggle().isChecked();
+    }
+
+    public boolean isLiked() {
+        return likeToggle().isChecked();
+    }
+
+    public void touchToggleLike() {
+        likeToggle().click();
     }
 
     public VisualPlayerElement clickFirstTrack() {

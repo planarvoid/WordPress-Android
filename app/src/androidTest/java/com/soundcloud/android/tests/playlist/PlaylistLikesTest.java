@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -38,6 +37,33 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
         playlistsScreen.scrollToBottomOfTracksListAndLoadMoreItems();
 
         assertThat(playlistsScreen.getLoadedTrackCount(), is(greaterThan(numberOfTracks)));
+    }
+
+    // Given I liked a playlist
+    // Given I go the playlists screen
+    // Then the playlists should the first one
+    public void testLastLikedPlaylistShouldAppearOnTop() {
+        final PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        final String expectedTitle = playlistsScreen.get(0).getTitle();
+        likePlaylistAt(playlistsScreen, 0);
+
+        playlistsScreen.touchLikedPlaylistsTab();
+
+        assertEquals(expectedTitle, playlistsScreen.get(0).getTitle());
+    }
+
+    private void likePlaylistAt(PlaylistsScreen playlistsScreen, int index) {
+        final PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistAt(index);
+        unlikePlaylistIfLiked(playlistDetailsScreen);
+        playlistDetailsScreen.touchToggleLike();
+        playlistDetailsScreen.clickBack();
+    }
+
+    private void unlikePlaylistIfLiked(PlaylistDetailsScreen playlistDetailsScreen) {
+        if(playlistDetailsScreen.isLiked()) {
+            playlistDetailsScreen.touchToggleLike();
+        }
     }
 
 }
