@@ -45,6 +45,6 @@ task runAcceptanceTestsCI(type: Exec) {
     cmdArgs.add("--sdk=$sdk")
   }
 
-  executable 'rubotium'
+  executable '/usr/local/bin/rubotium'
   args "${cmdArgs}"
 }
