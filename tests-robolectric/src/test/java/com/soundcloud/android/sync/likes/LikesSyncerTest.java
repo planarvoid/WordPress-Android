@@ -97,6 +97,17 @@ public class LikesSyncerTest {
     }
 
     @Test
+    public void shouldNotFetchEntityForPushedAdditionAsItWillOverwriteLocalStats() throws Exception {
+        when(pushLikeAdditions.call()).thenReturn(Collections.singleton(trackLike.toPropertySet()));
+        withRemoteTrackLikes();
+        withLocalTrackLikesPendingAddition(trackLike.toPropertySet());
+
+        expect(syncer.call()).toBe(true);
+
+        verify(fetchLikedResources, never()).call();
+    }
+
+    @Test
     public void shouldRemoveLikeLocallyIfExistsLocallyButNotRemotely() throws Exception {
         withRemoteTrackLikes();
         withLocalTrackLikes(trackLike);
