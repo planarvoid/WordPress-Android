@@ -27,3 +27,24 @@ task buildCI(dependsOn: [assembleCI, staticAnalysis]) {
 task generateRelease (dependsOn: ['assembleRelease']) {
   description = 'Generates a release version of the app by incrementing version code and name and signing the apk.'
 }
+
+task assembleAcceptanceTest(dependsOn: ['assembleAndroidTest']) {
+  description 'Assembles all the Test applications.'
+}
+
+task runAcceptanceTestsCI(type: Exec) {
+  description 'Runs the acceptance tests on the CI using Rubotium.'
+  def apkDir        = 'app/build/outputs/apk/ '
+  def runner        = "com.soundcloud.android.framework.runner.RandomizingRunner"
+  def findTestApp   = "'find ${apkDir} -name \"app-debug-androidTest-unaligned.apk\"'"
+  def findApp       = "'find ${apkDir} -regex \".*soundcloud-android-[0-9\\.]+-debug\\.apk\"'"
+  def findHelperApp = "'find ${apkDir} -name \"soundcloud-android-network-manager-*-debug.apk\"'"
+  def cmdArgs       = ["-t", "${findTestApp}", "-a", "${findApp}", "-r", "${runner}", "-d", "Nexus"]//, "-H", "${findHelperApp}"
+
+  if (project.hasProperty('sdk')) {
+    cmdArgs.add("--sdk=$sdk")
+  }
+
+  executable 'rubotium'
+  args "${cmdArgs}"
+}
