@@ -26,6 +26,8 @@ public abstract class PlaylistEngagementsView {
         return listener;
     }
 
+    abstract void setInfoText(String message);
+
     abstract void onViewCreated(View view);
 
     void setOnEngagement(OnEngagementListener listener){

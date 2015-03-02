@@ -11,14 +11,14 @@ import android.content.res.Resources;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class NewPlaylistEngagementsView extends PlaylistEngagementsView implements PopupMenuWrapperListener {
 
     @InjectView(R.id.toggle_like) ToggleButton likeToggle;
     @InjectView(R.id.overflow_button) View overflowButton;
+    @InjectView(R.id.playlist_info_text) TextView infoText;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private PopupMenuWrapper popupMenuWrapper;
@@ -83,6 +83,11 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
                 likesCount,
                 likedByUser,
                 R.string.accessibility_stats_user_liked);
+    }
+
+    @Override
+    void setInfoText(String message) {
+        infoText.setText(message);
     }
 
     @Override

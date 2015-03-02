@@ -84,4 +84,9 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
         shareButton.setVisibility(View.GONE);
     }
 
+    @Override
+    void setInfoText(String message) {
+        // no-op
+    }
+
 }

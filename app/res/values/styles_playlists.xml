@@ -93,6 +93,17 @@
         <item name="android:paddingBottom">6dp</item>
     </style>
 
+    <style name="PlaylistInfo">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">left</item>
+        <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_right</item>
+    </style>
+
     <style name="PlaylistAction">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/btn_min_height</item>

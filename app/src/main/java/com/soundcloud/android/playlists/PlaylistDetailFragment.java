@@ -22,6 +22,8 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -68,6 +70,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaylistPresenter playlistPresenter;
     @Inject PlaybackToastHelper playbackToastHelper;
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
+    @Inject FeatureFlags featureFlags;
 
     private PlaylistDetailsController controller;
 
@@ -133,7 +136,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            PullToRefreshController pullToRefreshController,
                            PlayQueueManager playQueueManager,
                            PlaylistPresenter playlistPresenter,
-                           Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
+                           Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                           FeatureFlags featureFlags) {
         this.controllerProvider = controllerProvider;
         this.playbackOperations = playbackOperations;
         this.playlistOperations = playlistOperations;
@@ -144,6 +148,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.playQueueManager = playQueueManager;
         this.playlistPresenter = playlistPresenter;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
+        this.featureFlags = featureFlags;
         addLifeCycleComponents();
     }
 
@@ -252,7 +257,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             details = createDetailsHeader();
         }
         setupPlaylistDetails(details);
-        addInfoHeader();
+
+        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)){
+            addInfoHeader();
+        }
+
     }
 
     private View createDetailsHeader() {
@@ -314,7 +323,11 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.playlistInfo = playlistInfo;
         playlistPresenter.setPlaylist(playlistInfo);
         engagementsPresenter.setPlaylistInfo(playlistInfo);
-        infoHeaderText.setText(createHeaderText(playlistInfo));
+
+        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)){
+            infoHeaderText.setText(createHeaderText(playlistInfo));
+        }
+
 
         // don't register clicks before we have a valid playlist
         final List<PropertySet> tracks = playlistInfo.getTracks();

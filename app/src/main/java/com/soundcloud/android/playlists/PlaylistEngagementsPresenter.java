@@ -87,6 +87,11 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
     void setPlaylistInfo(@NotNull PlaylistInfo playlistInfo) {
         this.playlistInfo = playlistInfo;
 
+        final String trackCount = context.getResources().getQuantityString(
+                R.plurals.number_of_sounds, playlistInfo.getTrackCount(), playlistInfo.getTrackCount());
+        playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text,
+                trackCount, playlistInfo.getDuration()));
+
         playlistEngagementsView.updateLikeItem(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
 
 
