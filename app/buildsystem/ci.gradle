@@ -24,8 +24,12 @@ task buildCI(dependsOn: [assembleCI, staticAnalysis]) {
   description 'Builds application for CI and executes static analysis.'
 }
 
-task generateRelease (dependsOn: ['assembleRelease']) {
-  description = 'Generates a release version of the app by incrementing version code and name and signing the apk.'
+task buildRelease (dependsOn: ['assembleRelease']) {
+  description = 'Builds a release version of the app by incrementing version code and name and signing the apk.'
+}
+
+task generateRelease (dependsOn: ['buildRelease', ':app:checkstyle', ':app:findbugs', ':app:pmd', ':app:lintRelease']) {
+  description = 'Generates a release version of the app by incrementing version code and name. Performs static analysis of code and sign the apk.'
 }
 
 task assembleAcceptanceTest(dependsOn: ['assembleDebugTest']) {
