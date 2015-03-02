@@ -32,19 +32,14 @@ task assembleAcceptanceTest(dependsOn: ['assembleAndroidTest']) {
   description 'Assembles all the Test applications.'
 }
 
-task runAcceptanceTestsCI(type: Exec) {
-  description 'Runs the acceptance tests on the CI using Rubotium.'
-  def apkDir        = 'app/build/outputs/apk/ '
+task runAcceptanceTestsSdk19(type: Exec) {
+  description 'Runs the acceptance tests on SDK 19 devices from the CI using Rubotium.'
+  def apkDir        = 'app/build/outputs/apk/'
   def runner        = "com.soundcloud.android.framework.runner.RandomizingRunner"
   def findTestApp   = "'find ${apkDir} -name \"app-debug-androidTest-unaligned.apk\"'"
   def findApp       = "'find ${apkDir} -regex \".*soundcloud-android-[0-9\\.]+-debug\\.apk\"'"
   def findHelperApp = "'find ${apkDir} -name \"soundcloud-android-network-manager-*-debug.apk\"'"
-  def cmd           = ["rubotium", "-t", "${findTestApp}", "-a", "${findApp}", "-r", "${runner}", "-d", "Nexus"]
+
+  commandLine "rubotium", "-t", "${findTestApp}", "-a", "${findApp}", "-r", "${runner}", "--sdk=19", "-d", "Nexus"
   //, "-H", "${findHelperApp}"
-
-  if (project.hasProperty('sdk')) {
-    cmd.add("--sdk=$sdk")
-  }
-
-  commandLine "${cmd}"
 }
