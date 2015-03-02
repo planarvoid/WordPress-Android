@@ -43,7 +43,7 @@ task runAcceptanceTestsCI(type: Exec) {
   //, "-H", "${findHelperApp}"
 
   if (project.hasProperty('sdk')) {
-    cmdArgs.add("--sdk=$sdk")
+    cmd.add("--sdk=$sdk")
   }
 
   commandLine "${cmd}"
