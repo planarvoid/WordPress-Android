@@ -1,6 +1,5 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.policies;
 
-import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;

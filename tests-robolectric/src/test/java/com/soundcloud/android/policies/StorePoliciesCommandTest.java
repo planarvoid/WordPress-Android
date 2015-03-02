@@ -1,4 +1,4 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.policies;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.propeller.query.Query.from;
@@ -6,7 +6,6 @@ import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;

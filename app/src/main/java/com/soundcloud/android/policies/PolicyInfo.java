@@ -1,11 +1,11 @@
-package com.soundcloud.android.api.model;
+package com.soundcloud.android.policies;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 
-public class PolicyInfo {
+class PolicyInfo {
 
     private final Urn trackUrn;
     private final boolean monetizable;

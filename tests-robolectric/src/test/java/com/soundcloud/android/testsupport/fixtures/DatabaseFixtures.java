@@ -248,7 +248,7 @@ public class DatabaseFixtures {
         return insertInto(Table.Posts, cv);
     }
 
-    public ApiPost insertTrackPost(ApiPost apiPost){
+    public ApiPost insertTrackPost(ApiPost apiPost) {
         insertTrackPost(apiPost.getTargetUrn().getNumericId(),
                 apiPost.getCreatedAt().getTime(),
                 apiPost.isRepost());

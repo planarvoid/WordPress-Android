@@ -3,7 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -27,6 +27,7 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -47,7 +48,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlayQueueManagerTest {
@@ -63,19 +66,23 @@ public class PlayQueueManagerTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueueOperations playQueueOperations;
+    @Mock private PolicyOperations policyOperations;
 
     private PublicApiPlaylist playlist;
     private PlaySessionSource playSessionSource;
 
+    private final List<Urn> queueUrns = Arrays.asList(Urn.forTrack(123), Urn.forTrack(124));
+
     @Before
     public void before() throws CreateModelException {
-        playQueueManager = new PlayQueueManager(context, playQueueOperations, eventBus, modelManager);
+        playQueueManager = new PlayQueueManager(context, playQueueOperations, eventBus, modelManager, policyOperations);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
-        when(playQueueOperations.fetchAndStorePolicies(anyList())).thenReturn(Observable.<PlayQueueOperations.PolicyCollection>empty());
+        when(playQueue.getTrackUrns()).thenReturn(queueUrns);
+        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 
@@ -86,7 +93,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void shouldNotAcceptNullValueWhenSettingNewPlayqueue() {
+    public void shouldNotAcceptNullValueWhenSettingNewPlayQueue() {
         playQueueManager.setNewPlayQueue(null, playSessionSource);
     }
 
@@ -94,6 +101,12 @@ public class PlayQueueManagerTest {
     public void shouldSetNewPlayQueueAsCurrentPlayQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         expectPlayQueueContentToBeEqual(playQueueManager, playQueue);
+    }
+
+    @Test
+    public void shouldUpdateTrackPoliciesOnNewQueue() {
+        playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
+        verify(policyOperations).fetchAndStorePolicies(queueUrns);
     }
 
     @Test
@@ -256,7 +269,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldNotUpdateCurrentPositionIfPlayqueueIsNull() {
+    public void shouldNotUpdateCurrentPositionIfPlayQueueIsNull() {
         playQueueManager.saveCurrentProgress(22L);
         verifyZeroInteractions(sharedPreferences);
     }
@@ -276,7 +289,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void saveProgressUpdatesSavePositionWithoutNonPersistantTracks() throws CreateModelException {
+    public void saveProgressUpdatesSavePositionWithoutNonPersistentTracks() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
         playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(2L), PropertySet.create(), false));
         playQueueManager.setPosition(3);
@@ -290,7 +303,7 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPeristantTrack() throws CreateModelException {
+    public void saveProgressIgnoresPositionIfCurrentlyPlayingNonPersistentTrack() throws CreateModelException {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
         playQueueManager.performPlayQueueUpdateOperations(new PlayQueueManager.InsertOperation(2, Urn.forTrack(1L), PropertySet.create(), false));
         playQueueManager.setPosition(2);

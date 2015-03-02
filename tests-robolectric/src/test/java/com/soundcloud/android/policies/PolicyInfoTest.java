@@ -1,4 +1,4 @@
-package com.soundcloud.android.api.model;
+package com.soundcloud.android.policies;
 
 
 import static com.soundcloud.android.Expect.expect;
