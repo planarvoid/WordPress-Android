@@ -77,7 +77,7 @@ final class DatabaseSchema {
     static final String DATABASE_CREATE_TRACK_POLICIES = "(" +
             "track_id INTEGER, " +
             "monetizable BOOLEAN DEFAULT 0," +
-            "syncable BOOLEAN DEFAULT 0," +
+            "syncable BOOLEAN DEFAULT 1," +
             "policy TEXT," +
             "last_updated INTEGER, " +
             "PRIMARY KEY (track_id) ON CONFLICT REPLACE " +
