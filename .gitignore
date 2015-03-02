@@ -69,3 +69,4 @@ app/src/androidTest/res/values/test_properties.xml
 # Crashlytics build product
 crashlytics-build.properties
 .repository
+tests-integration/res/values/test_properties.xml
