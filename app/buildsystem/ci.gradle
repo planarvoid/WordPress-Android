@@ -39,12 +39,12 @@ task runAcceptanceTestsCI(type: Exec) {
   def findTestApp   = "'find ${apkDir} -name \"app-debug-androidTest-unaligned.apk\"'"
   def findApp       = "'find ${apkDir} -regex \".*soundcloud-android-[0-9\\.]+-debug\\.apk\"'"
   def findHelperApp = "'find ${apkDir} -name \"soundcloud-android-network-manager-*-debug.apk\"'"
-  def cmdArgs       = ["-t", "${findTestApp}", "-a", "${findApp}", "-r", "${runner}", "-d", "Nexus"]//, "-H", "${findHelperApp}"
+  def cmd           = ["rubotium", "-t", "${findTestApp}", "-a", "${findApp}", "-r", "${runner}", "-d", "Nexus"]
+  //, "-H", "${findHelperApp}"
 
   if (project.hasProperty('sdk')) {
     cmdArgs.add("--sdk=$sdk")
   }
 
-  executable '/usr/local/bin/rubotium'
-  args "${cmdArgs}"
+  commandLine "${cmd}"
 }
