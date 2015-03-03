@@ -3,23 +3,29 @@ package com.soundcloud.android.policies;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import rx.Observable;
+import rx.Scheduler;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 public class PolicyOperations {
 
     private final FetchPoliciesCommand fetchPoliciesCommand;
     private final StorePoliciesCommand storePoliciesCommand;
+    private final Scheduler scheduler;
 
     @Inject
-    public PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand, StorePoliciesCommand storePoliciesCommand) {
+    public PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand, StorePoliciesCommand storePoliciesCommand,
+                            @Named("API") Scheduler scheduler) {
         this.fetchPoliciesCommand = fetchPoliciesCommand;
         this.storePoliciesCommand = storePoliciesCommand;
+        this.scheduler = scheduler;
     }
 
     public Observable<Void> fetchAndStorePolicies(List<Urn> urns) {
         return fetchPoliciesCommand.with(urns).toObservable()
+                .subscribeOn(scheduler)
                 .flatMap(storePoliciesCommand)
                 .map(RxUtils.TO_VOID);
     }
