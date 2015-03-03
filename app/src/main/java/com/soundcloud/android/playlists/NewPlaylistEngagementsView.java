@@ -54,6 +54,11 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @Override
+    public void onDestroyView() {
+        ButterKnife.reset(this);
+    }
+
+    @Override
     public void showAndUpdateRepostItem(int repostsCount, boolean repostedByUser) {
         popupMenuWrapper.setItemVisible(R.id.repost, !repostedByUser);
         popupMenuWrapper.setItemVisible(R.id.unpost, repostedByUser);

@@ -80,6 +80,10 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
         playlistEngagementsView.setOnEngagement(this);
     }
 
+    void onDestroyView() {
+        playlistEngagementsView.onDestroyView();
+    }
+
     void startListeningForChanges() {
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateLikeOrRepost()));

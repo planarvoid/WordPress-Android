@@ -30,6 +30,8 @@ public abstract class PlaylistEngagementsView {
 
     abstract void onViewCreated(View view);
 
+    abstract void onDestroyView();
+
     void setOnEngagement(OnEngagementListener listener){
         this.listener = listener;
     }

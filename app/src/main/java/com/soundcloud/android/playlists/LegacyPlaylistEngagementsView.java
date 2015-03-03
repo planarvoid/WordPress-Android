@@ -21,6 +21,7 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
         super(context, resources);
     }
 
+    @Override
     public void onViewCreated(View view) {
         final ViewGroup holder = (ViewGroup) view.findViewById(R.id.playlist_action_bar_holder);
         View engagementsView = View.inflate(view.getContext(), R.layout.legacy_playlist_action_bar, holder);
@@ -48,6 +49,10 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
         });
     }
 
+    @Override
+    public void onDestroyView() {
+        ButterKnife.reset(this);
+    }
 
     public void updateLikeItem(int count, boolean userLiked) {
         updateToggleButton(likeToggle,

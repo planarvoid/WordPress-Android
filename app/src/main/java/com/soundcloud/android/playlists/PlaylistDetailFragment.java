@@ -240,6 +240,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     public void onDestroyView() {
         playlistSubscription.unsubscribe();
         controller.onDestroyView();
+        engagementsPresenter.onDestroyView();
         super.onDestroyView();
     }
 

@@ -44,6 +44,7 @@ class TrackLikesHeaderView {
     }
 
     void onDestroyView() {
+        ButterKnife.reset(this);
         headerView = null;
     }
 
