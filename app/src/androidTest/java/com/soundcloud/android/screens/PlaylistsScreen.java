@@ -20,7 +20,7 @@ public class PlaylistsScreen extends Screen {
 
     public PlaylistItemElement get(int index) {
         final ListElement listElement = playlistsListOnCurrentPage();
-        return new PlaylistItemElement(listElement.getItemAt(index));
+        return new PlaylistItemElement(testDriver, listElement.getItemAt(index));
     }
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {
