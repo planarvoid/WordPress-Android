@@ -19,12 +19,12 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class LoadLikedTrackUrnsWithStalePoliciesCommand extends Command<Object, List<Urn>, LoadLikedTrackUrnsWithStalePoliciesCommand> {
+public class LoadTracksWithStalePoliciesCommand extends Command<Object, List<Urn>, LoadTracksWithStalePoliciesCommand> {
 
     private final PropellerDatabase database;
 
     @Inject
-    public LoadLikedTrackUrnsWithStalePoliciesCommand(PropellerDatabase database) {
+    public LoadTracksWithStalePoliciesCommand(PropellerDatabase database) {
         this.database = database;
     }
 

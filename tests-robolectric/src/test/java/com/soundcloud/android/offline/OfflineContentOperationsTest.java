@@ -13,7 +13,7 @@ import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.CountOfflineLikesCommand;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
-import com.soundcloud.android.offline.commands.LoadLikedTrackUrnsWithStalePoliciesCommand;
+import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
 import com.soundcloud.android.offline.commands.RemoveOfflinePlaylistCommand;
@@ -61,7 +61,7 @@ public class OfflineContentOperationsTest {
     @Mock private UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval;
     @Mock private SecureFileStorage fileStorage;
     @Mock private StoreCompletedDownloadCommand storeCompletedDownloadCommand;
-    @Mock private LoadLikedTrackUrnsWithStalePoliciesCommand loadLikedTrackUrnsWithStalePoliciesCommand;
+    @Mock private LoadTracksWithStalePoliciesCommand loadLikedTrackUrnsWithStalePoliciesCommand;
     @Mock private LoadTracksWithValidPoliciesCommand loadTracksWithValidPoliciesCommand;
     @Mock private PolicyOperations policyOperations;
 
@@ -155,7 +155,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void updateOfflineLikesWhenOfflineLikesEnabled() {
-        operations.updateDownloadRequestsFromLikes().subscribe(subscriber);
+        operations.updateDownloadRequests().subscribe(subscriber);
 
         offlineSyncSetting.onNext(true);
 
@@ -164,7 +164,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void requestsUpdatesForStaleTrackPolicies() throws Exception {
-        operations.updateDownloadRequestsFromLikes().subscribe(subscriber);
+        operations.updateDownloadRequests().subscribe(subscriber);
 
         offlineSyncSetting.onNext(true);
 
@@ -174,7 +174,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
         when(loadLikedTrackUrnsWithStalePoliciesCommand.toObservable()).thenReturn(Observable.<List<Urn>>just(new ArrayList<Urn>()));
-        operations.updateDownloadRequestsFromLikes().subscribe(subscriber);
+        operations.updateDownloadRequests().subscribe(subscriber);
 
         offlineSyncSetting.onNext(true);
 

@@ -17,13 +17,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LoadLikedTrackUrnsWithStalePoliciesCommandTest extends StorageIntegrationTest {
+public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTest {
 
-    private LoadLikedTrackUrnsWithStalePoliciesCommand command;
+    private LoadTracksWithStalePoliciesCommand command;
 
     @Before
     public void setup() {
-        command = new LoadLikedTrackUrnsWithStalePoliciesCommand(propeller());
+        command = new LoadTracksWithStalePoliciesCommand(propeller());
     }
 
     @Test

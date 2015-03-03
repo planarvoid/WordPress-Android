@@ -5,7 +5,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.CountOfflineLikesCommand;
-import com.soundcloud.android.offline.commands.LoadLikedTrackUrnsWithStalePoliciesCommand;
+import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
 import com.soundcloud.android.offline.commands.RemoveOfflinePlaylistCommand;
@@ -32,8 +32,9 @@ public class OfflineContentOperations {
     private final CountOfflineLikesCommand offlineTrackCount;
     private final StoreOfflinePlaylistCommand storeOfflinePlaylist;
     private final RemoveOfflinePlaylistCommand removeOfflinePlaylist;
-    private final LoadLikedTrackUrnsWithStalePoliciesCommand loadLikedTracksWithStatePolicies;
-    private final LoadTracksWithValidPoliciesCommand loadLikesWithValidPolicies;
+
+    private final LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies;
+    private final LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies;
 
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
@@ -106,7 +107,7 @@ public class OfflineContentOperations {
     };
 
     @Inject
-    public OfflineContentOperations(LoadLikedTrackUrnsWithStalePoliciesCommand loadLikedTracksWithStatePolicies,
+    public OfflineContentOperations(LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies,
                                     UpdateOfflineContentCommand updateOfflineContent,
                                     LoadPendingDownloadsCommand loadPendingCommand,
                                     UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval,
@@ -115,8 +116,8 @@ public class OfflineContentOperations {
                                     StoreOfflinePlaylistCommand storeOfflinePlaylist,
                                     RemoveOfflinePlaylistCommand removeOfflinePlaylist,
                                     PolicyOperations policyOperations,
-                                    LoadTracksWithValidPoliciesCommand loadLikesWithValidPolicies) {
-        this.loadLikedTracksWithStatePolicies = loadLikedTracksWithStatePolicies;
+                                    LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies) {
+        this.loadTracksWithStatePolicies = loadTracksWithStatePolicies;
         this.updateOfflineContent = updateOfflineContent;
         this.settingsStorage = settingsStorage;
         this.loadPendingDownloads = loadPendingCommand;
@@ -126,7 +127,7 @@ public class OfflineContentOperations {
         this.storeOfflinePlaylist = storeOfflinePlaylist;
         this.removeOfflinePlaylist = removeOfflinePlaylist;
         this.policyOperations = policyOperations;
-        this.loadLikesWithValidPolicies = loadLikesWithValidPolicies;
+        this.loadTracksWithValidPolicies = loadTracksWithValidPolicies;
         this.likedTracks = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_FILTER);
         this.syncedLikes = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
         this.featureEnabled = settingsStorage.getOfflineLikesChanged().filter(IS_ENABLED);
@@ -170,16 +171,16 @@ public class OfflineContentOperations {
                 );
     }
 
-    Observable<List<DownloadRequest>> updateDownloadRequestsFromLikes() {
+    Observable<List<DownloadRequest>> updateDownloadRequests() {
         return loadDownloadableUrns()
                 .flatMap(updateOfflineContent)
                 .flatMap(loadPendingDownloads);
     }
 
     private Observable<List<Urn>> loadDownloadableUrns() {
-        return loadLikedTracksWithStatePolicies.toObservable()
+        return loadTracksWithStatePolicies.toObservable()
                 .flatMap(UPDATE_POLICIES)
-                .flatMap(loadLikesWithValidPolicies);
+                .flatMap(loadTracksWithValidPolicies);
     }
 
     public Observable<OfflineContentEvent> onStarted() {
