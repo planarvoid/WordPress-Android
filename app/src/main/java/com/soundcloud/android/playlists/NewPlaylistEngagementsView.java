@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
@@ -21,11 +22,14 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     @InjectView(R.id.playlist_info_text) TextView infoText;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
+    private final FeatureOperations featureOperations;
     private PopupMenuWrapper popupMenuWrapper;
 
-    public NewPlaylistEngagementsView(Context context, Resources resources, PopupMenuWrapper.Factory popupMenuWrapperFactory) {
+    public NewPlaylistEngagementsView(Context context, Resources resources,
+                                      PopupMenuWrapper.Factory popupMenuWrapperFactory, FeatureOperations featureOperations) {
         super(context, resources);
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
+        this.featureOperations = featureOperations;
     }
 
     @Override
@@ -59,18 +63,6 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @Override
-    public void showAndUpdateRepostItem(int repostsCount, boolean repostedByUser) {
-        popupMenuWrapper.setItemVisible(R.id.repost, !repostedByUser);
-        popupMenuWrapper.setItemVisible(R.id.unpost, repostedByUser);
-    }
-
-    @Override
-    public void hideRepostItem() {
-        popupMenuWrapper.setItemVisible(R.id.repost, false);
-        popupMenuWrapper.setItemVisible(R.id.unpost, false);
-    }
-
-    @Override
     void showOfflineAvailability(boolean isAvailable) {
         popupMenuWrapper.setItemVisible(R.id.make_offline_available, !isAvailable);
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
@@ -92,13 +84,31 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @Override
-    public void showShareItem() {
+    void showPublicOptionsForYourTrack() {
         popupMenuWrapper.setItemVisible(R.id.share, true);
+        popupMenuWrapper.setItemVisible(R.id.repost, false);
+        popupMenuWrapper.setItemVisible(R.id.unpost, false);
+        overflowButton.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void hideShareItem() {
+    void showPublicOptions(int repostsCount, boolean repostedByUser) {
+        popupMenuWrapper.setItemVisible(R.id.share, true);
+        popupMenuWrapper.setItemVisible(R.id.repost, !repostedByUser);
+        popupMenuWrapper.setItemVisible(R.id.unpost, repostedByUser);
+        overflowButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    void hidePublicOptions() {
         popupMenuWrapper.setItemVisible(R.id.share, false);
+        popupMenuWrapper.setItemVisible(R.id.repost, false);
+        popupMenuWrapper.setItemVisible(R.id.unpost, false);
+
+        final boolean offlineOptionsEnabled = featureOperations.isOfflineContentEnabled()
+                || featureOperations.isOfflineContentUpsellEnabled();
+
+        overflowButton.setVisibility(offlineOptionsEnabled ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -141,6 +151,7 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
                 return true;
             case R.id.upsell_offline_content:
                 getListener().onUpsell();
+                return true;
             default:
                 throw new IllegalArgumentException("Unexpected menu item clicked " + menuItem);
         }

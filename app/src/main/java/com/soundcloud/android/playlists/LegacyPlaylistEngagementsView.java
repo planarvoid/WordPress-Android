@@ -64,22 +64,6 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
     }
 
     @Override
-    public void showAndUpdateRepostItem(int repostsCount, boolean repostedByUser) {
-        updateToggleButton(repostToggle,
-                R.string.accessibility_repost_action,
-                R.plurals.accessibility_stats_reposts,
-                repostsCount,
-                repostedByUser,
-                R.string.accessibility_stats_user_reposted);
-        repostToggle.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideRepostItem() {
-        repostToggle.setVisibility(View.GONE);
-    }
-
-    @Override
     void showOfflineAvailability(boolean isAvailable) {
         // no-op
     }
@@ -95,12 +79,26 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
     }
 
     @Override
-    public void showShareItem() {
+    void showPublicOptionsForYourTrack() {
+        shareButton.setVisibility(View.VISIBLE);
+        repostToggle.setVisibility(View.GONE);
+    }
+
+    @Override
+    void showPublicOptions(int repostsCount, boolean repostedByUser) {
+        updateToggleButton(repostToggle,
+                R.string.accessibility_repost_action,
+                R.plurals.accessibility_stats_reposts,
+                repostsCount,
+                repostedByUser,
+                R.string.accessibility_stats_user_reposted);
+        repostToggle.setVisibility(View.VISIBLE);
         shareButton.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void hideShareItem() {
+    void hidePublicOptions() {
+        repostToggle.setVisibility(View.GONE);
         shareButton.setVisibility(View.GONE);
     }
 

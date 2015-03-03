@@ -44,9 +44,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
-import rx.observers.TestObserver;
 import rx.subjects.PublishSubject;
-import rx.subjects.Subject;
 
 import android.content.Context;
 import android.content.Intent;
@@ -244,7 +242,7 @@ public class PlaylistEngagementsPresenterTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
                 EntityStateChangedEvent.fromRepost(playlistInfo.getUrn(), true, playlistInfo.getRepostsCount()));
-        verify(engagementsView).showAndUpdateRepostItem(playlistInfo.getRepostsCount(), true);
+        verify(engagementsView).showPublicOptions(playlistInfo.getRepostsCount(), true);
     }
 
     @Test
@@ -255,7 +253,7 @@ public class PlaylistEngagementsPresenterTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true, 1));
 
         verify(engagementsView, never()).updateLikeItem(anyInt(), eq(true));
-        verify(engagementsView, never()).showAndUpdateRepostItem(anyInt(), eq(true));
+        verify(engagementsView, never()).showPublicOptions(anyInt(), eq(true));
     }
 
     @Test

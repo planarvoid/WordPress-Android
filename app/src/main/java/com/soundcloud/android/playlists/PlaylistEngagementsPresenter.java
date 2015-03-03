@@ -107,18 +107,15 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
 
         playlistEngagementsView.updateLikeItem(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
 
-
-        boolean showRepost = this.playlistInfo.isPublic() && !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
-        if(showRepost) {
-            playlistEngagementsView.showAndUpdateRepostItem(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
+        if (playlistInfo.isPublic()){
+            boolean showRepost = !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
+            if (showRepost){
+                playlistEngagementsView.showPublicOptions(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
+            } else {
+                playlistEngagementsView.showPublicOptionsForYourTrack();
+            }
         } else {
-            playlistEngagementsView.hideRepostItem();
-        }
-
-        if(this.playlistInfo.isPublic()) {
-            playlistEngagementsView.showShareItem();
-        } else {
-            playlistEngagementsView.hideShareItem();
+            playlistEngagementsView.hidePublicOptions();
         }
 
         updateOfflineAvailability();
@@ -218,7 +215,7 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
                             changeSet.get(PlayableProperty.IS_LIKED));
                 }
                 if (changeSet.contains(PlaylistProperty.IS_REPOSTED)) {
-                    playlistEngagementsView.showAndUpdateRepostItem(
+                    playlistEngagementsView.showPublicOptions(
                             changeSet.get(PlayableProperty.REPOSTS_COUNT),
                             changeSet.get(PlayableProperty.IS_REPOSTED));
                 }

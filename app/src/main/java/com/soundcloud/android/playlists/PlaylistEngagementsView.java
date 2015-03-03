@@ -36,19 +36,17 @@ public abstract class PlaylistEngagementsView {
         this.listener = listener;
     }
 
-    abstract void showAndUpdateRepostItem(int repostsCount, boolean repostedByUser);
-
-    abstract void hideRepostItem();
-
     abstract void showOfflineAvailability(boolean isAvailable);
 
     abstract void showUpsell();
 
     abstract void hideOfflineContentOptions();
 
-    abstract void showShareItem();
+    abstract void showPublicOptionsForYourTrack();
 
-    abstract void hideShareItem();
+    abstract void showPublicOptions(int repostsCount, boolean repostedByUser);
+
+    abstract void hidePublicOptions();
 
     abstract void updateLikeItem(int likesCount, boolean likedByUser);
 

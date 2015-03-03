@@ -10,13 +10,12 @@
     <com.soundcloud.android.view.CustomToggleButton
         style="@style/PlaylistAction.ToggleButton.Like"
         android:id="@+id/toggle_like"
-        android:layout_marginLeft="5dp"
         android:layout_width="wrap_content"/>
 
     <ImageView android:id="@+id/overflow_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         style="@style/ListItemOverflowButton"
-        android:layout_gravity="bottom|right"/>
+        android:layout_gravity="bottom|end"/>
 
 </LinearLayout>

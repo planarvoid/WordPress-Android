@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.tracks.TrackItemPresenter;
@@ -49,9 +50,10 @@ public class PlaylistsModule {
     public PlaylistEngagementsView providePlaylistEngagementsView(Context context,
                                                                   Resources resources,
                                                                   PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                                                  FeatureFlags featureFlags) {
+                                                                  FeatureFlags featureFlags,
+                                                                  FeatureOperations featureOperations) {
         if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
-            return new NewPlaylistEngagementsView(context, resources, popupMenuWrapperFactory);
+            return new NewPlaylistEngagementsView(context, resources, popupMenuWrapperFactory, featureOperations);
         } else {
             return new LegacyPlaylistEngagementsView(context, resources);
         }
