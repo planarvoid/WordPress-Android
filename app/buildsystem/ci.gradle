@@ -32,6 +32,14 @@ task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
+task assembleBetaCI (dependsOn: ['assembleBeta']) {
+  description = 'Assembles all Beta builds for CI'
+}
+
+task buildBetaCI (dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd', 'lintBeta']) {
+  description = 'Assembles all Beta builds and performs static analysis for CI.'
+}
+
 // *********************************************************************************************************************
 // RELEASE BUILDS
 // *********************************************************************************************************************
