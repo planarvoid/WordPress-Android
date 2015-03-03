@@ -2,14 +2,18 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
+import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -31,8 +35,9 @@ public class PlaylistItemPresenterTest {
 
     private PlaylistItemPresenter presenter;
 
-    @Mock
-    private ImageOperations imageOperations;
+    @Mock private ImageOperations imageOperations;
+    @Mock private PlaylistItemMenuPresenter playlistItemMenuPresenter;
+    @Mock private FeatureFlags featureFlags;
 
     private View itemView;
 
@@ -40,6 +45,7 @@ public class PlaylistItemPresenterTest {
 
     @Before
     public void setUp() throws Exception {
+        when(featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)).thenReturn(true);
         propertySet = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(123)),
                 PlayableProperty.TITLE.bind("title"),
@@ -52,8 +58,7 @@ public class PlaylistItemPresenterTest {
         final Context context = Robolectric.application;
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context), false);
-
-        presenter = new PlaylistItemPresenter(context.getResources(), imageOperations);
+        presenter = new PlaylistItemPresenter(context.getResources(), imageOperations, playlistItemMenuPresenter, featureFlags);
     }
 
     @Test

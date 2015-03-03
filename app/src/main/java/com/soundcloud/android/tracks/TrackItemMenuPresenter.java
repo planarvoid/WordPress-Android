@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
@@ -22,7 +23,6 @@ import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
@@ -145,27 +145,4 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
         }
     }
 
-    private static class LikeToggleSubscriber extends DefaultSubscriber<PropertySet> {
-        private final Context context;
-        private final boolean likeStatus;
-
-        LikeToggleSubscriber(Context context, boolean likeStatus) {
-            this.context = context;
-            this.likeStatus = likeStatus;
-        }
-
-        @Override
-        public void onNext(PropertySet ignored) {
-            if (likeStatus) {
-                Toast.makeText(context, R.string.like_toast_overflow_action, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, R.string.unlike_toast_overflow_action, Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Toast.makeText(context, R.string.like_error_toast_overflow_action, Toast.LENGTH_SHORT).show();
-        }
-    }
 }
