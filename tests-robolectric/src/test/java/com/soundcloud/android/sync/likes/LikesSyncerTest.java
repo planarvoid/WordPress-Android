@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.TreeSet;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -284,8 +285,7 @@ public class LikesSyncerTest {
     public void shouldResolveNewlyLikedResourceUrnsToFullResourcesAndStoreThemLocally() throws Exception {
         withLocalTrackLikes();
         withRemoteTrackLikes(trackLike);
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>();
-        tracks.setCollection(ModelFixtures.create(ApiTrack.class, 2));
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
         when(fetchLikedResources.call()).thenReturn(tracks);
 
         expect(syncer.call()).toBe(true);
