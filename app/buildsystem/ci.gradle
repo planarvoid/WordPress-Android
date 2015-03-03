@@ -1,4 +1,4 @@
-//Since for CI we always do full clean builds, we don't want to pre-dex
+// Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
 subprojects {
   project.plugins.whenPluginAdded { plugin ->
@@ -10,15 +10,15 @@ subprojects {
   }
 }
 
+task staticAnalysis(dependsOn: [':app:checkstyle', ':app:findbugs', ':app:pmd', ':app:lintDebug']) {
+  description 'Performs static analysis of code.'
+}
+staticAnalysis.mustRunAfter('assembleCI', 'buildRelease')
+
 task assembleCI(dependsOn: [':app:assembleDebug']) {
   description 'Assembles the main application. Used for CI since pre-dexing is disabled.'
   rootProject.ext.preDexLibs = false
 }
-
-task staticAnalysis(dependsOn: [':app:checkstyle', ':app:findbugs', ':app:pmd', ':app:lintDebug']) {
-  description 'Performs static analysis of code.'
-}
-staticAnalysis.mustRunAfter assembleCI
 
 task buildCI(dependsOn: [assembleCI, staticAnalysis]) {
   description 'Builds application for CI and executes static analysis.'
