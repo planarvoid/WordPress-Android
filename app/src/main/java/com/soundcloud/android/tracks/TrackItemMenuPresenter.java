@@ -2,11 +2,11 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -27,29 +27,28 @@ import android.widget.Toast;
 import javax.inject.Inject;
 
 public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
-    private final PlayQueueManager playQueueManager;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final LoadTrackCommand loadTrackCommand;
     private final Context context;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
+    private final ScreenProvider screenProvider;
 
     private FragmentActivity activity;
     private PropertySet track;
     private Subscription trackSubscription = Subscriptions.empty();
 
     @Inject
-    TrackItemMenuPresenter(PlayQueueManager playQueueManager,
-                           PopupMenuWrapper.Factory popupMenuWrapperFactory,
+    TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
                            LoadTrackCommand loadTrackCommand,
                            EventBus eventBus, Context context,
-                           LikeOperations likeOperations) {
-        this.playQueueManager = playQueueManager;
+                           LikeOperations likeOperations, ScreenProvider screenProvider) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.loadTrackCommand = loadTrackCommand;
         this.eventBus = eventBus;
         this.context = context;
         this.likeOperations = likeOperations;
+        this.screenProvider = screenProvider;
     }
 
     public void show(FragmentActivity activity, View button, PropertySet track) {
@@ -101,7 +100,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private void showAddToPlaylistDialog() {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, ScreenElement.LIST.get(), playQueueManager.getScreenTag());
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, ScreenElement.LIST.get(),
+                screenProvider.getLastScreenTag());
         from.show(activity.getSupportFragmentManager());
     }
 
@@ -111,7 +111,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
         getToggleLikeObservable(addLike)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context, addLike));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(), playQueueManager.getScreenTag(), trackUrn));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
+                screenProvider.getLastScreenTag(), trackUrn));
     }
 
     private Observable<PropertySet> getToggleLikeObservable(boolean addLike) {
