@@ -40,6 +40,14 @@ public final class CollectionUtils {
         return urns;
     }
 
+    public static ArrayList<String> urnsToStrings(List<Urn> urns){
+        final ArrayList<String> urnStrings = new ArrayList<>(urns.size());
+        for (Urn urn : urns) {
+            urnStrings.add(urn.toString());
+        }
+        return urnStrings;
+    }
+
     private CollectionUtils() {
         // no instances
     }

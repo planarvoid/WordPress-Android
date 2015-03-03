@@ -11,6 +11,8 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +20,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -29,18 +32,39 @@ public class FetchPlaylistsCommandTest {
 
     @Before
     public void setup() {
-        command = new FetchPlaylistsCommand(apiClient);
+        command = new FetchPlaylistsCommand(apiClient, 2);
     }
 
     @Test
-    public void shouldResolveUrnsToFullTracksViaApiMobile() throws Exception {
+    public void shouldResolveUrnsToFullPlaylistsViaApiMobile() throws Exception {
+        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
+        final List<Urn> urns = Arrays.asList(playlists.get(0).getUrn(), playlists.get(1).getUrn());
+
+        setupRequest(urns, playlists);
+
+        List<ApiPlaylist> result = command.with(urns).call();
+        expect(result).toEqual(playlists);
+    }
+
+    @Test
+    public void shouldResolveUrnsToFullPlaylistsViaApiMobileInPages() throws Exception {
+        final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 3);
+        final List<Urn> urns = Arrays.asList(playlists.get(0).getUrn(), playlists.get(1).getUrn(), playlists.get(2).getUrn());
+
+        setupRequest(urns.subList(0, 2), playlists.subList(0, 2));
+        setupRequest(urns.subList(2, 3), playlists.subList(2, 3));
+
+        List<ApiPlaylist> result = command.with(urns).call();
+        expect(result).toEqual(playlists);
+    }
+
+    private void setupRequest(List<Urn> urns, List<ApiPlaylist> playlists) throws Exception {
         Map body = new HashMap();
-        body.put("urns", Arrays.asList("soundcloud:playlists:1", "soundcloud:playlists:2"));
-        ModelCollection<ApiPlaylist> tracks = new ModelCollection<>();
+        body.put("urns", CollectionUtils.urnsToStrings(urns));
+
         when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_FETCH.path()).withContent(body)))).thenReturn(tracks);
-        ModelCollection<ApiPlaylist> result = command.with(Arrays.asList(Urn.forPlaylist(1), Urn.forPlaylist(2))).call();
-        expect(result).toBe(tracks);
+                isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_FETCH.path()).withContent(body))))
+                .thenReturn(new ModelCollection<>(playlists));
     }
 
 }
