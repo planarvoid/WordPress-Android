@@ -13,30 +13,41 @@ subprojects {
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', 'lintDebug']) {
   description 'Performs static analysis of code.'
 }
-staticAnalysis.mustRunAfter('assembleCI', 'buildRelease')
+staticAnalysis.mustRunAfter('assembleDebugCI', 'assembleBetaCI', 'assembleReleaseCI')
 
+// *********************************************************************************************************************
 // DEBUG BUILDS
-task assembleCI(dependsOn: ['assembleDebug']) {
-  description 'Assembles the main application. Used for CI since pre-dexing is disabled.'
+// *********************************************************************************************************************
+
+task assembleDebugCI(dependsOn: ['assembleDebug']) {
+  description 'Assembles all Debug builds for CI. Pre-dexing is disabled.'
   rootProject.ext.preDexLibs = false
 }
 
-task buildCI(dependsOn: ['assembleCI', 'staticAnalysis']) {
-  description 'Builds application for CI and executes static analysis.'
+task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
+  description 'Assembles all Debug builds and performs static analysis for CI.'
 }
 
+// *********************************************************************************************************************
 // BETA BUILDS
+// *********************************************************************************************************************
 
+// *********************************************************************************************************************
 // RELEASE BUILDS
-task buildRelease (dependsOn: ['assembleRelease']) {
-  description = 'Builds a release version of the app by incrementing version code and name and signing the apk.'
+// *********************************************************************************************************************
+
+task assembleReleaseCI (dependsOn: ['assembleRelease']) {
+  description = 'Assembles all Release builds for CI'
 }
 
-task generateRelease (dependsOn: ['buildRelease', 'checkstyle', 'findbugs', 'pmd', 'lintRelease']) {
-  description = 'Generates a release version of the app by incrementing version code and name. Performs static analysis of code and sign the apk.'
+task buildReleaseCI (dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', 'pmd', 'lintRelease']) {
+  description = 'Assembles all Release builds and performs static analysis for CI.'
 }
 
+// *********************************************************************************************************************
 // ACCEPTANCE TESTS
+// *********************************************************************************************************************
+
 task assembleAcceptanceTest(dependsOn: ['assembleDebugTest']) {
   description 'Assembles all the Test applications.'
 }
