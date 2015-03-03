@@ -10,25 +10,43 @@ import com.soundcloud.android.rx.ScSchedulers;
 import rx.Observable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BulkFetchCommand<ApiModel> extends Command<List<Urn>, ModelCollection<ApiModel>, BulkFetchCommand<ApiModel>> {
+public abstract class BulkFetchCommand<ApiModel> extends Command<List<Urn>, List<ApiModel>, BulkFetchCommand<ApiModel>> {
+
+    private static final int DEFAULT_PAGE_SIZE = 200;
 
     private final ApiClient apiClient;
+    private final int pageSize;
 
     public BulkFetchCommand(ApiClient apiClient) {
+        this(apiClient, DEFAULT_PAGE_SIZE);
+    }
+
+    public BulkFetchCommand(ApiClient apiClient, int pageSize) {
         this.apiClient = apiClient;
+        this.pageSize = pageSize;
     }
 
     @Override
-    public ModelCollection<ApiModel> call() throws ApiRequestException, IOException, ApiMapperException {
-        return apiClient.fetchMappedResponse(buildRequest());
+    public List<ApiModel> call() throws ApiRequestException, IOException, ApiMapperException {
+        int pageIndex = 0;
+        final List<ApiModel> results = new ArrayList<>(input.size());
+        do {
+            final int startIndex = pageIndex * pageSize;
+            final int endIndex = Math.min(input.size(), (++pageIndex) * pageSize);
+            final ApiRequest<ModelCollection<ApiModel>> request = buildRequest(input.subList(startIndex, endIndex));
+            results.addAll(apiClient.fetchMappedResponse(request).getCollection());
+
+        } while (pageIndex * pageSize < input.size());
+        return results;
     }
 
     @Override
-    public Observable<ModelCollection<ApiModel>> toObservable() {
+    public Observable<List<ApiModel>> toObservable() {
         return super.toObservable().subscribeOn(ScSchedulers.API_SCHEDULER);
     }
 
-    protected abstract ApiRequest<ModelCollection<ApiModel>> buildRequest();
+    protected abstract ApiRequest<ModelCollection<ApiModel>> buildRequest(List<Urn> urnPage);
 }
