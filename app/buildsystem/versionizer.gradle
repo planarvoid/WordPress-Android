@@ -15,13 +15,6 @@ android {
 
 
   tasks.whenTaskAdded { currentTask ->
-    // We need to make the release generation task to depend on
-    // the increment of both version code and name
-    if (currentTask.name == 'generateReleaseBuildConfig') {
-      currentTask.dependsOn incrementVersionCode
-      currentTask.dependsOn incrementVersionName
-    }
-
     // Generate a task for each build in order to copy the adequate properties file.
     project.('android').buildTypes.all { build ->
       def buildName = build.name
