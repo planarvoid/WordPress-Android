@@ -61,7 +61,7 @@ public class OfflineContentController {
         this.context = context;
         this.settingStorage = settingsStorage;
 
-        this.likedTracks = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_FILTER);
+        this.likedTracks = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER);
         this.syncedLikes = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
         this.featureEnabled = settingsStorage.getOfflineLikesChanged().filter(IS_ENABLED);
         this.featureDisabled = settingsStorage.getOfflineLikesChanged().filter(IS_DISABLED);

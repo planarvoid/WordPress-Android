@@ -86,7 +86,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(EntityStateChangedEvent.IS_TRACK_LIKE_FILTER)
+                .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new AllLikedTracksSubscriber()));

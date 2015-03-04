@@ -32,7 +32,7 @@ public final class EntityStateChangedEvent {
         }
     };
 
-    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKE_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKE_EVENT_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isTrackLike();
