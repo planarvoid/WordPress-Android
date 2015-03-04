@@ -44,7 +44,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
     private final EventBus eventBus;
 
     private ConnectableObservable<List<Urn>> allLikedTrackUrns;
-    private CompositeSubscription foregroundLifeCycle;
+    private CompositeSubscription subscription;
     private CompositeSubscription viewLifeCycle;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
@@ -94,19 +94,19 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
 
     @Override
     public void onResume(Fragment fragment) {
-        foregroundLifeCycle = new CompositeSubscription();
-        foregroundLifeCycle.add(offlineContentOperations.onStarted()
+        subscription = new CompositeSubscription();
+        subscription.add(offlineContentOperations.onStarted()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncStartedSubscriber()));
 
-        foregroundLifeCycle.add(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()
+        subscription.add(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new SyncFinishedOrIdleSubscriber()));
     }
 
     @Override
     public void onPause(Fragment fragment) {
-        foregroundLifeCycle.unsubscribe();
+        subscription.unsubscribe();
     }
 
     @Override
