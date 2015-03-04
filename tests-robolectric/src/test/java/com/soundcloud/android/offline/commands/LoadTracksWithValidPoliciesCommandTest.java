@@ -10,8 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LoadTracksWithValidPoliciesCommandTest extends StorageIntegrationTest {
@@ -28,7 +28,7 @@ public class LoadTracksWithValidPoliciesCommandTest extends StorageIntegrationTe
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         updatePolicy(apiTrack, true);
 
-        List<Urn> trackLikes = command.call();
+        Collection<Urn> trackLikes = command.with(true).call();
 
         expect(trackLikes).toContainExactly(apiTrack.getUrn());
     }
@@ -40,7 +40,7 @@ public class LoadTracksWithValidPoliciesCommandTest extends StorageIntegrationTe
         ApiTrack apiTrack2 = testFixtures().insertLikedTrack(new Date(200));
         updatePolicy(apiTrack2, true);
 
-        List<Urn> trackLikes = command.call();
+        Collection<Urn> trackLikes = command.with(true).call();
 
         expect(trackLikes).toContainExactly(apiTrack2.getUrn(), apiTrack1.getUrn());
     }
@@ -50,7 +50,7 @@ public class LoadTracksWithValidPoliciesCommandTest extends StorageIntegrationTe
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         updatePolicy(apiTrack, false);
 
-        List<Urn> trackLikes = command.call();
+        Collection<Urn> trackLikes = command.with(true).call();
 
         expect(trackLikes).toBeEmpty();
     }
@@ -59,7 +59,7 @@ public class LoadTracksWithValidPoliciesCommandTest extends StorageIntegrationTe
     public void ignoresLikesWithoutPolicy() throws Exception {
         testFixtures().insertLikedTrack(new Date(100));
 
-        List<Urn> trackLikes = command.call();
+        Collection<Urn> trackLikes = command.with(true).call();
 
         expect(trackLikes).toBeEmpty();
     }

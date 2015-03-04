@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -39,7 +40,7 @@ public class FetchPoliciesCommandTest {
         when(apiClient.fetchMappedResponse(argThat(
                 isApiRequestTo("POST", ApiEndpoints.POLICIES.path()).withContent(body)))).thenReturn(policies);
 
-        List<PolicyInfo> result = command.with(Arrays.asList(Urn.forPlaylist(1))).call();
+        Collection<PolicyInfo> result = command.with(Arrays.asList(Urn.forPlaylist(1))).call();
 
         expect(result).toContainExactly(policy);
     }

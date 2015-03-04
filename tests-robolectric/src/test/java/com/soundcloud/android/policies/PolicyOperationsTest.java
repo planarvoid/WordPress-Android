@@ -14,6 +14,7 @@ import rx.Observable;
 import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -31,7 +32,7 @@ public class PolicyOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new PolicyOperations(fetchPoliciesCommand, storePoliciesCommand, Schedulers.immediate());
-        when(fetchPoliciesCommand.toObservable()).thenReturn(Observable.just(Arrays.asList(policyInfo)));
+        when(fetchPoliciesCommand.toObservable()).thenReturn(Observable.<Collection<PolicyInfo>>just(Arrays.asList(policyInfo)));
     }
 
     @Test

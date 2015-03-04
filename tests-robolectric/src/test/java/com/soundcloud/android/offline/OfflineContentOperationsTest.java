@@ -36,13 +36,14 @@ import rx.observers.TestSubscriber;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentOperationsTest {
 
     private static final Urn TRACK_URN = Urn.forTrack(123L);
-    private static final List<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN);
+    private static final Collection<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN);
     private static final int DOWNLOAD_LIKED_TRACKS_COUNT = 4;
 
     @Mock private CountOfflineLikesCommand offlineTrackCount;
@@ -89,7 +90,7 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
-        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<List<Urn>>just(new ArrayList<Urn>()));
+        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(new ArrayList<Urn>()));
         operations.loadDownloadRequests().subscribe(subscriber);
 
         verifyZeroInteractions(policyOperations);

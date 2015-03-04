@@ -2,6 +2,7 @@ package com.soundcloud.android.offline.commands;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -13,8 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collection;
 import java.util.Date;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTest {
@@ -27,22 +28,21 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
-    public void loadsLikeWithStalePolicy() throws Exception {
-        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
-        updatePolicyTimestamp(apiTrack, new Date(200));
+    public void loadsLikeWithStalePolicyWhenFeatureEnabled() throws Exception {
+        ApiTrack apiTrack = insertTrackAndUpdatePolicies();
 
-        List<Urn> trackLikes = command.call();
+        Collection<Urn> trackLikes = command.with(true).call();
 
         expect(trackLikes).toContainExactly(apiTrack.getUrn());
     }
 
     @Test
-    public void loadsLikeWithMissingPolicy() throws Exception {
+    public void loadsLikeWithMissingPolicyWhenFeatureEnabled() throws Exception {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         database().delete(Table.TrackPolicies.name(),
                 new WhereBuilder().whereEq(TableColumns.TrackPolicies.TRACK_ID, apiTrack.getId()).build(), null);
 
-        List<Urn> trackLikes = command.call();
+        Collection<Urn> trackLikes = command.with(true).call();
 
         expect(trackLikes).toContainExactly(apiTrack.getUrn());
     }
@@ -52,9 +52,53 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         updatePolicyTimestamp(apiTrack, new Date());
 
-        List<Urn> trackLikes = command.call();
+        Collection<Urn> trackLikes = command.with(true).call();
 
         expect(trackLikes).toBeEmpty();
+    }
+
+    @Test
+    public void doesNotLoadOfflineLikesWhenFeatureDisabled() throws Exception {
+        insertTrackAndUpdatePolicies();
+
+        Collection<Urn> trackLikes = command.with(false).call();
+
+        expect(trackLikes).toBeEmpty();
+    }
+
+    @Test
+    public void loadOfflinePlaylistTracksWithStalePolicies() throws Exception {
+        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
+        final ApiTrack track1 = insertPlaylistTrackAndUpdatePolicies(playlist, 1);
+
+        Collection<Urn> tracksToStore = command.with(false).call();
+
+        expect(tracksToStore).toContainExactly(track0.getUrn(), track1.getUrn());
+    }
+
+    @Test
+    public void loadOfflinePlaylistTracksAndLikedTracksWithStalePolicies() throws Exception {
+        final ApiTrack like = insertTrackAndUpdatePolicies();
+        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
+        final ApiTrack track1 = insertPlaylistTrackAndUpdatePolicies(playlist, 1);
+
+        Collection<Urn> tracksToStore = command.with(true).call();
+
+        expect(tracksToStore).toContainExactly(like.getUrn(), track0.getUrn(), track1.getUrn());
+    }
+
+    private ApiTrack insertTrackAndUpdatePolicies() {
+        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
+        updatePolicyTimestamp(apiTrack, new Date(200));
+        return apiTrack;
+    }
+
+    private ApiTrack insertPlaylistTrackAndUpdatePolicies(ApiPlaylist playlist, int position) {
+        final ApiTrack track0 = testFixtures().insertPlaylistTrack(playlist, position);
+        updatePolicyTimestamp(track0, new Date(200));
+        return track0;
     }
 
     private void updatePolicyTimestamp(ApiTrack track, Date date) {

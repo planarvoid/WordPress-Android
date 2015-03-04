@@ -1,8 +1,6 @@
 package com.soundcloud.android.offline.commands;
 
 import static android.provider.BaseColumns._ID;
-import static com.soundcloud.android.storage.Table.Likes;
-import static com.soundcloud.android.storage.Table.Sounds;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
@@ -10,6 +8,7 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -30,14 +29,12 @@ public class LoadPendingDownloadsCommand extends Command<Object, List<DownloadRe
 
     @Override
     public List<DownloadRequest> call() throws Exception {
-        return database.query(Query.from(TrackDownloads.name(), Sounds.name(), Likes.name())
-                .joinOn(Sounds + "." + TableColumns.Sounds._ID, TrackDownloads + "." + _ID)
-                .joinOn(Likes + "." + TableColumns.Likes._ID, TrackDownloads + "." + _ID)
+        return database.query(Query.from(TrackDownloads.name(), Table.Sounds.name())
+                .joinOn(Table.Sounds + "." + TableColumns.Sounds._ID, TrackDownloads + "." + _ID)
                 .select(TrackDownloads + "." + _ID, TableColumns.SoundView.STREAM_URL)
-                .whereEq(Sounds + "." + TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(Table.Sounds + "." + TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .whereNull(TrackDownloads + "." + REMOVED_AT)
-                .whereNull(DOWNLOADED_AT)
-                .order(Likes + "." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC))
+                .whereNull(DOWNLOADED_AT))
                 .toList(new DownloadRequestMapper());
     }
 

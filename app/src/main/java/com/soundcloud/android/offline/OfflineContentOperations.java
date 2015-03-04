@@ -19,6 +19,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import java.util.Collection;
 import java.util.List;
 
 public class OfflineContentOperations {
@@ -50,9 +51,9 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<List<Urn>, Observable<Void>> UPDATE_POLICIES = new Func1<List<Urn>, Observable<Void>>() {
+    private final Func1<Collection<Urn>, Observable<Void>> UPDATE_POLICIES = new Func1<Collection<Urn>, Observable<Void>>() {
         @Override
-        public Observable<Void> call(List<Urn> urns) {
+        public Observable<Void> call(Collection<Urn> urns) {
             if (urns.isEmpty()) {
                 return Observable.just(null);
             }
@@ -119,10 +120,16 @@ public class OfflineContentOperations {
                 .flatMap(loadPendingDownloads);
     }
 
-    private Observable<List<Urn>> loadDownloadableUrns() {
-        return loadTracksWithStatePolicies.toObservable()
+    private Observable<Collection<Urn>> loadDownloadableUrns() {
+        return loadTracksWithStatePolicies
+                .call(isOfflineLikesEnabled())
                 .flatMap(UPDATE_POLICIES)
-                .flatMap(loadTracksWithValidPolicies);
+                .flatMap(new Func1<Void, Observable<Collection<Urn>>>() {
+                    @Override
+                    public Observable<Collection<Urn>> call(Void aVoid) {
+                        return loadTracksWithValidPolicies.call(isOfflineLikesEnabled());
+                    }
+                });
     }
 
     public Observable<OfflineContentEvent> onStarted() {

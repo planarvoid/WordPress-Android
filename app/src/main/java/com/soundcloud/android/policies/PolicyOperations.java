@@ -7,7 +7,7 @@ import rx.Scheduler;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.List;
+import java.util.Collection;
 
 public class PolicyOperations {
 
@@ -23,7 +23,7 @@ public class PolicyOperations {
         this.scheduler = scheduler;
     }
 
-    public Observable<Void> fetchAndStorePolicies(List<Urn> urns) {
+    public Observable<Void> fetchAndStorePolicies(Collection<Urn> urns) {
         return fetchPoliciesCommand.with(urns).toObservable()
                 .subscribeOn(scheduler)
                 .flatMap(storePoliciesCommand)
