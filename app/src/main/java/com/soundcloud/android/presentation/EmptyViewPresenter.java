@@ -1,6 +1,7 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.lightcycle.LightCycleInjector;
 import com.soundcloud.android.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncFailedException;
@@ -11,10 +12,16 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispatcher {
+public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private EmptyView emptyView;
     private int emptyViewStatus = EmptyView.Status.WAITING;
+
+    @Override
+    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
+        super.onCreate(fragment, bundle);
+        LightCycleInjector.attach(this);
+    }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {

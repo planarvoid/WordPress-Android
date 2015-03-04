@@ -20,6 +20,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -79,8 +80,8 @@ public class ProfileActivity extends ScActivity implements
     @Inject PublicCloudAPI oldCloudAPI;
     @Inject FollowingOperations followingOperations;
     @Inject UserStorage userStorage;
-    @Inject SlidingPlayerController playerController;
-    @Inject AdPlayerController adPlayerController;
+    @Inject @LightCycle SlidingPlayerController playerController;
+    @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
     private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
@@ -90,8 +91,6 @@ public class ProfileActivity extends ScActivity implements
     private int initialOtherFollowers;
 
     public ProfileActivity() {
-        lightCycleDispatcher.attach(playerController);
-        lightCycleDispatcher.attach(adPlayerController);
         presenter.attach(this);
     }
 

@@ -6,6 +6,7 @@ import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -27,8 +28,8 @@ public class PlaylistDetailActivity extends ScActivity {
     public static final String EXTRA_URN = "urn";
     public static final String EXTRA_AUTO_PLAY = "autoplay";
 
-    @Inject SlidingPlayerController playerController;
-    @Inject AdPlayerController adPlayerController;
+    @Inject @LightCycle SlidingPlayerController playerController;
+    @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
 
     public static void start(Context context, @NotNull Urn playlist, Screen screen) {
@@ -51,8 +52,6 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     public PlaylistDetailActivity() {
-        lightCycleDispatcher.attach(playerController);
-        lightCycleDispatcher.attach(adPlayerController);
         presenter.attach(this);
     }
 

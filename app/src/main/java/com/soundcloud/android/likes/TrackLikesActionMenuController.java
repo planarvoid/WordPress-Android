@@ -46,6 +46,7 @@ public class TrackLikesActionMenuController extends DefaultSupportFragmentLightC
         updateOfflineLikesState();
     }
 
+    @Override
     public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
         return actionMenuController.onOptionsItemSelected(fragment, item);
     }

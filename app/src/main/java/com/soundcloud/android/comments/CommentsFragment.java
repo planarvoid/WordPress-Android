@@ -52,7 +52,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
 
     private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter, operations.pager(), TO_COMMENT_VIEW_MODEL);
-        addLifeCycleComponent(listViewController);
+        attachLightCycle(listViewController);
     }
 
     @Override

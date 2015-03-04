@@ -103,12 +103,6 @@ public class TrackLikesPresenterTest {
     }
 
     @Test
-    public void shouldRedirectOnOptionsItemSelectedToActionMenuController() {
-        presenter.onOptionsItemSelected(fragment, menuItem);
-        verify(actionMenuController).onOptionsItemSelected(fragment, menuItem);
-    }
-
-    @Test
     public void shouldRedirectOnDestroyViewToHeaderPresenter() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);

@@ -12,6 +12,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.utils.AndroidUtils;
@@ -140,11 +141,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     private boolean active, hasEditControlGroup, seenSavedMessage;
     private List<Recording> unsavedRecordings;
     private ProgressBar generatingWaveformProgressBar;
-    @Inject ActionBarController actionBarController;
-
-    public RecordActivity() {
-        lightCycleDispatcher.attach(actionBarController);
-    }
+    @Inject @LightCycle ActionBarController actionBarController;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

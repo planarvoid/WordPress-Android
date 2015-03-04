@@ -58,7 +58,7 @@ public class ExploreGenresFragment extends LightCycleSupportFragment
 
     private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter);
-        addLifeCycleComponent(listViewController);
+        attachLightCycle(listViewController);
     }
 
     @Override

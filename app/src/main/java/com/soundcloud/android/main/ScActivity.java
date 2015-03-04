@@ -6,10 +6,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.AccountPlaybackController;
-import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.accounts.LogoutActivity;
+import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleActionBarActivity;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -28,29 +29,20 @@ import javax.inject.Inject;
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
 public abstract class ScActivity extends LightCycleActionBarActivity {
-    @Inject CastConnectionHelper castConnectionHelper;
-    @Inject ActivityLifeCyclePublisher activityLifeCyclePublisher;
-    @Inject NetworkConnectivityController networkConnectivityController;
-    @Inject UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
-    @Inject UserRemovedController userRemovedController;
-    @Inject ImageOperationsController imageOperationsController;
-    @Inject AccountPlaybackController accountPlaybackController;
-    @Inject ScreenStateProvider screenStateProvider;
+    @Inject @LightCycle CastConnectionHelper castConnectionHelper;
+    @Inject @LightCycle ActivityLifeCyclePublisher activityLifeCyclePublisher;
+    @Inject @LightCycle NetworkConnectivityController networkConnectivityController;
+    @Inject @LightCycle UnauthorisedRequestReceiver.LightCycle unauthorisedRequestLightCycle;
+    @Inject @LightCycle UserRemovedController userRemovedController;
+    @Inject @LightCycle ImageOperationsController imageOperationsController;
+    @Inject @LightCycle AccountPlaybackController accountPlaybackController;
+    @Inject @LightCycle ScreenStateProvider screenStateProvider;
 
     @Inject protected EventBus eventBus;
     @Inject protected AccountOperations accountOperations;
 
     public ScActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        lightCycleDispatcher
-                .attach(activityLifeCyclePublisher)
-                .attach(networkConnectivityController)
-                .attach(unauthorisedRequestLightCycle)
-                .attach(userRemovedController)
-                .attach(imageOperationsController)
-                .attach(castConnectionHelper)
-                .attach(accountPlaybackController)
-                .attach(screenStateProvider);
     }
 
     @Override

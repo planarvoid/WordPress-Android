@@ -9,6 +9,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -41,7 +42,7 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
 
     @Inject PlaylistDiscoveryOperations operations;
     @Inject EventBus eventBus;
-    @Inject EmptyViewController emptyViewController;
+    @Inject @LightCycle EmptyViewController emptyViewController;
 
     private Subscription connectionSubscription = Subscriptions.empty();
     private CompositeSubscription viewSubscriptions;
@@ -72,7 +73,6 @@ public class PlaylistTagsFragment extends LightCycleSupportFragment implements L
     public PlaylistTagsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-        addLifeCycleComponent(emptyViewController);
     }
 
     @Override
