@@ -141,20 +141,20 @@
     <style name="SignUp"/> <!-- and Login, too! -->
 
     <style name="SignUp.Background">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:scaleType">matrix</item>
     </style>
 
     <style name="SignUp.Overlay">
         <item name="android:background">@color/tour_overlay</item>
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:clickable">true</item>
     </style>
 
     <style name="SignUp.ScrollViewBase">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
@@ -168,7 +168,7 @@
     </style>
 
     <style name="SignUp.ContentBase">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">10dp</item>
         <item name="android:layout_gravity">center</item>
@@ -193,7 +193,7 @@
     </style>
 
     <style name="SignUp.Info">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
 
         <item name="android:layout_marginTop">15dp</item>
@@ -209,7 +209,7 @@
     </style>
 
     <style name="SignUp.LoginForm">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:background">@drawable/text_field</item>
 
@@ -223,7 +223,7 @@
     </style>
 
     <style name="SignUp.SeparatorView">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">1px</item>
         <item name="android:background">@color/signup_separator</item>
     </style>
@@ -245,8 +245,8 @@
     </style>
 
     <style name="SignUp.AddImageLabel">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
 
         <item name="android:padding">10dp</item>
 
@@ -331,13 +331,13 @@
         <item name="android:textOn">@null</item>
     </style>
     <style name="emptyCollectionContentHolderBase">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:orientation">vertical</item>
         <item name="android:gravity">center</item>
     </style>
 
     <style name="TourOverlayTextHolderLayout">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
         <item name="android:padding">16dp</item>

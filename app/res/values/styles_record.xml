@@ -20,7 +20,7 @@
     </style>
 
     <style name="txt_record_saved_message">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@color/btn_dark_flat</item>
@@ -33,7 +33,7 @@
     </style>
 
     <style name="txt_record_title">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:textSize">20sp</item>

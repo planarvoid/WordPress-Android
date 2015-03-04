@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
               android:gravity="center">
 
-    <View android:layout_width="fill_parent"
+    <View android:layout_width="match_parent"
           android:layout_height="0dp"
           android:layout_weight="1"/>
 
     <ImageView android:id="@+id/empty_state_image"
-               android:layout_width="fill_parent"
+               android:layout_width="match_parent"
                android:layout_height="0dp"
                android:layout_weight="1"
                style="@style/ErrorMessage.EmptyCollection.Image"/>
@@ -22,7 +22,7 @@
               style="@style/ErrorMessage.EmptyCollection"/>
 
     <TextView android:id="@+id/txt_link"
-              android:layout_width="fill_parent"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:layout_weight="0"
               android:visibility="gone"
@@ -35,7 +35,7 @@
             android:visibility="gone"
             style="@style/EmptyCollectionButton"/>
 
-    <View android:layout_width="fill_parent"
+    <View android:layout_width="match_parent"
           android:layout_height="0dp"
           android:layout_weight="1"/>
 </LinearLayout>

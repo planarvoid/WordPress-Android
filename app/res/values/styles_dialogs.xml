@@ -15,7 +15,7 @@
     </style>
 
     <style name="Theme.AddCommentDialog" parent="Theme.FramelessDialog">
-        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:windowAnimationStyle">@style/Animation.AddCommentDialog</item>
         <item name="android:windowSoftInputMode">stateUnspecified|adjustResize</item>
     </style>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:orientation="vertical">
     <include layout="@layout/rec_header"
              android:id="@+id/header_layout"/>
@@ -13,28 +13,28 @@
                   android:layout_weight="2"
                   android:gravity="center_vertical">
         <RelativeLayout android:layout_width="wrap_content"
-                        android:layout_height="fill_parent">
+                        android:layout_height="match_parent">
             <ImageButton android:id="@+id/btn_action"
                          android:background="@null"
                          android:adjustViewBounds="true"
                          android:scaleType="centerCrop"
                          android:src="@drawable/btn_rec_states"
                          android:layout_width="wrap_content"
-                         android:layout_height="fill_parent"/>
+                         android:layout_height="match_parent"/>
             <ImageButton android:id="@+id/btn_play_edit"
                          android:background="@null"
                          android:adjustViewBounds="true"
                          android:scaleType="centerInside"
                          android:layout_centerInParent="true"
                          android:layout_width="wrap_content"
-                         android:layout_height="fill_parent"/>
+                         android:layout_height="match_parent"/>
         </RelativeLayout>
         <FrameLayout android:layout_width="0dp"
                      android:layout_weight="1"
                      android:layout_height="wrap_content">
             <com.soundcloud.android.creators.record.ChronometerView android:id="@+id/chronometer"
                                                             android:layout_width="wrap_content"
-                                                            android:layout_height="fill_parent"
+                                                            android:layout_height="match_parent"
                                                             android:gravity="center_vertical"
                                                             android:keepScreenOn="true"
                                                             style="@style/txt_record_chrono"/>
@@ -54,14 +54,14 @@
                      android:layout_width="wrap_content"
                      android:adjustViewBounds="true"
                      android:scaleType="centerInside"
-                     android:layout_height="fill_parent"/>
+                     android:layout_height="match_parent"/>
         <ImageButton android:id="@+id/btn_edit"
                      android:src="@drawable/btn_rec_edit_states"
                      android:background="@null"
                      android:layout_width="wrap_content"
                      android:adjustViewBounds="true"
                      android:scaleType="centerInside"
-                     android:layout_height="fill_parent"/>
+                     android:layout_height="match_parent"/>
         <ToggleButton android:id="@+id/toggle_fade"
                       style="@style/toggle_record_edit"
                       android:layout_marginRight="5dp"
@@ -74,7 +74,7 @@
     </LinearLayout>
 
     <RelativeLayout android:id="@+id/gauge_holder"
-                    android:layout_width="fill_parent"
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:layout_weight="4"/>
 
@@ -91,7 +91,7 @@
                                                               android:layout_height="wrap_content"/>
         <com.soundcloud.android.view.ButtonBar android:id="@+id/bottom_bar"
                                                android:layout_alignParentBottom="true"
-                                               android:layout_width="fill_parent"
+                                               android:layout_width="match_parent"
                                                android:layout_height="60dp"
                                                style="@style/dark_button_bar"
                                                app:button_background="@drawable/item_background_dark"

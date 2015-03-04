@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/RelativeLayout01"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
     <include layout="@layout/share_header"
              android:id="@+id/share_header_txt" />
     <RelativeLayout
             android:id="@+id/share_header_user_holder"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:padding="10dip"
@@ -51,6 +51,6 @@
     <View android:id="@+id/share_header_separator"
           android:layout_below="@id/share_header_user_holder"
                                 android:background="@color/record_upload_border"
-                                android:layout_width="fill_parent"
+                                android:layout_width="match_parent"
                                 android:layout_height="1dip"/>
 </RelativeLayout>

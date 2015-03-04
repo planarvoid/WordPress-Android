@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="fill_parent"
+              android:layout_width="match_parent"
               android:layout_height="65sp"
               android:orientation="horizontal"
               android:paddingTop="7dp"
@@ -11,11 +11,11 @@
                android:scaleType="fitCenter"
                android:src="@drawable/ic_notification_cloud"/>
     <LinearLayout
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
         <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingLeft="5dp"
@@ -39,7 +39,7 @@
         <LinearLayout
                 android:paddingLeft="5dp"
                 android:paddingRight="10dp"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
             <TextView
                     android:id="@+id/txt_processing"
@@ -64,7 +64,7 @@
         <LinearLayout
                 android:paddingLeft="5dp"
                 android:paddingRight="10dp"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content">
             <ProgressBar android:id="@+id/progress_bar_processing"
                          android:indeterminate="false"

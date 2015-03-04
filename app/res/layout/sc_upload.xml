@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="fill_parent"
-              android:layout_height="fill_parent"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
               android:orientation="vertical">
     <ScrollView android:id="@+id/ScrollView01"
                 android:layout_weight="1"
                 android:layout_height="0dp"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:paddingTop="5dip">
 
         <RelativeLayout android:id="@+id/input_layout"
                         android:layout_height="wrap_content"
-                        android:layout_width="fill_parent">
+                        android:layout_width="match_parent">
             <FrameLayout android:id="@+id/share_user_layout"
                          android:layout_height="wrap_content"
-                         android:layout_width="fill_parent"
+                         android:layout_width="match_parent"
                          android:layout_alignParentTop="true"
                         android:paddingBottom="5dip"/>
 
             <com.soundcloud.android.creators.upload.RecordingMetaDataLayout android:id="@+id/metadata_layout"
                             android:layout_height="wrap_content"
-                            android:layout_width="fill_parent"
+                            android:layout_width="match_parent"
                             android:layout_below="@id/share_user_layout"
                             android:layout_alignWithParentIfMissing="true" />
 
             <RadioGroup android:id="@+id/rdo_privacy"
-                        android:layout_width="fill_parent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_alignParentBottom="false"
@@ -53,7 +53,7 @@
 
             <TextView android:id="@+id/txt_record_options"
                       android:background="#474747"
-                      android:layout_width="fill_parent"
+                      android:layout_width="match_parent"
                       style="@style/txt_record_share_options"
                       android:gravity="left"
                       android:padding="5dip"
@@ -63,15 +63,15 @@
 
             <View android:id="@+id/share_options_separator"
                   android:background="@color/record_upload_border"
-                  android:layout_width="fill_parent"
+                  android:layout_width="match_parent"
                   android:layout_below="@id/txt_record_options"
                   android:layout_height="1dip"/>
 
             <com.soundcloud.android.creators.upload.ConnectionListLayout
                   android:id="@+id/connectionList"
                   android:layout_below="@id/share_options_separator"
-                  android:layout_width="fill_parent"
-                  android:layout_height="fill_parent" />
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent" />
 
         </RelativeLayout>
     </ScrollView>

@@ -2,7 +2,7 @@
 <com.soundcloud.android.creators.upload.ShareHeaderView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/share_header_txt"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:gravity="center_vertical"
         android:drawableLeft="@drawable/tiny_cloud"
         android:drawablePadding="5dip"
