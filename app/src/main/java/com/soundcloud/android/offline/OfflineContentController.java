@@ -39,11 +39,20 @@ public class OfflineContentController {
         }
     };
 
-    public static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
+    private static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
             return syncResult.wasChanged()
                     && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
+        }
+    };
+
+    private static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_OR_PLAYLIST_OFFLINE_CHANGE = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            final boolean isPlaylistOfflineContentChangeEvent = event.getNextUrn().isPlaylist() && event.getKind() == EntityStateChangedEvent.MARKED_FOR_OFFLINE;
+            final boolean isTrackLikeChangeEvent = event.getNextUrn().isTrack() && event.getKind() == EntityStateChangedEvent.LIKE;
+            return isPlaylistOfflineContentChangeEvent || isTrackLikeChangeEvent;
         }
     };
 
@@ -61,7 +70,7 @@ public class OfflineContentController {
         this.context = context;
         this.settingStorage = settingsStorage;
 
-        this.likedTracks = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER);
+        this.likedTracks = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_LIKED_OR_PLAYLIST_OFFLINE_CHANGE);
         this.syncedLikes = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
         this.featureEnabled = settingsStorage.getOfflineLikesChanged().filter(IS_ENABLED);
         this.featureDisabled = settingsStorage.getOfflineLikesChanged().filter(IS_DISABLED);
@@ -74,7 +83,7 @@ public class OfflineContentController {
         );
     }
 
-    public Observable<?> startOfflineContent() {
+    private Observable<?> startOfflineContent() {
         return Observable
                 .merge(featureEnabled,
                         syncedLikes.filter(isOfflineLikesEnabled),

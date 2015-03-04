@@ -58,6 +58,24 @@ public class OfflineContentControllerTest {
     }
 
     @Test
+    public void startsOfflineSyncWhenPlaylistMarkedAsAvailableOffline() {
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(Urn.forPlaylist(123L), true));
+
+        expectServiceStarted();
+    }
+
+    @Test
+    public void startsOfflineSyncWhenPlaylistMarkedAsUnavailableOffline() {
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(Urn.forPlaylist(123L), false));
+
+        expectServiceStarted();
+    }
+
+    @Test
     public void doesNotStartOfflineSyncWhenTheFeatureIsDisabled() {
         when(settingsStorage.isOfflineLikesEnabled()).thenReturn(false);
         controller.subscribe();
