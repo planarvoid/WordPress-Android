@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playlists.PlaylistPostOperations.PAGE_SIZE;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,10 +17,8 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Observer;
 import rx.Scheduler;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
@@ -38,7 +35,7 @@ public class PlaylistPostOperationsTest {
     private PlaylistPostOperations operations;
     private List<PropertySet> postedPlaylists;
 
-    @Mock private LoadPostedPlaylistsCommand loadPostedPlaylistsCommand;
+    @Mock private LegacyLoadPostedPlaylistsCommand loadPostedPlaylistsCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;

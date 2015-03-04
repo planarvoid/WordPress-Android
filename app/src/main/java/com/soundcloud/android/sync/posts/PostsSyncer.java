@@ -1,27 +1,38 @@
 package com.soundcloud.android.sync.posts;
 
+import com.soundcloud.android.commands.BulkFetchCommand;
+import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.likes.LikeProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
+import java.util.ArrayList;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
-public class PostsSyncer implements Callable<Boolean> {
+public class PostsSyncer<ApiModel> implements Callable<Boolean> {
 
     private final LoadLocalPostsCommand loadLocalPosts;
     private final FetchPostsCommand fetchRemotePosts;
     private final StorePostsCommand storePostsCommand;
     private final RemovePostsCommand removePostsCommand;
+    private final BulkFetchCommand<ApiModel> fetchPostResources;
+    private final StoreCommand<Iterable<ApiModel>> storePostResources;
 
     public PostsSyncer(LoadLocalPostsCommand loadLocalPosts,
                        FetchPostsCommand fetchRemotePosts,
                        StorePostsCommand storePostsCommand,
-                       RemovePostsCommand removePostsCommand) {
+                       RemovePostsCommand removePostsCommand,
+                       BulkFetchCommand<ApiModel> fetchPostResources,
+                       StoreCommand<Iterable<ApiModel>> storePostResources) {
         this.loadLocalPosts = loadLocalPosts;
         this.fetchRemotePosts = fetchRemotePosts;
         this.storePostsCommand = storePostsCommand;
         this.removePostsCommand = removePostsCommand;
+        this.fetchPostResources = fetchPostResources;
+        this.storePostResources = storePostResources;
     }
 
     @Override
@@ -42,10 +53,19 @@ public class PostsSyncer implements Callable<Boolean> {
                 removePostsCommand.with(removals).call();
             }
             if (!additions.isEmpty()){
+                fetchResourcesForAdditions(additions);
                 storePostsCommand.with(additions).call();
             }
             return true;
         }
+    }
+
+    private void fetchResourcesForAdditions(Set<PropertySet> additions) throws Exception {
+        final ArrayList<Urn> urns = new ArrayList<>(additions.size());
+        for (PropertySet like : additions) {
+            urns.add(like.get(LikeProperty.TARGET_URN));
+        }
+        fetchPostResources.with(urns).andThen(storePostResources).call();
     }
 
     @SafeVarargs

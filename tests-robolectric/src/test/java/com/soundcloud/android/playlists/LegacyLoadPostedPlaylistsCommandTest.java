@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
@@ -22,13 +21,13 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
+public class LegacyLoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
 
     private static final Date POSTED_DATE_1 = new Date(100000);
     private static final Date POSTED_DATE_2 = new Date(200000);
     private static final Date POSTED_DATE_3 = new Date(300000);
 
-    private LoadPostedPlaylistsCommand command;
+    private LegacyLoadPostedPlaylistsCommand command;
     private ApiUser user;
     private PropertySet playlist1;
     private PropertySet playlist2;
@@ -38,11 +37,10 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         user = testFixtures().insertUser();
+        playlist1 = createPlaylistWithCollectionAt(POSTED_DATE_1);
+        playlist2 = createPlaylistWithCollectionAt(POSTED_DATE_2);
 
-        playlist1 = createPlaylistPostAt(POSTED_DATE_1);
-        playlist2 = createPlaylistPostAt(POSTED_DATE_2);
-
-        command = new LoadPostedPlaylistsCommand(propeller());
+        command = new LegacyLoadPostedPlaylistsCommand(propeller(), accountOperations);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(user.getUrn());
     }
@@ -70,46 +68,43 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldNotIncludePlaylistsNotPresentInTheCollectionItemsTable() throws Exception {
-        ApiPlaylist deletedPlaylist = createPlaylistAt(POSTED_DATE_3);
+        PropertySet deletedPlaylist = createPlaylistAt(POSTED_DATE_3);
         List<PropertySet> result = command.with(new ChronologicalQueryParams(10, Long.MAX_VALUE)).call();
 
-        expect(result).not.toContain(createPostPropertySet(deletedPlaylist));
+        expect(result).not.toContain(deletedPlaylist);
         expect(result).toContain(playlist2, playlist1);
     }
 
     @Test
     public void shouldNotConfuseTracksForPlaylists() throws Exception {
         createTrackWithId(9999);
-        createPlaylistCollectionWithId(9999, new Date());
+        createPlaylistCollectionWithId(9999);
         List<PropertySet> result = command.with(new ChronologicalQueryParams(10, Long.MAX_VALUE)).call();
 
         expect(result).toContainExactly(playlist2, playlist1);
     }
 
-    private PropertySet createPlaylistPostAt(Date postedAt) {
-        ApiPlaylist playlist = createPlaylistAt(postedAt);
-        createPlaylistCollectionWithId(playlist.getUrn().getNumericId(), postedAt);
-        return createPostPropertySet(playlist);
+    private PropertySet createPlaylistAt(Date postedAt) {
+        PropertySet playlist = testFixtures().insertPlaylistWithCreationDate(user, postedAt).toPropertySet();
+
+        return PropertySet.from(
+                PlaylistProperty.URN.bind(playlist.get(PlaylistProperty.URN)),
+                PlaylistProperty.TITLE.bind(playlist.get(PlaylistProperty.TITLE)),
+                PlaylistProperty.CREATOR_NAME.bind(playlist.get(PlaylistProperty.CREATOR_NAME)),
+                PlaylistProperty.TRACK_COUNT.bind(playlist.get(PlaylistProperty.TRACK_COUNT)),
+                PlaylistProperty.LIKES_COUNT.bind(playlist.get(PlaylistProperty.LIKES_COUNT)),
+                PlaylistProperty.CREATED_AT.bind(playlist.get(PlaylistProperty.CREATED_AT)),
+                PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)));
     }
 
-    private PropertySet createPostPropertySet(ApiPlaylist playlist) {
-        return playlist.toPropertySet().slice(
-                PlaylistProperty.URN,
-                PlaylistProperty.TITLE,
-                PlaylistProperty.CREATOR_NAME,
-                PlaylistProperty.TRACK_COUNT,
-                PlaylistProperty.LIKES_COUNT,
-                PlaylistProperty.CREATED_AT,
-                PlaylistProperty.IS_PRIVATE
-        );
+    private PropertySet createPlaylistWithCollectionAt(Date postedAt) {
+        PropertySet playlist = createPlaylistAt(postedAt);
+        createPlaylistCollectionWithId(playlist.get(PlaylistProperty.URN).getNumericId());
+        return playlist;
     }
 
-    private ApiPlaylist createPlaylistAt(Date creationDate) {
-        return testFixtures().insertPlaylistWithCreationDate(user, creationDate);
-    }
-
-    private void createPlaylistCollectionWithId(long playlistId, Date postedAt) {
-        testFixtures().insertPlaylistPost(playlistId, postedAt.getTime(), false);
+    private void createPlaylistCollectionWithId(long playlistId) {
+        testFixtures().insertPlaylistCollection(playlistId, user.getId());
     }
 
     private void createTrackWithId(long trackId) {

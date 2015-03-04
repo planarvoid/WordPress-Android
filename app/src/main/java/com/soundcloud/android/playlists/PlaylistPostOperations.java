@@ -5,10 +5,10 @@ import static com.google.common.collect.Iterables.getLast;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.commands.PagedQueryCommand;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -22,10 +22,11 @@ import javax.inject.Named;
 import java.util.List;
 
 class PlaylistPostOperations {
+
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
-    private final LoadPostedPlaylistsCommand loadPostedPlaylistsCommand;
+    private final PagedQueryCommand<ChronologicalQueryParams> loadPostedPlaylistsCommand;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
@@ -58,7 +59,7 @@ class PlaylistPostOperations {
     };
 
     @Inject
-    PlaylistPostOperations(LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
+    PlaylistPostOperations(@Named("LoadPostedPlaylistsCommand") PagedQueryCommand<ChronologicalQueryParams> loadPostedPlaylistsCommand,
                            SyncInitiator syncInitiator,
                            @Named("Storage") Scheduler scheduler,
                            NetworkConnectionHelper networkConnectionHelper) {

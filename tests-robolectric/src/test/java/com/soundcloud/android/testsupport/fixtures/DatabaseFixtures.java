@@ -131,9 +131,9 @@ public class DatabaseFixtures {
         return apiTrack;
     }
 
-    public ApiPlaylist insertPostedPlaylist(ApiUser user, Date postedDate) {
+    public ApiPlaylist insertPlaylistWithCreationDate(ApiUser user, Date createdAtDate) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-        playlist.setCreatedAt(postedDate);
+        playlist.setCreatedAt(createdAtDate);
         playlist.setUser(user);
         insertPlaylist(playlist);
         return playlist;
@@ -264,6 +264,7 @@ public class DatabaseFixtures {
         return insertInto(Table.Posts, cv);
     }
 
+    @Deprecated
     public long insertPlaylistCollection(long playlistId, long userId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);

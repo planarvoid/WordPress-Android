@@ -3,10 +3,8 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Query.on;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.commands.PagedQueryCommand;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -16,32 +14,27 @@ import javax.inject.Inject;
 
 public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQueryParams> {
 
-    private final AccountOperations accountOperations;
-
     @Inject
-    LoadPostedPlaylistsCommand(PropellerDatabase database, AccountOperations accountOperations) {
+    LoadPostedPlaylistsCommand(PropellerDatabase database) {
         super(database, new PostedPlaylistMapper());
-        this.accountOperations = accountOperations;
     }
 
     @Override
     protected Query buildQuery(ChronologicalQueryParams input) {
         return Query.from(Table.SoundView.name())
                 .select(
-                        field(Table.SoundView + "." + TableColumns.SoundView._ID).as(TableColumns.SoundView._ID),
-                        field(Table.SoundView + "." + TableColumns.SoundView.TITLE).as(TableColumns.SoundView.TITLE),
-                        field(Table.SoundView + "." + TableColumns.SoundView.USERNAME).as(TableColumns.SoundView.USERNAME),
-                        field(Table.SoundView + "." + TableColumns.SoundView.TRACK_COUNT).as(TableColumns.SoundView.TRACK_COUNT),
-                        field(Table.SoundView + "." + TableColumns.SoundView.LIKES_COUNT).as(TableColumns.SoundView.LIKES_COUNT),
-                        field(Table.SoundView + "." + TableColumns.SoundView.SHARING).as(TableColumns.SoundView.SHARING),
-                        field(Table.SoundView + "." + TableColumns.SoundView.CREATED_AT).as(TableColumns.SoundView.CREATED_AT))
-                .innerJoin(Table.CollectionItems.name(),
-                        on(Table.CollectionItems + "." + TableColumns.CollectionItems.ITEM_ID, Table.SoundView + "." + TableColumns.SoundView._ID)
-                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.PLAYLIST)
-                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.RESOURCE_TYPE, Table.SoundView + "." + TableColumns.SoundView._TYPE)
-                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.USER_ID, Table.SoundView + "." + TableColumns.SoundView.USER_ID))
-                .whereEq(Table.SoundView + "." + TableColumns.SoundView.USER_ID, accountOperations.getLoggedInUserUrn().getNumericId())
-                .whereLt(Table.SoundView + "." + TableColumns.SoundView.CREATED_AT, input.getTimestamp())
+                        field(Table.SoundView.field(TableColumns.SoundView._ID)).as(TableColumns.SoundView._ID),
+                        field(Table.SoundView.field(TableColumns.SoundView.TITLE)).as(TableColumns.SoundView.TITLE),
+                        field(Table.SoundView.field(TableColumns.SoundView.USERNAME)).as(TableColumns.SoundView.USERNAME),
+                        field(Table.SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
+                        field(Table.SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
+                        field(Table.SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
+                        field(Table.SoundView.field(TableColumns.SoundView.CREATED_AT)).as(TableColumns.SoundView.CREATED_AT))
+                .innerJoin(Table.Posts.name(),
+                        on(Table.Posts.field(TableColumns.Posts.TARGET_ID), Table.SoundView.field(TableColumns.SoundView._ID))
+                                .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), Table.SoundView.field(TableColumns.SoundView._TYPE)))
+                .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
+                .whereLt(Table.SoundView.field(TableColumns.SoundView.CREATED_AT), input.getTimestamp())
                 .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC);
     }
 }

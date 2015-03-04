@@ -4,6 +4,8 @@ import static com.soundcloud.android.storage.TableColumns.Sounds;
 
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
 import dagger.Provides;
@@ -30,7 +32,10 @@ public class PostsSyncModule {
     PostsSyncer provideMyPlaylistPostsSyncer(@Named("LoadPlaylistPosts") LoadLocalPostsCommand loadLocalPosts,
                                              @Named("FetchPlaylistPosts") FetchPostsCommand fetchRemotePosts,
                                              StorePostsCommand storePostsCommand,
-                                             RemovePostsCommand removePostsCommand) {
-        return new PostsSyncer(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand);
+                                             RemovePostsCommand removePostsCommand,
+                                             FetchPlaylistsCommand fetchPlaylistsCommand,
+                                             StorePlaylistsCommand storePlaylistsCommand) {
+        return new PostsSyncer<>(loadLocalPosts, fetchRemotePosts, storePostsCommand, removePostsCommand,
+                fetchPlaylistsCommand, storePlaylistsCommand);
     }
 }
