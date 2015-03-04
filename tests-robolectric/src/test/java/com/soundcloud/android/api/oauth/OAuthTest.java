@@ -31,6 +31,11 @@ public class OAuthTest {
     }
 
     @Test
+    public void shouldDeobfuscateClientSecret() throws Exception {
+        expect(new OAuth(accountOperations).getClientSecret()).toEqual("26a5240f7ee0ee2d4fa9956ed80616c2");
+    }
+
+    @Test
     public void shouldBuildQueryParamsForTokenRequestFromUserCredentials() {
         final Map<String, String> params = oAuth.getTokenRequestParamsFromUserCredentials("user", "pw");
         expect(params.entrySet()).toContainExactly(

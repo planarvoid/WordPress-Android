@@ -1,5 +1,9 @@
 package com.soundcloud.android.api;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.api.oauth.OAuth;
+
+import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
@@ -7,17 +11,21 @@ import java.util.Map;
 
 public class ApiUrlBuilder {
 
-    private final HttpProperties httpProperties;
+    private final String mobileApiBaseUrl;
+    private final String publicApiBaseUrl;
+    private final OAuth oAuth;
     private Uri.Builder uriBuilder;
 
     @Inject
-    public ApiUrlBuilder(HttpProperties httpProperties) {
-        this.httpProperties = httpProperties;
+    public ApiUrlBuilder(Resources resources, OAuth oAuth) {
+        this.oAuth = oAuth;
+        this.mobileApiBaseUrl = resources.getString(R.string.mobile_api_base_url);
+        this.publicApiBaseUrl = resources.getString(R.string.public_api_base_url);
     }
 
     public ApiUrlBuilder from(ApiEndpoints endpoint, Object... pathParams) {
-        uriBuilder = Uri.parse(httpProperties.getMobileApiBaseUrl() + endpoint.unencodedPath(pathParams)).buildUpon();
-        return this;
+        uriBuilder = Uri.parse(mobileApiBaseUrl + endpoint.unencodedPath(pathParams)).buildUpon();
+        return withOAuthClientIdParam();
     }
 
     public ApiUrlBuilder from(ApiRequest<?> request) {
@@ -27,10 +35,14 @@ public class ApiUrlBuilder {
         } else {
             // we expand the relative URI to contain the proper scheme and API host
             final String baseUri = request.isPrivate()
-                    ? httpProperties.getMobileApiBaseUrl() : httpProperties.getPublicApiBaseUrl();
+                    ? mobileApiBaseUrl : publicApiBaseUrl;
             uriBuilder = Uri.parse(baseUri + request.getUri()).buildUpon();
         }
-        return this;
+        return withOAuthClientIdParam();
+    }
+
+    private ApiUrlBuilder withOAuthClientIdParam() {
+        return withQueryParam(OAuth.PARAM_CLIENT_ID, oAuth.getClientId());
     }
 
     public ApiUrlBuilder withQueryParams(Map<String, ?> params) {
@@ -56,10 +68,5 @@ public class ApiUrlBuilder {
 
     public String build() {
         return uriBuilder.toString();
-    }
-
-    @Deprecated // only exists for Apache client legacy code
-    HttpProperties getHttpProperties() {
-        return httpProperties;
     }
 }

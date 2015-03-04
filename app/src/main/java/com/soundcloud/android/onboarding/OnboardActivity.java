@@ -17,7 +17,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -125,7 +124,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     private AccountAuthenticatorResponse accountAuthenticatorResponse;
     private Bundle resultBundle;
 
-    private HttpProperties httpProperties;
+    private OAuth oauth;
 
     // a bullshit fix for https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/533f4054fabb27481b26624a
     // We need to redo onboarding, so this is just a quick fix to prevent the crashes during the sign in flow
@@ -170,7 +169,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
 
-        httpProperties = new HttpProperties();
+        oauth = new OAuth(SoundCloudApplication.instance.getAccountOperations());
         applicationProperties = new ApplicationProperties(getResources());
         oldCloudAPI = new PublicApi(this);
 
@@ -999,7 +998,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     }
 
     private void onCaptchaRequested() {
-        String uriString = String.format(Locale.US, SIGNUP_WITH_CAPTCHA_URI, httpProperties.getClientId());
+        String uriString = String.format(Locale.US, SIGNUP_WITH_CAPTCHA_URI, oauth.getClientId());
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
         startActivity(intent);
     }

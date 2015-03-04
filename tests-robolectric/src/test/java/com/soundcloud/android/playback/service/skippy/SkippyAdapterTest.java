@@ -20,8 +20,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiUrlBuilder;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.DeviceSecret;
@@ -81,7 +82,7 @@ public class SkippyAdapterTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private SkippyAdapter.StateChangeHandler stateChangeHandler;
-    @Mock private HttpProperties httpProperties;
+    @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private Message message;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private Skippy.Configuration configuration;
@@ -103,14 +104,13 @@ public class SkippyAdapterTest {
     public void setUp() throws Exception {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
-        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, new ApiUrlBuilder(httpProperties),
+        skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, apiUrlBuilder,
                 stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper, bufferUnderrunListener, sharedPreferences, secureFileStorage, cryptoOperations);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
 
         trackUrn = track.get(TrackProperty.URN);
-        when(httpProperties.getMobileApiBaseUrl()).thenReturn("https://api-mobile.soundcloud.com");
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
         when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         when(listener.requestAudioFocus()).thenReturn(true);
@@ -119,6 +119,10 @@ public class SkippyAdapterTest {
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putInt(anyString(), anyInt())).thenReturn(sharedPreferencesEditor);
+
+        when(apiUrlBuilder.from(ApiEndpoints.HLS_STREAM, trackUrn)).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "access")).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.build()).thenReturn(STREAM_URL);
     }
 
     @Test

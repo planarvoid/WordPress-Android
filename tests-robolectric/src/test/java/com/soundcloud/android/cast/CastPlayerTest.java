@@ -17,7 +17,6 @@ import com.google.android.gms.cast.RemoteMediaPlayer;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -54,7 +53,6 @@ public class CastPlayerTest {
 
     @Mock private VideoCastManager castManager;
     @Mock private ApplicationProperties applicationProperties;
-    @Mock private HttpProperties httpProperties;
     @Mock private ImageOperations imageOperations;
     @Mock private Resources resources;
     @Mock private GoogleApiClient googleApiClient;

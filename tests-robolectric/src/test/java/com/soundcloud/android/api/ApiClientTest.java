@@ -1,6 +1,7 @@
 package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -26,13 +27,12 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.io.IOException;
+import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ApiClientTest {
 
-    private static final String PUBLIC_API_HOST = "http://api.soundcloud.com";
-    private static final String MOBILE_API_HOST = "http://api-mobile.soundcloud.com";
-    private static final String PATH = "/path/to/resource";
+    private static final String URL = "/path/to/resource";
     private static final String JSON_DATA = "{}";
     private static final String CLIENT_ID = "testClientId";
 
@@ -41,7 +41,7 @@ public class ApiClientTest {
     @Mock private OkHttpClient httpClient;
     @Mock private FeatureFlags featureFlags;
     @Mock private JsonTransformer jsonTransformer;
-    @Mock private HttpProperties httpProperties;
+    @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private DeviceHelper deviceHelper;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private OAuth oAuth;
@@ -57,53 +57,28 @@ public class ApiClientTest {
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
-        apiClient = new ApiClient(httpClient, new ApiUrlBuilder(httpProperties), jsonTransformer,
+        apiClient = new ApiClient(httpClient, apiUrlBuilder, jsonTransformer,
                 deviceHelper, oAuth, unauthorisedRequestRegistry);
     }
 
     @Test
-    public void shouldMakeSuccessfulGetRequestToPublicApi() throws Exception {
-        fakePublicApiResponse();
-
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
+    public void shouldMakeSuccessfulHttpRequest() throws Exception {
+        ApiRequest request = ApiRequest.Builder.get(URL).forPublicApi().build();
+        mockSuccessfulResponseFor(request);
         ApiResponse response = apiClient.fetchResponse(request);
 
         expect(response.isSuccess()).toBeTrue();
         expect(response.hasResponseBody()).toBeTrue();
         expect(httpRequestCaptor.getValue().method()).toEqual("GET");
-        expect(httpRequestCaptor.getValue().urlString()).toStartWith(PUBLIC_API_HOST + PATH);
-    }
-
-    @Test
-    public void shouldMakeSuccessfulGetRequestToMobileApi() throws Exception {
-        fakeApiMobileResponse();
-
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
-        ApiResponse response = apiClient.fetchResponse(request);
-
-        expect(response.isSuccess()).toBeTrue();
-        expect(response.hasResponseBody()).toBeTrue();
-        expect(httpRequestCaptor.getValue().method()).toEqual("GET");
-        expect(httpRequestCaptor.getValue().urlString()).toStartWith(MOBILE_API_HOST + PATH);
-    }
-
-    @Test
-    public void shouldMakeRequestToMobileApiWithAbsoluteUrl() throws Exception {
-        fakeApiMobileResponse();
-
-        ApiRequest request = ApiRequest.Builder.get(MOBILE_API_HOST + PATH).forPrivateApi(1).build();
-        ApiResponse response = apiClient.fetchResponse(request);
-
-        expect(response.isSuccess()).toBeTrue();
-        expect(httpRequestCaptor.getValue().urlString()).toStartWith(MOBILE_API_HOST + PATH);
+        expect(httpRequestCaptor.getValue().urlString()).toEqual(URL);
     }
 
     @Test
     public void shouldSendUserAgentHeader() throws Exception {
         when(deviceHelper.getUserAgent()).thenReturn("agent");
-        fakeApiMobileResponse();
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
 
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
         ApiResponse response = apiClient.fetchResponse(request);
 
         expect(response.isSuccess()).toBeTrue();
@@ -111,23 +86,35 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakeRequestWithQueryParameter() throws Exception {
-        fakeApiMobileResponse();
-        ApiRequest request = ApiRequest.Builder.get(PATH)
+    public void shouldAddScalarQueryParametersToHttpRequest() throws Exception {
+        ApiRequest request = ApiRequest.Builder.get(URL)
                 .forPrivateApi(1)
                 .addQueryParam("k1", "v1")
-                .addQueryParam("k2", "v2")
                 .build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().urlString()).toEqual(MOBILE_API_HOST + "/path/to/resource?k1=v1&k2=v2&client_id=" + CLIENT_ID);
+        verify(apiUrlBuilder).withQueryParams(Collections.singletonMap("k1", "v1"));
+    }
+
+    @Test
+    public void shouldAddMultiDimensionalQueryParametersToHttpRequest() throws Exception {
+        ApiRequest request = ApiRequest.Builder.get(URL)
+                .forPrivateApi(1)
+                .addQueryParam("k1", "v1", "v2")
+                .build();
+        mockSuccessfulResponseFor(request);
+
+        apiClient.fetchResponse(request);
+
+        verify(apiUrlBuilder).withQueryParams(Collections.singletonMap("k1", "v1,v2"));
     }
 
     @Test
     public void shouldForwardRequestHeaders() throws Exception {
-        fakeApiMobileResponse();
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).withHeader("key", "value").build();
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).withHeader("key", "value").build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
@@ -136,8 +123,8 @@ public class ApiClientTest {
 
     @Test
     public void shouldSynthesizeContentTypeHeaderWithVersionForMobileApiRequests() throws Exception {
-        fakeApiMobileResponse();
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
@@ -146,8 +133,8 @@ public class ApiClientTest {
 
     @Test
     public void shouldSynthesizeAcceptHeaderForPublicApiRequests() throws Exception {
-        fakePublicApiResponse();
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPublicApi().build();
+        ApiRequest request = ApiRequest.Builder.get(URL).forPublicApi().build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
@@ -156,8 +143,8 @@ public class ApiClientTest {
 
     @Test
     public void shouldAddOAuthHeader() throws Exception {
-        fakeApiMobileResponse();
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
@@ -165,35 +152,13 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldAddOAuthClientIdParameterIfMissing() throws Exception {
-        fakeApiMobileResponse();
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
-
-        apiClient.fetchResponse(request);
-
-        expect(httpRequestCaptor.getValue().urlString()).toEqual(MOBILE_API_HOST + "/path/to/resource?client_id=" + CLIENT_ID);
-    }
-
-    @Test
-    public void shouldNotAddOAuthClientIdIfAlreadyGiven() throws Exception {
-        fakeApiMobileResponse();
-        ApiRequest request = ApiRequest.Builder.get(PATH)
-                .forPrivateApi(1)
-                .addQueryParam("client_id", "123")
-                .build();
-
-        apiClient.fetchResponse(request);
-
-        expect(httpRequestCaptor.getValue().urlString()).toEqual(MOBILE_API_HOST + "/path/to/resource?client_id=123");
-    }
-
-    @Test
     public void shouldRegister401sWithUnauthorizedRequestRegistry() throws IOException {
-        when(httpProperties.getMobileApiBaseUrl()).thenReturn(MOBILE_API_HOST);
         when(httpCall.execute()).thenReturn(
                 TestHttpResponses.response(200).build(),
                 TestHttpResponses.response(401).build());
-        ApiRequest request = ApiRequest.Builder.get(PATH).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockRequestBuilderFor(request);
+
         apiClient.fetchResponse(request); // 200 -- no interaction with registry expected
         verifyZeroInteractions(unauthorisedRequestRegistry);
         apiClient.fetchResponse(request); // 401 -- interaction with registry expected
@@ -202,12 +167,12 @@ public class ApiClientTest {
 
     @Test
     public void shouldMakePostRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
-        fakeApiMobileResponse();
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
-        ApiRequest request = ApiRequest.Builder.post(PATH)
+        ApiRequest request = ApiRequest.Builder.post(URL)
                 .forPrivateApi(1)
                 .withContent(new ApiTrack())
                 .build();
+        mockJsonResponseFor(request, 200, JSON_DATA);
 
         apiClient.fetchResponse(request);
 
@@ -218,11 +183,11 @@ public class ApiClientTest {
 
     @Test
     public void shouldMakePostRequestToApiMobileWithoutContent() throws Exception {
-        fakeApiMobileResponse();
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
-        ApiRequest request = ApiRequest.Builder.post(PATH)
+        ApiRequest request = ApiRequest.Builder.post(URL)
                 .forPrivateApi(1)
                 .build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
@@ -233,12 +198,12 @@ public class ApiClientTest {
 
     @Test
     public void shouldMakePostRequestsToPublicApiWithoutCharsetsInContentType() throws Exception {
-        fakePublicApiResponse();
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
-        ApiRequest request = ApiRequest.Builder.post(PATH)
+        ApiRequest request = ApiRequest.Builder.post(URL)
                 .forPublicApi()
                 .withContent(new ApiTrack())
                 .build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
@@ -249,12 +214,12 @@ public class ApiClientTest {
 
     @Test
     public void shouldMakePutRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
-        fakeApiMobileResponse();
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
-        ApiRequest request = ApiRequest.Builder.put(PATH)
+        ApiRequest request = ApiRequest.Builder.put(URL)
                 .forPrivateApi(1)
                 .withContent(new ApiTrack())
                 .build();
+        mockSuccessfulResponseFor(request);
 
         apiClient.fetchResponse(request);
 
@@ -266,10 +231,12 @@ public class ApiClientTest {
     @Test
     public void shouldFailPostRequestAsMalformedIfContentSerializationFails() throws Exception {
         when(jsonTransformer.toJson(new ApiTrack())).thenThrow(new ApiMapperException("fail"));
-        ApiRequest request = ApiRequest.Builder.post(PATH)
+        ApiRequest request = ApiRequest.Builder.post(URL)
                 .forPublicApi()
                 .withContent(new ApiTrack())
                 .build();
+        mockSuccessfulResponseFor(request);
+
         ApiResponse response = apiClient.fetchResponse(request);
         expect(response.isSuccess()).toBeFalse();
         expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.MALFORMED_INPUT);
@@ -277,11 +244,10 @@ public class ApiClientTest {
 
     @Test
     public void shouldSendDeleteRequest() throws Exception {
-        fakeApiMobileResponse();
-        ApiRequest request = ApiRequest.Builder.delete(PATH)
+        ApiRequest request = ApiRequest.Builder.delete(URL)
                 .forPrivateApi(1)
                 .build();
-
+        mockSuccessfulResponseFor(request);
         ApiResponse response = apiClient.fetchResponse(request);
 
         expect(response.isSuccess()).toBeTrue();
@@ -290,61 +256,62 @@ public class ApiClientTest {
 
     @Test
     public void shouldFetchResourcesMappedToTypeSpecifiedInRequest() throws Exception {
-        fakeApiMobileResponse(200, JSON_DATA);
         final ApiTrack mappedTrack = new ApiTrack();
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(mappedTrack);
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
+        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
+        mockJsonResponseFor(request, 200, JSON_DATA);
         ApiTrack resource = apiClient.fetchMappedResponse(request);
         expect(resource).toBe(mappedTrack);
     }
 
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfParsedToUnknownResource() throws Exception {
-        fakeApiMobileResponse(200, JSON_DATA);
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(new UnknownResource());
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
+        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
+        mockJsonResponseFor(request, 200, JSON_DATA);
         apiClient.fetchMappedResponse(request);
     }
 
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfResponseBodyIsBlank() throws Exception {
-        fakeApiMobileResponse(200, "");
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
+        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
+        mockJsonResponseFor(request, 200, "");
         apiClient.fetchMappedResponse(request);
     }
 
     @Test(expected = ApiRequestException.class)
     public void shouldThrowMappingExceptionIfResponseWasUnsuccessful() throws Exception {
-        fakeApiMobileResponse(500, "");
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(PATH)
+        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiTrack.class))
                 .build();
+        mockJsonResponseFor(request, 500, "");
         apiClient.fetchMappedResponse(request);
     }
 
-    private void fakeApiMobileResponse() throws IOException {
-        when(httpProperties.getMobileApiBaseUrl()).thenReturn(MOBILE_API_HOST);
+    private void mockSuccessfulResponseFor(ApiRequest request) throws IOException {
+        mockRequestBuilderFor(request);
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
     }
 
-    private void fakeApiMobileResponse(int code, String jsonBody) throws IOException {
-        when(httpProperties.getMobileApiBaseUrl()).thenReturn(MOBILE_API_HOST);
+    private void mockJsonResponseFor(ApiRequest request, int code, String jsonBody) throws IOException {
+        mockRequestBuilderFor(request);
         when(httpCall.execute()).thenReturn(TestHttpResponses.jsonResponse(code, jsonBody).build());
     }
 
-    private void fakePublicApiResponse() throws IOException {
-        when(httpProperties.getPublicApiBaseUrl()).thenReturn(PUBLIC_API_HOST);
-        when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
+    private void mockRequestBuilderFor(ApiRequest request) {
+        when(apiUrlBuilder.from(request)).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.withQueryParams(anyMap())).thenReturn(apiUrlBuilder);
+        when(apiUrlBuilder.build()).thenReturn(request.getUri().toString());
     }
 
 }

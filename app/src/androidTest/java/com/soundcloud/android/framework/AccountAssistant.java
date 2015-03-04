@@ -2,9 +2,10 @@ package com.soundcloud.android.framework;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -12,7 +13,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import com.soundcloud.android.api.oauth.Token;
 import rx.Subscription;
 
 import android.accounts.Account;
@@ -32,7 +32,9 @@ public final class AccountAssistant {
 
     private static final long INJECTION_TIMEOUT = 10000;
 
-    private AccountAssistant() {}
+    private AccountAssistant() {
+    }
+
     private static final String TAG = AccountAssistant.class.getSimpleName();
 
     private static final Lock lock = new ReentrantLock();
@@ -53,7 +55,7 @@ public final class AccountAssistant {
             Log.i(TAG, "Already logged in");
             return account;
         } else if (account != null && !account.name.equals(username)) {
-            if(!logOut(instrumentation)){
+            if (!logOut(instrumentation)) {
                 throw new RuntimeException("Could not log out of SoundCloud Account");
             }
         }
@@ -115,7 +117,7 @@ public final class AccountAssistant {
     public static boolean logOut(Context context) throws Exception {
         Log.i(TAG, "Logging out");
         Account account = getAccount(context);
-        if(account == null){
+        if (account == null) {
             return false;
         }
 
@@ -153,7 +155,6 @@ public final class AccountAssistant {
     }
 
 
-
     public static Account getAccount(Context context) {
         AccountManager am = AccountManager.get(context);
         Account[] accounts = am.getAccountsByType(context.getString(R.string.account_type));
@@ -174,7 +175,7 @@ public final class AccountAssistant {
     static ApiWrapper createApiWrapper(Context context) {
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         waitForAccountOperationsToBeInjected(context);
-        final HttpProperties properties = new HttpProperties(context.getResources());
-        return new ApiWrapper(properties.getClientId(), properties.getClientSecret(), application.getAccountOperations());
+        final OAuth oAuth = new OAuth(application.getAccountOperations());
+        return new ApiWrapper(oAuth, application.getAccountOperations());
     }
 }

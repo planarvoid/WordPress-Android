@@ -11,10 +11,10 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.HttpProperties;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
@@ -92,24 +92,25 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @Deprecated
     public PublicApiWrapper(Context context) {
-        this(context, new HttpProperties(context), SoundCloudApplication.fromContext(context).getAccountOperations(),
+        this(context,
+                SoundCloudApplication.fromContext(context).getAccountOperations(),
                 new ApplicationProperties(context.getResources()));
 
     }
 
     @Deprecated
-    public PublicApiWrapper(Context context, HttpProperties properties, AccountOperations accountOperations,
+    public PublicApiWrapper(Context context, AccountOperations accountOperations,
                             ApplicationProperties applicationProperties) {
-        this(context, buildObjectMapper(), properties.getClientId(), properties.getClientSecret(),
+        this(context, buildObjectMapper(), new OAuth(accountOperations),
                 accountOperations, applicationProperties,
                 UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
     }
 
-    private PublicApiWrapper(Context context, ObjectMapper mapper, String clientId, String clientSecret,
+    private PublicApiWrapper(Context context, ObjectMapper mapper, OAuth oAuth,
                              AccountOperations accountOperations, ApplicationProperties applicationProperties,
                              UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                              DeviceHelper deviceHelper) {
-        super(clientId, clientSecret, accountOperations);
+        super(oAuth, accountOperations);
         // context can be null in tests
         if (context == null) {
             return;
