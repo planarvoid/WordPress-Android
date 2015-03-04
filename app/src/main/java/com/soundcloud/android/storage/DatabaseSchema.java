@@ -266,14 +266,14 @@ final class DatabaseSchema {
             ");";
 
     static final String DATABASE_CREATE_POSTS = "(" +
-            "_id INTEGER NOT NULL," +
-            "_type INTEGER NOT NULL," +
-            "is_repost BOOLEAN DEFAULT 0," +
+            "type STRING NOT NULL," +
+            "target_id INTEGER NOT NULL," +
+            "target_type INTEGER NOT NULL," +
             "created_at INTEGER NOT NULL," +
             "added_at INTEGER DEFAULT NULL," +
             "removed_at INTEGER DEFAULT NULL," +
-            "PRIMARY KEY (_id, _type, is_repost)," +
-            "FOREIGN KEY(_id, _type) REFERENCES Sounds(_id, _type)" +
+            "PRIMARY KEY (type, target_id, target_type)," +
+            "FOREIGN KEY(target_id, target_type) REFERENCES Sounds(_id, _type)" +
             ");";
 
     /**

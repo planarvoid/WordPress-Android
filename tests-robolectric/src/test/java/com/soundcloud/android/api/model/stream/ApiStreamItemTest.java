@@ -16,84 +16,84 @@ public class ApiStreamItemTest {
 
     @Test
     public void getTrackWithTrackPostReturnsTrack() throws Exception {
-        final ApiTrackPost apiTrackPost = ModelFixtures.create(ApiTrackPost.class);
+        final ApiStreamTrackPost apiTrackPost = ModelFixtures.create(ApiStreamTrackPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackPost);
         expect(streamItem.getTrack().get()).toBe(apiTrackPost.getApiTrack());
     }
 
     @Test
     public void getReposterWithTrackPostReturnsAbsent() throws Exception {
-        final ApiTrackPost apiTrackPost = ModelFixtures.create(ApiTrackPost.class);
+        final ApiStreamTrackPost apiTrackPost = ModelFixtures.create(ApiStreamTrackPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackPost);
         expect(streamItem.getReposter()).toBe(Optional.<ApiUser>absent());
     }
 
     @Test
     public void getCreatedAtWithTrackPostReturnsPostCreatedAtDate() throws Exception {
-        final ApiTrackPost apiTrackPost = ModelFixtures.create(ApiTrackPost.class);
+        final ApiStreamTrackPost apiTrackPost = ModelFixtures.create(ApiStreamTrackPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackPost);
         expect(streamItem.getCreatedAtTime()).toEqual(apiTrackPost.getCreatedAtTime());
     }
 
     @Test
     public void getTrackWithTrackRepostReturnsTrack() throws Exception {
-        final ApiTrackRepost apiTrackPost = ModelFixtures.create(ApiTrackRepost.class);
+        final ApiStreamTrackRepost apiTrackPost = ModelFixtures.create(ApiStreamTrackRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackPost);
         expect(streamItem.getTrack().get()).toBe(apiTrackPost.getApiTrack());
     }
 
     @Test
     public void getReposterWithTrackRepostReturnsReposter() throws Exception {
-        final ApiTrackRepost apiTrackRepost = ModelFixtures.create(ApiTrackRepost.class);
+        final ApiStreamTrackRepost apiTrackRepost = ModelFixtures.create(ApiStreamTrackRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackRepost);
         expect(streamItem.getReposter().get()).toBe(apiTrackRepost.getReposter());
     }
 
     @Test
     public void getCreatedAtWithTrackRepostReturnsRepostingDate() throws Exception {
-        final ApiTrackRepost apiTrackRepost = ModelFixtures.create(ApiTrackRepost.class);
+        final ApiStreamTrackRepost apiTrackRepost = ModelFixtures.create(ApiStreamTrackRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiTrackRepost);
         expect(streamItem.getCreatedAtTime()).toEqual(apiTrackRepost.getCreatedAtTime());
     }
     
     @Test
     public void getPlaylistWithPlaylistPostReturnsPlaylist() throws Exception {
-        final ApiPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiPlaylistPost.class);
+        final ApiStreamPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiStreamPlaylistPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistPost);
         expect(streamItem.getPlaylist().get()).toBe(apiPlaylistPost.getApiPlaylist());
     }
 
     @Test
     public void getReposterWithPlaylistPostReturnsAbsent() throws Exception {
-        final ApiPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiPlaylistPost.class);
+        final ApiStreamPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiStreamPlaylistPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistPost);
         expect(streamItem.getReposter()).toBe(Optional.<ApiUser>absent());
     }
 
     @Test
     public void getCreatedAtWithPlaylistPostReturnsPlaylistCreatedAtDate() throws Exception {
-        final ApiPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiPlaylistPost.class);
+        final ApiStreamPlaylistPost apiPlaylistPost = ModelFixtures.create(ApiStreamPlaylistPost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistPost);
         expect(streamItem.getCreatedAtTime()).toEqual(apiPlaylistPost.getCreatedAtTime());
     }
 
     @Test
     public void getPlaylistWithPlaylistRepostReturnsPlaylist() throws Exception {
-        final ApiPlaylistRepost ApiPlaylistPost = ModelFixtures.create(ApiPlaylistRepost.class);
+        final ApiStreamPlaylistRepost ApiPlaylistPost = ModelFixtures.create(ApiStreamPlaylistRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(ApiPlaylistPost);
         expect(streamItem.getPlaylist().get()).toBe(ApiPlaylistPost.getApiPlaylist());
     }
 
     @Test
     public void getReposterWithPlaylistRepostReturnsReposter() throws Exception {
-        final ApiPlaylistRepost ApiPlaylistRepost = ModelFixtures.create(ApiPlaylistRepost.class);
+        final ApiStreamPlaylistRepost ApiPlaylistRepost = ModelFixtures.create(ApiStreamPlaylistRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(ApiPlaylistRepost);
         expect(streamItem.getReposter().get()).toBe(ApiPlaylistRepost.getReposter());
     }
 
     @Test
     public void getCreatedAtWithPlaylistRepostReturnsRepostingDate() throws Exception {
-        final ApiPlaylistRepost apiPlaylistRepost = ModelFixtures.create(ApiPlaylistRepost.class);
+        final ApiStreamPlaylistRepost apiPlaylistRepost = ModelFixtures.create(ApiStreamPlaylistRepost.class);
         final ApiStreamItem streamItem = new ApiStreamItem(apiPlaylistRepost);
         expect(streamItem.getCreatedAtTime()).toEqual(apiPlaylistRepost.getCreatedAtTime());
     }
@@ -122,25 +122,25 @@ public class ApiStreamItemTest {
 
     @Test
     public void getPromoterWithTrackPostReturnsAbsentPromoter() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackPost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamTrackPost.class));
         expect(streamItem.getPromoter().isPresent()).toBeFalse();
     }
 
     @Test
     public void getPromoterWithTrackRepostReturnsAbsentPromoter() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackRepost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamTrackRepost.class));
         expect(streamItem.getPromoter().isPresent()).toBeFalse();
     }
 
     @Test
     public void getPromoterWithPlaylistPostReturnsAbsentPromoter() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistPost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamPlaylistPost.class));
         expect(streamItem.getPromoter().isPresent()).toBeFalse();
     }
 
     @Test
     public void getPromoterWithPlaylistRepostReturnsAbsentPromoter() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistRepost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamPlaylistRepost.class));
         expect(streamItem.getPromoter().isPresent()).toBeFalse();
     }
 
@@ -153,25 +153,25 @@ public class ApiStreamItemTest {
 
     @Test
     public void getPromotedUrnWithTrackPostReturnsAbsentPromotedUrn() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackPost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamTrackPost.class));
         expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
     }
 
     @Test
     public void getPromotedUrnWithTrackRepostReturnsAbsentPromotedUrn() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiTrackRepost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamTrackRepost.class));
         expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
     }
 
     @Test
     public void getPromotedUrnWithPlaylistPostReturnsAbsentPromotedUrn() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistPost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamPlaylistPost.class));
         expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
     }
 
     @Test
     public void getPromotedUrnWithPlaylistRepostReturnsAbsentPromotedUrn() throws Exception {
-        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiPlaylistRepost.class));
+        final ApiStreamItem streamItem = new ApiStreamItem(ModelFixtures.create(ApiStreamPlaylistRepost.class));
         expect(streamItem.getPromotedUrn().isPresent()).toBeFalse();
     }
 

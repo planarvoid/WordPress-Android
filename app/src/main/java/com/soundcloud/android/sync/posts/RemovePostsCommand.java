@@ -23,11 +23,13 @@ public class RemovePostsCommand extends StoreCommand<Collection<PropertySet>> {
         for (PropertySet post : input) {
             final Urn urn = post.get(PostProperty.TARGET_URN);
             writeResult = database.delete(Table.Posts, new WhereBuilder()
-                    .whereEq(TableColumns.Posts._ID, urn.getNumericId())
-                    .whereEq(TableColumns.Posts.IS_REPOST, post.get(PostProperty.IS_REPOST))
-                    .whereEq(TableColumns.Posts._TYPE, urn.isTrack()
+                    .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                    .whereEq(TableColumns.Posts.TARGET_TYPE, urn.isTrack()
                             ? TableColumns.Sounds.TYPE_TRACK
-                            : TableColumns.Sounds.TYPE_PLAYLIST));
+                            : TableColumns.Sounds.TYPE_PLAYLIST)
+                    .whereEq(TableColumns.Posts.TYPE, post.get(PostProperty.IS_REPOST)
+                            ? TableColumns.Posts.TYPE_REPOST
+                            : TableColumns.Posts.TYPE_POST));
         }
         return writeResult; // not very robust, do we care about failure here?
     }

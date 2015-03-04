@@ -23,15 +23,15 @@ class FetchPostsCommand extends Command<ApiEndpoints, NavigableSet<PropertySet>,
 
     @Override
     public NavigableSet<PropertySet> call() throws Exception {
-        final ApiRequest<ModelCollection<ApiPost>> request =
-                ApiRequest.Builder.<ModelCollection<ApiPost>>get(input.path())
+        final ApiRequest<ModelCollection<ApiPostItem>> request =
+                ApiRequest.Builder.<ModelCollection<ApiPostItem>>get(input.path())
                         .forPrivateApi(1)
-                        .forResource(new TypeToken<ModelCollection<ApiPost>>() {})
+                        .forResource(new TypeToken<ModelCollection<ApiPostItem>>() {})
                         .build();
 
-        final ModelCollection<ApiPost> apiPosts = apiClient.fetchMappedResponse(request);
+        final ModelCollection<ApiPostItem> apiPosts = apiClient.fetchMappedResponse(request);
         final NavigableSet<PropertySet> result = new TreeSet<>(PostProperty.COMPARATOR);
-        for (ApiPost post : apiPosts) {
+        for (ApiPostItem post : apiPosts) {
             result.add(post.toPropertySet());
         }
         return result;

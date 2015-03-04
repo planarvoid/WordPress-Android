@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync.posts;
 
+import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
@@ -50,9 +51,9 @@ public class StorePostsCommandTest extends StorageIntegrationTest {
 
     private void assertPlaylistPostInserted(PropertySet playlistPost) {
         assertThat(select(Query.from(Table.Posts.name())
-                .whereEq(TableColumns.Posts._ID, playlistPost.get(PostProperty.TARGET_URN).getNumericId())
-                .whereEq(TableColumns.Posts._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereEq(TableColumns.Posts.IS_REPOST, playlistPost.get(PostProperty.IS_REPOST))
-                .whereEq(TableColumns.Posts.CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime())), counts(1));
+                .whereEq(Posts.TARGET_ID, playlistPost.get(PostProperty.TARGET_URN).getNumericId())
+                .whereEq(Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(Posts.TYPE, playlistPost.get(PostProperty.IS_REPOST) ? Posts.TYPE_REPOST : Posts.TYPE_POST)
+                .whereEq(Posts.CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime())), counts(1));
     }
 }

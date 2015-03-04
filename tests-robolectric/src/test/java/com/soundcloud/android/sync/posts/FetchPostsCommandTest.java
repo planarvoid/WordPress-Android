@@ -31,10 +31,10 @@ public class FetchPostsCommandTest {
 
     @Test
     public void fetchesPostsViaApiMobile() throws Exception {
-        final ApiPost apiPost = ModelFixtures.apiTrackPost();
-        final ModelCollection<ApiPost> response = new ModelCollection<>(Arrays.asList(apiPost));
+        final ApiPostItem apiTrackPostItem = ModelFixtures.apiTrackPostItem();
+        final ModelCollection<ApiPostItem> response = new ModelCollection<>(Arrays.asList(apiTrackPostItem));
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.MY_PLAYLISTS_POSTS.path())))).thenReturn(response);
 
-        expect(command.with(ApiEndpoints.MY_PLAYLISTS_POSTS).call()).toContainExactly(apiPost.toPropertySet());
+        expect(command.with(ApiEndpoints.MY_PLAYLISTS_POSTS).call()).toContainExactly(apiTrackPostItem.toPropertySet());
     }
 }

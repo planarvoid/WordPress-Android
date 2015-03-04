@@ -30,8 +30,8 @@ public class LoadLocalPostsCommand extends Command<Object, List<PropertySet>, Lo
     @Override
     public List<PropertySet> call() throws Exception {
         return database.query(Query.from(Table.Posts.name())
-                .select(Posts._ID, Posts.CREATED_AT, Posts.IS_REPOST)
-                .whereEq(Posts._TYPE, resourceType)
+                .select(Posts.TARGET_ID, Posts.CREATED_AT, Posts.TYPE)
+                .whereEq(Posts.TARGET_TYPE, resourceType)
                 .order(CollectionItems.CREATED_AT, Query.ORDER_DESC)).toList(new PlaylistMapper());
     }
 
@@ -39,9 +39,9 @@ public class LoadLocalPostsCommand extends Command<Object, List<PropertySet>, Lo
         @Override
         public PropertySet map(CursorReader cursorReader) {
             return PropertySet.from(
-                    PostProperty.TARGET_URN.bind(Urn.forPlaylist(cursorReader.getLong(Posts._ID))),
+                    PostProperty.TARGET_URN.bind(Urn.forPlaylist(cursorReader.getLong(Posts.TARGET_ID))),
                     PostProperty.CREATED_AT.bind(new Date(cursorReader.getLong(Posts.CREATED_AT))),
-                    PostProperty.IS_REPOST.bind(cursorReader.getBoolean(Posts.IS_REPOST))
+                    PostProperty.IS_REPOST.bind(Posts.TYPE_REPOST.equals(cursorReader.getString(Posts.TYPE)))
             );
         }
     }

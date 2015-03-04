@@ -1,11 +1,11 @@
 package com.soundcloud.android.testsupport.fixtures;
 
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.stream.ApiPlaylistPost;
-import com.soundcloud.android.api.model.stream.ApiPlaylistRepost;
+import com.soundcloud.android.api.model.stream.ApiStreamPlaylistPost;
+import com.soundcloud.android.api.model.stream.ApiStreamPlaylistRepost;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.api.model.stream.ApiTrackPost;
-import com.soundcloud.android.api.model.stream.ApiTrackRepost;
+import com.soundcloud.android.api.model.stream.ApiStreamTrackPost;
+import com.soundcloud.android.api.model.stream.ApiStreamTrackRepost;
 
 public class ApiStreamItemFixtures {
 
@@ -18,19 +18,19 @@ public class ApiStreamItemFixtures {
     }
 
     public static ApiStreamItem trackPost(){
-        return new ApiStreamItem(ModelFixtures.create(ApiTrackPost.class));
+        return new ApiStreamItem(ModelFixtures.create(ApiStreamTrackPost.class));
     }
 
     public static ApiStreamItem trackRepost() {
-        return new ApiStreamItem(ModelFixtures.create(ApiTrackRepost.class));
+        return new ApiStreamItem(ModelFixtures.create(ApiStreamTrackRepost.class));
     }
 
     public static ApiStreamItem playlistPost() {
-        return new ApiStreamItem(ModelFixtures.create(ApiPlaylistPost.class));
+        return new ApiStreamItem(ModelFixtures.create(ApiStreamPlaylistPost.class));
     }
 
     public static ApiStreamItem playlistRepost() {
-        return new ApiStreamItem(ModelFixtures.create(ApiPlaylistRepost.class));
+        return new ApiStreamItem(ModelFixtures.create(ApiStreamPlaylistRepost.class));
     }
 
 }

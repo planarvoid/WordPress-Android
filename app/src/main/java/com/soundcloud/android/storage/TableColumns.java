@@ -39,12 +39,16 @@ public final class TableColumns {
         public static final String REMOVED_AT = "removed_at"; // local removals
     }
 
-    public static final class Posts implements BaseColumns {
-        public static final String _TYPE = "_type";
-        public static final String IS_REPOST = "is_repost";
+    public static final class Posts {
+        public static final String TYPE = "type";
+        public static final String TARGET_TYPE = "target_type";
+        public static final String TARGET_ID = "target_id";
         public static final String CREATED_AT = "created_at";
         public static final String ADDED_AT = "added_at"; // local additions
         public static final String REMOVED_AT = "removed_at"; // local removals
+
+        public static final String TYPE_POST = "post";
+        public static final String TYPE_REPOST = "repost";
     }
 
     public static class PromotedTracks implements BaseColumns {

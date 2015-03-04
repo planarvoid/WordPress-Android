@@ -17,10 +17,10 @@ public class ApiStreamItem {
     private static final long PROMOTED_CREATION_DATE = Long.MAX_VALUE;
 
     private ApiPromotedTrack apiPromotedTrack;
-    private ApiTrackPost apiTrackPost;
-    private ApiTrackRepost apiTrackRepost;
-    private ApiPlaylistPost apiPlaylistPost;
-    private ApiPlaylistRepost apiPlaylistRepost;
+    private ApiStreamTrackPost apiTrackPost;
+    private ApiStreamTrackRepost apiTrackRepost;
+    private ApiStreamPlaylistPost apiPlaylistPost;
+    private ApiStreamPlaylistRepost apiPlaylistRepost;
 
     /**
      * Unfortunately, you can only have 1 constructor responsible for property based construction
@@ -29,10 +29,10 @@ public class ApiStreamItem {
      */
     @JsonCreator
     public ApiStreamItem(@JsonProperty("promoted_track") ApiPromotedTrack apiPromotedTrack,
-                         @JsonProperty("track_post") ApiTrackPost apiTrackPost,
-                         @JsonProperty("track_repost") ApiTrackRepost apiTrackRepost,
-                         @JsonProperty("playlist_post") ApiPlaylistPost apiPlaylistPost,
-                         @JsonProperty("playlist_repost") ApiPlaylistRepost apiPlaylistRepost) {
+                         @JsonProperty("track_post") ApiStreamTrackPost apiTrackPost,
+                         @JsonProperty("track_repost") ApiStreamTrackRepost apiTrackRepost,
+                         @JsonProperty("playlist_post") ApiStreamPlaylistPost apiPlaylistPost,
+                         @JsonProperty("playlist_repost") ApiStreamPlaylistRepost apiPlaylistRepost) {
         this.apiPromotedTrack = apiPromotedTrack;
         this.apiTrackPost = apiTrackPost;
         this.apiTrackRepost = apiTrackRepost;
@@ -41,7 +41,7 @@ public class ApiStreamItem {
     }
 
     @VisibleForTesting
-    public ApiStreamItem(ApiTrackPost apiTrackPost) {
+    public ApiStreamItem(ApiStreamTrackPost apiTrackPost) {
         this.apiTrackPost = apiTrackPost;
     }
 
@@ -51,17 +51,17 @@ public class ApiStreamItem {
     }
 
     @VisibleForTesting
-    public ApiStreamItem(ApiTrackRepost apiTrackRepost) {
+    public ApiStreamItem(ApiStreamTrackRepost apiTrackRepost) {
         this.apiTrackRepost = apiTrackRepost;
     }
 
     @VisibleForTesting
-    public ApiStreamItem(ApiPlaylistPost apiPlaylistPost) {
+    public ApiStreamItem(ApiStreamPlaylistPost apiPlaylistPost) {
         this.apiPlaylistPost = apiPlaylistPost;
     }
 
     @VisibleForTesting
-    public ApiStreamItem(ApiPlaylistRepost apiPlaylistRepost) {
+    public ApiStreamItem(ApiStreamPlaylistRepost apiPlaylistRepost) {
         this.apiPlaylistRepost = apiPlaylistRepost;
     }
 

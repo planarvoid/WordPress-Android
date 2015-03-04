@@ -1,27 +1,27 @@
 package com.soundcloud.android.api.model.stream;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiUser;
 
 import java.util.Date;
 
-public class ApiTrackRepost {
+public class ApiStreamPlaylistRepost {
 
-    private final ApiTrack apiTrack;
+    private final ApiPlaylist apiPlaylist;
     private final ApiUser reposter;
     private final long createdAtTime;
 
-    public ApiTrackRepost(@JsonProperty("track") ApiTrack apiTrack,
-                          @JsonProperty("reposter") ApiUser reposter,
-                          @JsonProperty("created_at") Date createdAt) {
-        this.apiTrack = apiTrack;
+    public ApiStreamPlaylistRepost(@JsonProperty("playlist") ApiPlaylist apiPlaylist,
+                                   @JsonProperty("reposter") ApiUser reposter,
+                                   @JsonProperty("created_at") Date createdAt) {
+        this.apiPlaylist = apiPlaylist;
         this.reposter = reposter;
         this.createdAtTime = createdAt.getTime();
     }
 
-    public ApiTrack getApiTrack() {
-        return apiTrack;
+    public ApiPlaylist getApiPlaylist() {
+        return apiPlaylist;
     }
 
     public ApiUser getReposter() {

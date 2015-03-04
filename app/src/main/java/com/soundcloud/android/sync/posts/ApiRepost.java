@@ -7,13 +7,13 @@ import com.soundcloud.propeller.PropertySet;
 
 import java.util.Date;
 
-public class ApiPost implements PropertySetSource {
+public class ApiRepost implements PropertySetSource {
 
     private final Urn targetUrn;
     private final Date createdAt;
 
-    public ApiPost(@JsonProperty("target_urn") Urn targetUrn,
-                   @JsonProperty("created_at") Date createdAt) {
+    public ApiRepost(@JsonProperty("target_urn") Urn targetUrn,
+                     @JsonProperty("created_at") Date createdAt) {
         this.targetUrn = targetUrn;
         this.createdAt = createdAt;
     }
@@ -31,7 +31,7 @@ public class ApiPost implements PropertySetSource {
         return PropertySet.from(
                 PostProperty.TARGET_URN.bind(targetUrn),
                 PostProperty.CREATED_AT.bind(createdAt),
-                PostProperty.IS_REPOST.bind(false)
+                PostProperty.IS_REPOST.bind(true)
         );
     }
 }

@@ -20,7 +20,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     /* package */ static final String TAG = "DatabaseManager";
 
     /* increment when schema changes */
-    public static final int DATABASE_VERSION = 39;
+    public static final int DATABASE_VERSION = 40;
     private static final String DATABASE_NAME = "SoundCloud";
 
     private static DatabaseManager instance;
@@ -113,6 +113,9 @@ public class DatabaseManager extends SQLiteOpenHelper {
                             break;
                         case 39:
                             success = upgradeTo39(db, oldVersion);
+                            break;
+                        case 40:
+                            success = upgradeTo40(db, oldVersion);
                             break;
                         default:
                             break;
@@ -364,6 +367,19 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return true;
         } catch (SQLException exception) {
             handleUpgradeException(exception, oldVersion, 39);
+        }
+        return false;
+    }
+
+    /**
+     * Changed Post table column names
+     */
+    private static boolean upgradeTo40(SQLiteDatabase db, int oldVersion) {
+        try {
+            Table.Posts.recreate(db);
+            return true;
+        } catch (SQLException exception) {
+            handleUpgradeException(exception, oldVersion, 40);
         }
         return false;
     }

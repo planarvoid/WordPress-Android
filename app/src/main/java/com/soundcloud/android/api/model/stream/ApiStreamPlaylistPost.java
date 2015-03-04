@@ -5,12 +5,12 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 
 import java.util.Date;
 
-public class ApiPlaylistPost {
+public class ApiStreamPlaylistPost {
 
     private final ApiPlaylist apiPlaylist;
     private final long createdAtTime;
 
-    public ApiPlaylistPost(@JsonProperty("playlist") ApiPlaylist apiPlaylist, @JsonProperty("created_at") Date createdAt) {
+    public ApiStreamPlaylistPost(@JsonProperty("playlist") ApiPlaylist apiPlaylist, @JsonProperty("created_at") Date createdAt) {
         this.apiPlaylist = apiPlaylist;
         this.createdAtTime = createdAt.getTime();
     }

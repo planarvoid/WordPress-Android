@@ -239,36 +239,27 @@ public class DatabaseFixtures {
         return insertInto(Table.CollectionItems, cv);
     }
 
-    public long insertPlaylistPost(long playlistId, long createdAt) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Posts._ID, playlistId);
-        cv.put(TableColumns.Posts._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Posts.IS_REPOST, false);
-        cv.put(TableColumns.Posts.CREATED_AT, createdAt);
-        return insertInto(Table.Posts, cv);
-    }
-
-    public ApiPost insertTrackPost(ApiPost apiPost) {
-        insertTrackPost(apiPost.getTargetUrn().getNumericId(),
-                apiPost.getCreatedAt().getTime(),
-                apiPost.isRepost());
-        return apiPost;
+    public ApiPost insertTrackPost(ApiPost apiTrackPost) {
+        insertTrackPost(apiTrackPost.getTargetUrn().getNumericId(),
+                apiTrackPost.getCreatedAt().getTime(),
+                false);
+        return apiTrackPost;
     }
 
     public long insertTrackPost(long id, long createdAt, boolean isRepost) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Posts._ID, id);
-        cv.put(TableColumns.Posts._TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.Posts.IS_REPOST, isRepost);
+        cv.put(TableColumns.Posts.TARGET_ID, id);
+        cv.put(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        cv.put(TableColumns.Posts.TYPE, isRepost ? TableColumns.Posts.TYPE_REPOST : TableColumns.Posts.TYPE_POST);
         cv.put(TableColumns.Posts.CREATED_AT, createdAt);
         return insertInto(Table.Posts, cv);
     }
 
     public long insertPlaylistPost(long playlistId, long createdAt, boolean isRepost) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Posts._ID, playlistId);
-        cv.put(TableColumns.Posts._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Posts.IS_REPOST, isRepost);
+        cv.put(TableColumns.Posts.TARGET_ID, playlistId);
+        cv.put(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        cv.put(TableColumns.Posts.TYPE, isRepost ? TableColumns.Posts.TYPE_REPOST : TableColumns.Posts.TYPE_POST);
         cv.put(TableColumns.Posts.CREATED_AT, createdAt);
         return insertInto(Table.Posts, cv);
     }

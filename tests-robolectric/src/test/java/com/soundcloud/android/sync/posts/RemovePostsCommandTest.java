@@ -29,11 +29,11 @@ public class RemovePostsCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldRemoveTrackPosts() throws PropellerWriteException {
         final ApiTrack apiTrack = testFixtures().insertTrack();
-        final ApiPost apiPost = ModelFixtures.apiTrackPost(apiTrack);
-        testFixtures().insertTrackPost(apiPost);
+        final ApiPost apiTrackPost = ModelFixtures.apiTrackPost(apiTrack);
+        testFixtures().insertTrackPost(apiTrackPost);
         testFixtures().insertPlaylistPost(2000L, 100L, false); // should not be removed
 
-        command.with(Arrays.asList(apiPost.toPropertySet())).call();
+        command.with(Arrays.asList(apiTrackPost.toPropertySet())).call();
 
         assertThat(select(Query.from(Table.Posts.name())), counts(1));
     }

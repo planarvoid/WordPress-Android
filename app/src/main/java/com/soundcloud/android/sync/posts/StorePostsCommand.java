@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.posts;
 
+import static com.soundcloud.android.storage.TableColumns.Posts;
+
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -35,12 +37,12 @@ public class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
     private ContentValues buildContentValuesForPlaylistPost(PropertySet playlistPost) {
         final ContentValues cv = new ContentValues();
         final Urn targetUrn = playlistPost.get(PostProperty.TARGET_URN);
-        cv.put(TableColumns.Posts._ID, targetUrn.getNumericId());
-        cv.put(TableColumns.Posts._TYPE, targetUrn.isTrack()
+        cv.put(Posts.TARGET_ID, targetUrn.getNumericId());
+        cv.put(Posts.TARGET_TYPE, targetUrn.isTrack()
                 ? TableColumns.Sounds.TYPE_TRACK
                 : TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Posts.IS_REPOST, playlistPost.get(PostProperty.IS_REPOST));
-        cv.put(TableColumns.Posts.CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime());
+        cv.put(Posts.TYPE, playlistPost.get(PostProperty.IS_REPOST) ? Posts.TYPE_REPOST : Posts.TYPE_POST);
+        cv.put(Posts.CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime());
         return cv;
     }
 }
