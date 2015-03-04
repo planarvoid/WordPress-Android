@@ -56,7 +56,7 @@ task buildReleaseCI (dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', 
 // ACCEPTANCE TESTS
 // *********************************************************************************************************************
 
-task assembleAcceptanceTest(dependsOn: ['assembleDebugTest']) {
+task assembleAcceptanceTest(dependsOn: ['assembleDebugAndroidTest']) {
   description 'Assembles all the Test applications.'
 }
 

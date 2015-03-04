@@ -13,7 +13,6 @@ android {
     }
   }
 
-
   tasks.whenTaskAdded { currentTask ->
     // Generate a task for each build in order to copy the adequate properties file.
     project.('android').buildTypes.all { build ->
@@ -38,26 +37,25 @@ android {
           }
         }
 
-        if (!buildName.equals("end2end")) {
-          def copyTestPropertiesFileTask = "copyTestPropertiesFile${buildName.capitalize()}"
-          task(copyTestPropertiesFileTask) {
-            description = "Copy SoundCloud test properties file for ${buildName} version."
-            def srcFile = "src/androidTest/properties/test_properties_${buildName}.xml"
-            def destDir = 'src/androidTest/res/values/'
-            inputs.file srcFile
-            outputs.dir destDir
-            doLast {
-              copy {
-                from(srcFile)
-                into(destDir)
-                rename { def fileName ->
-                    fileName.replace("_${buildName}", "")
-                }
+        def copyTestPropertiesFileTask = "copyTestPropertiesFile${buildName.capitalize()}"
+        task(copyTestPropertiesFileTask) {
+          description = "Copy SoundCloud test properties file for ${buildName} version."
+          def srcFile = "src/androidTest/properties/test_properties_${buildName}.xml"
+          def destDir = 'src/androidTest/res/values/'
+          inputs.file srcFile
+          outputs.dir destDir
+          doLast {
+            copy {
+              from(srcFile)
+              into(destDir)
+              rename { def fileName ->
+                  fileName.replace("_${buildName}", "")
               }
             }
           }
-          currentTask.dependsOn(copyTestPropertiesFileTask)
         }
+
+        currentTask.dependsOn(copyTestPropertiesFileTask)
         currentTask.dependsOn(copyPropertiesFileTask)
       }
     }

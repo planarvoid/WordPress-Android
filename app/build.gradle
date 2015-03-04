@@ -81,7 +81,7 @@ android {
       shrinkResources true
       signingConfig signingConfigs.release
     }
-    end2end.initWith(buildTypes.release)
+    end2end.initWith(buildTypes.debug)
     end2end {
       versionNameSuffix '-end2end'
     }
