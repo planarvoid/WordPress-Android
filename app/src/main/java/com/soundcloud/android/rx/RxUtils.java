@@ -1,6 +1,7 @@
 package com.soundcloud.android.rx;
 
 import rx.Observer;
+import rx.functions.Func1;
 
 public final class RxUtils {
 
@@ -9,6 +10,13 @@ public final class RxUtils {
             observer.onNext(item);
         }
     }
+
+    public static final Func1<Object, Void> TO_VOID = new Func1<Object, Void>() {
+        @Override
+        public Void call(Object ignore) {
+            return null;
+        }
+    };
 
     private RxUtils() {}
 }

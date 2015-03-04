@@ -35,12 +35,21 @@ public class StoreTracksCommand extends StoreCommand<Iterable<ApiTrack>> {
                 .put(TableColumns.Sounds.GENRE, track.getGenre())
                 .put(TableColumns.Sounds.SHARING, track.getSharing().value())
                 .put(TableColumns.Sounds.COMMENTABLE, track.isCommentable())
-                .put(TableColumns.Sounds.MONETIZABLE, track.isMonetizable())
                 .put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount())
                 .put(TableColumns.Sounds.COMMENT_COUNT, track.getStats().getCommentsCount())
                 .put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount())
                 .put(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
                 .put(TableColumns.Sounds.USER_ID, track.getUser().getId())
+                .get();
+    }
+
+    public static ContentValues buildPolicyContentValues(ApiTrack track) {
+        return ContentValuesBuilder.values()
+                .put(TableColumns.TrackPolicies.TRACK_ID, track.getId())
+                .put(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable())
+                .put(TableColumns.TrackPolicies.POLICY, track.getPolicy())
+                .put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable())
+                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis())
                 .get();
     }
 
@@ -52,6 +61,7 @@ public class StoreTracksCommand extends StoreCommand<Iterable<ApiTrack>> {
                 for (ApiTrack track : input) {
                     step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(track.getUser())));
                     step(propeller.upsert(Table.Sounds, buildTrackContentValues(track)));
+                    step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(track)));
                 }
             }
         });

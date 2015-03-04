@@ -1,13 +1,11 @@
-package com.soundcloud.android.playback.service;
+package com.soundcloud.android.policies;
 
-import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.content.ContentValues;
 
@@ -26,8 +24,7 @@ class StorePoliciesCommand extends StoreCommand<Iterable<PolicyInfo>> {
             @Override
             public void steps(PropellerDatabase propeller) {
                 for (PolicyInfo policy : input) {
-                    step(propeller.update(Table.Sounds, buildPolicyContentValues(policy),
-                            new WhereBuilder().whereEq(TableColumns.Sounds._ID, policy.getTrackUrn().getNumericId())));
+                    step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(policy)));
                 }
             }
         });
@@ -35,10 +32,11 @@ class StorePoliciesCommand extends StoreCommand<Iterable<PolicyInfo>> {
 
     private ContentValues buildPolicyContentValues(PolicyInfo policyEntry) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Sounds._ID, policyEntry.getTrackUrn().getNumericId())
-                .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .put(TableColumns.Sounds.POLICY, policyEntry.getPolicy())
-                .put(TableColumns.Sounds.MONETIZABLE, policyEntry.isMonetizable())
+                .put(TableColumns.TrackPolicies.TRACK_ID, policyEntry.getTrackUrn().getNumericId())
+                .put(TableColumns.TrackPolicies.POLICY, policyEntry.getPolicy())
+                .put(TableColumns.TrackPolicies.MONETIZABLE, policyEntry.isMonetizable())
+                .put(TableColumns.TrackPolicies.SYNCABLE, policyEntry.isSyncable())
+                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis())
                 .get();
     }
 

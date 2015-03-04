@@ -2,17 +2,13 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.GuavaFunctions;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
@@ -32,15 +28,12 @@ public class PlayQueueOperations {
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
     private final StoreTracksCommand storeTracksCommand;
-    private final StorePoliciesCommand storePoliciesCommand;
     private final ApiScheduler apiScheduler;
 
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
-                               StoreTracksCommand storeTracksCommand, StorePoliciesCommand storePoliciesCommand,
-                               ApiScheduler apiScheduler) {
+                               StoreTracksCommand storeTracksCommand, ApiScheduler apiScheduler) {
         this.storeTracksCommand = storeTracksCommand;
-        this.storePoliciesCommand = storePoliciesCommand;
         this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.playQueueStorage = playQueueStorage;
         this.apiScheduler = apiScheduler;
@@ -112,20 +105,8 @@ public class PlayQueueOperations {
         return apiScheduler.mappedResponse(request).doOnNext(storeTracksCommand.toAction());
     }
 
-    public Observable<PolicyCollection> fetchAndStorePolicies(List<Urn> trackUrns) {
-        final ApiRequest<PolicyCollection> request = ApiRequest.Builder.<PolicyCollection>post(ApiEndpoints.POLICIES.path())
-                .withContent(Lists.transform(trackUrns, GuavaFunctions.urnToString()))
-                .forPrivateApi(1)
-                .forResource(TypeToken.of(PolicyCollection.class)).build();
-
-        return apiScheduler.mappedResponse(request).doOnNext(storePoliciesCommand.toAction());
-    }
-
     enum Keys {
         PLAY_POSITION, SEEK_POSITION, TRACK_ID
     }
 
-    public static class PolicyCollection extends ModelCollection<PolicyInfo> {
-        // Policy type token
-    }
 }

@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -39,5 +38,4 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
 
         assertThat(playlistsScreen.getLoadedTrackCount(), is(greaterThan(numberOfTracks)));
     }
-
 }

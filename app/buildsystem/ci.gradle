@@ -1,4 +1,4 @@
-//Since for CI we always do full clean builds, we don't want to pre-dex
+// Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
 subprojects {
   project.plugins.whenPluginAdded { plugin ->
@@ -10,20 +10,65 @@ subprojects {
   }
 }
 
-task assembleCI(dependsOn: [':app:assembleDebug']) {
-  description 'Assembles the main application. Used for CI since pre-dexing is disabled.'
+task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', 'lintDebug']) {
+  description 'Performs static analysis of code.'
+}
+staticAnalysis.mustRunAfter('assembleDebugCI', 'assembleBetaCI', 'assembleReleaseCI')
+
+// *********************************************************************************************************************
+// DEBUG BUILDS
+// *********************************************************************************************************************
+
+task assembleDebugCI(dependsOn: ['assembleDebug']) {
+  description 'Assembles all Debug builds for CI. Pre-dexing is disabled.'
   rootProject.ext.preDexLibs = false
 }
 
-task staticAnalysis(dependsOn: [':app:checkstyle', ':app:findbugs', ':app:pmd', ':app:lintDebug']) {
-  description 'Performs static analysis of code.'
-}
-staticAnalysis.mustRunAfter assembleCI
-
-task buildCI(dependsOn: [assembleCI, staticAnalysis]) {
-  description 'Builds application for CI and executes static analysis.'
+task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
+  description 'Assembles all Debug builds and performs static analysis for CI.'
 }
 
-task generateRelease (dependsOn: ['assembleRelease']) {
-  description = 'Generates a release version of the app by incrementing version code and name and signing the apk.'
+// *********************************************************************************************************************
+// BETA BUILDS
+// *********************************************************************************************************************
+
+task assembleBetaCI (dependsOn: ['assembleBeta']) {
+  description = 'Assembles all Beta builds for CI'
 }
+
+task buildBetaCI (dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd', 'lintBeta']) {
+  description = 'Assembles all Beta builds and performs static analysis for CI.'
+}
+
+// *********************************************************************************************************************
+// RELEASE BUILDS
+// *********************************************************************************************************************
+
+task assembleReleaseCI (dependsOn: ['assembleRelease']) {
+  description = 'Assembles all Release builds for CI'
+}
+
+task buildReleaseCI (dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', 'pmd', 'lintRelease']) {
+  description = 'Assembles all Release builds and performs static analysis for CI.'
+}
+
+// *********************************************************************************************************************
+// ACCEPTANCE TESTS
+// *********************************************************************************************************************
+
+task assembleAcceptanceTest(dependsOn: ['assembleDebugTest']) {
+  description 'Assembles all the Test applications.'
+}
+
+// WIP!!!
+//task runAcceptanceTestsSdk19(type: Exec) {
+//  description 'Runs the acceptance tests on SDK 19 devices from the CI using Rubotium.'
+//  def apkDir        = 'app/build/outputs/apk/'
+//  def runner        = "com.soundcloud.android.framework.runner.RandomizingRunner"
+//  def findTestApp   = "`find ${apkDir} -name \"app-debug-androidTest-unaligned.apk\"`"
+//  def findApp       = "`find ${apkDir} -regex \".*soundcloud-android-[0-9\\.]+-debug\\.apk\"`"
+//  def findHelperApp = "`find ${apkDir} -name \"soundcloud-android-network-manager-*-debug.apk\"`"
+//
+//  commandLine "rubotium", "-t", "${findTestApp}", "-a", "${findApp}", "-r", "${runner}", "--sdk=19", "-d", "Nexus"
+//  //, "-H", "${findHelperApp}"
+//}

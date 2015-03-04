@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.PropertySet;
@@ -45,6 +46,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private final ScModelManager modelManager;
     private final PlayQueueOperations playQueueOperations;
+    private final PolicyOperations policyOperations;
     private final EventBus eventBus;
     private int currentPosition;
     private boolean currentTrackIsUserTriggered;
@@ -68,11 +70,13 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     public PlayQueueManager(Context context,
                             PlayQueueOperations playQueueOperations,
                             EventBus eventBus,
-                            ScModelManager modelManager) {
+                            ScModelManager modelManager,
+                            PolicyOperations policyOperations) {
         this.context = context;
         this.playQueueOperations = playQueueOperations;
         this.eventBus = eventBus;
         this.modelManager = modelManager;
+        this.policyOperations = policyOperations;
     }
 
 
@@ -94,7 +98,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         saveQueue();
         saveCurrentProgress(0L);
 
-        fireAndForget(playQueueOperations.fetchAndStorePolicies(playQueue.getTrackUrns()));
+        fireAndForget(policyOperations.fetchAndStorePolicies(playQueue.getTrackUrns()));
     }
 
     @Deprecated

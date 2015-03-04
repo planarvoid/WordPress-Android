@@ -1,7 +1,6 @@
 package com.soundcloud.android.sync.entities;
 
 import com.google.common.collect.Collections2;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.PropertySetSource;
@@ -42,9 +41,9 @@ public class EntitySyncJob implements SyncJob {
     public void run() {
         try {
             if (!urns.isEmpty()) {
-                ModelCollection<PropertySetSource> collection = fetchResources.with(urns).call();
+                List<PropertySetSource> collection = fetchResources.with(urns).call();
                 storeResources.with(collection).call();
-                updatedPropertySets = Collections2.transform(collection.getCollection(), GuavaFunctions.toPropertySet());
+                updatedPropertySets = Collections2.transform(collection, GuavaFunctions.toPropertySet());
             }
         } catch (Exception e) {
             ErrorUtils.handleThrowable(e, this.getClass());

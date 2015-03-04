@@ -4,7 +4,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
@@ -23,11 +26,15 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
 
     private final Resources resources;
     private final ImageOperations imageOperations;
+    private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations) {
+    public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations, PlaylistItemMenuPresenter playlistItemMenuPresenter, FeatureFlags featureFlags) {
         this.resources = resources;
         this.imageOperations = imageOperations;
+        this.playlistItemMenuPresenter = playlistItemMenuPresenter;
+        this.featureFlags = featureFlags;
     }
 
     @Override
@@ -46,6 +53,20 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
         showAdditionalInformation(itemView, playlist);
 
         loadArtwork(itemView, playlist);
+        setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist);
+    }
+
+    private void setupOverFlow(final View button, final PropertySet playlist) {
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    playlistItemMenuPresenter.show(button, playlist);
+                }
+            });
+        } else {
+            button.setVisibility(View.GONE);
+        }
     }
 
     private void showTrackCount(View itemView, PropertySet propertySet) {

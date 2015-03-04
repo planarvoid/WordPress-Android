@@ -35,7 +35,7 @@ dependencies {
   testCompile project(path: androidProject, configuration: 'debugCompile')
   testCompile debugVariant.javaCompile.classpath
   testCompile debugVariant.javaCompile.outputs.files
-  testCompile files(androidModule.plugins.findPlugin("com.android.application").getBootClasspath())
+  testCompile files(androidModule.android.bootClasspath)
 
   //Since we are using a repack of guava, and for testing
   //scope we need the full library, this dependency must be

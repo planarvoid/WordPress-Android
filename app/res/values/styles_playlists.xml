@@ -78,12 +78,30 @@
         <item name="android:layout_marginTop">60dip</item>
     </style>
 
-    <style name="PlaylistActionContainer">
+    <style name="LegacyPlaylistActionContainer">
         <item name="android:gravity">center_vertical</item>
-        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingTop">6dp</item>
         <item name="android:paddingBottom">6dp</item>
+    </style>
+
+    <style name="NewPlaylistActionContainer">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingLeft">@dimen/list_item_padding_left</item>
+        <item name="android:paddingRight">6dp</item>
+    </style>
+
+    <style name="PlaylistInfo" parent="ListItemText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">@color/list_primary</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:gravity">left</item>
+        <item name="android:paddingRight">@dimen/list_item_padding_right</item>
     </style>
 
     <style name="PlaylistAction">

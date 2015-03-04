@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.menu;
 
-import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
+import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 
 import android.content.Context;
 import android.support.v7.widget.PopupMenu;
@@ -28,7 +28,7 @@ public class PopupMenuWrapperCompat implements PopupMenuWrapper {
     }
 
     @Override
-    public void setOnMenuItemClickListener(final TrackMenuWrapperListener listener) {
+    public void setOnMenuItemClickListener(final PopupMenuWrapperListener listener) {
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
@@ -38,7 +38,7 @@ public class PopupMenuWrapperCompat implements PopupMenuWrapper {
     }
 
     @Override
-    public void setOnDismissListener(final TrackMenuWrapperListener listener) {
+    public void setOnDismissListener(final PopupMenuWrapperListener listener) {
         popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
             @Override
             public void onDismiss(PopupMenu menu) {

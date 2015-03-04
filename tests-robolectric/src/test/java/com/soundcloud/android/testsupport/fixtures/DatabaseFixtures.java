@@ -50,14 +50,25 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount());
         cv.put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount());
         cv.put(TableColumns.Sounds.COMMENT_COUNT, track.getStats().getCommentsCount());
-        cv.put(TableColumns.Sounds.POLICY, track.getPolicy());
         cv.put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl());
         cv.put(TableColumns.Sounds.SHARING, track.getSharing().value());
         cv.put(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime());
 
         final long id = insertInto(Table.Sounds, cv);
         track.setId(id);
+
+        insertPolicy(track);
         return id;
+    }
+
+    private long insertPolicy(ApiTrack track) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackPolicies.TRACK_ID, track.getId());
+        cv.put(TableColumns.TrackPolicies.POLICY, track.getPolicy());
+        cv.put(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable());
+        cv.put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable());
+
+        return insertInto(Table.TrackPolicies, cv);
     }
 
     public long insertDescription(Urn trackUrn, String description) {
@@ -237,7 +248,7 @@ public class DatabaseFixtures {
         return insertInto(Table.Posts, cv);
     }
 
-    public ApiPost insertTrackPost(ApiPost apiPost){
+    public ApiPost insertTrackPost(ApiPost apiPost) {
         insertTrackPost(apiPost.getTargetUrn().getNumericId(),
                 apiPost.getCreatedAt().getTime(),
                 apiPost.isRepost());

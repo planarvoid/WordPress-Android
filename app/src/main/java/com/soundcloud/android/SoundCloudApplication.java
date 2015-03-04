@@ -8,6 +8,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
@@ -42,6 +43,7 @@ import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
@@ -99,6 +101,7 @@ public class SoundCloudApplication extends Application {
     @Inject CryptoOperations cryptoOperations;
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject CastSessionReconnector castSessionReconnector;
+    @Inject ScreenProvider screenProvider;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -136,6 +139,7 @@ public class SoundCloudApplication extends Application {
 
         if (applicationProperties.isDevBuildRunningOnDevice() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
+            Log.i(TAG, DeviceHelper.getBuildInfo());
         }
 
         memoryReporter.reportSystemMemoryStats();
@@ -160,6 +164,7 @@ public class SoundCloudApplication extends Application {
         playSessionStateProvider.subscribe();
         playbackNotificationController.subscribe();
         adsController.subscribe();
+        screenProvider.subscribe();
 
         if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
             castSessionReconnector.startListening();

@@ -1,5 +1,6 @@
 package com.soundcloud.android.utils;
 
+import com.google.common.base.Objects;
 import com.google.common.hash.Hashing;
 import com.soundcloud.android.R;
 import org.jetbrains.annotations.Nullable;
@@ -110,5 +111,17 @@ public class DeviceHelper {
 
     public int getCurrentOrientation() {
         return context.getResources().getConfiguration().orientation;
+    }
+
+    public static String getBuildInfo(){
+        return Objects.toStringHelper("Build")
+                .add("Brand",Build.BRAND)
+                .add("Device",Build.DEVICE)
+                .add("Hardware",Build.HARDWARE)
+                .add("Manufacturer",Build.MANUFACTURER)
+                .add("Model",Build.MODEL)
+                .add("Product",Build.PRODUCT)
+                .add("Type",Build.TYPE)
+                .toString();
     }
 }

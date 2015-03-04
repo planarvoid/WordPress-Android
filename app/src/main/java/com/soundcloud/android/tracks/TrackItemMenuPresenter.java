@@ -2,12 +2,13 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.playback.ui.TrackMenuWrapperListener;
+import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -22,34 +23,32 @@ import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public final class TrackItemMenuController implements TrackMenuWrapperListener {
-    private final PlayQueueManager playQueueManager;
+public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final LoadTrackCommand loadTrackCommand;
     private final Context context;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
+    private final ScreenProvider screenProvider;
 
     private FragmentActivity activity;
     private PropertySet track;
     private Subscription trackSubscription = Subscriptions.empty();
 
     @Inject
-    TrackItemMenuController(PlayQueueManager playQueueManager,
-                            PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                            LoadTrackCommand loadTrackCommand,
-                            EventBus eventBus, Context context,
-                            LikeOperations likeOperations) {
-        this.playQueueManager = playQueueManager;
+    TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                           LoadTrackCommand loadTrackCommand,
+                           EventBus eventBus, Context context,
+                           LikeOperations likeOperations, ScreenProvider screenProvider) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.loadTrackCommand = loadTrackCommand;
         this.eventBus = eventBus;
         this.context = context;
         this.likeOperations = likeOperations;
+        this.screenProvider = screenProvider;
     }
 
     public void show(FragmentActivity activity, View button, PropertySet track) {
@@ -101,7 +100,8 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
     }
 
     private void showAddToPlaylistDialog() {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, ScreenElement.LIST.get(), playQueueManager.getScreenTag());
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, ScreenElement.LIST.get(),
+                screenProvider.getLastScreenTag());
         from.show(activity.getSupportFragmentManager());
     }
 
@@ -111,7 +111,8 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
         getToggleLikeObservable(addLike)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context, addLike));
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(), playQueueManager.getScreenTag(), trackUrn));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
+                screenProvider.getLastScreenTag(), trackUrn));
     }
 
     private Observable<PropertySet> getToggleLikeObservable(boolean addLike) {
@@ -144,27 +145,4 @@ public final class TrackItemMenuController implements TrackMenuWrapperListener {
         }
     }
 
-    private static class LikeToggleSubscriber extends DefaultSubscriber<PropertySet> {
-        private final Context context;
-        private final boolean likeStatus;
-
-        LikeToggleSubscriber(Context context, boolean likeStatus) {
-            this.context = context;
-            this.likeStatus = likeStatus;
-        }
-
-        @Override
-        public void onNext(PropertySet ignored) {
-            if (likeStatus) {
-                Toast.makeText(context, R.string.like_toast_overflow_action, Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, R.string.unlike_toast_overflow_action, Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            Toast.makeText(context, R.string.like_error_toast_overflow_action, Toast.LENGTH_SHORT).show();
-        }
-    }
 }

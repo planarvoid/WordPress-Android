@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/NewPlaylistActionContainer"
+              android:orientation="horizontal"
+              android:gravity="center_vertical">
+    <TextView
+        style="@style/PlaylistInfo"
+        android:id="@+id/playlist_info_text"/>
+
+    <com.soundcloud.android.view.CustomToggleButton
+        style="@style/PlaylistAction.ToggleButton.Like"
+        android:id="@+id/toggle_like"
+        android:layout_width="wrap_content"/>
+
+    <ImageView android:id="@+id/overflow_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/ListItemOverflowButton"
+        android:layout_gravity="bottom|end"/>
+
+</LinearLayout>

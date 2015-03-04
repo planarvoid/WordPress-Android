@@ -14,8 +14,12 @@ public final class ScreenEvent extends TrackingEvent {
         return new ScreenEvent(screen);
     }
 
-    private ScreenEvent(String screen) {
+    private ScreenEvent(String screenTag) {
         super(TrackingEvent.KIND_DEFAULT, System.currentTimeMillis());
-        put(KEY_SCREEN, screen);
+        put(KEY_SCREEN, screenTag);
+    }
+
+    public String getScreenTag() {
+        return get(KEY_SCREEN);
     }
 }

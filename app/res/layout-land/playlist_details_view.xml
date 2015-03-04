@@ -34,12 +34,12 @@
                                                 android:layout_marginRight="@dimen/playlist_header_padding"
                                                 style="@style/PlaylistTitle" />
 
-    <include layout="@layout/playlist_action_bar"
-             android:id="@+id/playlist_action_bar"
-             android:layout_toRightOf="@id/artwork_container"
-             android:layout_alignParentBottom="true"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content" />
+    <FrameLayout
+        android:id="@+id/playlist_action_bar_holder"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/artwork_container"
+        android:layout_alignParentBottom="true" />
 
     <View
         android:layout_below="@id/artwork_container"

@@ -88,6 +88,10 @@ class PlaylistInfo {
         return sourceSet.get(PlaylistProperty.PERMALINK_URL);
     }
 
+    public boolean isOfflineAvailable() {
+        return sourceSet.get(PlaylistProperty.IS_MARKED_FOR_OFFLINE);
+    }
+
     @Deprecated // we should avoid this, but apparently we need it to like something currently
     public PropertySet getSourceSet() {
         return sourceSet;

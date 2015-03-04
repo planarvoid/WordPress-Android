@@ -5,7 +5,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
@@ -35,9 +34,7 @@ public class EntitySyncJobTest {
 
     @Test
     public void resolvesUrnsToFullTracksAndStoresThemLocally() throws Exception {
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>();
-        final List<ApiTrack> collection = ModelFixtures.create(ApiTrack.class, 2);
-        tracks.setCollection(collection);
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
         when(fetchResources.call()).thenReturn(tracks);
 
         entitySyncJob.setUrns(Arrays.asList(Urn.forTrack(123L)));
@@ -49,15 +46,13 @@ public class EntitySyncJobTest {
 
     @Test
     public void resolvesUrnsToFullTracksAndReturnsThemAsUpdated() throws Exception {
-        final ModelCollection<ApiTrack> tracks = new ModelCollection<>();
-        final List<ApiTrack> collection = ModelFixtures.create(ApiTrack.class, 2);
-        tracks.setCollection(collection);
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
         when(fetchResources.call()).thenReturn(tracks);
 
         entitySyncJob.setUrns(Arrays.asList(Urn.forTrack(123L)));
         entitySyncJob.run();
 
-        expect(entitySyncJob.getUpdatedEntities()).toContainExactly(collection.get(0).toPropertySet(), collection.get(1).toPropertySet());
+        expect(entitySyncJob.getUpdatedEntities()).toContainExactly(tracks.get(0).toPropertySet(), tracks.get(1).toPropertySet());
     }
 
 

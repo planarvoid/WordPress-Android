@@ -11,6 +11,7 @@ def buildSrcDir = 'buildsystem'
 apply from: "${buildSrcDir}/versionizer.gradle"
 apply from: "${buildSrcDir}/static_analysis.gradle"
 apply from: "${buildSrcDir}/ci.gradle"
+apply from: "${buildSrcDir}/networkmanager.gradle"
 
 apply plugin: 'com.android.application'
 apply plugin: 'maven'

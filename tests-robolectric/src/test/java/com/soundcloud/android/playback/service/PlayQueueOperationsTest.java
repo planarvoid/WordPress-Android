@@ -1,12 +1,10 @@
 package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -21,15 +19,12 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.api.model.PolicyInfo;
 import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.matchers.ApiRequestTo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.ChangeResult;
-import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -55,7 +50,6 @@ public class PlayQueueOperationsTest {
 
     @Mock private Context context;
     @Mock private PlayQueueStorage playQueueStorage;
-    @Mock private StorePoliciesCommand storePoliciesCommand;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
@@ -70,7 +64,7 @@ public class PlayQueueOperationsTest {
     public void before() throws CreateModelException {
         when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
 
-        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, storeTracksCommand, storePoliciesCommand, apiScheduler);
+        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, storeTracksCommand, apiScheduler);
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -201,20 +195,6 @@ public class PlayQueueOperationsTest {
 
         verify(storeTracksCommand).call();
         expect(storeTracksCommand.getInput()).toBe(collection);
-    }
-
-    @Test
-    public void fetchAndStorePoliciesMakeGetRequestToRelatedTracksEndpoint() throws PropellerWriteException {
-        ModelCollection returnCollection = new ModelCollection();
-
-        final ApiRequestTo expectedRequest = isApiRequestTo("POST", ApiEndpoints.POLICIES.path());
-        expectedRequest.withContent(Lists.newArrayList("soundcloud:tracks:123"));
-
-        when(apiScheduler.mappedResponse(argThat(expectedRequest))).thenReturn(Observable.<Object>just(returnCollection));
-        final ModelCollection<PolicyInfo> first = playQueueOperations.fetchAndStorePolicies(Lists.newArrayList(Urn.forTrack(123))).toBlocking().first();
-        expect(first).toBe(returnCollection);
-
-        verify(storePoliciesCommand).call();
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {

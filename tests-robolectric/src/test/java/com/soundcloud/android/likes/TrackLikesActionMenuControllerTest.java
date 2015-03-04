@@ -47,7 +47,7 @@ public class TrackLikesActionMenuControllerTest {
 
     @Test
     public void onCreateMenuWhenLikesOfflineSyncIsEnabledSetsActionMenuToRemoveSyncState() {
-        when(offlineOperations.getSettingsStatus()).thenReturn(Observable.<Boolean>empty());
+        when(offlineOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.<Boolean>empty());
         when(offlineOperations.isOfflineLikesEnabled()).thenReturn(true);
 
         controller.onResume(fragment);
@@ -58,7 +58,7 @@ public class TrackLikesActionMenuControllerTest {
 
     @Test
     public void onCreateMenuWhenLikesOfflineSyncIsDisabledSetsActionMenuToStartSyncState() {
-        when(offlineOperations.getSettingsStatus()).thenReturn(Observable.<Boolean>empty());
+        when(offlineOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.<Boolean>empty());
         when(offlineOperations.isOfflineLikesEnabled()).thenReturn(false);
 
         controller.onResume(fragment);
@@ -69,7 +69,7 @@ public class TrackLikesActionMenuControllerTest {
 
     @Test
     public void likeSettingsEnableEventSetsActionMenuToRemoveSyncState() {
-        when(offlineOperations.getSettingsStatus()).thenReturn(Observable.just(true));
+        when(offlineOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.just(true));
 
         controller.onResume(fragment);
 
@@ -78,7 +78,7 @@ public class TrackLikesActionMenuControllerTest {
 
     @Test
     public void likeSettingsDisableEventSetsActionMenuToStartSyncState() {
-        when(offlineOperations.getSettingsStatus()).thenReturn(Observable.just(false));
+        when(offlineOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.just(false));
 
         controller.onResume(fragment);
 
@@ -87,7 +87,7 @@ public class TrackLikesActionMenuControllerTest {
 
     @Test
     public void onResumeInvalidatesOptionsMenu() {
-        when(offlineOperations.getSettingsStatus()).thenReturn(Observable.<Boolean>empty());
+        when(offlineOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.<Boolean>empty());
 
         controller.onResume(fragment);
 

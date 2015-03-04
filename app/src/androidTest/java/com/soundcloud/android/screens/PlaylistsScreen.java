@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 
@@ -15,6 +16,11 @@ public class PlaylistsScreen extends Screen {
 
     public PlaylistsScreen(Han solo) {
         super(solo);
+    }
+
+    public PlaylistItemElement get(int index) {
+        final ListElement listElement = playlistsListOnCurrentPage();
+        return new PlaylistItemElement(testDriver, listElement.getItemAt(index));
     }
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {

@@ -11,6 +11,8 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +20,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -28,19 +31,39 @@ public class FetchTracksCommandTest {
     @Mock private ApiClient apiClient;
 
     @Before
-    public void setup() {
-        command = new FetchTracksCommand(apiClient);
+    public void setUp() throws Exception {
+        command = new FetchTracksCommand(apiClient, 2);
     }
 
     @Test
     public void shouldResolveUrnsToFullTracksViaApiMobile() throws Exception {
-        Map body = new HashMap();
-        body.put("urns", Arrays.asList("soundcloud:tracks:1", "soundcloud:tracks:2"));
-        ModelCollection<ApiTrack> tracks = new ModelCollection<>();
-        when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.TRACKS_FETCH.path()).withContent(body)))).thenReturn(tracks);
-        ModelCollection<ApiTrack> result = command.with(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2))).call();
-        expect(result).toBe(tracks);
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
+        final List<Urn> urns = Arrays.asList(tracks.get(0).getUrn(), tracks.get(1).getUrn());
+
+        setupRequest(urns, tracks);
+
+        List<ApiTrack> result = command.with(urns).call();
+        expect(result).toEqual(tracks);
     }
 
+    @Test
+    public void shouldResolveUrnsToFullTracksViaApiMobileInPages() throws Exception {
+        final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 3);
+        final List<Urn> urns = Arrays.asList(tracks.get(0).getUrn(), tracks.get(1).getUrn(), tracks.get(2).getUrn());
+
+        setupRequest(urns.subList(0, 2), tracks.subList(0, 2));
+        setupRequest(urns.subList(2, 3), tracks.subList(2, 3));
+
+        List<ApiTrack> result = command.with(urns).call();
+        expect(result).toEqual(tracks);
+    }
+
+    private void setupRequest(List<Urn> urns, List<ApiTrack> tracks) throws Exception {
+        Map body = new HashMap();
+        body.put("urns", CollectionUtils.urnsToStrings(urns));
+
+        when(apiClient.fetchMappedResponse(argThat(
+                isApiRequestTo("POST", ApiEndpoints.TRACKS_FETCH.path()).withContent(body))))
+                .thenReturn(new ModelCollection<>(tracks));
+    }
 }

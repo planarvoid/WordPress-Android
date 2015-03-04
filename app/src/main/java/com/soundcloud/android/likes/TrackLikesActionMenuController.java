@@ -38,7 +38,7 @@ public class TrackLikesActionMenuController extends DefaultSupportFragmentLightC
     public void onResume(Fragment fragment) {
         actionMenuController = actionMenuControllerProvider.get();
         fragment.getActivity().supportInvalidateOptionsMenu();
-        subscription = offlineOperations.getSettingsStatus().subscribe(new OfflineLikesSettingSubscriber());
+        subscription = offlineOperations.getOfflineLikesSettingsStatus().subscribe(new OfflineLikesSettingSubscriber());
     }
 
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
