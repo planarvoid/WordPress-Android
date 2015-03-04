@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
@@ -20,39 +21,17 @@ public class OfflineContentController {
     private final Context context;
     private final OfflineSettingsStorage settingStorage;
 
-    private final Observable<EntityStateChangedEvent> likedTracks;
-    private final Observable<SyncResult> syncedLikes;
-    private final Observable<Boolean> featureEnabled;
-    private final Observable<Boolean> featureDisabled;
-
-    private static final Func1<Boolean, Boolean> IS_DISABLED = new Func1<Boolean, Boolean>() {
-        @Override
-        public Boolean call(Boolean isEnabled) {
-            return !isEnabled;
-        }
-    };
-
-    private static final Func1<Boolean, Boolean> IS_ENABLED = new Func1<Boolean, Boolean>() {
-        @Override
-        public Boolean call(Boolean isEnabled) {
-            return isEnabled;
-        }
-    };
+    private final Observable<EntityStateChangedEvent> trackLikeChanged;
+    private final Observable<EntityStateChangedEvent> offlinePlaylistChanged;
+    private final Observable<SyncResult> likesSynced;
+    private final Observable<Boolean> offlineLikesEnabled;
+    private final Observable<Boolean> offlineLikesDisabled;
 
     private static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
         @Override
         public Boolean call(SyncResult syncResult) {
             return syncResult.wasChanged()
                     && syncResult.getAction().equals(SyncActions.SYNC_TRACK_LIKES);
-        }
-    };
-
-    private static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_LIKED_OR_PLAYLIST_OFFLINE_CHANGE = new Func1<EntityStateChangedEvent, Boolean>() {
-        @Override
-        public Boolean call(EntityStateChangedEvent event) {
-            final boolean isPlaylistOfflineContentChangeEvent = event.getNextUrn().isPlaylist() && event.getKind() == EntityStateChangedEvent.MARKED_FOR_OFFLINE;
-            final boolean isTrackLikeChangeEvent = event.getNextUrn().isTrack() && event.getKind() == EntityStateChangedEvent.LIKE;
-            return isPlaylistOfflineContentChangeEvent || isTrackLikeChangeEvent;
         }
     };
 
@@ -70,24 +49,26 @@ public class OfflineContentController {
         this.context = context;
         this.settingStorage = settingsStorage;
 
-        this.likedTracks = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_LIKED_OR_PLAYLIST_OFFLINE_CHANGE);
-        this.syncedLikes = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
-        this.featureEnabled = settingsStorage.getOfflineLikesChanged().filter(IS_ENABLED);
-        this.featureDisabled = settingsStorage.getOfflineLikesChanged().filter(IS_DISABLED);
+        this.offlineLikesEnabled = settingsStorage.getOfflineLikesChanged().filter(RxUtils.IS_TRUE);
+        this.offlineLikesDisabled = settingsStorage.getOfflineLikesChanged().filter(RxUtils.IS_FALSE);
+        this.trackLikeChanged = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER);
+        this.offlinePlaylistChanged = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER);
+        this.likesSynced = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
     }
 
     public void subscribe() {
         subscription = new CompositeSubscription(
                 startOfflineContent().subscribe(new OfflineContentServiceSubscriber(context, true)),
-                featureDisabled.subscribe(new OfflineContentServiceSubscriber(context, false))
+                offlineLikesDisabled.subscribe(new OfflineContentServiceSubscriber(context, false))
         );
     }
 
     private Observable<?> startOfflineContent() {
         return Observable
-                .merge(featureEnabled,
-                        syncedLikes.filter(isOfflineLikesEnabled),
-                        likedTracks.filter(isOfflineLikesEnabled)
+                .merge(offlineLikesEnabled,
+                        offlinePlaylistChanged,
+                        likesSynced.filter(isOfflineLikesEnabled),
+                        trackLikeChanged.filter(isOfflineLikesEnabled)
                 );
     }
 
