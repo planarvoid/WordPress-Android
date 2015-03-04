@@ -93,17 +93,21 @@ public class PlaybackOperations {
         return playTracks(trackUrns, trackUrns.get(position), position, playSessionSource);
     }
 
-    public Observable<List<Urn>> playTracks(List<Urn> trackUrns, Urn trackUrn, int position, PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playTracks(List<Urn> trackUrns, Urn trackUrn, int position,
+                                            PlaySessionSource playSessionSource) {
         return playTracksList(Observable.from(trackUrns).toList(), trackUrn, position, playSessionSource, false);
     }
 
-    public Observable<List<Urn>> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int position, PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int position,
+                                            PlaySessionSource playSessionSource) {
         return playTracksList(allTracks, initialTrack, position, playSessionSource, false);
     }
 
     @Deprecated
-    public Observable<List<Urn>> playTracksFromUri(Uri uri, final int startPosition, final Urn initialTrack, final PlaySessionSource playSessionSource) {
-        return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition, playSessionSource, false);
+    public Observable<List<Urn>> playTracksFromUri(Uri uri, final int startPosition, final Urn initialTrack,
+                                                   final PlaySessionSource playSessionSource) {
+        return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition,
+                playSessionSource, false);
     }
 
     public Observable<List<Urn>> playTrackWithRecommendations(Urn track, PlaySessionSource playSessionSource) {
@@ -116,7 +120,8 @@ public class PlaybackOperations {
         return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, true);
     }
 
-    public Observable<List<Urn>> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable, PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
+                                                    PlaySessionSource playSessionSource) {
         return trackUrnsObservable
                 .filter(FILTER_EMPTY_TRACK_LIST)
                 .map(SHUFFLE_TRACKS)
@@ -124,7 +129,9 @@ public class PlaybackOperations {
                 .doOnNext(playNewQueueAction(0, playSessionSource, Urn.NOT_SET, true));
     }
 
-    private Observable<List<Urn>> playTracksList(Observable<List<Urn>> trackUrns, final Urn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, boolean loadRelated) {
+    private Observable<List<Urn>> playTracksList(Observable<List<Urn>> trackUrns, final Urn initialTrack,
+                                                 final int startPosition, final PlaySessionSource playSessionSource,
+                                                 boolean loadRelated) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
             return Observable.empty();
         }
@@ -142,7 +149,8 @@ public class PlaybackOperations {
         return new Action1<List<Urn>>() {
             @Override
             public void call(List<Urn> trackUrns) {
-                final int updatedPosition = correctStartPositionAndDeduplicateList(trackUrns, startPosition, initialTrackUrn);
+                final int updatedPosition = correctStartPositionAndDeduplicateList(
+                        trackUrns, startPosition, initialTrackUrn);
                 playNewQueue(trackUrns, updatedPosition, playSessionSource);
                 if (loadRecommended) {
                     playQueueManager.fetchTracksRelatedToCurrentTrack();
