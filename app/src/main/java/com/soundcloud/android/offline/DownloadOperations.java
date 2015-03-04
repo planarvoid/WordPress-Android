@@ -3,10 +3,12 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
+import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
+import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -21,6 +23,7 @@ class DownloadOperations {
     private final PlayQueueManager playQueueManager;
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
+    private final UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval;
 
     @Inject
     public DownloadOperations(StrictSSLHttpClient httpClient,
@@ -28,13 +31,15 @@ class DownloadOperations {
                               DeletePendingRemovalCommand deleteOfflineContent,
                               PlayQueueManager playQueueManager,
                               NetworkConnectionHelper connectionHelper,
-                              OfflineSettingsStorage offlineSettings) {
+                              OfflineSettingsStorage offlineSettings,
+                              UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
         this.playQueueManager = playQueueManager;
         this.connectionHelper = connectionHelper;
         this.offlineSettings = offlineSettings;
+        this.updateContentAsPendingRemoval = updateContentAsPendingRemoval;
     }
 
     boolean isValidNetwork() {
@@ -43,6 +48,10 @@ class DownloadOperations {
 
     Observable<List<Urn>> deletePendingRemovals() {
         return deleteOfflineContent.with(playQueueManager.getCurrentTrackUrn()).toObservable();
+    }
+
+    Observable<WriteResult> updateContentAsPendingRemoval() {
+        return updateContentAsPendingRemoval.toObservable();
     }
 
     void deleteTrack(Urn urn) {

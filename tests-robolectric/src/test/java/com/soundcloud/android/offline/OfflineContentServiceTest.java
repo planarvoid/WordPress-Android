@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.propeller.WriteResult;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,7 @@ public class OfflineContentServiceTest {
     private final DownloadResult failedResult1 = DownloadResult.failed(Urn.forTrack(123L));
 
     private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
+    private TestObservables.MockObservable<WriteResult> updateContentAsPendingRemoval;
     private OfflineContentService service;
     private TestEventBus eventBus;
     private Message downloadMessage;
@@ -56,12 +58,14 @@ public class OfflineContentServiceTest {
     @Before
     public void setUp() {
         deletePendingRemoval = TestObservables.emptyObservable();
+        updateContentAsPendingRemoval = TestObservables.emptyObservable();
         eventBus = new TestEventBus();
 
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
                 eventBus, offlineContentScheduler, handlerFactory, Schedulers.immediate());
 
         when(downloadOperations.deletePendingRemovals()).thenReturn(deletePendingRemoval);
+        when(downloadOperations.updateContentAsPendingRemoval()).thenReturn(updateContentAsPendingRemoval);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         downloadMessage = new Message();
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
@@ -71,8 +75,15 @@ public class OfflineContentServiceTest {
     }
 
     @Test
+    public void updateOfflineLikesWhenOfflineLikesDisabled() {
+        stopService();
+
+        expect(updateContentAsPendingRemoval.subscribedTo()).toBeTrue();
+    }
+
+    @Test
     public void deletePendingRemovalsWhenStarting() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
 
@@ -81,7 +92,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void startsSyncingWhenALikedTrackIsNotSynced() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
 
@@ -90,7 +101,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void doesNotStartSyncingWhenAllLikedTracksAreSynced() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
 
         startService();
 
@@ -99,7 +110,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void sendsDownloadStartedEventWhenDownloadingLikedTrack() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
 
@@ -111,7 +122,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void sendsStartAndStopEventIfServiceRunsButHasNoTracksToDownload() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(Observable.just(Collections.<DownloadRequest>emptyList()));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(Observable.just(Collections.<DownloadRequest>emptyList()));
 
         startService();
 
@@ -129,7 +140,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void sendsDownloadStartedEventWhenLikedTrackDownloadStarted() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
 
@@ -140,7 +151,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void sendsDownloadSucceededEventWhenLikedTrackDownloaded() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
         service.onSuccess(downloadResult1);
@@ -157,7 +168,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void sendsDownloadFailedEventWhenLikedTrackDownloadFailed() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
         service.onError(downloadResult1);
@@ -174,7 +185,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void stopAndScheduleRetryWhenTrackDownloadFailed() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
         service.onError(failedResult1);
@@ -185,7 +196,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void connectionErrorNotificationWhenTrackDownloadFailed() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
         service.onError(failedResult1);
@@ -195,7 +206,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void continueDownloadNextTrackWhenTrackUnavailableForDownload() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
 
         startService();
         service.onError(unavailableTrackResult1);
@@ -206,7 +217,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void stopAndScheduleRetryWhenNoValidNetworkOnNewDownload() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
 
         startService();
         when(downloadOperations.isValidNetwork()).thenReturn(false);
@@ -218,7 +229,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void showsNotificationWhenDownloadingLikedTrack() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
 
         startService();
 
@@ -227,7 +238,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void updatesNotificationWhenAnotherTrackLikedDuringDownload() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest2, createDownloadRequest(678)));
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest2, createDownloadRequest(678)));
         when(downloadHandler.isDownloading()).thenReturn(true);
 
         startService();
@@ -251,7 +262,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void startServiceWithDownloadActionDoesNotCreateNotificationWhenNoPendingDownloadsExists() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
 
         startService();
 
@@ -261,7 +272,7 @@ public class OfflineContentServiceTest {
     @Test
     public void startServiceWithCancelDownloadActionStopRequestProcessing() {
         PublishSubject<List<DownloadRequest>> pendingRequestsSubject = PublishSubject.create();
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(pendingRequestsSubject);
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(pendingRequestsSubject);
 
         startService();
         stopService();
@@ -273,7 +284,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void startServiceWithDownloadActionCancelsAnyExistingRetryScheduling() {
-        when(offlineContentOperations.updateDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
 
         startService();
 

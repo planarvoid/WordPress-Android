@@ -110,13 +110,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .subscribeOn(scheduler));
 
             loadRequestsSubscription = offlineContentOperations
-                    .updateDownloadRequests()
+                    .loadDownloadRequests()
                     .subscribeOn(scheduler)
                     .doOnNext(sendDownloadRequestsUpdated)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new DownloadSubscriber());
 
         } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
+            fireAndForget(downloadOperations.updateContentAsPendingRemoval().subscribeOn(scheduler));
             stop();
         }
         return START_NOT_STICKY;
