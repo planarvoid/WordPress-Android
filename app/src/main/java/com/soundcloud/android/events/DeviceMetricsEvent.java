@@ -1,8 +1,11 @@
 package com.soundcloud.android.events;
 
+import android.os.Build;
+
 public final class DeviceMetricsEvent extends TrackingEvent {
     private static final int ONE_MB = 1024 * 1024;
 
+    public static final String KEY_HARDWARE = "hardware";
     public static final String KEY_DATABASE = "database_size";
 
     private DeviceMetricsEvent(String kind) {
@@ -11,7 +14,8 @@ public final class DeviceMetricsEvent extends TrackingEvent {
 
     public static TrackingEvent forDatabaseSize(long databaseSizeInBytes) {
         return new DeviceMetricsEvent(KEY_DATABASE)
-                .put(KEY_DATABASE, toDatabaseSizeBucket(databaseSizeInBytes));
+                .put(KEY_DATABASE, toDatabaseSizeBucket(databaseSizeInBytes))
+                .put(KEY_HARDWARE, Build.HARDWARE);
     }
 
     private static String toDatabaseSizeBucket(long sizeInBytes) {
