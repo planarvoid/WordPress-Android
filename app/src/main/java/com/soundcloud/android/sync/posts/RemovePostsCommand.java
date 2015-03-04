@@ -9,10 +9,12 @@ import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.WhereBuilder;
 
+import javax.inject.Inject;
 import java.util.Collection;
 
-public class RemovePostsCommand extends StoreCommand<Collection<PropertySet>> {
+class RemovePostsCommand extends StoreCommand<Collection<PropertySet>> {
 
+    @Inject
     RemovePostsCommand(PropellerDatabase database) {
         super(database);
     }

@@ -13,6 +13,7 @@ public enum Flag {
     RELOAD_LAST_PLAYQUEUE(R.bool.feature_reload_last_playqueue),
     PLAYLIST_POSTS_FRAGMENT(R.bool.feature_playlist_posts_fragment),
     NEW_PLAYLIST_SYNCER(R.bool.feature_new_playlist_syncer),
+    NEW_POSTS_SYNCER(R.bool.feature_new_posts_syncer),
     EVENTLOGGER_PAGE_VIEW_EVENTS(R.bool.feature_eventlogger_page_view),
     NEW_PLAYLIST_ENGAGEMENTS(R.bool.feature_new_playlist_engagements);
     private final int resourceId;

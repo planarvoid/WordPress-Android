@@ -10,6 +10,7 @@ import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
 import com.soundcloud.android.sync.playlists.PlaylistSyncer;
+import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
 import com.soundcloud.android.sync.stream.SoundStreamSyncer;
 import dagger.Lazy;
 
@@ -28,6 +29,7 @@ public class ApiSyncerFactory {
     private final Provider<NotificationManager> notificationManagerProvider;
     private final FeatureFlags featureFlags;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
+    private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final JsonTransformer jsonTransformer;
 
@@ -35,13 +37,14 @@ public class ApiSyncerFactory {
     public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
-                            Lazy<MyLikesSyncer> lazyMyLikesSyncer,
+                            Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
                             JsonTransformer jsonTransformer) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
         this.featureFlags = featureFlags;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
+        this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.jsonTransformer = jsonTransformer;
     }
@@ -58,12 +61,19 @@ public class ApiSyncerFactory {
                 }
             case ME_LIKES:
                 return lazyMyLikesSyncer.get();
+
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
                 return new UserAssociationSyncer(
                         context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(), jsonTransformer);
 
             case ME_PLAYLISTS:
+                if (featureFlags.isEnabled(Flag.NEW_POSTS_SYNCER)) {
+                    return lazyPlaylistsSyncer.get();
+                } else {
+                    return new PlaylistSyncer(context, context.getContentResolver());
+                }
+
             case PLAYLIST:
                 return new PlaylistSyncer(context, context.getContentResolver());
 

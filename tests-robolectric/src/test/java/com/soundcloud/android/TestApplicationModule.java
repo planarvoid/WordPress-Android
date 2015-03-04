@@ -33,6 +33,7 @@ import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
 import com.soundcloud.android.sync.likes.LikesSyncer;
+import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
@@ -257,5 +258,9 @@ public class TestApplicationModule {
     @Provides
     NotificationManager provideNotificationManager() { return mock(NotificationManager.class); }
 
+    @Provides
+    MyPlaylistsSyncer provideMyPlaylistsSyncer() {
+        return mock(MyPlaylistsSyncer.class);
+    }
 }
 

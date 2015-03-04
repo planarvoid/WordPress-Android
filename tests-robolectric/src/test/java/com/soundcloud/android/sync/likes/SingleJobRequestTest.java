@@ -8,9 +8,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.sync.ResultReceiverAdapter;
-import com.soundcloud.android.sync.SyncJob;
-import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.android.sync.*;
 import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +26,7 @@ public class SingleJobRequestTest extends TestCase {
 
     private final String ACTION = "action";
 
-    private SingleJobRequest singleJobRequest;
+    private com.soundcloud.android.sync.SingleJobRequest singleJobRequest;
 
     @Mock private DefaultSyncJob syncJob;
     @Mock private ResultReceiver resultReceiver;
@@ -37,7 +35,7 @@ public class SingleJobRequestTest extends TestCase {
 
     @Before
     public void setUp() throws Exception {
-        singleJobRequest = new SingleJobRequest(syncJob, ACTION, true, resultReceiver, eventBus);
+        singleJobRequest = new com.soundcloud.android.sync.SingleJobRequest(syncJob, ACTION, true, resultReceiver, eventBus);
     }
 
     @Test
