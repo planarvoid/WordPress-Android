@@ -43,6 +43,7 @@ import com.soundcloud.android.sync.SyncConfig;
 import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
@@ -138,6 +139,7 @@ public class SoundCloudApplication extends Application {
 
         if (applicationProperties.isDevBuildRunningOnDevice() && !ActivityManager.isUserAMonkey()) {
             setupStrictMode();
+            Log.i(TAG, DeviceHelper.getBuildInfo());
         }
 
         memoryReporter.reportSystemMemoryStats();
