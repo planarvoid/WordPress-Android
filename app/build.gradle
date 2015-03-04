@@ -121,7 +121,7 @@ dependencies {
 
   /* Compile/Dev Time */
   apt libraries.daggerCompiler
-  apt project(":libraries:lightcycle:lightcycle-processor")
+  apt libraries.lightCycleProcessor
   provided libraries.findBugsAnnotations
   provided libraries.findBugsJsr305
   provided libraries.intellijAnnotations
@@ -130,6 +130,7 @@ dependencies {
   compile libraries.propeller
   compile libraries.skippy
   compile libraries.soundCloudVorbisEncoder
+  compile libraries.lightCycle
 
   /* 3rd Party Libraries */
   compile libraries.comscore
@@ -167,11 +168,6 @@ dependencies {
   compile libraries.androidMediaRouterLibrary
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesCast
-
-
-  def lightcycle = project(':libraries:lightcycle:lightcycle-lib')
-  compile lightcycle
-
 
   /* Acceptance Tests */
   androidTestCompile acceptanceTestLibraries.hamcrest

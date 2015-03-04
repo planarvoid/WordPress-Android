@@ -74,6 +74,8 @@ ext {
 
   libraries = [
       daggerCompiler:               "com.squareup.dagger:dagger-compiler:${daggerVersion}",
+      lightCycle:                   project(':libraries:lightcycle:lightcycle-lib'),
+      lightCycleProcessor:          project(":libraries:lightcycle:lightcycle-processor"),
       findBugsAnnotations:          "com.google.code.findbugs:annotations:${findBugsAnnotationVersion}",
       findBugsJsr305:               "com.google.code.findbugs:jsr305:${findBugsJsr305Version}",
       intellijAnnotations:          "com.intellij:annotations:${intellijAnnotationsVersion}",
