@@ -1,4 +1,5 @@
-def apkPath
+// this will get set by renameApk task
+def apkPath = ''
 
 // Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
