@@ -57,6 +57,16 @@ task buildBetaCI(dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd', 
   description = 'Assembles all Beta builds and performs static analysis for CI.'
 }
 
+task deployBeta(type: Exec, dependsOn: ['incrementVersionCode', 'incrementVersionName', 'uploadStoreBeta',
+                                        'commitVersionCodeBump', 'tag', 'uploadGithub']) {
+  description = 'Deploy Beta build to playstore and github.'
+}
+
+task uploadStoreBeta(type: Exec) {
+  description = 'Uploads to Google Play Store.'
+  commandLine 'apublisher','-n', 'com.soundcloud.android', '-a', apkPath, '-t', 'beta', '-d'
+}
+
 // *********************************************************************************************************************
 // RELEASE BUILDS
 // *********************************************************************************************************************
@@ -67,6 +77,25 @@ task assembleReleaseCI(dependsOn: ['renameApk', 'assembleRelease']) {
 
 task buildReleaseCI(dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', 'pmd', 'lintRelease']) {
   description = 'Assembles all Release builds and performs static analysis for CI.'
+}
+
+// *********************************************************************************************************************
+// Rake Wrappers
+// *********************************************************************************************************************
+
+task commitVersionCodeBump(type: Exec) {
+  description = 'Commits versionCode bump to Github. Currently using rake to do so.'
+  commandLine 'rake', 'github:commit_versioncode_bump'
+}
+
+task tag(type: Exec) {
+  description = 'Tags the current version. Currently using rake to do so.'
+  commandLine 'rake', 'tag'
+}
+
+task uploadGithub(type: Exec) {
+  description = 'Creates a new release and uploads to Github. Currently using rake to do so.'
+  commandLine 'rake', 'upload:github'
 }
 
 // *********************************************************************************************************************
