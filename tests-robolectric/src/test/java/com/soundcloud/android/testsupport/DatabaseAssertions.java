@@ -155,8 +155,12 @@ public class DatabaseAssertions {
     }
 
     public void assertPlaylistPostInsertedFor(ApiPlaylist playlist) {
+        assertPlaylistPostInsertedFor(playlist.getUrn());
+    }
+
+    public void assertPlaylistPostInsertedFor(Urn playlistUrn) {
         assertThat(select(from(Table.Posts.name())
-                .whereEq(TableColumns.Posts.TARGET_ID, playlist.getId())
+                .whereEq(TableColumns.Posts.TARGET_ID, playlistUrn.getNumericId())
                 .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)), counts(1));
     }
 
