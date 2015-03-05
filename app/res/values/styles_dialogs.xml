@@ -40,7 +40,7 @@
     </style>
 
     <!-- styles for android-styled-dialogs library -->
-    <style name="DialogStyleLight">
+    <style name="DialogStyleLight.SoundCloud">
         <item name="titleTextColor">@color/dialog_title</item>
         <item name="titleSeparatorColor">@color/dialog_separator</item>
         <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
