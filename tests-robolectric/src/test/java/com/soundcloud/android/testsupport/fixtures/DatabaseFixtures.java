@@ -8,12 +8,12 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
-import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import org.hamcrest.Matchers;
 
@@ -81,6 +81,14 @@ public class DatabaseFixtures {
 
     public ApiPlaylist insertPlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        insertUser(playlist.getUser());
+        insertPlaylist(playlist);
+        return playlist;
+    }
+
+    public ApiPlaylist insertLocalPlaylist() {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setUrn("soundcloud:playlists:-" + 1000 + playlist.getId());
         insertUser(playlist.getUser());
         insertPlaylist(playlist);
         return playlist;
@@ -441,7 +449,7 @@ public class DatabaseFixtures {
 
     public long insertInto(Table table, ContentValues cv) {
         final long id = database.insertWithOnConflict(table.name(), null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-        assertThat(id, Matchers.greaterThanOrEqualTo(0L));
+        assertThat(id, Matchers.not(Matchers.equalTo(-1L)));
         return id;
     }
 
