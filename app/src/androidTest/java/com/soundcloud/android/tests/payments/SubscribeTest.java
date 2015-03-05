@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MainScreen;
@@ -28,11 +29,13 @@ public class SubscribeTest extends ActivityTest<MainActivity> {
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
     }
 
+    @PaymentTest
     public void testUserCanNavigateToSubscribePage() {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         assertThat(subscribeScreen, is(visible()));
     }
 
+    @PaymentTest
     public void testUserIsPresentedSubscribeOption() {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
