@@ -11,7 +11,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
+import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
@@ -37,6 +41,7 @@ public class PlaylistOperationsTest {
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     @Mock private LoadPlaylistCommand loadPlaylistCommand;
     @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
+    @Mock private CreateNewPlaylistCommand createNewPlaylistCommand;
 
     private ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
     final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
@@ -44,7 +49,8 @@ public class PlaylistOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, loadPlaylistCommand, loadPlaylistTrackUrns, loadPlaylistTracksCommand);
+        operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, loadPlaylistCommand,
+                loadPlaylistTrackUrns, loadPlaylistTracksCommand, createNewPlaylistCommand);
     }
 
     @Test
@@ -146,5 +152,17 @@ public class PlaylistOperationsTest {
         inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlistProperties, trackList));
         inOrder.verify(playlistInfoObserver).onCompleted();
         verify(syncInitiator, never()).syncPlaylist(playlistProperties.get(PlaylistProperty.URN));
+    }
+
+    @Test
+    public void shouldCreateNewPlaylistUsingCommand() throws Exception {
+        TestObserver<Urn> observer = new TestObserver<>();
+        final TxnResult txnResult = new TxnResult();
+        txnResult.add(new InsertResult(1L));
+        when(createNewPlaylistCommand.toObservable()).thenReturn(Observable.just((WriteResult) txnResult));
+
+        operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
+
+        observer.assertReceivedOnNext(Arrays.asList(Urn.forPlaylist(1L)));
     }
 }

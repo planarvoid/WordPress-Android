@@ -81,7 +81,7 @@ public class PlaylistsModule {
     PlaylistCreator providePlaylistCreator(FeatureFlags featureFlags,
                                            Lazy<PlaylistOperations> playlistOps,
                                            Lazy<LegacyPlaylistOperations> legacyPlauylistOps) {
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SYNCER)) {
+        if (featureFlags.isEnabled(Flag.NEW_POSTS_SYNCER)) {
             return playlistOps.get();
         } else {
             return legacyPlauylistOps.get();

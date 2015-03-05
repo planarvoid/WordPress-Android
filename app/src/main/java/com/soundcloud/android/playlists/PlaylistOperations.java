@@ -2,7 +2,10 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.TxnResult;
+import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Func1;
@@ -12,12 +15,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-class PlaylistOperations implements PlaylistCreator<PropertySet> {
+class PlaylistOperations implements PlaylistCreator<Urn> {
 
     private final Scheduler storageScheduler;
     private final LoadPlaylistCommand loadPlaylistCommand;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
+    private final CreateNewPlaylistCommand createNewPlaylist;
     private final SyncInitiator syncInitiator;
 
     private final Func2<PropertySet, List<PropertySet>, PlaylistInfo> mergePlaylistWithTracks = new Func2<PropertySet, List<PropertySet>, PlaylistInfo>() {
@@ -31,19 +35,28 @@ class PlaylistOperations implements PlaylistCreator<PropertySet> {
     PlaylistOperations(@Named("Storage") Scheduler scheduler,
                        SyncInitiator syncInitiator, LoadPlaylistCommand loadPlaylistCommand,
                        LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns,
-                       LoadPlaylistTracksCommand loadPlaylistTracksCommand) {
+                       LoadPlaylistTracksCommand loadPlaylistTracksCommand,
+                       CreateNewPlaylistCommand createNewPlaylistCommand) {
 
         this.storageScheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.loadPlaylistCommand = loadPlaylistCommand;
         this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
+        createNewPlaylist = createNewPlaylistCommand;
     }
 
     @Override
-    public Observable<PropertySet> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
-        //TODO
-        return Observable.just(PropertySet.create());
+    public Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
+        return createNewPlaylist.with(new CreateNewPlaylistCommand.Params(title, isPrivate, firstTrackUrn))
+                .toObservable()
+                .map(new Func1<WriteResult, Urn>() {
+                    @Override
+                    public Urn call(WriteResult txnResult) {
+                        final InsertResult insertResult = (InsertResult) ((TxnResult) txnResult).getResults().get(0);
+                        return Urn.forPlaylist(insertResult.getRowId());
+                    }
+                });
     }
 
     Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {

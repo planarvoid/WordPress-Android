@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playlists.CreateNewPlaylistCommand.Params;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
@@ -37,7 +38,7 @@ public class CreateNewPlaylistCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertNewPlaylist() throws Exception {
-        TxnResult txnResult = command.with(new CreateNewPlaylistCommand.Params("title", true, Urn.forTrack(123))).call();
+        TxnResult txnResult = (TxnResult) command.with(new Params("title", true, Urn.forTrack(123))).call();
 
         expect(txnResult.success()).toBeTrue();
         InsertResult insertResult = (InsertResult) txnResult.getResults().get(0);
@@ -47,7 +48,7 @@ public class CreateNewPlaylistCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertPlaylistPost() throws Exception {
-        TxnResult txnResult = command.with(new CreateNewPlaylistCommand.Params("title", true, Urn.forTrack(123))).call();
+        TxnResult txnResult = (TxnResult) command.with(new Params("title", true, Urn.forTrack(123))).call();
 
         expect(txnResult.success()).toBeTrue();
         InsertResult insertResult = (InsertResult) txnResult.getResults().get(0);
@@ -57,7 +58,7 @@ public class CreateNewPlaylistCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertFirstPlaylistTrack() throws Exception {
-        TxnResult txnResult = command.with(new CreateNewPlaylistCommand.Params("title", true, Urn.forTrack(123))).call();
+        TxnResult txnResult = (TxnResult) command.with(new Params("title", true, Urn.forTrack(123))).call();
 
         expect(txnResult.success()).toBeTrue();
         InsertResult insertResult = (InsertResult) txnResult.getResults().get(0);

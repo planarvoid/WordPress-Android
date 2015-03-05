@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Sharing;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -12,19 +12,21 @@ import com.soundcloud.propeller.TxnResult;
 
 import android.content.ContentValues;
 
-class CreateNewPlaylistCommand extends Command<CreateNewPlaylistCommand.Params, TxnResult, CreateNewPlaylistCommand> {
+import javax.inject.Inject;
 
-    private final PropellerDatabase propeller;
+class CreateNewPlaylistCommand extends StoreCommand<CreateNewPlaylistCommand.Params> {
+
     private final AccountOperations accountOperations;
 
+    @Inject
     public CreateNewPlaylistCommand(PropellerDatabase propeller, AccountOperations accountOperations) {
-        this.propeller = propeller;
+        super(propeller);
         this.accountOperations = accountOperations;
     }
 
     @Override
-    public TxnResult call() throws Exception {
-        return propeller.runTransaction(new PropellerDatabase.Transaction() {
+    protected TxnResult store() {
+        return database.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
                 final long createdAt = System.currentTimeMillis();
