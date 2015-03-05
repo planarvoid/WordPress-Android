@@ -32,7 +32,7 @@ public class ScShadowSQLiteDatabase extends ShadowSQLiteDatabase {
             insert.executeUpdate();
 
             if (initialValues.containsKey("_id")) {
-                result = initialValues.getAsInteger("_id");
+                result = initialValues.getAsLong("_id");
             } else {
                 ResultSet resultSet = insert.getGeneratedKeys();
                 if (resultSet.next()) {
