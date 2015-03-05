@@ -13,7 +13,6 @@ subprojects {
 }
 
 task renameApk << {
-  description 'Renames the output app APK to include the version and variant names'
   project.('android').applicationVariants.all { variant ->
     variant.outputs.each { output ->
       def newApkName = "soundcloud-android-${project.ext.versionName}-${variant.name}.apk"
