@@ -39,7 +39,6 @@ public class PlaylistPostOperationsTest {
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
-    @Mock private PlaylistStorage playlistStorage;
 
     private Scheduler scheduler = Schedulers.immediate();
     private TestObserver<List<PropertySet>> observer;

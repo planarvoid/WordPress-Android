@@ -13,13 +13,13 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.model.PropertySetSource;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
@@ -52,20 +52,25 @@ class SearchOperations {
     private final StoreTracksCommand storeTracksCommand;
     private final StoreUsersCommand storeUsersCommand;
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
-    private final PlaylistStorage playlistStorage;
+    private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
 
     private final Func1<SearchResult, SearchResult> mergeLikeStatusForPlaylists = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult searchResult) {
-            final List<PropertySet> playlistsIsLikedStati = playlistStorage.playlistLikes(searchResult.getItems());
+            final List<PropertySet> playlistsIsLikedStati;
+            try {
+                playlistsIsLikedStati = loadPlaylistLikedStatuses.with(searchResult.getItems()).call();
 
-            for (final PropertySet resultItem : searchResult) {
-                final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
-                final Optional<PropertySet> matchingPlaylistLikeStatus =
-                        Iterables.tryFind(playlistsIsLikedStati, matchingUrnPredicate(itemUrn));
-                if (itemUrn.isPlaylist() && matchingPlaylistLikeStatus.isPresent()) {
-                    resultItem.update(matchingPlaylistLikeStatus.get());
+                for (final PropertySet resultItem : searchResult) {
+                    final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
+                    final Optional<PropertySet> matchingPlaylistLikeStatus =
+                            Iterables.tryFind(playlistsIsLikedStati, matchingUrnPredicate(itemUrn));
+                    if (itemUrn.isPlaylist() && matchingPlaylistLikeStatus.isPresent()) {
+                        resultItem.update(matchingPlaylistLikeStatus.get());
+                    }
                 }
+            } catch (Exception e) {
+                ErrorUtils.handleSilentException(e);
             }
             return searchResult;
         }
@@ -81,14 +86,16 @@ class SearchOperations {
     };
 
     @Inject
-    public SearchOperations(ApiScheduler apiScheduler, StoreTracksCommand storeTracksCommand, StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
-                            CacheUniversalSearchCommand cacheUniversalSearchCommand, PlaylistStorage playlistStorage) {
+    public SearchOperations(ApiScheduler apiScheduler, StoreTracksCommand storeTracksCommand,
+                            StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
+                            CacheUniversalSearchCommand cacheUniversalSearchCommand,
+                            LoadPlaylistLikedStatuses loadPlaylistLikedStatuses) {
         this.apiScheduler = apiScheduler;
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeUsersCommand = storeUsersCommand;
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
-        this.playlistStorage = playlistStorage;
+        this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
     }
 
     SearchResultPager pager(int searchType) {

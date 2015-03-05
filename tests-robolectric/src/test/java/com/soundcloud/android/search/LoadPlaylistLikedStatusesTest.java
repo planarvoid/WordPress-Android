@@ -1,63 +1,61 @@
-package com.soundcloud.android.playlists;
+package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import rx.Observer;
 
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistStorageTest extends StorageIntegrationTest {
+public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
 
-    private PlaylistStorage storage;
-
-    @Mock private Observer<PropertySet> observer;
+    private LoadPlaylistLikedStatuses command;
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlaylistStorage(propeller());
+        command = new LoadPlaylistLikedStatuses(propeller());
     }
 
     @Test
-    public void playlistLikesReturnChangeSetsWithLikeStatus() {
+    public void shouldReturnPlaylistLikeStatuses() throws Exception {
         ApiPlaylist apiPlaylist1 = testFixtures().insertLikedPlaylist(new Date());
         ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
         List<PropertySet> input = Arrays.asList(apiPlaylist1.toPropertySet(), apiPlaylist2.toPropertySet());
 
-        final List<PropertySet> changeSet = storage.playlistLikes(input);
+        final List<PropertySet> likedStatuses = command.with(input).call();
 
-        expect(changeSet).toNumber(2);
-        expect(changeSet.get(0).get(PlayableProperty.URN)).toEqual(apiPlaylist1.getUrn());
-        expect(changeSet.get(0).get(PlayableProperty.IS_LIKED)).toEqual(true);
-        expect(changeSet.get(1).get(PlayableProperty.URN)).toEqual(apiPlaylist2.getUrn());
-        expect(changeSet.get(1).get(PlayableProperty.IS_LIKED)).toEqual(false);
+        expect(likedStatuses).toNumber(2);
+        expect(likedStatuses.get(0).get(PlayableProperty.URN)).toEqual(apiPlaylist1.getUrn());
+        expect(likedStatuses.get(0).get(PlayableProperty.IS_LIKED)).toEqual(true);
+        expect(likedStatuses.get(1).get(PlayableProperty.URN)).toEqual(apiPlaylist2.getUrn());
+        expect(likedStatuses.get(1).get(PlayableProperty.IS_LIKED)).toEqual(false);
     }
 
     @Test
-    public void playlistLikesOnlyReturnsChangeSetsForPlaylists() {
+    public void shouldOnlyReturnLikedStatusForPlaylists() throws Exception {
         final ApiPlaylist likedPlaylist = testFixtures().insertLikedPlaylist(new Date());
         final ApiPlaylist unlikedPlaylist = testFixtures().insertPlaylist();
         final ApiTrack track = testFixtures().insertTrack();
 
         List<PropertySet> input = Arrays.asList(
                 likedPlaylist.toPropertySet(), unlikedPlaylist.toPropertySet(), track.toPropertySet());
-        List<PropertySet> changeSets = storage.playlistLikes(input);
+        List<PropertySet> likedStatuses = command.with(input).call();
 
-        expect(changeSets).toContainExactlyInAnyOrder(
+        expect(likedStatuses).toContainExactlyInAnyOrder(
                 PropertySet.from(PlaylistProperty.URN.bind(likedPlaylist.getUrn()), PlaylistProperty.IS_LIKED.bind(true)),
                 PropertySet.from(PlaylistProperty.URN.bind(unlikedPlaylist.getUrn()), PlaylistProperty.IS_LIKED.bind(false))
         );
     }
+
 }

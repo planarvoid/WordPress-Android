@@ -1,9 +1,9 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,12 +17,11 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.playlists.PlaylistStorage;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
@@ -46,7 +45,7 @@ public class SearchOperationsTest {
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
-    @Mock private PlaylistStorage playlistStorage;
+    @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
 
     private ApiTrack track;
     private ApiPlaylist playlist;
@@ -62,14 +61,15 @@ public class SearchOperationsTest {
 
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
 
-        operations = new SearchOperations(apiScheduler, storeTracksCommand, storePlaylistsCommand, storeUsersCommand, cacheUniversalSearchCommand, playlistStorage);
+        operations = new SearchOperations(apiScheduler, storeTracksCommand, storePlaylistsCommand, storeUsersCommand,
+                cacheUniversalSearchCommand, loadPlaylistLikedStatuses);
     }
 
     @Test
     public void shouldMakeGETRequestToSearchAllEndpoint() {
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_ALL.path())
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_ALL.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -78,7 +78,7 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchTracksEndpoint() {
         operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_TRACKS.path())
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_TRACKS.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -87,7 +87,7 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchPlaylistsEndpoint() {
         operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_PLAYLISTS.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -96,7 +96,7 @@ public class SearchOperationsTest {
     public void shouldMakeGETRequestToSearchUserEndpoint() {
         operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.SEARCH_USERS.path())
+        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.SEARCH_USERS.path())
                 .withQueryParam("limit", "30")
                 .withQueryParam("q", "query")));
     }
@@ -151,7 +151,7 @@ public class SearchOperationsTest {
     }
 
     @Test
-    public void shouldBackFillLikesForPlaylistsInUniversalSearchResult() {
+    public void shouldBackFillLikesForPlaylistsInUniversalSearchResult() throws Exception {
         Observable observable = Observable.just(new ModelCollection<>(Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forTrack(track),
@@ -161,7 +161,7 @@ public class SearchOperationsTest {
         PropertySet playlistIsLikedStatus = PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.getUrn()),
                 PlaylistProperty.IS_LIKED.bind(true));
-        when(playlistStorage.playlistLikes(anyList())).thenReturn(Arrays.asList(playlistIsLikedStatus));
+        when(loadPlaylistLikedStatuses.call()).thenReturn(Arrays.asList(playlistIsLikedStatus));
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
@@ -172,7 +172,7 @@ public class SearchOperationsTest {
     }
 
     @Test
-    public void shouldRetainOrderWhenBackfillingLikesForPlaylistsInUniversalSearchResult() {
+    public void shouldRetainOrderWhenBackfillingLikesForPlaylistsInUniversalSearchResult() throws Exception {
         ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
         Observable observable = Observable.just(new ModelCollection<>(Lists.newArrayList(
                 ApiUniversalSearchItem.forPlaylist(playlist), // should be enriched with like status
@@ -180,7 +180,7 @@ public class SearchOperationsTest {
                 ApiUniversalSearchItem.forPlaylist(playlist2), // should be enriched with like status
                 ApiUniversalSearchItem.forTrack(track))));
         when(apiScheduler.<ModelCollection<ApiUniversalSearchItem>>mappedResponse(any(ApiRequest.class))).thenReturn(observable);
-        when(playlistStorage.playlistLikes(anyList())).thenReturn(Arrays.asList(
+        when(loadPlaylistLikedStatuses.call()).thenReturn(Arrays.asList(
                 // the database call returns playlist2 first, so changes order! which is valid.
                 PropertySet.from(PlaylistProperty.URN.bind(playlist2.getUrn()), PlaylistProperty.IS_LIKED.bind(true)),
                 PropertySet.from(PlaylistProperty.URN.bind(playlist.getUrn()), PlaylistProperty.IS_LIKED.bind(false))
@@ -198,13 +198,13 @@ public class SearchOperationsTest {
     }
 
     @Test
-    public void shouldBackFillLikesForPlaylists() {
-        Observable observable = Observable.just(new ModelCollection<>(Arrays.asList(playlist)));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(observable);
+    public void shouldBackFillLikesForPlaylistsInPlaylistSearch() throws Exception {
+        Observable searchObservable = Observable.just(new ModelCollection<>(Arrays.asList(playlist)));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(searchObservable);
         PropertySet playlistIsLikedStatus = PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.getUrn()),
                 PlaylistProperty.IS_LIKED.bind(true));
-        when(playlistStorage.playlistLikes(anyList())).thenReturn(Arrays.asList(playlistIsLikedStatus));
+        when(loadPlaylistLikedStatuses.call()).thenReturn(Arrays.asList(playlistIsLikedStatus));
 
         operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
