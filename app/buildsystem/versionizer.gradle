@@ -3,14 +3,6 @@ import java.util.regex.Pattern
 apply plugin: 'com.android.application'
 
 android {
-  // Modify the name of the .apk file for each build type
-  applicationVariants.all { variant ->
-    variant.outputs.each { output ->
-      def newApkName = "soundcloud-android-${project.ext.versionName}-${variant.name}.apk"
-      output.outputFile = new File("${project.buildDir}/outputs/apk/", newApkName)
-    }
-  }
-
   tasks.whenTaskAdded { currentTask ->
     // Generate a task for each build in order to copy the adequate properties file.
     project.('android').buildTypes.all { build ->

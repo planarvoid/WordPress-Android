@@ -1,3 +1,5 @@
+def apkPath
+
 // Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
 subprojects {
@@ -6,6 +8,17 @@ subprojects {
       project.android.dexOptions.preDexLibraries = rootProject.ext.preDexLibs
     } else if ('com.android.build.gradle.LibraryPlugin'.equals(plugin.class.name)) {
       project.android.dexOptions.preDexLibraries = rootProject.ext.preDexLibs
+    }
+  }
+}
+
+task renameApk << {
+  description 'Renames the output app APK to include the version and variant names'
+  project.('android').applicationVariants.all { variant ->
+    variant.outputs.each { output ->
+      def newApkName = "soundcloud-android-${project.ext.versionName}-${variant.name}.apk"
+      apkPath = "${project.buildDir}/outputs/apk/${newApkName}"
+      output.outputFile = new File(apkPath)
     }
   }
 }
@@ -19,7 +32,7 @@ staticAnalysis.mustRunAfter('assembleDebugCI', 'assembleBetaCI', 'assembleReleas
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task assembleDebugCI(dependsOn: ['assembleDebug']) {
+task assembleDebugCI(dependsOn: ['renameApk', 'assembleDebug']) {
   description 'Assembles all Debug builds for CI. Pre-dexing is disabled.'
   rootProject.ext.preDexLibs = false
 }
@@ -32,11 +45,11 @@ task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task assembleBetaCI (dependsOn: ['assembleBeta']) {
+task assembleBetaCI(dependsOn: ['renameApk', 'assembleBeta']) {
   description = 'Assembles all Beta builds for CI'
 }
 
-task buildBetaCI (dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd', 'lintBeta']) {
+task buildBetaCI(dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd', 'lintBeta']) {
   description = 'Assembles all Beta builds and performs static analysis for CI.'
 }
 
@@ -44,11 +57,11 @@ task buildBetaCI (dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd',
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task assembleReleaseCI (dependsOn: ['assembleRelease']) {
+task assembleReleaseCI(dependsOn: ['renameApk', 'assembleRelease']) {
   description = 'Assembles all Release builds for CI'
 }
 
-task buildReleaseCI (dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', 'pmd', 'lintRelease']) {
+task buildReleaseCI(dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', 'pmd', 'lintRelease']) {
   description = 'Assembles all Release builds and performs static analysis for CI.'
 }
 
