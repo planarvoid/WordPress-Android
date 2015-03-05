@@ -9,6 +9,7 @@ import com.soundcloud.android.playlists.LoadPlaylistTrackUrnsCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,14 +28,14 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     private final PostsSyncer postsSyncer;
     private final LoadLocalPlaylistsCommand loadLocalPlaylists;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand;
-    private final ReplacePlaylistCommand replacePlaylist;
+    private final ReplacePlaylistPostCommand replacePlaylist;
     private final ApiClient apiClient;
 
     @Inject
     public MyPlaylistsSyncer(@Named("MyPlaylistPostsSyncer") PostsSyncer postsSyncer,
                              LoadLocalPlaylistsCommand loadLocalPlaylists,
                              LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
-                             ReplacePlaylistCommand replacePlaylist, ApiClient apiClient) {
+                             ReplacePlaylistPostCommand replacePlaylist, ApiClient apiClient) {
         this.postsSyncer = postsSyncer;
         this.loadLocalPlaylists = loadLocalPlaylists;
         this.loadPlaylistTrackUrnsCommand = loadPlaylistTrackUrnsCommand;
@@ -56,13 +57,13 @@ public class MyPlaylistsSyncer implements SyncStrategy {
             final Urn playlistUrn = localPlaylist.get(PlaylistProperty.URN);
             final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.with(playlistUrn).call();
 
-            final ApiRequest<ApiPlaylist> request = ApiRequest.Builder.<ApiPlaylist>post(ApiEndpoints.PLAYLISTS_CREATE.path())
+            final ApiRequest<ApiPlaylistWrapper> request = ApiRequest.Builder.<ApiPlaylistWrapper>post(ApiEndpoints.PLAYLISTS_CREATE.path())
                     .forPrivateApi(1)
                     .withContent(createPlaylistBody(localPlaylist, trackUrns))
-                    .forResource(ApiPlaylist.class)
+                    .forResource(ApiPlaylistWrapper.class)
                     .build();
 
-            final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request);
+            final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request).getApiPlaylist();
             replacePlaylist.with(Pair.create(playlistUrn, newPlaylist)).call();
         }
     }
@@ -74,7 +75,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
 
         final Map<String, Object> requestBody = new ArrayMap<>(2);
         requestBody.put("playlist", playlistBody);
-        requestBody.put("track_urns", trackUrns);
+        requestBody.put("track_urns", CollectionUtils.urnsToStrings(trackUrns));
         return requestBody;
     }
 }

@@ -39,7 +39,7 @@ public class MyPlaylistsSyncerTest {
     @Mock private PostsSyncer postsSyncer;
     @Mock private LoadLocalPlaylistsCommand loadLocalPlaylists;
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
-    @Mock private ReplacePlaylistCommand replacePlaylist;
+    @Mock private ReplacePlaylistPostCommand replacePlaylist;
     @Mock private ApiClient apiClient;
 
     @Before

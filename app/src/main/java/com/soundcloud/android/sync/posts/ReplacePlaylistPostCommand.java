@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.posts;
 
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
+import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -19,12 +20,12 @@ import android.util.Pair;
 import javax.inject.Inject;
 
 
-class ReplacePlaylistCommand extends Command<Pair<Urn, ApiPlaylist>, WriteResult, ReplacePlaylistCommand> {
+class ReplacePlaylistPostCommand extends Command<Pair<Urn, ApiPlaylist>, WriteResult, ReplacePlaylistPostCommand> {
 
     private final PropellerDatabase propeller;
 
     @Inject
-    public ReplacePlaylistCommand(PropellerDatabase propeller) {
+    public ReplacePlaylistPostCommand(PropellerDatabase propeller) {
         this.propeller = propeller;
     }
 
@@ -40,15 +41,22 @@ class ReplacePlaylistCommand extends Command<Pair<Urn, ApiPlaylist>, WriteResult
                 step(propeller.insert(Table.Sounds, StorePlaylistsCommand.buildPlaylistContentValues(newPlaylist)));
 
                 // update the playlist tracks entries
-                final ContentValues updatedPlaylistId = new ContentValues();
-                updatedPlaylistId.put(PlaylistTracks.PLAYLIST_ID, newPlaylist.getId());
-                step(propeller.update(Table.PlaylistTracks, updatedPlaylistId, new WhereBuilder()
+                final ContentValues playlistTracksValues = new ContentValues();
+                playlistTracksValues.put(PlaylistTracks.PLAYLIST_ID, newPlaylist.getId());
+                step(propeller.update(Table.PlaylistTracks, playlistTracksValues, new WhereBuilder()
                         .whereEq(PlaylistTracks.PLAYLIST_ID, localPlaylistUrn.getNumericId())));
 
                 // remove the old playlist entry
                 step(propeller.delete(Table.Sounds, new WhereBuilder()
                         .whereEq(Sounds._ID, localPlaylistUrn.getNumericId())
                         .whereEq(Sounds._TYPE, Sounds.TYPE_PLAYLIST)));
+
+                // make sure the posted playlist appears under the new ID in the Posts table
+                final ContentValues playlistPostValues = new ContentValues();
+                playlistPostValues.put(Posts.TARGET_ID, newPlaylist.getId());
+                step(propeller.update(Table.Posts, playlistPostValues, new WhereBuilder()
+                        .whereEq(Posts.TARGET_ID, localPlaylistUrn.getNumericId())
+                        .whereEq(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)));
             }
         });
     }
