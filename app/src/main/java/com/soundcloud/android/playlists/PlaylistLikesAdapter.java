@@ -29,6 +29,7 @@ public class PlaylistLikesAdapter extends PagingItemAdapter<PropertySet>
     public PlaylistLikesAdapter(PlaylistItemPresenter playlistPresenter, final EventBus eventBus) {
         super(playlistPresenter);
         this.lifeCycleHandler = createLifeCycleHandler(eventBus);
+        playlistPresenter.allowOfflineOptions();
     }
 
     private DefaultSupportFragmentLightCycle createLifeCycleHandler(final EventBus eventBus) {

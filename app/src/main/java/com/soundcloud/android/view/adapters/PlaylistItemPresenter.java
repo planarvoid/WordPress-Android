@@ -28,6 +28,7 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
     private final ImageOperations imageOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
     private final FeatureFlags featureFlags;
+    private boolean allowOfflineOptions;
 
     @Inject
     public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations, PlaylistItemMenuPresenter playlistItemMenuPresenter, FeatureFlags featureFlags) {
@@ -56,12 +57,16 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
         setupOverFlow(itemView.findViewById(R.id.overflow_button), playlist);
     }
 
+    public void allowOfflineOptions() {
+        this.allowOfflineOptions = true;
+    }
+
     private void setupOverFlow(final View button, final PropertySet playlist) {
         if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    playlistItemMenuPresenter.show(button, playlist);
+                    playlistItemMenuPresenter.show(button, playlist, allowOfflineOptions);
                 }
             });
         } else {

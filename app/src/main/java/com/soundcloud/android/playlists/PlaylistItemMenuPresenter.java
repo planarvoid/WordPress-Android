@@ -42,6 +42,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
 
     private PropertySet playlist;
     private Subscription playlistSubscription = Subscriptions.empty();
+    private boolean allowOfflineOptions;
 
     @Inject
     public PlaylistItemMenuPresenter(Context context, EventBus eventBus, PopupMenuWrapper.Factory popupMenuWrapperFactory,
@@ -56,8 +57,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
         this.offlineContentOperations = offlineContentOperations;
     }
 
-    public void show(View button, PropertySet playlist) {
+    public void show(View button, PropertySet playlist, boolean allowOfflineOptions) {
         this.playlist = playlist;
+        this.allowOfflineOptions = allowOfflineOptions;
         final PopupMenuWrapper menu = setupMenu(button);
 
         loadPlaylist(menu);
@@ -137,7 +139,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private void configureInitialOfflineOptions(PopupMenuWrapper menu) {
-        if (playlist.contains(PlaylistProperty.IS_MARKED_FOR_OFFLINE)) {
+        if (playlist.contains(PlaylistProperty.IS_MARKED_FOR_OFFLINE) && allowOfflineOptions) {
             configureOfflineOptions(menu);
         } else {
             hideAllOfflineContentOptions(menu);
@@ -145,9 +147,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private void configureOfflineOptions(PopupMenuWrapper menu) {
-        if (featureOperations.isOfflineContentEnabled()) {
+        if (featureOperations.isOfflineContentEnabled() && allowOfflineOptions) {
             showOfflineContentOption(menu);
-        } else if (featureOperations.isOfflineContentUpsellEnabled()) {
+        } else if (featureOperations.isOfflineContentUpsellEnabled() && allowOfflineOptions) {
             showUpsellOption(menu);
         } else {
             hideAllOfflineContentOptions(menu);
