@@ -55,6 +55,8 @@ public enum ApiEndpoints {
     MY_DOB("/you/profile/dob"),
 
     // playlist
+    PLAYLISTS_CREATE("/playlists"),
+    PLAYLISTS_FETCH("/playlists/fetch"),
     PLAYLIST_WITH_TRACKS("/playlists/%s/info"),
     PLAYLIST_ADD_TRACK("/playlists/%s/tracks"),
     PLAYLIST_REMOVE_TRACK("/playlists/%s/tracks/%s"),
@@ -67,7 +69,6 @@ public enum ApiEndpoints {
     IMAGES("/images/%s/%s"),
     STREAM("/stream"),
     TRACKS_FETCH("/tracks/fetch"),
-    PLAYLISTS_FETCH("/playlists/fetch"),
     CONFIGURATION("/configuration/android"),
 
     // public API (DEPRECATED)
