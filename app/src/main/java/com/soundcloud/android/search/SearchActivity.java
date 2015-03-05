@@ -8,7 +8,6 @@ import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -35,9 +34,9 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     private static final String INTENT_URI_SEARCH_PATH = "/search";
 
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
-    @Inject @LightCycle SearchActionBarController searchActionBarController;
+    @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
+    @Inject SearchActionBarController searchActionBarController;
     @Inject ScreenPresenter presenter;
     @Inject PlaybackOperations playbackOperations;
 
@@ -60,6 +59,9 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     };
 
     public SearchActivity() {
+        attachLightCycle(playerController);
+        attachLightCycle(adPlayerController);
+        attachLightCycle(searchActionBarController);
         searchActionBarController.setSearchCallback(searchCallback);
         presenter.attach(this);
     }

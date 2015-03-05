@@ -2,7 +2,6 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdPlayerController;
-import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.view.screen.ScreenPresenter;
@@ -13,11 +12,13 @@ import javax.inject.Inject;
 
 public class ExploreTracksCategoryActivity extends ScActivity {
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
 
     public ExploreTracksCategoryActivity() {
+        attachLightCycle(playerController);
+        attachLightCycle(adPlayerController);
         presenter.attach(this);
     }
 

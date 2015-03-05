@@ -2,7 +2,6 @@ package com.soundcloud.android.likes;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
@@ -16,12 +15,13 @@ import javax.inject.Inject;
 
 public class TrackLikesFragment extends LightCycleSupportFragment {
 
-    @Inject @LightCycle TrackLikesPresenter presenter;
+    @Inject TrackLikesPresenter presenter;
 
     public TrackLikesFragment() {
         setRetainInstance(true);
         setHasOptionsMenu(true);
         SoundCloudApplication.getObjectGraph().inject(this);
+        attachLightCycle(presenter);
     }
 
     @Override

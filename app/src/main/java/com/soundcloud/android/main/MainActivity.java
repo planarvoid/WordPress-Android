@@ -17,7 +17,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
-import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -66,12 +65,16 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject PlayQueueManager playQueueManager;
     @Inject CastConnectionHelper castConnectionHelper;
 
-    @Inject @LightCycle SlidingPlayerController playerController;
-    @Inject @LightCycle AdPlayerController adPlayerController;
-    @Inject @LightCycle InAppCampaignController inAppCampaignController;
-    @Inject @LightCycle ActionBarController actionBarController;
+    @Inject SlidingPlayerController playerController;
+    @Inject AdPlayerController adPlayerController;
+    @Inject InAppCampaignController inAppCampaignController;
+    @Inject ActionBarController actionBarController;
 
     public MainActivity() {
+        attachLightCycle(playerController);
+        attachLightCycle(adPlayerController);
+        attachLightCycle(inAppCampaignController);
+        attachLightCycle(actionBarController);
         presenter.attach(this);
     }
 
