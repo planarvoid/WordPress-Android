@@ -41,6 +41,11 @@ task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
   description 'Assembles all Debug builds and performs static analysis for CI.'
 }
 
+task assembleEnd2endCI(dependsOn: ['renameApk', 'assembleEnd2end']) {
+  description 'Assembles End2End debug build for payments test on CI.'
+  rootProject.ext.preDexLibs = false
+}
+
 // *********************************************************************************************************************
 // BETA BUILDS
 // *********************************************************************************************************************
