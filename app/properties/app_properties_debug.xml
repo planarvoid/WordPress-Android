@@ -24,10 +24,10 @@
     <bool name="feature_eventlogger_page_view">true</bool>
     <bool name="feature_playlist_posts_fragment">true</bool>
     <bool name="feature_new_playlist_syncer">true</bool>
+    <bool name="feature_new_playlist_engagements">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
-    <bool name="feature_new_playlist_engagements">true</bool>
     <bool name="feature_new_posts_syncer">false</bool>
 </resources>

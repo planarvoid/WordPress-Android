@@ -135,10 +135,10 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     public boolean onMenuItemClick(MenuItem menuItem) {
         switch (menuItem.getItemId()) {
             case R.id.repost:
-                getListener().onToggleRepost(true);
+                getListener().onToggleRepost(true, true);
                 return true;
             case R.id.unpost:
-                getListener().onToggleRepost(false);
+                getListener().onToggleRepost(false, true);
                 return true;
             case R.id.share:
                 getListener().onShare();

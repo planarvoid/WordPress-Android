@@ -355,6 +355,9 @@
     <string name="like_toast_overflow_action">Saved to your likes</string>
     <string name="unlike_toast_overflow_action">Removed from your likes</string>
     <string name="like_error_toast_overflow_action">Like status was not changed</string>
+    <string name="reposted_to_followers">Reposted to your followers</string>
+    <string name="unposted_to_followers">Unposted</string>
+    <string name="repost_error_toast_overflow_action">Repost status could not be changed</string>
 
     <!-- __PLAYER -->
     <string name="add_to_playlist">Add to playlist</string>
@@ -365,8 +368,6 @@
     <string name="comment_on">Comment on %s</string>
     <string name="your_comment_has_been_posted">Your comment has been posted</string>
     <string name="comment_could_not_be_created_at_this_time">Comment could not be created at this time</string>
-    <string name="reposted_to_followers">Reposted to your followers</string>
-    <string name="unposted_to_followers">Unposted</string>
     <string name="share_track_by_artist_on_soundcloud">Listen to %1$s by %2$s #np on #SoundCloud\n%3$s</string>
     <string name="share_track_on_soundcloud">Listen to %1$s #np on #SoundCloud\n%2$s</string>
     <string name="share_subject">%s - SoundCloud</string>

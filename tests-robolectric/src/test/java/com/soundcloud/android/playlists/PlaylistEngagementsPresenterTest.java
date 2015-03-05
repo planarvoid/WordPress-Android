@@ -124,7 +124,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
         when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
-        onEngagementListener.onToggleRepost(true);
+        onEngagementListener.onToggleRepost(true, false);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_REPOST);
@@ -136,7 +136,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
         when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
-        onEngagementListener.onToggleRepost(false);
+        onEngagementListener.onToggleRepost(false, false);
 
         TrackingEvent uiEvent = eventBus.firstEventOn(EventQueue.TRACKING);
         expect(uiEvent.getKind()).toBe(UIEvent.KIND_UNREPOST);
@@ -197,7 +197,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
         when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
-        onEngagementListener.onToggleRepost(true);
+        onEngagementListener.onToggleRepost(true, false);
 
         verify(soundAssocOps).toggleRepost(eq(playlistInfo.getUrn()), eq(true));
     }

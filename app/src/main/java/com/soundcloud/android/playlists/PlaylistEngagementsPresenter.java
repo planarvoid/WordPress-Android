@@ -20,6 +20,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -161,11 +162,17 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
     }
 
     @Override
-    public void onToggleRepost(boolean isReposted) {
+    public void onToggleRepost(boolean isReposted, boolean showResultToast) {
         if (playlistInfo != null) {
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(isReposted,
                     PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
-            fireAndForget(soundAssociationOps.toggleRepost(playlistInfo.getUrn(), isReposted));
+            if (showResultToast){
+                soundAssociationOps.toggleRepost(playlistInfo.getUrn(), isReposted)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RepostResultSubscriber(context, isReposted));
+            } else {
+                fireAndForget(soundAssociationOps.toggleRepost(playlistInfo.getUrn(), isReposted));
+            }
         }
     }
 

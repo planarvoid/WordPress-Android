@@ -37,7 +37,7 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
         repostToggle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getListener().onToggleRepost(repostToggle.isChecked());
+                getListener().onToggleRepost(repostToggle.isChecked(), false);
             }
         });
 

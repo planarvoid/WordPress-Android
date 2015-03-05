@@ -52,7 +52,7 @@ public abstract class PlaylistEngagementsView {
 
     public interface OnEngagementListener {
         void onToggleLike(boolean isLiked);
-        void onToggleRepost(boolean isReposted);
+        void onToggleRepost(boolean isReposted, boolean showResultToast);
         void onShare();
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
         void onUpsell();
