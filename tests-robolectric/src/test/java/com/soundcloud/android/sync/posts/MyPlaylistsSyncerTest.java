@@ -74,9 +74,9 @@ public class MyPlaylistsSyncerTest {
         when(loadLocalPlaylists.call()).thenReturn(CollectionUtils.toPropertySets(playlists));
         when(loadPlaylistTrackUrns.call()).thenReturn(playlist1Tracks, playlist2Tracks);
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))))).thenReturn(newPlaylist1);
+                .withContent(createPushRequestBody(playlists.get(0), playlist1Tracks))))).thenReturn(new ApiPlaylistWrapper(newPlaylist1));
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.PLAYLISTS_CREATE.path())
-                .withContent(createPushRequestBody(playlists.get(1), playlist2Tracks))))).thenReturn(newPlaylist2);
+                .withContent(createPushRequestBody(playlists.get(1), playlist2Tracks))))).thenReturn(new ApiPlaylistWrapper(newPlaylist2));
 
         syncer.syncContent(URI, null);
 
@@ -91,7 +91,7 @@ public class MyPlaylistsSyncerTest {
 
         final Map<String, Object> requestBody = new ArrayMap<>(2);
         requestBody.put("playlist", playlistBody);
-        requestBody.put("track_urns", playlistTracks);
+        requestBody.put("track_urns", CollectionUtils.urnsToStrings(playlistTracks));
         return requestBody;
     }
 
