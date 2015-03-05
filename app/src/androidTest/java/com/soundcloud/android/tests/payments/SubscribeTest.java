@@ -40,7 +40,7 @@ public class SubscribeTest extends ActivityTest<MainActivity> {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
-        new BillingResponse(solo.getCurrentActivity()).forCancel().insert();
+        BillingResponse.cancelled().insertInto(solo.getCurrentActivity());
         assertTrue(waiter.expectToastWithText(toastObserver, "User cancelled"));
     }
 

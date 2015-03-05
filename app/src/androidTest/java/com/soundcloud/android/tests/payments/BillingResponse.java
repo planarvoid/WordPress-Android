@@ -7,50 +7,72 @@ import com.soundcloud.android.payments.SubscribeActivity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 
 final class BillingResponse {
 
     private static final int REQUEST_CODE = 1001;
     private static final String SUCCESS_SIGNATURE = "signature";
 
-    private Activity activity;
-
-    private int responseCode;
-    private Intent data;
-
-    public BillingResponse(Activity activity) {
-        this.activity = activity;
+    private enum ResponseType {
+        SUCCESS, INVALID, CANCELLED
     }
 
-    public BillingResponse forSuccess() {
-        responseCode = Activity.RESULT_OK;
-        data = buildPayload(FakeResult.valid(getCheckoutUrn()));
-        return this;
+    private final ResponseType responseType;
+
+    private BillingResponse(ResponseType responseType) {
+        this.responseType = responseType;
     }
 
-    public BillingResponse forInvalid() {
-        responseCode = Activity.RESULT_OK;
-        data = buildPayload(FakeResult.invalid(getCheckoutUrn()));
-        return this;
+    public static BillingResponse success() {
+        return new BillingResponse(ResponseType.SUCCESS);
     }
 
-    public BillingResponse forCancel() {
-        responseCode = Activity.RESULT_CANCELED;
-        return this;
+    public static BillingResponse invalid() {
+        return new BillingResponse(ResponseType.INVALID);
     }
 
-    public void insert() {
+    public static BillingResponse cancelled() {
+        return new BillingResponse(ResponseType.CANCELLED);
+    }
+
+    public void insertInto(final Activity activity) {
         final SubscribeActivity subscribe = (SubscribeActivity) activity;
         subscribe.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                subscribe.onActivityResult(REQUEST_CODE, responseCode, data);
+                subscribe.onActivityResult(REQUEST_CODE, getResponseCode(), getData(activity));
             }
         });
     }
 
-    private String getCheckoutUrn() {
-        return activity.getSharedPreferences("payments", Context.MODE_PRIVATE).getString("pending_transaction_urn", null);
+    private int getResponseCode() {
+        switch (responseType) {
+            case SUCCESS:
+            case INVALID:
+                return Activity.RESULT_OK;
+            case CANCELLED:
+            default:
+                return Activity.RESULT_CANCELED;
+        }
+    }
+
+    @Nullable
+    private Intent getData(Context context) {
+        final String checkourUrn = loadCheckoutUrn(context);
+        switch (responseType) {
+            case SUCCESS:
+                return buildPayload(FakeResult.valid(checkourUrn));
+            case INVALID:
+                return buildPayload(FakeResult.invalid(checkourUrn));
+            case CANCELLED:
+            default:
+                return null;
+        }
+    }
+
+    private String loadCheckoutUrn(Context context) {
+        return context.getSharedPreferences("payments", Context.MODE_PRIVATE).getString("pending_transaction_urn", null);
     }
 
     private Intent buildPayload(FakeResult result) {
