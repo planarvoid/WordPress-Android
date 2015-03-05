@@ -67,6 +67,15 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
+    public void doesNotLoadLikedPlaylistWhenNotMarkedAsAvailableOffline() throws Exception {
+        testFixtures().insertLikedPlaylist(new Date(100));
+
+        Collection<Urn> trackLikes = command.with(true).call();
+
+        expect(trackLikes).toBeEmpty();
+    }
+
+    @Test
     public void loadOfflinePlaylistTracksWithStalePolicies() throws Exception {
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
