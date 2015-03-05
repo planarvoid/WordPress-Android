@@ -10,11 +10,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.storage.PlaylistStorage;
@@ -30,19 +32,15 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
-import rx.Subscriber;
-import rx.observers.TestSubscriber;
 
 import android.accounts.Account;
-import android.content.SyncResult;
 import android.os.Bundle;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LegacyPlaylistPostOperationsTest {
+public class LegacyPlaylistOperationsTest {
 
     private LegacyPlaylistOperations playlistOperations;
     private PublicApiPlaylist playlist;
-    private Subscriber<SyncResult> syncSubscriber = new TestSubscriber<SyncResult>();
 
     @Mock
     private PlaylistStorage playlistStorage;
@@ -59,12 +57,14 @@ public class LegacyPlaylistPostOperationsTest {
     @Mock
     private Account account;
     @Mock
+    private AccountOperations accountOperations;
+    @Mock
     private Observer<PublicApiPlaylist> observer;
 
     @Before
     public void setup() {
         playlistOperations = new LegacyPlaylistOperations(playlistStorage, soundAssociationStorage,
-                syncInitiator, syncStateManager);
+                syncInitiator, syncStateManager, accountOperations);
         playlist = new PublicApiPlaylist(123L);
 
         Observable<PublicApiPlaylist> storageObservable = Observable.just(playlist);
@@ -76,12 +76,13 @@ public class LegacyPlaylistPostOperationsTest {
         PublicApiUser currentUser = new PublicApiUser();
         long firstTrackId = 1L;
 
+        when(accountOperations.getLoggedInUser()).thenReturn(currentUser);
         when(playlistStorage.createNewUserPlaylistAsync(
                 currentUser, "new playlist", false, firstTrackId)).thenReturn(Observable.just(playlist));
         SoundAssociation playlistCreation = new SoundAssociation(playlist);
         when(soundAssociationStorage.addCreationAsync(refEq(playlist))).thenReturn(Observable.just(playlistCreation));
 
-        playlistOperations.createNewPlaylist(currentUser, "new playlist", false, firstTrackId).subscribe(observer);
+        playlistOperations.createNewPlaylist("new playlist", false, Urn.forTrack(firstTrackId)).subscribe(observer);
 
         verify(syncStateManager).forceToStale(Content.ME_PLAYLISTS);
         verify(observer).onNext(playlist);

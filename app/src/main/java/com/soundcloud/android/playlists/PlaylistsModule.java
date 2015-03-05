@@ -13,6 +13,7 @@ import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
+import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
 
@@ -76,4 +77,14 @@ public class PlaylistsModule {
         }
     }
 
+    @Provides
+    PlaylistCreator providePlaylistCreator(FeatureFlags featureFlags,
+                                           Lazy<PlaylistOperations> playlistOps,
+                                           Lazy<LegacyPlaylistOperations> legacyPlauylistOps) {
+        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SYNCER)) {
+            return playlistOps.get();
+        } else {
+            return legacyPlauylistOps.get();
+        }
+    }
 }

@@ -4,10 +4,9 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
@@ -30,11 +29,9 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     private static final String KEY_CONTEXT_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
-    @Inject LegacyPlaylistOperations playlistOperations;
+    @Inject PlaylistCreator playlistOperations;
     @Inject EventBus eventBus;
     @Inject ApplicationProperties properties;
-    @Inject AccountOperations accountOperations;
-
 
     public static CreatePlaylistDialogFragment from(long trackId, String invokerScreen, String contextScreen) {
         return createFragment(createBundle(trackId, invokerScreen, contextScreen));
@@ -98,9 +95,8 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     }
 
     private void createPlaylist(final String title, final boolean isPrivate) {
-        final PublicApiUser currentUser = accountOperations.getLoggedInUser();
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        fireAndForget(playlistOperations.createNewPlaylist(currentUser, title, isPrivate, firstTrackId));
+        fireAndForget(playlistOperations.createNewPlaylist(title, isPrivate, Urn.forTrack(firstTrackId)));
         trackAddingToPlaylistEvent(firstTrackId);
     }
 

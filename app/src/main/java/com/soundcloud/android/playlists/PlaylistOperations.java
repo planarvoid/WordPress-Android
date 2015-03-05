@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-class PlaylistOperations {
+class PlaylistOperations implements PlaylistCreator<PropertySet> {
 
     private final Scheduler storageScheduler;
     private final LoadPlaylistCommand loadPlaylistCommand;
@@ -38,6 +38,12 @@ class PlaylistOperations {
         this.loadPlaylistCommand = loadPlaylistCommand;
         this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
+    }
+
+    @Override
+    public Observable<PropertySet> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
+        //TODO
+        return Observable.just(PropertySet.create());
     }
 
     Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {

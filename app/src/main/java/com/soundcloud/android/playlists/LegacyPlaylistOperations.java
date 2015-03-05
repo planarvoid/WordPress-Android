@@ -1,8 +1,8 @@
 package com.soundcloud.android.playlists;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.NotFoundException;
@@ -17,7 +17,7 @@ import rx.functions.Func1;
 
 import javax.inject.Inject;
 
-public class LegacyPlaylistOperations {
+public class LegacyPlaylistOperations implements PlaylistCreator<PublicApiPlaylist> {
 
     private static final String LOG_TAG = "PlaylistOperations";
 
@@ -25,6 +25,7 @@ public class LegacyPlaylistOperations {
     private final SoundAssociationStorage soundAssocStorage;
     private final SyncInitiator syncInitiator;
     private final SyncStateManager syncStateManager;
+    private final AccountOperations accountOperations;
 
     /**
      * Function which tests whether a playlist has to be synced (e.g. because it has become stale), or if not
@@ -50,17 +51,20 @@ public class LegacyPlaylistOperations {
 
     @Inject
     public LegacyPlaylistOperations(PlaylistStorage playlistStorage, SoundAssociationStorage soundAssocStorage,
-                                    SyncInitiator syncInitiator, SyncStateManager syncStateManager) {
+                                    SyncInitiator syncInitiator, SyncStateManager syncStateManager,
+                                    AccountOperations accountOperations) {
         this.playlistStorage = playlistStorage;
         this.soundAssocStorage = soundAssocStorage;
         this.syncInitiator = syncInitiator;
         this.syncStateManager = syncStateManager;
+        this.accountOperations = accountOperations;
     }
 
-    public Observable<PublicApiPlaylist> createNewPlaylist(
-            PublicApiUser currentUser, String title, boolean isPrivate, long firstTrackId) {
+    @Override
+    public Observable<PublicApiPlaylist> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         // insert the new playlist into the database
-        return playlistStorage.createNewUserPlaylistAsync(currentUser, title, isPrivate, firstTrackId)
+        return playlistStorage.createNewUserPlaylistAsync(accountOperations.getLoggedInUser(),
+                title, isPrivate, firstTrackUrn.getNumericId())
                 .flatMap(handlePlaylistStored())
                 .flatMap(handlePlaylistCreationStored());
     }
