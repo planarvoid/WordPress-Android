@@ -130,6 +130,17 @@ module Build
       task :release_checklist do
         github.create_release_checklist
       end
+
+      desc 'Commits versionCode bump to github'
+      task :commit_versioncode_bump do
+        new_version_code = Build.version_code.to_i + 1
+
+        message = "VersionCode bumped to: #{new_version_code}"
+        git.commit_a(message)
+
+        git.push
+        puts message
+      end
     end
 
     def build_task
