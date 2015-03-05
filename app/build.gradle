@@ -1,3 +1,7 @@
+ext {
+  versionName = new Date().format('yy.MM.dd')
+}
+
 buildscript {
   repositories {
     maven { url 'http://download.crashlytics.com/maven' }

@@ -2,13 +2,11 @@ import java.util.regex.Pattern
 
 apply plugin: 'com.android.application'
 
-def currentDate = new Date().format('yy.MM.dd')
-
 android {
   // Modify the name of the .apk file for each build type
   applicationVariants.all { variant ->
     variant.outputs.each { output ->
-      def newApkName = "soundcloud-android-${currentDate}-${variant.name}.apk"
+      def newApkName = "soundcloud-android-${project.ext.versionName}-${variant.name}.apk"
       output.outputFile = new File("${project.buildDir}/outputs/apk/", newApkName)
     }
   }
@@ -87,7 +85,7 @@ task incrementVersionName () {
     def matcherVersionNumber = patternVersionNumber.matcher(manifestText)
     matcherVersionNumber.find()
 
-    def manifestContent = matcherVersionNumber.replaceAll('versionName=\"' + currentDate + '\"')
+    def manifestContent = matcherVersionNumber.replaceAll('versionName=\"' + project.ext.versionName + '\"')
 
     manifestFile.write(manifestContent)
   }
