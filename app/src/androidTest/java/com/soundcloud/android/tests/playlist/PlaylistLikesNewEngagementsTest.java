@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.playlist;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
@@ -72,11 +73,11 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         overflowMenu.toggleLike();
 
         // assert item now gone
-        assertThat(expectedTitle, not(equalTo(playlistsScreen.get(0).getTitle())));
+        assertThat(playlistsScreen.hasLikes(), is(false));
 
         playlistsScreen.touchPostedPlaylistsTab();
 
-        assertFalse(openOverflowMenu(playlistsScreen).isLiked());
+        assertThat(openOverflowMenu(playlistsScreen).isLiked(), is(false));
 
         networkManager.switchWifiOn();
     }

@@ -23,6 +23,10 @@ public class PlaylistsScreen extends Screen {
         return new PlaylistItemElement(testDriver, listElement.getItemAt(index));
     }
 
+    public boolean hasLikes() {
+        return playlistsListOnCurrentPage().getItemCount() > 0;
+    }
+
     public PlaylistDetailsScreen clickPlaylistAt(int index) {
         playlistsList().getItemAt(index).click();
         return new PlaylistDetailsScreen(testDriver);
