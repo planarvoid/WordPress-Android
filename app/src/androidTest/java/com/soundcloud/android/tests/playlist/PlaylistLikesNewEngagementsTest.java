@@ -29,6 +29,8 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     // Given I go the playlists screen
     // Then the playlists should the first one
     public void testLastLikedPlaylistShouldAppearOnTop() {
+        networkManager.switchWifiOff();
+
         final PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
         final String expectedTitle = playlistsScreen.get(0).getTitle();
@@ -37,6 +39,8 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         playlistsScreen.touchLikedPlaylistsTab();
 
         assertEquals(expectedTitle, playlistsScreen.get(0).getTitle());
+
+        networkManager.switchWifiOn();
     }
 
     private void likePlaylistAt(PlaylistsScreen playlistsScreen, int index) {
@@ -53,6 +57,8 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     }
 
     public void testLikingAndUnlikingPlaylistFromOverflowMenu() {
+        networkManager.switchWifiOff();
+
         final PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         final String expectedTitle = playlistsScreen.get(0).getTitle();
 
@@ -71,6 +77,8 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         playlistsScreen.touchPostedPlaylistsTab();
 
         assertFalse(openOverflowMenu(playlistsScreen).isLiked());
+
+        networkManager.switchWifiOn();
     }
 
     private PlaylistItemOverflowMenu openOverflowMenu(PlaylistsScreen playlistsScreen) {

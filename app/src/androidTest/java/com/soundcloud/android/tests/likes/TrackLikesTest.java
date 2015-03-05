@@ -51,6 +51,8 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
+        networkManager.switchWifiOff();
+
         TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         final int initialLikedTracksCount = likesScreen.getLoadedTrackCount();
 
@@ -66,6 +68,8 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         player.pressBackToCollapse();
 
         assertThat(likesScreen.getLoadedTrackCount(), equalTo(initialLikedTracksCount));
+
+        networkManager.switchWifiOn();
     }
 
 }
