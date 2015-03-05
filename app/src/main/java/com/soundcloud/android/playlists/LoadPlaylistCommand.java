@@ -9,10 +9,10 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 
 import javax.inject.Inject;
+import java.util.List;
 
 class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand> {
 
@@ -25,9 +25,8 @@ class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand>
 
     @Override
     public PropertySet call() throws Exception {
-        final QueryResult queryResult = database.query(buildQuery(input));
-        return queryResult.isEmpty() ? PropertySet.create() :
-                new PlaylistItemMapper().map(queryResult.iterator().next());
+        final List<PropertySet> queryResult = database.query(buildQuery(input)).toList(new PlaylistItemMapper());
+        return queryResult.isEmpty() ? PropertySet.create() : queryResult.get(0);
     }
 
     private Query buildQuery(Urn input) {

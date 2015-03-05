@@ -9,12 +9,12 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class LoadLikedPlaylistCommand extends Command<Urn, PropertySet, LoadLikedPlaylistCommand> {
 
@@ -27,9 +27,8 @@ public class LoadLikedPlaylistCommand extends Command<Urn, PropertySet, LoadLike
 
     @Override
     public PropertySet call() throws Exception {
-        final QueryResult queryResult = database.query(buildQuery(input));
-        return queryResult.isEmpty() ? PropertySet.create() :
-                new LikedPlaylistMapper().map(queryResult.iterator().next());
+        final List<PropertySet> queryResult = database.query(buildQuery(input)).toList(new LikedPlaylistMapper());
+        return queryResult.isEmpty() ? PropertySet.create() : queryResult.get(0);
     }
 
     private Query buildQuery(Urn input) {
