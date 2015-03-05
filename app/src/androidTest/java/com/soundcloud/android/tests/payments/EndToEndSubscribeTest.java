@@ -13,7 +13,6 @@ import com.soundcloud.android.tests.ActivityTest;
 public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
 
     private SettingsScreen settingsScreen;
-    private PaymentStateHelper stateHelper;
 
     public EndToEndSubscribeTest() {
         super(MainActivity.class);
@@ -22,7 +21,6 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         setDependsOn(Flag.PAYMENTS_TEST);
-        stateHelper = new PaymentStateHelper();
         TestUser.subscribeUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
@@ -30,7 +28,7 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testUserCanSubscribe() {
-        stateHelper.resetTestAccount();
+        new PaymentStateHelper().resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
@@ -41,7 +39,7 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testInvalidPayment() {
-        stateHelper.resetTestAccount();
+        new PaymentStateHelper().resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
