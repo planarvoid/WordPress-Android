@@ -177,4 +177,16 @@ public class TrackInfoPresenterTest extends TestCase {
         expect(view.findViewById(R.id.description)).toBeGone();
         expect(view.findViewById(R.id.no_description)).toBeVisible();
     }
+
+    @Test // fixes #2863
+    public void bindViewsShouldHideNoDescriptionWhenDescriptionIsNotEmpty() throws Exception {
+        PropertySet trackProperties = TestPropertySets
+                .expectedTrackForPlayer()
+                .put(TrackProperty.DESCRIPTION, "some desc");
+
+        presenter.bindDescription(view, trackProperties);
+
+        expect(view.findViewById(R.id.description)).toBeVisible();
+        expect(view.findViewById(R.id.no_description)).toBeGone();
+    }
 }

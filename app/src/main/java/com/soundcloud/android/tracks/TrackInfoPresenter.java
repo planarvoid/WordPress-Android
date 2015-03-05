@@ -52,6 +52,7 @@ public class TrackInfoPresenter {
         if (source.isEmpty()) {
             bindNoDescription(view);
         } else {
+            hideView(view, R.id.no_description);
             setTextAndShow(view, R.id.description, Html.fromHtml(source.replace(System.getProperty("line.separator"), "<br/>")));
         }
         hideView(view, R.id.loading);
