@@ -1,4 +1,3 @@
-<!-- Test properties for BETA release builds -->
 <resources>
-    <bool name="run_ads_tests">true</bool>
+    <bool name="run_ads_tests">false</bool>
 </resources>
