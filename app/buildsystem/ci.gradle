@@ -64,8 +64,8 @@ task deployBeta(type: Exec, dependsOn: ['incrementVersionCode', 'incrementVersio
 }
 
 task uploadStoreBeta(type: Exec) {
-  description = 'Uploads to Google Play Store.'
-  commandLine 'apublisher','-n', 'com.soundcloud.android', '-a', apkPath, '-t', 'beta', '-d'
+  description = 'Uploads Beta apk to Google Play Store.'
+  commandLine 'apublisher','-n', rootProject.applicationId, '-a', apkPath, '-t', 'beta', '-d'
 }
 
 // *********************************************************************************************************************
