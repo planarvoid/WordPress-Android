@@ -51,12 +51,13 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
-        networkManager.switchWifiOff();
 
         TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         final int initialLikedTracksCount = likesScreen.getLoadedTrackCount();
 
         final VisualPlayerElement player = likesScreen.clickTrack(0);
+        player.playForFiveSeconds();
+        networkManager.switchWifiOff();
 
         player.tapToggleLikeButton();
         player.pressBackToCollapse();

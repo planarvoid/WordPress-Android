@@ -312,6 +312,10 @@ public class VisualPlayerElement extends Element {
         return solo.findElement(With.id(R.id.track_page_more));
     }
 
+    public void playForFiveSeconds() {
+        solo.sleep(5000);
+    }
+
     private static class TextChangedCondition implements Condition {
 
         private final String original;
