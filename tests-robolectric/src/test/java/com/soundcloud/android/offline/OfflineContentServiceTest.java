@@ -50,7 +50,7 @@ public class OfflineContentServiceTest {
     private final DownloadResult failedResult1 = DownloadResult.failed(Urn.forTrack(123L));
 
     private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
-    private TestObservables.MockObservable<WriteResult> updateContentAsPendingRemoval;
+    private TestObservables.MockObservable<WriteResult> updateOfflineContent;
     private OfflineContentService service;
     private TestEventBus eventBus;
     private Message downloadMessage;
@@ -58,14 +58,14 @@ public class OfflineContentServiceTest {
     @Before
     public void setUp() {
         deletePendingRemoval = TestObservables.emptyObservable();
-        updateContentAsPendingRemoval = TestObservables.emptyObservable();
+        updateOfflineContent = TestObservables.emptyObservable();
         eventBus = new TestEventBus();
 
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
                 eventBus, offlineContentScheduler, handlerFactory, Schedulers.immediate());
 
         when(downloadOperations.deletePendingRemovals()).thenReturn(deletePendingRemoval);
-        when(downloadOperations.updateContentAsPendingRemoval()).thenReturn(updateContentAsPendingRemoval);
+        when(offlineContentOperations.updateOfflineQueue()).thenReturn(updateOfflineContent);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         downloadMessage = new Message();
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
@@ -78,7 +78,7 @@ public class OfflineContentServiceTest {
     public void updateOfflineLikesWhenOfflineLikesDisabled() {
         stopService();
 
-        expect(updateContentAsPendingRemoval.subscribedTo()).toBeTrue();
+        expect(updateOfflineContent.subscribedTo()).toBeTrue();
     }
 
     @Test

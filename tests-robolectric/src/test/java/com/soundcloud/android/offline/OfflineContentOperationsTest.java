@@ -3,6 +3,7 @@ package com.soundcloud.android.offline;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +17,6 @@ import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesComman
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
 import com.soundcloud.android.offline.commands.RemoveOfflinePlaylistCommand;
 import com.soundcloud.android.offline.commands.StoreOfflinePlaylistCommand;
-import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.offline.commands.UpdateOfflineContentCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -51,7 +51,6 @@ public class OfflineContentOperationsTest {
     @Mock private RemoveOfflinePlaylistCommand removeOfflinePlaylist;
     @Mock private LoadPendingDownloadsCommand loadPendingDownloads;
     @Mock private UpdateOfflineContentCommand updateOfflineContent;
-    @Mock private UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval;
     @Mock private LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     @Mock private LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies;
 
@@ -73,7 +72,6 @@ public class OfflineContentOperationsTest {
 
         when(loadPendingDownloads.toObservable()).thenReturn(Observable.<List<DownloadRequest>>empty());
         when(updateOfflineContent.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(1)));
-        when(updateContentAsPendingRemoval.toObservable()).thenReturn(Observable.<WriteResult>just(new InsertResult(1)));
         when(offlineTrackCount.toObservable()).thenReturn(Observable.just(DOWNLOAD_LIKED_TRACKS_COUNT));
 
         operations = new OfflineContentOperations(
@@ -82,7 +80,8 @@ public class OfflineContentOperationsTest {
                 loadPendingDownloads,
                 settingsStorage,
                 eventBus,
-                offlineTrackCount, storeOfflinePlaylist,
+                offlineTrackCount,
+                storeOfflinePlaylist,
                 removeOfflinePlaylist,
                 policyOperations,
                 loadTracksWithValidPolicies);
@@ -91,9 +90,60 @@ public class OfflineContentOperationsTest {
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
         when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(new ArrayList<Urn>()));
-        operations.loadDownloadRequests().subscribe(subscriber);
+        operations.updateStalePolicies().subscribe(subscriber);
 
         verifyZeroInteractions(policyOperations);
+    }
+
+    @Test
+    public void updateStalePoliciesRequestsPolicyUpdatesFromPolicyOperations() {
+        final List<Urn> tracks = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(124L));
+        when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(tracks));
+
+        operations.updateStalePolicies().subscribe();
+
+        verify(policyOperations).fetchAndStorePolicies(tracks);
+    }
+
+    @Test
+    public void updateStalePoliciesChecksOfflineLikesEnabledFlag() {
+        when(settingsStorage.isOfflineLikesEnabled()).thenReturn(true);
+
+        operations.updateStalePolicies().subscribe();
+
+        verify(settingsStorage).isOfflineLikesEnabled();
+        expect(loadTracksWithStalePolicies.getInput()).toBeTrue();
+    }
+
+    @Test
+    public void updateOfflineQueuePassesTracksWithValidPoliciesToUpdateOfflineContent() {
+        final List<Urn> tracksToDownloads = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(124L));
+        when(loadTracksWithValidPolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(tracksToDownloads));
+
+        operations.updateOfflineQueue().subscribe();
+
+        expect(updateOfflineContent.getInput()).toEqual(tracksToDownloads);
+    }
+
+    @Test
+    public void updateOfflineQueueChecksOfflineLikesEnabledFlag() throws Exception {
+        when(settingsStorage.isOfflineLikesEnabled()).thenReturn(true);
+
+        operations.updateOfflineQueue().subscribe();
+
+        verify(settingsStorage).isOfflineLikesEnabled();
+        expect(loadTracksWithValidPolicies.getInput()).toBeTrue();
+    }
+
+    @Test
+    public void loadDownloadRequestsLoadsUpdatedPendingDownloads() {
+        final TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
+        final List<DownloadRequest> requests = Arrays.asList(new DownloadRequest(Urn.forTrack(123L), "http://"));
+        when(loadPendingDownloads.toObservable()).thenReturn(Observable.just(requests));
+
+        operations.loadDownloadRequests().subscribe(observer);
+
+        expect(observer.getOnNextEvents().get(0)).toContainExactly(requests.get(0));
     }
 
     @Test

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
-import com.soundcloud.android.offline.commands.UpdateContentAsPendingRemovalCommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -31,7 +30,6 @@ public class DownloadOperationsTest {
     @Mock private SecureFileStorage fileStorage;
     @Mock private DownloadResponse response;
     @Mock private DeletePendingRemovalCommand deleteOfflineContent;
-    @Mock private UpdateContentAsPendingRemovalCommand updateContentAsPendingRemoval;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private InputStream downloadStream;
     @Mock private NetworkConnectionHelper connectionHelper;
@@ -46,7 +44,7 @@ public class DownloadOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                connectionHelper, offlineSettings, updateContentAsPendingRemoval);
+                connectionHelper, offlineSettings);
         when(httpClient.downloadFile(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
         when(response.isUnavailable()).thenReturn(false);

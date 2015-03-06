@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline.commands;
 
 import static com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand.buildOfflineLikedTracksQuery;
+import static com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand.buildOfflinePlaylistTracksQuery;
 import static com.soundcloud.android.storage.Table.Likes;
 
 import com.soundcloud.android.commands.Command;
@@ -32,7 +33,7 @@ public class LoadTracksWithValidPoliciesCommand extends Command<Boolean, Collect
                     .order(Likes + "." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC))
                     .toList(new UrnMapper()));
         }
-        set.addAll(database.query(buildOfflineLikedTracksQuery()
+        set.addAll(database.query(buildOfflinePlaylistTracksQuery()
                 .whereEq(TableColumns.TrackPolicies.SYNCABLE, true))
                 .toList(new UrnMapper()));
         return set;
