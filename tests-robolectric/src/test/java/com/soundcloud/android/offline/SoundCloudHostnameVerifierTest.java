@@ -39,6 +39,7 @@ public class SoundCloudHostnameVerifierTest {
         expect(soundCloudHostnameVerifier.verify("vader.sndcdn.com", session)).toBeTrue();
         expect(soundCloudHostnameVerifier.verify("tony.stark.hs.llnwd.net", session)).toBeTrue();
         expect(soundCloudHostnameVerifier.verify("tony-asd.hs.llnwd.net", session)).toBeTrue();
+        expect(soundCloudHostnameVerifier.verify("sndcdn.com", session)).toBeTrue();
     }
 
     @Test
