@@ -1,20 +1,23 @@
 package com.soundcloud.android.tests.payments;
 
-import com.soundcloud.android.framework.TestUser;
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.SubscribeScreen;
-import com.soundcloud.android.screens.SubscribeSuccessScreen;
+import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.framework.TestUser;
 
-public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
+public class SubscribeScreenTest extends ActivityTest<MainActivity> {
 
     private SettingsScreen settingsScreen;
 
-    public EndToEndSubscribeTest() {
+    public SubscribeScreenTest() {
         super(MainActivity.class);
     }
 
@@ -27,30 +30,22 @@ public class EndToEndSubscribeTest extends ActivityTest<MainActivity> {
     }
 
     @PaymentTest
-    public void testUserCanSubscribe() {
-        new PaymentStateHelper().resetTestAccount();
+    public void testUserCanNavigateToSubscribePage() {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
-        subscribeScreen.clickBuy();
-        waiter.waitTwoSeconds();
-        BillingResponse.success().insertInto(solo.getCurrentActivity());
-        waiter.waitTwoSeconds();
-        assertTrue(new SubscribeSuccessScreen(solo).isVisible());
+        assertThat(subscribeScreen, is(visible()));
     }
 
     @PaymentTest
-    public void testInvalidPayment() {
-        new PaymentStateHelper().resetTestAccount();
+    public void testUserIsPresentedSubscribeOption() {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
-        BillingResponse.invalid().insertInto(solo.getCurrentActivity());
-        waiter.waitTwoSeconds();
-        assertTrue(waiter.expectToastWithText(toastObserver, "Verification failed"));
+        BillingResponse.cancelled().insertInto(solo.getCurrentActivity());
+        assertTrue(waiter.expectToastWithText(toastObserver, "User cancelled"));
     }
 
     @Override
     protected void observeToastsHelper() {
         toastObserver.observe();
     }
-
 }
