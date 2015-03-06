@@ -40,7 +40,7 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         assertThat(playerElement, is(visible()));
     }
 
-    public void testLoadsNextPage() {
+    public void ignore_testLoadsNextPage() {
         TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         int numberOfTracks = likesScreen.getLoadedTrackCount();
         assertThat(numberOfTracks, is(greaterThan(0)));
@@ -50,7 +50,7 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         assertThat(likesScreen.getLoadedTrackCount(), is(greaterThan(numberOfTracks)));
     }
 
-    public void testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
+    public void ignore_testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
         networkManager.switchWifiOff();
 
         TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
