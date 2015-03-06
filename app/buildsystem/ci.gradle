@@ -58,10 +58,11 @@ task buildBetaCI(dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd', 
   description = 'Assembles all Beta builds and performs static analysis for CI.'
 }
 
-task deployBeta(type: Exec, dependsOn: ['incrementVersionCode', 'incrementVersionName', 'uploadStoreBeta',
-                                        'commitVersionCodeBump', 'tag', 'uploadGithub']) {
+task deployBeta(type: Exec, dependsOn: ['incrementVersionCode', 'commitVersionBump', 'uploadStoreBeta', 'tag',
+                                        'uploadGithub']) {
   description = 'Deploy Beta build to playstore and github.'
 }
+deployBeta.mustRunAfter('buildBetaCI')
 
 task uploadStoreBeta(type: Exec) {
   description = 'Uploads Beta apk to Google Play Store.'
