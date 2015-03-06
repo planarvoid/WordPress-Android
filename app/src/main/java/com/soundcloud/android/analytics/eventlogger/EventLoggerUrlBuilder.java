@@ -303,6 +303,7 @@ public class EventLoggerUrlBuilder {
                 .appendQueryParameter(FORMAT, event.getFormat())
                 .appendQueryParameter(URL, event.getCdnHost())
                 .appendQueryParameter(ERROR_CODE, event.getCategory())
+                .appendQueryParameter(CONNECTION_TYPE, event.getConnectionType().getValue())
                 .build().toString();
     }
 
