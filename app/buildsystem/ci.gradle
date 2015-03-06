@@ -32,7 +32,7 @@ staticAnalysis.mustRunAfter('assembleDebugCI', 'assembleBetaCI', 'assembleReleas
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task assembleDebugCI(dependsOn: ['renameApk', 'assembleDebug']) {
+task assembleDebugCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleDebug']) {
   description 'Assembles all Debug builds for CI. Pre-dexing is disabled.'
   rootProject.ext.preDexLibs = false
 }
@@ -41,7 +41,7 @@ task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
   description 'Assembles all Debug builds and performs static analysis for CI.'
 }
 
-task assembleEnd2endCI(dependsOn: ['renameApk', 'assembleEnd2end']) {
+task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleEnd2end']) {
   description 'Assembles End2End debug build for payments test on CI.'
   rootProject.ext.preDexLibs = false
 }
@@ -50,7 +50,7 @@ task assembleEnd2endCI(dependsOn: ['renameApk', 'assembleEnd2end']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task assembleBetaCI(dependsOn: ['renameApk', 'assembleBeta']) {
+task assembleBetaCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleBeta']) {
   description = 'Assembles all Beta builds for CI'
 }
 
@@ -72,7 +72,7 @@ task uploadStoreBeta(type: Exec) {
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task assembleReleaseCI(dependsOn: ['renameApk', 'assembleRelease']) {
+task assembleReleaseCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleRelease']) {
   description = 'Assembles all Release builds for CI'
 }
 
