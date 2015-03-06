@@ -84,10 +84,11 @@ task buildReleaseCI(dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', '
 // Rake Wrappers
 // *********************************************************************************************************************
 
-task commitVersionCodeBump(type: Exec) {
-  description = 'Commits versionCode bump to Github. Currently using rake to do so.'
+task commitVersionBump(type: Exec) {
+  description = 'Commits versionCode and versionName bump to Github. Currently using rake to do so.'
   commandLine 'rake', 'github:commit_versioncode_bump'
 }
+commitVersionBump.mustRunAfter('incrementVersionCode', 'incrementVersionName')
 
 task tag(type: Exec) {
   description = 'Tags the current version. Currently using rake to do so.'
