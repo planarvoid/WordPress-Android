@@ -81,6 +81,17 @@ task buildReleaseCI(dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', '
   description = 'Assembles all Release builds and performs static analysis for CI.'
 }
 
+task deployRelease(type: Exec, dependsOn: ['incrementVersionCode', 'commitVersionBump', 'uploadStoreRelease', 'tag',
+                                           'uploadGithub']) {
+  description = 'Deploy Release build to playstore and github.'
+}
+deployRelease.mustRunAfter('buildReleaseCI')
+
+task uploadStoreRelease(type: Exec) {
+  description = 'Uploads Release apk to Google Play Store.'
+  commandLine 'apublisher','-n', rootProject.applicationId, '-a', apkPath, '-t', 'release', '-d'
+}
+
 // *********************************************************************************************************************
 // Rake Wrappers
 // *********************************************************************************************************************
