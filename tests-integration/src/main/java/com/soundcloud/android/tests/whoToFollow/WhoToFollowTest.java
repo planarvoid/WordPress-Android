@@ -16,9 +16,10 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
     private Waiter waiter;
     protected HomeScreen homeScreen;
-    protected SignUpMethodScreen signUpScreen;
+    protected SignUpMethodScreen signUpMethodScreen;
     protected SuggestedUsersScreen suggestedUsersScreen;
     protected SuggestedUsersCategoryScreen suggestedUsersCategoryScreen;
+    protected SignUpBasicsScreen signUpBasicsScreen;
 
     public WhoToFollowTest() {
         super(OnboardActivity.class);
@@ -26,7 +27,7 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
     public void setUp() throws Exception {
         super.setUp();
-        signUpScreen  = new SignUpMethodScreen(solo);
+        homeScreen = new HomeScreen(solo);
         waiter = new Waiter(solo);
     }
 
@@ -68,14 +69,15 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
     }
 
     private void createNewUser() {
-        homeScreen = new HomeScreen(solo);
-        SignUpMethodScreen signUpMethodScreen = homeScreen.clickSignUpButton();
-        SignUpBasicsScreen signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
+        signUpMethodScreen = homeScreen.clickSignUpButton();
+        signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
 
 
         // TODO : Re-use the same user
         signUpBasicsScreen.typeEmail(generateEmail());
         signUpBasicsScreen.typePassword("password123");
+        signUpBasicsScreen.chooseBirthMonth("April");
+        signUpBasicsScreen.typeBirthYear("1984");
 
         signUpBasicsScreen.signup();
         signUpBasicsScreen.acceptTerms();
