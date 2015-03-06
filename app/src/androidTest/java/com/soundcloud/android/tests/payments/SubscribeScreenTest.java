@@ -37,6 +37,7 @@ public class SubscribeScreenTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testUserIsPresentedSubscribeOption() {
+        PaymentStateHelper.resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
@@ -48,4 +49,5 @@ public class SubscribeScreenTest extends ActivityTest<MainActivity> {
     protected void observeToastsHelper() {
         toastObserver.observe();
     }
+
 }

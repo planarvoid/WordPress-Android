@@ -28,7 +28,7 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testUserCanSubscribe() {
-        new PaymentStateHelper().resetTestAccount();
+        PaymentStateHelper.resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
@@ -39,7 +39,7 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testInvalidPayment() {
-        new PaymentStateHelper().resetTestAccount();
+        PaymentStateHelper.resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
