@@ -33,7 +33,7 @@ class PaymentStateHelper {
             final Secrets secrets = loadSecretsFromDevice();
             buildDeleteSubscriptionConnection(secrets).getResponseCode();
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to reset test user subscription state: connection error");
+            throw new IllegalStateException("Failed to reset test user subscription state: connection error", e);
         }
     }
 
@@ -44,7 +44,7 @@ class PaymentStateHelper {
             reader = new BufferedReader(new FileReader(keyFile));
             return new Secrets(reader.readLine(), reader.readLine());
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to reset test user subscription state: error reading keys");
+            throw new IllegalStateException("Failed to reset test user subscription state: error reading keys", e);
         } finally {
             IOUtils.close(reader);
         }

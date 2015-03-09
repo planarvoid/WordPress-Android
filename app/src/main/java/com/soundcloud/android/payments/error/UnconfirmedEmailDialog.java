@@ -11,7 +11,7 @@ import android.support.v4.app.FragmentManager;
 
 public class UnconfirmedEmailDialog extends DialogFragment {
 
-    private static final String TAG = "UnconfirmedEmail";
+    private static final String TAG = "payment_error";
 
     private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override

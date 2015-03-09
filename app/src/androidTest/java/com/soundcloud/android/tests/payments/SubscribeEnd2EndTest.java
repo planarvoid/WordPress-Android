@@ -30,11 +30,11 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
     public void testUserCanSubscribe() {
         PaymentStateHelper.resetTestAccount();
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
-        subscribeScreen.clickBuy();
+        SubscribeSuccessScreen successScreen = subscribeScreen.clickBuyForSuccess();
         waiter.waitTwoSeconds();
         BillingResponse.success().insertInto(solo.getCurrentActivity());
-        waiter.waitTwoSeconds();
-        assertTrue(new SubscribeSuccessScreen(solo).isVisible());
+        waiter.waitFiveSeconds();
+        assertTrue(successScreen.isVisible());
     }
 
     @PaymentTest
@@ -44,7 +44,6 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
         subscribeScreen.clickBuy();
         waiter.waitTwoSeconds();
         BillingResponse.invalid().insertInto(solo.getCurrentActivity());
-        waiter.waitTwoSeconds();
         assertTrue(waiter.expectToastWithText(toastObserver, "Verification failed"));
     }
 

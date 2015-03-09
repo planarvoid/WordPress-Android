@@ -16,4 +16,9 @@ public class SubscribeSuccessScreen extends Screen {
         return ACTIVITY;
     }
 
+    public SettingsScreen goBack() {
+        testDriver.goBack();
+        return new SettingsScreen(testDriver);
+    }
+
 }

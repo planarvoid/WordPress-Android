@@ -17,6 +17,16 @@ public class SubscribeScreen extends Screen {
         return ACTIVITY;
     }
 
+    public SubscribeSuccessScreen clickBuyForSuccess() {
+        clickBuy();
+        return new SubscribeSuccessScreen(testDriver);
+    }
+
+    public PaymentErrorScreen clickBuyForFailure() {
+        clickBuy();
+        return new PaymentErrorScreen(testDriver);
+    }
+
     public void clickBuy() {
         waiter.waitForElement(R.id.subscribe_buy);
         testDriver.clickOnButtonWithText(R.string.subscribe_buy);
