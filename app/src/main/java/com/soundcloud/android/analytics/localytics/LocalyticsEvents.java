@@ -12,10 +12,6 @@ final class LocalyticsEvents {
     static final String SKIPPY_INITILIAZATION_SUCCESS = "Skippy Init Success";
     static final String STREAM_PROXY_CONFIGURED = "Stream proxy configured";
 
-    static final class DeviceMetrics {
-        static final String DB_SIZE = "Database size";
-    }
-
     static final class UI {
         static final String FOLLOW = "Follow";
         static final String UNFOLLOW = "Unfollow";
