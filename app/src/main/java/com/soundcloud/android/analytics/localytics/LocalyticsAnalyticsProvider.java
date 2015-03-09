@@ -10,7 +10,6 @@ import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.BufferUnderrunEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
-import com.soundcloud.android.events.DeviceMetricsEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
@@ -25,7 +24,6 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.utils.Log;
 
 import android.support.v4.util.ArrayMap;
@@ -156,8 +154,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             tagEvent(LocalyticsEvents.BUFFER_UNDERRUN, event.getAttributes());
         } else if (event instanceof SkippyPlayEvent) {
             tagEvent(LocalyticsEvents.SKIPPY_PLAY, event.getAttributes());
-        } else if (event instanceof DeviceMetricsEvent) {
-            handleDeviceMetricsEvent((DeviceMetricsEvent) event);
         } else if (event instanceof SkippyInitilizationFailedEvent) {
             tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_ERROR, event.getAttributes());
         } else if (event instanceof SkippyInitilizationSucceededEvent) {
@@ -304,14 +300,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
                 return "playback_error";
             default:
                 throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
-        }
-    }
-
-    private void handleDeviceMetricsEvent(DeviceMetricsEvent event) {
-        if (event.getKind().equals(DeviceMetricsEvent.KEY_DATABASE)) {
-            tagEvent(LocalyticsEvents.DeviceMetrics.DB_SIZE, event.getAttributes());
-        } else {
-            throw new IllegalArgumentException("Unknown device metrics event kind: " + event.getKind());
         }
     }
 }
