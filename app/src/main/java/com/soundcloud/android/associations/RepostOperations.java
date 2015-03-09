@@ -11,8 +11,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -43,12 +43,16 @@ public class RepostOperations implements RepostCreator {
     public Observable<PropertySet> toggleRepost(final Urn soundUrn, final boolean addRepost) {
         if (addRepost) {
             return repostStorage.addRepost(soundUrn)
-                    .flatMap(createRemoteRepost(soundUrn))
+                    .flatMap(sendApiRequest(buildAddRepostRequest(soundUrn)))
                     .map(returning(repostProperties(soundUrn, true)))
                     .doOnNext(publishEntityStateChanged)
                     .onErrorResumeNext(rollbackRepost(soundUrn));
         } else {
-            return Observable.never();
+            return repostStorage.removeRepost(soundUrn)
+                    .flatMap(sendApiRequest(buildRemoveRepostRequest(soundUrn)))
+                    .map(returning(repostProperties(soundUrn, false)))
+                    .doOnNext(publishEntityStateChanged)
+                    .onErrorResumeNext(rollbackRepostRemoval(soundUrn));
         }
     }
 
@@ -58,26 +62,43 @@ public class RepostOperations implements RepostCreator {
                 .doOnNext(publishEntityStateChanged);
     }
 
+    private Observable<PropertySet> rollbackRepostRemoval(Urn soundUrn) {
+        return repostStorage.addRepost(soundUrn)
+                .map(returning(repostProperties(soundUrn, true)))
+                .doOnNext(publishEntityStateChanged);
+    }
+
     private PropertySet repostProperties(Urn soundUrn, boolean addRepost) {
         return PropertySet.from(
                 PlayableProperty.URN.bind(soundUrn),
                 PlayableProperty.IS_REPOSTED.bind(addRepost));
     }
 
-    private Func1<InsertResult, Observable<ApiResponse>> createRemoteRepost(final Urn soundUrn) {
-        return new Func1<InsertResult, Observable<ApiResponse>>() {
+    private Func1<WriteResult, Observable<ApiResponse>> sendApiRequest(final ApiRequest request) {
+        return new Func1<WriteResult, Observable<ApiResponse>>() {
             @Override
-            public Observable<ApiResponse> call(InsertResult propertySet) {
-                return apiScheduler.response(buildAddRepostRequest(soundUrn));
+            public Observable<ApiResponse> call(WriteResult ignored) {
+                return apiScheduler.response(request);
             }
         };
     }
 
     private ApiRequest buildAddRepostRequest(Urn soundUrn) {
-        return ApiRequest.Builder.put(ApiEndpoints.MY_TRACK_REPOSTS
+        return ApiRequest.Builder.put(getRepostEndpoint(soundUrn)
                 .path(soundUrn.getNumericId()))
                 .forPublicApi()
                 .build();
+    }
+
+    private ApiRequest buildRemoveRepostRequest(Urn soundUrn) {
+        return ApiRequest.Builder.delete(getRepostEndpoint(soundUrn)
+                .path(soundUrn.getNumericId()))
+                .forPublicApi()
+                .build();
+    }
+
+    private ApiEndpoints getRepostEndpoint(Urn soundUrn) {
+        return (soundUrn.isTrack() ? ApiEndpoints.MY_TRACK_REPOSTS : ApiEndpoints.MY_PLAYLIST_REPOSTS);
     }
 
 }
