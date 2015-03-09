@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.content.Context;
@@ -85,11 +86,11 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
     }
 
     @Override
-    void showPublicOptions(int repostsCount, boolean repostedByUser) {
+    void showPublicOptions(boolean repostedByUser) {
         updateToggleButton(repostToggle,
                 R.string.accessibility_repost_action,
                 R.plurals.accessibility_stats_reposts,
-                repostsCount,
+                Consts.NOT_SET,
                 repostedByUser,
                 R.string.accessibility_stats_user_reposted);
         repostToggle.setVisibility(View.VISIBLE);

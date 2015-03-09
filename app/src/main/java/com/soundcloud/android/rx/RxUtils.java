@@ -17,6 +17,12 @@ public final class RxUtils {
             return isEnabled;
         }
     };
+    public static final Func1<Object, Void> TO_VOID = new Func1<Object, Void>() {
+        @Override
+        public Void call(Object ignore) {
+            return null;
+        }
+    };
 
     public static <T> void emitIterable(Observer<? super T> observer, Iterable<T> iterable) {
         for (T item : iterable){
@@ -24,12 +30,14 @@ public final class RxUtils {
         }
     }
 
-    public static final Func1<Object, Void> TO_VOID = new Func1<Object, Void>() {
-        @Override
-        public Void call(Object ignore) {
-            return null;
-        }
-    };
+    public static <T> Func1<Object, T> returning(final T obj) {
+        return new Func1<Object, T>() {
+            @Override
+            public T call(Object o) {
+                return obj;
+            }
+        };
+    }
 
     private RxUtils() {}
 }

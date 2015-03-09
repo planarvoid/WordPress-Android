@@ -33,7 +33,7 @@ import javax.inject.Inject;
  * as property sets.
  */
 @Deprecated
-public class LegacyRepostOperations {
+public class LegacyRepostOperations implements RepostCreator {
 
     public static final String TAG = LegacyRepostOperations.class.getSimpleName();
 
@@ -97,7 +97,7 @@ public class LegacyRepostOperations {
                 Playable updated = soundAssociation.getPlayable();
                 logPlayable("CACHE/PUBLISH", updated);
                 modelManager.cache(updated, PublicApiResource.CacheUpdateMode.NONE);
-                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(updated.getUrn(), updated.user_repost, updated.reposts_count));
+                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(updated.getUrn(), updated.user_repost));
             }
         };
     }

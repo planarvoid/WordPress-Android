@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
+class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
 
     @Inject
     StorePostsCommand(PropellerDatabase database) {
@@ -34,15 +34,15 @@ public class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
         return database.bulkInsert(Table.Posts, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
-    private ContentValues buildContentValuesForPlaylistPost(PropertySet playlistPost) {
+    private ContentValues buildContentValuesForPlaylistPost(PropertySet post) {
         final ContentValues cv = new ContentValues();
-        final Urn targetUrn = playlistPost.get(PostProperty.TARGET_URN);
+        final Urn targetUrn = post.get(PostProperty.TARGET_URN);
         cv.put(Posts.TARGET_ID, targetUrn.getNumericId());
         cv.put(Posts.TARGET_TYPE, targetUrn.isTrack()
                 ? TableColumns.Sounds.TYPE_TRACK
                 : TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(Posts.TYPE, playlistPost.get(PostProperty.IS_REPOST) ? Posts.TYPE_REPOST : Posts.TYPE_POST);
-        cv.put(Posts.CREATED_AT, playlistPost.get(PostProperty.CREATED_AT).getTime());
+        cv.put(Posts.TYPE, post.get(PostProperty.IS_REPOST) ? Posts.TYPE_REPOST : Posts.TYPE_POST);
+        cv.put(Posts.CREATED_AT, post.get(PostProperty.CREATED_AT).getTime());
         return cv;
     }
 }

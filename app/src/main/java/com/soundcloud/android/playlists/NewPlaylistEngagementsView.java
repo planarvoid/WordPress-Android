@@ -92,7 +92,7 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @Override
-    void showPublicOptions(int repostsCount, boolean repostedByUser) {
+    void showPublicOptions(boolean repostedByUser) {
         popupMenuWrapper.setItemVisible(R.id.share, true);
         popupMenuWrapper.setItemVisible(R.id.repost, !repostedByUser);
         popupMenuWrapper.setItemVisible(R.id.unpost, repostedByUser);

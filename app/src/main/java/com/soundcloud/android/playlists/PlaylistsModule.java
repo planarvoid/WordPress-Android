@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.associations.RepostsModule;
 import com.soundcloud.android.commands.PagedQueryCommand;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
@@ -32,7 +33,8 @@ import javax.inject.Provider;
                 PlaylistPostsFragment.class,
                 AddToPlaylistDialogFragment.class,
                 CreatePlaylistDialogFragment.class
-        }
+        },
+        includes = RepostsModule.class
 )
 public class PlaylistsModule {
 

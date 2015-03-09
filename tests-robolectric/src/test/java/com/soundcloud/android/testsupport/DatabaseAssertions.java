@@ -20,6 +20,7 @@ import com.soundcloud.propeller.test.matchers.QueryBinding;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
 
+import java.util.Date;
 import java.util.List;
 
 public class DatabaseAssertions {
@@ -162,6 +163,37 @@ public class DatabaseAssertions {
         assertThat(select(from(Table.Posts.name())
                 .whereEq(TableColumns.Posts.TARGET_ID, playlistUrn.getNumericId())
                 .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)), counts(1));
+    }
+
+    public void assertTrackRepostInserted(Urn urn, Date createdAt) {
+        assertThat(select(from(Table.Posts.name())
+                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
+                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST)), counts(1));
+
+    }
+
+    public void assertTrackRepostNotExistent(Urn urn) {
+        assertThat(select(from(Table.Posts.name())
+                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST)), counts(0));
+    }
+
+    public void assertPlaylistRepostInserted(Urn urn, Date createdAt) {
+        assertThat(select(from(Table.Posts.name())
+                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Posts.CREATED_AT, createdAt.getTime())
+                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST)), counts(1));
+    }
+
+    public void assertPlaylistRepostNotExistent(Urn urn) {
+        assertThat(select(from(Table.Posts.name())
+                .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
+                .whereEq(TableColumns.Posts.TARGET_TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST)), counts(0));
     }
 
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {
