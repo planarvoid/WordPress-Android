@@ -41,11 +41,6 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
     }
 
     @PaymentTest
-    public void testUnconfirmedEmailError() {
-        // TODO
-    }
-
-    @PaymentTest
     public void testWrongUserError() {
         // TODO
     }
