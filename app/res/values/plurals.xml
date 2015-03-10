@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+
+    The plurals on this file were extracted from the the strings.xml file
+    since they contain 3 forms of plural, which should not happen for english.
+    English should only have two plural forms ("one" and "other")
+
+    This facilitates the translation of strings via Transifex,
+    which does not support more than 2 quantity types for english
+
+    Until this translation issue on Transifex is fixed, we will keep this file.
+    When it is fixed, we should move these plurals back to the strings.xml file.
+
+    -->
+
+    <!-- __NOTIFICATIONS -->
+    <plurals name="dashboard_notifications_activity_message_repost">
+        <item quantity="one">on %1$s</item>
+        <item quantity="two">on %1$s and %2$s</item>
+        <item quantity="other">on %1$s, %2$s and other sounds</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_activity">
+        <item quantity="one">from %2$s on %1$s</item>
+        <item quantity="two">Comments and likes from %2$s and %3$s</item>
+        <item quantity="other">Comments and likes from %2$s, %3$s and others</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment_single_track">
+        <item quantity="one">new comment on %2$s from %3$s</item>
+        <item quantity="two">%1$d new comments on %2$s from %3$s and %4$s</item>
+        <item quantity="other">%1$d new comments on %2$s from %3$s, %4$s and others</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_like">
+        <item quantity="one">on %1$s</item>
+        <item quantity="two">on %1$s and %2$s</item>
+        <item quantity="other">on %1$s, %2$s and other sounds</item>
+    </plurals>
+
+</resources>
