@@ -117,16 +117,6 @@ public class PlayerArtworkController implements ProgressAware, OnScrubListener, 
         clear();
     }
 
-    private void configureBounds() {
-        final int width = artworkView.getWidth();
-        final int imageViewWidth = wrappedImageView.getMeasuredWidth();
-
-        if (width > 0 && imageViewWidth > 0) {
-            helper = new TranslateXHelper(0, Math.min(0, -(imageViewWidth - width)));
-            progressController.setHelper(helper);
-
-        }
-    }
 
     public static class Factory {
         private final ProgressController.Factory animationControllerFactory;

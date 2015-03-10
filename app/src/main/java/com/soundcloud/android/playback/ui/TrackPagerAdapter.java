@@ -340,10 +340,6 @@ public class TrackPagerAdapter extends PagerAdapter {
         return trackSubject;
     }
 
-    private boolean isViewPresentingCurrentTrack(View trackPage) {
-        return trackByViews.containsKey(trackPage) && playQueueManager.isCurrentTrack(trackByViews.get(trackPage).getTrackUrn());
-    }
-
     private Boolean isTrackRelatedToView(View trackPage, Urn urn) {
         return trackByViews.containsKey(trackPage) && trackByViews.get(trackPage).getTrackUrn().equals(urn)
                 || trackPageRecycler.isPageForUrn(trackPage, urn);
@@ -384,7 +380,10 @@ public class TrackPagerAdapter extends PagerAdapter {
 
         @Override
         public void onNext(Playa.StateTransition stateTransition) {
-            presenter.setPlayState(trackPage, stateTransition, isViewPresentingCurrentTrack(trackPage), isForeground);
+            final boolean viewPresentingCurrentTrack = trackByViews.containsKey(trackPage)
+                    && stateTransition.getTrackUrn().equals(trackByViews.get(trackPage).getTrackUrn());
+
+            presenter.setPlayState(trackPage, stateTransition, viewPresentingCurrentTrack, isForeground);
         }
     }
 
