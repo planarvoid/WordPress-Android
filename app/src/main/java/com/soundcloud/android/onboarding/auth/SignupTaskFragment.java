@@ -46,7 +46,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
             setRetryToLogin(MAX_LOGIN_RETRY);
         }
 
-        if (shouldRetryLogin()) {
+        if (shouldRetryLogin(result)) {
             retryToLogin();
         } else {
             setRetryToLogin(0);
@@ -63,8 +63,8 @@ public class SignupTaskFragment extends AuthTaskFragment {
         handler.postDelayed(loginOperation, DELAY_BEFORE_RETRY);
     }
 
-    private boolean shouldRetryLogin() {
-        return remainingLoginTries > 0;
+    private boolean shouldRetryLogin(AuthTaskResult result) {
+        return !result.wasSuccess() && remainingLoginTries > 0;
     }
 
     private LoginTask getLoginTask() {
