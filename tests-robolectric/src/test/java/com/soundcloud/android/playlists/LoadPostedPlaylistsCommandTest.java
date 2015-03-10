@@ -8,6 +8,7 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -52,6 +53,21 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(10, Long.MAX_VALUE)).call();
 
         expect(result).toEqual(Arrays.asList(playlist2, playlist1));
+    }
+
+    @Test
+    public void shouldReturnTrackCountAsMaximumOfRemoteAndLocalCounts() throws Exception {
+        expect(playlist1.get(PlaylistProperty.TRACK_COUNT)).toEqual(2);
+
+        final Urn playlistUrn = playlist1.get(PlaylistProperty.URN);
+        testFixtures().insertPlaylistTrack(playlistUrn, 0);
+        testFixtures().insertPlaylistTrack(playlistUrn, 1);
+        testFixtures().insertPlaylistTrack(playlistUrn, 2);
+
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(10, Long.MAX_VALUE)).call();
+
+        expect(result.get(1).get(PlaylistProperty.URN)).toEqual(playlistUrn);
+        expect(result.get(1).get(PlaylistProperty.TRACK_COUNT)).toEqual(3);
     }
 
     @Test

@@ -29,12 +29,6 @@ import android.content.ContentProvider;
 import java.io.File;
 import java.lang.reflect.Method;
 
-/**
- * In order to use a file-based test database, annotate your test classes with
- * <code>
- *     \@DatabaseConfig.UsingDatabaseMap(DefaultTestRunner.FileDatabaseMap.class)
- * </code>.
- */
 @Deprecated
 public class DefaultTestRunner extends RobolectricTestRunner {
     public static TestApplication application;

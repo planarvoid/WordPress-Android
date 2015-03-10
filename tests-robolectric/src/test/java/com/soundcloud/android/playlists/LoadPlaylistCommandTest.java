@@ -41,6 +41,23 @@ public class LoadPlaylistCommandTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadsPlaylistWithTrackCountAsMaximumOfLocalAndRemoteFromDatabase() throws Exception {
+        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+
+        expect(apiPlaylist.getTrackCount()).toEqual(2);
+
+        final Urn playlistUrn = apiPlaylist.getUrn();
+        testFixtures().insertPlaylistTrack(playlistUrn, 0);
+        testFixtures().insertPlaylistTrack(playlistUrn, 1);
+        testFixtures().insertPlaylistTrack(playlistUrn, 2);
+
+        PropertySet playlist = command.with(apiPlaylist.getUrn()).call();
+
+        expect(playlist.get(PlaylistProperty.URN)).toEqual(playlistUrn);
+        expect(playlist.get(PlaylistProperty.TRACK_COUNT)).toEqual(3);
+    }
+
+    @Test
     public void loadsLikedPlaylistFromDatabase() throws Exception {
         ApiPlaylist apiPlaylist = testFixtures().insertLikedPlaylist(new Date(100));
 

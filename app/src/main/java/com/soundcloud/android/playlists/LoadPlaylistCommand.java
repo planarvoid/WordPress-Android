@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
+import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
 import com.soundcloud.android.commands.Command;
@@ -25,7 +26,8 @@ class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand>
 
     @Override
     public PropertySet call() throws Exception {
-        final List<PropertySet> queryResult = database.query(buildQuery(input)).toList(new PlaylistItemMapper());
+        final Query query = buildQuery(input);
+        final List<PropertySet> queryResult = database.query(query).toList(new PlaylistInfoMapper());
         return queryResult.isEmpty() ? PropertySet.create() : queryResult.get(0);
     }
 
@@ -43,12 +45,15 @@ class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand>
                         TableColumns.SoundView.PERMALINK_URL,
                         TableColumns.SoundView.SHARING,
                         TableColumns.SoundView.CREATED_AT,
+                        count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         exists(likeQuery()).as(TableColumns.SoundView.USER_LIKE),
                         exists(repostQuery()).as(TableColumns.SoundView.USER_REPOST),
-                        exists(isMarkedForOfflineQuery()).as(PlaylistItemMapper.IS_MARKED_FOR_OFFLINE)
+                        exists(isMarkedForOfflineQuery()).as(PlaylistMapper.IS_MARKED_FOR_OFFLINE)
                 )
                 .whereEq(TableColumns.SoundView._ID, input.getNumericId())
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
+                .groupBy(Table.SoundView.field(TableColumns.SoundView._ID));
     }
 
     private Query likeQuery() {

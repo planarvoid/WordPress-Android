@@ -2,6 +2,9 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -35,11 +38,28 @@ public class LoadLikedPlaylistCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsTrackLike() throws Exception {
+    public void loadsPlaylistLike() throws Exception {
         playlist = testFixtures().insertLikedPlaylist(LIKED_DATE_1).toPropertySet();
 
         PropertySet result = command.with(playlist.get(TrackProperty.URN)).call();
 
         expect(result).toEqual(LoadLikedPlaylistsCommandTest.expectedLikedPlaylistFor(playlist, LIKED_DATE_1));
+    }
+
+    @Test
+    public void loadsPlaylistLikeWithTrackCountAsMaximumOfLocalAndRemoteFromDatabase() throws Exception {
+        ApiPlaylist apiPlaylist = testFixtures().insertLikedPlaylist(LIKED_DATE_1);
+
+        expect(apiPlaylist.getTrackCount()).toEqual(2);
+
+        final Urn playlistUrn = apiPlaylist.getUrn();
+        testFixtures().insertPlaylistTrack(playlistUrn, 0);
+        testFixtures().insertPlaylistTrack(playlistUrn, 1);
+        testFixtures().insertPlaylistTrack(playlistUrn, 2);
+
+        PropertySet playlist = command.with(apiPlaylist.getUrn()).call();
+
+        expect(playlist.get(PlaylistProperty.URN)).toEqual(playlistUrn);
+        expect(playlist.get(PlaylistProperty.TRACK_COUNT)).toEqual(3);
     }
 }

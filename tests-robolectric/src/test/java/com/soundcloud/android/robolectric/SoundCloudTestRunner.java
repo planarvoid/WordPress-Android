@@ -17,6 +17,7 @@ import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.xtremelabs.robolectric.util.SQLiteMap;
 import dagger.ObjectGraph;
 import org.junit.runners.model.InitializationError;
 import org.mockito.MockitoAnnotations;
@@ -24,6 +25,12 @@ import org.mockito.MockitoAnnotations;
 import java.io.File;
 import java.lang.reflect.Method;
 
+/**
+ * In order to use a file-based test database, annotate your test classes with
+ * <code>
+ *     \@DatabaseConfig.UsingDatabaseMap(SoundCloudTestRunner.FileDatabaseMap.class)
+ * </code>.
+ */
 public class SoundCloudTestRunner extends RobolectricTestRunner {
 
     private static final File MANIFEST = new File("app/AndroidManifest.xml");
@@ -68,5 +75,13 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ShadowArrayMap.class);
         Robolectric.bindShadowClass(ShadowBase64.class);
         Robolectric.bindShadowClass(ShadowBaseBundle.class);
+    }
+
+    @SuppressWarnings("UnusedDeclaration")
+    public static class FileDatabaseMap extends SQLiteMap {
+        @Override
+        public String getConnectionString() {
+            return "jdbc:sqlite:tests-" + System.currentTimeMillis() +".sqlite";
+        }
     }
 }
