@@ -42,6 +42,8 @@ public class NavigationFragment extends Fragment {
     // normal rows (below profile)
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
+    private static final String STREAM = "stream";
+
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
     private NavigationCallbacks callbacks;
@@ -93,7 +95,7 @@ public class NavigationFragment extends Fragment {
 
         final Uri data = intent.getData();
         if (data != null) {
-            if (data.getLastPathSegment().equals("stream")) {
+            if (STREAM.equals(data.getHost()) || STREAM.equals(data.getLastPathSegment())) {
                 selectItem(NavItem.STREAM.ordinal());
                 return true;
             } else if (data.getLastPathSegment().equals("explore")) {
