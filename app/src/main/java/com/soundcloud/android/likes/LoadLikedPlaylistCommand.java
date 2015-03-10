@@ -54,9 +54,8 @@ public class LoadLikedPlaylistCommand extends Command<Urn, PropertySet, LoadLike
                         TableColumns.SoundView.SHARING,
                         count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         field(Table.Likes + "." + TableColumns.Likes.CREATED_AT).as(TableColumns.Likes.CREATED_AT))
-
+                .innerJoin(Table.SoundView.name(), likesSoundViewJoin)
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
-                .innerJoin(Table.SoundView.name(),likesSoundViewJoin)
                 .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT))
                 .groupBy(Table.SoundView.field(TableColumns.SoundView._ID));
