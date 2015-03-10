@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,7 +68,7 @@ public class PlaylistGridPresenter implements CellPresenter<ApiPlaylist> {
         } else if (tags.size() == 1) {
             return "#" + tags.get(0);
         } else {
-            return "";
+            return ScTextUtils.EMPTY_STRING;
         }
     }
 
