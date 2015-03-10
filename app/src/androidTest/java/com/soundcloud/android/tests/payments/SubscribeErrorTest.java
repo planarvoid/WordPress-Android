@@ -40,16 +40,6 @@ public class SubscribeErrorTest extends ActivityTest<MainActivity> {
         assertEquals(errorScreen.getMessage(), solo.getString(R.string.payments_error_already_subscribed));
     }
 
-    @PaymentTest
-    public void testWrongUserError() {
-        // TODO
-    }
-
-    @PaymentTest
-    public void testStaleCheckoutError() {
-        // TODO
-    }
-
     private SubscribeSuccessScreen subscribe() {
         SubscribeScreen subscribeScreen = settingsScreen.clickSubscribe();
         SubscribeSuccessScreen successScreen = subscribeScreen.clickBuyForSuccess();
