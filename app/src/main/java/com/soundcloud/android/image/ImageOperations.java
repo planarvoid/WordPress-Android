@@ -284,7 +284,12 @@ public class ImageOperations {
     }
 
     @Nullable
-    public Bitmap getCachedBitmap(Urn resourceUrn, ApiImageSize apiImageSize, int targetWidth, int targetHeight){
+    public Bitmap getCachedBitmap(Urn resourceUrn, ApiImageSize apiImageSize) {
+        return getCachedBitmap(resourceUrn, apiImageSize, apiImageSize.width, apiImageSize.height);
+    }
+
+    @Nullable
+    public Bitmap getCachedBitmap(Urn resourceUrn, ApiImageSize apiImageSize, int targetWidth, int targetHeight) {
         final String imageUrl = getImageUrl(resourceUrn, apiImageSize);
         if (notFoundUris.contains(imageUrl)) {
             return null;

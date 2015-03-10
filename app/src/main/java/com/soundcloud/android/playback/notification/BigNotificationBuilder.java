@@ -1,12 +1,14 @@
 package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
@@ -15,12 +17,16 @@ import javax.inject.Inject;
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class BigNotificationBuilder implements NotificationBuilder {
+
     private final NotificationCompat.Builder builder;
     private final NotificationPlaybackRemoteViews bigRemoteViews;
     private final NotificationPlaybackRemoteViews smallRemoteViews;
 
+    private final Resources resources;
+
     @Inject
     public BigNotificationBuilder(Context context, NotificationPlaybackRemoteViews.Factory remoteViewsFactory) {
+        resources = context.getResources();
         builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
@@ -78,6 +84,16 @@ public class BigNotificationBuilder implements NotificationBuilder {
     @Override
     public boolean hasArtworkSupport() {
         return true;
+    }
+
+    @Override
+    public ApiImageSize getImageSize() {
+        return ApiImageSize.LARGE;
+    }
+
+    @Override
+    public int getTargetImageSize() {
+        return resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
     }
 
     @Override
