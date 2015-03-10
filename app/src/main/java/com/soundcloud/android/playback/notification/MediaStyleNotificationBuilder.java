@@ -80,11 +80,6 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setOngoing(boolean isOngoing) {
-        builder.setOngoing(isOngoing);
-    }
-
-    @Override
     public void setSmallIcon(int icon) {
         builder.setSmallIcon(icon);
     }
@@ -123,7 +118,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
             togglePlayAction.icon = R.drawable.notifications_play;
             togglePlayAction.title = resources.getString(R.string.play);
         }
-        setOngoing(isPlaying);
+        builder.setOngoing(isPlaying);
     }
 
     @Override

@@ -24,11 +24,6 @@ public class RichNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setOngoing(boolean isOngoing) {
-        builder.setOngoing(isOngoing);
-    }
-
-    @Override
     public void setSmallIcon(int icon) {
         builder.setSmallIcon(icon);
     }

@@ -114,7 +114,6 @@ public class PlaybackNotificationController {
         });
     }
 
-
     private ApiImageSize getApiImageSize() {
         return ApiImageSize.getListItemImageSize(resources);
     }

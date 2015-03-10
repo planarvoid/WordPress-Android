@@ -5,7 +5,6 @@ import android.app.PendingIntent;
 import android.graphics.Bitmap;
 
 public interface NotificationBuilder {
-    void setOngoing(boolean isOngoing);
 
     void setIcon(Bitmap bitmap);
 
