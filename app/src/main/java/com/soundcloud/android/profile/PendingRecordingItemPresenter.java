@@ -35,7 +35,16 @@ class PendingRecordingItemPresenter implements CellPresenter<Recording> {
         getTextView(itemView, R.id.list_item_header).setText(recording.getStatusMessage(resources));
         getTextView(itemView, R.id.list_item_subheader).setText(recording.getTitle(resources));
         getTextView(itemView, R.id.list_item_right_info).setText(recording.formattedDuration());
-        getTextView(itemView, R.id.time_since_recorded).setText(ScTextUtils.formatTimeElapsedSince(resources, recording.lastModified(), true));
+        final long lastModified = recording.lastModified();
+        final TextView lastModifiedView = getTextView(itemView, R.id.time_since_recorded);
+        if (lastModified > 0) {
+            lastModifiedView.setText(
+                    ScTextUtils.formatTimeElapsedSince(resources, lastModified, true));
+        } else {
+            // this happens when the file got deleted, so the timestamp gets incorrect
+            // see GH #2468
+            lastModifiedView.setText(R.string.recording_not_found);
+        }
         ((ImageView) itemView.findViewById(R.id.image)).setImageResource(R.drawable.placeholder_local_recordings);
 
         showRelevantAdditionalInformation(itemView, recording);
