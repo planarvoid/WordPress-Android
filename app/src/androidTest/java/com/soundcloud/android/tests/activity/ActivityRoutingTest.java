@@ -24,11 +24,11 @@ import android.test.InstrumentationTestCase;
  */
 public class ActivityRoutingTest extends InstrumentationTestCase {
 
-    public void testActivity() throws Exception {
+    public void ignore_testActivity() throws Exception {
         assertActivityStarted(ActivitiesActivity.class, Actions.ACTIVITY);
     }
 
-    public void testYou() {
+    public void ignore_testYou() {
         assertActivityStarted(MeActivity.class, Actions.YOU);
         assertActivityStarted(MeActivity.class, Actions.YOUR_INFO);
         assertActivityStarted(MeActivity.class, Actions.YOUR_SOUNDS);
@@ -37,35 +37,35 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(MeActivity.class, Actions.YOUR_FOLLOWINGS);
     }
 
-    public void testRecord() {
+    public void ignore_testRecord() {
         assertActivityStarted(RecordActivity.class, Actions.RECORD);
         assertActivityStarted(RecordActivity.class, Actions.RECORD_START);
         assertActivityStarted(RecordActivity.class, Actions.RECORD_STOP);
     }
 
-    public void testStream() throws Exception {
+    public void ignore_testStream() throws Exception {
         assertActivityStarted(MainActivity.class, Actions.STREAM);
     }
 
-    public void testShare() throws Exception {
+    public void ignore_testShare() throws Exception {
         assertActivityStarted(UploadActivity.class, Actions.SHARE);
     }
 
-    public void testUserBrowser() {
+    public void ignore_testUserBrowser() {
         assertActivityStarted(ProfileActivity.class, Actions.USER_BROWSER);
         assertActivityStarted(ProfileActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
     }
 
-    public void testWhoToFollow() {
+    public void ignore_testWhoToFollow() {
         assertActivityStarted(WhoToFollowActivity.class, Actions.WHO_TO_FOLLOW);
     }
 
-    public void testSearch() {
+    public void ignore_testSearch() {
         assertActivityStarted(SearchActivity.class, Actions.SEARCH);
         assertActivityStarted(SearchActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/search/1234"));
     }
 
-    public void testResolve() {
+    public void ignore_testResolve() {
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:users:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234"));
@@ -74,11 +74,11 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
     }
 
-    public void testAccountSettings() {
+    public void ignore_testAccountSettings() {
         assertActivityStarted(AccountSettingsActivity.class, Actions.ACCOUNT_PREF);
     }
 
-    public void testUploadMonitor() {
+    public void ignore_testUploadMonitor() {
         assertActivityStarted(UploadMonitorActivity.class, Actions.UPLOAD_MONITOR, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/recordings/1234"));
     }
 

@@ -42,7 +42,9 @@ public class NavigationFragment extends Fragment {
     // normal rows (below profile)
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
+
     private static final String STREAM = "stream";
+    private static final String SOUNDCLOUD_COM = "soundcloud.com";
 
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
@@ -95,7 +97,7 @@ public class NavigationFragment extends Fragment {
 
         final Uri data = intent.getData();
         if (data != null) {
-            if (STREAM.equals(data.getHost()) || STREAM.equals(data.getLastPathSegment())) {
+            if (shouldGoToStream(data)) {
                 selectItem(NavItem.STREAM.ordinal());
                 return true;
             } else if (data.getLastPathSegment().equals("explore")) {
@@ -110,6 +112,11 @@ public class NavigationFragment extends Fragment {
             }
         }
         return false;
+    }
+
+    private boolean shouldGoToStream(Uri data) {
+        return STREAM.equals(data.getHost()) || STREAM.equals(data.getLastPathSegment()) ||
+                (SOUNDCLOUD_COM.equalsIgnoreCase(data.getHost()) && ScTextUtils.isBlank(data.getPath()));
     }
 
     @Override
