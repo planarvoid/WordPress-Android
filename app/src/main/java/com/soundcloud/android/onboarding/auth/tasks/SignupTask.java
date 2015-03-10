@@ -58,7 +58,7 @@ public class SignupTask extends AuthTask {
                     return AuthTaskResult.failure(app.getString(R.string.authentication_signup_error_message));
                 }
             } catch (IOException e) {
-                return AuthTaskResult.failure(e);
+                return AuthTaskResult.signUpFailedToLogin();
             }
         }
         return result;
