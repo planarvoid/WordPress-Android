@@ -32,14 +32,18 @@ public final class AuthTaskResult {
         return new AuthTaskResult(Kind.EMAIL_INVALID);
     }
 
+    public static AuthTaskResult signUpFailedToLogin() {
+        return new AuthTaskResult(Kind.FLAKY_SIGNUP_ERROR);
+    }
     private final Kind kind;
     private final PublicApiUser user;
     private final SignupVia signupVia;
     private final Exception exception;
+
     private final boolean showFacebookSuggestions;
 
     private enum Kind {
-        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID
+        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR
     }
 
     private AuthTaskResult(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
@@ -85,6 +89,10 @@ public final class AuthTaskResult {
 
     public boolean wasEmailInvalid() {
         return kind == Kind.EMAIL_INVALID;
+    }
+
+    public boolean wasSignUpFailedToLogin() {
+        return kind == Kind.FLAKY_SIGNUP_ERROR;
     }
 
     public PublicApiUser getUser() {
