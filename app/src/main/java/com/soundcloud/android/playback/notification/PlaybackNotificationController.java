@@ -1,10 +1,10 @@
 package com.soundcloud.android.playback.notification;
 
-import com.soundcloud.android.R;
+import static com.soundcloud.android.playback.notification.NotificationBuilder.NOT_SET;
+
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
@@ -23,7 +23,6 @@ import rx.subscriptions.Subscriptions;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import javax.inject.Inject;
@@ -35,7 +34,6 @@ public class PlaybackNotificationController {
 
     public static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
-    private final Resources resources;
     private final PlaybackNotificationPresenter presenter;
     private final TrackOperations trackOperations;
     private final NotificationManager notificationManager;
@@ -44,8 +42,6 @@ public class PlaybackNotificationController {
     private final Provider<NotificationBuilder> builderProvider;
     private final PlaybackStateProvider playbackStateProvider;
 
-    private final int targetIconWidth;
-    private final int targetIconHeight;
     private final Action1<CurrentPlayQueueTrackEvent> createNotificationBuilder = new Action1<CurrentPlayQueueTrackEvent>() {
         @Override
         public void call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
@@ -81,10 +77,9 @@ public class PlaybackNotificationController {
     private NotificationBuilder notificationBuilder;
 
     @Inject
-    public PlaybackNotificationController(Resources resources, TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
+    public PlaybackNotificationController(TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
                                           NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations,
                                           Provider<NotificationBuilder> builderProvider, PlaybackStateProvider playbackStateProvider) {
-        this.resources = resources;
         this.trackOperations = trackOperations;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
@@ -92,9 +87,6 @@ public class PlaybackNotificationController {
         this.imageOperations = imageOperations;
         this.builderProvider = builderProvider;
         this.playbackStateProvider = playbackStateProvider;
-
-        this.targetIconWidth = resources.getDimensionPixelSize(R.dimen.notification_image_large_width);
-        this.targetIconHeight = resources.getDimensionPixelSize(R.dimen.notification_image_large_height);
     }
 
     public void subscribe() {
@@ -114,20 +106,13 @@ public class PlaybackNotificationController {
         });
     }
 
-    private ApiImageSize getApiImageSize() {
-        return ApiImageSize.getListItemImageSize(resources);
-    }
-
     private void loadAndSetArtwork(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
-        final ApiImageSize apiImageSize = getApiImageSize();
-        final Bitmap cachedBitmap = imageOperations.getCachedBitmap(trackUrn, apiImageSize, targetIconWidth, targetIconHeight);
-
+        final Bitmap cachedBitmap = getCachedBitmap(trackUrn, notificationBuilder);
         if (cachedBitmap != null) {
             notificationBuilder.setIcon(cachedBitmap);
         } else {
             notificationBuilder.clearIcon();
-
-            imageSubscription = imageOperations.artwork(trackUrn, getApiImageSize(), targetIconWidth, targetIconHeight)
+            imageSubscription = getBitmap(trackUrn, notificationBuilder)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override
                         public void onNext(Bitmap bitmap) {
@@ -137,6 +122,22 @@ public class PlaybackNotificationController {
                             }
                         }
                     });
+        }
+    }
+
+    private Bitmap getCachedBitmap(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
+        if (notificationBuilder.getTargetImageSize() == NOT_SET) {
+            return imageOperations.getCachedBitmap(trackUrn, notificationBuilder.getImageSize());
+        } else {
+            return imageOperations.getCachedBitmap(trackUrn, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
+        }
+    }
+
+    private Observable<Bitmap> getBitmap(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
+        if (notificationBuilder.getTargetImageSize() == NOT_SET) {
+            return imageOperations.artwork(trackUrn, notificationBuilder.getImageSize());
+        } else {
+            return imageOperations.artwork(trackUrn, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
         }
     }
 

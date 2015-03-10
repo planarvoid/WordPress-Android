@@ -24,7 +24,6 @@ import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.propeller.PropertySet;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,7 +68,6 @@ public class PlaybackNotificationControllerTest {
         when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
 
         controller = new PlaybackNotificationController(
-                Robolectric.application.getResources(),
                 trackOperations,
                 playbackNotificationPresenter,
                 notificationManager,
