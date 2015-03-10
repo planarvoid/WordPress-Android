@@ -56,6 +56,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -978,6 +979,7 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private AlertDialog.Builder createDefaultAuthErrorDialogBuilder(int title) {
         AlertDialog.Builder builder = new AlertDialog.Builder(OnboardActivity.this);
         builder.setTitle(getString(title));

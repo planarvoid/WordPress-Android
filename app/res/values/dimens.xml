@@ -9,7 +9,7 @@
     <dimen name="notification_image_large_width">128dip</dimen>
     <dimen name="notification_image_large_height">128dip</dimen>
 
-    <dimen name="list_icon_small">47dip</dimen>
+    <dimen name="list_icon_size">47dip</dimen>
 
     <dimen name="list_item_padding_left">16dip</dimen>
     <dimen name="list_item_padding_right">16dip</dimen>

@@ -5,6 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.upload.tasks.NewConnectionTask;
 import com.soundcloud.android.main.TrackedActivity;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -115,6 +116,7 @@ public class ConnectActivity extends TrackedActivity {
         CookieManager.getInstance().removeAllCookie();
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showConnectionError(final String message) {
         if (!isFinishing()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this)
