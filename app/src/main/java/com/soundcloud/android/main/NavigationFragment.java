@@ -115,8 +115,9 @@ public class NavigationFragment extends Fragment {
     }
 
     private boolean shouldGoToStream(Uri data) {
-        return STREAM.equals(data.getHost()) || STREAM.equals(data.getLastPathSegment()) ||
-                (SOUNDCLOUD_COM.equalsIgnoreCase(data.getHost()) && ScTextUtils.isBlank(data.getPath()));
+        final String host = data.getHost();
+        return host != null && (STREAM.equals(host) || STREAM.equals(data.getLastPathSegment()) ||
+                (host.contains(SOUNDCLOUD_COM)&& ScTextUtils.isBlank(data.getPath())));
     }
 
     @Override
