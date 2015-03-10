@@ -6,7 +6,6 @@ import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -18,7 +17,6 @@ import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
@@ -26,10 +24,8 @@ import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
@@ -53,7 +49,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     final TrackLikesHeaderPresenter headerPresenter;
 
     private final TrackLikeOperations likeOperations;
-    private final TrackOperations trackOperations;
     private final OfflinePlaybackOperations playbackOperations;
     private final PagedTracksAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
@@ -62,17 +57,8 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     private Subscription creationLifeCycle = Subscriptions.empty();
     private CompositeSubscription viewLifeCycle;
 
-    private Func1<EntityStateChangedEvent, Observable<PropertySet>> loadTrack = new Func1<EntityStateChangedEvent, Observable<PropertySet>>() {
-        @Override
-        public Observable<PropertySet> call(EntityStateChangedEvent entityStateChangedEvent) {
-            // This could actually just load the liked track cell representation, instead of the full representation
-            return trackOperations.track(entityStateChangedEvent.getNextUrn());
-        }
-    };
-
     @Inject
     TrackLikesPresenter(TrackLikeOperations likeOperations,
-                        TrackOperations trackOperations,
                         OfflinePlaybackOperations playbackOperations,
                         PagedTracksAdapter adapter,
                         TrackLikesActionMenuController actionMenuController,
@@ -81,7 +67,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
                         ImageOperations imageOperations, PullToRefreshWrapper pullToRefreshWrapper) {
         super(imageOperations, pullToRefreshWrapper);
         this.likeOperations = likeOperations;
-        this.trackOperations = trackOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
         this.actionMenuController = actionMenuController;
