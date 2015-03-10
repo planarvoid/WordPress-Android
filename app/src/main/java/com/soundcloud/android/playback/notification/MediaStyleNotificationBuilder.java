@@ -134,7 +134,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
 
     @Override
     public com.soundcloud.android.image.ApiImageSize getImageSize() {
-        return ApiImageSize.T500;
+        return ApiImageSize.getFullImageSize(resources);
     }
 
     @Override
