@@ -18,7 +18,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
     private static final int MAX_LOGIN_RETRY = 3;
 
     private final Handler handler = new Handler();
-    private final Runnable LOGIN_OPERATION = new Runnable() {
+    private final Runnable loginOperation = new Runnable() {
         @Override
         public void run() {
             getLoginTask().executeOnThreadPool(getArguments());
@@ -60,7 +60,7 @@ public class SignupTaskFragment extends AuthTaskFragment {
 
     private void retryToLogin() {
         remainingLoginTries--;
-        handler.postDelayed(LOGIN_OPERATION, DELAY_BEFORE_RETRY);
+        handler.postDelayed(loginOperation, DELAY_BEFORE_RETRY);
     }
 
     private boolean shouldRetryLogin() {
