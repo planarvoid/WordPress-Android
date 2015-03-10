@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -116,16 +117,20 @@ public class ConnectActivity extends TrackedActivity {
 
     private void showConnectionError(final String message) {
         if (!isFinishing()) {
-            new AlertDialog.Builder(this).
-                    setMessage(message).
-                    setIcon(android.R.drawable.ic_dialog_alert)
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setMessage(message)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
                         }
-                    }).create()
-                    .show();
+                    });
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+                builder.setIcon(android.R.drawable.ic_dialog_alert);
+            } else {
+                builder.setIconAttribute(android.R.attr.alertDialogIcon);
+            }
+            builder.create().show();
         }
     }
 

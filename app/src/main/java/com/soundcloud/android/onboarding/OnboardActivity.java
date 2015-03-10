@@ -60,6 +60,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -978,9 +979,14 @@ public class OnboardActivity extends FragmentActivity implements AuthTaskFragmen
     }
 
     private AlertDialog.Builder createDefaultAuthErrorDialogBuilder(int title) {
-        return new AlertDialog.Builder(OnboardActivity.this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle(getString(title));
+        AlertDialog.Builder builder = new AlertDialog.Builder(OnboardActivity.this);
+        builder.setTitle(getString(title));
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+        } else {
+            builder.setIconAttribute(android.R.attr.alertDialogIcon);
+        }
+        return builder;
     }
 
     private class SpamDialogOnClickListener implements DialogInterface.OnClickListener {
