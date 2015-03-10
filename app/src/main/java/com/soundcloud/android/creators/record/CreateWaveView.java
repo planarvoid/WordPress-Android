@@ -274,19 +274,20 @@ public class CreateWaveView extends View {
 
         PLAYED_PAINT.setShader(lg);
 
-        Bitmap old = zoomBitmap1;
-        zoomBitmap1 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        if (old != null) {
-            old.recycle();
-        }
-
-        old = zoomBitmap2;
-        zoomBitmap2 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        if (old != null) {
-            old.recycle();
-        }
-
+        recreateZoomBitmaps(width, height);
         nextBitmapX = -1;
+    }
+
+    private void recreateZoomBitmaps(int width, int height) {
+        if (zoomBitmap1 != null) {
+            zoomBitmap1.recycle();
+        }
+
+        if (zoomBitmap2 != null) {
+            zoomBitmap2.recycle();
+        }
+        zoomBitmap1 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        zoomBitmap2 = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
     }
 
 
