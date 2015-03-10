@@ -6,7 +6,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,11 +23,10 @@ import android.support.v4.app.DialogFragment;
 import java.lang.ref.WeakReference;
 
 public abstract class AuthTaskFragment extends DialogFragment {
-    private static final String TAG = AuthTaskFragment.class.getSimpleName();
-
     private AuthTask task;
     private AuthTaskResult result;
     private WeakReference<OnAuthResultListener> listenerRef;
+    private NetworkConnectionHelper networkConnectionHelper;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo, boolean showFacebookSuggestions);
@@ -47,6 +46,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         setRetainInstance(true);
         setCancelable(false);
 
+        networkConnectionHelper = new NetworkConnectionHelper();
         task = createAuthTask();
         task.setTaskOwner(this);
         task.executeOnThreadPool(getArguments());
@@ -127,12 +127,11 @@ public abstract class AuthTaskFragment extends DialogFragment {
             // custom exception, message provided by the individual task
             return ((AuthTaskException) exception).getFirstError();
         } else {
-            // as a fallback, just say connection problem
-            if (exception != null) {
-                Log.d(TAG, "Received unexpected error/exception : " + exception.toString());
-                exception.printStackTrace();
+            if (networkConnectionHelper.isNetworkConnected()) {
+                return activity.getString(R.string.authentication_error_generic);
+            } else {
+                return activity.getString(R.string.authentication_error_no_connection_message);
             }
-            return activity.getString(R.string.authentication_error_no_connection_message);
         }
     }
 
