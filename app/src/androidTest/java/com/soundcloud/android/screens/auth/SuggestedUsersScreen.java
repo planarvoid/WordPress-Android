@@ -67,7 +67,7 @@ public class SuggestedUsersScreen extends Screen {
     }
 
     public SuggestedUsersCategoryScreen goToFacebook() {
-        testDriver.findElement(With.text("Facebook")).click();
+        testDriver.findElement(With.text("Facebook Friends")).click();
         return new SuggestedUsersCategoryScreen(testDriver);
     }
 
