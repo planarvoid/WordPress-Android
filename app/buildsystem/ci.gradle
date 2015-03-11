@@ -116,7 +116,7 @@ task uploadGithub(type: Exec) {
 // ACCEPTANCE TESTS
 // *********************************************************************************************************************
 
-task assembleAcceptanceTest(dependsOn: ['assembleDebugAndroidTest']) {
+task assembleAcceptanceTest(dependsOn: ['assembleDebugTest']) {
   description 'Assembles all the Test applications.'
 }
 
