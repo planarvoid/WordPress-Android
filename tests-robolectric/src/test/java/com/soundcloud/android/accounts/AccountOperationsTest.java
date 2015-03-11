@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -134,7 +133,6 @@ public class AccountOperationsTest {
     public void shouldReturnNullIfAccountAdditionFails() {
         when(accountManager.addAccountExplicitly(any(Account.class), anyString(), any(Bundle.class))).thenReturn(false);
         expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toBeNull();
-
     }
 
     @Test
@@ -213,7 +211,6 @@ public class AccountOperationsTest {
         when(accountManager.addAccountExplicitly(account, null, null)).thenReturn(true);
 
         expect(accountOperations.addOrReplaceSoundCloudAccount(user, token, SignupVia.API)).toEqual(account);
-
     }
 
     @Test
@@ -254,7 +251,6 @@ public class AccountOperationsTest {
     public void shouldReturnNullTokenIfSoundCloudAccountDoesNotExist() {
         when(accountManager.getAccountsByType(anyString())).thenReturn(null);
         expect(accountOperations.getSoundCloudToken()).toBeNull();
-
     }
 
     @Test
@@ -270,7 +266,6 @@ public class AccountOperationsTest {
         when(accountManager.getAccountsByType(anyString())).thenReturn(new Account[]{scAccount});
         accountOperations.storeSoundCloudTokenData(token);
         verify(tokenOperations).storeSoundCloudTokenData(scAccount, token);
-
     }
 
     @Test
@@ -283,54 +278,6 @@ public class AccountOperationsTest {
 
         accountOperations.logout().subscribe(observer);
         verify(observer).onCompleted();
-    }
-
-    @Test
-    public void shouldCheckForConfirmedEmailAddressWhenTimeToRemindAndEmailNotConfirmedYet() {
-        mockSoundCloudAccount();
-        mockValidToken();
-        mockExpiredEmailConfirmationReminder();
-
-        PublicApiUser currentUser = new PublicApiUser(123L);
-        currentUser.setPrimaryEmailConfirmed(false);
-
-        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeTrue();
-    }
-
-    @Test
-    public void shouldNotCheckForConfirmedEmailAddressIfAlreadyConfirmed() {
-        mockSoundCloudAccount();
-        mockValidToken();
-        mockExpiredEmailConfirmationReminder();
-
-        PublicApiUser currentUser = new PublicApiUser(123L);
-        currentUser.setPrimaryEmailConfirmed(true);
-
-        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
-    }
-
-    @Test
-    public void shouldNotCheckForConfirmedEmailAddressIfAlreadyRemindedRecently() {
-        mockSoundCloudAccount();
-        mockValidToken();
-        mockRecentEmailConfirmationReminder();
-
-        PublicApiUser currentUser = new PublicApiUser(123L);
-        currentUser.setPrimaryEmailConfirmed(false);
-
-        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
-    }
-
-    @Test
-    public void shouldNotCheckForConfirmedEmailAddressIfTokenIsInvalid() {
-        mockSoundCloudAccount();
-        mockInvalidToken();
-        mockExpiredEmailConfirmationReminder();
-
-        PublicApiUser currentUser = new PublicApiUser(123L);
-        currentUser.setPrimaryEmailConfirmed(false);
-
-        expect(accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)).toBeFalse();
     }
 
     @Test
@@ -445,18 +392,6 @@ public class AccountOperationsTest {
         expect(intent.getAction()).toEqual(PlaybackService.Actions.RESET_ALL);
     }
 
-    private void mockExpiredEmailConfirmationReminder() {
-        // last reminder was longer ago than the reminder priod
-        when(accountManager.getUserData(scAccount, Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER)).thenReturn(
-                Long.toString(System.currentTimeMillis() - AccountOperations.EMAIL_CONFIRMATION_REMIND_PERIOD - 1));
-    }
-
-    private void mockRecentEmailConfirmationReminder() {
-        // last reminder just happened
-        when(accountManager.getUserData(scAccount, Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER)).thenReturn(
-                Long.toString(System.currentTimeMillis() - 1));
-    }
-
     private void mockSoundCloudAccount() {
         when(accountManager.getAccountsByType(SC_ACCOUNT_TYPE)).thenReturn(new Account[]{scAccount});
         when(accountManager.getUserData(scAccount, AccountOperations.AccountInfoKeys.USER_ID.getKey())).thenReturn("123");
@@ -466,10 +401,6 @@ public class AccountOperationsTest {
 
     private void mockValidToken() {
         when(tokenOperations.getTokenFromAccount(scAccount)).thenReturn(new Token("123", "456"));
-    }
-
-    private void mockInvalidToken() {
-        when(tokenOperations.getTokenFromAccount(scAccount)).thenReturn(Token.EMPTY);
     }
 
 }

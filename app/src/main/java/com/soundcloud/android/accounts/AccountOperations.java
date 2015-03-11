@@ -2,7 +2,6 @@ package com.soundcloud.android.accounts;
 
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.android.gms.auth.GoogleAuthException;
@@ -13,6 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -22,8 +22,6 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.android.api.oauth.Token;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -42,7 +40,6 @@ import android.os.Bundle;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class AccountOperations extends ScheduledOperations {
@@ -50,8 +47,6 @@ public class AccountOperations extends ScheduledOperations {
     public static final Urn ANONYMOUS_USER_URN = Urn.forUser(Consts.NOT_SET);
 
     private static final String TOKEN_TYPE = "access_token";
-    @VisibleForTesting
-    static final long EMAIL_CONFIRMATION_REMIND_PERIOD = TimeUnit.DAYS.toMillis(7);
 
     private final Context context;
     private final AccountManager accountManager;
@@ -318,16 +313,4 @@ public class AccountOperations extends ScheduledOperations {
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 
-    public boolean shouldCheckForConfirmedEmailAddress(PublicApiUser currentUser) {
-        boolean alreadyConfirmed = currentUser.isPrimaryEmailConfirmed();
-
-        long lastReminded = getAccountDataLong(Consts.PrefKeys.LAST_EMAIL_CONFIRMATION_REMINDER);
-        boolean isTimeToRemindAgain = lastReminded <= 0 || System.currentTimeMillis() - lastReminded > EMAIL_CONFIRMATION_REMIND_PERIOD;
-
-        return !alreadyConfirmed && isTimeToRemindAgain && IOUtils.isConnected(context) && isTokenValid();
-    }
-
-    private boolean isTokenValid() {
-        return getSoundCloudToken().valid();
-    }
 }

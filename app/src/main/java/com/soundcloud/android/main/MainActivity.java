@@ -132,8 +132,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void handleLoggedInUser() {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
-        PublicApiUser currentUser = accountOperations.getLoggedInUser();
-        if (!justAuthenticated && accountOperations.shouldCheckForConfirmedEmailAddress(currentUser)) {
+        if (!justAuthenticated) {
             subscription.add(bindActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
     }
