@@ -1,12 +1,12 @@
 package com.soundcloud.android.framework.helpers;
 
-import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
-
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.utils.IOUtils;
+
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.io.File;
 
@@ -22,6 +22,7 @@ public class OfflineContentHelper {
         // remove metadata - not sure how to do it differently
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
         Table.TrackDownloads.recreate(db);
+        Table.OfflineContent.recreate(db);
         // remove actual files
         IOUtils.cleanDir(OFFLINE_DIR);
     }
