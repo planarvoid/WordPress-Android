@@ -220,6 +220,9 @@ public class TrackPagerAdapterTest {
     @Test
     public void creatingNewTrackViewSetThePlayState() {
         adapter.onResume();
+        Playa.StateTransition state = new Playa.StateTransition(PlayaState.PLAYING, Reason.NONE, TRACK1_URN);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, state);
+
         View currentPageView = getPageView();
 
         verify(trackPagePresenter).setPlayState(eq(currentPageView), any(Playa.StateTransition.class), eq(true), eq(true));
