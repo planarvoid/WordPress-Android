@@ -7,7 +7,7 @@ public class ConfigurationHelper {
 
     private final static String OFFLINE_CONTENT_FEATURE = "offline_sync";
 
-    public static void enableOfflineSync(Context context) {
+    public static void enableOfflineContent(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean(OFFLINE_CONTENT_FEATURE, true).apply();
 

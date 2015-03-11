@@ -6,7 +6,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.ActivityTest;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineSync;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearLikes;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
@@ -24,7 +24,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         clearLikes(context);
         TestUser.offlineEmptyUser.logIn(context);
         super.setUp();
-        enableOfflineSync(getActivity());
+        enableOfflineContent(getActivity());
     }
 
     public void testDownloadsTrackWhenLiked() {

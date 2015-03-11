@@ -9,7 +9,7 @@ import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineSync;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
 public class OfflinePlayerTest extends ActivityTest<MainActivity> {
@@ -28,7 +28,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
         super.setUp();
 
         clearOfflineContent(context);
-        enableOfflineSync(getActivity());
+        enableOfflineContent(getActivity());
         likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
     }
 
