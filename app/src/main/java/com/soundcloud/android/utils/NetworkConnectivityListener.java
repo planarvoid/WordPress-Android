@@ -22,7 +22,7 @@ import java.util.Map;
  * information, independent of network type (mobile, Wi-Fi, etc.).
  */
 public class NetworkConnectivityListener {
-    private static final String TAG = "NetworkConnectivityListener";
+    private static final String TAG = "ConnectivityListener";
 
     private final Map<Handler, Integer> handlers = new HashMap<>();
     @Nullable private Context context;

@@ -64,18 +64,6 @@
     <dimen name="btn_padding">15dp</dimen>
     <dimen name="follow_btn_height">42dp</dimen>
 
-    <dimen name="stats_view_font_offset">-1dp</dimen>
-
-    <dimen name="stats_view_play_icon_offset">1dp</dimen>
-    <dimen name="stats_view_likes_icon_offset">1dp</dimen>
-    <dimen name="stats_view_reposts_icon_offset">1dp</dimen>
-    <dimen name="stats_view_comments_icon_offset">2dp</dimen>
-
-    <dimen name="stats_view_item_padding">4dp</dimen>
-    <dimen name="stats_view_separator_width">1dp</dimen>
-
-    <dimen name="stats_view_item_text_size">12sp</dimen>
-
     <dimen name="header_icon_size">70dp</dimen>
 
     <dimen name="signup_label_height">32dp</dimen><!-- ic_done_dark_sm drawable + padding -->

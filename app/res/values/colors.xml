@@ -17,7 +17,6 @@
     <color name="list_text_created_at">#c9c9c9</color>
     <color name="list_text_track_user">#828282</color>
     <color name="list_text_header">#666666</color>
-    <color name="stats_color">#828282</color>
     <!-- New cells -->
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
