@@ -44,7 +44,7 @@ public abstract class PlaylistEngagementsView {
 
     abstract void showPublicOptionsForYourTrack();
 
-    abstract void showPublicOptions(int repostsCount, boolean repostedByUser);
+    abstract void showPublicOptions(boolean repostedByUser);
 
     abstract void hidePublicOptions();
 

@@ -258,6 +258,10 @@ public class DatabaseFixtures {
         return apiTrackPost;
     }
 
+    public long insertTrackRepost(long id, long createdAt) {
+        return insertTrackPost(id, createdAt, true);
+    }
+
     public long insertTrackPost(long id, long createdAt, boolean isRepost) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Posts.TARGET_ID, id);
@@ -265,6 +269,10 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Posts.TYPE, isRepost ? TableColumns.Posts.TYPE_REPOST : TableColumns.Posts.TYPE_POST);
         cv.put(TableColumns.Posts.CREATED_AT, createdAt);
         return insertInto(Table.Posts, cv);
+    }
+
+    public long insertPlaylistRepost(long id, long createdAt) {
+        return insertPlaylistPost(id, createdAt, true);
     }
 
     public long insertPlaylistPost(long playlistId, long createdAt, boolean isRepost) {

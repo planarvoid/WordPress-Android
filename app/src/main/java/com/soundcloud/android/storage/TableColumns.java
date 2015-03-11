@@ -44,6 +44,8 @@ public final class TableColumns {
         public static final String TARGET_TYPE = "target_type";
         public static final String TARGET_ID = "target_id";
         public static final String CREATED_AT = "created_at";
+
+        /* not used (yet) */
         public static final String ADDED_AT = "added_at"; // local additions
         public static final String REMOVED_AT = "removed_at"; // local removals
 

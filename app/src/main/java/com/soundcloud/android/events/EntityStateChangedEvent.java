@@ -130,11 +130,14 @@ public final class EntityStateChangedEvent {
         return new EntityStateChangedEvent(LIKE, newLikeState);
     }
 
-    public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted, int repostCount) {
-        return new EntityStateChangedEvent(REPOST, PropertySet.from(
+    public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted) {
+        return fromRepost(PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlayableProperty.IS_REPOSTED.bind(reposted),
-                PlayableProperty.REPOSTS_COUNT.bind(repostCount)));
+                PlayableProperty.IS_REPOSTED.bind(reposted)));
+    }
+
+    public static EntityStateChangedEvent fromRepost(PropertySet newRepostState){
+        return new EntityStateChangedEvent(REPOST, newRepostState);
     }
 
     public static EntityStateChangedEvent fromMarkedForOffline(Urn urn, boolean isMarkedForOffline) {

@@ -241,8 +241,8 @@ public class PlaylistEngagementsPresenterTest {
         verify(engagementsView).updateLikeItem(playlistInfo.getLikesCount(), true);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                EntityStateChangedEvent.fromRepost(playlistInfo.getUrn(), true, playlistInfo.getRepostsCount()));
-        verify(engagementsView).showPublicOptions(playlistInfo.getRepostsCount(), true);
+                EntityStateChangedEvent.fromRepost(playlistInfo.getUrn(), true));
+        verify(engagementsView).showPublicOptions(true);
     }
 
     @Test
@@ -250,10 +250,10 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistInfo);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(2L), true, 1));
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromRepost(Urn.forTrack(2L), true));
 
         verify(engagementsView, never()).updateLikeItem(anyInt(), eq(true));
-        verify(engagementsView, never()).showPublicOptions(anyInt(), eq(true));
+        verify(engagementsView, never()).showPublicOptions(eq(true));
     }
 
     @Test

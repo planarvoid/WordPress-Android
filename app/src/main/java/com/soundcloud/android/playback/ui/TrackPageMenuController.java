@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.associations.RepostCreator;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -39,7 +39,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private final FragmentActivity activity;
     private final PopupMenuWrapper popupMenuWrapper;
     private final PlayQueueManager playQueueManager;
-    private final LegacyRepostOperations associationOperations;
+    private final RepostCreator repostOperations;
     private final EventBus eventBus;
     private final String commentAtUnformatted;
 
@@ -49,12 +49,12 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private long commentPosition;
 
     private TrackPageMenuController(PlayQueueManager playQueueManager,
-                                    LegacyRepostOperations associationOperations,
+                                    RepostCreator repostOperations,
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     EventBus eventBus) {
         this.playQueueManager = playQueueManager;
-        this.associationOperations = associationOperations;
+        this.repostOperations = repostOperations;
         this.activity = context;
         this.popupMenuWrapper = popupMenuWrapper;
         this.eventBus = eventBus;
@@ -132,12 +132,12 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     private void handleUnpost(Urn urn) {
-        fireAndForget(associationOperations.toggleRepost(urn, false));
+        fireAndForget(repostOperations.toggleRepost(urn, false));
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(false, playQueueManager.getScreenTag(), urn));
     }
 
     private void handleRepost(Urn urn) {
-        fireAndForget(associationOperations.toggleRepost(urn, true));
+        fireAndForget(repostOperations.toggleRepost(urn, true));
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(true, playQueueManager.getScreenTag(), urn));
     }
 
@@ -204,24 +204,24 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     static class Factory {
         private final PlayQueueManager playQueueManager;
-        private final LegacyRepostOperations associationOperations;
+        private final RepostCreator repostCreator;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
-                LegacyRepostOperations associationOperations,
+                RepostCreator repostCreator,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 EventBus eventBus) {
             this.playQueueManager = playQueueManager;
-            this.associationOperations = associationOperations;
+            this.repostCreator = repostCreator;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.eventBus = eventBus;
         }
 
         TrackPageMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
-            return new TrackPageMenuController(playQueueManager, associationOperations,
+            return new TrackPageMenuController(playQueueManager, repostCreator,
                     activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
         }
     }

@@ -318,7 +318,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void updateAssociationsWithRepostedPropertyUpdatesRepostStatusOnMenuController() throws Exception {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true, 1);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true);
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
@@ -327,7 +327,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void showToastWhenUserRepostedATrack() {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true, 1);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, true);
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 
@@ -336,7 +336,7 @@ public class TrackPagePresenterTest {
 
     @Test
     public void showToastWhenUserUnpostedATrack() {
-        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, false, 1);
+        final EntityStateChangedEvent trackChangedEvent = EntityStateChangedEvent.fromRepost(TRACK_URN, false);
 
         presenter.onPlayableUpdated(trackView, trackChangedEvent);
 

@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.associations.RepostCreator;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -37,7 +37,7 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
     private PlaylistInfo playlistInfo;
     private OriginProvider originProvider;
 
-    private final LegacyRepostOperations soundAssociationOps;
+    private final RepostCreator repostOperations;
     private final AccountOperations accountOperations;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
@@ -49,14 +49,14 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
 
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
-                                        LegacyRepostOperations soundAssociationOps,
+                                        RepostCreator repostOperations,
                                         AccountOperations accountOperations,
                                         LikeOperations likeOperations,
                                         PlaylistEngagementsView playlistEngagementsView,
                                         FeatureOperations featureOperations,
                                         OfflineContentOperations offlineOperations) {
         this.eventBus = eventBus;
-        this.soundAssociationOps = soundAssociationOps;
+        this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
         this.likeOperations = likeOperations;
         this.playlistEngagementsView = playlistEngagementsView;
@@ -111,7 +111,7 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
         if (playlistInfo.isPublic()){
             boolean showRepost = !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
             if (showRepost){
-                playlistEngagementsView.showPublicOptions(this.playlistInfo.getRepostsCount(), this.playlistInfo.isRepostedByUser());
+                playlistEngagementsView.showPublicOptions(this.playlistInfo.isRepostedByUser());
             } else {
                 playlistEngagementsView.showPublicOptionsForYourTrack();
             }
@@ -167,11 +167,11 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(isReposted,
                     PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
             if (showResultToast){
-                soundAssociationOps.toggleRepost(playlistInfo.getUrn(), isReposted)
+                repostOperations.toggleRepost(playlistInfo.getUrn(), isReposted)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(context, isReposted));
             } else {
-                fireAndForget(soundAssociationOps.toggleRepost(playlistInfo.getUrn(), isReposted));
+                fireAndForget(repostOperations.toggleRepost(playlistInfo.getUrn(), isReposted));
             }
         }
     }
@@ -223,7 +223,6 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
                 }
                 if (changeSet.contains(PlaylistProperty.IS_REPOSTED)) {
                     playlistEngagementsView.showPublicOptions(
-                            changeSet.get(PlayableProperty.REPOSTS_COUNT),
                             changeSet.get(PlayableProperty.IS_REPOSTED));
                 }
                 if (changeSet.contains(PlaylistProperty.IS_MARKED_FOR_OFFLINE)) {
