@@ -14,10 +14,12 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class RepostOperations implements RepostCreator {
 
@@ -30,42 +32,55 @@ public class RepostOperations implements RepostCreator {
 
     private final RepostStorage repostStorage;
     private final ApiScheduler apiScheduler;
+    private final Scheduler storageScheduler;
     private final EventBus eventBus;
 
     @Inject
-    public RepostOperations(RepostStorage repostStorage, ApiScheduler apiScheduler, EventBus eventBus) {
+    public RepostOperations(RepostStorage repostStorage, ApiScheduler apiScheduler,
+                            @Named("Storage") Scheduler storageScheduler, EventBus eventBus) {
         this.repostStorage = repostStorage;
         this.apiScheduler = apiScheduler;
+        this.storageScheduler = storageScheduler;
         this.eventBus = eventBus;
     }
 
     @Override
     public Observable<PropertySet> toggleRepost(final Urn soundUrn, final boolean addRepost) {
         if (addRepost) {
-            return repostStorage.addRepost(soundUrn)
+            return repostStorage.addRepost().toObservable(soundUrn)
+                    .subscribeOn(storageScheduler)
                     .flatMap(sendApiRequest(buildAddRepostRequest(soundUrn)))
                     .map(returning(repostProperties(soundUrn, true)))
                     .doOnNext(publishEntityStateChanged)
-                    .onErrorResumeNext(rollbackRepost(soundUrn));
+                    .doOnError(rollbackRepost(soundUrn));
         } else {
-            return repostStorage.removeRepost(soundUrn)
+            return repostStorage.removeRepost().toObservable(soundUrn)
+                    .subscribeOn(storageScheduler)
                     .flatMap(sendApiRequest(buildRemoveRepostRequest(soundUrn)))
                     .map(returning(repostProperties(soundUrn, false)))
                     .doOnNext(publishEntityStateChanged)
-                    .onErrorResumeNext(rollbackRepostRemoval(soundUrn));
+                    .doOnError(rollbackRepostRemoval(soundUrn));
         }
     }
 
-    private Observable<PropertySet> rollbackRepost(Urn soundUrn) {
-        return repostStorage.removeRepost(soundUrn)
-                .map(returning(repostProperties(soundUrn, false)))
-                .doOnNext(publishEntityStateChanged);
+    private Action1<Throwable> rollbackRepost(final Urn soundUrn) {
+        return new Action1<Throwable>(){
+            @Override
+            public void call(Throwable throwable) {
+                repostStorage.removeRepost().call(soundUrn);
+                publishEntityStateChanged.call(repostProperties(soundUrn, false));
+            }
+        };
     }
 
-    private Observable<PropertySet> rollbackRepostRemoval(Urn soundUrn) {
-        return repostStorage.addRepost(soundUrn)
-                .map(returning(repostProperties(soundUrn, true)))
-                .doOnNext(publishEntityStateChanged);
+    private Action1<Throwable> rollbackRepostRemoval(final Urn soundUrn) {
+        return new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                repostStorage.addRepost().call(soundUrn);
+                publishEntityStateChanged.call(repostProperties(soundUrn, true));
+            }
+        };
     }
 
     private PropertySet repostProperties(Urn soundUrn, boolean addRepost) {

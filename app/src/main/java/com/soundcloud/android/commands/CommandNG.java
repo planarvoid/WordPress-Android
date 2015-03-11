@@ -1,0 +1,44 @@
+package com.soundcloud.android.commands;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.functions.Action1;
+import rx.functions.Func1;
+
+public abstract class CommandNG<I, O> {
+
+    public abstract O call(I input);
+
+    public Observable<O> toObservable(final I input) {
+        return Observable.create(new Observable.OnSubscribe<O>() {
+            @Override
+            public void call(Subscriber<? super O> subscriber) {
+                try {
+                    subscriber.onNext(CommandNG.this.call(input));
+                    subscriber.onCompleted();
+                } catch (Throwable t) {
+                    subscriber.onError(t);
+                }
+            }
+        });
+    }
+
+    public final Action1<I> toAction() {
+        return new Action1<I>() {
+            @Override
+            public void call(I i) {
+                CommandNG.this.call(i);
+            }
+        };
+    }
+
+    public final Func1<I, Observable<O>> toContinuation() {
+        return new Func1<I, Observable<O>>() {
+            @Override
+            public Observable<O> call(I i) {
+                return toObservable(i);
+            }
+        };
+    }
+
+}

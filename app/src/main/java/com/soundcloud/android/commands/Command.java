@@ -7,6 +7,7 @@ import rx.util.async.operators.OperatorFromFunctionals;
 
 import java.util.concurrent.Callable;
 
+@Deprecated
 public abstract class Command<I, O, This extends Command<I, O, This>> implements Callable<O>, Func1<I, Observable<O>> {
 
     protected I input;

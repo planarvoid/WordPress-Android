@@ -2,7 +2,6 @@ package com.soundcloud.android.commands;
 
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 
@@ -15,7 +14,7 @@ public abstract class StoreCommand<I> extends Command<I, WriteResult, StoreComma
     }
 
     @Override
-    public WriteResult call() throws PropellerWriteException {
+    public WriteResult call() {
         final WriteResult result = store();
         if (result.success()) {
             return result;
