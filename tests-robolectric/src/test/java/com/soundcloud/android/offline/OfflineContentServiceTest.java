@@ -16,6 +16,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.WriteResult;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -117,7 +118,7 @@ public class OfflineContentServiceTest {
         List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
         expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start());
 
-        expect(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED).getKind()).toEqual(EntityStateChangedEvent.DOWNLOAD_STARTED);
+        expectDownloadStarted(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED), downloadRequest1.urn);
     }
 
     @Test
@@ -144,9 +145,7 @@ public class OfflineContentServiceTest {
 
         startService();
 
-        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_STARTED);
-        expect(event.getChangeMap().keySet()).toContainExactly(downloadRequest1.urn);
+        expectDownloadStarted(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED), downloadRequest1.urn);
     }
 
     @Test
@@ -160,8 +159,8 @@ public class OfflineContentServiceTest {
         expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
 
         List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(entityStateChangedEvents.get(0).getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_STARTED);
-        expect(entityStateChangedEvents.get(1).getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_FINISHED);
+        expectDownloadStarted(entityStateChangedEvents.get(0), downloadRequest1.urn);
+        expectDownloadFinished(entityStateChangedEvents.get(1), downloadRequest1.urn);
         expect(entityStateChangedEvents.get(1).getChangeMap().keySet()).toContainExactly(downloadRequest1.urn);
 
     }
@@ -177,9 +176,8 @@ public class OfflineContentServiceTest {
         expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
 
         List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expect(entityStateChangedEvents.get(0).getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_STARTED);
-        expect(entityStateChangedEvents.get(1).getKind()).toBe(EntityStateChangedEvent.DOWNLOAD_FAILED);
-        expect(entityStateChangedEvents.get(1).getChangeMap().keySet()).toContainExactly(downloadRequest1.urn);
+        expectDownloadStarted(entityStateChangedEvents.get(0), downloadRequest1.urn);
+        expectDownloadFailed(entityStateChangedEvents.get(1), downloadRequest1.urn);
 
     }
 
@@ -309,5 +307,25 @@ public class OfflineContentServiceTest {
 
     private Observable<List<DownloadRequest>> buildDownloadRequestObservable(DownloadRequest... downloadRequest) {
         return Observable.just(Arrays.asList(downloadRequest));
+    }
+
+    private void expectDownloadStarted(EntityStateChangedEvent event, Urn urn) {
+        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
+        expect(event.getNextChangeSet().get(TrackProperty.OFFLINE_DOWNLOADING)).toBeTrue();
+        expect(event.getChangeMap().keySet()).toContainExactly(urn);
+    }
+
+    private void expectDownloadFinished(EntityStateChangedEvent event, Urn urn) {
+        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
+        expect(event.getNextChangeSet().get(TrackProperty.OFFLINE_DOWNLOADING)).toBeFalse();
+        expect(event.getNextChangeSet().contains(TrackProperty.OFFLINE_DOWNLOADED_AT)).toBeTrue();
+        expect(event.getChangeMap().keySet()).toContainExactly(urn);
+    }
+
+    private void expectDownloadFailed(EntityStateChangedEvent event, Urn urn) {
+        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
+        expect(event.getNextChangeSet().get(TrackProperty.OFFLINE_DOWNLOADING)).toBeFalse();
+        expect(event.getNextChangeSet().contains(TrackProperty.OFFLINE_UNAVAILABLE_AT)).toBeTrue();
+        expect(event.getChangeMap().keySet()).toContainExactly(urn);
     }
 }

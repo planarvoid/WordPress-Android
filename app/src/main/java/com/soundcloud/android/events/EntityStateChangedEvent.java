@@ -18,12 +18,10 @@ import java.util.Map;
 public final class EntityStateChangedEvent {
 
     public static final int ENTITY_SYNCED = 0;
-    public static final int DOWNLOAD_STARTED = 1;
-    public static final int DOWNLOAD_FINISHED = 2;
-    public static final int DOWNLOAD_FAILED = 3;
-    public static final int LIKE = 4;
-    public static final int REPOST = 5;
-    public static final int MARKED_FOR_OFFLINE = 6;
+    public static final int DOWNLOAD = 1;
+    public static final int LIKE = 2;
+    public static final int REPOST = 3;
+    public static final int MARKED_FOR_OFFLINE = 4;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -85,7 +83,7 @@ public final class EntityStateChangedEvent {
     private final Map<Urn, PropertySet> changeMap;
 
     public static EntityStateChangedEvent downloadStarted(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD_STARTED,
+        return new EntityStateChangedEvent(DOWNLOAD,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
                         TrackProperty.OFFLINE_DOWNLOADING.bind(true))
@@ -93,7 +91,7 @@ public final class EntityStateChangedEvent {
     }
 
     public static EntityStateChangedEvent downloadFinished(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD_FINISHED,
+        return new EntityStateChangedEvent(DOWNLOAD,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
                         TrackProperty.OFFLINE_DOWNLOADING.bind(false),
@@ -102,7 +100,7 @@ public final class EntityStateChangedEvent {
     }
 
     public static EntityStateChangedEvent downloadFailed(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD_FAILED,
+        return new EntityStateChangedEvent(DOWNLOAD,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
                         TrackProperty.OFFLINE_DOWNLOADING.bind(false),
