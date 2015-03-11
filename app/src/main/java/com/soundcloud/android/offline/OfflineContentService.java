@@ -192,6 +192,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
         @Override
         public void onNext(List<DownloadRequest> requests) {
+            if (downloadHandler.isDownloading()) {
+                requests.remove(downloadHandler.getCurrent());
+            }
             updateRequestQueue(requests);
 
             if (!downloadHandler.isDownloading()) {
@@ -207,7 +210,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         requestsQueue.addAll(requests);
 
         if (!requestsQueue.isEmpty()) {
-            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(requestsQueue.size()));
+            final int size = downloadHandler.isDownloading() ? requestsQueue.size() + 1 : requestsQueue.size();
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size));
         }
     }
 

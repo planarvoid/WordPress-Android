@@ -30,6 +30,7 @@ import rx.subjects.PublishSubject;
 import android.content.Intent;
 import android.os.Message;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -241,7 +242,7 @@ public class OfflineContentServiceTest {
 
         startService();
 
-        verify(notificationController).onPendingRequests(2);
+        verify(notificationController).onPendingRequests(3);
     }
 
     @Test
@@ -305,8 +306,9 @@ public class OfflineContentServiceTest {
         return new DownloadRequest(Urn.forTrack(id), "http://" + id);
     }
 
-    private Observable<List<DownloadRequest>> buildDownloadRequestObservable(DownloadRequest... downloadRequest) {
-        return Observable.just(Arrays.asList(downloadRequest));
+    private Observable<List<DownloadRequest>> buildDownloadRequestObservable(DownloadRequest... downloadRequests) {
+        final List<DownloadRequest> requestsList = new ArrayList<>(Arrays.asList(downloadRequests));
+        return Observable.just(requestsList);
     }
 
     private void expectDownloadStarted(EntityStateChangedEvent event, Urn urn) {

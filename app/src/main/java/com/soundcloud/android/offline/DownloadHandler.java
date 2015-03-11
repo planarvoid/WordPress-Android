@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsUnavailableCommand;
 import com.soundcloud.propeller.PropellerWriteException;
+import org.jetbrains.annotations.Nullable;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,7 +15,6 @@ import android.os.Message;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DownloadHandler extends Handler {
 
@@ -24,10 +24,15 @@ public class DownloadHandler extends Handler {
     private final DownloadOperations downloadOperations;
     private final StoreCompletedDownloadCommand storeCompletedDownload;
     private final UpdateContentAsUnavailableCommand  updateContentAsUnavailable;
-    private final AtomicBoolean downloading;
+    private DownloadRequest current;
 
     public boolean isDownloading() {
-        return downloading.get();
+        return current != null;
+    }
+
+    @Nullable
+    public DownloadRequest getCurrent() {
+        return current;
     }
 
     interface Listener {
@@ -41,7 +46,6 @@ public class DownloadHandler extends Handler {
         this.downloadOperations = downloadOperations;
         this.storeCompletedDownload = storeCompletedDownload;
         this.updateContentAsUnavailable = updateContentAsUnavailable;
-        downloading = new AtomicBoolean(false);
     }
 
     @VisibleForTesting
@@ -50,15 +54,14 @@ public class DownloadHandler extends Handler {
         this.downloadOperations = downloadOperations;
         this.storeCompletedDownload = storeCompletedDownload;
         this.updateContentAsUnavailable = updateContentAsUnavailable;
-        this.downloading = new AtomicBoolean(false);
     }
 
     @Override
     public void handleMessage(Message msg) {
         final DownloadRequest request = (DownloadRequest) msg.obj;
-        downloading.set(true);
+        current = request;
         final DownloadResult result = downloadOperations.download(request);
-        downloading.set(false);
+        current = null;
 
         if (result.isSuccess()) {
             tryToStoreDownloadSuccess(result);
