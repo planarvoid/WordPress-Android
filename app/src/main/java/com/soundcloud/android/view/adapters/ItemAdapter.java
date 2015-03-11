@@ -21,7 +21,7 @@ import java.util.List;
 public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable<ItemT>> {
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
-    protected List<ItemT> items;
+    protected final List<ItemT> items;
     protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
 
     public ItemAdapter(CellPresenterEntity<ItemT>... cellPresenterEntities) {
