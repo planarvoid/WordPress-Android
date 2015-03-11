@@ -87,7 +87,7 @@ You should also setup your default run configuration for JUnit so it looks like 
 
 ## [Wiki][wiki] topics
 
-* [Integration tests][integration-tests]
+* [Acceptance Tests][acceptance-tests]
 * [Releasing][releasing]
 * [Betas][betas]
 * [Android guidelines][android-guide]
@@ -99,7 +99,7 @@ You should also setup your default run configuration for JUnit so it looks like 
 [wiki]: https://github.com/soundcloud/SoundCloud-Android/wiki/
 [releasing]: https://github.com/soundcloud/SoundCloud-Android/wiki/Releasing
 [betas]: https://github.com/soundcloud/SoundCloud-Android/wiki/Betas
-[integration-tests]: https://github.com/soundcloud/SoundCloud-Android/wiki/Integration-tests
+[acceptance-tests]: https://github.com/soundcloud/SoundCloud-Android/wiki/Acceptance-Tests
 [android-guide]: https://github.com/soundcloud/SoundCloud-Android/wiki/Android-Guidelines
 [java-syntax]: https://github.com/soundcloud/SoundCloud-Android/wiki/Java-Syntax-Conventions
 [JUnit default run config]: http://f.cl.ly/items/3q3m3v2U0C1b0w1c2D2G/default_junit_run_configuration.png
