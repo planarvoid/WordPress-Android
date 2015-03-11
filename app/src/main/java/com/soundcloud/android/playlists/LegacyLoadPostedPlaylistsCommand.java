@@ -10,6 +10,7 @@ import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.query.ColumnFunctions;
 import com.soundcloud.propeller.query.Query;
 
 import javax.inject.Inject;
@@ -35,7 +36,9 @@ public class LegacyLoadPostedPlaylistsCommand extends PagedQueryCommand<Chronolo
                         field(Table.SoundView + "." + TableColumns.SoundView.TRACK_COUNT).as(TableColumns.SoundView.TRACK_COUNT),
                         field(Table.SoundView + "." + TableColumns.SoundView.LIKES_COUNT).as(TableColumns.SoundView.LIKES_COUNT),
                         field(Table.SoundView + "." + TableColumns.SoundView.SHARING).as(TableColumns.SoundView.SHARING),
-                        field(Table.SoundView + "." + TableColumns.SoundView.CREATED_AT).as(TableColumns.SoundView.CREATED_AT))
+                        field(Table.SoundView + "." + TableColumns.SoundView.CREATED_AT).as(TableColumns.SoundView.CREATED_AT),
+                        ColumnFunctions.count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
+                .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
                 .innerJoin(Table.CollectionItems.name(),
                         on(Table.CollectionItems + "." + TableColumns.CollectionItems.ITEM_ID, Table.SoundView + "." + TableColumns.SoundView._ID)
                                 .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.PLAYLIST)
@@ -43,6 +46,7 @@ public class LegacyLoadPostedPlaylistsCommand extends PagedQueryCommand<Chronolo
                                 .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.USER_ID, Table.SoundView + "." + TableColumns.SoundView.USER_ID))
                 .whereEq(Table.SoundView + "." + TableColumns.SoundView.USER_ID, accountOperations.getLoggedInUserUrn().getNumericId())
                 .whereLt(Table.SoundView + "." + TableColumns.SoundView.CREATED_AT, input.getTimestamp())
+                .groupBy(Table.SoundView.field(TableColumns.SoundView._ID))
                 .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC);
     }
 }

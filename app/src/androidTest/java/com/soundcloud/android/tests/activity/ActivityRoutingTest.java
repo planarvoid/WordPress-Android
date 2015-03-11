@@ -2,16 +2,16 @@ package com.soundcloud.android.tests.activity;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
+import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.creators.upload.UploadMonitorActivity;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.settings.AccountSettingsActivity;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.SearchActivity;
+import com.soundcloud.android.settings.AccountSettingsActivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -56,8 +56,8 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(ProfileActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
     }
 
-    public void ignore_testSuggestedUsers() {
-        assertActivityStarted(SuggestedUsersActivity.class, Actions.WHO_TO_FOLLOW);
+    public void ignore_testWhoToFollow() {
+        assertActivityStarted(WhoToFollowActivity.class, Actions.WHO_TO_FOLLOW);
     }
 
     public void ignore_testSearch() {
@@ -69,6 +69,9 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:users:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:tracks:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234"));
+        assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud://users:1234"));
+        assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud://tracks:1234"));
+        assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
     }
 
     public void ignore_testAccountSettings() {

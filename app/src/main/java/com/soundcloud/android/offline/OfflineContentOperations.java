@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
@@ -68,6 +69,13 @@ public class OfflineContentOperations {
         }
     };
 
+    private final Func1<Void, Observable<WriteResult>> updateOfflineQueue = new Func1<Void, Observable<WriteResult>>() {
+        @Override
+        public Observable<WriteResult> call(Void aVoid) {
+            return updateOfflineQueue();
+        }
+    };
+
     @Inject
     public OfflineContentOperations(LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies,
                                     UpdateOfflineContentCommand updateOfflineContent,
@@ -94,13 +102,13 @@ public class OfflineContentOperations {
         settingsStorage.setOfflineLikesEnabled(isEnabled);
     }
 
-    public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn){
+    public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn) {
         return storeOfflinePlaylist.with(playlistUrn).toObservable()
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, true));
     }
 
-    public Observable<Boolean> makePlaylistUnavailableOffline(final Urn playlistUrn){
+    public Observable<Boolean> makePlaylistUnavailableOffline(final Urn playlistUrn) {
         return removeOfflinePlaylist.with(playlistUrn).toObservable()
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, false));
@@ -112,24 +120,6 @@ public class OfflineContentOperations {
 
     public Observable<Boolean> getOfflineLikesSettingsStatus() {
         return settingsStorage.getOfflineLikesChanged();
-    }
-
-    Observable<List<DownloadRequest>> loadDownloadRequests() {
-        return loadDownloadableUrns()
-                .flatMap(updateOfflineContent)
-                .flatMap(loadPendingDownloads);
-    }
-
-    private Observable<Collection<Urn>> loadDownloadableUrns() {
-        return loadTracksWithStatePolicies
-                .call(isOfflineLikesEnabled())
-                .flatMap(UPDATE_POLICIES)
-                .flatMap(new Func1<Void, Observable<Collection<Urn>>>() {
-                    @Override
-                    public Observable<Collection<Urn>> call(Void aVoid) {
-                        return loadTracksWithValidPolicies.call(isOfflineLikesEnabled());
-                    }
-                });
     }
 
     public Observable<OfflineContentEvent> onStarted() {
@@ -150,5 +140,22 @@ public class OfflineContentOperations {
                 eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(playlistUrn, isMarkedOffline));
             }
         };
+    }
+
+    Observable<WriteResult> updateOfflineQueue() {
+        return loadTracksWithValidPolicies.call(isOfflineLikesEnabled())
+                .flatMap(updateOfflineContent);
+    }
+
+    Observable<List<DownloadRequest>> loadDownloadRequests() {
+        return updateStalePolicies()
+                .flatMap(updateOfflineQueue)
+                .flatMap(loadPendingDownloads);
+    }
+
+    @VisibleForTesting
+    Observable<Void> updateStalePolicies() {
+        return loadTracksWithStatePolicies.call(isOfflineLikesEnabled())
+                .flatMap(UPDATE_POLICIES);
     }
 }

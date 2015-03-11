@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.notification;
 
+import com.soundcloud.android.image.ApiImageSize;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -16,11 +18,6 @@ public class BasicNotificationBuilder implements NotificationBuilder {
         builder = new NotificationCompat.Builder(context);
         builder.setOngoing(true);
         builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-    }
-
-    @Override
-    public void setOngoing(boolean isOngoing) {
-        builder.setOngoing(isOngoing);
     }
 
     @Override
@@ -66,6 +63,16 @@ public class BasicNotificationBuilder implements NotificationBuilder {
     @Override
     public boolean hasArtworkSupport() {
         return false;
+    }
+
+    @Override
+    public ApiImageSize getImageSize() {
+        return ApiImageSize.Unknown;
+    }
+
+    @Override
+    public int getTargetImageSize() {
+        return NOT_SET;
     }
 
     @Override

@@ -25,55 +25,61 @@ class PaymentStateHelper {
 
     private static final String KEY_FILE = "payment_test_secrets.txt";
 
-    private String proxyPassword;
-    private String accessToken;
 
-    public PaymentStateHelper() {
-        loadSecretsFromDevice();
+    private PaymentStateHelper() {}
+
+    public static void resetTestAccount() {
+        try {
+            final Secrets secrets = loadSecretsFromDevice();
+            buildDeleteSubscriptionConnection(secrets).getResponseCode();
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to reset test user subscription state: connection error", e);
+        }
     }
 
-    private void loadSecretsFromDevice() {
+    private static Secrets loadSecretsFromDevice() {
         final File keyFile = new File(Environment.getExternalStorageDirectory(), KEY_FILE);
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(keyFile));
-            proxyPassword = reader.readLine();
-            accessToken = reader.readLine();
+            return new Secrets(reader.readLine(), reader.readLine());
         } catch (IOException e) {
-            throw new IllegalStateException("Failed to reset test user subscription state: error reading keys");
+            throw new IllegalStateException("Failed to reset test user subscription state: error reading keys", e);
         } finally {
             IOUtils.close(reader);
         }
     }
 
-    public void resetTestAccount() {
-        try {
-            buildDeleteSubscriptionConnection().getResponseCode();
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to reset test user subscription state: connection error");
-        }
-    }
-
-    private HttpURLConnection buildDeleteSubscriptionConnection() throws IOException {
+    private static HttpURLConnection buildDeleteSubscriptionConnection(Secrets secrets) throws IOException {
         URL url = new URL(buildDeleteSubcriptionUrl());
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PROXY_ADDRESS, PROXY_PORT));
         HttpURLConnection connection = (HttpURLConnection) url.openConnection(proxy);
         connection.setRequestMethod("DELETE");
-        connection.setRequestProperty("X-Access-Token", accessToken);
-        connection.setRequestProperty("Proxy-Authorization", formatProxyAuth());
+        connection.setRequestProperty("X-Access-Token", secrets.accessToken);
+        connection.setRequestProperty("Proxy-Authorization", formatProxyAuth(secrets.proxyPassword));
         connection.setConnectTimeout((int) TIMEOUT);
         connection.setReadTimeout((int) TIMEOUT);
         return connection;
     }
 
-    private String formatProxyAuth() {
+    private static String formatProxyAuth(String proxyPassword) {
         final String login = "ciuser" + ":" + proxyPassword;
         return "Basic " + Base64.encodeToString(login.getBytes(), Base64.DEFAULT);
     }
 
-    private String buildDeleteSubcriptionUrl() {
+    private static String buildDeleteSubcriptionUrl() {
         final String path = "http://buckster-test.int.s-cloud.net/api/users/%s/consumer_subscriptions/active";
         return String.format(Locale.US, path, String.valueOf(TEST_USER_ID));
+    }
+
+    private static class Secrets {
+        public final String proxyPassword;
+        public final String accessToken;
+
+        public Secrets(String proxyPassword, String accessToken) {
+            this.proxyPassword = proxyPassword;
+            this.accessToken = accessToken;
+        }
     }
 
 }

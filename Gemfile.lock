@@ -2,7 +2,7 @@ GEM
   remote: https://rubygems.org/
   remote: http://gems.int.s-cloud.net/
   specs:
-    android-publisher (0.0.1)
+    android-publisher (0.0.2)
       oauth2
       trollop
     faraday (0.9.0)
@@ -23,7 +23,7 @@ GEM
     rake (10.1.1)
     rest-client (1.6.7)
       mime-types (>= 1.16)
-    trollop (2.0)
+    trollop (2.1.1)
     version (1.0.0)
 
 PLATFORMS

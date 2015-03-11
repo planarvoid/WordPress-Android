@@ -103,6 +103,7 @@
     <string name="authentication_choose_a_password">At least 6 characters</string>
     <string name="authentication_error_incomplete_fields">Please fill in all fields.</string>
     <string name="authentication_error_invalid_email">Please enter a valid email.</string>
+    <string name="authentication_error_generic">Oops! An unexpected error occurred. Please try again.</string>
     <string name="authentication_error_no_connection_message">There\'s a problem with your data connection. Please check your network settings.</string>
     <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
     <string name="authentication_error_title">Error</string>

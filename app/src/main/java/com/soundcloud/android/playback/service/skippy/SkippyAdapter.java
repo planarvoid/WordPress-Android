@@ -413,9 +413,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Override
     public void onErrorMessage(ErrorCategory category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
 
-        ErrorUtils.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
+        ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
+        if (!ConnectionType.UNKNOWN.equals(currentConnectionType)){
+            ErrorUtils.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
+        }
 
-        final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), getPlaybackProtocol(), cdn);
+        final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), getPlaybackProtocol(),
+                cdn, currentConnectionType);
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
     }
 

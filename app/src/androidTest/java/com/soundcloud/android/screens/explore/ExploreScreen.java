@@ -79,8 +79,10 @@ public class ExploreScreen extends Screen {
     }
 
     public void playFirstTrack() {
+        VisualPlayerElement player = new VisualPlayerElement(testDriver);
         ViewElement gridView = testDriver.findElement(With.className(GridView.class));
         gridView.getChildAt(0).click();
+        player.waitForExpandedPlayer();
     }
 
     private void touchTab(String tabText) {

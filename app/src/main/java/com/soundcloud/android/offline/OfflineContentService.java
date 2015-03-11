@@ -117,7 +117,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .subscribe(new DownloadSubscriber());
 
         } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
-            fireAndForget(downloadOperations.updateContentAsPendingRemoval().subscribeOn(scheduler));
+            fireAndForget(offlineContentOperations.updateOfflineQueue().subscribeOn(scheduler));
             stop();
         }
         return START_NOT_STICKY;

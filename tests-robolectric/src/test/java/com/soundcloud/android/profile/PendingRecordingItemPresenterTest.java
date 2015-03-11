@@ -80,6 +80,15 @@ public class PendingRecordingItemPresenterTest {
         expect(textView(R.id.time_since_recorded).getText()).toEqual("15 minutes ago");
     }
 
+    @Test
+    public void shouldShowRecordingNotFoundInTimestampIfRecordingNotAvailable() throws Exception {
+        when(file.lastModified()).thenReturn(0L);
+
+        presenter.bindItemView(0, itemView, recordings);
+
+        expect(textView(R.id.time_since_recorded).getText()).toEqual("Recording not found");
+    }
+
     private TextView textView(int id) {
         return ((TextView) itemView.findViewById(id));
     }

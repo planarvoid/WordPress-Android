@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.PlayControlEvent;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.playback.external.PlaybackAction;
 
 import android.annotation.TargetApi;
@@ -80,11 +81,6 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     }
 
     @Override
-    public void setOngoing(boolean isOngoing) {
-        builder.setOngoing(isOngoing);
-    }
-
-    @Override
     public void setSmallIcon(int icon) {
         builder.setSmallIcon(icon);
     }
@@ -123,7 +119,7 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
             togglePlayAction.icon = R.drawable.notifications_play;
             togglePlayAction.title = resources.getString(R.string.play);
         }
-        setOngoing(isPlaying);
+        builder.setOngoing(isPlaying);
     }
 
     @Override
@@ -134,6 +130,16 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
     @Override
     public boolean hasArtworkSupport() {
         return true;
+    }
+
+    @Override
+    public com.soundcloud.android.image.ApiImageSize getImageSize() {
+        return ApiImageSize.getFullImageSize(resources);
+    }
+
+    @Override
+    public int getTargetImageSize() {
+        return NOT_SET;
     }
 
     @Override

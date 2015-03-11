@@ -1,11 +1,14 @@
 package com.soundcloud.android.playback.notification;
 
+import com.soundcloud.android.image.ApiImageSize;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.graphics.Bitmap;
 
 public interface NotificationBuilder {
-    void setOngoing(boolean isOngoing);
+
+    static final int NOT_SET = -1;
 
     void setIcon(Bitmap bitmap);
 
@@ -24,6 +27,10 @@ public interface NotificationBuilder {
     boolean hasPlayStateSupport();
 
     boolean hasArtworkSupport();
+
+    ApiImageSize getImageSize();
+
+    int getTargetImageSize();
 
     Notification build();
 }

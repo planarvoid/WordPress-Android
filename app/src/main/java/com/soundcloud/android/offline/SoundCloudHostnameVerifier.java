@@ -17,7 +17,7 @@ import java.util.Locale;
 
 class SoundCloudHostnameVerifier implements HostnameVerifier {
     static final int ALT_TYPE_DNS = 2;
-    private static final String PATTERN = ".*.\\.hs\\.llnwd\\.net$|.*.\\.sndcdn\\.com$|.*.?soundcloud\\.com$";
+    private static final String PATTERN = ".*.\\.hs\\.llnwd\\.net$|.*.?sndcdn\\.com$|.*.?soundcloud\\.com$";
 
     @Override
     public boolean verify(String hostname, SSLSession session) {

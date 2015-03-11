@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Query.on;
 
@@ -29,12 +30,15 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
                         field(Table.SoundView.field(TableColumns.SoundView.TRACK_COUNT)).as(TableColumns.SoundView.TRACK_COUNT),
                         field(Table.SoundView.field(TableColumns.SoundView.LIKES_COUNT)).as(TableColumns.SoundView.LIKES_COUNT),
                         field(Table.SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
-                        field(Table.SoundView.field(TableColumns.SoundView.CREATED_AT)).as(TableColumns.SoundView.CREATED_AT))
+                        field(Table.SoundView.field(TableColumns.SoundView.CREATED_AT)).as(TableColumns.SoundView.CREATED_AT),
+                        count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
+                .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
                 .innerJoin(Table.Posts.name(),
                         on(Table.Posts.field(TableColumns.Posts.TARGET_ID), Table.SoundView.field(TableColumns.SoundView._ID))
                                 .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), Table.SoundView.field(TableColumns.SoundView._TYPE)))
                 .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
                 .whereLt(Table.SoundView.field(TableColumns.SoundView.CREATED_AT), input.getTimestamp())
+                .groupBy(Table.SoundView.field(TableColumns.SoundView._ID))
                 .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC);
     }
 }

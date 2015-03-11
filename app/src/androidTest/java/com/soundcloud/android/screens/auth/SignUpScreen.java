@@ -68,6 +68,7 @@ public class SignUpScreen extends Screen {
 
     public void acceptTerms() {
         acceptTermsButton().click();
+        waiter.waitForDialogToClose();
         waiter.waitForElement(R.id.btn_skip);
     }
 

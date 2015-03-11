@@ -24,9 +24,10 @@ allprojects {
     javaSrcDirs = 'src/main/java'
     resSrcDirs = 'res'
     assetsSrcDirs = 'assets'
+    applicationId = 'com.soundcloud.android'
 
-    testApplicationId = 'com.soundcloud.android.tests'
-    testInstrumentationRunner = 'com.soundcloud.android.framework.runner.RandomizingRunner'
+    testApplicationId = "${applicationId}.tests"
+    testInstrumentationRunner = "${applicationId}.framework.runner.RandomizingRunner"
   }
   repositories {
     mavenLocal()

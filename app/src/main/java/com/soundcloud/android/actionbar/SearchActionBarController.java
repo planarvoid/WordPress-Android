@@ -43,7 +43,7 @@ public class SearchActionBarController extends ActionBarController {
     private final PublicCloudAPI publicApi;
     private final PlaybackOperations playbackOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
-    private final SearchView.OnQueryTextListener mQueryTextListener = new SearchView.OnQueryTextListener() {
+    private final SearchView.OnQueryTextListener queryTextListener = new SearchView.OnQueryTextListener() {
         @Override
         public boolean onQueryTextSubmit(String query) {
             performSearch(query, false);
@@ -181,7 +181,7 @@ public class SearchActionBarController extends ActionBarController {
 
     public void configureSearchState(final ActionBarActivity activity, Menu menu) {
         initSearchView(activity, menu);
-        searchView.setOnQueryTextListener(mQueryTextListener);
+        searchView.setOnQueryTextListener(queryTextListener);
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int position) {

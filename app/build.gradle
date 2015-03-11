@@ -29,6 +29,7 @@ android {
   buildToolsVersion globalConfiguration.getAt('androidBuildToolsVersion')
 
   defaultConfig {
+    applicationId globalConfiguration.getAt('applicationId')
     minSdkVersion globalConfiguration.getAt('androidMinSdkVersion')
     targetSdkVersion globalConfiguration.getAt('androidTargetSdkVersion')
     testApplicationId globalConfiguration.getAt('testApplicationId')

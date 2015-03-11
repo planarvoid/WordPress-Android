@@ -57,14 +57,14 @@ class SearchOperations {
     private final Func1<SearchResult, SearchResult> mergeLikeStatusForPlaylists = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult searchResult) {
-            final List<PropertySet> playlistsIsLikedStati;
+            final List<PropertySet> playlistsIsLikedStatus;
             try {
-                playlistsIsLikedStati = loadPlaylistLikedStatuses.with(searchResult.getItems()).call();
+                playlistsIsLikedStatus = loadPlaylistLikedStatuses.with(searchResult.getItems()).call();
 
                 for (final PropertySet resultItem : searchResult) {
                     final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
                     final Optional<PropertySet> matchingPlaylistLikeStatus =
-                            Iterables.tryFind(playlistsIsLikedStati, matchingUrnPredicate(itemUrn));
+                            Iterables.tryFind(playlistsIsLikedStatus, matchingUrnPredicate(itemUrn));
                     if (itemUrn.isPlaylist() && matchingPlaylistLikeStatus.isPresent()) {
                         resultItem.update(matchingPlaylistLikeStatus.get());
                     }

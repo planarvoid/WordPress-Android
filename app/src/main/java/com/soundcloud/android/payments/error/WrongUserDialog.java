@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentManager;
 
 public class WrongUserDialog extends UnrecoverableErrorDialog {
 
-    private static final String TAG = "WrongUser";
+    private static final String TAG = "payment_error";
 
     private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override

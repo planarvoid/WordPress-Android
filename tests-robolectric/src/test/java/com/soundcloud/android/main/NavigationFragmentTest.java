@@ -110,6 +110,27 @@ public class NavigationFragmentTest {
     }
 
     @Test
+    public void initStateShouldCallbackWithStreamPositionFromUriHost() throws Exception {
+        when(intent.getData()).thenReturn(Uri.parse("soundcloud://stream?adj=123"));
+        fragment.initState(null);
+        verifyPositionSelected(NavItem.STREAM);
+    }
+
+    @Test
+    public void initStateShouldCallbackWithStreamPositionFromWWWSoundCloudDotCom() throws Exception {
+        when(intent.getData()).thenReturn(Uri.parse("http://www.soundcloud.com"));
+        fragment.initState(null);
+        verifyPositionSelected(NavItem.STREAM);
+    }
+
+    @Test
+    public void initStateShouldCallbackWithStreamPositionFromSoundCloudDotCom() throws Exception {
+        when(intent.getData()).thenReturn(Uri.parse("http://soundcloud.com"));
+        fragment.initState(null);
+        verifyPositionSelected(NavItem.STREAM);
+    }
+
+    @Test
     public void initStateShouldCallbackWithExplorePositionFromUri() throws Exception {
         when(intent.getData()).thenReturn(Uri.parse("http://souncloud.com/explore/"));
         fragment.initState(null);

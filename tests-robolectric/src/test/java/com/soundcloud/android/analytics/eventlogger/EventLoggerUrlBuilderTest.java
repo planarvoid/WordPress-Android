@@ -632,9 +632,9 @@ public class EventLoggerUrlBuilderTest {
     @Test
     public void createsPlaybackErrorUrlForErrorEvent() throws Exception {
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
-        PlaybackErrorEvent playbackErrorEvent = new PlaybackErrorEvent("category", PlaybackProtocol.HTTPS, "cdn-uri", PlaybackErrorEvent.BITRATE_128, PlaybackErrorEvent.FORMAT_MP3);
+        PlaybackErrorEvent playbackErrorEvent = new PlaybackErrorEvent("category", PlaybackProtocol.HTTPS, "cdn-uri", PlaybackErrorEvent.BITRATE_128, PlaybackErrorEvent.FORMAT_MP3, ConnectionType.FOUR_G);
         final String url = eventLoggerUrlBuilder.build(playbackErrorEvent);
-        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_error?client_id=123&anonymous_id=9876&protocol=https&os=SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)&bitrate=128&format=mp3&url=cdn-uri&errorCode=category&ts=" + playbackErrorEvent.getTimestamp())));
+        assertThat(url, is(urlEqualTo("http://eventlogger.soundcloud.com/audio_error?client_id=123&anonymous_id=9876&protocol=https&os=SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)&bitrate=128&format=mp3&url=cdn-uri&errorCode=category&connection_type=4g&ts=" + playbackErrorEvent.getTimestamp())));
     }
 
     @Test
