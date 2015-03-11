@@ -60,10 +60,6 @@
     <color name="cloud_progress_center">@color/sc_orange</color>
     <color name="cloud_progress_end">#ff3300</color>
 
-    <color name="cloud_progress_landscape_background_start">#444444</color>
-    <color name="cloud_progress_landscape_background_center">#666666</color>
-    <color name="cloud_progress_landscape_background_end">#444444</color>
-
     <color name="cloud_progress_round_background_start">#222222</color>
     <color name="cloud_progress_round_background_center">#222222</color>
     <color name="cloud_progress_round_background_end">#222222</color>
