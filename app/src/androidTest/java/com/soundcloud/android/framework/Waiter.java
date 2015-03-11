@@ -199,6 +199,10 @@ public class Waiter {
         return solo.waitForCondition(new VisibleElementsCondition(elementId), NETWORK_TIMEOUT);
     }
 
+    public boolean waitForElement(With with) {
+        return solo.waitForCondition(new VisibleElementCondition(with), ELEMENT_TIMEOUT);
+    }
+
     private class VisibleElementCondition implements Condition {
         private With matcher;
 

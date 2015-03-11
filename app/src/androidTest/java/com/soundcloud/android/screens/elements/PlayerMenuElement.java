@@ -20,6 +20,7 @@ public class PlayerMenuElement {
     public PlayerMenuElement(Han solo) {
         testDriver = solo;
         waiter = new Waiter(testDriver);
+        waiter.waitForElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
 
     public TrackInfoScreen clickInfo() {
