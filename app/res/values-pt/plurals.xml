@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?><resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+
+    The plurals on this file were extracted from the the strings.xml because of Transifex
+    not supporting plurals label on xml files.
+    Until this translation issue on Transifex is fixed, we will keep this file.
+    When it is fixed, we should move these plurals back to the strings.xml file.
+
+    -->
+
+    <!-- __NOTIFICATIONS -->
+    <plurals name="dashboard_notifications_activity_message_activity" tools:ignore="UnusedQuantity">
+        <item quantity="one">de %2$s em %1$s</item>
+        <item quantity="two">Comentários e curtidas de %2$s e %3$s</item>
+        <item quantity="other">Comentários e curtidas de %2$s, %3$s e outros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment" tools:ignore="UnusedQuantity">
+        <item quantity="two">Comentários de %1$s e %2$s</item>
+        <item quantity="other">Comentários de %1$s, %2$s e outros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_comment_single_track" tools:ignore="UnusedQuantity">
+        <item quantity="one">novo comentário em %2$s de %3$s</item>
+        <item quantity="two">%1$d novos comentários em %2$s de %3$s e %4$s</item>
+        <item quantity="other">%1$d novos comentários em %2$s de %3$s, %4$s e outros</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_message_like" tools:ignore="UnusedQuantity">
+        <item quantity="one">em %1$s</item>
+        <item quantity="two">em %1$s e %2$s</item>
+        <item quantity="other">em %1$s, %2$s e outros sons</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_activity">
+        <item quantity="one">1 nova atividade</item>
+        <item quantity="other">%d novas atividades</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_comment">
+        <item quantity="one">1 novo comentário</item>
+        <item quantity="other">%d novos comentários</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_ticker_like">
+        <item quantity="one">Nova curtida</item>
+        <item quantity="other">%d novas curtidas</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_activity">
+        <item quantity="one">1 nova atividade</item>
+        <item quantity="other">%d novas atividades</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_comment">
+        <item quantity="one">1 novo comentário</item>
+        <item quantity="other">%d novos comentários</item>
+    </plurals>
+    <plurals name="dashboard_notifications_activity_title_like">
+        <item quantity="one">Uma nova curtida</item>
+        <item quantity="other">%d novas curtidas</item>
+    </plurals>
+
+    <!-- __TIME -->
+    <plurals name="elapsed_days">
+        <item quantity="one">1 dia</item>
+        <item quantity="other">%d dias</item>
+    </plurals>
+    <plurals name="elapsed_days_ago">
+        <item quantity="one">1 dia atrás</item>
+        <item quantity="other">%d dias atrás</item>
+    </plurals>
+    <plurals name="elapsed_hours">
+        <item quantity="one">1 hora</item>
+        <item quantity="other">%d horas</item>
+    </plurals>
+    <plurals name="elapsed_hours_ago">
+        <item quantity="one">1 hora atrás</item>
+        <item quantity="other">%d horas atrás</item>
+    </plurals>
+    <plurals name="elapsed_minutes">
+        <item quantity="one">1 minuto</item>
+        <item quantity="other">%d minutos</item>
+    </plurals>
+    <plurals name="elapsed_minutes_ago">
+        <item quantity="one">1 hora atrás</item>
+        <item quantity="other">%d minutos atrás</item>
+    </plurals>
+    <plurals name="elapsed_months">
+        <item quantity="one">1 mês</item>
+        <item quantity="other">%d meses</item>
+    </plurals>
+    <plurals name="elapsed_months_ago">
+        <item quantity="one">1 mês atrás</item>
+        <item quantity="other">%d meses atrás</item>
+    </plurals>
+    <plurals name="elapsed_seconds">
+        <item quantity="one">1 segundo</item>
+        <item quantity="other">%d segundos</item>
+    </plurals>
+    <plurals name="elapsed_seconds_ago">
+        <item quantity="one">1 segundo atrás</item>
+        <item quantity="other">%d segundos atrás</item>
+    </plurals>
+    <plurals name="elapsed_years">
+        <item quantity="one">1 ano</item>
+        <item quantity="other">%d anos</item>
+    </plurals>
+    <plurals name="elapsed_years_ago">
+        <item quantity="one">1 ano atrás</item>
+        <item quantity="other">%d anos atrás</item>
+    </plurals>
+    <plurals name="minutes_available">
+        <item quantity="one">1 minuto disponível</item>
+        <item quantity="other">%d minutos disponíveis</item>
+    </plurals>
+    <plurals name="seconds_available">
+        <item quantity="one">1 segundo disponível</item>
+        <item quantity="other">%d segundos disponíveis</item>
+    </plurals>
+
+
+</resources>
