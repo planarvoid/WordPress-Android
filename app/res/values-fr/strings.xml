@@ -39,7 +39,7 @@
   <string name="connection_list_footer">Pour modifier vos options de partage par défaut, allez dans vos paramètres sur SoundCloud et sélectionnez « Connexions »</string>
   <string name="delete">Effacer</string>
   <string name="comments">Commentaires</string>
-  <string name="new_connection_error">Il y a eu un problème lors de l\\'ajout du réseau</string>
+  <string name="new_connection_error">Un problème est survenu en ajoutant le réseau</string>
   <string name="reset">Abandonner</string>
   <string name="share_fail_message">OK, quelque chose ne va pas.</string>
   <string name="share_log_out">Se déconnecter</string>
@@ -118,10 +118,10 @@
   <string name="error_google_sign_in_failed">Nous n\'avons pas pu vous connecter avec Google+. Visitez plus.google.com pour activer votre compte Google+ et essayez à nouveau</string>
   <string name="auth_disclaimer_title">Plus qu\'une étape</string>
   <string name="auth_disclaimer_message">En appuyant sur « Continuer », vous acceptez les conditions d\'utilisation et la politique de confidentialité de SoundCloud.</string>
-  <string name="facebook_authentication_failed_message">Veuillez essayer plus tard ou connectez-vous en utilisant votre nom d\\'utilisateur et votre mot de passe SoundCloud.</string>
+  <string name="facebook_authentication_failed_message">Veuillez essayer plus tard ou connectez-vous en utilisant votre nom d\'utilisateur et votre mot de passe SoundCloud.</string>
   <string name="authentication_recover_password_msg">Entrez votre adresse e-mail et nous vous enverrons un lien qui vous permettra de changer votre mot de passe. Des problèmes ? Contactez le support.</string>
   <string name="authentication_blocked_title">Nous n\'avons pas pu vous inscrire</string>
-  <string name="authentication_blocked_message">Nos robots considèrent que cette inscription ressemble trop à du spam. Si vous pensez que c'est une erreur, veuillez &lt;a href="http://help.soundcloud.com/customer/portal/emails/new"&gt;contacter notre service à la clientèle&lt;/a&gt;</string>
+  <string name="authentication_blocked_message">Nos robots pensent que cette inscription ressemble trop à du spam. Si vous pensez qu\'il s\'agit d\'une erreur, veuillez <a href="http://help.soundcloud.com/customer/portal/emails/new"> contacter notre service d\'assistance </a></string>
   <string name="authentication_captcha_message">Nous n\'arrivons pas à vous connecter. Veuillez vous connecter sur notre site mobile avant de vous identifier à nouveau.</string>
   <string name="authentication_email_taken_message">Cette adresse e-mail est déjà affectée à un compte. Entrez une autre adresse ou essayez de vous connecter</string>
   <string name="authentication_email_invalid_message">Le domaine que vous avez entré semble ne pas accepter les e-mails. Merci de vérifier que vous l\'avez correctement orthographiée.</string>
@@ -154,7 +154,7 @@
   <string name="list_empty_you_playlists_message">Créez des listes de lecture pour mixer vos sons préférés</string>
   <string name="list_empty_liked_playlists_message">Mettez l\'option « j\'aime » sur vos listes de lecture préférées pour les écouter à nouveau</string>
   <string name="empty_user_likes_text">%1$s n\'a encore\nchoisi aucun like.</string>
-  <string name="empty_user_followers_text">%1$s n\\'est encore suivi par personne.</string>
+  <string name="empty_user_followers_text">%1$s n\'est encore suivi par personne.</string>
   <string name="empty_user_followings_text">%1$s ne suit personne pour le moment.</string>
   <string name="empty_user_tracks_text">%1$s n\'a mis en ligne\naucun son public pour l\'instant.</string>
   <!--__ERRORS-->
@@ -392,21 +392,21 @@
   <string-array name="record_suggestions">
     <item>Pourquoi n\'enregistrez vous pas le bruit de votre rue ?</item>
     <item>Enregistrez des mémos vocaux comme rappels.</item>
-    <item>Utilisez la touche REC pour créer un blog - que partagerez-vous aujourd\\'hui ?</item>
+    <item>Utilisez la touche REC pour créer un blog - que partagerez-vous aujourd\'hui ?</item>
     <item>Que faites-vous en ce moment ?</item>
-    <item>Capturez le moment : les premiers mots d\\'un enfant</item>
+    <item>Capturez le moment : les premiers mots d\'un enfant</item>
     <item>Capturez le moment : les sons que fait votre animal de compagnie</item>
     <item>Capturez le moment : la voix de quelqu\'un que vous aimez</item>
     <item>Vous partez faire des courses ? Enregistrez des rappels afin que vous n\ \'oubliez pas ce dont vous avez besoin.</item>
     <item>Vous avez une excellente idée ? Enregistrez-la avec la touche REC.</item>
     <item>Vous avez entendu une bonne blague récemment ? Partagez-la !</item>
-    <item>Vous prenez plaisir à avoir une bonne conversation ? Pourquoi ne pas l\\'enregistrer pour la postérité ?</item>
-    <item>Capturez le son d\\'un moment hilarant</item>
+    <item>Vous prenez plaisir à avoir une bonne conversation ? Pourquoi ne pas l\'enregistrer pour la postérité ?</item>
+    <item>Capturez le son d\'un moment hilarant</item>
     <item>Saviez-vous que vous pouvez enregistrer des enregistrements privés si vous ne souhaitez pas les partager ?</item>
     <item>Parfois, le meilleur dispositif d\'enregistrement est celui que vous avez avec vous.</item>
-    <item>Laissez votre voix s\\'élever !</item>
-    <item>Laissez la voix d\\'internet s\\'élever.</item>
-    <item>Laissez la voix du monde s\\'élever.</item>
+    <item>Laissez votre voix s\'élever !</item>
+    <item>Laissez la voix d\'internet s\'élever.</item>
+    <item>Laissez la voix du monde s\'élever.</item>
     <item>Exprimez-vous !</item>
     <item>Pourquoi ne pas enregistrer les moments de votre prochaine réunion ?</item>
     <item>Utilisez la touche REC pour capturer des idées pour plus tard.</item>
@@ -464,7 +464,7 @@
   <string name="pref_analytics">Analytiques</string>
   <string name="pref_analytics_desc">L\'activation d\'Analytics nous permet de recueillir des données concernant votre utilisation de cette application qui nous aident à l\'améliorer. Consultez notre Politique de confidentialité pour plus de détails.</string>
   <string name="pref_crashlogs">Journal des crash</string>
-  <string name="pref_crashlogs_desc">L\\'activation de CrashLogs nous aide à améliorer l\\'application de manière significative. Nous ne recueillons pas de données personnelles. Consultez notre Politique de confidentialité pour plus de détails.</string>
+  <string name="pref_crashlogs_desc">L\'activation de CrashLogs nous aide à améliorer l\'application de manière significative. Nous ne recueillons pas de données personnelles. Consultez notre Politique de confidentialité pour plus de détails.</string>
   <string name="playback_error_logging">Erreurs de lecture : %s</string>
   <string name="enabled">Activé</string>
   <string name="disabled">Désactivé</string>
