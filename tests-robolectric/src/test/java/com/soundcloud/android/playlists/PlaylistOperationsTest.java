@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -35,33 +36,34 @@ public class PlaylistOperationsTest {
 
     private PlaylistOperations operations;
 
-    @Mock private Observer<List<Urn>> urnListObserver;
     @Mock private Observer<PlaylistInfo> playlistInfoObserver;
     @Mock private SyncInitiator syncInitiator;
-    @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     @Mock private LoadPlaylistCommand loadPlaylistCommand;
+    @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     @Mock private CreateNewPlaylistCommand createNewPlaylistCommand;
 
-    private ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
-    final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
-    final PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
+    private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+    private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
+    private final PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
 
     @Before
     public void setUp() throws Exception {
-        operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, loadPlaylistCommand,
-                loadPlaylistTrackUrns, loadPlaylistTracksCommand, createNewPlaylistCommand);
+        operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator,
+                loadPlaylistCommand, loadPlaylistTrackUrns, loadPlaylistTracksCommand, createNewPlaylistCommand);
     }
 
     @Test
     public void trackUrnsForPlaybackReturnsTrackUrnsFromCommand() throws Exception {
+        final TestObserver<List<Urn>> observer = new TestObserver<>();
         final List<Urn> urnList = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(456L));
         when(loadPlaylistTrackUrns.toObservable()).thenReturn(Observable.just(urnList));
 
-        operations.trackUrnsForPlayback(Urn.forPlaylist(123L)).subscribe(urnListObserver);
+        operations.trackUrnsForPlayback(Urn.forPlaylist(123L)).subscribe(observer);
 
-        verify(urnListObserver).onNext(urnList);
-        verify(urnListObserver).onCompleted();
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toEqual(urnList);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
     @Test

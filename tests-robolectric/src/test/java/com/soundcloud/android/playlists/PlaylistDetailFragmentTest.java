@@ -19,6 +19,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -68,6 +69,7 @@ public class PlaylistDetailFragmentTest {
     @Mock private PlaylistDetailsController.Provider controllerProvider;
     @Mock private PlaylistDetailsController controller;
     @Mock private PlaybackOperations playbackOperations;
+    @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistEngagementsPresenter playlistEngagementsPresenter;
@@ -82,6 +84,7 @@ public class PlaylistDetailFragmentTest {
         fragment = new PlaylistDetailFragment(
                 controllerProvider,
                 playbackOperations,
+                offlinePlaybackOperations,
                 playlistOperations,
                 eventBus,
                 imageOperations,
@@ -103,7 +106,7 @@ public class PlaylistDetailFragmentTest {
         when(controllerProvider.create()).thenReturn(controller);
         when(controller.getAdapter()).thenReturn(adapter);
         when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistInfo));
-        when(playbackOperations.playTracks(any(Observable.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
+        when(offlinePlaybackOperations.playPlaylist(any(Urn.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
 
         fragment.onAttach(activity);
         activity.setIntent(intent);
@@ -138,8 +141,6 @@ public class PlaylistDetailFragmentTest {
 
         final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
-        Observable<List<Urn>> trackLoadDescriptor = Observable.empty();
-        when(playlistOperations.trackUrnsForPlayback(playlistInfo.getUrn())).thenReturn(trackLoadDescriptor);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
         playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
@@ -148,7 +149,7 @@ public class PlaylistDetailFragmentTest {
 
         createFragmentView();
 
-        verify(playbackOperations).playTracks(trackLoadDescriptor, track.getUrn(), 0, playSessionSource);
+        verify(offlinePlaybackOperations).playPlaylist(playlistInfo.getUrn(), track.getUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -165,15 +166,14 @@ public class PlaylistDetailFragmentTest {
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
-        Observable<List<Urn>> trackLoadDescriptor = Observable.empty();
-        when(playlistOperations.trackUrnsForPlayback(playlistInfo.getUrn())).thenReturn(trackLoadDescriptor);
         View layout = createFragmentView();
+
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
         playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
 
         getToggleButton(layout).performClick();
 
-        verify(playbackOperations).playTracks(trackLoadDescriptor, track.getUrn(), 0, playSessionSource);
+        verify(offlinePlaybackOperations).playPlaylist(playlistInfo.getUrn(), track.getUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -187,10 +187,10 @@ public class PlaylistDetailFragmentTest {
     }
 
     @Test
-    public void shouldUncheckPlayToggleOnTogglePlaystateWhenSkippingIsDisabled() throws Exception {
+    public void shouldUncheckPlayToggleOnTogglePlayStateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        when(playlistOperations.trackUrnsForPlayback(playlistInfo.getUrn())).thenReturn(Observable.<List<Urn>>empty());
+
         when(adapter.getItem(0)).thenReturn(track.toPropertySet());
         View layout = createFragmentView();
         ToggleButton toggleButton = getToggleButton(layout);

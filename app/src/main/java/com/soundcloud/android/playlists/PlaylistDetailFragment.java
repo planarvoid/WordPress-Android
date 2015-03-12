@@ -14,6 +14,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -62,6 +63,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject PlaylistOperations playlistOperations;
     @Inject PlaybackOperations playbackOperations;
+    @Inject OfflinePlaybackOperations offlinePlaybackOperations;
     @Inject ImageOperations imageOperations;
     @Inject PlaylistEngagementsPresenter engagementsPresenter;
     @Inject PullToRefreshController pullToRefreshController;
@@ -129,6 +131,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @VisibleForTesting
     PlaylistDetailFragment(PlaylistDetailsController.Provider controllerProvider,
                            PlaybackOperations playbackOperations,
+                           OfflinePlaybackOperations offlinePlaybackOperations,
                            PlaylistOperations playlistOperations,
                            EventBus eventBus,
                            ImageOperations imageOperations,
@@ -141,6 +144,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.controllerProvider = controllerProvider;
         this.playbackOperations = playbackOperations;
         this.playlistOperations = playlistOperations;
+        this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.eventBus = eventBus;
         this.imageOperations = imageOperations;
         this.engagementsPresenter = engagementsPresenter;
@@ -259,7 +263,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
         setupPlaylistDetails(details);
 
-        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)){
+        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
             addInfoHeader();
         }
 
@@ -309,14 +313,13 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         playTracksAtPosition(trackPosition, expandPlayerSubscriberProvider.get());
     }
 
-    private void playTracksAtPosition(int trackPosition, Subscriber playbackSubscriber) {
+    private void playTracksAtPosition(int trackPosition, Subscriber<List<Urn>> playbackSubscriber) {
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
         playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
 
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
-        final Observable<List<Urn>> allTracks = playlistOperations.trackUrnsForPlayback(playlistInfo.getUrn());
-        playbackOperations
-                .playTracks(allTracks, initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
+        offlinePlaybackOperations
+                .playPlaylist(playlistInfo.getUrn(), initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
     }
 
@@ -325,10 +328,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         playlistPresenter.setPlaylist(playlistInfo);
         engagementsPresenter.setPlaylistInfo(playlistInfo);
 
-        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)){
+        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
             infoHeaderText.setText(createHeaderText(playlistInfo));
         }
-
 
         // don't register clicks before we have a valid playlist
         final List<PropertySet> tracks = playlistInfo.getTracks();

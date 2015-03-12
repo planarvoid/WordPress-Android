@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-class PlaylistOperations implements PlaylistCreator<Urn> {
+public class PlaylistOperations implements PlaylistCreator<Urn> {
 
     private final Scheduler storageScheduler;
     private final LoadPlaylistCommand loadPlaylistCommand;
@@ -43,7 +43,7 @@ class PlaylistOperations implements PlaylistCreator<Urn> {
         this.loadPlaylistCommand = loadPlaylistCommand;
         this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
-        createNewPlaylist = createNewPlaylistCommand;
+        this.createNewPlaylist = createNewPlaylistCommand;
     }
 
     @Override
@@ -59,7 +59,7 @@ class PlaylistOperations implements PlaylistCreator<Urn> {
                 });
     }
 
-    Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
+    public Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
         return loadPlaylistTrackUrns.with(playlistUrn)
                 .toObservable()
                 .subscribeOn(storageScheduler);

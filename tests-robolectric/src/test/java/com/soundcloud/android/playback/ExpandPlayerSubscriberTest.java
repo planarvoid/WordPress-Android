@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -31,22 +32,24 @@ public class ExpandPlayerSubscriberTest {
 
     @Test
     public void subscriberExpandPlayerOnNext() {
-        subscriber.onNext(Collections.EMPTY_LIST);
+        subscriber.onNext(Collections.<Urn>emptyList());
 
         Robolectric.runUiThreadTasksIncludingDelayedTasks();
         expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
     }
 
     @Test
-    public void subscriberShowAToastOnUnskippableError() {
-        subscriber.onError(new PlaybackOperations.UnskippablePeriodException());
+    public void onErrorPassesExceptionToPlaybackToastHelper() {
+        final Exception someException = new Exception("some exception");
 
-        verify(playbackToastHelper).showUnskippableAdToast();
+        subscriber.onError(someException);
+
+        verify(playbackToastHelper).showToastOnPlaybackError(someException);
     }
 
     @Test
     public void subscriberEmitsOpenPlayerFromTrackPlay() {
-        subscriber.onNext(Collections.EMPTY_LIST);
+        subscriber.onNext(Collections.<Urn>emptyList());
 
         Robolectric.runUiThreadTasksIncludingDelayedTasks();
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);

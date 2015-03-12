@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.PlaybackOperations.UnskippablePeriodException;
-
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.events.UIEvent;
@@ -42,8 +40,6 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
 
     @Override
     public void onError(Throwable e) {
-        if (e instanceof UnskippablePeriodException) {
-            playbackToastHelper.showUnskippableAdToast();
-        }
+        playbackToastHelper.showToastOnPlaybackError(e);
     }
 }

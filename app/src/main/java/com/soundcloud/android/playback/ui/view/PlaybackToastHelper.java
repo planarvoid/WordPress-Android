@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback.ui.view;
 
+import static com.soundcloud.android.offline.OfflinePlaybackOperations.TrackNotAvailableOffline;
+import static com.soundcloud.android.playback.PlaybackOperations.UnskippablePeriodException;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 
@@ -26,7 +29,18 @@ public class PlaybackToastHelper {
                 Toast.LENGTH_SHORT).show();
     }
 
-    public void showTrackUnavailableOfflineToast() {
+    private void showTrackUnavailableOfflineToast() {
         Toast.makeText(context, R.string.offline_track_not_available, Toast.LENGTH_SHORT).show();
+    }
+
+    public void showToastOnPlaybackError(Throwable e) {
+        if (e instanceof UnskippablePeriodException) {
+            showUnskippableAdToast();
+            return;
+        }
+
+        if (e instanceof TrackNotAvailableOffline) {
+            showTrackUnavailableOfflineToast();
+        }
     }
 }

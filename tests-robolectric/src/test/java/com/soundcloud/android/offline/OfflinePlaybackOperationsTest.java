@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.offline.OfflinePlaybackOperations.TrackNotAvailableOffline;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,10 +10,9 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.LoadOfflineTrackUrnsCommand;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
+import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
-import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -32,23 +31,25 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class OfflinePlaybackOperationsTest {
 
-    @Mock private FeatureOperations featureOperations;
-    @Mock private NetworkConnectionHelper connectionHelper;
-    @Mock private PlaybackOperations playbackOperations;
     @Mock private TrackLikeOperations likeOperations;
-    @Mock private LoadOfflineTrackUrnsCommand loadOfflineUrnsCommand;
-    @Mock private PlaybackToastHelper toastHelper;
+    @Mock private PlaylistOperations playlistOperations;
+    @Mock private FeatureOperations featureOperations;
+    @Mock private PlaybackOperations playbackOperations;
+    @Mock private NetworkConnectionHelper connectionHelper;
+    @Mock private OfflineTracksStorage offlineTracksStorage;
 
     private final List<Urn> trackUrns = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(234L));
     private final Observable<List<Urn>> tracksObservable = Observable.just(trackUrns);
     private final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.EXPLORE_AUDIO_GENRE);
+    private final Urn playlistUrn = Urn.forPlaylist(456L);
 
     private OfflinePlaybackOperations operations;
 
     @Before
     public void setUp() throws Exception {
         operations = new OfflinePlaybackOperations(featureOperations, connectionHelper,
-                playbackOperations, likeOperations, toastHelper, loadOfflineUrnsCommand, Schedulers.immediate());
+                playbackOperations, likeOperations, playlistOperations, offlineTracksStorage
+        );
     }
 
     @Test
@@ -107,10 +108,10 @@ public class OfflinePlaybackOperationsTest {
     }
 
     @Test
-    public void shouldPlayOfflineOnlyTracksWhenOfflinePlayQueueCreated() {
+    public void shouldPlayOfflineOnlyLikesWhenOfflinePlayQueueCreated() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
-        when(loadOfflineUrnsCommand.toObservable()).thenReturn(tracksObservable);
+        when(offlineTracksStorage.likesUrns()).thenReturn(tracksObservable);
 
         operations.playLikes(trackUrns.get(0), 0, playSessionSource).subscribe();
 
@@ -118,24 +119,24 @@ public class OfflinePlaybackOperationsTest {
     }
 
     @Test
-    public void shouldDisplayToastWhenTrackIsNotAvailableOffline() {
+    public void shouldThrowExceptionWhenLikedTrackIsNotAvailableOffline() {
         final TestObserver<List<Urn>> observer = new TestObserver<>();
         final Urn trackNotAvailableOffline = Urn.forTrack(888L);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
-        when(loadOfflineUrnsCommand.toObservable()).thenReturn(tracksObservable);
+        when(offlineTracksStorage.likesUrns()).thenReturn(tracksObservable);
 
         operations.playLikes(trackNotAvailableOffline, 0, playSessionSource).subscribe(observer);
 
-        verify(toastHelper).showTrackUnavailableOfflineToast();
-        expect(observer.getOnNextEvents()).toBeEmpty();
+        expect(observer.getOnErrorEvents()).toNumber(1);
+        expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(TrackNotAvailableOffline.class);
     }
 
     @Test
     public void shouldPlayOfflineOnlyTracksShuffledWhenOfflinePlayQueueCreated() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
-        when(loadOfflineUrnsCommand.toObservable()).thenReturn(tracksObservable);
+        when(offlineTracksStorage.likesUrns()).thenReturn(tracksObservable);
         when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
                 .thenReturn(Observable.<List<Urn>>empty());
 
@@ -154,6 +155,43 @@ public class OfflinePlaybackOperationsTest {
         operations.playTracksShuffled(playSessionSource).subscribe();
 
         verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
+    }
+
+    @Test
+    public void shouldPlayAllPlaylistTracksWhenNoOfflinePlayQueueCreated() {
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(tracksObservable);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(playbackOperations.playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource))
+                .thenReturn(Observable.<List<Urn>>empty());
+
+        operations.playPlaylist(playlistUrn, trackUrns.get(0), 0, playSessionSource).subscribe();
+
+        verify(playbackOperations).playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource);
+    }
+
+    @Test
+    public void shouldPlayOfflineTracksFromAPlaylistWhenOfflinePlayQueueCreated() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+        when(offlineTracksStorage.playlistTrackUrns(playlistUrn)).thenReturn(tracksObservable);
+
+        operations.playPlaylist(playlistUrn, trackUrns.get(0), 0, playSessionSource).subscribe();
+
+        verify(playbackOperations).playTracks(trackUrns, trackUrns.get(0), 0, playSessionSource);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenPlaylistTrackIsNotAvailableOffline() {
+        final TestObserver<List<Urn>> observer = new TestObserver<>();
+        final Urn trackNotAvailableOffline = Urn.forTrack(888L);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+        when(offlineTracksStorage.playlistTrackUrns(playlistUrn)).thenReturn(tracksObservable);
+
+        operations.playPlaylist(playlistUrn, trackNotAvailableOffline, 0, playSessionSource).subscribe(observer);
+
+        expect(observer.getOnErrorEvents()).toNumber(1);
+        expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(TrackNotAvailableOffline.class);
     }
 
     private PropertySet downloadedTrack() {

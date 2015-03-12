@@ -33,9 +33,11 @@ public class ShowPlayerSubscriberTest {
     }
 
     @Test
-    public void subscriberShowAToastOnUnskippableError() {
-        subscriber.onError(new PlaybackOperations.UnskippablePeriodException());
+    public void onErrorPassesExceptionToPlaybackToastHelper() {
+        final Exception someException = new Exception("some exception");
 
-        verify(playbackToastHelper).showUnskippableAdToast();
+        subscriber.onError(someException);
+
+        verify(playbackToastHelper).showToastOnPlaybackError(someException);
     }
 }
