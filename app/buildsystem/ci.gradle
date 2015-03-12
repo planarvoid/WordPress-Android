@@ -50,10 +50,14 @@ task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembl
 // ALPHA BUILDS
 // *********************************************************************************************************************
 
-task deployAlpha(dependsOn: ['assembleAlpha', 'crashlyticsUploadDistributionAlpha']) {
-  description = 'Deploys Alpha build via Crashlytics Beta.'
+task assembleAlphaCI(dependsOn: 'assembleAlpha') {
+  description = 'Assembles Alpha build and configures distribution properties.'
   ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
   ext.betaDistributionNotifications = false
+}
+
+task deployAlpha(dependsOn: ['assembleAlphaCI', 'crashlyticsUploadDistributionAlpha']) {
+  description = 'Deploys Alpha build via Crashlytics Beta.'
 }
 
 // *********************************************************************************************************************
