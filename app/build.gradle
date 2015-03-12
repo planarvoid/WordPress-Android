@@ -88,6 +88,8 @@ android {
     alpha.initWith(buildTypes.release)
     alpha {
       versionNameSuffix '-alpha'
+      ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
+      ext.betaDistributionNotifications = false
     }
     debug {
       versionNameSuffix '-debug'
