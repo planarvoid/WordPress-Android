@@ -73,11 +73,6 @@ android {
   }
 
   buildTypes {
-    debug {
-      versionNameSuffix '-debug'
-      debuggable true
-      signingConfig signingConfigs.debug
-    }
     release {
       versionNameSuffix '-release'
       debuggable false
@@ -86,13 +81,22 @@ android {
       shrinkResources true
       signingConfig signingConfigs.release
     }
-    end2end.initWith(buildTypes.debug)
-    end2end {
-      versionNameSuffix '-end2end'
-    }
     beta.initWith(buildTypes.release)
     beta {
       versionNameSuffix '-beta'
+    }
+    alpha.initWith(buildTypes.release)
+    alpha {
+      versionNameSuffix '-alpha'
+    }
+    debug {
+      versionNameSuffix '-debug'
+      debuggable true
+      signingConfig signingConfigs.debug
+    }
+    end2end.initWith(buildTypes.debug)
+    end2end {
+      versionNameSuffix '-end2end'
     }
   }
 

@@ -24,7 +24,7 @@ task renameApk << {
 }
 
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', 'lintDebug']) {
-  description 'Performs static analysis of code.'
+  description = 'Performs static analysis of code.'
 }
 staticAnalysis.mustRunAfter('assembleDebugCI', 'assembleBetaCI', 'assembleReleaseCI')
 
@@ -33,17 +33,27 @@ staticAnalysis.mustRunAfter('assembleDebugCI', 'assembleBetaCI', 'assembleReleas
 // *********************************************************************************************************************
 
 task assembleDebugCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleDebug']) {
-  description 'Assembles all Debug builds for CI. Pre-dexing is disabled.'
+  description = 'Assembles all Debug builds for CI. Pre-dexing is disabled.'
   rootProject.ext.preDexLibs = false
 }
 
 task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
-  description 'Assembles all Debug builds and performs static analysis for CI.'
+  description = 'Assembles all Debug builds and performs static analysis for CI.'
 }
 
 task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleEnd2end']) {
-  description 'Assembles End2End debug build for payments test on CI.'
+  description = 'Assembles End2End debug build for payments test on CI.'
   rootProject.ext.preDexLibs = false
+}
+
+// *********************************************************************************************************************
+// ALPHA BUILDS
+// *********************************************************************************************************************
+
+task deployAlpha(dependsOn: ['assembleAlpha', 'crashlyticsUploadDistributionAlpha']) {
+  description = 'Deploys Alpha build via Crashlytics Beta.'
+  ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
+  ext.betaDistributionNotifications = false
 }
 
 // *********************************************************************************************************************
@@ -117,7 +127,7 @@ task uploadGithub(type: Exec) {
 // *********************************************************************************************************************
 
 task assembleAcceptanceTest(dependsOn: ['assembleDebugTest']) {
-  description 'Assembles all the Test applications.'
+  description = 'Assembles all the Test applications.'
 }
 
 // WIP!!!
