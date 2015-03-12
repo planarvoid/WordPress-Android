@@ -30,7 +30,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  android-publisher
+  android-publisher (= 0.0.1)
   oauth2 (= 0.9.3)
   rake (= 10.1.1)
   rest-client (= 1.6.7)
