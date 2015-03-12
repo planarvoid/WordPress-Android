@@ -52,7 +52,7 @@ android {
   }
 }
 
-task incrementVersionCode () {
+task incrementVersionCode {
   description = 'Increments version code in the AndroidManifest.xml file of the main app.'
   doLast {
     def manifestFile = file('AndroidManifest.xml')
@@ -68,7 +68,7 @@ task incrementVersionCode () {
   }
 }
 
-task incrementVersionName () {
+task incrementVersionName {
   description = 'Increments version name in the AndroidManifest.xml file of the main app.'
   doLast {
     def manifestFile = file('AndroidManifest.xml')
