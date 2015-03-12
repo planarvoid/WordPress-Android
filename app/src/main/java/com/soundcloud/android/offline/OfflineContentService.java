@@ -4,17 +4,19 @@ import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OfflineContentEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Service;
@@ -25,6 +27,7 @@ import android.os.Message;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -47,13 +50,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private DownloadHandler downloadHandler;
 
     private Subscription loadRequestsSubscription = Subscriptions.empty();
-
-    private final Action1<List<DownloadRequest>> sendDownloadRequestsUpdated = new Action1<List<DownloadRequest>>() {
-        @Override
-        public void call(List<DownloadRequest> requests) {
-            eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.queueUpdate());
-        }
-    };
 
     public static void start(Context context) {
         context.startService(createIntent(context, ACTION_START_DOWNLOAD));
@@ -112,7 +108,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             loadRequestsSubscription = offlineContentOperations
                     .loadDownloadRequests()
                     .subscribeOn(scheduler)
-                    .doOnNext(sendDownloadRequestsUpdated)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new DownloadSubscriber());
 
@@ -204,15 +199,39 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void updateRequestQueue(List<DownloadRequest> requests) {
-        Log.d(TAG, "Updating download queue with " + requests.size() + " requests.");
+    private void updateRequestQueue(List<DownloadRequest> pendingRequests) {
+        Log.d(TAG, "Updating download queue with " + pendingRequests.size() + " pendingRequests.");
+
+        publishEntityChangedEventForNewRequests(pendingRequests);
         requestsQueue.clear();
-        requestsQueue.addAll(requests);
+        requestsQueue.addAll(pendingRequests);
 
         if (!requestsQueue.isEmpty()) {
             final int size = downloadHandler.isDownloading() ? requestsQueue.size() + 1 : requestsQueue.size();
             startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size));
         }
+    }
+
+    private void publishEntityChangedEventForNewRequests(List<DownloadRequest> pendingRequests) {
+        final ArrayList<DownloadRequest> newRequests = getNewDownloadRequests(pendingRequests);
+        if (!newRequests.isEmpty()) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadPending(toUrns(newRequests)));
+        }
+    }
+
+    private ArrayList<DownloadRequest> getNewDownloadRequests(List<DownloadRequest> requests) {
+        final ArrayList<DownloadRequest> newElements = new ArrayList<>(requests);
+        newElements.removeAll(requestsQueue);
+        return newElements;
+    }
+
+    private List<Urn> toUrns(ArrayList<DownloadRequest> newElements) {
+        return Lists.transform(newElements, new Function<DownloadRequest, Urn>() {
+            @Override
+            public Urn apply(DownloadRequest downloadRequest) {
+                return downloadRequest.urn;
+            }
+        });
     }
 
     private void stop() {

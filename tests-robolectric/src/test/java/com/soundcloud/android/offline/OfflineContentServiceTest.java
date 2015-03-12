@@ -17,6 +17,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -47,6 +48,7 @@ public class OfflineContentServiceTest {
 
     private final DownloadRequest downloadRequest1 = createDownloadRequest(123L);
     private final DownloadRequest downloadRequest2 = createDownloadRequest(456L);
+    private final DownloadRequest downloadRequest3 = createDownloadRequest(789L);
     private final DownloadResult downloadResult1 = DownloadResult.success(Urn.forTrack(123L));
     private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(Urn.forTrack(123L));
     private final DownloadResult failedResult1 = DownloadResult.failed(Urn.forTrack(123L));
@@ -111,13 +113,41 @@ public class OfflineContentServiceTest {
     }
 
     @Test
+    public void sendsDownloadPendingWhenCreatingRequestsQueue() {
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+
+        startService();
+
+        expectDownloadsPending(eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED), downloadRequest1.urn, downloadRequest2.urn);
+    }
+
+    @Test
+    public void sendsDownloadPendingWhenUpdatingRequestsQueue() {
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        startService();
+
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrent()).thenReturn(downloadRequest1);
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2, downloadRequest3));
+        startService();
+        service.onSuccess(downloadResult1);
+
+        final List<EntityStateChangedEvent> events = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
+        expectDownloadsPending(events.get(0),  downloadRequest1.urn, downloadRequest2.urn);
+        expectDownloadStarted(events.get(1), downloadRequest1.urn);
+        expectDownloadsPending(events.get(2), downloadRequest3.urn);
+        expectDownloadFinished(events.get(3), downloadRequest1.urn);
+        expectDownloadStarted(events.get(4), downloadRequest2.urn);
+    }
+
+    @Test
     public void sendsDownloadStartedEventWhenDownloadingLikedTrack() {
         when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
 
         startService();
 
         List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start());
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.start());
 
         expectDownloadStarted(eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED), downloadRequest1.urn);
     }
@@ -129,7 +159,7 @@ public class OfflineContentServiceTest {
         startService();
 
         List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.start(), OfflineContentEvent.stop());
     }
 
     @Test
@@ -157,12 +187,13 @@ public class OfflineContentServiceTest {
         service.onSuccess(downloadResult1);
 
         final List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.start(), OfflineContentEvent.stop());
 
         List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expectDownloadStarted(entityStateChangedEvents.get(0), downloadRequest1.urn);
-        expectDownloadFinished(entityStateChangedEvents.get(1), downloadRequest1.urn);
-        expect(entityStateChangedEvents.get(1).getChangeMap().keySet()).toContainExactly(downloadRequest1.urn);
+        expectDownloadsPending(entityStateChangedEvents.get(0), downloadRequest1.urn);
+        expectDownloadStarted(entityStateChangedEvents.get(1), downloadRequest1.urn);
+        expectDownloadFinished(entityStateChangedEvents.get(2), downloadRequest1.urn);
+        expect(entityStateChangedEvents.get(2).getChangeMap().keySet()).toContainExactly(downloadRequest1.urn);
 
     }
 
@@ -174,12 +205,12 @@ public class OfflineContentServiceTest {
         service.onError(downloadResult1);
 
         final List<OfflineContentEvent> offlineContentEvents = eventBus.eventsOn(EventQueue.OFFLINE_CONTENT);
-        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.queueUpdate(), OfflineContentEvent.start(), OfflineContentEvent.stop());
+        expect(offlineContentEvents).toContainExactly(OfflineContentEvent.idle(), OfflineContentEvent.start(), OfflineContentEvent.stop());
 
         List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expectDownloadStarted(entityStateChangedEvents.get(0), downloadRequest1.urn);
-        expectDownloadFailed(entityStateChangedEvents.get(1), downloadRequest1.urn);
-
+        expectDownloadsPending(entityStateChangedEvents.get(0), downloadRequest1.urn);
+        expectDownloadStarted(entityStateChangedEvents.get(1), downloadRequest1.urn);
+        expectDownloadFailed(entityStateChangedEvents.get(2), downloadRequest1.urn);
     }
 
     @Test
@@ -329,5 +360,16 @@ public class OfflineContentServiceTest {
         expect(event.getNextChangeSet().get(TrackProperty.OFFLINE_DOWNLOADING)).toBeFalse();
         expect(event.getNextChangeSet().contains(TrackProperty.OFFLINE_UNAVAILABLE_AT)).toBeTrue();
         expect(event.getChangeMap().keySet()).toContainExactly(urn);
+    }
+
+    private void expectDownloadsPending(EntityStateChangedEvent event, Urn... urns) {
+        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
+
+        expect(event.getChangeMap().keySet()).toContainExactly(urns);
+        for (Urn urn : urns) {
+            final PropertySet changeSet = event.getChangeMap().get(urn);
+            expect(changeSet.get(TrackProperty.OFFLINE_DOWNLOADING)).toBeFalse();
+            expect(changeSet.contains(TrackProperty.OFFLINE_REQUESTED_AT)).toBeTrue();
+        }
     }
 }

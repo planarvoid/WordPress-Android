@@ -26,9 +26,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
@@ -130,19 +128,6 @@ public class TrackLikesPresenterTest {
     }
 
     @Test
-    public void shouldRefreshListContentAfterOfflineQueueUpdateEvent() throws Exception {
-        when(likeOperations.likedTracks()).thenReturn(Observable.<List<PropertySet>>empty(), likedTracksObservable);
-
-        presenter.onCreate(fragment, null);
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.queueUpdate());
-        likedTracksObservable.onNext(likedTracks);
-
-        final InOrder inOrder = Mockito.inOrder(adapter);
-        inOrder.verify(adapter).clear();
-        inOrder.verify(adapter).onNext(likedTracks);
-    }
-
-    @Test
     public void shouldNotRefreshListContentAfterOtherOfflineSyncEvents() throws Exception {
         presenter.onCreate(fragment, null);
 
@@ -150,14 +135,6 @@ public class TrackLikesPresenterTest {
         eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.idle());
         eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
 
-        verify(adapter, never()).clear();
-    }
-
-    @Test
-    public void shouldUnsubscribeFromEventBusInOnDestroy() {
-        presenter.onCreate(fragment, null);
-        presenter.onDestroy(fragment);
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.queueUpdate());
         verify(adapter, never()).clear();
     }
 

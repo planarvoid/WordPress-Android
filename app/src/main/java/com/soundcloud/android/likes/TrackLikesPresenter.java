@@ -24,11 +24,9 @@ import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -54,7 +52,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
 
-    private Subscription creationLifeCycle = Subscriptions.empty();
     private CompositeSubscription viewLifeCycle;
 
     @Inject
@@ -84,7 +81,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
         getListBinding().connect();
-        creationLifeCycle = eventBus.queue(OFFLINE_CONTENT).subscribe(new OfflineSyncQueueUpdated());
     }
 
     @Override
@@ -141,12 +137,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     }
 
     @Override
-    public void onDestroy(Fragment fragment) {
-        creationLifeCycle.unsubscribe();
-        super.onDestroy(fragment);
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         // here we assume that the list you are looking at is up to date with the database, which is not necessarily the case
         // a sync may have happened in the background. This is def. an edge case, but worth handling maybe??
@@ -155,16 +145,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
         playbackOperations
                 .playLikes(initialTrack, position, playSessionSource)
                 .subscribe(expandPlayerSubscriberProvider.get());
-    }
-
-    private class OfflineSyncQueueUpdated extends DefaultSubscriber<OfflineContentEvent> {
-        @Override
-        public void onNext(OfflineContentEvent event) {
-            if (event.getKind() == OfflineContentEvent.QUEUE_UPDATED) {
-                adapter.clear();
-                rebuildListBinding().connect();
-            }
-        }
     }
 
     private class OfflineSyncStopped extends DefaultSubscriber<OfflineContentEvent> {

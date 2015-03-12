@@ -1,5 +1,7 @@
 package com.soundcloud.android.events;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -13,6 +15,7 @@ import android.support.v4.util.ArrayMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public final class EntityStateChangedEvent {
@@ -107,6 +110,20 @@ public final class EntityStateChangedEvent {
                         TrackProperty.OFFLINE_UNAVAILABLE_AT.bind(new Date())
                 )
         );
+    }
+
+    public static EntityStateChangedEvent downloadPending(List<Urn> tracks) {
+        Collection<PropertySet> changeSet = Lists.transform(tracks, new Function<Urn, PropertySet>() {
+            @Override
+            public PropertySet apply(Urn urn) {
+                return PropertySet.from(
+                        TrackProperty.URN.bind(urn),
+                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
+                        TrackProperty.OFFLINE_REQUESTED_AT.bind(new Date()));
+            }
+        });
+
+        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
     }
 
     public static EntityStateChangedEvent fromSync(Collection<PropertySet> changedEntities) {

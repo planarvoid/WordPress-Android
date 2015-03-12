@@ -7,7 +7,6 @@ public final class OfflineContentEvent {
     public static final int IDLE = 0;
     public static final int START = 1;
     public static final int STOP = 2;
-    public static final int QUEUE_UPDATED = 3; //?
 
     private final int kind;
 
@@ -27,11 +26,6 @@ public final class OfflineContentEvent {
         return new OfflineContentEvent(STOP);
     }
 
-    // is that really needed?
-    public static OfflineContentEvent queueUpdate() {
-        return new OfflineContentEvent(QUEUE_UPDATED);
-    }
-
     public int getKind() {
         return kind;
     }
@@ -46,7 +40,6 @@ public final class OfflineContentEvent {
             case IDLE: return "IDLE";
             case START: return "START";
             case STOP: return "STOP";
-            case QUEUE_UPDATED: return "QUEUE_UPDATED";
             default: return "unknown";
         }
     }
