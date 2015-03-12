@@ -60,14 +60,14 @@ android {
     }
 
     release {
-      def propertiesFile = project.file('../release.properties')
+      def propertiesFile = file('/home/mobile/installs/soundcloud_sign/release.properties')
       if (propertiesFile.exists() && propertiesFile.canRead()) {
         def releaseProperties = new Properties()
         releaseProperties.load(new FileInputStream(propertiesFile))
-        storeFile project.file(releaseProperties.getProperty('keyStore'))
-        storePassword releaseProperties.getProperty('keyStorePassword')
+        storeFile file(releaseProperties.getProperty('storeFile'))
+        storePassword releaseProperties.getProperty('storePassword')
         keyAlias releaseProperties.getProperty('keyAlias')
-        keyPassword releaseProperties.getProperty('keyAliasPassword')
+        keyPassword releaseProperties.getProperty('keyPassword')
       }
     }
   }
