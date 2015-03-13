@@ -8,6 +8,7 @@ import static org.mockito.Mockito.mock;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
+import com.soundcloud.android.storage.NewPlaylistStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
@@ -100,7 +101,8 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
         final SoundCloudApplication application = Mockito.mock(SoundCloudApplication.class);
         final MyLikesStateProvider myLikesStateProvider = Mockito.mock(MyLikesStateProvider.class);
         final SyncServiceResultReceiver.Factory resultReceiverFactory = Mockito.mock(SyncServiceResultReceiver.Factory.class);
-        expect(SyncAdapterService.performSync(application, null, syncResult, null, null, resultReceiverFactory, myLikesStateProvider)).toBeFalse();
+        final NewPlaylistStorage playlistStorage = Mockito.mock(NewPlaylistStorage.class);
+        expect(SyncAdapterService.performSync(application, null, syncResult, null, null, resultReceiverFactory, myLikesStateProvider, playlistStorage)).toBeFalse();
         expect(syncResult.stats.numAuthExceptions).toBeGreaterThan(0L);
     }
 }

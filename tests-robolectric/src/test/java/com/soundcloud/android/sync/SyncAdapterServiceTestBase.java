@@ -8,13 +8,14 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.NewPlaylistStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.stream.SoundStreamSyncOperations;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.api.oauth.Token;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotification;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
@@ -135,7 +136,7 @@ public abstract class SyncAdapterServiceTestBase {
 
         SyncAdapterService.performSync(
                 app,
-                extras, result, token, null, syncServiceResultReceiverFactory, Mockito.mock(MyLikesStateProvider.class));
+                extras, result, token, null, syncServiceResultReceiverFactory, Mockito.mock(MyLikesStateProvider.class), Mockito.mock(NewPlaylistStorage.class));
 
         Intent intent = Robolectric.shadowOf(app).peekNextStartedService();
 

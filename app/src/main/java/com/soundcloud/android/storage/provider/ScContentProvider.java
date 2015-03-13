@@ -310,7 +310,7 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(" AND " + Table.Posts.field(TableColumns.Posts.TYPE) + " = '" + TableColumns.Posts.TYPE_POST + "' AND "
                         + Table.Posts.field(TableColumns.Posts.TARGET_TYPE) + " = '" + TableColumns.Sounds.TYPE_PLAYLIST + "'");
 
-                _sortOrder = makeCollectionSort(uri, TableColumns.Posts.CREATED_AT + " DESC");
+                _sortOrder = makeCollectionSort(uri, Table.Posts.field(TableColumns.Posts.CREATED_AT) + " DESC");
                 break;
 
             case ME_LIKES:

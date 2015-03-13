@@ -6,8 +6,9 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.PlaylistStorage;
+import com.soundcloud.android.storage.NewPlaylistStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -54,6 +55,7 @@ public class SyncAdapterService extends Service {
     @Inject AccountOperations accountOperations;
     @Inject SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory;
     @Inject MyLikesStateProvider myLikesStateProvider;
+    @Inject NewPlaylistStorage playlistStorage;
 
     public SyncAdapterService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -83,7 +85,7 @@ public class SyncAdapterService extends Service {
 
                         looper.quit();
                     }
-                }, syncServiceResultReceiverFactory, myLikesStateProvider)) {
+                }, syncServiceResultReceiverFactory, myLikesStateProvider, playlistStorage)) {
                     Looper.loop(); // wait for results to come in
                 }
                 PublicApiWrapper.setBackgroundMode(false);
@@ -127,7 +129,7 @@ public class SyncAdapterService extends Service {
                                @Nullable final Token token,
                                @Nullable final Runnable onResult,
                                final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory,
-                               MyLikesStateProvider myLikesStateProvider) {
+                               MyLikesStateProvider myLikesStateProvider, NewPlaylistStorage playlistStorage) {
         if (token == null || !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -143,7 +145,6 @@ public class SyncAdapterService extends Service {
         }
 
         final SyncStateManager syncStateManager = new SyncStateManager(app);
-        final PlaylistStorage playlistStorage = new PlaylistStorage();
 
         final Intent syncIntent = getSyncIntent(app, extras, syncStateManager, playlistStorage, myLikesStateProvider);
         if (syncIntent.getData() != null || syncIntent.hasExtra(ApiSyncService.EXTRA_SYNC_URIS)) {
@@ -168,7 +169,7 @@ public class SyncAdapterService extends Service {
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
                                         SyncStateManager syncStateManager,
-                                        PlaylistStorage playlistStorage,
+                                        NewPlaylistStorage playlistStorage,
                                         MyLikesStateProvider myLikesStateProvider) {
 
 
@@ -202,11 +203,6 @@ public class SyncAdapterService extends Service {
         }
 
         // see if there are any local playlists that need to be pushed
-        if (new PlaylistStorage().hasLocalPlaylists()) {
-            urisToSync.add(Content.ME_PLAYLISTS.uri);
-        }
-
-        // see if there are any local playlists that need to be pushed
         if (new UserAssociationStorage(app).hasFollowingsNeedingSync()) {
             urisToSync.add(Content.ME_FOLLOWINGS.uri);
         }
@@ -215,10 +211,17 @@ public class SyncAdapterService extends Service {
             urisToSync.add(Content.ME_LIKES.uri);
         }
 
+        // see if there are any local playlists that need to be pushed
+        if (playlistStorage.hasLocalPlaylists()) {
+            urisToSync.add(Content.ME_PLAYLISTS.uri);
+        }
+
         // see if there are any playlists with un-pushed track changes
-        final Set<Uri> playlistsDueForSync = playlistStorage.getPlaylistsDueForSync();
+        final Set<Urn> playlistsDueForSync = playlistStorage.getPlaylistsDueForSync();
         if (playlistsDueForSync != null) {
-            urisToSync.addAll(playlistsDueForSync);
+            for (Urn playlistDueForSync : playlistsDueForSync){
+                urisToSync.add(Content.PLAYLIST.forId(playlistDueForSync.getNumericId()));
+            }
         }
 
         if (SyncConfig.shouldSync(app, Consts.PrefKeys.LAST_USER_SYNC, SyncConfig.USER_STALE_TIME) || manual) {
