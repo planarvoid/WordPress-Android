@@ -136,8 +136,13 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case ME_REPOSTS:
+                throw new IllegalArgumentException("Trying to bulkInsert reposts, and should not");
+
             case PLAYLIST_TRACKS:
-                throw new IllegalStateException("WRONG!!!!");
+                deleteUri = true; // clean out table first
+                table = Table.PlaylistTracks;
+                extraCV = new String[]{TableColumns.PlaylistTracks.PLAYLIST_ID, uri.getPathSegments().get(1)};
+                break;
 
             case ME_SHORTCUTS:
                 recreateTable = true;
@@ -285,7 +290,7 @@ public class ScContentProvider extends ContentProvider {
                 _selectionArgs = new String[]{String.valueOf(userId)};
                 break;
             case COLLECTION_ITEMS:
-                throw new IllegalArgumentException("NO@!!!!!!");
+                throw new IllegalArgumentException("NO@!!!!!!   CollectionItems");
 
             case COLLECTIONS:
             case USER_ASSOCIATIONS:
@@ -700,7 +705,7 @@ public class ScContentProvider extends ContentProvider {
                 break;
 
             case COLLECTION_ITEMS:
-                throw new IllegalStateException("WRONG!!!!");
+                throw new IllegalStateException("WRONG!!!!    Collection Items");
 
             case USER_ASSOCIATIONS:
                 whereAppend = Table.UserAssociations.name() + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId;

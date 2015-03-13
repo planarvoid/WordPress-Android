@@ -94,7 +94,7 @@ class SoundStreamStorage {
                 .whereEq(TableColumns.SoundStreamView.SOUND_ID, TableColumns.Posts.TARGET_ID)
                 .whereEq(TableColumns.SoundStreamView.SOUND_TYPE, TableColumns.Posts.TARGET_TYPE);
 
-        return Query.from(Table.SoundStreamView.name())
+        return Query.from(Table.SoundStreamView.name(), Table.Posts.name())
                 .innerJoin(Table.Posts.name(), joinConditions)
                 .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
     }
