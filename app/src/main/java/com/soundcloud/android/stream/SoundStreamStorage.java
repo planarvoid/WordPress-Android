@@ -17,8 +17,6 @@ import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
@@ -90,13 +88,10 @@ class SoundStreamStorage {
     }
 
     private Query repostQuery() {
-        final Where joinConditions = new WhereBuilder()
-                .whereEq(TableColumns.SoundStreamView.SOUND_ID, TableColumns.Posts.TARGET_ID)
-                .whereEq(TableColumns.SoundStreamView.SOUND_TYPE, TableColumns.Posts.TARGET_TYPE);
-
-        return Query.from(Table.SoundStreamView.name(), Table.Posts.name())
-                .innerJoin(Table.Posts.name(), joinConditions)
-                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
+        return Query.from(Table.Posts.name(), Table.Sounds.name())
+                .joinOn(TableColumns.SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
+                .joinOn(TableColumns.SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
+                .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
     }
 
     private static final class TrackUrnMapper extends RxResultMapper<Urn> {
