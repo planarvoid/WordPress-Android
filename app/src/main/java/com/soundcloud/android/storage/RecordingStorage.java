@@ -10,8 +10,6 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.utils.IOUtils;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Subscriber;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -36,18 +34,6 @@ public class RecordingStorage extends ScheduledOperations implements Storage<Rec
         super(ScSchedulers.STORAGE_SCHEDULER);
         ContentResolver resolver = SoundCloudApplication.instance.getContentResolver();
         recordingDAO = new RecordingDAO(resolver);
-    }
-
-    @Override
-    public Observable<Recording> storeAsync(final Recording recording) {
-        return schedule(Observable.create(new Observable.OnSubscribe<Recording>() {
-            @Override
-            public void call(Subscriber<? super Recording> observer) {
-                store(recording);
-                observer.onNext(recording);
-                observer.onCompleted();
-            }
-        }));
     }
 
     @Override

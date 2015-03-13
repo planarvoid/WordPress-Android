@@ -120,19 +120,6 @@ public class ScModelManager {
         return user;
     }
 
-    public
-    @Nullable
-    PublicApiPlaylist getPlaylist(Uri uri) {
-        return (PublicApiPlaylist) getModel(uri);
-    }
-
-    public void removeFromCache(Uri uri) {
-        final ModelCache<?> cacheFromUri = getCacheFromUri(uri);
-        if (cacheFromUri != null) {
-            cacheFromUri.remove(UriUtils.getLastSegmentAsLong(uri));
-        }
-    }
-
     private
     @Nullable
     ModelCache getCacheFromUri(Uri uri) {

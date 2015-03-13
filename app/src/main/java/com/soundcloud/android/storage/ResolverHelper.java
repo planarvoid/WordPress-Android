@@ -63,8 +63,4 @@ public class ResolverHelper {
         return c.isNull(index) ? ScModel.NOT_SET : c.getInt(index);
     }
 
-    public static long getLongOrNotSet(Cursor c, String column) {
-        final int index = c.getColumnIndex(column);
-        return c.isNull(index) ? ScModel.NOT_SET : c.getLong(index);
-    }
 }

@@ -61,17 +61,6 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
         return track;
     }
 
-    @Override
-    public Observable<PublicApiTrack> storeAsync(final PublicApiTrack track) {
-        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiTrack>() {
-            @Override
-            public void call(Subscriber<? super PublicApiTrack> observer) {
-                observer.onNext(store(track));
-                observer.onCompleted();
-            }
-        }));
-    }
-
     public Observable<Collection<PublicApiTrack>> storeCollectionAsync(final Collection<PublicApiTrack> tracks) {
         return schedule(Observable.create(new Observable.OnSubscribe<Collection<PublicApiTrack>>() {
             @Override

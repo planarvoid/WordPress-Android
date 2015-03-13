@@ -38,7 +38,6 @@ public class UserStorage extends ScheduledOperations implements Storage<PublicAp
         return user;
     }
 
-    @Override
     public Observable<PublicApiUser> storeAsync(final PublicApiUser user) {
         return schedule(Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
             @Override
