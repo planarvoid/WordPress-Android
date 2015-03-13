@@ -50,19 +50,18 @@ task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembl
 // ALPHA BUILDS
 // *********************************************************************************************************************
 
-task prepareAlphaCI(dependsOn: ['incrementVersionName']) {
-  description = 'Updates version for Alpha build on CI.'
+task updateAlphaVersion(dependsOn: ['incrementVersionName']) {
+  description = 'Updates local AndroidManifest version for Alpha deploy.'
 }
 
-task assembleAlphaCI(dependsOn: ['assembleAlpha']) {
-  description = 'Assembles Alpha build for CI.'
+task buildAlpha(dependsOn: ['assembleAlpha']) {
+  description = 'Assembles Alpha package.'
 }
-assembleAlphaCI.mustRunAfter('prepareAlphaCI')
+buildAlpha.mustRunAfter('updateAlphaVersion')
 
 task deployAlpha(dependsOn: ['crashlyticsUploadDistributionAlpha']) {
-  description = 'Deploys Alpha build via Crashlytics Beta.'
+  description = 'Deploys Alpha via Crashlytics Beta.'
 }
-deployAlpha.mustRunAfter('assembleAlphaCI')
 
 // *********************************************************************************************************************
 // BETA BUILDS
