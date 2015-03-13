@@ -303,7 +303,7 @@ public class ScContentProvider extends ContentProvider {
                 if (_columns == null) {
                     _columns = getPostsColumns() ;
                 }
-                _sortOrder = makeCollectionSort(uri, TableColumns.Posts.CREATED_AT + " DESC");
+                _sortOrder = makeCollectionSort(uri, Table.Posts.field(TableColumns.Posts.CREATED_AT) + " DESC");
 
                 break;
 

@@ -124,9 +124,9 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
                 final String fullIdColumn;
                 final String fullTypeColumn;
                 if (Content.match(uri) == Content.ME_SOUNDS) {
-                    idColumn = TableColumns.SoundAssociationView._ID;
-                    fullIdColumn = Table.SoundAssociationView + "." + TableColumns.SoundAssociationView._ID;
-                    fullTypeColumn = Table.SoundAssociationView + "." + TableColumns.SoundAssociationView._TYPE;
+                    idColumn = TableColumns.Posts.TARGET_ID;
+                    fullIdColumn = Table.Posts.field(TableColumns.Posts.TARGET_ID) + " as " + idColumn;
+                    fullTypeColumn = Table.Posts.field(TableColumns.Posts.TARGET_TYPE);
                 } else if (isActivityCursor) {
                     idColumn = TableColumns.ActivityView.SOUND_ID;
                     fullIdColumn = Table.ActivityView + "." + TableColumns.ActivityView.SOUND_ID;
