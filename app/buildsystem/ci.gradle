@@ -50,13 +50,19 @@ task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembl
 // ALPHA BUILDS
 // *********************************************************************************************************************
 
-task assembleAlphaCI(dependsOn: ['incrementVersionName', 'assembleAlpha']) {
+task prepareAlphaCI(dependsOn: ['incrementVersionName']) {
+  description = 'Updates version for Alpha build on CI.'
+}
+
+task assembleAlphaCI(dependsOn: ['assembleAlpha']) {
   description = 'Assembles Alpha build for CI.'
 }
+assembleAlphaCI.mustRunAfter('prepareAlphaCI')
 
 task deployAlpha(dependsOn: ['crashlyticsUploadDistributionAlpha']) {
   description = 'Deploys Alpha build via Crashlytics Beta.'
 }
+deployAlpha.mustRunAfter('assembleAlphaCI')
 
 // *********************************************************************************************************************
 // BETA BUILDS
