@@ -77,8 +77,9 @@ android {
       versionNameSuffix '-release'
       debuggable false
       minifyEnabled true
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
       shrinkResources true
+      zipAlignEnabled true
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
       signingConfig signingConfigs.release
     }
     beta.initWith(buildTypes.release)
@@ -87,6 +88,9 @@ android {
     }
     alpha.initWith(buildTypes.release)
     alpha {
+      // TODO: ProGuard is temporarily disabled for Alpha builds. The app crashes on start otherwise.
+      minifyEnabled false
+
       versionNameSuffix '-alpha'
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false
