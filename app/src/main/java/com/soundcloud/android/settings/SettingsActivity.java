@@ -50,8 +50,11 @@ public class SettingsActivity extends ScSettingsActivity {
             addPreferencesFromResource(R.xml.settings_extras);
         }
 
-        if (applicationProperties.isDebugBuild()) {
+        if (applicationProperties.isAlphaBuild() || applicationProperties.isDebugBuild()) {
             offlineSettings.setup(this);
+        }
+
+        if (applicationProperties.isDebugBuild()) {
             developerSettings.setup(this);
         }
     }

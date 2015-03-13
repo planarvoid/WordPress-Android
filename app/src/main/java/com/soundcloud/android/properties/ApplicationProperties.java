@@ -28,8 +28,9 @@ public class ApplicationProperties {
     protected static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
             "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
 
-    public enum BuildType{
+    public enum BuildType {
         DEBUG,
+        ALPHA,
         BETA,
         RELEASE
     }
@@ -54,6 +55,10 @@ public class ApplicationProperties {
 
     public boolean isDebugBuild() {
         return BuildType.DEBUG.equals(BUILD_TYPE);
+    }
+
+    public boolean isAlphaBuild() {
+        return BuildType.ALPHA.equals(BUILD_TYPE);
     }
 
     public String getBuildType() {

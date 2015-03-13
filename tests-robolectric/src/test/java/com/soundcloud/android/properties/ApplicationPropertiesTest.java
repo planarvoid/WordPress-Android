@@ -48,6 +48,14 @@ public class ApplicationPropertiesTest {
     }
 
     @Test
+    public void shouldSpecifyThatBuildIsAlpha(){
+        when(resources.getString(string.build_type)).thenReturn("alpha");
+        ApplicationProperties applicationProperties = new ApplicationProperties(resources);
+        expect(applicationProperties.isAlphaBuild()).toBeTrue();
+        expect(applicationProperties.isReleaseBuild()).toBeFalse();
+    }
+
+    @Test
     public void shouldSpecifyThatBuildIsRelease(){
         when(resources.getString(string.build_type)).thenReturn("RELEASE");
         ApplicationProperties applicationProperties = new ApplicationProperties(resources);

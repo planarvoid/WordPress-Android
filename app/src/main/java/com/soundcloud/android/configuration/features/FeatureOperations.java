@@ -1,5 +1,6 @@
 package com.soundcloud.android.configuration.features;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -10,10 +11,12 @@ public class FeatureOperations {
     private static final String OFFLINE_CONTENT = "offline_sync";
     private static final String OFFLINE_CONTENT_UPSELL = "offline_sync_upsell";
 
+    private final ApplicationProperties appProperties;
     private final FeatureStorage featureStorage;
 
     @Inject
-    public FeatureOperations(FeatureStorage featureStorage) {
+    public FeatureOperations(ApplicationProperties appProperties, FeatureStorage featureStorage) {
+        this.appProperties = appProperties;
         this.featureStorage = featureStorage;
     }
 
@@ -30,7 +33,7 @@ public class FeatureOperations {
     }
 
     public boolean isOfflineContentEnabled() {
-        return featureStorage.isEnabled(OFFLINE_CONTENT, false);
+        return appProperties.isAlphaBuild() || featureStorage.isEnabled(OFFLINE_CONTENT, false);
     }
 
     public boolean isOfflineContentUpsellEnabled() {

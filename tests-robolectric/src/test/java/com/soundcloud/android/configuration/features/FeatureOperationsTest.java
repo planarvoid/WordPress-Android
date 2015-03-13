@@ -1,22 +1,28 @@
 package com.soundcloud.android.configuration.features;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.shadows.ScTestSharedPreferences;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
 public class FeatureOperationsTest {
+
+    @Mock private ApplicationProperties appProperties;
 
     private FeatureOperations featureOperations;
 
     @Before
     public void setUp() throws Exception {
         FeatureStorage storage = new FeatureStorage(new ScTestSharedPreferences());
-        featureOperations = new FeatureOperations(storage);
+        when(appProperties.isAlphaBuild()).thenReturn(false);
+        featureOperations = new FeatureOperations(appProperties, storage);
     }
 
     @Test
