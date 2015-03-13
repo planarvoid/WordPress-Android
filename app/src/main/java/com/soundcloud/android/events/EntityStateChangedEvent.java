@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Collections2;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -15,7 +15,6 @@ import android.support.v4.util.ArrayMap;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public final class EntityStateChangedEvent {
@@ -102,6 +101,21 @@ public final class EntityStateChangedEvent {
         );
     }
 
+
+    public static EntityStateChangedEvent downloadFinished(Collection<Urn> tracks) {
+        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
+            @Override
+            public PropertySet apply(Urn urn) {
+                return PropertySet.from(
+                        TrackProperty.URN.bind(urn),
+                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
+                        TrackProperty.OFFLINE_DOWNLOADED_AT.bind(new Date()));
+            }
+        });
+
+        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
+    }
+
     public static EntityStateChangedEvent downloadFailed(Urn track) {
         return new EntityStateChangedEvent(DOWNLOAD,
                 PropertySet.from(
@@ -112,14 +126,28 @@ public final class EntityStateChangedEvent {
         );
     }
 
-    public static EntityStateChangedEvent downloadPending(List<Urn> tracks) {
-        Collection<PropertySet> changeSet = Lists.transform(tracks, new Function<Urn, PropertySet>() {
+    public static EntityStateChangedEvent downloadPending(Collection<Urn> tracks) {
+        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
             @Override
             public PropertySet apply(Urn urn) {
                 return PropertySet.from(
                         TrackProperty.URN.bind(urn),
                         TrackProperty.OFFLINE_DOWNLOADING.bind(false),
                         TrackProperty.OFFLINE_REQUESTED_AT.bind(new Date()));
+            }
+        });
+
+        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
+    }
+
+    public static EntityStateChangedEvent downloadRemoved(Collection<Urn> tracks) {
+        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
+            @Override
+            public PropertySet apply(Urn urn) {
+                return PropertySet.from(
+                        TrackProperty.URN.bind(urn),
+                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
+                        TrackProperty.OFFLINE_REMOVED_AT.bind(new Date()));
             }
         });
 
@@ -208,4 +236,5 @@ public final class EntityStateChangedEvent {
     public boolean isPlaylistLike() {
         return isSingularChange() && getNextUrn().isPlaylist() && kind == LIKE;
     }
+
 }

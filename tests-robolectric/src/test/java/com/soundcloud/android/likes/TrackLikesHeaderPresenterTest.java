@@ -86,7 +86,7 @@ public class TrackLikesHeaderPresenterTest {
     @Test
     public void showHeaderDefaultOnSyncStartedWithOfflineSyncEnabled() {
         when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
-        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
 
         presenter.onResume(fragment);
 
@@ -97,7 +97,7 @@ public class TrackLikesHeaderPresenterTest {
     public void showHeaderSyncingOnSyncStartedWithOfflineSyncEnabledAndAvailable() {
         when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
 
         presenter.onResume(fragment);
 
@@ -151,7 +151,7 @@ public class TrackLikesHeaderPresenterTest {
     @Test
     public void showHeaderDefaultOnSyncFinishedOrIdleWithOfflineSyncEnabled() {
         when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
 
         presenter.onResume(fragment);
 
@@ -162,7 +162,7 @@ public class TrackLikesHeaderPresenterTest {
     public void showHeaderDownloadedOnSyncFinishedOrIdleWithDownloadTracksAndOfflineAvailableAndEnabled() {
         when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.isOfflineLikesEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
 
         presenter.onResume(fragment);
 

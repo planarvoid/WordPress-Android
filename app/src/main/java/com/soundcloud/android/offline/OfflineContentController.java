@@ -2,13 +2,13 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
 import rx.Observable;
+import rx.Subscription;
 import rx.functions.Func1;
-import rx.subscriptions.CompositeSubscription;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 
@@ -21,11 +21,10 @@ public class OfflineContentController {
     private final Context context;
     private final OfflineSettingsStorage settingStorage;
 
-    private final Observable<EntityStateChangedEvent> trackLikeChanged;
+    private final Observable<EntityStateChangedEvent> likedTrackChanged;
     private final Observable<EntityStateChangedEvent> offlinePlaylistChanged;
     private final Observable<SyncResult> likesSynced;
-    private final Observable<Boolean> offlineLikesEnabled;
-    private final Observable<Boolean> offlineLikesDisabled;
+    private final Observable<Boolean> offlineLikedTracksToggle;
 
     private static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
         @Override
@@ -38,41 +37,38 @@ public class OfflineContentController {
     private final Func1<Object, Boolean> isOfflineLikesEnabled = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object ignored) {
-            return settingStorage.isOfflineLikesEnabled();
+            return settingStorage.isOfflineLikedTracksEnabled();
         }
     };
 
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private Subscription subscription = Subscriptions.empty();
 
     @Inject
     public OfflineContentController(EventBus eventBus, OfflineSettingsStorage settingsStorage, Context context) {
         this.context = context;
         this.settingStorage = settingsStorage;
+        this.offlineLikedTracksToggle = settingsStorage.getOfflineLikesChanged();
+        this.likedTrackChanged = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER);
 
-        this.offlineLikesEnabled = settingsStorage.getOfflineLikesChanged().filter(RxUtils.IS_TRUE);
-        this.offlineLikesDisabled = settingsStorage.getOfflineLikesChanged().filter(RxUtils.IS_FALSE);
-        this.trackLikeChanged = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER);
         this.offlinePlaylistChanged = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER);
         this.likesSynced = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
     }
 
     public void subscribe() {
-        subscription = new CompositeSubscription(
-                startOfflineContent().subscribe(new OfflineContentServiceSubscriber(context, true)),
-                offlineLikesDisabled.subscribe(new OfflineContentServiceSubscriber(context, false))
-        );
+        subscription = startOfflineContent().subscribe(new OfflineContentServiceSubscriber(context));
     }
 
     private Observable<?> startOfflineContent() {
         return Observable
-                .merge(offlineLikesEnabled,
+                .merge(offlineLikedTracksToggle,
                         offlinePlaylistChanged,
                         likesSynced.filter(isOfflineLikesEnabled),
-                        trackLikeChanged.filter(isOfflineLikesEnabled)
+                        likedTrackChanged.filter(isOfflineLikesEnabled)
                 );
     }
 
     public void unsubscribe() {
+        OfflineContentService.stop(context);
         subscription.unsubscribe();
     }
 

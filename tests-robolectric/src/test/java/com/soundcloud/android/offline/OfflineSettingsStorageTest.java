@@ -24,7 +24,7 @@ public class OfflineSettingsStorageTest {
     @Test
     public void savesOfflineLikesStatus() {
         storage.setOfflineLikesEnabled(true);
-        expect(storage.isOfflineLikesEnabled()).toBeTrue();
+        expect(storage.isOfflineLikedTracksEnabled()).toBeTrue();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class OfflineSettingsStorageTest {
         storage.setOfflineLikesEnabled(true);
         storage.clear();
 
-        expect(storage.isOfflineLikesEnabled()).toBeFalse();
+        expect(storage.isOfflineLikedTracksEnabled()).toBeFalse();
         expect(storage.isWifiOnlyEnabled()).toBeTrue();
     }
 

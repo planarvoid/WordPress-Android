@@ -33,19 +33,19 @@ public class OfflineContentControllerTest {
         eventBus = new TestEventBus();
         offlineLikeToggleSetting = PublishSubject.create();
 
-        when(settingsStorage.isOfflineLikesEnabled()).thenReturn(true);
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(settingsStorage.getOfflineLikesChanged()).thenReturn(offlineLikeToggleSetting);
 
         controller = new OfflineContentController(eventBus, settingsStorage, Robolectric.application);
     }
 
     @Test
-    public void stopServiceWhenOfflineLikeToggleDisabled() {
+    public void stopServiceWhenUnsubscribed() {
         controller.subscribe();
 
-        offlineLikeToggleSetting.onNext(false);
+        controller.unsubscribe();
 
-        expectServiceStopped();
+        expect(wasServiceStopped()).toBeTrue();
     }
 
     @Test
@@ -54,7 +54,7 @@ public class OfflineContentControllerTest {
 
         offlineLikeToggleSetting.onNext(true);
 
-        expectServiceStarted();
+        expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
@@ -63,7 +63,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(Urn.forPlaylist(123L), true));
 
-        expectServiceStarted();
+        expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
@@ -72,12 +72,12 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(Urn.forPlaylist(123L), false));
 
-        expectServiceStarted();
+        expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
     public void doesNotStartOfflineSyncWhenTheFeatureIsDisabled() {
-        when(settingsStorage.isOfflineLikesEnabled()).thenReturn(false);
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
         controller.subscribe();
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
@@ -91,7 +91,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 1));
 
-        expectServiceStarted();
+        expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
@@ -100,7 +100,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), false, 1));
 
-        expectServiceStarted();
+        expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
@@ -109,7 +109,7 @@ public class OfflineContentControllerTest {
 
         eventBus.publish(EventQueue.SYNC_RESULT, SyncResult.success(SyncActions.SYNC_TRACK_LIKES, true));
 
-        expectServiceStarted();
+        expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
@@ -128,17 +128,7 @@ public class OfflineContentControllerTest {
 
         offlineLikeToggleSetting.onNext(true);
 
-        expectNoInteractionWithService();
-    }
-
-    @Test
-    public void ignoreStopEventsWhenUnsubscribed() {
-        controller.subscribe();
-        controller.unsubscribe();
-
-        offlineLikeToggleSetting.onNext(false);
-
-        expectNoInteractionWithService();
+        expect(wasServiceStarted()).toBeFalse();
     }
 
     private void expectNoInteractionWithService() {
@@ -146,15 +136,17 @@ public class OfflineContentControllerTest {
         expect(startService).toBeNull();
     }
 
-    private void expectServiceStarted() {
-        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START_DOWNLOAD);
-        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+    private boolean wasServiceStarted() {
+        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
+        return intent != null &&
+                intent.getAction().equals(OfflineContentService.ACTION_START_DOWNLOAD) &&
+                intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 
-    private void expectServiceStopped() {
-        final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_STOP_DOWNLOAD);
-        expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
+    private boolean wasServiceStopped() {
+        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
+        return intent != null &&
+                intent.getAction().equals(OfflineContentService.ACTION_STOP_DOWNLOAD) &&
+                intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 }

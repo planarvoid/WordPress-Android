@@ -57,7 +57,7 @@ public class TrackLikesActionMenuController extends DefaultSupportFragmentLightC
     }
 
     private void updateOfflineLikesState() {
-        setOfflineLikesSelected(offlineOperations.isOfflineLikesEnabled());
+        setOfflineLikesSelected(offlineOperations.isOfflineLikedTracksEnabled());
     }
 
     private void setOfflineLikesSelected(boolean offlineLikes) {

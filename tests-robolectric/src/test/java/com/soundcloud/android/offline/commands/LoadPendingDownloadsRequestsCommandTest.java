@@ -17,14 +17,14 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LoadPendingDownloadsCommandTest extends StorageIntegrationTest {
+public class LoadPendingDownloadsRequestsCommandTest extends StorageIntegrationTest {
 
-    private LoadPendingDownloadsCommand command;
+    private LoadPendingDownloadsRequestsCommand command;
     private ApiTrack apiTrack;
 
     @Before
     public void setUp() {
-        command = new LoadPendingDownloadsCommand(propeller());
+        command = new LoadPendingDownloadsRequestsCommand(propeller());
         apiTrack = ModelFixtures.create(ApiTrack.class);
 
         testFixtures().insertTrack(apiTrack);

@@ -10,6 +10,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 // Move this to core-utils once that module is fully integrated
@@ -29,6 +30,29 @@ public final class CollectionUtils {
 
     public static <T extends PropertySetSource> List<PropertySet> toPropertySets(T... items) {
         return toPropertySets(Arrays.asList(items));
+    }
+
+    public static <T> Collection<T> add(Collection<T> items, Collection<T>... collectionsToAdd) {
+        final ArrayList<T> result = new ArrayList<>(items);
+        for (Collection<T> itemsToAdd : collectionsToAdd) {
+            result.addAll(itemsToAdd);
+        }
+        return result;
+    }
+
+    public static <T> Collection<T> subtract(Collection<T> items, Collection<T>... collectionsToSubtract) {
+        final ArrayList<T> result = new ArrayList<>(items);
+        for (Collection<T> itemsToSubtract : collectionsToSubtract) {
+            result.removeAll(itemsToSubtract);
+        }
+        return result;
+    }
+
+    public static <T> Collection<T> intersect(Collection<T> items, Collection<T> toIntersectWith) {
+        final Collection<T> intersection = new ArrayList<>();
+        intersection.addAll(items);
+        intersection.retainAll(toIntersectWith);
+        return intersection;
     }
 
     @SuppressWarnings({"PMD.LooseCoupling"}) // we need ArrayList for Parceling

@@ -7,19 +7,13 @@ import android.content.Context;
 final class OfflineContentServiceSubscriber extends DefaultSubscriber<Object> {
 
     private final Context context;
-    private final boolean shouldStart;
 
-    public OfflineContentServiceSubscriber(Context context, boolean shouldStart) {
+    public OfflineContentServiceSubscriber(Context context) {
         this.context = context;
-        this.shouldStart = shouldStart;
     }
 
     @Override
     public void onNext(Object ignored) {
-        if (shouldStart) {
-            OfflineContentService.start(context);
-        } else {
-            OfflineContentService.stop(context);
-        }
+        OfflineContentService.start(context);
     }
 }

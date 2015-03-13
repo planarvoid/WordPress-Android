@@ -165,7 +165,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle 
 
     private boolean isOfflineSyncEnabledAndAvailable() {
         return featureOperations.isOfflineContentEnabled() &&
-                offlineContentOperations.isOfflineLikesEnabled();
+                offlineContentOperations.isOfflineLikedTracksEnabled();
     }
 
 }

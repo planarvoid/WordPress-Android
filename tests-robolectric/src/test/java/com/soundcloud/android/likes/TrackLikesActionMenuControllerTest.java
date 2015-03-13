@@ -48,7 +48,7 @@ public class TrackLikesActionMenuControllerTest {
     @Test
     public void onCreateMenuWhenLikesOfflineSyncIsEnabledSetsActionMenuToRemoveSyncState() {
         when(offlineOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.<Boolean>empty());
-        when(offlineOperations.isOfflineLikesEnabled()).thenReturn(true);
+        when(offlineOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
 
         controller.onResume(fragment);
         controller.onCreateOptionsMenu(null, null);
@@ -59,7 +59,7 @@ public class TrackLikesActionMenuControllerTest {
     @Test
     public void onCreateMenuWhenLikesOfflineSyncIsDisabledSetsActionMenuToStartSyncState() {
         when(offlineOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.<Boolean>empty());
-        when(offlineOperations.isOfflineLikesEnabled()).thenReturn(false);
+        when(offlineOperations.isOfflineLikedTracksEnabled()).thenReturn(false);
 
         controller.onResume(fragment);
         controller.onCreateOptionsMenu(null, null);

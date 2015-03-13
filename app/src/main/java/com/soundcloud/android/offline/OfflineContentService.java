@@ -2,10 +2,11 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.utils.CollectionUtils.subtract;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
-import com.google.common.collect.Lists;
+import com.google.common.collect.Collections2;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -27,7 +28,7 @@ import android.os.Message;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -112,7 +113,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .subscribe(new DownloadSubscriber());
 
         } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
-            fireAndForget(offlineContentOperations.updateOfflineQueue().subscribeOn(scheduler));
             stop();
         }
         return START_NOT_STICKY;
@@ -203,6 +203,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "Updating download queue with " + pendingRequests.size() + " pendingRequests.");
 
         publishEntityChangedEventForNewRequests(pendingRequests);
+        publishEntityChangedEventForRemovedRequests(pendingRequests);
+
         requestsQueue.clear();
         requestsQueue.addAll(pendingRequests);
 
@@ -212,21 +214,22 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
+    private void publishEntityChangedEventForRemovedRequests(List<DownloadRequest> pendingRequests) {
+        final Collection<DownloadRequest> removedRequests = subtract(requestsQueue, pendingRequests);
+        if (!removedRequests.isEmpty()) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadRemoved(toUrns(removedRequests)));
+        }
+    }
+
     private void publishEntityChangedEventForNewRequests(List<DownloadRequest> pendingRequests) {
-        final ArrayList<DownloadRequest> newRequests = getNewDownloadRequests(pendingRequests);
+        final Collection<DownloadRequest> newRequests = subtract(pendingRequests, requestsQueue);
         if (!newRequests.isEmpty()) {
             eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadPending(toUrns(newRequests)));
         }
     }
 
-    private ArrayList<DownloadRequest> getNewDownloadRequests(List<DownloadRequest> requests) {
-        final ArrayList<DownloadRequest> newElements = new ArrayList<>(requests);
-        newElements.removeAll(requestsQueue);
-        return newElements;
-    }
-
-    private List<Urn> toUrns(ArrayList<DownloadRequest> newElements) {
-        return Lists.transform(newElements, new Function<DownloadRequest, Urn>() {
+    private Collection<Urn> toUrns(Collection<DownloadRequest> requests) {
+        return Collections2.transform(requests, new Function<DownloadRequest, Urn>() {
             @Override
             public Urn apply(DownloadRequest downloadRequest) {
                 return downloadRequest.urn;

@@ -35,7 +35,7 @@ public class OfflineSettingsStorage {
         this.sharedPreferences = sharedPreferences;
     }
 
-    public boolean isOfflineLikesEnabled() {
+    public boolean isOfflineLikedTracksEnabled() {
         return sharedPreferences.getBoolean(OFFLINE_LIKES_ENABLED, false);
     }
 

@@ -18,7 +18,6 @@ import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.WriteResult;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,7 @@ public class OfflineContentServiceTest {
     private final DownloadResult failedResult1 = DownloadResult.failed(Urn.forTrack(123L));
 
     private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
-    private TestObservables.MockObservable<WriteResult> updateOfflineContent;
+    private TestObservables.MockObservable<Void> updateOfflineContent;
     private OfflineContentService service;
     private TestEventBus eventBus;
     private Message downloadMessage;
@@ -69,20 +68,12 @@ public class OfflineContentServiceTest {
                 eventBus, offlineContentScheduler, handlerFactory, Schedulers.immediate());
 
         when(downloadOperations.deletePendingRemovals()).thenReturn(deletePendingRemoval);
-        when(offlineContentOperations.updateOfflineQueue()).thenReturn(updateOfflineContent);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         downloadMessage = new Message();
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
         when(downloadOperations.isValidNetwork()).thenReturn(true);
 
         service.onCreate();
-    }
-
-    @Test
-    public void updateOfflineLikesWhenOfflineLikesDisabled() {
-        stopService();
-
-        expect(updateOfflineContent.subscribedTo()).toBeTrue();
     }
 
     @Test
@@ -138,6 +129,33 @@ public class OfflineContentServiceTest {
         expectDownloadsPending(events.get(2), downloadRequest3.urn);
         expectDownloadFinished(events.get(3), downloadRequest1.urn);
         expectDownloadStarted(events.get(4), downloadRequest2.urn);
+    }
+
+    @Test
+    public void doesNotSendDownloadRemovedWhenCreatingRequestsQueue() throws Exception {
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+
+        startService();
+
+        final List<EntityStateChangedEvent> events = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
+        expectDownloadsPending(events.get(0), downloadRequest1.urn);
+        expectDownloadStarted(events.get(1), downloadRequest1.urn);
+    }
+
+    @Test
+    public void sendsDownloadRemovedWhenUpdatingRequestsQueue() throws Exception {
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        startService();
+
+        when(downloadHandler.isDownloading()).thenReturn(true);
+        when(downloadHandler.getCurrent()).thenReturn(downloadRequest1);
+        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        startService();
+
+        final List<EntityStateChangedEvent> events = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
+        expectDownloadsPending(events.get(0), downloadRequest1.urn, downloadRequest2.urn);
+        expectDownloadStarted(events.get(1), downloadRequest1.urn);
+        expectDownloadsRemoved(events.get(2), downloadRequest2.urn);
     }
 
     @Test
@@ -372,4 +390,15 @@ public class OfflineContentServiceTest {
             expect(changeSet.contains(TrackProperty.OFFLINE_REQUESTED_AT)).toBeTrue();
         }
     }
+
+    private void expectDownloadsRemoved(EntityStateChangedEvent event, Urn... urns) {
+        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
+        expect(event.getChangeMap().keySet()).toContainExactly(urns);
+        for (Urn urn : urns) {
+            final PropertySet changeSet = event.getChangeMap().get(urn);
+            expect(changeSet.get(TrackProperty.OFFLINE_DOWNLOADING)).toBeFalse();
+            expect(changeSet.contains(TrackProperty.OFFLINE_REMOVED_AT)).toBeTrue();
+        }
+    }
+
 }
