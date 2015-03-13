@@ -86,6 +86,14 @@ public class DatabaseFixtures {
         return playlist;
     }
 
+    public ApiPlaylist insertEmptyPlaylist() {
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        playlist.setTrackCount(0);
+        insertUser(playlist.getUser());
+        insertPlaylist(playlist);
+        return playlist;
+    }
+
     public ApiPlaylist insertLocalPlaylist() {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setUrn("soundcloud:playlists:-" + 1000 + playlist.getId());

@@ -37,11 +37,6 @@ import java.util.List;
 public class PublicApiPlaylist extends Playable {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
-    @Deprecated public static final String EXTRA_ID = "com.soundcloud.android.playlist_id";
-    public static final String EXTRA_TRACKS_COUNT = "com.soundcloud.android.playlist_tracks";
-
-    public static final String ACTION_CONTENT_CHANGED = "com.soundcloud.android.playlist.content_changed";
-
     public static final Creator<PublicApiPlaylist> CREATOR = new Creator<PublicApiPlaylist>() {
         @Override
         public PublicApiPlaylist createFromParcel(Parcel source) {

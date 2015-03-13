@@ -15,16 +15,16 @@ import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.tasks.CollectionParams;
 import com.soundcloud.android.collections.tasks.CollectionTask;
 import com.soundcloud.android.collections.tasks.ReturnData;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.playlists.PlaylistChangedReceiver;
+import com.soundcloud.android.playlists.PlaylistChangedSubscriber;
 import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -43,8 +43,7 @@ import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
-import rx.subscriptions.Subscriptions;
+import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -133,7 +132,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Nullable private BroadcastReceiver playlistChangedReceiver;
     private SyncStateManager syncStateManager;
     private int retainedListPosition;
-    private Subscription userEventSubscription = Subscriptions.empty();
+    private CompositeSubscription subscription = new CompositeSubscription();
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
@@ -277,10 +276,13 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(playbackStatusListener, new IntentFilter(playbackFilter));
 
-        userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver);
+        subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver));
 
         if (content.shouldListenForPlaylistChanges()) {
-            listenForPlaylistChanges();
+            subscription.add(eventBus
+                    .queue(EventQueue.ENTITY_STATE_CHANGED)
+                    .filter(EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
+                    .subscribe(new PlaylistChangedSubscriber(adapter)));
         }
 
         final ScBaseAdapter listAdapter = getListAdapter();
@@ -298,7 +300,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         retainedListPosition = listView.getFirstVisiblePosition();
     }
 
-    @Override @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
+    @Override
+    @SuppressWarnings("PMD.SwitchStmtsShouldHaveDefault")
     public void onResume() {
         super.onResume();
         if (content != null) {
@@ -583,7 +586,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
 
     private void stopListening() {
         AndroidUtils.safeUnregisterReceiver(getActivity(), playbackStatusListener);
-        userEventSubscription.unsubscribe();
+        subscription.unsubscribe();
         if (content.shouldListenForPlaylistChanges()) {
             AndroidUtils.safeUnregisterReceiver(getActivity(), playlistChangedReceiver);
         }
@@ -630,13 +633,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                 keepGoing = false;
             }
         }
-    }
-
-    private void listenForPlaylistChanges() {
-        playlistChangedReceiver = new PlaylistChangedReceiver(adapter);
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(PublicApiPlaylist.ACTION_CONTENT_CHANGED);
-        getActivity().registerReceiver(playlistChangedReceiver, intentFilter);
     }
 
     /**

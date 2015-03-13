@@ -4,10 +4,10 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
@@ -19,13 +19,11 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 import rx.Subscription;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.MergeCursor;
@@ -34,7 +32,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -63,22 +60,8 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
     private MyPlaylistsAdapter adapter;
     private Subscription addTrackSubscription = Subscriptions.empty();
 
-    @Inject LegacyPlaylistOperations playlistOperations;
+    @Inject PlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
-    @Inject LocalBroadcastManager broadcastManager;
-
-    private final Action1<PublicApiPlaylist> broadcastTrackAdded = new Action1<PublicApiPlaylist>() {
-        @Override
-        public void call(PublicApiPlaylist playlist) {
-            // TODO: move to an Rx event
-            // broadcast the information that the number of tracks changed
-            Intent intent = new Intent(PublicApiPlaylist.ACTION_CONTENT_CHANGED);
-            intent.putExtra(PublicApiPlaylist.EXTRA_ID, playlist.getId());
-            intent.putExtra(PublicApiPlaylist.EXTRA_TRACKS_COUNT, playlist.getTrackCount());
-
-            broadcastManager.sendBroadcast(intent);
-        }
-    };
 
     public static AddToPlaylistDialogFragment from(PropertySet track, String invokerScreen, String contextScreen) {
         return createFragment(createBundle(track, invokerScreen, contextScreen));
@@ -149,8 +132,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         txtTrackCount.setText(String.valueOf(newTracksCount));
 
         addTrackSubscription = bindFragment(this,
-                playlistOperations.addTrackToPlaylist(playlistId, trackId)
-                        .doOnNext(broadcastTrackAdded)
+                playlistOperations.addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId))
                         .delay(CLOSE_DELAY_MILLIS, TimeUnit.MILLISECONDS, Schedulers.immediate())
         ).subscribe(new TrackAddedSubscriber());
 
@@ -211,10 +193,10 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         adapter.setCursor(null);
     }
 
-    private final class TrackAddedSubscriber extends DefaultSubscriber<PublicApiPlaylist> {
+    private final class TrackAddedSubscriber extends DefaultSubscriber<PropertySet> {
 
         @Override
-        public void onNext(PublicApiPlaylist playlist) {
+        public void onNext(PropertySet ignored) {
             final Dialog toDismiss = getDialog();
             Toast.makeText(getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
             if (toDismiss != null) {

@@ -34,7 +34,7 @@ public abstract class PlaylistMapper extends RxResultMapper<PropertySet> {
         return Urn.forUser(cursorReader.getLong(TableColumns.SoundView.USER_ID));
     }
 
-    public int getTrackCount(CursorReader cursorReader) {
+    public static int getTrackCount(CursorReader cursorReader) {
         return Math.max(cursorReader.getInt(PlaylistMapper.LOCAL_TRACK_COUNT),
                 cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
     }

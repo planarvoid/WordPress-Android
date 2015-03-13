@@ -4,32 +4,29 @@ import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.collections.ScBaseAdapter;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-
-public class PlaylistChangedReceiver extends BroadcastReceiver {
+public final class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
 
     private final ScBaseAdapter adapter;
 
-    public PlaylistChangedReceiver(ScBaseAdapter baseAdapter) {
+    public PlaylistChangedSubscriber(ScBaseAdapter baseAdapter) {
         adapter = baseAdapter;
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onNext(EntityStateChangedEvent args) {
         if (adapter != null) {
 
-            long playlistId = intent.getLongExtra(PublicApiPlaylist.EXTRA_ID, -1);
-            int newTracksCount = intent.getIntExtra(PublicApiPlaylist.EXTRA_TRACKS_COUNT, -1);
+            long playlistId = args.getNextUrn().getNumericId();
+            int newTracksCount = args.getNextChangeSet().get(PlaylistProperty.TRACK_COUNT);
 
             for (int i = 0; i < adapter.getCount(); i++) {
                 if (adapter.getItem(i) instanceof PlayableHolder) {
                     updatePlayableIfNecessary(((PlayableHolder) adapter.getItem(i)).getPlayable(),
                             playlistId, newTracksCount);
                 }
-
             }
         }
     }

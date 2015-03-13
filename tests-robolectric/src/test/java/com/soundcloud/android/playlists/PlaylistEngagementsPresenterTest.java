@@ -65,7 +65,6 @@ public class PlaylistEngagementsPresenterTest {
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private LikeOperations likeOperations;
-    @Mock private LegacyPlaylistOperations legacyPlaylistOperations;
     @Mock private PlaylistEngagementsView engagementsView;
     @Mock private ViewGroup rootView;
     @Mock private OfflineContentOperations offlineContentOperations;
