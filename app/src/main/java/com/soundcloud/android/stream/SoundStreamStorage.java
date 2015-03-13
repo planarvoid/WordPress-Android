@@ -26,7 +26,7 @@ import rx.Observable;
 import javax.inject.Inject;
 import java.util.List;
 
-class SoundStreamStorage implements ISoundStreamStorage {
+class SoundStreamStorage {
 
     private final DatabaseScheduler scheduler;
     private final PropellerDatabase database;

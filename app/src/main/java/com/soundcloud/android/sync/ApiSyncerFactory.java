@@ -56,11 +56,8 @@ public class ApiSyncerFactory {
     public SyncStrategy forContentUri(Context context, Uri contentUri) {
         switch (Content.match(contentUri)) {
             case ME_SOUND_STREAM:
-                if (featureFlags.isEnabled(Flag.API_MOBILE_STREAM)) {
-                    return lazySoundStreamSyncer.get();
-                } else {
-                    return new ApiSyncer(context, context.getContentResolver());
-                }
+                return lazySoundStreamSyncer.get();
+
             case ME_LIKES:
                 return lazyMyLikesSyncer.get();
 

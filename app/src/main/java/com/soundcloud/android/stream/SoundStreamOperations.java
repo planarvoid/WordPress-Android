@@ -32,7 +32,7 @@ class SoundStreamOperations {
     private static final String TAG = "SoundStream";
     private static final List<PropertySet> NO_MORE_PAGES = Collections.emptyList();
 
-    private final ISoundStreamStorage soundStreamStorage;
+    private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
     private final Context appContext;
     private final Urn currentUserUrn;
@@ -56,7 +56,7 @@ class SoundStreamOperations {
     };
 
     @Inject
-    SoundStreamOperations(ISoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
+    SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
                           AccountOperations accountOperations, Context appContext) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;

@@ -27,7 +27,7 @@ public class SoundStreamSyncOperations {
 
     private final Context appContext;
     private final Urn currentUserUrn;
-    private final ISoundStreamStorage soundStreamStorage;
+    private final SoundStreamStorage soundStreamStorage;
     private final StreamNotificationBuilder streamNotificationBuilder;
     private final ContentStats contentStats;
 
@@ -40,7 +40,7 @@ public class SoundStreamSyncOperations {
     };
 
     @Inject
-    SoundStreamSyncOperations(ISoundStreamStorage soundStreamStorage,
+    SoundStreamSyncOperations(SoundStreamStorage soundStreamStorage,
                           AccountOperations accountOperations, Context appContext,
                           StreamNotificationBuilder streamNotificationBuilder, ContentStats contentStats) {
         this.soundStreamStorage = soundStreamStorage;

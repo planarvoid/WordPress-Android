@@ -36,7 +36,7 @@ public class SoundStreamOperationsTest {
     private SoundStreamOperations operations;
     private Urn userUrn = Urn.forUser(123L);
 
-    @Mock private ISoundStreamStorage soundStreamStorage;
+    @Mock private SoundStreamStorage soundStreamStorage;
     @Mock private SyncInitiator syncInitiator;
     @Mock private AccountOperations accountOperations;
     @Mock private Observer<List<PropertySet>> observer;

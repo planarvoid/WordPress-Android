@@ -2,7 +2,6 @@ package com.soundcloud.android.storage.provider;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.provider.ScContentProvider.Parameter.CACHED;
-import static com.soundcloud.android.storage.provider.ScContentProvider.Parameter.LIMIT;
 import static com.soundcloud.android.storage.provider.ScContentProvider.Parameter.RANDOM;
 import static com.soundcloud.android.testsupport.TestHelper.getActivities;
 import static com.soundcloud.android.testsupport.TestHelper.readJson;
@@ -21,8 +20,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.sync.ApiSyncService;
-import com.soundcloud.android.sync.ApiSyncServiceTest;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.xtremelabs.robolectric.Robolectric;
@@ -34,7 +31,6 @@ import android.accounts.Account;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.content.PeriodicSync;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -42,7 +38,6 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -246,54 +241,6 @@ public class ScContentProviderTest {
         expect(result[0]).toEqual(track2.getId());
         expect(result[1]).toEqual(track1.getId());
     }
-
-    @Test
-    public void shouldHaveStreamEndpointWhichReturnsRandomItems() throws Exception {
-        // TODO: find easier way to populate stream
-        ApiSyncService svc = new ApiSyncService();
-        TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class, "e1_stream_2_oldest.json");
-        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
-
-        ContentValues cv = new ContentValues();
-        final long firstId = 18508668l;
-        cv.put(TableColumns.TrackMetadata._ID, firstId);
-        cv.put(TableColumns.TrackMetadata.CACHED, 1);
-        resolver.insert(Content.TRACK_METADATA.uri, cv);
-
-        Uri uri = Content.ME_SOUND_STREAM.withQuery(RANDOM, "1", LIMIT, "5");
-        Cursor c = resolver.query(uri, null, null, null, null);
-        expect(c.getCount()).toEqual(5);
-        long[] sorted = new long[]{61467451, 61465333, 61454101, 61451011, 61065502};
-        long[] result = new long[sorted.length];
-        int i = 0;
-        while (c.moveToNext()) {
-            result[i++] = c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID));
-        }
-        expect(Arrays.equals(result, sorted)).toBeFalse();
-    }
-
-    @Test
-    public void shouldHaveStreamEndpointWhichOnlyReturnsCachedItems() throws Exception {
-        // TODO: find easier way to populate stream
-        ApiSyncService svc = new ApiSyncService();
-        TestHelper.addPendingHttpResponse(ApiSyncServiceTest.class, "e1_stream_2_oldest.json");
-        svc.onStart(new Intent(Intent.ACTION_SYNC, Content.ME_SOUND_STREAM.uri), 1);
-        expect(Content.ME_SOUND_STREAM).toHaveCount(28);
-
-        ContentValues cv = new ContentValues();
-        final long cachedId = 61467451l;
-        cv.put(TableColumns.TrackMetadata._ID, cachedId);
-        cv.put(TableColumns.TrackMetadata.CACHED, 1);
-        resolver.insert(Content.TRACK_METADATA.uri, cv);
-
-        Uri uri = Content.ME_SOUND_STREAM.withQuery(CACHED, "1");
-        Cursor c = resolver.query(uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
-        expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(TableColumns.ActivityView.SOUND_ID))).toEqual(cachedId);
-    }
-
 
     @Test
     public void shouldEnableSyncing() throws Exception {

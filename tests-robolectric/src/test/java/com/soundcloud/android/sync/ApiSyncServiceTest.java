@@ -3,7 +3,6 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
-import static com.soundcloud.android.testsupport.TestHelper.addCannedResponse;
 
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -13,9 +12,9 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
+import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.likes.SyncPlaylistLikesJob;
 import com.soundcloud.android.sync.likes.SyncTrackLikesJob;
-import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.playlists.SinglePlaylistSyncerFactory;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.TestHelper;
@@ -189,41 +188,6 @@ public class ApiSyncServiceTest {
 
         svc.onSyncJobCompleted(new LegacySyncJob(context, Content.ME_LIKES.uri, null, false, apiSyncerFactory, syncStateManager));
         expect(svc.runningJobs.size()).toBe(1);
-    }
-
-    @Test
-    public void shouldUpdateLocalCollectionEntryAfterSync() throws Exception {
-        ApiSyncService svc = new ApiSyncService();
-        sync(svc, Content.ME_SOUND_STREAM,
-                "e1_stream.json",
-                "e1_stream_oldest.json");
-
-        expect(Content.COLLECTIONS).toHaveCount(1);
-        LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
-        expect(collection.last_sync_success).toBeGreaterThan(0L);
-    }
-
-    @Test
-    public void shouldSyncActivitiesAndUpdateFutureHrefOnLocalCollection() throws Exception {
-        ApiSyncService svc = new ApiSyncService();
-
-        sync(svc, Content.ME_SOUND_STREAM,
-                "e1_stream_1.json",
-                "e1_stream_2_oldest.json");
-
-        expect(Content.COLLECTIONS).toHaveCount(1);
-        LocalCollection collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
-        expect(collection.last_sync_success).toBeGreaterThan(0L);
-
-        addCannedResponse(SyncAdapterServiceTest.class,
-                "/e1/me/stream?uuid%5Bto%5D=ee57b180-0959-11e2-8afd-9083bddf9fde&limit=100"+ LegacySyncJobTest.NON_INTERACTIVE,
-                "activities_empty.json");
-
-        // next sync request should go this url
-        sync(svc, Content.ME_SOUND_STREAM);
-
-        expect(Content.COLLECTIONS).toHaveCount(1);
-        collection = syncStateManager.fromContent(Content.ME_SOUND_STREAM);
     }
 
     @Test
