@@ -18,6 +18,7 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
+import com.soundcloud.android.sync.posts.RemoveAllPostsCommand;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,12 +49,13 @@ public class AccountCleanupActionTest {
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private FeatureStorage featureStorage;
     @Mock private RemoveAllLikesCommand removeAllLikes;
+    @Mock private RemoveAllPostsCommand removeAllPostsCommand;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(syncStateManager,
                 activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
-                featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage, removeAllLikes);
+                featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage, removeAllLikes, removeAllPostsCommand);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -125,5 +127,11 @@ public class AccountCleanupActionTest {
     public void shouldClearLikes() throws PropellerWriteException {
         action.call();
         verify(removeAllLikes).call();
+    }
+
+    @Test
+    public void shouldClearPosts() throws PropellerWriteException {
+        action.call();
+        verify(removeAllPostsCommand).call(null);
     }
 }

@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
+import com.soundcloud.android.sync.posts.RemoveAllPostsCommand;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
@@ -31,6 +32,7 @@ class AccountCleanupAction implements Action0 {
     private final ClearSoundStreamCommand clearSoundStreamCommand;
     private final OfflineSettingsStorage offlineSettingsStorage;
     private final RemoveAllLikesCommand removeAllLikesCommand;
+    private final RemoveAllPostsCommand removeAllPostsCommand;
 
     @Inject
     AccountCleanupAction(SyncStateManager syncStateManager,
@@ -38,7 +40,7 @@ class AccountCleanupAction implements Action0 {
                          PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage,
-                         RemoveAllLikesCommand removeAllLikesCommand) {
+                         RemoveAllLikesCommand removeAllLikesCommand, RemoveAllPostsCommand removeAllPostsCommand) {
         this.syncStateManager = syncStateManager;
         this.activitiesStorage = activitiesStorage;
         this.tagStorage = tagStorage;
@@ -49,6 +51,7 @@ class AccountCleanupAction implements Action0 {
         this.clearSoundStreamCommand = clearSoundStreamCommand;
         this.offlineSettingsStorage = offlineSettingsStorage;
         this.removeAllLikesCommand = removeAllLikesCommand;
+        this.removeAllPostsCommand = removeAllPostsCommand;
     }
 
     @Override
@@ -72,6 +75,7 @@ class AccountCleanupAction implements Action0 {
         try {
             removeAllLikesCommand.call();
             clearSoundStreamCommand.call();
+            removeAllPostsCommand.call(null);
         } catch (PropellerWriteException e) {
             Log.e(TAG, "Could not clear collections ", e);
         }

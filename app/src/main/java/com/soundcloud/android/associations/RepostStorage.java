@@ -1,7 +1,7 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.commands.CommandNG;
-import com.soundcloud.android.commands.WriteStorageCommandNG;
+import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -28,9 +28,9 @@ class RepostStorage {
     }
 
     CommandNG<Urn, InsertResult> addRepost() {
-        return new WriteStorageCommandNG<Urn, InsertResult>() {
+        return new WriteStorageCommand<Urn, InsertResult>(propeller) {
             @Override
-            public InsertResult store(Urn urn) {
+            public InsertResult write(PropellerDatabase propeller, Urn urn) {
                 final ContentValues values = new ContentValues();
                 values.put(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
                 values.put(TableColumns.Posts.TARGET_TYPE, urn.isTrack()
@@ -43,9 +43,9 @@ class RepostStorage {
     }
 
     CommandNG<Urn, ChangeResult> removeRepost() {
-        return new WriteStorageCommandNG<Urn, ChangeResult>() {
+        return new WriteStorageCommand<Urn, ChangeResult>(propeller) {
             @Override
-            public ChangeResult store(Urn urn) {
+            public ChangeResult write(PropellerDatabase propeller, Urn urn) {
                 final Where whereClause = new WhereBuilder()
                         .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
                         .whereEq(TableColumns.Posts.TARGET_TYPE, urn.isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)

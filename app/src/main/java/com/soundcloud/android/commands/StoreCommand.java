@@ -5,6 +5,7 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 
+@Deprecated // use WriteStorageCommand
 public abstract class StoreCommand<I> extends Command<I, WriteResult, StoreCommand<I>> {
 
     protected final PropellerDatabase database;

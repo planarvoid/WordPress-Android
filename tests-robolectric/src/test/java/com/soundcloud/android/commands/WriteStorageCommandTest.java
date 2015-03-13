@@ -5,23 +5,27 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
 import com.soundcloud.propeller.InsertResult;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
-public class WriteStorageCommandNGTest {
+public class WriteStorageCommandTest {
 
-    private WriteStorageCommandNG<String, InsertResult> command = new WriteStorageCommandNG<String, InsertResult>() {
+    @Mock private PropellerDatabase propeller;
+
+    private WriteStorageCommand<String, InsertResult> command = new WriteStorageCommand<String, InsertResult>(propeller) {
         @Override
-        protected InsertResult store(String input) {
+        protected InsertResult write(PropellerDatabase propeller, String input) {
             return TestStorageResults.successfulInsert();
         }
     };
 
-    private WriteStorageCommandNG<String, InsertResult> failedCommand = new WriteStorageCommandNG<String, InsertResult>() {
+    private WriteStorageCommand<String, InsertResult> failedCommand = new WriteStorageCommand<String, InsertResult>(propeller) {
         @Override
-        protected InsertResult store(String input) {
+        protected InsertResult write(PropellerDatabase propeller, String input) {
             return TestStorageResults.failedInsert();
         }
     };
