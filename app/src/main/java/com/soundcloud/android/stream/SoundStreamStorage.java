@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
@@ -18,6 +17,8 @@ import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.query.WhereBuilder;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
@@ -38,7 +39,7 @@ class SoundStreamStorage implements ISoundStreamStorage {
 
     public Observable<PropertySet> streamItemsBefore(final long timestamp, final Urn userUrn, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(soundStreamSelection(userUrn))
+                .select(soundStreamSelection())
                 .whereLt(TableColumns.SoundStreamView.CREATED_AT, timestamp)
                         // TODO: poor man's check to remove orphaned tracks and playlists;
                         // We need to address this properly with a schema refactor, cf:
@@ -51,7 +52,7 @@ class SoundStreamStorage implements ISoundStreamStorage {
 
     public List<PropertySet> loadStreamItemsSince(final long timestamp, final Urn userUrn, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(soundStreamSelection(userUrn))
+                .select(soundStreamSelection())
                 .whereGt(TableColumns.SoundStreamView.CREATED_AT, timestamp)
                 .whereNotNull(TableColumns.SoundView.TITLE)
                 .limit(limit);
@@ -59,7 +60,7 @@ class SoundStreamStorage implements ISoundStreamStorage {
         return database.query(query).toList(new StreamItemMapper());
     }
 
-    private Object[] soundStreamSelection(Urn userUrn) {
+    private Object[] soundStreamSelection() {
         return new Object[]{SoundStreamView.SOUND_ID,
                 SoundStreamView.SOUND_TYPE,
                 SoundView.TITLE,
@@ -71,7 +72,7 @@ class SoundStreamStorage implements ISoundStreamStorage {
                 SoundStreamView.CREATED_AT,
                 SoundStreamView.REPOSTER_USERNAME,
                 exists(likeQuery()).as(SoundView.USER_LIKE),
-                exists(repostQuery(userUrn.getNumericId())).as(SoundView.USER_REPOST)};
+                exists(repostQuery()).as(SoundView.USER_REPOST)};
     }
 
     public Observable<Urn> trackUrns() {
@@ -88,12 +89,14 @@ class SoundStreamStorage implements ISoundStreamStorage {
                 .whereNull(TableColumns.Likes.REMOVED_AT);
     }
 
-    private Query repostQuery(long userId) {
-        return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
-                .joinOn(TableColumns.SoundStreamView.SOUND_ID, TableColumns.CollectionItems.ITEM_ID)
-                .joinOn(TableColumns.SoundStreamView.SOUND_TYPE, TableColumns.CollectionItems.RESOURCE_TYPE)
-                .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, REPOST)
-                .whereEq(Table.CollectionItems.name() + "." + TableColumns.CollectionItems.USER_ID, userId);
+    private Query repostQuery() {
+        final Where joinConditions = new WhereBuilder()
+                .whereEq(TableColumns.SoundStreamView.SOUND_ID, TableColumns.Posts.TARGET_ID)
+                .whereEq(TableColumns.SoundStreamView.SOUND_TYPE, TableColumns.Posts.TARGET_TYPE);
+
+        return Query.from(Table.SoundStreamView.name())
+                .innerJoin(Table.Posts.name(), joinConditions)
+                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
     }
 
     private static final class TrackUrnMapper extends RxResultMapper<Urn> {

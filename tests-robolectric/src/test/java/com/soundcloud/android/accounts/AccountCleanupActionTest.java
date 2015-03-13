@@ -15,7 +15,6 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
@@ -35,7 +34,6 @@ public class AccountCleanupActionTest {
 
     @Mock private Context context;
     @Mock private SyncStateManager syncStateManager;
-    @Mock private CollectionStorage collectionStorage;
     @Mock private ActivitiesStorage activitiesStorage;
     @Mock private PlaylistTagStorage tagStorage;
     @Mock private SoundRecorder soundRecorder;
@@ -54,7 +52,7 @@ public class AccountCleanupActionTest {
     @Before
     public void setup() {
         action = new AccountCleanupAction(syncStateManager,
-                collectionStorage, activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
+                activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
                 featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage, removeAllLikes);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
@@ -67,12 +65,6 @@ public class AccountCleanupActionTest {
     public void shouldClearSyncState() {
         action.call();
         verify(syncStateManager).clear();
-    }
-
-    @Test
-    public void shouldClearCollectionStorage() {
-        action.call();
-        verify(collectionStorage).clear();
     }
 
     @Test

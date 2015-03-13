@@ -7,6 +7,7 @@ import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,13 +29,27 @@ public class SoundAssociation extends Association implements PlayableHolder {
     public SoundAssociation() { }
 
     public SoundAssociation(Cursor cursor) {
-        super(cursor);
+
         // single instance considerations
         if (Playable.isTrackCursor(cursor)){
             playable = SoundCloudApplication.sModelManager.getCachedTrackFromCursor(cursor, TableColumns.SoundAssociationView._ID);
         } else {
             playable = SoundCloudApplication.sModelManager.getCachedPlaylistFromCursor(cursor, TableColumns.SoundAssociationView._ID);
         }
+
+        created_at = new Date(cursor.getLong(cursor.getColumnIndex(TableColumns.AssociationView.ASSOCIATION_TIMESTAMP)));
+        final int postTypeColumnIndex = cursor.getColumnIndex(ScContentProvider.POST_TYPE);
+        if (postTypeColumnIndex != -1){
+            final String dbType = cursor.getString(postTypeColumnIndex);
+            if (TableColumns.Posts.TYPE_POST.equals(dbType)){
+                associationType = playable instanceof PublicApiPlaylist ? ScContentProvider.CollectionItemTypes.PLAYLIST : ScContentProvider.CollectionItemTypes.TRACK;
+            } else {
+                associationType = ScContentProvider.CollectionItemTypes.REPOST;
+            }
+        } else {
+            associationType = ScContentProvider.CollectionItemTypes.LIKE;
+        }
+
     }
 
     /**

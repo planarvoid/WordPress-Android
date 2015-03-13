@@ -6,9 +6,9 @@ import static com.soundcloud.propeller.query.Query.on;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.commands.PagedQueryCommand;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.ColumnFunctions;
 import com.soundcloud.propeller.query.Query;
@@ -41,7 +41,7 @@ public class LegacyLoadPostedPlaylistsCommand extends PagedQueryCommand<Chronolo
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
                 .innerJoin(Table.CollectionItems.name(),
                         on(Table.CollectionItems + "." + TableColumns.CollectionItems.ITEM_ID, Table.SoundView + "." + TableColumns.SoundView._ID)
-                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.PLAYLIST)
+                                .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.COLLECTION_TYPE, ScContentProvider.CollectionItemTypes.PLAYLIST)
                                 .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.RESOURCE_TYPE, Table.SoundView + "." + TableColumns.SoundView._TYPE)
                                 .whereEq(Table.CollectionItems + "." + TableColumns.CollectionItems.USER_ID, Table.SoundView + "." + TableColumns.SoundView.USER_ID))
                 .whereEq(Table.SoundView + "." + TableColumns.SoundView.USER_ID, accountOperations.getLoggedInUserUrn().getNumericId())

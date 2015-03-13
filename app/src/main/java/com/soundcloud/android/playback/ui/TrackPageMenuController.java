@@ -4,7 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
-import com.soundcloud.android.associations.RepostCreator;
+import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.comments.AddCommentDialogFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -39,7 +39,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private final FragmentActivity activity;
     private final PopupMenuWrapper popupMenuWrapper;
     private final PlayQueueManager playQueueManager;
-    private final RepostCreator repostOperations;
+    private final RepostOperations repostOperations;
     private final EventBus eventBus;
     private final String commentAtUnformatted;
 
@@ -49,7 +49,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private long commentPosition;
 
     private TrackPageMenuController(PlayQueueManager playQueueManager,
-                                    RepostCreator repostOperations,
+                                    RepostOperations repostOperations,
                                     FragmentActivity context,
                                     PopupMenuWrapper popupMenuWrapper,
                                     EventBus eventBus) {
@@ -204,24 +204,24 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     static class Factory {
         private final PlayQueueManager playQueueManager;
-        private final RepostCreator repostCreator;
+        private final RepostOperations repostOperations;
         private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
         private final EventBus eventBus;
 
         @Inject
         Factory(PlayQueueManager playQueueManager,
-                RepostCreator repostCreator,
+                RepostOperations repostOperations,
                 PopupMenuWrapper.Factory popupMenuWrapperFactory,
                 EventBus eventBus) {
             this.playQueueManager = playQueueManager;
-            this.repostCreator = repostCreator;
+            this.repostOperations = repostOperations;
             this.popupMenuWrapperFactory = popupMenuWrapperFactory;
             this.eventBus = eventBus;
         }
 
         TrackPageMenuController create(View anchorView) {
             final FragmentActivity activityContext = (FragmentActivity) anchorView.getContext();
-            return new TrackPageMenuController(playQueueManager, repostCreator,
+            return new TrackPageMenuController(playQueueManager, repostOperations,
                     activityContext, popupMenuWrapperFactory.build(activityContext, anchorView), eventBus);
         }
     }

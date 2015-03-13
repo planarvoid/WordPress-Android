@@ -8,11 +8,12 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.service.LocalBinder;
+import com.soundcloud.android.storage.RecordingStorage;
+import com.soundcloud.android.sync.posts.StorePostsCommand;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -23,6 +24,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -42,7 +44,7 @@ public class UploadServiceTest {
     }
 
     private UploadService startService() {
-        UploadService service = new UploadService();
+        UploadService service = new UploadService(Mockito.mock(StorePostsCommand.class));
         service.onCreate();
         return service;
     }

@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
+public class StorePostsCommand extends StoreCommand<Collection<PropertySet>> {
 
     @Inject
     StorePostsCommand(PropellerDatabase database) {

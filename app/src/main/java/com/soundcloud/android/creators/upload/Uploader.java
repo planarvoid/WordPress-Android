@@ -6,12 +6,14 @@ import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.storage.RecordingStorage;
-import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
+import com.soundcloud.android.sync.posts.PostProperty;
+import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Request;
+import com.soundcloud.propeller.PropertySet;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
@@ -27,11 +29,13 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Locale;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
-    private final SoundAssociationStorage soundAssociationStorage = new SoundAssociationStorage();
     private final TrackStorage trackStorage = new TrackStorage();
+    private final StorePostsCommand storePostsCommand;
+
     private final RecordingStorage recordingStorage = new RecordingStorage();
     private final SyncStateManager syncStateManager;
 
@@ -41,11 +45,13 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private final LocalBroadcastManager broadcastManager;
     private final Resources resources;
 
+
     private static final int MAX_TRIES = 1;
 
-    public Uploader(Context context, PublicCloudAPI api, Recording recording) {
+    public Uploader(Context context, PublicCloudAPI api, Recording recording, StorePostsCommand storePostsCommand) {
         this.api = api;
         upload = recording;
+        this.storePostsCommand = storePostsCommand;
         broadcastManager = LocalBroadcastManager.getInstance(context);
         broadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
         resources = context.getResources();
@@ -163,7 +169,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         try {
             PublicApiTrack track = api.getMapper().readValue(response.getEntity().getContent(), PublicApiTrack.class);
             trackStorage.createOrUpdate(track);
-            soundAssociationStorage.addCreation(track);
+            createNewTrackPost(track);
 
             //request to update my collection
             syncStateManager.forceToStale(Content.ME_SOUNDS);
@@ -188,6 +194,16 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         } catch (IOException e) {
             onUploadFailed(e);
         }
+    }
+
+    private void createNewTrackPost(PublicApiTrack track) {
+        storePostsCommand.with(Arrays.asList(
+                PropertySet.from(
+                        PostProperty.TARGET_URN.bind(track.getUrn()),
+                        PostProperty.CREATED_AT.bind(track.getCreatedAt()),
+                        PostProperty.IS_REPOST.bind(false)
+                )
+        )).call();
     }
 
     private void broadcast(String action, PublicApiTrack... track) {

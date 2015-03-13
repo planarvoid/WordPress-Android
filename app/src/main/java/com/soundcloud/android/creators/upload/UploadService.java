@@ -2,9 +2,11 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.NotificationConstants.UPLOADING_NOTIFY_ID;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -15,6 +17,7 @@ import com.soundcloud.android.creators.record.SoundRecorderService;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -44,6 +47,7 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.HashMap;
@@ -202,6 +206,17 @@ public class UploadService extends Service {
     private RecordingStorage recordingStorage;
     private PublicCloudAPI publicCloudAPI;
 
+    @Inject StorePostsCommand storePostsCommand;
+
+    public UploadService() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    public UploadService(StorePostsCommand storePostsCommand) {
+        this.storePostsCommand = storePostsCommand;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -210,7 +225,7 @@ public class UploadService extends Service {
         recordingStorage = new RecordingStorage();
         broadcastManager = LocalBroadcastManager.getInstance(this);
         intentHandler = new IntentHandler(this, createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
-        uploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT), publicCloudAPI);
+        uploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT), publicCloudAPI, storePostsCommand);
         processingHandler = new Handler(createLooper("Processing", Process.THREAD_PRIORITY_BACKGROUND));
 
         broadcastManager.registerReceiver(receiver, getIntentFilter());
@@ -584,10 +599,12 @@ public class UploadService extends Service {
     private static final class UploadHandler extends Handler {
         private final WeakReference<UploadService> serviceRef;
         private final PublicCloudAPI publicCloudAPI;
+        private final StorePostsCommand storePostsCommand;
 
-        private UploadHandler(UploadService service, Looper looper, PublicCloudAPI publicCloudAPI) {
+        private UploadHandler(UploadService service, Looper looper, PublicCloudAPI publicCloudAPI, StorePostsCommand storePostsCommand) {
             super(looper);
             this.publicCloudAPI = publicCloudAPI;
+            this.storePostsCommand = storePostsCommand;
             serviceRef = new WeakReference<UploadService>(service);
         }
 
@@ -610,7 +627,7 @@ public class UploadService extends Service {
                 service.processingHandler.post(new Encoder(service, upload.recording));
             } else {
                 // perform the actual upload
-                post(new Uploader(service, publicCloudAPI, upload.recording));
+                post(new Uploader(service, publicCloudAPI, upload.recording, storePostsCommand));
             }
         }
     }

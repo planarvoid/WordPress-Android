@@ -6,6 +6,7 @@ import static com.soundcloud.android.storage.TableColumns.Posts;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
@@ -32,17 +33,27 @@ public class LoadLocalPostsCommand extends Command<Object, List<PropertySet>, Lo
         return database.query(Query.from(Table.Posts.name())
                 .select(Posts.TARGET_ID, Posts.CREATED_AT, Posts.TYPE)
                 .whereEq(Posts.TARGET_TYPE, resourceType)
-                .order(CollectionItems.CREATED_AT, Query.ORDER_DESC)).toList(new PlaylistMapper());
+                .order(CollectionItems.CREATED_AT, Query.ORDER_DESC)).toList(new PlaylistMapper(resourceType == TableColumns.Sounds.TYPE_PLAYLIST));
     }
 
     private static class PlaylistMapper extends RxResultMapper<PropertySet> {
+        private final boolean isPlaylist;
+
+        private PlaylistMapper(boolean isPlaylist) {
+            this.isPlaylist = isPlaylist;
+        }
+
         @Override
         public PropertySet map(CursorReader cursorReader) {
             return PropertySet.from(
-                    PostProperty.TARGET_URN.bind(Urn.forPlaylist(cursorReader.getLong(Posts.TARGET_ID))),
+                    PostProperty.TARGET_URN.bind(getUrn(cursorReader.getLong(Posts.TARGET_ID))),
                     PostProperty.CREATED_AT.bind(new Date(cursorReader.getLong(Posts.CREATED_AT))),
                     PostProperty.IS_REPOST.bind(Posts.TYPE_REPOST.equals(cursorReader.getString(Posts.TYPE)))
             );
+        }
+
+        private Urn getUrn(long id) {
+            return isPlaylist ? Urn.forPlaylist(id) : Urn.forTrack(id);
         }
     }
 }

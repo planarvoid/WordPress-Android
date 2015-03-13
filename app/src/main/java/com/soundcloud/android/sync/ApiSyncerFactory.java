@@ -9,8 +9,8 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
 import com.soundcloud.android.sync.likes.MyLikesSyncer;
-import com.soundcloud.android.sync.playlists.PlaylistSyncer;
 import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
+import com.soundcloud.android.sync.posts.MyPostsSyncer;
 import com.soundcloud.android.sync.stream.SoundStreamSyncer;
 import dagger.Lazy;
 
@@ -31,6 +31,7 @@ public class ApiSyncerFactory {
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
     private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
+    private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final JsonTransformer jsonTransformer;
 
     @Inject
@@ -38,7 +39,7 @@ public class ApiSyncerFactory {
                             Provider<NotificationManager> notificationManagerProvider,
                             FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
-                            JsonTransformer jsonTransformer) {
+                            Lazy<MyPostsSyncer> lazyMyPostsSyncer, JsonTransformer jsonTransformer) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
@@ -46,6 +47,7 @@ public class ApiSyncerFactory {
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
         this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
+        this.lazyMyPostsSyncer = lazyMyPostsSyncer;
         this.jsonTransformer = jsonTransformer;
     }
 
@@ -68,14 +70,10 @@ public class ApiSyncerFactory {
                         context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(), jsonTransformer);
 
             case ME_PLAYLISTS:
-                if (featureFlags.isEnabled(Flag.NEW_POSTS_SYNCER)) {
-                    return lazyPlaylistsSyncer.get();
-                } else {
-                    return new PlaylistSyncer(context, context.getContentResolver());
-                }
+                return lazyPlaylistsSyncer.get();
 
-            case PLAYLIST:
-                return new PlaylistSyncer(context, context.getContentResolver());
+            case ME_SOUNDS:
+                return lazyMyPostsSyncer.get();
 
             default:
                 return new ApiSyncer(context, context.getContentResolver());

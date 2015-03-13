@@ -34,6 +34,7 @@ import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
 import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
+import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
@@ -261,6 +262,18 @@ public class TestApplicationModule {
     @Provides
     MyPlaylistsSyncer provideMyPlaylistsSyncer() {
         return mock(MyPlaylistsSyncer.class);
+    }
+
+    @Provides
+    @Named("MyTrackPostsSyncer")
+    PostsSyncer provideMyTrackPostsSyncer() {
+        return mock(PostsSyncer.class);
+    }
+
+    @Provides
+    @Named("MyPlaylistPostsSyncer")
+    PostsSyncer provideMyPlaylistPostsSyncer() {
+        return mock(PostsSyncer.class);
     }
 }
 

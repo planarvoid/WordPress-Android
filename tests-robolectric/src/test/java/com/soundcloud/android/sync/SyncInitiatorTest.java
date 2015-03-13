@@ -43,7 +43,7 @@ public class SyncInitiatorTest {
 
     @Before
     public void setup() {
-        initiator = new SyncInitiator(Robolectric.application, accountOperations, featureFlags);
+        initiator = new SyncInitiator(Robolectric.application, accountOperations);
     }
 
     @Test
@@ -100,12 +100,13 @@ public class SyncInitiatorTest {
 
     @Test
     public void shouldCreateIntentForSyncingSinglePlaylist() throws Exception {
-        initiator.syncPlaylist(Urn.forPlaylist(1L)).subscribe(legacySyncSubscriber);
+        final Urn playlistUrn = Urn.forPlaylist(1L);
+        initiator.syncPlaylist(playlistUrn).subscribe(legacySyncSubscriber);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
-        expect(intent.getData()).toEqual(Content.PLAYLISTS.forQuery(String.valueOf(1L)));
-        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
+        expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLIST);
+        expect(intent.getParcelableExtra(SyncExtras.URN)).toEqual(playlistUrn);
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
     }
 

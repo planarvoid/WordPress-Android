@@ -2,10 +2,12 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
+import static org.mockito.Mockito.mock;
 
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -41,7 +43,7 @@ public class UploaderTest {
     }
 
     private Uploader uploader(Recording r) {
-        return new Uploader(DefaultTestRunner.application, DefaultTestRunner.application.getCloudAPI(), r);
+        return new Uploader(DefaultTestRunner.application, DefaultTestRunner.application.getCloudAPI(), r, mock(StorePostsCommand.class));
     }
 
     public void shouldErrorWhenFileIsMissing() throws Exception {

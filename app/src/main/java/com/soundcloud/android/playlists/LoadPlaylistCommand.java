@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
@@ -11,6 +10,8 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -57,18 +58,27 @@ class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand>
     }
 
     private Query likeQuery() {
-        return Query.from(Table.Likes.name(), Table.Sounds.name())
-                .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
-                .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+        final Where joinConditions = new WhereBuilder()
+                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
+                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
+
+        return Query.from(Table.Likes.name())
+                .innerJoin(Table.Sounds.name(), joinConditions)
+                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), input.getNumericId())
+                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereNull(TableColumns.Likes.REMOVED_AT);
     }
 
     private Query repostQuery() {
-        return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
-                .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, TableColumns.CollectionItems.ITEM_ID)
-                .joinOn(TableColumns.SoundView._TYPE, TableColumns.CollectionItems.RESOURCE_TYPE)
-                .whereEq(TableColumns.CollectionItems.COLLECTION_TYPE, REPOST)
-                .whereEq(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
+        final Where joinConditions = new WhereBuilder()
+                .whereEq(TableColumns.Sounds._ID, TableColumns.Posts.TARGET_ID)
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
+
+        return Query.from(Table.Posts.name())
+                .innerJoin(Table.Sounds.name(), joinConditions)
+                .whereEq(TableColumns.Sounds._ID, input.getNumericId())
+                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
     }
 
     private Query isMarkedForOfflineQuery() {

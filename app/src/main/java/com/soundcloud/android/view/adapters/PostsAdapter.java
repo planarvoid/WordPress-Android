@@ -22,8 +22,8 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -140,7 +140,7 @@ public class PostsAdapter extends ScBaseAdapter<PublicApiResource> {
     private PropertySet toPropertySet(PublicApiResource resource) {
         PropertySet propertySet = ((PlayableHolder) resource).getPlayable().toPropertySet();
         if (resource instanceof SoundAssociation &&
-                (((SoundAssociation) resource).associationType == CollectionStorage.CollectionItemTypes.REPOST)) {
+                (((SoundAssociation) resource).associationType == ScContentProvider.CollectionItemTypes.REPOST)) {
             propertySet.put(PlayableProperty.REPOSTER, relatedUsername);
         }
         return propertySet;

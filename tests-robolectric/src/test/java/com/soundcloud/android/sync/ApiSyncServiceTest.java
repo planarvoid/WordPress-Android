@@ -73,7 +73,7 @@ public class ApiSyncServiceTest {
     @Test
     public void shouldProvideFeedbackViaResultReceiver() throws Exception {
         ApiSyncService svc = new ApiSyncService();
-        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_SOUNDS.uri);
+        Intent intent = new Intent(Intent.ACTION_SYNC, Content.ME_ACTIVITIES.uri);
 
         final LinkedHashMap<Integer, Bundle> received = new LinkedHashMap<Integer, Bundle>();
         intent.putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, new ResultReceiver(new Handler(Looper.myLooper())) {
@@ -83,7 +83,7 @@ public class ApiSyncServiceTest {
             }
         });
 
-        TestHelper.addPendingHttpResponse(getClass(), "me_sounds_mini.json");
+        TestHelper.addPendingHttpResponse(getClass(), "e1_activities_1_oldest.json");
         svc.onStart(intent, 0);
 
         expect(received.size()).toBe(1);

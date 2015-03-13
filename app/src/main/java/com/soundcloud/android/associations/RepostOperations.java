@@ -21,7 +21,7 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-public class RepostOperations implements RepostCreator {
+public class RepostOperations {
 
     private final Action1<PropertySet> publishEntityStateChanged = new Action1<PropertySet>() {
         @Override
@@ -44,7 +44,6 @@ public class RepostOperations implements RepostCreator {
         this.eventBus = eventBus;
     }
 
-    @Override
     public Observable<PropertySet> toggleRepost(final Urn soundUrn, final boolean addRepost) {
         if (addRepost) {
             return repostStorage.addRepost().toObservable(soundUrn)

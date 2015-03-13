@@ -7,7 +7,6 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
@@ -184,16 +183,6 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncSounds() throws Exception {
-        ApiSyncResult result = syncMeSounds();
-        expect(result.success).toBeTrue();
-        expect(result.synced_at).toBeGreaterThan(startTime);
-
-        expect(Content.TRACKS).toHaveCount(48);
-        expect(Content.ME_SOUNDS).toHaveCount(50);
-    }
-
-    @Test
     public void shouldSyncMyShortcuts() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "all_shortcuts.json");
         sync(Content.ME_SHORTCUTS.uri);
@@ -221,11 +210,6 @@ public class ApiSyncerTest {
         TestHelper.addPendingHttpResponse(getClass(), "connections_delete.json");
         expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.CHANGED);
         expect(Content.ME_CONNECTIONS).toHaveCount(3);
-    }
-
-    private ApiSyncResult syncMeSounds() throws IOException {
-        TestHelper.addResourceResponse(getClass(), "/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1", "me_sounds_mini.json");
-        return sync(Content.ME_SOUNDS.uri);
     }
 
     @Test
@@ -328,12 +312,6 @@ public class ApiSyncerTest {
 
         expect(a1).toBeInstanceOf(PlaylistActivity.class);
         expect(a1.getPlayable().permalink).toEqual("private-share-test");
-    }
-
-    @Test(expected = PublicCloudAPI.UnexpectedResponseException.class)
-    public void shouldThrowUnexpectedResponseExceptionOn500() throws Exception {
-        Robolectric.setDefaultHttpResponse(500, "error");
-        sync(Content.ME_LIKES.uri);
     }
 
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {

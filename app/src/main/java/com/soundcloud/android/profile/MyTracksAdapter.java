@@ -29,9 +29,9 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.CellPresenter;
@@ -181,7 +181,7 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
 
     private PropertySet toPropertySet(SoundAssociation soundAssociation) {
         PropertySet propertySet = soundAssociation.getPlayable().toPropertySet();
-        if (soundAssociation.associationType == CollectionStorage.CollectionItemTypes.REPOST
+        if (soundAssociation.associationType == ScContentProvider.CollectionItemTypes.REPOST
                 && activity instanceof ProfileActivity) {
             PublicApiUser reposter = ((ProfileActivity) activity).getUser();
             propertySet.put(PlayableProperty.REPOSTER, reposter.getUsername());

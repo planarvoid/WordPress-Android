@@ -8,7 +8,6 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
@@ -22,7 +21,6 @@ class AccountCleanupAction implements Action0 {
 
     private static final String TAG = "AccountCleanup";
 
-    private final CollectionStorage collectionStorage;
     private final ActivitiesStorage activitiesStorage;
     private final UserAssociationStorage userAssociationStorage;
     private final PlaylistTagStorage tagStorage;
@@ -35,14 +33,13 @@ class AccountCleanupAction implements Action0 {
     private final RemoveAllLikesCommand removeAllLikesCommand;
 
     @Inject
-    AccountCleanupAction(SyncStateManager syncStateManager, CollectionStorage collectionStorage,
+    AccountCleanupAction(SyncStateManager syncStateManager,
                          ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
                          PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
                          ClearSoundStreamCommand clearSoundStreamCommand, OfflineSettingsStorage offlineSettingsStorage,
                          RemoveAllLikesCommand removeAllLikesCommand) {
         this.syncStateManager = syncStateManager;
-        this.collectionStorage = collectionStorage;
         this.activitiesStorage = activitiesStorage;
         this.tagStorage = tagStorage;
         this.userAssociationStorage = userAssociationStorage;
@@ -61,7 +58,6 @@ class AccountCleanupAction implements Action0 {
         clearCollections();
         unauthorisedRequestRegistry.clearObservedUnauthorisedRequestTimestamp();
         syncStateManager.clear();
-        collectionStorage.clear();
         activitiesStorage.clear(null);
         userAssociationStorage.clear();
         tagStorage.clear();

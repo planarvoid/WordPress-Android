@@ -27,8 +27,8 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItemPresenter;
@@ -252,13 +252,13 @@ public class PostsAdapterTest {
 
     private SoundAssociation getRepostedTrackSoundAssociation(PublicApiTrack track) throws CreateModelException {
         final SoundAssociation respostedSound = new SoundAssociation(track);
-        respostedSound.associationType = CollectionStorage.CollectionItemTypes.REPOST;
+        respostedSound.associationType = ScContentProvider.CollectionItemTypes.REPOST;
         return respostedSound;
     }
 
     private SoundAssociation getRepostedPlaylistSoundAssociation(PublicApiPlaylist playlist) throws CreateModelException {
         final SoundAssociation respostedSound = new SoundAssociation(playlist);
-        respostedSound.associationType = CollectionStorage.CollectionItemTypes.REPOST;
+        respostedSound.associationType = ScContentProvider.CollectionItemTypes.REPOST;
         return respostedSound;
     }
 

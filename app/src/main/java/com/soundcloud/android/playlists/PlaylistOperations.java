@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.List;
 
-public class PlaylistOperations implements PlaylistCreator<Urn> {
+public class PlaylistOperations {
 
     private final Scheduler storageScheduler;
     private final LoadPlaylistCommand loadPlaylistCommand;
@@ -46,7 +46,6 @@ public class PlaylistOperations implements PlaylistCreator<Urn> {
         this.createNewPlaylist = createNewPlaylistCommand;
     }
 
-    @Override
     public Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return createNewPlaylist.with(new CreateNewPlaylistCommand.Params(title, isPrivate, firstTrackUrn))
                 .toObservable()

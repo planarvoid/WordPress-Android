@@ -12,7 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.PlayableProperty;
@@ -47,7 +47,7 @@ public class TrackPageMenuControllerTest {
     private PlayerTrack privateTrack;
 
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private LegacyRepostOperations soundAssociationOps;
+    @Mock private RepostOperations repostOperations;
     @Mock private PopupMenuWrapper popupMenuWrapper;
     @Mock private PopupMenuWrapper.Factory popupMenuWrapperFactory;
 
@@ -60,11 +60,11 @@ public class TrackPageMenuControllerTest {
         privateTrack = new PlayerTrack(TestPropertySets.expectedPrivateTrackForPlayer());
 
         when(popupMenuWrapperFactory.build(any(Context.class), any(View.class))).thenReturn(popupMenuWrapper);
-        controller = new TrackPageMenuController.Factory(playQueueManager, soundAssociationOps, popupMenuWrapperFactory, eventBus)
+        controller = new TrackPageMenuController.Factory(playQueueManager, repostOperations, popupMenuWrapperFactory, eventBus)
                 .create(new TextView(new FragmentActivity()));
         controller.setTrack(track);
         repostObservable = TestObservables.emptyObservable();
-        when(soundAssociationOps.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);
+        when(repostOperations.toggleRepost(eq(track.getUrn()), anyBoolean())).thenReturn(repostObservable);
         when(playQueueManager.getScreenTag()).thenReturn("screen");
     }
 
@@ -126,7 +126,7 @@ public class TrackPageMenuControllerTest {
 
         controller.onMenuItemClick(repost);
 
-        verify(soundAssociationOps).toggleRepost(track.getUrn(), true);
+        verify(repostOperations).toggleRepost(track.getUrn(), true);
         expect(repostObservable.subscribedTo()).toBeTrue();
     }
 
@@ -136,7 +136,7 @@ public class TrackPageMenuControllerTest {
 
         controller.onMenuItemClick(unpost);
 
-        verify(soundAssociationOps).toggleRepost(track.getUrn(), false);
+        verify(repostOperations).toggleRepost(track.getUrn(), false);
         expect(repostObservable.subscribedTo()).toBeTrue();
     }
 

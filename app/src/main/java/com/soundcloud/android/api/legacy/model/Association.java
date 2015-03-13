@@ -6,10 +6,10 @@ import com.soundcloud.android.api.legacy.model.behavior.Creation;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
 import com.soundcloud.android.api.legacy.model.behavior.RelatesToUser;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -143,14 +143,14 @@ public abstract class Association extends PublicApiResource implements PlayableH
     protected abstract long getItemId();
 
     public enum Type {
-        TRACK(CollectionStorage.CollectionItemTypes.TRACK),
-        TRACK_REPOST(CollectionStorage.CollectionItemTypes.REPOST),
-        TRACK_LIKE(CollectionStorage.CollectionItemTypes.LIKE),
-        PLAYLIST(CollectionStorage.CollectionItemTypes.PLAYLIST),
-        PLAYLIST_REPOST(CollectionStorage.CollectionItemTypes.REPOST),
-        PLAYLIST_LIKE(CollectionStorage.CollectionItemTypes.LIKE),
-        FOLLOWING(CollectionStorage.CollectionItemTypes.FOLLOWING),
-        FOLLOWER(CollectionStorage.CollectionItemTypes.FOLLOWER);
+        TRACK(ScContentProvider.CollectionItemTypes.TRACK),
+        TRACK_REPOST(ScContentProvider.CollectionItemTypes.REPOST),
+        TRACK_LIKE(ScContentProvider.CollectionItemTypes.LIKE),
+        PLAYLIST(ScContentProvider.CollectionItemTypes.PLAYLIST),
+        PLAYLIST_REPOST(ScContentProvider.CollectionItemTypes.REPOST),
+        PLAYLIST_LIKE(ScContentProvider.CollectionItemTypes.LIKE),
+        FOLLOWING(ScContentProvider.CollectionItemTypes.FOLLOWING),
+        FOLLOWER(ScContentProvider.CollectionItemTypes.FOLLOWER);
         public final int collectionType;
 
         Type(int collectionType) {

@@ -2,8 +2,6 @@ package com.soundcloud.android.sync;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -34,7 +32,6 @@ public class SyncInitiator {
 
     private final Context context;
     private final AccountOperations accountOperations;
-    private final FeatureFlags featureFlags;
 
     private final Func1<SyncResult, Boolean> convertToLegacyResult = new Func1<SyncResult, Boolean>() {
         @Override
@@ -44,8 +41,7 @@ public class SyncInitiator {
     };
 
     @Inject
-    public SyncInitiator(Context context, AccountOperations accountOperations, FeatureFlags featureFlags) {
-        this.featureFlags = featureFlags;
+    public SyncInitiator(Context context, AccountOperations accountOperations) {
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;
     }
@@ -201,25 +197,7 @@ public class SyncInitiator {
     }
 
     public Observable<Boolean> syncPlaylist(final Urn playlistUrn) {
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_SYNCER)){
-            return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn).map(convertToLegacyResult);
-        } else {
-            return Observable.create(new Observable.OnSubscribe<Boolean>() {
-                @Override
-                public void call(Subscriber<? super Boolean> subscriber) {
-                    final Uri contentUri = Content.PLAYLIST.forId(playlistUrn.getNumericId());
-                    requestPlaylistSync(new LegacyResultReceiverAdapter(subscriber, contentUri));
-                }
-            });
-        }
-
-    }
-
-    private void requestPlaylistSync(LegacyResultReceiverAdapter resultReceiver) {
-        context.startService(new Intent(context, ApiSyncService.class)
-                .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
-                .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                .setData(resultReceiver.contentUri));
+        return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn).map(convertToLegacyResult);
     }
 
     public Observable<Boolean> syncTrack(final Urn trackUrn) {

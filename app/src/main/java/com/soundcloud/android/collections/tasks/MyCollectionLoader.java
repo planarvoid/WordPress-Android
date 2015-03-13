@@ -2,30 +2,41 @@ package com.soundcloud.android.collections.tasks;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.Friend;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
+import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.storage.CollectionStorage;
+import com.soundcloud.android.storage.BaseDAO;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.UserAssociationStorage;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.NotNull;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Loads collection from local storage. Model objects which are not in the database yet will
@@ -52,7 +63,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
 
                 // if we already have all the data, this is a NOP
                 try {
-                    new CollectionStorage(resolver).fetchAndStoreMissingCollectionItems(api, storedIds, params.getContent(), false);
+                    fetchAndStoreMissingCollectionItems(resolver, api, storedIds, params.getContent(), false);
                 } catch (CloudAPI.InvalidTokenException e) {
                     // TODO, move this once we centralize our error handling
                     // InvalidTokenException should expose the response code so we don't have to hardcode it here
@@ -105,5 +116,85 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
         }
         //noinspection unchecked
         return (List<T>) items;
+    }
+
+
+
+    /**
+     *
+     * @param resolver
+     * @param api          the api
+     * @param modelIds     a list of model ids
+     * @param content      the content to fetch for
+     * @param ignoreStored if it should ignore stored ids
+     * @return how many entries where stored in the db
+     * @throws java.io.IOException
+     */
+    // TODO really pass in api as parameter?
+    @Deprecated
+    public int fetchAndStoreMissingCollectionItems(ContentResolver resolver, PublicCloudAPI api,
+                                                   @NotNull List<Long> modelIds,
+                                                   final Content content,
+                                                   boolean ignoreStored) throws IOException {
+        if (modelIds.isEmpty()) {
+            return 0;
+        }
+
+        return getDaoForContent(resolver, content).createCollection(
+                fetchMissingCollectionItems(resolver, api, modelIds, content, ignoreStored)
+        );
+    }
+
+    // TODO really pass in api as parameter?
+    @Deprecated
+    private List<PublicApiResource> fetchMissingCollectionItems(ContentResolver resolver, PublicCloudAPI api,
+                                                                @NotNull List<Long> modelIds,
+                                                                final Content content,
+                                                                boolean ignoreStored) throws IOException {
+
+        if (modelIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // copy so we don't modify the original
+        List<Long> ids = new ArrayList<Long>(modelIds);
+        if (!ignoreStored) {
+            ids.removeAll(getStoredIds(resolver, content, modelIds));
+        }
+        // TODO this has to be abstracted more. Hesitant to do so until the api is more final
+        Request request = PublicApiTrack.class.equals(content.modelType) ||
+                SoundAssociation.class.equals(content.modelType) ? Content.TRACKS.request() : Content.USERS.request();
+
+        return api.readListFromIds(request, ids);
+    }
+
+    private BaseDAO<PublicApiResource> getDaoForContent(ContentResolver resolver, final Content content) {
+        return new BaseDAO<PublicApiResource>(resolver) {
+            @Override
+            public Content getContent() {
+                return content;
+            }
+        };
+    }
+
+    /**
+     * @return a list of all ids for which objects are stored in the db.
+     * DO NOT REMOVE BATCHING, SQlite has a variable limit that may vary per device
+     * http://www.sqlite.org/limits.html
+     */
+    @Deprecated
+    public Set<Long> getStoredIds(ContentResolver resolver, final Content content, List<Long> ids) {
+        BaseDAO<PublicApiResource> dao = getDaoForContent(resolver, content);
+        Set<Long> storedIds = new HashSet<Long>();
+        for (int i = 0; i < ids.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
+            List<Long> batch = ids.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, ids.size()));
+            List<Long> newIds = dao.buildQuery()
+                    .select(BaseColumns._ID)
+                    .whereIn(BaseColumns._ID, Lists.transform(batch, Functions.toStringFunction()))
+                    .where("AND " + TableColumns.ResourceTable.LAST_UPDATED + " > ?", "0")
+                    .queryIds();
+            storedIds.addAll(newIds);
+        }
+        return storedIds;
     }
 }

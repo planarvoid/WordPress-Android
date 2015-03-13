@@ -6,7 +6,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.associations.RepostCreator;
+import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -37,7 +37,7 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
     private PlaylistInfo playlistInfo;
     private OriginProvider originProvider;
 
-    private final RepostCreator repostOperations;
+    private final RepostOperations repostOperations;
     private final AccountOperations accountOperations;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
@@ -49,7 +49,7 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
 
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
-                                        RepostCreator repostOperations,
+                                        RepostOperations repostOperations,
                                         AccountOperations accountOperations,
                                         LikeOperations likeOperations,
                                         PlaylistEngagementsView playlistEngagementsView,

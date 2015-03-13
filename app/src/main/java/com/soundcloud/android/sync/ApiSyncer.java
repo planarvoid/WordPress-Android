@@ -1,9 +1,6 @@
 package com.soundcloud.android.sync;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiClient;
@@ -14,7 +11,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.activities.Activity;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -24,7 +20,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.ConnectionDAO;
-import com.soundcloud.android.storage.SoundAssociationStorage;
 import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.UserStorage;
@@ -43,14 +38,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 
@@ -67,7 +60,6 @@ public class ApiSyncer extends LegacySyncStrategy {
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
 
     @Inject ActivitiesStorage activitiesStorage;
-    @Inject SoundAssociationStorage soundAssociationStorage;
     @Inject UserStorage userStorage;
     @Inject EventBus eventBus;
     @Inject ApiClient apiClient;
@@ -81,7 +73,6 @@ public class ApiSyncer extends LegacySyncStrategy {
     ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, ApiClient apiClient) {
         super(context, resolver);
         activitiesStorage = new ActivitiesStorage();
-        soundAssociationStorage = new SoundAssociationStorage();
         userStorage = new UserStorage();
         this.eventBus = eventBus;
         this.apiClient = apiClient;
@@ -116,11 +107,6 @@ public class ApiSyncer extends LegacySyncStrategy {
                     result = safeSyncActivities(uri, action);
                     break;
 
-                case ME_LIKES:
-                case ME_SOUNDS:
-                    result = safeSyncSoundAssociations(c, uri, userId);
-                    break;
-
                 case PLAYLIST_LOOKUP:
                 case TRACK_LOOKUP:
                 case USER_LOOKUP:
@@ -151,7 +137,7 @@ public class ApiSyncer extends LegacySyncStrategy {
      * Safely sync activities, catching NPE caused by bad PublicApi responses, specifically :
      * https://www.crashlytics.com/soundcloudandroid/android/apps/com.soundcloud.android/issues/540f085ae3de5099bace67b3
      *
-     * Rethrows as IOException which will be caught in {@link LegacySyncJob#execute()}
+     * Rethrows as IOException which will be caught in {@link com.soundcloud.android.sync.LegacySyncJob#run()}
      */
     @SuppressWarnings({"PMD.AvoidCatchingGenericException"})
     private ApiSyncResult safeSyncActivities(Uri uri, String action) throws IOException {
@@ -164,45 +150,6 @@ public class ApiSyncer extends LegacySyncStrategy {
             throw new IOException("Problem syncing activities : " + ex);
         }
         return result;
-    }
-
-    private ApiSyncResult safeSyncSoundAssociations(Content content, Uri uri, long userId) throws IOException {
-        log("syncSoundAssociations(" + uri + ")");
-
-        final Request request = Request.to(content.remoteUri, userId)
-                .with("limit", 200)
-                .with("representation", "mini");
-
-        List<SoundAssociation> associations = api.readFullCollection(request, PublicApiResource.ResourceHolder.class);
-        associations = removeInvalidAssociations(userId, associations, request.toUrl());
-
-        boolean changed = soundAssociationStorage.syncToLocal(associations, uri);
-        ApiSyncResult result = new ApiSyncResult(uri);
-        result.change = changed ? ApiSyncResult.CHANGED : ApiSyncResult.UNCHANGED;
-        result.setSyncData(System.currentTimeMillis(), associations.size());
-        result.success = true;
-        return result;
-    }
-
-    private List<SoundAssociation> removeInvalidAssociations(long userId, List<SoundAssociation> associations, String originalRequest) throws IOException {
-        Iterable invalidAssociations = Iterables.filter(associations, new Predicate<SoundAssociation>() {
-            @Override
-            public boolean apply(SoundAssociation input) {
-                return input.getPlayable() == null;
-            }
-        });
-
-        if (!Iterables.isEmpty(invalidAssociations)) {
-            Map<String,String> logMap = new ArrayMap<>(5);
-            logMap.put("Total SoundAssociation Size ", String.valueOf(associations.size()));
-            logMap.put("Invalid SoundAssociation Size ", String.valueOf(Iterables.size(invalidAssociations)));
-            logMap.put("First Invalid SoundAssociation ", String.valueOf(invalidAssociations.iterator().next()));
-            logMap.put("User Id " , String.valueOf(userId));
-            logMap.put("Original request" , String.valueOf(originalRequest));
-            ErrorUtils.handleSilentException(new IllegalStateException("Problem syncing Sound Associations"), logMap);
-        }
-        Iterables.removeAll(associations, Lists.newArrayList(invalidAssociations));
-        return associations;
     }
 
     private ApiSyncResult syncActivities(Uri uri, String action) throws IOException {

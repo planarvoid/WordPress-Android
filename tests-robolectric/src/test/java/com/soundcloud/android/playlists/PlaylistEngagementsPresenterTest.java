@@ -18,7 +18,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.associations.LegacyRepostOperations;
+import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -60,7 +60,7 @@ public class PlaylistEngagementsPresenterTest {
     PublishSubject<Boolean> publishSubject;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private LegacyRepostOperations soundAssocOps;
+    @Mock private RepostOperations repostOperations;
     @Mock private Context context;
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureFlags featureFlags;
@@ -77,7 +77,7 @@ public class PlaylistEngagementsPresenterTest {
     @Before
     public void setup() {
         controller = new PlaylistEngagementsPresenter(eventBus,
-                soundAssocOps, accountOperations,
+                repostOperations, accountOperations,
                 likeOperations, engagementsView,
                 featureOperations, offlineContentOperations);
         when(rootView.getContext()).thenReturn(Robolectric.application);
@@ -122,7 +122,7 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldPublishUIEventWhenRepostingPlayable() {
         controller.setPlaylistInfo(playlistInfo);
-        when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        when(repostOperations.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
         onEngagementListener.onToggleRepost(true, false);
 
@@ -134,7 +134,7 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldPublishUIEventWhenUnrepostingPlayable() {
         controller.setPlaylistInfo(playlistInfo);
-        when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        when(repostOperations.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
         onEngagementListener.onToggleRepost(false, false);
 
@@ -195,11 +195,11 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldRepostTrackWhenCheckingRepostButton() {
         controller.setPlaylistInfo(playlistInfo);
-        when(soundAssocOps.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
+        when(repostOperations.toggleRepost(any(Urn.class), anyBoolean())).thenReturn(Observable.just(PropertySet.create()));
 
         onEngagementListener.onToggleRepost(true, false);
 
-        verify(soundAssocOps).toggleRepost(eq(playlistInfo.getUrn()), eq(true));
+        verify(repostOperations).toggleRepost(eq(playlistInfo.getUrn()), eq(true));
     }
 
     @Test

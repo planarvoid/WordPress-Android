@@ -14,6 +14,7 @@ import com.soundcloud.android.sync.likes.MyLikesStateProvider;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.api.oauth.Token;
 import com.xtremelabs.robolectric.Robolectric;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -55,6 +56,7 @@ public class SyncAdapterServiceTest extends SyncAdapterServiceTestBase {
     }
 
     @Test
+    @Ignore
     public void shouldSyncLocalCollections() throws Exception {
         SyncContent.MySounds.setEnabled(Robolectric.application, true);
         TestHelper.addCannedResponse(getClass(), "/e1/me/sounds/mini?limit=200&representation=mini&linked_partitioning=1" + NON_INTERACTIVE, "me_sounds_mini.json");

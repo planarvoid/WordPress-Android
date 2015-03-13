@@ -69,7 +69,7 @@ public class LoadPlaylistCommandTest extends StorageIntegrationTest {
     @Test
     public void loadsRepostedPlaylistFromDatabase() throws Exception {
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
-        testFixtures().insertPlaylistRepostCollectionItem(apiPlaylist.getId());
+        testFixtures().insertPlaylistRepost(apiPlaylist.getId(), 123L);
 
         PropertySet playlist = command.with(apiPlaylist.getUrn()).call();
 

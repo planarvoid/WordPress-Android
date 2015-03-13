@@ -2,7 +2,6 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.activities.ActivitiesActivity;
-import com.soundcloud.android.associations.RepostsModule;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.external.PlaybackActionReceiver;
 import com.soundcloud.android.playback.ui.BlurringPlayerArtworkLoader;
@@ -26,7 +25,7 @@ import javax.inject.Named;
                 PlaybackActionReceiver.class,
                 WaveformView.class,
 
-        }, includes = RepostsModule.class)
+        })
 public class PlayerModule {
 
     @Provides

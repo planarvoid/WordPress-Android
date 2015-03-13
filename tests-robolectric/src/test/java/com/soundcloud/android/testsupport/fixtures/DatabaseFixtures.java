@@ -9,10 +9,10 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.storage.CollectionStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import org.hamcrest.Matchers;
@@ -243,14 +243,6 @@ public class DatabaseFixtures {
         return like;
     }
 
-    public long insertPlaylistRepostCollectionItem(long playlistId) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
-        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.REPOST);
-        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        return insertInto(Table.CollectionItems, cv);
-    }
-
     public ApiPost insertTrackPost(ApiPost apiTrackPost) {
         insertTrackPost(apiTrackPost.getTargetUrn().getNumericId(),
                 apiTrackPost.getCreatedAt().getTime(),
@@ -289,7 +281,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
         cv.put(TableColumns.CollectionItems.USER_ID, userId);
-        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, CollectionStorage.CollectionItemTypes.PLAYLIST);
+        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, ScContentProvider.CollectionItemTypes.PLAYLIST);
         cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
         return insertInto(Table.CollectionItems, cv);
     }

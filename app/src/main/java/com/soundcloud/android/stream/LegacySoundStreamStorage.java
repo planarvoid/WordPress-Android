@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import static com.soundcloud.android.storage.CollectionStorage.CollectionItemTypes.REPOST;
 import static com.soundcloud.android.storage.TableColumns.ActivityView;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
@@ -13,6 +12,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -98,7 +98,7 @@ class LegacySoundStreamStorage implements ISoundStreamStorage {
         return Query.from(Table.CollectionItems.name(), Table.Sounds.name())
                 .joinOn(ActivityView.SOUND_ID, CollectionItems.ITEM_ID)
                 .joinOn(ActivityView.SOUND_TYPE, CollectionItems.RESOURCE_TYPE)
-                .whereEq(CollectionItems.COLLECTION_TYPE, REPOST)
+                .whereEq(CollectionItems.COLLECTION_TYPE, ScContentProvider.CollectionItemTypes.REPOST)
                 .whereEq(Table.CollectionItems.name() + "." + CollectionItems.USER_ID, userId);
     }
 

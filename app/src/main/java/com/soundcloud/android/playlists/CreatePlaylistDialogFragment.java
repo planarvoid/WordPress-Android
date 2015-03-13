@@ -29,7 +29,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     private static final String KEY_CONTEXT_SCREEN = "ORIGIN_SCREEN";
     private static final String KEY_TRACK_ID = "TRACK_ID";
 
-    @Inject PlaylistCreator playlistOperations;
+    @Inject PlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
     @Inject ApplicationProperties properties;
 

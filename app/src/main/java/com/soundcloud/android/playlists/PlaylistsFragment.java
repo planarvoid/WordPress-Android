@@ -56,7 +56,7 @@ public class PlaylistsFragment extends LightCycleSupportFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        PlaylistsPagerAdapter adapter = new PlaylistsPagerAdapter(this.getChildFragmentManager(), getResources(), featureFlags);
+        PlaylistsPagerAdapter adapter = new PlaylistsPagerAdapter(this.getChildFragmentManager(), getResources());
         ViewPager pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(adapter);
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
