@@ -16,6 +16,7 @@ import com.soundcloud.android.framework.with.With;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.util.Log;
 import android.view.Display;
@@ -37,6 +38,7 @@ public class Han  {
     private static ViewFetcher viewFetcher;
 
     private final Solo solo;
+    private final Instrumentation instrumentation;
 
     @Deprecated
     public Solo getSolo() {
@@ -44,6 +46,7 @@ public class Han  {
     }
 
     public Han(Instrumentation instrumentation) {
+        this.instrumentation = instrumentation;
         solo = new Solo(instrumentation);
         viewFetcher = new ViewFetcher(solo);
     }
@@ -304,5 +307,9 @@ public class Han  {
 
     private void log(Object msg, Object... args) {
         Log.d(getClass().getSimpleName(), msg == null ? null : String.format(msg.toString(), args));
+    }
+
+    public void setup() {
+        With.setResources(instrumentation.getTargetContext().getResources());
     }
 }

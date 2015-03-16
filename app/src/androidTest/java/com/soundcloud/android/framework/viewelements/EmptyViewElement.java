@@ -13,34 +13,41 @@ import android.webkit.WebView;
 import java.util.List;
 
 public final class EmptyViewElement extends ViewElement {
+
+    private String selector;
+
+    public EmptyViewElement(String selector) {
+        this.selector = selector;
+    }
+
     @Override
     public ViewElement findElement(With with) {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public List<ViewElement> findElements(With with) {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public void dragHorizontally(int n, int steps) {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public ViewElement getChildAt(int index) {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public void click() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public void longClick() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
@@ -50,27 +57,27 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public int getHeight() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public int getWidth() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public int getTop()  {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public ListElement toListView() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public SlidingTabs toSlidingTabs() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
@@ -85,32 +92,32 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public int getId() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public ViewParent getParent() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public Class getViewClass() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public ViewPager toViewPager() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
     public WebView toWebView() {
-        throw new ViewNotFoundException();
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
-    /* package */ View getView() { throw new ViewNotFoundException(); }
+    /* package */ View getView() { throw new ViewNotFoundException(selector); }
 
     @Override
-    /* package */ Solo getTestDriver() { throw new ViewNotFoundException(); }
+    /* package */ Solo getTestDriver() { throw new ViewNotFoundException(selector); }
 }

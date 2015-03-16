@@ -35,12 +35,7 @@ public class ViewFetcher {
         testDriver = driver;
     }
     public ViewElement findElement(final With with) {
-        return elementWaiter.waitForElement(new Callable<List<ViewElement>>() {
-            @Override
-            public List<ViewElement> call() throws Exception {
-                return Lists.newArrayList(filter(getAllVisibleElements(), with));
-            }
-        });
+        return elementWaiter.waitForElement(with);
     }
 
     public List<ViewElement> findElements(With with) {
@@ -62,7 +57,7 @@ public class ViewFetcher {
             Log.i(TAG, String.format("Number of views with ID found: %d", viewElements.size()));
             return viewElements.get(0);
         }
-        return new EmptyViewElement();
+        return new EmptyViewElement(matcher.getSelector());
     }
 
     private List<ViewElement> getDirectChildViews() {
@@ -101,11 +96,16 @@ public class ViewFetcher {
         private static final int ELEMENT_TIMEOUT = 4 * 1000;
         private static final int POLL_INTERVAL = 500;
 
-        public ViewElement waitForElement(Callable<List<ViewElement>> callable) {
-            return waitForOne(callable);
+        public ViewElement waitForElement(final With with) {
+            return waitForOne(with.getSelector(), new Callable<List<ViewElement>>() {
+                @Override
+                public List<ViewElement> call() throws Exception {
+                    return Lists.newArrayList(filter(getAllVisibleElements(), with));
+                }
+            });
         }
 
-        private ViewElement waitForOne(Callable<List<ViewElement>> callable) {
+        private ViewElement waitForOne(String selector, Callable<List<ViewElement>> callable) {
             long endTime = SystemClock.uptimeMillis() + ELEMENT_TIMEOUT;
 
             while (SystemClock.uptimeMillis() <= endTime) {
@@ -120,7 +120,7 @@ public class ViewFetcher {
                     throw new ViewNotFoundException(e);
                 }
             }
-            return new EmptyViewElement();
+            return new EmptyViewElement(selector);
         }
     }
 }

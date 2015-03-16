@@ -6,6 +6,7 @@ import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.helpers.networkmanager.NetworkManager;
 import com.soundcloud.android.framework.observers.ToastObserver;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MenuScreen;
@@ -42,6 +43,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     @Override
     protected void setUp() throws Exception {
         solo = new Han(getInstrumentation());
+        solo.setup();
         waiter = new Waiter(solo);
         observeToasts();
         networkManager = new NetworkManager(getInstrumentation().getContext());

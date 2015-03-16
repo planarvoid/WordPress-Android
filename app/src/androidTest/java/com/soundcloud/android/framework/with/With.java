@@ -4,9 +4,18 @@ import com.google.common.base.Predicate;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 
+import android.content.res.Resources;
 import android.view.View;
 
 public abstract class With implements Predicate<ViewElement> {
+    public static void setResources(Resources resources) {
+        With.resources = resources;
+    }
+
+    public static Resources resources;
+
+    public abstract String getSelector();
+
     public static With id(int viewId) {
         return new WithId(viewId);
     }
@@ -42,6 +51,10 @@ public abstract class With implements Predicate<ViewElement> {
         public boolean apply(ViewElement viewElement) {
             return viewElement.getId() == viewId;
         }
+
+        public String getSelector() {
+            return String.format("With id: %s", resources.getResourceName(viewId));
+        }
     }
 
     static class WithText extends With {
@@ -58,6 +71,11 @@ public abstract class With implements Predicate<ViewElement> {
             } catch (UnsupportedOperationException ignored) {
                 return false;
             }
+        }
+
+        @Override
+        public String getSelector() {
+            return String.format("With text: %s", searchedText );
         }
     }
 
@@ -76,6 +94,11 @@ public abstract class With implements Predicate<ViewElement> {
                 return false;
             }
         }
+
+        @Override
+        public String getSelector() {
+            return String.format("Containing text: %s", searchedText);
+        }
     }
 
     private static class WithClass extends With {
@@ -88,6 +111,11 @@ public abstract class With implements Predicate<ViewElement> {
         @Override
         public boolean apply(ViewElement viewElement) {
             return classToSearch.isAssignableFrom(viewElement.getViewClass());
+        }
+
+        @Override
+        public String getSelector() {
+            return String.format("With class: %s", classToSearch.toString());
         }
     }
 
@@ -102,6 +130,11 @@ public abstract class With implements Predicate<ViewElement> {
         public boolean apply(ViewElement viewElement) {
             return viewElement.getViewClass().getName().toString().equals(className);
         }
+
+        @Override
+        public String getSelector() {
+            return String.format("With class: %s", className);
+        }
     }
 
     private static class WithClassSimpleName extends With {
@@ -114,6 +147,11 @@ public abstract class With implements Predicate<ViewElement> {
         @Override
         public boolean apply(ViewElement viewElement) {
             return viewElement.getViewClass().getSimpleName().toString().equals(classSimpleName);
+        }
+
+        @Override
+        public String getSelector() {
+            return String.format("With ClassSimpleName: %s", classSimpleName);
         }
     }
 }
