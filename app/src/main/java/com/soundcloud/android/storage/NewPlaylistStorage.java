@@ -26,7 +26,7 @@ public class NewPlaylistStorage {
                 .select(TableColumns.SoundView._ID)
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereLt(TableColumns.Sounds._ID, 0));
-        return !queryResult.isEmpty();
+        return !queryResult.toList(new LocalPlaylistUrnMapper()).isEmpty();
     }
 
     public Set<Urn> getPlaylistsDueForSync() {
@@ -46,4 +46,11 @@ public class NewPlaylistStorage {
                 + TableColumns.PlaylistTracks.REMOVED_AT + " IS NOT NULL");
     }
 
+
+    private class LocalPlaylistUrnMapper implements com.soundcloud.propeller.ResultMapper<Urn> {
+        @Override
+        public Urn map(CursorReader reader) {
+            return Urn.forPlaylist(reader.getLong(TableColumns.SoundView._ID));
+        }
+    }
 }
