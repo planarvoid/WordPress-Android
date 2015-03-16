@@ -58,6 +58,15 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     }
 
     @Test
+    public void ignoresLikeWithRemovedAt() throws Exception {
+        testFixtures().insertLikedTrackPendingRemoval(new Date(100));
+
+        Collection<Urn> trackLikes = command.with(true).call();
+
+        expect(trackLikes).toBeEmpty();
+    }
+
+    @Test
     public void doesNotLoadOfflineLikesWhenFeatureDisabled() throws Exception {
         insertTrackAndUpdatePolicies();
 
@@ -95,7 +104,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
 
         Collection<Urn> tracksToStore = command.with(true).call();
 
-        expect(tracksToStore).toContainExactly(like.getUrn(), track0.getUrn(), track1.getUrn());
+        expect(tracksToStore).toContainExactlyInAnyOrder(like.getUrn(), track0.getUrn(), track1.getUrn());
     }
 
     private ApiTrack insertTrackAndUpdatePolicies() {

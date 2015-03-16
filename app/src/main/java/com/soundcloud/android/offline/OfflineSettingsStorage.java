@@ -39,7 +39,7 @@ public class OfflineSettingsStorage {
         return sharedPreferences.getBoolean(OFFLINE_LIKES_ENABLED, false);
     }
 
-    public void setOfflineLikesEnabled(final boolean enabled) {
+    public void setOfflineLikedTracksEnabled(final boolean enabled) {
         sharedPreferences.edit().putBoolean(OFFLINE_LIKES_ENABLED, enabled).apply();
     }
 
@@ -51,7 +51,7 @@ public class OfflineSettingsStorage {
         sharedPreferences.edit().putBoolean(OFFLINE_WIFI_ONLY, wifiOnly).apply();
     }
 
-    public Observable<Boolean> getOfflineLikesChanged() {
+    public Observable<Boolean> getOfflineLikedTracksChanged() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                 .filter(FILTER_OFFLINE_LIKES_KEY)
                 .map(toValue);

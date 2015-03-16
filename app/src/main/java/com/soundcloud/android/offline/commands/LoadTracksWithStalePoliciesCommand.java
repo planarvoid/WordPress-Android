@@ -50,7 +50,8 @@ public class LoadTracksWithStalePoliciesCommand extends Command<Boolean, Collect
         return Query.from(Likes.name())
                 .select(field(likeId).as(BaseColumns._ID))
                 .leftJoin(TrackPolicies.name(), likeId, TableColumns.TrackPolicies.TRACK_ID)
-                .whereEq(Likes.name() + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
+                .whereEq(Likes.name() + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereNull(Likes.name() + "." + TableColumns.Likes.REMOVED_AT);
     }
 
     static Query buildOfflinePlaylistTracksQuery() {

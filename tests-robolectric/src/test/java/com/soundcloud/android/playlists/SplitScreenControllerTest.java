@@ -6,12 +6,12 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class SplitScreenControllerTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private TrackItemPresenter trackPresenter;
+    @Mock private DownloadableTrackItemPresenter trackPresenter;
     @Mock private ItemAdapter<PropertySet> adapter;
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;

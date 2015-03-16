@@ -2,8 +2,8 @@ package com.soundcloud.android.playlists;
 
 
 import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;
@@ -11,10 +11,10 @@ import javax.inject.Inject;
 class InlinePlaylistTracksAdapter extends ItemAdapter<PropertySet> implements EmptyViewAware {
 
     private final EmptyViewAware emptyViewPresenter;
-    private final TrackItemPresenter trackPresenter;
+    private final DownloadableTrackItemPresenter trackPresenter;
 
     @Inject
-    InlinePlaylistTracksAdapter(TrackItemPresenter trackPresenter, EmptyPlaylistTracksPresenter emptyViewPresenter) {
+    InlinePlaylistTracksAdapter(DownloadableTrackItemPresenter trackPresenter, EmptyPlaylistTracksPresenter emptyViewPresenter) {
         super(new CellPresenterEntity<>(DEFAULT_VIEW_TYPE, trackPresenter),
                 new CellPresenterEntity<>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
         this.emptyViewPresenter = emptyViewPresenter;
@@ -50,7 +50,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<PropertySet> implements Em
         emptyViewPresenter.setEmptyViewStatus(status);
     }
 
-    TrackItemPresenter getTrackPresenter() {
+    DownloadableTrackItemPresenter getTrackPresenter() {
         return trackPresenter;
     }
 }

@@ -23,14 +23,14 @@ public class OfflineSettingsStorageTest {
 
     @Test
     public void savesOfflineLikesStatus() {
-        storage.setOfflineLikesEnabled(true);
+        storage.setOfflineLikedTracksEnabled(true);
         expect(storage.isOfflineLikedTracksEnabled()).toBeTrue();
     }
 
     @Test
     public void receivesUpdatesToLikeStatusChanges() {
-        storage.getOfflineLikesChanged().subscribe(testObserver);
-        storage.setOfflineLikesEnabled(true);
+        storage.getOfflineLikedTracksChanged().subscribe(testObserver);
+        storage.setOfflineLikedTracksEnabled(true);
         expect(testObserver.getOnNextEvents().get(0)).toBeTrue();
     }
 
@@ -42,7 +42,7 @@ public class OfflineSettingsStorageTest {
 
     @Test
     public void clearsSettingsStorage() {
-        storage.setOfflineLikesEnabled(true);
+        storage.setOfflineLikedTracksEnabled(true);
         storage.clear();
 
         expect(storage.isOfflineLikedTracksEnabled()).toBeFalse();

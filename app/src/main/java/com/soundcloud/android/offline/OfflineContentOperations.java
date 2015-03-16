@@ -134,7 +134,7 @@ public class OfflineContentOperations {
     }
 
     public void setOfflineLikesEnabled(boolean isEnabled) {
-        settingsStorage.setOfflineLikesEnabled(isEnabled);
+        settingsStorage.setOfflineLikedTracksEnabled(isEnabled);
     }
 
     public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn) {
@@ -154,7 +154,7 @@ public class OfflineContentOperations {
     }
 
     public Observable<Boolean> getOfflineLikesSettingsStatus() {
-        return settingsStorage.getOfflineLikesChanged();
+        return settingsStorage.getOfflineLikedTracksChanged();
     }
 
     public Observable<OfflineContentEvent> onStarted() {

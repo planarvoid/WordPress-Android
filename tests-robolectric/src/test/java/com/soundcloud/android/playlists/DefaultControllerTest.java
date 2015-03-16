@@ -5,10 +5,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class DefaultControllerTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private TrackItemPresenter trackPresenter;
+    @Mock private DownloadableTrackItemPresenter trackPresenter;
     @Mock private InlinePlaylistTracksAdapter adapter;
     @Mock private ListView listView;
     @Mock private Resources resources;

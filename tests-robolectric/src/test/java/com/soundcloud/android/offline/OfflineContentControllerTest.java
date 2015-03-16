@@ -34,7 +34,7 @@ public class OfflineContentControllerTest {
         offlineLikeToggleSetting = PublishSubject.create();
 
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
-        when(settingsStorage.getOfflineLikesChanged()).thenReturn(offlineLikeToggleSetting);
+        when(settingsStorage.getOfflineLikedTracksChanged()).thenReturn(offlineLikeToggleSetting);
 
         controller = new OfflineContentController(eventBus, settingsStorage, Robolectric.application);
     }
