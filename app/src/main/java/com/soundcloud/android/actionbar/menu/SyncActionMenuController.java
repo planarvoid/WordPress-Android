@@ -25,7 +25,6 @@ public class SyncActionMenuController implements ActionMenuController {
     private final Provider<OfflineLikesDialog> syncLikesDialogProvider;
 
     private MenuItem startSync;
-    private MenuItem syncing;
     private MenuItem removeSync;
 
     @Inject
@@ -43,7 +42,6 @@ public class SyncActionMenuController implements ActionMenuController {
         menu.clear();
         inflater.inflate(R.menu.offline_sync, menu);
         startSync = menu.findItem(R.id.action_start_offline_update);
-        syncing = menu.findItem(R.id.action_updating_offline_likes);
         removeSync = menu.findItem(R.id.action_remove_offline_likes);
 
         castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
@@ -60,9 +58,6 @@ public class SyncActionMenuController implements ActionMenuController {
                 } else {
                     upsell(fragment);
                 }
-                return true;
-            case R.id.action_updating_offline_likes:
-                // TODO
                 return true;
             case R.id.action_remove_offline_likes:
                 offlineOperations.setOfflineLikesEnabled(false);
@@ -83,9 +78,6 @@ public class SyncActionMenuController implements ActionMenuController {
             case STATE_START_SYNC:
                 showStartSync();
                 break;
-            case STATE_SYNCING:
-                showSyncing();
-                break;
             case STATE_REMOVE_SYNC:
                 showRemoveSync();
                 break;
@@ -96,19 +88,11 @@ public class SyncActionMenuController implements ActionMenuController {
 
     private void showStartSync() {
         startSync.setVisible(true);
-        syncing.setVisible(false);
-        removeSync.setVisible(false);
-    }
-
-    private void showSyncing() {
-        startSync.setVisible(false);
-        syncing.setVisible(true);
         removeSync.setVisible(false);
     }
 
     private void showRemoveSync() {
         startSync.setVisible(false);
-        syncing.setVisible(false);
         removeSync.setVisible(true);
     }
 }

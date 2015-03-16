@@ -8,8 +8,7 @@ import android.view.MenuItem;
 public interface ActionMenuController {
 
     static final int STATE_START_SYNC = 0;
-    static final int STATE_SYNCING = 1;
-    static final int STATE_REMOVE_SYNC = 2;
+    static final int STATE_REMOVE_SYNC = 1;
 
     void onCreateOptionsMenu(Menu menu, MenuInflater inflater);
     boolean onOptionsItemSelected(Fragment fragment, MenuItem item);

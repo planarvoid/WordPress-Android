@@ -10,4 +10,7 @@
     <item name="list_item_subheader" type="id" />
     <item name="list_item_counter" type="id" />
     <item name="list_item_right_info" type="id" />
+
+    <!-- unique numbers we use -->
+    <item name="offline_syncing_request_id" type="id" />
 </resources>

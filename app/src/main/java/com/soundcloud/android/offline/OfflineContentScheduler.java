@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class OfflineContentScheduler {
 
     @VisibleForTesting
-    static final int REQUEST_ID = R.id.action_updating_offline_likes; // do these have to be unique over the app??
+    static final int REQUEST_ID = R.id.offline_syncing_request_id;
     static final int ALARM_TYPE = AlarmManager.RTC_WAKEUP;
     private static final long RETRY_DELAY = TimeUnit.MINUTES.toMillis(10);
 

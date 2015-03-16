@@ -12,11 +12,6 @@
         android:icon="@drawable/actionbar_download"
         soundcloud:showAsAction="always"/>
 
-    <item android:id="@+id/action_updating_offline_likes"
-        android:title="@string/accessibility_updating_offline_likes"
-        android:icon="@drawable/ic_av_pause"
-        soundcloud:showAsAction="always"/>
-
     <item android:id="@+id/action_remove_offline_likes"
         android:title="@string/accessibility_remove_offline_likes"
         soundcloud:showAsAction="never"/>

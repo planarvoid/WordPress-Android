@@ -72,7 +72,6 @@
 
     <!-- __ACCESSIBILITY OFFLINE SYNC -->
     <string name="accessibility_start_offline_update">Start Sync</string>
-    <string name="accessibility_updating_offline_likes">Syncing</string>
     <string name="accessibility_remove_offline_likes">Remove from Offline Sync</string>
 
     <!-- __ACTIVITIES -->
