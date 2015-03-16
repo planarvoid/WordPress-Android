@@ -156,7 +156,7 @@ dependencies {
   compile libraries.crashlytics
   compile libraries.jacksonRespack
   compile libraries.okHttp
-  provided libraries.httpClient
+  provided libraries.httpClientAndroid
   compile (libraries.httpmime) { exclude group: 'org.apache.httpcomponents', module: 'httpclient' }
   compile libraries.localytics
   compile libraries.slidingUpPanel

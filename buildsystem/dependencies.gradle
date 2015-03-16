@@ -39,7 +39,7 @@ ext {
   crashlyticsVersion = '1.1.11'
   jacksonRepackVersion = '14.11.05'
   okHttpVersion = '2.2.0'
-  httpClientVersion = '4.3.5'
+  httpClientAndroidVersion = '4.3.5'
   httpmimeVersion = '4.0.3'
   localyticsVersion = '2.71'
   slidingUpPanelVersion = '2.0.1'
@@ -90,7 +90,7 @@ ext {
       crashlytics:                  "com.crashlytics.android:crashlytics:${crashlyticsVersion}",
       jacksonRespack:               "com.fasterxml.jackson.core:jackson-repack:${jacksonRepackVersion}",
       okHttp:                       "com.squareup.okhttp:okhttp:${okHttpVersion}",
-      httpClient:                   "org.apache.httpcomponents:httpclient:${httpClientVersion}",
+      httpClientAndroid:            "org.apache.httpcomponents:httpclient-android:${httpClientAndroidVersion}",
       httpmime:                     "org.apache.httpcomponents:httpmime:${httpmimeVersion}",
       localytics:                   "com.localytics:android-localytics:${localyticsVersion}",
       slidingUpPanel:               "com.sothree.slidinguppanel:library:${slidingUpPanelVersion}@aar",

@@ -133,7 +133,7 @@ task uploadGithub(type: Exec) {
 // ACCEPTANCE TESTS
 // *********************************************************************************************************************
 
-task assembleAcceptanceTest(dependsOn: ['assembleDebugTest']) {
+task assembleAcceptanceTest(dependsOn: ['assembleDebugAndroidTest']) {
   description = 'Assembles all the Test applications.'
 }
 
