@@ -35,7 +35,7 @@ public class PlaylistPostOperationsTest {
     private PlaylistPostOperations operations;
     private List<PropertySet> postedPlaylists;
 
-    @Mock private LegacyLoadPostedPlaylistsCommand loadPostedPlaylistsCommand;
+    @Mock private LoadPostedPlaylistsCommand loadPostedPlaylistsCommand;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
