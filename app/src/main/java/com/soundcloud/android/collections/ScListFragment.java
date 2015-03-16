@@ -129,10 +129,9 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private ChangeObserver changeObserver;
     private boolean keepGoing, pendingSync;
     private CollectionTask appendTask;
-    @Nullable private BroadcastReceiver playlistChangedReceiver;
     private SyncStateManager syncStateManager;
     private int retainedListPosition;
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private CompositeSubscription subscription;
 
     public static ScListFragment newInstance(Content content, Screen screen) {
         return newInstance(content.uri, screen);
@@ -276,6 +275,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         playbackFilter.addAction(Broadcasts.PLAYSTATE_CHANGED);
         getActivity().registerReceiver(playbackStatusListener, new IntentFilter(playbackFilter));
 
+        subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, userEventObserver));
 
         if (content.shouldListenForPlaylistChanges()) {
@@ -587,9 +587,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private void stopListening() {
         AndroidUtils.safeUnregisterReceiver(getActivity(), playbackStatusListener);
         subscription.unsubscribe();
-        if (content.shouldListenForPlaylistChanges()) {
-            AndroidUtils.safeUnregisterReceiver(getActivity(), playlistChangedReceiver);
-        }
 
         if (syncStateManager != null && localCollection != null) {
             syncStateManager.removeChangeListener(localCollection);
