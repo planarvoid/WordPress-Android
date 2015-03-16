@@ -17,14 +17,13 @@ import java.util.Date;
 public class DownloadableTrackItemPresenterTest {
 
     @Mock private ImageOperations imageOperations;
-    @Mock private TrackItemMenuPresenter trackItemMenuPresenter;
     @Mock private FeatureOperations featureOperations;
 
     private DownloadableTrackItemPresenter presenter;
 
     @Before
     public void setup() {
-        presenter = new DownloadableTrackItemPresenter(imageOperations, trackItemMenuPresenter, featureOperations);
+        presenter = new DownloadableTrackItemPresenter(null, null, featureOperations);
     }
 
     @Test
