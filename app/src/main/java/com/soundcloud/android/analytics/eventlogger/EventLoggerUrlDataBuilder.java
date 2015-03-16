@@ -3,7 +3,6 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Strings;
-import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -25,65 +24,14 @@ import javax.inject.Inject;
 import java.util.Locale;
 import java.util.Map;
 
-public class EventLoggerUrlBuilder {
-
-    private static final String CLIENT_ID = "client_id";
-    private static final String ANONYMOUS_ID = "anonymous_id";
-    private static final String TIMESTAMP = "ts";
-    private static final String USER = "user";
-    // audio event params
-    private static final String ACTION = "action";
-    private static final String DURATION = "duration";
-    private static final String SOUND = "sound";
-    private static final String PAGE_NAME = "page_name";
-    private static final String TRIGGER = "trigger";
-    private static final String SOURCE = "source";
-    private static final String POLICY = "policy";
-    private static final String SOURCE_VERSION = "source_version";
-    private static final String PLAYLIST_ID = "set_id";
-    private static final String PLAYLIST_POSITION = "set_position";
-    // ad specific params
-    private static final String AD_URN = "ad_urn";
-    private static final String EXTERNAL_MEDIA = "external_media";
-    private static final String MONETIZATION_TYPE = "monetization_type";
-    private static final String MONETIZED_OBJECT = "monetized_object";
-    private static final String IMPRESSION_NAME = "impression_name";
-    private static final String IMPRESSION_OBJECT = "impression_object";
-    // performance & error event params
-    private static final String LATENCY = "latency";
-    private static final String PROTOCOL = "protocol";
-    private static final String PLAYER_TYPE = "player_type";
-    private static final String TYPE = "type";
-    private static final String HOST = "host";
-    private static final String CONNECTION_TYPE = "connection_type";
-    private static final String OS = "os";
-    private static final String BITRATE = "bitrate";
-    private static final String FORMAT = "format";
-    private static final String URL = "url";
-    private static final String ERROR_CODE = "errorCode";
-    // click specific params
-    private static final String CLICK_NAME = "click_name";
-    private static final String CLICK_OBJECT = "click_object";
-    private static final String CLICK_TARGET = "click_target";
-    public static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
-    private static final String REASON = "reason";
-
-    private final String appId;
-    private final String endpoint;
-    private final DeviceHelper deviceHelper;
-    private final ExperimentOperations experimentOperations;
-    private final AccountOperations accountOperations;
+public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
 
     @Inject
-    public EventLoggerUrlBuilder(Resources resources,
-                                 ExperimentOperations experimentOperations,
-                                 DeviceHelper deviceHelper,
-                                 AccountOperations accountOperations) {
-        this.accountOperations = accountOperations;
-        this.appId = resources.getString(R.string.app_id);
-        this.endpoint = resources.getString(R.string.event_logger_base_url);
-        this.experimentOperations = experimentOperations;
-        this.deviceHelper = deviceHelper;
+    public EventLoggerUrlDataBuilder(Resources resources,
+                                     ExperimentOperations experimentOperations,
+                                     DeviceHelper deviceHelper,
+                                     AccountOperations accountOperations) {
+        super(resources, experimentOperations, deviceHelper, accountOperations);
     }
 
     public String build(UIEvent event) {
