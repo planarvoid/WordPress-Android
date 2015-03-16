@@ -2,7 +2,6 @@ package com.soundcloud.android.storage.provider;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.storage.provider.ScContentProvider.Parameter.CACHED;
-import static com.soundcloud.android.storage.provider.ScContentProvider.Parameter.RANDOM;
 import static com.soundcloud.android.testsupport.TestHelper.getActivities;
 import static com.soundcloud.android.testsupport.TestHelper.readJson;
 
@@ -12,8 +11,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.legacy.model.Shortcut;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
-import com.soundcloud.android.api.legacy.model.TrackHolder;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
@@ -165,48 +162,6 @@ public class ScContentProviderTest {
 
         Uri result = resolver.insert(Content.TRACK_METADATA.uri, values);
         expect(result).toEqual("content://com.soundcloud.android.provider.ScContentProvider/track_metadata/20");
-    }
-
-    @Test
-    public void shouldHaveATracksEndpointWithRandom() throws Exception {
-        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
-
-        for (PublicApiTrack t : tracks) {
-            expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
-        }
-        Cursor c = resolver.query(Content.TRACK.withQuery(RANDOM, "0"), null, null, null, null);
-        expect(c.getCount()).toEqual(15);
-        List<Long> sorted = new ArrayList<Long>();
-        List<Long> random = new ArrayList<Long>();
-        while (c.moveToNext()) {
-            sorted.add(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID)));
-        }
-        Cursor c2 = resolver.query(Content.TRACK.withQuery(RANDOM, "1"), null, null, null, null);
-        expect(c2.getCount()).toEqual(15);
-        while (c2.moveToNext()) {
-            random.add(c2.getLong(c2.getColumnIndex(TableColumns.SoundView._ID)));
-        }
-        expect(sorted).not.toEqual(random);
-    }
-
-    @Test
-    public void shouldHaveATracksEndpointWhichReturnsOnlyCachedItems() throws Exception {
-        TrackHolder tracks = readJson(TrackHolder.class, "/com/soundcloud/android/storage/provider/user_favorites.json");
-        for (PublicApiTrack t : tracks) {
-            expect(TestHelper.insertAsSoundAssociation(t, SoundAssociation.Type.TRACK_LIKE)).not.toBeNull();
-        }
-
-        ContentValues cv = new ContentValues();
-        final long cachedId = 27583938l;
-        cv.put(TableColumns.TrackMetadata._ID, cachedId);
-        cv.put(TableColumns.TrackMetadata.CACHED, 1);
-        resolver.insert(Content.TRACK_METADATA.uri, cv);
-
-        Uri uri = Content.TRACKS.withQuery(CACHED, "1");
-        Cursor c = resolver.query(uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
-        expect(c.moveToNext()).toBeTrue();
-        expect(c.getLong(c.getColumnIndex(TableColumns.SoundView._ID))).toEqual(cachedId);
     }
 
     @Test

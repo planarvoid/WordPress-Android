@@ -115,7 +115,7 @@ public class SoundAssociation extends Association implements PlayableHolder {
 
     @Override
     public Uri getBulkInsertUri() {
-        return Content.COLLECTION_ITEMS.uri;
+        return Content.ME_SOUNDS.uri; // not used
     }
 
     @Override

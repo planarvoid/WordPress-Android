@@ -3,7 +3,6 @@ package com.soundcloud.android.storage.provider;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.api.Request;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,8 +32,8 @@ public class ContentTest {
 
     @Test
     public void shouldGenerateUriForId() throws Exception {
-        expect(Content.COLLECTION_ITEMS.forId(1234).toString()).toEqual(
-                "content://com.soundcloud.android.provider.ScContentProvider/collection_items/1234");
+        expect(Content.COLLECTION.forId(1234).toString()).toEqual(
+                "content://com.soundcloud.android.provider.ScContentProvider/collections/1234");
     }
 
     @Test

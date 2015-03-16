@@ -109,9 +109,6 @@ public enum Content {
     COLLECTIONS("collections", null, 1000, null, -1, Table.Collections),
     COLLECTION("collections/#", null, 1001, null, -1, Table.Collections),
 
-    COLLECTION_ITEMS("collection_items", null, 1004, null, -1, Table.CollectionItems),
-    COLLECTION_ITEM("collection_items/#", null, 1005, null, -1, Table.CollectionItems),
-
     USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.UserAssociations),
 
     RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.Recordings),

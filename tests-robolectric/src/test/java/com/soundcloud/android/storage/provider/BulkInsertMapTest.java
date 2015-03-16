@@ -44,10 +44,10 @@ public class BulkInsertMapTest {
         map.insert(resolver);
 
         expect(map.get(Content.TRACKS.uri)).toNumber(1);
-        expect(map.get(Content.COLLECTION_ITEMS.uri)).toNumber(1);
+        expect(map.get(Content.ME_SOUNDS.uri)).toNumber(1);
         expect(map.get(Content.USERS.uri)).toNumber(1);
 
-        verify(resolver).bulkInsert(eq(Content.COLLECTION_ITEMS.uri), any(ContentValues[].class));
+        verify(resolver).bulkInsert(eq(Content.ME_SOUNDS.uri), any(ContentValues[].class));
         verify(resolver).bulkInsert(eq(Content.TRACKS.uri), any(ContentValues[].class));
         verify(resolver).bulkInsert(eq(Content.USERS.uri), any(ContentValues[].class));
         verifyNoMoreInteractions(resolver);

@@ -114,7 +114,7 @@ public abstract class Association extends PublicApiResource implements PlayableH
 
     @Override
     public Uri getBulkInsertUri() {
-        return Content.COLLECTION_ITEMS.uri;
+        return Content.UNKNOWN.uri; // not used
     }
 
     @Override

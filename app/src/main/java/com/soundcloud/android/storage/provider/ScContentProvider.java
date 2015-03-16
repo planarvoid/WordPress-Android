@@ -289,8 +289,6 @@ public class ScContentProvider extends ContentProvider {
                 _selection = "_id = ?";
                 _selectionArgs = new String[]{String.valueOf(userId)};
                 break;
-            case COLLECTION_ITEMS:
-                throw new IllegalArgumentException("NO@!!!!!!   CollectionItems");
 
             case COLLECTIONS:
             case USER_ASSOCIATIONS:
@@ -569,7 +567,6 @@ public class ScContentProvider extends ContentProvider {
             //////////////////////////////////////////////////////////////////////////////////////////////////
             case COLLECTION:
             case COLLECTIONS:
-            case COLLECTION_ITEMS:
             case USER_ASSOCIATIONS:
             case RECORDINGS:
             case ME_SOUNDS:
@@ -703,9 +700,6 @@ public class ScContentProvider extends ContentProvider {
                         : where + " AND " + whereAppend;
 
                 break;
-
-            case COLLECTION_ITEMS:
-                throw new IllegalStateException("WRONG!!!!    Collection Items");
 
             case USER_ASSOCIATIONS:
                 whereAppend = Table.UserAssociations.name() + "." + TableColumns.UserAssociations.OWNER_ID + " = " + userId;

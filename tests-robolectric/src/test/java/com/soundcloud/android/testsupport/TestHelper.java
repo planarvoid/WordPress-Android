@@ -10,13 +10,11 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
@@ -230,12 +228,6 @@ public class TestHelper {
 
     public static <T extends Persisted & Identifiable> Uri insertWithDependencies(T resource) {
         return insertWithDependencies(resource.toUri(), resource);
-    }
-
-    public static SoundAssociation insertAsSoundAssociation(Playable playable, SoundAssociation.Type assocType) {
-        SoundAssociation sa = new SoundAssociation(playable, new Date(), assocType);
-        TestHelper.insertWithDependencies(Content.COLLECTION_ITEMS.uri, sa);
-        return sa;
     }
 
     public static UserAssociation insertAsUserAssociation(PublicApiUser user, UserAssociation.Type assocType) {
