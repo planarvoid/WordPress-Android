@@ -33,7 +33,7 @@ public class FeatureOperations {
     }
 
     public boolean isOfflineContentEnabled() {
-        return appProperties.isAlphaBuild() || featureStorage.isEnabled(OFFLINE_CONTENT, false);
+        return appProperties.isDebugBuild() || appProperties.isAlphaBuild() || featureStorage.isEnabled(OFFLINE_CONTENT, false);
     }
 
     public boolean isOfflineContentUpsellEnabled() {
