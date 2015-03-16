@@ -2,6 +2,7 @@ package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -53,11 +54,13 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
         }
     }
 
-    private Boolean isDownloading(PropertySet track) {
+    @VisibleForTesting
+    Boolean isDownloading(PropertySet track) {
         return track.getOrElse(TrackProperty.OFFLINE_DOWNLOADING, false);
     }
 
-    private boolean isPendingDownload(PropertySet track) {
+    @VisibleForTesting
+    boolean isPendingDownload(PropertySet track) {
         final Date removedAt = track.getOrElse(TrackProperty.OFFLINE_REMOVED_AT, MIN_DATE);
         final Date unavailableAt = track.getOrElse(TrackProperty.OFFLINE_UNAVAILABLE_AT, MIN_DATE);
         return track.contains(TrackProperty.OFFLINE_REQUESTED_AT)
@@ -66,7 +69,8 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
                 && track.get(TrackProperty.OFFLINE_REQUESTED_AT).after(unavailableAt);
     }
 
-    private boolean isDownloaded(PropertySet track) {
+    @VisibleForTesting
+    boolean isDownloaded(PropertySet track) {
         final Date removedAt = track.getOrElse(TrackProperty.OFFLINE_REMOVED_AT, MIN_DATE);
         return track.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)
                 && track.get(TrackProperty.OFFLINE_DOWNLOADED_AT).after(removedAt);
