@@ -10,55 +10,24 @@ import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.utils.DeviceHelper;
 
 import android.content.res.Resources;
 
 public abstract class EventLoggerDataBuilder {
 
-    static final String CLIENT_ID = "client_id";
-    static final String ANONYMOUS_ID = "anonymous_id";
-    static final String TIMESTAMP = "ts";
-    static final String USER = "user";
-    // audio event params
-    static final String ACTION = "action";
-    static final String DURATION = "duration";
-    static final String SOUND = "sound";
-    static final String PAGE_NAME = "page_name";
-    static final String TRIGGER = "trigger";
-    static final String SOURCE = "source";
-    static final String POLICY = "policy";
-    static final String SOURCE_VERSION = "source_version";
-    static final String PLAYLIST_ID = "set_id";
-    static final String PLAYLIST_POSITION = "set_position";
-    // ad specific params
-    static final String AD_URN = "ad_urn";
-    static final String EXTERNAL_MEDIA = "external_media";
-    static final String MONETIZATION_TYPE = "monetization_type";
-    static final String MONETIZED_OBJECT = "monetized_object";
-    static final String IMPRESSION_NAME = "impression_name";
-    static final String IMPRESSION_OBJECT = "impression_object";
-    // performance & error event params
-    static final String LATENCY = "latency";
-    static final String PROTOCOL = "protocol";
-    static final String PLAYER_TYPE = "player_type";
-    static final String TYPE = "type";
-    static final String HOST = "host";
-    static final String CONNECTION_TYPE = "connection_type";
-    static final String OS = "os";
-    static final String BITRATE = "bitrate";
-    static final String FORMAT = "format";
-    static final String URL = "url";
-    static final String ERROR_CODE = "errorCode";
-    // click specific params
-    static final String CLICK_NAME = "click_name";
-    static final String CLICK_OBJECT = "click_object";
-    static final String CLICK_TARGET = "click_target";
-    public static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
-    static final String REASON = "reason";
+    protected static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
+
+    // event types
+    protected static final String PAGEVIEW_EVENT = "pageview";
+    protected static final String CLICK_EVENT = "click";
+    protected static final String IMPRESSION_EVENT = "impression";
+    protected static final String AUDIO_EVENT = "audio";
+    protected static final String AUDIO_PERFORMANCE_EVENT = "audio_performance";
+    protected static final String AUDIO_ERROR_EVENT = "audio_error";
 
     protected final String appId;
-    protected final String endpoint;
     protected final DeviceHelper deviceHelper;
     protected final ExperimentOperations experimentOperations;
     protected final AccountOperations accountOperations;
@@ -69,7 +38,6 @@ public abstract class EventLoggerDataBuilder {
                                      AccountOperations accountOperations) {
         this.accountOperations = accountOperations;
         this.appId = resources.getString(R.string.app_id);
-        this.endpoint = resources.getString(R.string.event_logger_base_url);
         this.experimentOperations = experimentOperations;
         this.deviceHelper = deviceHelper;
     }
@@ -91,4 +59,39 @@ public abstract class EventLoggerDataBuilder {
     public abstract String buildForAdFinished(PlaybackSessionEvent eventData);
 
     public abstract String buildForAudioEvent(PlaybackSessionEvent eventData);
+
+    protected String getAnonymousId() {
+        return deviceHelper.getUDID();
+    }
+
+    protected String getUserUrn() {
+        return accountOperations.getLoggedInUserUrn().toString();
+    }
+
+    protected String getTrigger(TrackSourceInfo trackSourceInfo) {
+        return trackSourceInfo.getIsUserTriggered() ? "manual" : "auto";
+    }
+
+    protected String getPerformanceEventType(int type) {
+        switch (type) {
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
+                return "play";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
+                return "buffer";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST:
+                return "playlist";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
+                return "seek";
+            case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
+                return "fragmentRate";
+            default:
+                throw new IllegalArgumentException("Unexpected metric type " + type);
+        }
+    }
+
+    // EventLogger v0 requires us to pass URNs in the legacy format
+    protected String getLegacyTrackUrn(String urn) {
+        return urn.replaceFirst(":tracks:", ":sounds:");
+    }
+
 }

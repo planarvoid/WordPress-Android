@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics.eventlogger;
 import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.base.Strings;
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -26,12 +27,16 @@ import java.util.Map;
 
 public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
 
+    private final String endpoint;
+
     @Inject
     public EventLoggerUrlDataBuilder(Resources resources,
                                      ExperimentOperations experimentOperations,
                                      DeviceHelper deviceHelper,
                                      AccountOperations accountOperations) {
         super(resources, experimentOperations, deviceHelper, accountOperations);
+        this.endpoint = resources.getString(R.string.event_logger_base_url);
+
     }
 
     public String build(UIEvent event) {
@@ -40,13 +45,13 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
         switch (event.getKind()) {
             case UIEvent.KIND_AUDIO_AD_CLICK:
                 builder = audioAddClickThrough(event)
-                        .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
-                        .appendQueryParameter(CLICK_NAME, "clickthrough::companion_display");
+                        .appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
+                        .appendQueryParameter(EventLoggerParam.CLICK_NAME, "clickthrough::companion_display");
                 break;
             case UIEvent.KIND_SKIP_AUDIO_AD_CLICK:
                 builder = audioAddClick(event)
-                        .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
-                        .appendQueryParameter(CLICK_NAME, "ad::skip");
+                        .appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
+                        .appendQueryParameter(EventLoggerParam.CLICK_NAME, "ad::skip");
                 break;
             default:
                 builder = click(event);
@@ -56,9 +61,9 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
     }
 
     public String build(ScreenEvent event) {
-        final Uri.Builder builder = buildUriForPath("pageview", event.getTimeStamp())
-                .appendQueryParameter(USER, accountOperations.getLoggedInUserUrn().toString())
-                .appendQueryParameter(PAGE_NAME, event.get(ScreenEvent.KEY_SCREEN));
+        final Uri.Builder builder = buildUriForPath(PAGEVIEW_EVENT, event.getTimeStamp())
+                .appendQueryParameter(EventLoggerParam.USER, accountOperations.getLoggedInUserUrn().toString())
+                .appendQueryParameter(EventLoggerParam.PAGE_NAME, event.get(ScreenEvent.KEY_SCREEN));
 
         addExperimentParams(builder);
         return builder.toString();
@@ -66,9 +71,9 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
 
     public String build(VisualAdImpressionEvent event) {
         return audioAdImpression(event)
-                .appendQueryParameter(EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL))
-                .appendQueryParameter(IMPRESSION_NAME, "companion_display")
-                .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
+                .appendQueryParameter(EventLoggerParam.EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL))
+                .appendQueryParameter(EventLoggerParam.IMPRESSION_NAME, "companion_display")
+                .appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                 .toString();
     }
 
@@ -79,41 +84,41 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
 
         if (event.getKind().equals(AdOverlayTrackingEvent.KIND_CLICK)) {
             return audioAddClickThrough(event)
-                    .appendQueryParameter(CLICK_NAME, "clickthrough::" + event.get(AdTrackingKeys.KEY_AD_TYPE))
-                    .appendQueryParameter(MONETIZATION_TYPE, event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                    .appendQueryParameter(EventLoggerParam.CLICK_NAME, "clickthrough::" + event.get(AdTrackingKeys.KEY_AD_TYPE))
+                    .appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                     .toString();
         } else {
             return audioAdImpression(event)
-                    .appendQueryParameter(EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL))
-                    .appendQueryParameter(IMPRESSION_NAME, event.get(AdTrackingKeys.KEY_AD_TYPE))
-                    .appendQueryParameter(MONETIZATION_TYPE, event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                    .appendQueryParameter(EventLoggerParam.EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL))
+                    .appendQueryParameter(EventLoggerParam.IMPRESSION_NAME, event.get(AdTrackingKeys.KEY_AD_TYPE))
+                    .appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
                     .toString();
         }
     }
 
     public String buildForAudioAdImpression(PlaybackSessionEvent event) {
         return audioAdImpression(event)
-                .appendQueryParameter(IMPRESSION_NAME, "audio_ad_impression")
-                .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
+                .appendQueryParameter(EventLoggerParam.IMPRESSION_NAME, "audio_ad_impression")
+                .appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                 .toString();
     }
 
     // This variant generates a click event from a playback event, as the spec requires this in some cases
     public String buildForAdFinished(PlaybackSessionEvent event) {
         return audioAddClick(event)
-                .appendQueryParameter(CLICK_NAME, "ad::finish")
-                .appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
+                .appendQueryParameter(EventLoggerParam.CLICK_NAME, "ad::finish")
+                .appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD)
                 .toString();
     }
 
     private Uri.Builder audioAddClickThrough(TrackingEvent event) {
         return audioAddClick(event)
-                .appendQueryParameter(CLICK_TARGET, event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL));
+                .appendQueryParameter(EventLoggerParam.CLICK_TARGET, event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL));
     }
 
     private Uri.Builder audioAddClick(TrackingEvent event) {
         final Uri.Builder builder = addCommonAudioAdParams(click(event), event)
-                .appendQueryParameter(EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
+                .appendQueryParameter(EventLoggerParam.EXTERNAL_MEDIA, event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
         addClickObjectIfIncluded(event, builder);
         return builder;
     }
@@ -121,13 +126,13 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
     private void addClickObjectIfIncluded(TrackingEvent event, Uri.Builder builder) {
         final String clickObjectUrn = event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN);
         if (!Strings.isNullOrEmpty(clickObjectUrn)) {
-            builder.appendQueryParameter(CLICK_OBJECT, clickObjectUrn);
+            builder.appendQueryParameter(EventLoggerParam.CLICK_OBJECT, clickObjectUrn);
         }
     }
 
     private Uri.Builder audioAdImpression(TrackingEvent event) {
         return addCommonAudioAdParams(impression(event), event)
-                .appendQueryParameter(IMPRESSION_OBJECT, event.get(AdTrackingKeys.KEY_AD_TRACK_URN));
+                .appendQueryParameter(EventLoggerParam.IMPRESSION_OBJECT, event.get(AdTrackingKeys.KEY_AD_TRACK_URN));
     }
 
     private Uri.Builder impression(TrackingEvent event) {
@@ -140,8 +145,8 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
 
     private Uri.Builder addCommonAudioAdParams(Uri.Builder builder, TrackingEvent event) {
         return builder
-                .appendQueryParameter(AD_URN, event.get(AdTrackingKeys.KEY_AD_URN))
-                .appendQueryParameter(MONETIZED_OBJECT, event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN));
+                .appendQueryParameter(EventLoggerParam.AD_URN, event.get(AdTrackingKeys.KEY_AD_URN))
+                .appendQueryParameter(EventLoggerParam.MONETIZED_OBJECT, event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN));
     }
 
     public String buildForAudioEvent(PlaybackSessionEvent event) {
@@ -149,53 +154,48 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/base-ui-event.md#android
         final Uri.Builder builder = buildUriForPath("audio", event.getTimeStamp());
         addExperimentParams(builder);
-        builder.appendQueryParameter(USER, event.get(PlaybackSessionEvent.KEY_USER_URN));
+        builder.appendQueryParameter(EventLoggerParam.USER, event.get(PlaybackSessionEvent.KEY_USER_URN));
 
         // audio event specific params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio.md#android
         if (event.isPlayEvent()) {
-            builder.appendQueryParameter(ACTION, "play");
+            builder.appendQueryParameter(EventLoggerParam.ACTION, "play");
         } else {
-            builder.appendQueryParameter(ACTION, "stop");
-            builder.appendQueryParameter(REASON, getStopReason(event));
+            builder.appendQueryParameter(EventLoggerParam.ACTION, "stop");
+            builder.appendQueryParameter(EventLoggerParam.REASON, getStopReason(event));
         }
-        builder.appendQueryParameter(DURATION, String.valueOf(event.getDuration()));
-        // EventLogger v0 requires us to pass URNs in the legacy format
-        builder.appendQueryParameter(SOUND, event.get(PlaybackSessionEvent.KEY_TRACK_URN).replaceFirst(":tracks:", ":sounds:"));
+        builder.appendQueryParameter(EventLoggerParam.DURATION, String.valueOf(event.getDuration()));
+        builder.appendQueryParameter(EventLoggerParam.SOUND, getLegacyTrackUrn(event.get(PlaybackSessionEvent.KEY_TRACK_URN)));
 
         final String trackPolicy = event.get(PlaybackSessionEvent.KEY_POLICY);
         if (trackPolicy != null && !event.isAd()) {
-            builder.appendQueryParameter(POLICY, trackPolicy);
+            builder.appendQueryParameter(EventLoggerParam.POLICY, trackPolicy);
         }
 
         TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
 
-        if (trackSourceInfo.getIsUserTriggered()) {
-            builder.appendQueryParameter(TRIGGER, "manual");
-        } else {
-            builder.appendQueryParameter(TRIGGER, "auto");
-        }
-        builder.appendQueryParameter(PAGE_NAME, formatOriginUrl(trackSourceInfo.getOriginScreen()));
-        builder.appendQueryParameter(PROTOCOL, event.get(PlaybackSessionEvent.KEY_PROTOCOL));
-        builder.appendQueryParameter(PLAYER_TYPE, event.get(PlaybackSessionEvent.PLAYER_TYPE));
-        builder.appendQueryParameter(CONNECTION_TYPE, event.get(PlaybackSessionEvent.CONNECTION_TYPE));
+        builder.appendQueryParameter(EventLoggerParam.TRIGGER, getTrigger(trackSourceInfo));
+        builder.appendQueryParameter(EventLoggerParam.PAGE_NAME, formatOriginUrl(trackSourceInfo.getOriginScreen()));
+        builder.appendQueryParameter(EventLoggerParam.PROTOCOL, event.get(PlaybackSessionEvent.KEY_PROTOCOL));
+        builder.appendQueryParameter(EventLoggerParam.PLAYER_TYPE, event.get(PlaybackSessionEvent.PLAYER_TYPE));
+        builder.appendQueryParameter(EventLoggerParam.CONNECTION_TYPE, event.get(PlaybackSessionEvent.CONNECTION_TYPE));
 
         if (trackSourceInfo.hasSource()) {
-            builder.appendQueryParameter(SOURCE, trackSourceInfo.getSource());
-            builder.appendQueryParameter(SOURCE_VERSION, trackSourceInfo.getSourceVersion());
+            builder.appendQueryParameter(EventLoggerParam.SOURCE, trackSourceInfo.getSource());
+            builder.appendQueryParameter(EventLoggerParam.SOURCE_VERSION, trackSourceInfo.getSourceVersion());
         }
 
         if (trackSourceInfo.isFromPlaylist()) {
-            builder.appendQueryParameter(PLAYLIST_ID, String.valueOf(trackSourceInfo.getPlaylistUrn().getNumericId()));
-            builder.appendQueryParameter(PLAYLIST_POSITION, String.valueOf(trackSourceInfo.getPlaylistPosition()));
+            builder.appendQueryParameter(EventLoggerParam.PLAYLIST_ID, String.valueOf(trackSourceInfo.getPlaylistUrn().getNumericId()));
+            builder.appendQueryParameter(EventLoggerParam.PLAYLIST_POSITION, String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
 
         // audio ad specific params
         // cf. https://github.com/soundcloud/eventgateway-schemas/blob/v0/doc/audio-ads-tracking.md#audio
         if (event.isAd()) {
-            builder.appendQueryParameter(MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD);
-            builder.appendQueryParameter(AD_URN, event.get(AdTrackingKeys.KEY_AD_URN));
-            builder.appendQueryParameter(MONETIZED_OBJECT, event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN));
+            builder.appendQueryParameter(EventLoggerParam.MONETIZATION_TYPE, MONETIZATION_TYPE_AUDIO_AD);
+            builder.appendQueryParameter(EventLoggerParam.AD_URN, event.get(AdTrackingKeys.KEY_AD_URN));
+            builder.appendQueryParameter(EventLoggerParam.MONETIZED_OBJECT, event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN));
         }
 
         return builder.build().toString();
@@ -232,61 +232,44 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
     public String build(PlaybackPerformanceEvent event) {
         final Uri.Builder builder = buildUriForPath("audio_performance", event.getTimeStamp());
         return builder
-                .appendQueryParameter(LATENCY, String.valueOf(event.getMetricValue()))
-                .appendQueryParameter(PROTOCOL, event.getProtocol().getValue())
-                .appendQueryParameter(PLAYER_TYPE, event.getPlayerType().getValue())
-                .appendQueryParameter(TYPE, getPerformanceEventType(event.getMetric()))
-                .appendQueryParameter(HOST, event.getCdnHost())
-                .appendQueryParameter(USER, event.getUserUrn().toString())
-                .appendQueryParameter(CONNECTION_TYPE, event.getConnectionType().getValue())
+                .appendQueryParameter(EventLoggerParam.LATENCY, String.valueOf(event.getMetricValue()))
+                .appendQueryParameter(EventLoggerParam.PROTOCOL, event.getProtocol().getValue())
+                .appendQueryParameter(EventLoggerParam.PLAYER_TYPE, event.getPlayerType().getValue())
+                .appendQueryParameter(EventLoggerParam.TYPE, getPerformanceEventType(event.getMetric()))
+                .appendQueryParameter(EventLoggerParam.HOST, event.getCdnHost())
+                .appendQueryParameter(EventLoggerParam.USER, event.getUserUrn().toString())
+                .appendQueryParameter(EventLoggerParam.CONNECTION_TYPE, event.getConnectionType().getValue())
                 .build().toString();
     }
 
     public String build(PlaybackErrorEvent event) {
         final Uri.Builder builder = buildUriForPath("audio_error", event.getTimestamp());
         return builder
-                .appendQueryParameter(PROTOCOL, event.getProtocol().getValue())
-                .appendQueryParameter(OS, deviceHelper.getUserAgent())
-                .appendQueryParameter(BITRATE, event.getBitrate())
-                .appendQueryParameter(FORMAT, event.getFormat())
-                .appendQueryParameter(URL, event.getCdnHost())
-                .appendQueryParameter(ERROR_CODE, event.getCategory())
-                .appendQueryParameter(CONNECTION_TYPE, event.getConnectionType().getValue())
+                .appendQueryParameter(EventLoggerParam.PROTOCOL, event.getProtocol().getValue())
+                .appendQueryParameter(EventLoggerParam.OS, deviceHelper.getUserAgent())
+                .appendQueryParameter(EventLoggerParam.BITRATE, event.getBitrate())
+                .appendQueryParameter(EventLoggerParam.FORMAT, event.getFormat())
+                .appendQueryParameter(EventLoggerParam.URL, event.getCdnHost())
+                .appendQueryParameter(EventLoggerParam.ERROR_CODE, event.getCategory())
+                .appendQueryParameter(EventLoggerParam.CONNECTION_TYPE, event.getConnectionType().getValue())
                 .build().toString();
     }
 
     private Uri.Builder buildUriForPath(String path, long timestamp) {
         return Uri.parse(endpoint).buildUpon().appendPath(path)
-                .appendQueryParameter(CLIENT_ID, appId)
-                .appendQueryParameter(ANONYMOUS_ID, deviceHelper.getUDID())
-                .appendQueryParameter(TIMESTAMP, String.valueOf(timestamp));
+                .appendQueryParameter(EventLoggerParam.CLIENT_ID, appId)
+                .appendQueryParameter(EventLoggerParam.ANONYMOUS_ID, deviceHelper.getUDID())
+                .appendQueryParameter(EventLoggerParam.TIMESTAMP, String.valueOf(timestamp));
     }
 
     private Uri.Builder buildUriForPath(String path, TrackingEvent event) {
         return buildUriForPath(path, event.getTimeStamp())
-                .appendQueryParameter(USER, formatOriginUrl(event.get(AdTrackingKeys.KEY_USER_URN)))
-                .appendQueryParameter(PAGE_NAME, formatOriginUrl(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)));
+                .appendQueryParameter(EventLoggerParam.USER, formatOriginUrl(event.get(AdTrackingKeys.KEY_USER_URN)))
+                .appendQueryParameter(EventLoggerParam.PAGE_NAME, formatOriginUrl(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)));
     }
 
     private String formatOriginUrl(String originUrl) {
         return originUrl.toLowerCase(Locale.ENGLISH).replace(" ", "_");
-    }
-
-    private String getPerformanceEventType(int type) {
-        switch (type) {
-            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
-                return "play";
-            case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
-                return "buffer";
-            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST:
-                return "playlist";
-            case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
-                return "seek";
-            case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
-                return "fragmentRate";
-            default:
-                throw new IllegalArgumentException("Unexpected metric type " + type);
-        }
     }
 
 }

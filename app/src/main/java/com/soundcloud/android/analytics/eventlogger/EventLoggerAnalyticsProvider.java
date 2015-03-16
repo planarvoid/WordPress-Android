@@ -83,7 +83,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
-        trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+        if (AdOverlayTrackingEvent.KIND_CLICK.equals(event.getKind()) || AdOverlayTrackingEvent.KIND_IMPRESSION.equals(event.getKind())) {
+            trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+        }
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {

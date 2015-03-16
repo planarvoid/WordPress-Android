@@ -374,7 +374,7 @@ public class EventLoggerUrlDataBuilderTest {
         return PlaybackSessionEvent.forStop(TRACK_DATA, user, trackSourceInfo, playEvent, 0L, timestamp, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, stopReason);
     }
 
-        @Test
+    @Test
     public void createAudioEventUrlForAudioAdPlaybackEvent() throws UnsupportedEncodingException {
         final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
