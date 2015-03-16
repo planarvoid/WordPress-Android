@@ -100,7 +100,7 @@ public class PlaylistDetailsScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver
                 .findElements(With.id(R.id.overflow_button))
-                .get(0).click();
+                .get(1).click();
         return new TrackItemMenuElement(testDriver);
     }
 
