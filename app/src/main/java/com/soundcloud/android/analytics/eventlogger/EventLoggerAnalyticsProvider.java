@@ -35,11 +35,11 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     private final String currentBackend;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerDataBuilder dataBuilder, FeatureFlags flags) {
-        this.eventTracker = eventTracker;
-        this.dataBuilder = dataBuilder;
-        this.flags = flags;
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerDataBuilderFactory dataBuilderFactory, FeatureFlags flags) {
         currentBackend = flags.isEnabled(Flag.EVENTLOGGER_BATCHING) ? BATCH_BACKEND_NAME : LEGACY_BACKEND_NAME;
+        dataBuilder = dataBuilderFactory.create(currentBackend);
+        this.eventTracker = eventTracker;
+        this.flags = flags;
     }
 
     @Override

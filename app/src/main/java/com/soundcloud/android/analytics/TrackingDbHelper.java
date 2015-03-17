@@ -57,6 +57,8 @@ class TrackingDbHelper extends SQLiteOpenHelper {
     abstract class TrackingColumns implements BaseColumns {
         static final String TIMESTAMP = "timestamp";
         static final String BACKEND = "backend";
+
+        // "url" is a legacy column name until we implement a real migration, since we don't want drop any ad $$$
         static final String DATA = "url";
     }
 

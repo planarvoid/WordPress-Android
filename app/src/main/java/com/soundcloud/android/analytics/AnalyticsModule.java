@@ -4,12 +4,7 @@ import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
-import com.soundcloud.android.analytics.eventlogger.EventLoggerDataBuilder;
-import com.soundcloud.android.analytics.eventlogger.EventLoggerJsonDataBuilder;
-import com.soundcloud.android.analytics.eventlogger.EventLoggerUrlDataBuilder;
 import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
@@ -52,15 +47,6 @@ public class AnalyticsModule {
     @Provides
     ProxySelector provideProxySelector() {
         return ProxySelector.getDefault();
-    }
-
-    @Provides
-    EventLoggerDataBuilder provideEventLoggerDataBuilder(EventLoggerUrlDataBuilder eventLoggerUrlDataBuilder,
-                                                         EventLoggerJsonDataBuilder eventLoggerJsonDataBuilder,
-                                                         FeatureFlags flags) {
-        return flags.isEnabled(Flag.EVENTLOGGER_BATCHING)
-                ? eventLoggerJsonDataBuilder
-                : eventLoggerUrlDataBuilder;
     }
 
 }
