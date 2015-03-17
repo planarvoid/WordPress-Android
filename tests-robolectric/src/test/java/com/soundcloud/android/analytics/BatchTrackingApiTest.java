@@ -4,7 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
-import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -69,7 +68,7 @@ public class BatchTrackingApiTest {
     @Test
     public void shouldBuildPostRequest() throws Exception {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
-        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, DATA);
+        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME, DATA);
 
         api.pushToRemote(Arrays.asList(event));
 
@@ -82,8 +81,8 @@ public class BatchTrackingApiTest {
 
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
 
-        TrackingRecord event1 = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, DATA);
-        TrackingRecord event2 = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, DATA);
+        TrackingRecord event1 = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME, DATA);
+        TrackingRecord event2 = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME, DATA);
 
         api.pushToRemote(Arrays.asList(event1, event2));
 
@@ -97,9 +96,9 @@ public class BatchTrackingApiTest {
 
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
 
-        TrackingRecord event1 = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, DATA);
-        TrackingRecord event2 = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, DATA);
-        TrackingRecord event3 = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, DATA);
+        TrackingRecord event1 = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME, DATA);
+        TrackingRecord event2 = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME, DATA);
+        TrackingRecord event3 = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME, DATA);
 
         api.pushToRemote(Arrays.asList(event1, event2, event3));
 

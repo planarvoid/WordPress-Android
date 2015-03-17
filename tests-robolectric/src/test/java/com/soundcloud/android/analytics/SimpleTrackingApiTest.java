@@ -72,7 +72,7 @@ public class SimpleTrackingApiTest {
     @Test
     public void shouldBuildHEADRequestForEventLogger() throws Exception {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
-        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, fakeUrl);
+        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME, fakeUrl);
 
         simpleTrackingApi.pushToRemote(Arrays.asList(event));
 

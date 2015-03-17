@@ -59,7 +59,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
         Query events = from(EVENTS_TABLE.name())
                 .whereEq(TrackingDbHelper.TrackingColumns.BACKEND, "eventlogger")
                 .whereEq(TrackingDbHelper.TrackingColumns.TIMESTAMP, 1000L)
-                .whereEq(TrackingDbHelper.TrackingColumns.URL, "http://eventlogger.soundcloud.com/audio?keys=values");
+                .whereEq(TrackingDbHelper.TrackingColumns.DATA, "http://eventlogger.soundcloud.com/audio?keys=values");
         assertThat(select(events), counts(1));
     }
 
