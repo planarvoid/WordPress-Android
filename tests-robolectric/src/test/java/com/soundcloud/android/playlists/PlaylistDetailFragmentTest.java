@@ -228,7 +228,7 @@ public class PlaylistDetailFragmentTest {
      public void engagementsControllerStartsListeningInOnStart() throws Exception {
         createFragmentView();
         fragment.onStart();
-        verify(playlistEngagementsPresenter).startListeningForChanges();
+        verify(playlistEngagementsPresenter).onStart(fragment);
     }
 
     @Test
@@ -249,7 +249,7 @@ public class PlaylistDetailFragmentTest {
     public void engagementsControllerStopsListeningInOnStop() throws Exception {
         createFragmentView();
         fragment.onStop();
-        verify(playlistEngagementsPresenter).stopListeningForChanges();
+        verify(playlistEngagementsPresenter).onStop(fragment);
     }
 
     @Test
@@ -449,12 +449,6 @@ public class PlaylistDetailFragmentTest {
         fragment.onViewCreated(layout, savedInstanceState);
         return layout;
     }
-
-//    private PublicApiPlaylist createPlaylist(long id) throws CreateModelException {
-//        final PublicApiPlaylist apiPlaylist = createPlaylist();
-//        apiPlaylist.setId(id);
-//        return apiPlaylist;
-//    }
 
     private PlaylistInfo createPlaylist() {
         return new PlaylistInfo(

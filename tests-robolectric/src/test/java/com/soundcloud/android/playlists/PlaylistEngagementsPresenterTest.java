@@ -48,6 +48,7 @@ import rx.subjects.PublishSubject;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.view.ViewGroup;
 
 import java.util.List;
@@ -69,6 +70,7 @@ public class PlaylistEngagementsPresenterTest {
     @Mock private ViewGroup rootView;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private FeatureOperations featureOperations;
+    @Mock private Fragment fragment;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
@@ -81,7 +83,7 @@ public class PlaylistEngagementsPresenterTest {
                 featureOperations, offlineContentOperations);
         when(rootView.getContext()).thenReturn(Robolectric.application);
         controller.bindView(rootView);
-        controller.startListeningForChanges();
+        controller.onStart(fragment);
         playlistInfo = createPublicPlaylistInfo();
 
         verify(engagementsView).setOnEngagement(listenerCaptor.capture());
@@ -91,7 +93,7 @@ public class PlaylistEngagementsPresenterTest {
 
     @After
     public void tearDown() throws Exception {
-        controller.stopListeningForChanges();
+        controller.onStop(fragment);
     }
 
     @Test
@@ -211,7 +213,7 @@ public class PlaylistEngagementsPresenterTest {
 
         onEngagementListener.onToggleLike(true);
 
-        controller.stopListeningForChanges();
+        controller.onStop(fragment);
 
         verify(likeSubscription).unsubscribe();
         eventBus.verifyUnsubscribed();
@@ -221,8 +223,8 @@ public class PlaylistEngagementsPresenterTest {
     public void shouldBeAbleToUnsubscribeThenResubscribeToChangeEvents() {
         controller.setPlaylistInfo(playlistInfo);
 
-        controller.stopListeningForChanges();
-        controller.startListeningForChanges();
+        controller.onStop(fragment);
+        controller.onStart(fragment);
 
         // make sure starting to listen again does not try to use a subscription that had already been closed
         // (in which case unsubscribe is called more than once)

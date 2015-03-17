@@ -11,6 +11,7 @@ import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
+import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -25,11 +26,12 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnEngagementListener {
+public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCycle implements PlaylistEngagementsView.OnEngagementListener {
 
     private static final String SHARE_TYPE = "text/plain";
 
@@ -81,18 +83,22 @@ public class PlaylistEngagementsPresenter implements PlaylistEngagementsView.OnE
         playlistEngagementsView.setOnEngagement(this);
     }
 
-    void onDestroyView() {
+    @Override
+    public void onDestroyView(Fragment fragment) {
         playlistEngagementsView.onDestroyView();
     }
 
-    void startListeningForChanges() {
+    @Override
+    public void onStart(Fragment fragment) {
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateLikeOrRepost()));
     }
 
-    void stopListeningForChanges() {
+    @Override
+    public void onStop(Fragment fragment) {
         subscription.unsubscribe();
     }
+
 
     void setOriginProvider(OriginProvider originProvider) {
         this.originProvider = originProvider;

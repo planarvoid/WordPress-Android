@@ -163,6 +163,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private void addLifeCycleComponents() {
         pullToRefreshController.setRefreshListener(this);
         attachLightCycle(pullToRefreshController);
+        attachLightCycle(engagementsPresenter);
     }
 
     @Override
@@ -229,22 +230,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        engagementsPresenter.startListeningForChanges();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        engagementsPresenter.stopListeningForChanges();
-    }
-
-    @Override
     public void onDestroyView() {
         playlistSubscription.unsubscribe();
         controller.onDestroyView();
-        engagementsPresenter.onDestroyView();
         super.onDestroyView();
     }
 
