@@ -19,7 +19,7 @@ class TrackLikesHeaderView {
     private View headerView;
     @InjectView(R.id.header_text) TextView headerText;
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
-    @InjectView(R.id.sync_state) ImageView syncState;
+    @InjectView(R.id.sync_state) ImageView downloadState;
 
     private State state = State.DEFAULT;
     private int trackCount;
@@ -58,31 +58,31 @@ class TrackLikesHeaderView {
 
     void showDefaultState() {
         state = State.DEFAULT;
-        syncState.clearAnimation();
+        downloadState.clearAnimation();
 
-        syncState.setVisibility(View.GONE);
-        syncState.setImageDrawable(null);
+        downloadState.setVisibility(View.GONE);
+        downloadState.setImageDrawable(null);
 
         updateTrackCount(trackCount);
     }
 
     void showSyncingState() {
         state = State.SYNCING;
-        syncState.clearAnimation();
+        downloadState.clearAnimation();
 
-        syncState.setVisibility(View.VISIBLE);
-        syncState.setImageResource(R.drawable.header_syncing);
+        downloadState.setVisibility(View.VISIBLE);
+        downloadState.setImageResource(R.drawable.header_syncing);
         headerText.setText(headerView.getContext().getString(R.string.offline_update_in_progress));
 
-        AnimUtils.runSpinClockwiseAnimationOn(syncState.getContext(), syncState);
+        AnimUtils.runSpinClockwiseAnimationOn(downloadState.getContext(), downloadState);
     }
 
     void showDownloadedState() {
         state = State.DOWNLOADED;
-        syncState.clearAnimation();
+        downloadState.clearAnimation();
 
-        syncState.setVisibility(View.VISIBLE);
-        syncState.setImageResource(R.drawable.header_downloaded);
+        downloadState.setVisibility(View.VISIBLE);
+        downloadState.setImageResource(R.drawable.header_downloaded);
 
         updateTrackCount(trackCount);
     }
