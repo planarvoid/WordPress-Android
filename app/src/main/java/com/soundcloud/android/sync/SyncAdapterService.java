@@ -8,7 +8,7 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.ActivitiesStorage;
-import com.soundcloud.android.storage.NewPlaylistStorage;
+import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -55,7 +55,7 @@ public class SyncAdapterService extends Service {
     @Inject AccountOperations accountOperations;
     @Inject SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory;
     @Inject MyLikesStateProvider myLikesStateProvider;
-    @Inject NewPlaylistStorage playlistStorage;
+    @Inject PlaylistStorage playlistStorage;
 
     public SyncAdapterService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -129,7 +129,7 @@ public class SyncAdapterService extends Service {
                                @Nullable final Token token,
                                @Nullable final Runnable onResult,
                                final SyncServiceResultReceiver.Factory syncServiceResultReceiverFactory,
-                               MyLikesStateProvider myLikesStateProvider, NewPlaylistStorage playlistStorage) {
+                               MyLikesStateProvider myLikesStateProvider, PlaylistStorage playlistStorage) {
         if (token == null || !token.valid()) {
             Log.w(TAG, "no valid token, skip sync");
             syncResult.stats.numAuthExceptions++;
@@ -169,7 +169,7 @@ public class SyncAdapterService extends Service {
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private static Intent getSyncIntent(SoundCloudApplication app, Bundle extras,
                                         SyncStateManager syncStateManager,
-                                        NewPlaylistStorage playlistStorage,
+                                        PlaylistStorage playlistStorage,
                                         MyLikesStateProvider myLikesStateProvider) {
 
 

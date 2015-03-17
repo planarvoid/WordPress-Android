@@ -12,12 +12,12 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class NewPlaylistStorage {
+public class PlaylistStorage {
 
     private final PropellerDatabase propeller;
 
     @Inject
-    public NewPlaylistStorage(PropellerDatabase propeller) {
+    public PlaylistStorage(PropellerDatabase propeller) {
         this.propeller = propeller;
     }
 

@@ -12,13 +12,13 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 
 @RunWith(SoundCloudTestRunner.class)
-public class NewPlaylistStorageTest extends StorageIntegrationTest {
+public class PlaylistStorageTest extends StorageIntegrationTest {
 
-    private NewPlaylistStorage storage;
+    private PlaylistStorage storage;
 
     @Before
     public void setUp() throws Exception {
-        storage = new NewPlaylistStorage(propeller());
+        storage = new PlaylistStorage(propeller());
     }
 
     @Test
