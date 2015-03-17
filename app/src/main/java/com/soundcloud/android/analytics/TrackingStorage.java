@@ -69,7 +69,7 @@ class TrackingStorage {
                         reader.getInt(TrackingDbHelper.TrackingColumns._ID),
                         reader.getLong(TrackingDbHelper.TrackingColumns.TIMESTAMP),
                         reader.getString(TrackingDbHelper.TrackingColumns.BACKEND),
-                        reader.getString(TrackingDbHelper.TrackingColumns.URL));
+                        reader.getString(TrackingDbHelper.TrackingColumns.DATA));
             }
         });
     }
@@ -112,7 +112,7 @@ class TrackingStorage {
         ContentValues values = new ContentValues();
         values.put(TrackingDbHelper.TrackingColumns.BACKEND, event.getBackend());
         values.put(TrackingDbHelper.TrackingColumns.TIMESTAMP, event.getTimeStamp());
-        values.put(TrackingDbHelper.TrackingColumns.URL, event.getData());
+        values.put(TrackingDbHelper.TrackingColumns.DATA, event.getData());
         return values;
     }
 }

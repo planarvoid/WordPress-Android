@@ -30,8 +30,8 @@ class TrackingDbHelper extends SQLiteOpenHelper {
             TrackingColumns._ID + " INTEGER PRIMARY KEY," +
             TrackingColumns.TIMESTAMP + " INTEGER NOT NULL," +
             TrackingColumns.BACKEND + " STRING NOT NULL," +
-            TrackingColumns.URL + " STRING NOT NULL," +
-            "UNIQUE (" + TrackingColumns.TIMESTAMP + ", " + TrackingColumns.BACKEND + ", " + TrackingColumns.URL + ") ON CONFLICT IGNORE" + ")";
+            TrackingColumns.DATA + " STRING NOT NULL," +
+            "UNIQUE (" + TrackingColumns.TIMESTAMP + ", " + TrackingColumns.BACKEND + ", " + TrackingColumns.DATA + ") ON CONFLICT IGNORE" + ")";
 
     @Inject
     TrackingDbHelper(Context context) {
@@ -57,7 +57,9 @@ class TrackingDbHelper extends SQLiteOpenHelper {
     abstract class TrackingColumns implements BaseColumns {
         static final String TIMESTAMP = "timestamp";
         static final String BACKEND = "backend";
-        static final String URL = "url";
+
+        // "url" is a legacy column name until we implement a real migration, since we don't want drop any ad $$$
+        static final String DATA = "url";
     }
 
 }

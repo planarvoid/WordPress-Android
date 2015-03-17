@@ -23,35 +23,38 @@ import javax.inject.Inject;
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
-    public static final String BACKEND_NAME = "eventlogger";
+    public static final String LEGACY_BACKEND_NAME = "eventlogger";
+    public static final String BATCH_BACKEND_NAME = "boogaloo";
+
+    public static final String BATCH_ENDPOINT = "https://eventgateway.soundcloud.com/v1/events";
 
     private final EventTracker eventTracker;
     private final EventLoggerDataBuilder dataBuilder;
-    private final FeatureFlags featureFlags;
+    private final FeatureFlags flags;
+
+    private final String currentBackend;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerDataBuilder dataBuilder, FeatureFlags featureFlags) {
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerDataBuilderFactory dataBuilderFactory, FeatureFlags flags) {
+        currentBackend = flags.isEnabled(Flag.EVENTLOGGER_BATCHING) ? BATCH_BACKEND_NAME : LEGACY_BACKEND_NAME;
+        dataBuilder = dataBuilderFactory.create(currentBackend);
         this.eventTracker = eventTracker;
-        this.dataBuilder = dataBuilder;
-        this.featureFlags = featureFlags;
+        this.flags = flags;
     }
 
     @Override
     public void flush() {
-        eventTracker.flush(BACKEND_NAME);
+        eventTracker.flush(currentBackend);
     }
 
     @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
-    }
+    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {}
 
     @Override
-    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
-    }
+    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {}
 
     @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {
-    }
+    public void handleOnboardingEvent(OnboardingEvent event) {}
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
@@ -64,7 +67,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindTracking((AdOverlayTrackingEvent) event);
         } else if (event instanceof ScreenEvent) {
-            if (featureFlags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)) {
+            if (flags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)) {
                 handleScreenEvent((ScreenEvent) event);
             }
         }
@@ -127,8 +130,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
         trackEvent(eventData.getTimeStamp(), dataBuilder.buildForAudioEvent(eventData));
     }
 
-    private void trackEvent(long timeStamp, String url) {
-        eventTracker.trackEvent(new TrackingRecord(timeStamp, BACKEND_NAME, url));
+    private void trackEvent(long timeStamp, String data) {
+        eventTracker.trackEvent(new TrackingRecord(timeStamp, currentBackend, data));
     }
 
 }

@@ -73,7 +73,7 @@ class SimpleTrackingApi implements TrackingApi {
         request.url(event.getData());
         request.addHeader(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
 
-        if (EventLoggerAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
+        if (EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME.equals(event.getBackend())) {
             request.head();
         } else if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
             request.post(null);
