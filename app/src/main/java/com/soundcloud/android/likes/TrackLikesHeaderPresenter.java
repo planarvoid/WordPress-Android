@@ -43,7 +43,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
 
-    private ConnectableObservable<List<Urn>> allLikedTrackUrns;
     private CompositeSubscription subscription;
     private CompositeSubscription viewLifeCycle;
 
@@ -124,7 +123,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     public void onSubscribeListObservers(ListBinding<PropertySet, PropertySet> listBinding) {
-        allLikedTrackUrns = listBinding.getSource()
+        ConnectableObservable<List<Urn>> allLikedTrackUrns = listBinding.getSource()
                 .first()
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())
