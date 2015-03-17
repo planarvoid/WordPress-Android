@@ -15,11 +15,11 @@ public class PlaylistItemOverflowMenu {
         this.testDriver = testDriver;
     }
     public void toggleLike() {
-        menuItems().get(0).click();
+        likeItem().click();
     }
 
     public boolean isLiked() {
-        return getTextView(menuItems().get(0)).getText().equals("Unlike");
+        return getTextView(likeItem()).getText().equals("Unlike");
     }
 
     private TextElement getTextView(ViewElement viewElement) {
@@ -29,6 +29,14 @@ public class PlaylistItemOverflowMenu {
     private ViewElement container() {
         return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
+
+    private ViewElement likeItem() {
+        if(menuItems().size() == 2) {
+            return menuItems().get(1);
+        }
+        return menuItems().get(0);
+    }
+
 
     private List<ViewElement> menuItems() {
         return container().findElements(With.classSimpleName("ListMenuItemView"));
