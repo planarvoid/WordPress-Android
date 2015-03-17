@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.Observer;
+import rx.functions.Action0;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
@@ -47,6 +48,7 @@ public class PlaylistOperationsTest {
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     @Mock private CreateNewPlaylistCommand createNewPlaylistCommand;
+    @Mock private Action0 requestSystemSyncAction;
 
     private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
     private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
@@ -54,12 +56,15 @@ public class PlaylistOperationsTest {
     private final Urn trackUrn = Urn.forTrack(123L);
     private TestEventBus eventBus;
 
+
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
         operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, tracksStorage,
                 loadPlaylistCommand, loadPlaylistTrackUrns, loadPlaylistTracksCommand, createNewPlaylistCommand, eventBus);
         when(tracksStorage.addTrackToPlaylist(any(Urn.class), any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
+        when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
+
     }
 
     @Test
@@ -178,9 +183,21 @@ public class PlaylistOperationsTest {
     }
 
     @Test
+    public void shouldRequestSystemSyncAfterCreatingPlaylist() throws Exception {
+        TestObserver<Urn> observer = new TestObserver<>();
+        final TxnResult txnResult = new TxnResult();
+        txnResult.add(new InsertResult(1L));
+        when(createNewPlaylistCommand.toObservable()).thenReturn(Observable.just((WriteResult) txnResult));
+
+        operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
+
+        verify(requestSystemSyncAction).call();
+    }
+
+    @Test
     public void shouldPublishEntityChangedEventAfterAddingATrackToPlaylist() {
         final PropertySet changeSet = trackAddedChangeSet(playlist.getUrn());
-        when(operations.addTrackToPlaylist(playlist.getUrn(), trackUrn)).thenReturn(Observable.just(changeSet));
+        when(tracksStorage.addTrackToPlaylist(playlist.getUrn(), trackUrn)).thenReturn(Observable.just(changeSet));
 
         operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe();
 
@@ -191,9 +208,19 @@ public class PlaylistOperationsTest {
     }
 
     @Test
+    public void shouldRequestSystemSyncAfterAddingATrackToPlaylist() {
+        final PropertySet changeSet = trackAddedChangeSet(playlist.getUrn());
+        when(tracksStorage.addTrackToPlaylist(playlist.getUrn(), trackUrn)).thenReturn(Observable.just(changeSet));
+
+        operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe();
+
+        verify(requestSystemSyncAction).call();
+    }
+
+    @Test
     public void shouldNotPublishEntityChangedEventWhenAddingTrackToPlaylistFailed() {
         TestObserver<PropertySet> testObserver = new TestObserver<>();
-        when(operations.addTrackToPlaylist(playlist.getUrn(), trackUrn))
+        when(tracksStorage.addTrackToPlaylist(playlist.getUrn(), trackUrn))
                 .thenReturn(Observable.<PropertySet>error(new Exception("Something bad happened")));
 
         operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe(testObserver);

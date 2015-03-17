@@ -65,19 +65,21 @@ public class PlaylistOperations {
     public Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return createNewPlaylist.with(new CreateNewPlaylistCommand.Params(title, isPrivate, firstTrackUrn))
                 .toObservable()
+                .subscribeOn(storageScheduler)
                 .map(new Func1<WriteResult, Urn>() {
                     @Override
                     public Urn call(WriteResult txnResult) {
                         final InsertResult insertResult = (InsertResult) ((TxnResult) txnResult).getResults().get(0);
                         return Urn.forPlaylist(insertResult.getRowId());
                     }
-                });
+                }).doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
     public Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
         return playlistTracksStorage.addTrackToPlaylist(playlistUrn, trackUrn)
                 .subscribeOn(storageScheduler)
-                .doOnNext(publishEntityStateChanged);
+                .doOnNext(publishEntityStateChanged)
+                .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
