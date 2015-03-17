@@ -18,6 +18,7 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
+import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
 import com.soundcloud.android.sync.posts.RemoveAllPostsCommand;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
@@ -50,12 +51,13 @@ public class AccountCleanupActionTest {
     @Mock private FeatureStorage featureStorage;
     @Mock private RemoveAllLikesCommand removeAllLikes;
     @Mock private RemoveAllPostsCommand removeAllPostsCommand;
+    @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(syncStateManager,
                 activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
-                featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage, removeAllLikes, removeAllPostsCommand);
+                featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage, removeAllLikes, removeAllPostsCommand, removeLocalPlaylistsCommand);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -133,5 +135,11 @@ public class AccountCleanupActionTest {
     public void shouldClearPosts() throws PropellerWriteException {
         action.call();
         verify(removeAllPostsCommand).call(null);
+    }
+
+    @Test
+    public void shouldRemoveLocalPlaylists() throws PropellerWriteException {
+        action.call();
+        verify(removeLocalPlaylistsCommand).call(null);
     }
 }

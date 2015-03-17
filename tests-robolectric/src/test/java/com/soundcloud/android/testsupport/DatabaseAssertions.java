@@ -125,6 +125,12 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)), counts(0));
     }
 
+    public void assertPlaylistInserted(long playlistId) {
+        assertThat(select(from(Table.Sounds.name())
+                .whereEq(TableColumns.Sounds._ID, playlistId)
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)), counts(1));
+    }
+
     public void assertPlaylistInserted(ApiPlaylist playlist) {
         assertThat(select(from(Table.Sounds.name())
                 .whereEq(TableColumns.Sounds._ID, playlist.getId())
