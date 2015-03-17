@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Provider;
 
-public class TrackLikesActionMenuController extends DefaultSupportFragmentLightCycle {
+public class TrackLikesActionMenuController extends DefaultSupportFragmentLightCycle<Fragment> {
 
     private final Provider<ActionMenuController> actionMenuControllerProvider;
     private final OfflineContentOperations offlineOperations;

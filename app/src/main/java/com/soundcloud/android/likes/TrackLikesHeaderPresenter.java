@@ -32,7 +32,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle implements View.OnClickListener, ListHeaderPresenter {
+public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements View.OnClickListener, ListHeaderPresenter {
 
 
     private final TrackLikesHeaderView headerView;
