@@ -51,6 +51,6 @@ public class PushPlaylistAdditionsCommandTest {
     }
 
     private Map getBodyFor(Urn trackUrn){
-        return Collections.singletonMap("track_urn", trackUrn);
+        return Collections.singletonMap("track_urn", trackUrn.toString());
     }
 }

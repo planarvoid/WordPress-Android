@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.playlists;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.model.Urn;
 
@@ -34,9 +35,10 @@ class PushPlaylistAdditionsCommand extends Command<Collection<Urn>, Collection<U
             final ApiRequest<ApiPlaylistWithTracks> request =
                     ApiRequest.Builder.<ApiPlaylistWithTracks>post(ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn))
                             .forPrivateApi(1)
-                            .withContent(Collections.singletonMap("track_urn", urn))
+                            .withContent(Collections.singletonMap("track_urn", urn.toString()))
                             .build();
-            if (apiClient.fetchResponse(request).isSuccess()){
+            final ApiResponse apiResponse = apiClient.fetchResponse(request);
+            if (apiResponse.isSuccess()){
                 successes.add(urn);
             }
         }
