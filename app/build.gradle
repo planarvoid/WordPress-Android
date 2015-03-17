@@ -79,7 +79,7 @@ android {
       minifyEnabled true
       shrinkResources true
       zipAlignEnabled true
-      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+      proguardFiles 'proguard.cfg'
       signingConfig signingConfigs.release
     }
     beta.initWith(buildTypes.release)
@@ -111,6 +111,8 @@ android {
   }
 
   packagingOptions {
+    exclude 'LICENSE.txt'
+    exclude 'META-INF/ASL2.0'
     exclude 'META-INF/DEPENDENCIES'
     exclude 'META-INF/LICENSE'
     exclude 'META-INF/NOTICE'
