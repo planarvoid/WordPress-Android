@@ -4,7 +4,6 @@ import static com.google.common.collect.Iterables.getLast;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -35,7 +34,6 @@ class SoundStreamOperations {
     private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
     private final Context appContext;
-    private final Urn currentUserUrn;
 
     private final Pager<List<PropertySet>> pager = new Pager<List<PropertySet>>() {
         @Override
@@ -57,11 +55,10 @@ class SoundStreamOperations {
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          AccountOperations accountOperations, Context appContext) {
+                          Context appContext) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.appContext = appContext;
-        this.currentUserUrn = accountOperations.getLoggedInUserUrn();
     }
 
     Pager<List<PropertySet>> pager() {
@@ -89,9 +86,9 @@ class SoundStreamOperations {
     }
 
     private Observable<List<PropertySet>> pagedStreamItems(final long timestamp, boolean syncCompleted) {
-        Log.d(TAG, "Preparing page with user=" + currentUserUrn + "; timestamp=" + timestamp);
+        Log.d(TAG, "Preparing page; timestamp=" + timestamp);
         return soundStreamStorage
-                .streamItemsBefore(timestamp, currentUserUrn, PAGE_SIZE).toList()
+                .streamItemsBefore(timestamp, PAGE_SIZE).toList()
                 .flatMap(handleLocalResult(timestamp, syncCompleted));
     }
 

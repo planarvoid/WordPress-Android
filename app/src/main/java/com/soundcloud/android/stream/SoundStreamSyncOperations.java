@@ -4,10 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.soundcloud.android.NotificationConstants;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
@@ -26,7 +24,6 @@ public class SoundStreamSyncOperations {
     static final int MAX_NOTIFICATION_ITEMS = 3;
 
     private final Context appContext;
-    private final Urn currentUserUrn;
     private final SoundStreamStorage soundStreamStorage;
     private final StreamNotificationBuilder streamNotificationBuilder;
     private final ContentStats contentStats;
@@ -41,18 +38,17 @@ public class SoundStreamSyncOperations {
 
     @Inject
     SoundStreamSyncOperations(SoundStreamStorage soundStreamStorage,
-                          AccountOperations accountOperations, Context appContext,
-                          StreamNotificationBuilder streamNotificationBuilder, ContentStats contentStats) {
+                              Context appContext, StreamNotificationBuilder streamNotificationBuilder,
+                              ContentStats contentStats) {
         this.soundStreamStorage = soundStreamStorage;
         this.appContext = appContext;
         this.streamNotificationBuilder = streamNotificationBuilder;
         this.contentStats = contentStats;
-        this.currentUserUrn = accountOperations.getLoggedInUserUrn();
     }
 
     public boolean createNotificationForUnseenItems(){
         final long lastStreamSeen = contentStats.getLastSeen(Content.ME_SOUND_STREAM);
-        final List<PropertySet> itemsSince = soundStreamStorage.loadStreamItemsSince(lastStreamSeen, currentUserUrn, MAX_NOTIFICATION_ITEMS);
+        final List<PropertySet> itemsSince = soundStreamStorage.loadStreamItemsSince(lastStreamSeen, MAX_NOTIFICATION_ITEMS);
         final boolean hasItems = !itemsSince.isEmpty();
 
         if (hasItems) {

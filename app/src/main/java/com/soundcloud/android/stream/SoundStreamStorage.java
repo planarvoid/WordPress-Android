@@ -2,9 +2,9 @@ package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
+import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
-import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -35,24 +35,24 @@ class SoundStreamStorage {
         this.database = database;
     }
 
-    public Observable<PropertySet> streamItemsBefore(final long timestamp, final Urn userUrn, final int limit) {
+    public Observable<PropertySet> streamItemsBefore(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(soundStreamSelection())
-                .whereLt(TableColumns.SoundStreamView.CREATED_AT, timestamp)
+                .whereLt(SoundStreamView.CREATED_AT, timestamp)
                         // TODO: poor man's check to remove orphaned tracks and playlists;
                         // We need to address this properly with a schema refactor, cf:
                         // https://github.com/soundcloud/SoundCloud-Android/issues/1524
-                .whereNotNull(TableColumns.SoundView.TITLE)
+                .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
         return scheduler.scheduleQuery(query).map(new StreamItemMapper());
     }
 
-    public List<PropertySet> loadStreamItemsSince(final long timestamp, final Urn userUrn, final int limit) {
+    public List<PropertySet> loadStreamItemsSince(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(soundStreamSelection())
-                .whereGt(TableColumns.SoundStreamView.CREATED_AT, timestamp)
-                .whereNotNull(TableColumns.SoundView.TITLE)
+                .whereGt(SoundStreamView.CREATED_AT, timestamp)
+                .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
         return database.query(query).toList(new StreamItemMapper());
@@ -76,28 +76,28 @@ class SoundStreamStorage {
     public Observable<Urn> trackUrns() {
         Query query = Query.from(Table.SoundStreamView.name())
                 .select(SoundStreamView.SOUND_ID)
-                .whereEq(SoundStreamView.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+                .whereEq(SoundStreamView.SOUND_TYPE, Sounds.TYPE_TRACK);
         return scheduler.scheduleQuery(query).map(new TrackUrnMapper());
     }
 
     private Query likeQuery() {
         return Query.from(Table.Likes.name(), Table.Sounds.name())
-                .joinOn(TableColumns.SoundStreamView.SOUND_ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
-                .joinOn(TableColumns.SoundStreamView.SOUND_TYPE, Table.Likes.name() + "." + TableColumns.Likes._TYPE)
+                .joinOn(SoundStreamView.SOUND_ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
+                .joinOn(SoundStreamView.SOUND_TYPE, Table.Likes.name() + "." + TableColumns.Likes._TYPE)
                 .whereNull(TableColumns.Likes.REMOVED_AT);
     }
 
     private Query repostQuery() {
         return Query.from(Table.Posts.name(), Table.Sounds.name())
-                .joinOn(TableColumns.SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
-                .joinOn(TableColumns.SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
+                .joinOn(SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
+                .joinOn(SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
                 .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
     }
 
     private static final class TrackUrnMapper extends RxResultMapper<Urn> {
         @Override
         public Urn map(CursorReader cursorReader) {
-            return Urn.forTrack(cursorReader.getLong(TableColumns.SoundStreamView.SOUND_ID));
+            return Urn.forTrack(cursorReader.getLong(SoundStreamView.SOUND_ID));
         }
     }
 
@@ -109,8 +109,8 @@ class SoundStreamStorage {
 
             propertySet.put(PlayableProperty.URN, readSoundUrn(cursorReader));
             addTitle(cursorReader, propertySet);
-            propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.SoundView.DURATION));
-            propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
+            propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
+            propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             addOptionalPlaylistLike(cursorReader, propertySet);
             addOptionalLikesCount(cursorReader, propertySet);
@@ -122,7 +122,7 @@ class SoundStreamStorage {
         }
 
         private void addTitle(CursorReader cursorReader, PropertySet propertySet) {
-            final String string = cursorReader.getString(TableColumns.SoundView.TITLE);
+            final String string = cursorReader.getString(SoundView.TITLE);
             if (string == null){
                 ErrorUtils.handleSilentException("urn : " + readSoundUrn(cursorReader),
                         new IllegalStateException("Unexpected null title in stream"));
@@ -134,43 +134,43 @@ class SoundStreamStorage {
 
 
         private void addOptionalPlaylistLike(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Playable.DB_TYPE_PLAYLIST) {
-                propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));
+            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
+                propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(SoundView.USER_LIKE));
             }
         }
 
         private void addOptionalPlayCount(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Playable.DB_TYPE_TRACK) {
-                propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.SoundView.PLAYBACK_COUNT));
+            if (getSoundType(cursorReader) == Sounds.TYPE_TRACK) {
+                propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
             }
         }
 
         private void addOptionalLikesCount(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Playable.DB_TYPE_PLAYLIST) {
-                propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
+            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
+                propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(SoundView.LIKES_COUNT));
             }
         }
 
         private void addOptionalTrackCount(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Playable.DB_TYPE_PLAYLIST) {
-                propertySet.put(PlaylistProperty.TRACK_COUNT, cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
+            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
+                propertySet.put(PlaylistProperty.TRACK_COUNT, cursorReader.getInt(SoundView.TRACK_COUNT));
             }
         }
 
         private void addOptionalReposter(CursorReader cursorReader, PropertySet propertySet) {
-            final String reposter = cursorReader.getString(TableColumns.SoundStreamView.REPOSTER_USERNAME);
+            final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
             if (ScTextUtils.isNotBlank(reposter)) {
-                propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(TableColumns.SoundStreamView.REPOSTER_USERNAME));
+                propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
             }
         }
 
         private Urn readSoundUrn(CursorReader cursorReader) {
-            final int soundId = cursorReader.getInt(TableColumns.SoundStreamView.SOUND_ID);
-            return getSoundType(cursorReader) == Playable.DB_TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
+            final int soundId = cursorReader.getInt(SoundStreamView.SOUND_ID);
+            return getSoundType(cursorReader) == Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
         }
     }
 
     private static int getSoundType(CursorReader cursorReader) {
-        return cursorReader.getInt(TableColumns.SoundStreamView.SOUND_TYPE);
+        return cursorReader.getInt(SoundStreamView.SOUND_TYPE);
     }
 }
