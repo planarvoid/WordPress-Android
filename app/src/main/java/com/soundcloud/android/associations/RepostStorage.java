@@ -1,6 +1,6 @@
 package com.soundcloud.android.associations;
 
-import com.soundcloud.android.commands.CommandNG;
+import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -27,7 +27,7 @@ class RepostStorage {
         this.dateProvider = dateProvider;
     }
 
-    CommandNG<Urn, InsertResult> addRepost() {
+    Command<Urn, InsertResult> addRepost() {
         return new WriteStorageCommand<Urn, InsertResult>(propeller) {
             @Override
             public InsertResult write(PropellerDatabase propeller, Urn urn) {
@@ -42,7 +42,7 @@ class RepostStorage {
         };
     }
 
-    CommandNG<Urn, ChangeResult> removeRepost() {
+    Command<Urn, ChangeResult> removeRepost() {
         return new WriteStorageCommand<Urn, ChangeResult>(propeller) {
             @Override
             public ChangeResult write(PropellerDatabase propeller, Urn urn) {

@@ -5,7 +5,7 @@ import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
@@ -20,7 +20,7 @@ import android.util.Pair;
 import javax.inject.Inject;
 
 
-class ReplacePlaylistPostCommand extends Command<Pair<Urn, ApiPlaylist>, WriteResult, ReplacePlaylistPostCommand> {
+class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, WriteResult, ReplacePlaylistPostCommand> {
 
     private final PropellerDatabase propeller;
 

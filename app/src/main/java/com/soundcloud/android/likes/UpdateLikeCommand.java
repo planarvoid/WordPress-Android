@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -20,7 +20,7 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.List;
 
-class UpdateLikeCommand extends Command<PropertySet, PropertySet, UpdateLikeCommand> {
+class UpdateLikeCommand extends LegacyCommand<PropertySet, PropertySet, UpdateLikeCommand> {
 
     private final PropellerDatabase database;
 

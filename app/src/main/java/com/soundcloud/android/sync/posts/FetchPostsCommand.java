@@ -5,14 +5,14 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;
 import java.util.NavigableSet;
 import java.util.TreeSet;
 
-class FetchPostsCommand extends Command<ApiEndpoints, NavigableSet<PropertySet>, FetchPostsCommand> {
+class FetchPostsCommand extends LegacyCommand<ApiEndpoints, NavigableSet<PropertySet>, FetchPostsCommand> {
 
     private final ApiClient apiClient;
 

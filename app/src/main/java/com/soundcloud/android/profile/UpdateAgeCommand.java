@@ -4,7 +4,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.rx.ScSchedulers;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 
-class UpdateAgeCommand extends Command<BirthdayInfo, Boolean, UpdateAgeCommand> {
+class UpdateAgeCommand extends LegacyCommand<BirthdayInfo, Boolean, UpdateAgeCommand> {
 
     private final ApiClient apiClient;
 

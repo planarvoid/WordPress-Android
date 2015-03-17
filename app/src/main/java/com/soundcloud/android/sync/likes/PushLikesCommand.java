@@ -4,7 +4,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 abstract class PushLikesCommand<ApiModel extends PropertySetSource>
-        extends Command<Collection<PropertySet>, Collection<PropertySet>, PushLikesCommand<ApiModel>> {
+        extends LegacyCommand<Collection<PropertySet>, Collection<PropertySet>, PushLikesCommand<ApiModel>> {
 
     private final ApiClient apiClient;
     private final ApiEndpoints endpoint;

@@ -2,7 +2,7 @@ package com.soundcloud.android.search;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LoadPlaylistLikedStatuses extends Command<List<PropertySet>, List<PropertySet>, LoadPlaylistLikedStatuses> {
+public class LoadPlaylistLikedStatuses extends LegacyCommand<List<PropertySet>, List<PropertySet>, LoadPlaylistLikedStatuses> {
 
     private static final String COLUMN_IS_LIKED = "is_liked";
 

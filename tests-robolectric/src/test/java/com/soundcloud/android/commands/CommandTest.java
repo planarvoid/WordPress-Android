@@ -1,75 +1,71 @@
 package com.soundcloud.android.commands;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import rx.Observable;
-import rx.observers.TestObserver;
+import rx.Observer;
 
-import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 
+@RunWith(SoundCloudTestRunner.class)
 public class CommandTest {
 
-    private static final class ToString extends Command<Integer, String, ToString> {
+    @Mock private Observer<String> observer;
 
-        boolean called = false;
+    private AtomicReference<String> inputCapture = new AtomicReference<>();
+
+    private Command<String, String> command = new Command<String, String>() {
+
 
         @Override
-        public String call() {
-            called = true;
-            return input.toString();
+        public String call(String input) {
+            inputCapture.set(input);
+            return "output";
         }
-    }
+    };
 
-    private static final class ToInteger extends Command<String, Integer, ToInteger> {
-
-        boolean called = false;
-
+    private Command<String, String> throwingCommand = new Command<String, String>() {
         @Override
-        public Integer call() {
-            called = true;
-            return Integer.parseInt(input);
-        }
-    }
-
-    private static final class Failed extends Command<Integer, Void, Failed> {
-
-        @Override
-        public Void call() throws Exception {
+        public String call(String input) {
             throw new RuntimeException();
         }
-    }
-
-    private ToString toString = new ToString();
-    private ToInteger toInteger = new ToInteger();
-    private Failed failed = new Failed();
-    private TestObserver testObserver = new TestObserver();
+    };
 
     @Test
-    public void shouldExecuteWithBoundParameters() throws Exception {
-        expect(toString.with(1).call()).toEqual("1");
-    }
+    public void toObservableEmitsOutputToObserver() throws Exception {
+        command.toObservable("input").subscribe(observer);
 
-    @Test
-    public void shouldChainCommands() throws Exception {
-        expect(toString.with(1).andThen(toInteger).call()).toBe(1);
+        verify(observer).onNext("output");
+        verify(observer).onCompleted();
+        verifyNoMoreInteractions(observer);
     }
 
     @Test
-    public void shouldChainCommandsViaObservables() {
-        toString.with(1).flatMap(toInteger).subscribe(testObserver);
-        testObserver.assertReceivedOnNext(Arrays.asList(1));
+    public void toObservableForwardsErrorsToObserver() throws Exception {
+        throwingCommand.toObservable("input").subscribe(observer);
+
+        verify(observer).onError(isA(RuntimeException.class));
+        verifyNoMoreInteractions(observer);
     }
 
     @Test
-    public void shouldBeConvertibleToAction() {
-        Observable.just(1).doOnNext(toString.toAction()).subscribe(testObserver);
-        expect(toString.called).toBeTrue();
+    public void toAction() throws Exception {
+        command.toAction().call("action input");
+
+        expect(inputCapture.get()).toEqual("action input");
     }
 
     @Test
-    public void shouldReportErrorsThatOccurWhenInvokedAsAction() {
-        Observable.just(1).doOnNext(failed.toAction()).subscribe(testObserver);
-        expect(testObserver.getOnErrorEvents()).toNumber(1);
+    public void toContinuation() throws Exception {
+        Observable.just("item").flatMap(command.toContinuation()).subscribe(observer);
+
+        expect(inputCapture.get()).toEqual("item");
     }
 }

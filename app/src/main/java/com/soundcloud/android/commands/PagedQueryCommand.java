@@ -9,7 +9,7 @@ import rx.Observable;
 
 import java.util.List;
 
-public abstract class PagedQueryCommand<I extends PagedQueryCommand.PageParams> extends Command<I, List<PropertySet>, PagedQueryCommand<I>> {
+public abstract class PagedQueryCommand<I extends PagedQueryCommand.PageParams> extends LegacyCommand<I, List<PropertySet>, PagedQueryCommand<I>> {
 
     private final PropellerDatabase database;
     private final RxResultMapper<PropertySet> mapper;

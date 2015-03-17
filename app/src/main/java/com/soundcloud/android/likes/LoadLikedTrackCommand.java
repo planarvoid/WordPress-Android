@@ -2,7 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -15,7 +15,7 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadLikedTrackCommand extends Command<Urn, PropertySet, LoadLikedTrackCommand> {
+public class LoadLikedTrackCommand extends LegacyCommand<Urn, PropertySet, LoadLikedTrackCommand> {
 
     private final PropellerDatabase database;
 

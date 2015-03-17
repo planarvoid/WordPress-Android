@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -15,7 +15,7 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadPlaylistTracksCommand extends Command<Urn, List<PropertySet>, LoadPlaylistTracksCommand> {
+class LoadPlaylistTracksCommand extends LegacyCommand<Urn, List<PropertySet>, LoadPlaylistTracksCommand> {
 
     private final PropellerDatabase database;
 

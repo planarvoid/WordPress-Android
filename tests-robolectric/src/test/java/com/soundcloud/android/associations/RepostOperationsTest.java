@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.commands.CommandNG;
+import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
@@ -47,8 +47,8 @@ public class RepostOperationsTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private RepostStorage repostStorage;
-    @Mock private CommandNG<Urn, InsertResult> addRepost;
-    @Mock private CommandNG<Urn, ChangeResult> removeRepost;
+    @Mock private Command<Urn, InsertResult> addRepost;
+    @Mock private Command<Urn, ChangeResult> removeRepost;
     @Mock private ApiScheduler apiScheduler;
     @Mock private WriteResult writeResult;
 

@@ -3,7 +3,7 @@ package com.soundcloud.android.sync.posts;
 import static com.soundcloud.android.storage.TableColumns.CollectionItems;
 import static com.soundcloud.android.storage.TableColumns.Posts;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-public class LoadLocalPostsCommand extends Command<Object, List<PropertySet>, LoadLocalPostsCommand> {
+public class LoadLocalPostsCommand extends LegacyCommand<Object, List<PropertySet>, LoadLocalPostsCommand> {
 
     private final PropellerDatabase database;
     private final int resourceType;

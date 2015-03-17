@@ -6,7 +6,7 @@ import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
-public class LoadTracksWithStalePoliciesCommand extends Command<Boolean, Collection<Urn>, LoadTracksWithStalePoliciesCommand> {
+public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Boolean, Collection<Urn>, LoadTracksWithStalePoliciesCommand> {
 
     private final PropellerDatabase database;
 

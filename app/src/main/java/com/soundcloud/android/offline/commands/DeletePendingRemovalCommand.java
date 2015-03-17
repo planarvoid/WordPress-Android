@@ -4,7 +4,7 @@ import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class DeletePendingRemovalCommand extends Command<Urn, List<Urn>, DeletePendingRemovalCommand> {
+public class DeletePendingRemovalCommand extends LegacyCommand<Urn, List<Urn>, DeletePendingRemovalCommand> {
     private static final long DELAY = TimeUnit.MINUTES.toMillis(3);
 
     private final SecureFileStorage fileStorage;

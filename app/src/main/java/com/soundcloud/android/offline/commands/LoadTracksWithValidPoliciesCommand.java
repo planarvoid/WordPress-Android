@@ -4,7 +4,7 @@ import static com.soundcloud.android.offline.commands.LoadTracksWithStalePolicie
 import static com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand.buildOfflinePlaylistTracksQuery;
 import static com.soundcloud.android.storage.Table.Likes;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-public class LoadTracksWithValidPoliciesCommand extends Command<Boolean, Collection<Urn>, LoadTracksWithValidPoliciesCommand> {
+public class LoadTracksWithValidPoliciesCommand extends LegacyCommand<Boolean, Collection<Urn>, LoadTracksWithValidPoliciesCommand> {
 
     private final PropellerDatabase database;
 

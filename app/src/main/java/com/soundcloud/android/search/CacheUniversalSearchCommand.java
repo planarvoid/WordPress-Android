@@ -3,7 +3,7 @@ package com.soundcloud.android.search;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -13,7 +13,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class CacheUniversalSearchCommand extends Command<Iterable<ApiUniversalSearchItem>, Void, CacheUniversalSearchCommand> {
+class CacheUniversalSearchCommand extends LegacyCommand<Iterable<ApiUniversalSearchItem>, Void, CacheUniversalSearchCommand> {
 
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;

@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.likes;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -10,7 +10,7 @@ import com.soundcloud.propeller.query.Query;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadLikesPendingAdditionCommand extends Command<Integer, List<PropertySet>, LoadLikesPendingAdditionCommand> {
+class LoadLikesPendingAdditionCommand extends LegacyCommand<Integer, List<PropertySet>, LoadLikesPendingAdditionCommand> {
 
     private final PropellerDatabase database;
 

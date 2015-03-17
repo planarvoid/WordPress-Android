@@ -10,7 +10,7 @@ import rx.Observable;
 import java.util.List;
 
 @Deprecated
-public abstract class SingleResourceQueryCommand<I> extends Command<I, PropertySet, SingleResourceQueryCommand<I>> {
+public abstract class SingleResourceQueryCommand<I> extends LegacyCommand<I, PropertySet, SingleResourceQueryCommand<I>> {
 
     private final PropellerDatabase database;
     private final DatabaseScheduler databaseScheduler;

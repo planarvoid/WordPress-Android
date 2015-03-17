@@ -6,14 +6,14 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.GuavaFunctions;
 
 import javax.inject.Inject;
 import java.util.Collection;
 
-class FetchPoliciesCommand extends Command<Collection<Urn>, Collection<PolicyInfo>, FetchPoliciesCommand>{
+class FetchPoliciesCommand extends LegacyCommand<Collection<Urn>, Collection<PolicyInfo>, FetchPoliciesCommand> {
 
     private final ApiClient apiClient;
 

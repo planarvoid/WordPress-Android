@@ -5,7 +5,7 @@ import static com.soundcloud.android.storage.Table.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.storage.Table;
@@ -18,7 +18,7 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import javax.inject.Inject;
 import java.util.List;
 
-public class LoadPendingDownloadsRequestsCommand extends Command<Object, List<DownloadRequest>, LoadPendingDownloadsRequestsCommand> {
+public class LoadPendingDownloadsRequestsCommand extends LegacyCommand<Object, List<DownloadRequest>, LoadPendingDownloadsRequestsCommand> {
 
     private final PropellerDatabase database;
 

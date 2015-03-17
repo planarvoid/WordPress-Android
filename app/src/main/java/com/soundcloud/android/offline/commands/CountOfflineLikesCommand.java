@@ -4,7 +4,7 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOA
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -13,7 +13,7 @@ import com.soundcloud.propeller.query.Query;
 
 import javax.inject.Inject;
 
-public class CountOfflineLikesCommand extends Command<Object, Integer, CountOfflineLikesCommand> {
+public class CountOfflineLikesCommand extends LegacyCommand<Object, Integer, CountOfflineLikesCommand> {
 
     public static final String COUNT_COLUMN = "TotalDownloaded";
     private final PropellerDatabase database;

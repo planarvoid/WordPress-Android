@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class BulkFetchCommand<ApiModel> extends Command<List<Urn>, List<ApiModel>, BulkFetchCommand<ApiModel>> {
+public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>, List<ApiModel>, BulkFetchCommand<ApiModel>> {
 
     private static final int DEFAULT_PAGE_SIZE = 200;
 

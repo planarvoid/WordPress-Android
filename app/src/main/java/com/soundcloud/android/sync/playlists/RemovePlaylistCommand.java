@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.playlists;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -11,7 +11,7 @@ import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 
-class RemovePlaylistCommand extends Command<Urn, WriteResult, RemovePlaylistCommand> {
+class RemovePlaylistCommand extends LegacyCommand<Urn, WriteResult, RemovePlaylistCommand> {
 
     private final PropellerDatabase database;
 

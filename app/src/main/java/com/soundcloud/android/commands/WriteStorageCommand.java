@@ -3,7 +3,7 @@ package com.soundcloud.android.commands;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 
-public abstract class WriteStorageCommand<I, O extends WriteResult> extends CommandNG<I, O> {
+public abstract class WriteStorageCommand<I, O extends WriteResult> extends Command<I, O> {
 
     private final PropellerDatabase propeller;
 

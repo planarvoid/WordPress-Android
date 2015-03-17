@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -16,7 +16,7 @@ import com.soundcloud.propeller.query.WhereBuilder;
 import javax.inject.Inject;
 import java.util.List;
 
-class LoadPlaylistCommand extends Command<Urn, PropertySet, LoadPlaylistCommand> {
+class LoadPlaylistCommand extends LegacyCommand<Urn, PropertySet, LoadPlaylistCommand> {
 
     private final PropellerDatabase database;
 

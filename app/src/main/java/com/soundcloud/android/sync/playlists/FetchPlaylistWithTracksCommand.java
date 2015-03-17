@@ -4,12 +4,12 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 
 import javax.inject.Inject;
 
-public class FetchPlaylistWithTracksCommand extends Command<Urn, ApiPlaylistWithTracks, FetchPlaylistWithTracksCommand> {
+public class FetchPlaylistWithTracksCommand extends LegacyCommand<Urn, ApiPlaylistWithTracks, FetchPlaylistWithTracksCommand> {
 
     private final ApiClient apiClient;
 

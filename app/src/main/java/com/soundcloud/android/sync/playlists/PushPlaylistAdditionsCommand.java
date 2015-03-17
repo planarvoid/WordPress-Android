@@ -4,7 +4,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 
 import javax.inject.Inject;
@@ -13,7 +13,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-class PushPlaylistAdditionsCommand extends Command<Collection<Urn>, Collection<Urn>, PushPlaylistAdditionsCommand> {
+class PushPlaylistAdditionsCommand extends LegacyCommand<Collection<Urn>, Collection<Urn>, PushPlaylistAdditionsCommand> {
 
     private final ApiClient apiClient;
 
