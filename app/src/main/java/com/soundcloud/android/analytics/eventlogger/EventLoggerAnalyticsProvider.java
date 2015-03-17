@@ -66,10 +66,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleVisualAdImpression((VisualAdImpressionEvent) event);
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindTracking((AdOverlayTrackingEvent) event);
-        } else if (event instanceof ScreenEvent) {
-            if (flags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)) {
-                handleScreenEvent((ScreenEvent) event);
-            }
+        } else if (event instanceof ScreenEvent && flags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)) {
+            handleScreenEvent((ScreenEvent) event);
         }
     }
 
