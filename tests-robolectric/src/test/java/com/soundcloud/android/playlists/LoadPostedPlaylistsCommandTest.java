@@ -133,5 +133,6 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
         apiTrack.setUser(user);
         apiTrack.setId(trackId);
         testFixtures().insertTrack(apiTrack);
+        testFixtures().insertTrackPost(apiTrack.getId(), apiTrack.getCreatedAt().getTime(), false);
     }
 }

@@ -37,6 +37,7 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
                         on(Table.Posts.field(TableColumns.Posts.TARGET_ID), Table.SoundView.field(TableColumns.SoundView._ID))
                                 .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), Table.SoundView.field(TableColumns.SoundView._TYPE)))
                 .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_POST)
+                .whereEq(Table.Posts.field(TableColumns.Posts.TARGET_TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereLt(Table.SoundView.field(TableColumns.SoundView.CREATED_AT), input.getTimestamp())
                 .groupBy(Table.SoundView.field(TableColumns.SoundView._ID))
                 .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC);
