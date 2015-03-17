@@ -54,7 +54,7 @@ public final class EntityStateChangedEvent {
         }
     };
 
-    public static final Func1<? super EntityStateChangedEvent,Boolean> IS_PLAYLIST_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+    public static final Func1<? super EntityStateChangedEvent, Boolean> IS_PLAYLIST_LIKED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isPlaylistLike() && event.getNextChangeSet().get(PlaylistProperty.IS_LIKED);
@@ -187,7 +187,7 @@ public final class EntityStateChangedEvent {
                 PlayableProperty.IS_REPOSTED.bind(reposted)));
     }
 
-    public static EntityStateChangedEvent fromRepost(PropertySet newRepostState){
+    public static EntityStateChangedEvent fromRepost(PropertySet newRepostState) {
         return new EntityStateChangedEvent(REPOST, newRepostState);
     }
 
@@ -195,6 +195,12 @@ public final class EntityStateChangedEvent {
         return new EntityStateChangedEvent(MARKED_FOR_OFFLINE, PropertySet.from(
                 PlayableProperty.URN.bind(urn),
                 PlaylistProperty.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
+    }
+
+    public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {
+        return fromTrackAddedToPlaylist(PropertySet.from(
+                PlayableProperty.URN.bind(playlistUrn),
+                PlaylistProperty.TRACK_COUNT.bind(trackCount)));
     }
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(PropertySet newPlaylistState) {

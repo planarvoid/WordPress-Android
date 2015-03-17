@@ -23,6 +23,7 @@ import android.content.Intent;
 public class OfflineContentControllerTest {
 
     @Mock private OfflineSettingsStorage settingsStorage;
+    @Mock private OfflinePlaylistStorage playlistStorage;
 
     private OfflineContentController controller;
     private TestEventBus eventBus;
@@ -36,7 +37,7 @@ public class OfflineContentControllerTest {
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(settingsStorage.getOfflineLikedTracksChanged()).thenReturn(offlineLikeToggleSetting);
 
-        controller = new OfflineContentController(eventBus, settingsStorage, Robolectric.application);
+        controller = new OfflineContentController(Robolectric.application, eventBus, settingsStorage, playlistStorage);
     }
 
     @Test
@@ -127,6 +128,30 @@ public class OfflineContentControllerTest {
         controller.unsubscribe();
 
         offlineLikeToggleSetting.onNext(true);
+
+        expect(wasServiceStarted()).toBeFalse();
+    }
+
+    @Test
+    public void startsOfflineSyncWhenTrackAddedToPlaylistMarkedAsAvailableOffline() {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(true);
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                EntityStateChangedEvent.fromTrackAddedToPlaylist(playlistUrn, 1));
+
+        expect(wasServiceStarted()).toBeTrue();
+    }
+
+    @Test
+    public void doesNotStartOfflineSyncWhenTrackAddedToNonOfflinePlaylist() {
+        final Urn playlistUrn = Urn.forPlaylist(123L);
+        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(false);
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                EntityStateChangedEvent.fromTrackAddedToPlaylist(playlistUrn, 1));
 
         expect(wasServiceStarted()).toBeFalse();
     }

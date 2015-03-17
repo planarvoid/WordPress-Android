@@ -1,5 +1,9 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER;
+import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER;
+import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER;
+
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -20,10 +24,9 @@ public class OfflineContentController {
 
     private final Context context;
     private final OfflineSettingsStorage settingStorage;
+    private final OfflinePlaylistStorage playlistStorage;
+    private final EventBus eventBus;
 
-    private final Observable<EntityStateChangedEvent> likedTrackChanged;
-    private final Observable<EntityStateChangedEvent> offlinePlaylistChanged;
-    private final Observable<SyncResult> likesSynced;
     private final Observable<Boolean> offlineLikedTracksToggle;
 
     private static final Func1<SyncResult, Boolean> IS_LIKES_SYNC_FILTER = new Func1<SyncResult, Boolean>() {
@@ -41,35 +44,54 @@ public class OfflineContentController {
         }
     };
 
+    private final Func1<EntityStateChangedEvent, Boolean> isOfflinePlaylist = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return playlistStorage.isOfflinePlaylist(event.getNextUrn());
+        }
+    };
+
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
-    public OfflineContentController(EventBus eventBus, OfflineSettingsStorage settingsStorage, Context context) {
+    public OfflineContentController(Context context, EventBus eventBus, OfflineSettingsStorage settingsStorage, OfflinePlaylistStorage playlistStorage) {
         this.context = context;
+        this.eventBus = eventBus;
         this.settingStorage = settingsStorage;
+        this.playlistStorage = playlistStorage;
 
         this.offlineLikedTracksToggle = settingsStorage.getOfflineLikedTracksChanged();
-        this.likedTrackChanged = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER);
-        this.offlinePlaylistChanged = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER);
-        this.likesSynced = eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER);
     }
 
     public void subscribe() {
         subscription = startOfflineContent().subscribe(new OfflineContentServiceSubscriber(context));
     }
 
-    private Observable<?> startOfflineContent() {
-        return Observable
-                .merge(offlineLikedTracksToggle,
-                        offlinePlaylistChanged,
-                        likesSynced.filter(isOfflineLikesEnabled),
-                        likedTrackChanged.filter(isOfflineLikesEnabled)
-                );
-    }
-
     public void unsubscribe() {
         OfflineContentService.stop(context);
         subscription.unsubscribe();
+    }
+
+    private Observable<Object> startOfflineContent() {
+        return Observable
+                .merge(getOfflinePlaylistChangedEvents(),
+                       getOfflineLikesChangedEvents(),
+                       offlineLikedTracksToggle
+                );
+    }
+
+    private Observable<EntityStateChangedEvent> getOfflinePlaylistChangedEvents() {
+        return Observable.merge(
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER),
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER).filter(isOfflinePlaylist)
+        );
+    }
+
+    private Observable<Object> getOfflineLikesChangedEvents() {
+        return Observable.merge(
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_LIKE_EVENT_FILTER),
+                eventBus.queue(EventQueue.SYNC_RESULT).filter(IS_LIKES_SYNC_FILTER)
+        ).filter(isOfflineLikesEnabled);
     }
 
 }

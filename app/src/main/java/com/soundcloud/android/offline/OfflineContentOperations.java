@@ -16,9 +16,7 @@ import com.soundcloud.android.offline.commands.LoadPendingDownloadsRequestsComma
 import com.soundcloud.android.offline.commands.LoadPendingRemovalsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
-import com.soundcloud.android.offline.commands.RemoveOfflinePlaylistCommand;
 import com.soundcloud.android.offline.commands.StoreDownloadedCommand;
-import com.soundcloud.android.offline.commands.StoreOfflinePlaylistCommand;
 import com.soundcloud.android.offline.commands.StorePendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.StorePendingRemovalsCommand;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -45,11 +43,11 @@ public class OfflineContentOperations {
     private final StoreDownloadedCommand storeDownloadedCommand;
 
     private final CountOfflineLikesCommand offlineTrackCount;
-    private final StoreOfflinePlaylistCommand storeOfflinePlaylist;
-    private final RemoveOfflinePlaylistCommand removeOfflinePlaylist;
 
     private final LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies;
     private final LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies;
+
+    private final OfflinePlaylistStorage playlistStorage;
     private final OfflineSettingsStorage settingsStorage;
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
@@ -112,8 +110,7 @@ public class OfflineContentOperations {
                                     LoadPendingDownloadsRequestsCommand loadPendingCommand,
                                     LoadPendingDownloadsCommand loadPendingDownloadsCommand, OfflineSettingsStorage settingsStorage,
                                     EventBus eventBus, CountOfflineLikesCommand offlineTrackCount,
-                                    StoreOfflinePlaylistCommand storeOfflinePlaylist,
-                                    RemoveOfflinePlaylistCommand removeOfflinePlaylist,
+                                    OfflinePlaylistStorage playlistStorage,
                                     PolicyOperations policyOperations,
                                     LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies) {
         this.loadDownloadedCommand = loadDownloadedCommand;
@@ -127,8 +124,7 @@ public class OfflineContentOperations {
         this.loadPendingDownloads = loadPendingCommand;
         this.offlineTrackCount = offlineTrackCount;
         this.eventBus = eventBus;
-        this.storeOfflinePlaylist = storeOfflinePlaylist;
-        this.removeOfflinePlaylist = removeOfflinePlaylist;
+        this.playlistStorage = playlistStorage;
         this.policyOperations = policyOperations;
         this.loadTracksWithValidPolicies = loadTracksWithValidPolicies;
     }
@@ -138,13 +134,13 @@ public class OfflineContentOperations {
     }
 
     public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn) {
-        return storeOfflinePlaylist.with(playlistUrn).toObservable()
+        return playlistStorage.storeAsOfflinePlaylist(playlistUrn)
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, true));
     }
 
     public Observable<Boolean> makePlaylistUnavailableOffline(final Urn playlistUrn) {
-        return removeOfflinePlaylist.with(playlistUrn).toObservable()
+        return playlistStorage.removeFromOfflinePlaylists(playlistUrn)
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, false));
     }
