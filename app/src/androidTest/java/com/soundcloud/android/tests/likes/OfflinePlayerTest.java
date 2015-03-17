@@ -34,7 +34,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     public void testPlayTrackWhenContentDownloaded() throws Exception {
         likesScreen.actionBar().clickSyncLikesButton().clickKeepLikesSynced();
-        likesScreen.waitForLikesSyncToFinish();
+        likesScreen.waitForLikesdownloadToFinish();
         networkManager.switchWifiOff();
 
         assertTrue(likesScreen.clickTrack(0).isExpendedPlayerPlaying());

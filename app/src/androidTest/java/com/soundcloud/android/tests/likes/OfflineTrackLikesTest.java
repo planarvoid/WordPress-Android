@@ -40,7 +40,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         final TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
 
-        assertFalse(likesScreen.isSyncIconVisible());
+        assertFalse(likesScreen.isdownloadIconVisible());
         assertTrue(likesScreen.actionBar().syncAction().isVisible());
     }
 
@@ -52,9 +52,9 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         assertTrue(syncLikesDialog.isVisible());
 
         syncLikesDialog.clickKeepLikesSynced();
-        assertTrue(likesScreen.isSyncInProgressTextVisible());
+        assertTrue(likesScreen.isDownloadInProgressTextVisible());
 
-        likesScreen.waitForLikesSyncToFinish();
+        likesScreen.waitForLikesdownloadToFinish();
         assertEquals(OfflineContentHelper.offlineFilesCount(), likesScreen.getLoadedTrackCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
     }

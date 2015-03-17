@@ -12,7 +12,7 @@
                   android:padding="@dimen/default_list_item_padding">
 
         <ImageView
-            android:id="@+id/sync_state"
+            android:id="@+id/download_state"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="@dimen/collection_download_state_margin_right"/>

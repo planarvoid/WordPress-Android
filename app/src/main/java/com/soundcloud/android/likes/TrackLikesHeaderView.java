@@ -19,7 +19,7 @@ class TrackLikesHeaderView {
     private View headerView;
     @InjectView(R.id.header_text) TextView headerText;
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
-    @InjectView(R.id.sync_state) ImageView downloadState;
+    @InjectView(R.id.download_state) ImageView downloadState;
 
     private State state = State.DEFAULT;
     private int trackCount;

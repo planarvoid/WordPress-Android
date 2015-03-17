@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens;
 
+import static com.soundcloud.android.framework.with.With.text;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
@@ -13,11 +15,8 @@ import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.likes.LikesActionBarElement;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
-
-import static com.soundcloud.android.framework.with.With.text;
+import java.util.List;
 
 public class TrackLikesScreen extends Screen {
 
@@ -52,28 +51,28 @@ public class TrackLikesScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void waitForLikesSyncToFinish() {
+    public void waitForLikesdownloadToFinish() {
         waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
     }
 
-    public boolean isSyncInProgressTextVisible() {
-        final String syncInProgress = testDriver.getString(R.string.offline_update_in_progress);
-        return testDriver.isElementDisplayed(text(syncInProgress));
+    public boolean isDownloadInProgressTextVisible() {
+        final String downloadInProgress = testDriver.getString(R.string.offline_update_in_progress);
+        return testDriver.isElementDisplayed(text(downloadInProgress));
     }
 
     public boolean isLikedTracksTextVisible() {
         int count = tracks().size();
-        final String syncInProgress =
+        final String downloadInProgress =
                 testDriver.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, count, count);
-        return testDriver.isElementDisplayed(text(syncInProgress));
+        return testDriver.isElementDisplayed(text(downloadInProgress));
     }
 
-    public boolean isSyncIconVisible() {
-        return syncIcon().isVisible();
+    public boolean isdownloadIconVisible() {
+        return downloadIcon().isVisible();
     }
 
-    private ViewElement syncIcon() {
-        return testDriver.findElement(With.id(R.id.sync_state));
+    private ViewElement downloadIcon() {
+        return testDriver.findElement(With.id(R.id.download_state));
     }
 
     private ListElement likesList() {
