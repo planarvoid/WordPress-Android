@@ -20,7 +20,6 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LocalCollectionDAO;
-import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.api.CloudAPI;
@@ -47,7 +46,6 @@ public class ApiSyncerTest {
     ContentResolver resolver;
     SyncStateManager syncStateManager;
     ActivitiesStorage activitiesStorage;
-    PlaylistStorage playlistStorage;
     long startTime;
 
     @Mock private EventBus eventBus;
@@ -59,7 +57,6 @@ public class ApiSyncerTest {
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
         activitiesStorage = new ActivitiesStorage();
-        playlistStorage = new PlaylistStorage();
         startTime = System.currentTimeMillis();
     }
 
