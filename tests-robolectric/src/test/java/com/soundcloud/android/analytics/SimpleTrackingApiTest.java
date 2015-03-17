@@ -24,10 +24,10 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackingApiTest {
+public class SimpleTrackingApiTest {
 
     private TrackingRecord event;
-    private TrackingApi trackingApi;
+    private SimpleTrackingApi simpleTrackingApi;
 
     private String fakeUrl;
 
@@ -38,7 +38,7 @@ public class TrackingApiTest {
 
     @Before
     public void setup() throws IOException {
-        trackingApi = new TrackingApi(httpClient, deviceHelper);
+        simpleTrackingApi = new SimpleTrackingApi(httpClient, deviceHelper);
         fakeUrl = "http://fake_url";
         event = new TrackingRecord(1L, 1000L, "backend", fakeUrl);
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android");
@@ -54,7 +54,7 @@ public class TrackingApiTest {
         );
         TrackingRecord failedEvent = new TrackingRecord(2L, 1000L, "backend", fakeUrl);
 
-        List<TrackingRecord> successes = trackingApi.pushToRemote(Arrays.asList(event, event, failedEvent));
+        List<TrackingRecord> successes = simpleTrackingApi.pushToRemote(Arrays.asList(event, event, failedEvent));
         expect(successes).toNumber(2);
         expect(successes.get(0).getId()).toEqual(1L);
         expect(successes.get(1).getId()).toEqual(1L);
@@ -64,7 +64,7 @@ public class TrackingApiTest {
     public void shouldSetUserAgentHeader() throws Exception {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
 
-        trackingApi.pushToRemote(Arrays.asList(event));
+        simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         expect(requestCaptor.getValue().headers("User-Agent").get(0)).toEqual("SoundCloud-Android");
     }
@@ -74,7 +74,7 @@ public class TrackingApiTest {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
         TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.BACKEND_NAME, fakeUrl);
 
-        trackingApi.pushToRemote(Arrays.asList(event));
+        simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         expect(requestCaptor.getValue().method()).toEqual("HEAD");
     }
@@ -84,7 +84,7 @@ public class TrackingApiTest {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
         TrackingRecord event = new TrackingRecord(1L, PromotedAnalyticsProvider.BACKEND_NAME, fakeUrl);
 
-        trackingApi.pushToRemote(Arrays.asList(event));
+        simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         expect(requestCaptor.getValue().method()).toEqual("GET");
     }
@@ -94,7 +94,7 @@ public class TrackingApiTest {
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
         TrackingRecord event = new TrackingRecord(1L, PlayCountAnalyticsProvider.BACKEND_NAME, fakeUrl);
 
-        trackingApi.pushToRemote(Arrays.asList(event));
+        simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         expect(requestCaptor.getValue().method()).toEqual("POST");
         expect(requestCaptor.getValue().body().contentLength()).toEqual(0L);

@@ -66,11 +66,11 @@ public class PromotedAnalyticsProviderTest {
 
         expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event1.getTimeStamp()).toEqual(12345L);
-        expect(event1.getUrl()).toEqual("url1");
+        expect(event1.getData()).toEqual("url1");
 
         expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event2.getTimeStamp()).toEqual(12345L);
-        expect(event2.getUrl()).toEqual("url2");
+        expect(event2.getData()).toEqual("url2");
     }
 
     @Test
@@ -89,9 +89,9 @@ public class PromotedAnalyticsProviderTest {
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(adEvent.getUrl()).toEqual("click1");
+        expect(adEvent.getData()).toEqual("click1");
 
-        expect(allValues.get(1).getUrl()).toEqual("click2");
+        expect(allValues.get(1).getData()).toEqual("click2");
     }
 
     @Test
@@ -110,9 +110,9 @@ public class PromotedAnalyticsProviderTest {
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(adEvent.getUrl()).toEqual("skip1");
+        expect(adEvent.getData()).toEqual("skip1");
 
-        expect(allValues.get(1).getUrl()).toEqual("skip2");
+        expect(allValues.get(1).getData()).toEqual("skip2");
     }
 
     @Test
@@ -141,9 +141,9 @@ public class PromotedAnalyticsProviderTest {
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(adEvent.getUrl()).toEqual("finish1");
+        expect(adEvent.getData()).toEqual("finish1");
 
-        expect(allValues.get(1).getUrl()).toEqual("finish2");
+        expect(allValues.get(1).getData()).toEqual("finish2");
     }
 
     @Test
@@ -161,12 +161,12 @@ public class PromotedAnalyticsProviderTest {
         final TrackingRecord event1 = captor.getAllValues().get(0);
         expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event1.getTimeStamp()).toEqual(333l);
-        expect(event1.getUrl()).toEqual("visual1");
+        expect(event1.getData()).toEqual("visual1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
         expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event2.getTimeStamp()).toEqual(333l);
-        expect(event2.getUrl()).toEqual("visual2");
+        expect(event2.getData()).toEqual("visual2");
     }
 
     @Test
@@ -183,12 +183,12 @@ public class PromotedAnalyticsProviderTest {
         final TrackingRecord event1 = captor.getAllValues().get(0);
         expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event1.getTimeStamp()).toEqual(333l);
-        expect(event1.getUrl()).toEqual("leaveBehindTrackingImpressionUrl1");
+        expect(event1.getData()).toEqual("leaveBehindTrackingImpressionUrl1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
         expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event2.getTimeStamp()).toEqual(333l);
-        expect(event2.getUrl()).toEqual("leaveBehindTrackingImpressionUrl2");
+        expect(event2.getData()).toEqual("leaveBehindTrackingImpressionUrl2");
     }
 
 

@@ -38,7 +38,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
 
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private TrackSourceInfo trackSourceInfo;
-    @Mock private TrackingApi eventLoggerApi;
+    @Mock private TrackingApi trackingApi;
     @Mock private TrackingRecord trackingRecord;
 
     @Before
@@ -50,7 +50,7 @@ public class TrackingStorageTest extends StorageIntegrationTest {
 
     @Test
     public void shouldInsertPlaybackEvent() throws Exception {
-        when(trackingRecord.getUrl()).thenReturn("http://eventlogger.soundcloud.com/audio?keys=values");
+        when(trackingRecord.getData()).thenReturn("http://eventlogger.soundcloud.com/audio?keys=values");
         when(trackingRecord.getTimeStamp()).thenReturn(1000L);
         when(trackingRecord.getBackend()).thenReturn("eventlogger");
 
@@ -103,10 +103,10 @@ public class TrackingStorageTest extends StorageIntegrationTest {
         assertThat(events.size(), is(2));
         assertThat(events.get(0).getTimeStamp(), is(1000L));
         assertThat(events.get(0).getBackend(), is("eventlogger"));
-        assertThat(events.get(0).getUrl(), is("url1"));
+        assertThat(events.get(0).getData(), is("url1"));
         assertThat(events.get(1).getTimeStamp(), is(2000L));
         assertThat(events.get(1).getBackend(), is("play_counts"));
-        assertThat(events.get(1).getUrl(), is("url2"));
+        assertThat(events.get(1).getData(), is("url2"));
     }
 
     @Test

@@ -25,13 +25,13 @@ class TrackingHandler extends Handler {
 
     private final NetworkConnectionHelper networkConnectionHelper;
     private final TrackingStorage storage;
-    private final TrackingApi api;
+    private final TrackingApiFactory apiFactory;
 
-    TrackingHandler(Looper looper, NetworkConnectionHelper networkConnectionHelper, TrackingStorage storage, TrackingApi api) {
+    TrackingHandler(Looper looper, NetworkConnectionHelper networkConnectionHelper, TrackingStorage storage, TrackingApiFactory apiFactory) {
         super(looper);
         this.networkConnectionHelper = networkConnectionHelper;
         this.storage = storage;
-        this.api = api;
+        this.apiFactory = apiFactory;
     }
 
     @Override
@@ -81,15 +81,15 @@ class TrackingHandler extends Handler {
             List<TrackingRecord> events = backend == null ? storage.getPendingEvents() : storage.getPendingEventsForBackend(backend);
 
             if (!events.isEmpty()) {
-                submitEvents(events);
+                submitEvents(events, backend);
             }
         } else {
             Log.d(EventTracker.TAG, "not connected, skipping flush");
         }
     }
 
-    private void submitEvents(List<TrackingRecord> events) {
-        final List<TrackingRecord> submitted = api.pushToRemote(events);
+    private void submitEvents(List<TrackingRecord> events, String backend) {
+        final List<TrackingRecord> submitted = apiFactory.create(backend).pushToRemote(events);
         if (!submitted.isEmpty()) {
             ChangeResult result = storage.deleteEvents(submitted);
             final int rowsDeleted = result.getNumRowsAffected();

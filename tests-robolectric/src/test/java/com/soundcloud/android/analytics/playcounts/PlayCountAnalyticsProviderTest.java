@@ -44,7 +44,7 @@ public class PlayCountAnalyticsProviderTest {
         verify(eventTracker).trackEvent(trackingEventCaptor.capture());
         expect(trackingEventCaptor.getValue().getBackend()).toEqual(PlayCountAnalyticsProvider.BACKEND_NAME);
         expect(trackingEventCaptor.getValue().getTimeStamp()).toEqual(1000L);
-        expect(trackingEventCaptor.getValue().getUrl()).toEqual("url");
+        expect(trackingEventCaptor.getValue().getData()).toEqual("url");
     }
 
     @Test

@@ -74,7 +74,7 @@ public class EventLoggerAnalyticsProviderTest {
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(12345L);
-        expect(adEvent.getUrl()).toEqual("adUrl");
+        expect(adEvent.getData()).toEqual("adUrl");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class EventLoggerAnalyticsProviderTest {
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(adEvent.getUrl()).toEqual("clickUrl");
+        expect(adEvent.getData()).toEqual("clickUrl");
     }
 
     @Test
@@ -109,7 +109,7 @@ public class EventLoggerAnalyticsProviderTest {
         verify(eventTracker).trackEvent(captor.capture());
         expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(captor.getValue().getUrl()).toEqual("url");
+        expect(captor.getValue().getData()).toEqual("url");
     }
 
     @Test
@@ -124,7 +124,7 @@ public class EventLoggerAnalyticsProviderTest {
         verify(eventTracker).trackEvent(captor.capture());
         expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
-        expect(captor.getValue().getUrl()).toEqual("url");
+        expect(captor.getValue().getData()).toEqual("url");
     }
 
     @Test
@@ -138,7 +138,7 @@ public class EventLoggerAnalyticsProviderTest {
         verify(eventTracker).trackEvent(captor.capture());
         expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
-        expect(captor.getValue().getUrl()).toEqual("url");
+        expect(captor.getValue().getData()).toEqual("url");
     }
 
     @Test
@@ -156,10 +156,10 @@ public class EventLoggerAnalyticsProviderTest {
         expect(captor.getAllValues()).toNumber(2);
         expect(captor.getAllValues().get(0).getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getAllValues().get(0).getTimeStamp()).toEqual(event1.getTimeStamp());
-        expect(captor.getAllValues().get(0).getUrl()).toEqual("url1");
+        expect(captor.getAllValues().get(0).getData()).toEqual("url1");
         expect(captor.getAllValues().get(1).getBackend()).toEqual(EventLoggerAnalyticsProvider.BACKEND_NAME);
         expect(captor.getAllValues().get(1).getTimeStamp()).toEqual(event2.getTimeStamp());
-        expect(captor.getAllValues().get(1).getUrl()).toEqual("url2");
+        expect(captor.getAllValues().get(1).getData()).toEqual("url2");
     }
 
     @Test
@@ -171,7 +171,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        captor.getValue().getUrl().equals("ForAudioAdImpression");
+        captor.getValue().getData().equals("ForAudioAdImpression");
     }
 
     @Test
@@ -183,7 +183,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        captor.getValue().getUrl().equals("ForAudioAdClick");
+        captor.getValue().getData().equals("ForAudioAdClick");
     }
 
     @Test
@@ -205,7 +205,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        captor.getValue().getUrl().equals("ForScreenEvent");
+        captor.getValue().getData().equals("ForScreenEvent");
     }
 
     @Test

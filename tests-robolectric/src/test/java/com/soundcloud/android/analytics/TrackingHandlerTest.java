@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -27,6 +28,7 @@ public class TrackingHandlerTest {
     private TrackingHandler trackingHandler;
 
     @Mock NetworkConnectionHelper networkConnectionHelper;
+    @Mock TrackingApiFactory apiFactory;
     @Mock TrackingApi api;
     @Mock TrackingStorage storage;
     @Mock TrackSourceInfo trackSourceInfo;
@@ -34,7 +36,8 @@ public class TrackingHandlerTest {
     @Before
     public void before() {
         when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
-        trackingHandler = new TrackingHandler(Robolectric.application.getMainLooper(), networkConnectionHelper, storage, api);
+        when(apiFactory.create(anyString())).thenReturn(api);
+        trackingHandler = new TrackingHandler(Robolectric.application.getMainLooper(), networkConnectionHelper, storage, apiFactory);
     }
 
     @Test
@@ -61,7 +64,7 @@ public class TrackingHandlerTest {
     public void shouldNotFlushTrackingEventsWithNoLocalEvents() throws Exception {
         when(storage.getPendingEvents()).thenReturn(Collections.<TrackingRecord>emptyList());
         trackingHandler.sendMessage(trackingHandler.obtainMessage(TrackingHandler.FLUSH_TOKEN));
-        verifyZeroInteractions(api);
+        verifyZeroInteractions(apiFactory);
     }
 
     @Test

@@ -112,7 +112,7 @@ class TrackingStorage {
         ContentValues values = new ContentValues();
         values.put(TrackingDbHelper.TrackingColumns.BACKEND, event.getBackend());
         values.put(TrackingDbHelper.TrackingColumns.TIMESTAMP, event.getTimeStamp());
-        values.put(TrackingDbHelper.TrackingColumns.URL, event.getUrl());
+        values.put(TrackingDbHelper.TrackingColumns.URL, event.getData());
         return values;
     }
 }

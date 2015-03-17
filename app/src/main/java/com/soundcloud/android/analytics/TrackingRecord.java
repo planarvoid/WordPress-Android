@@ -8,17 +8,17 @@ public class TrackingRecord {
     private final long id;
     private final long timestamp;
     private final String backend;
-    private final String url;
+    private final String data;
 
-    public TrackingRecord(long timestamp, String backend, String url) {
-        this(Consts.NOT_SET, timestamp, backend, url);
+    public TrackingRecord(long timestamp, String backend, String data) {
+        this(Consts.NOT_SET, timestamp, backend, data);
     }
 
-    public TrackingRecord(long id, long timestamp, String backend, String url) {
+    public TrackingRecord(long id, long timestamp, String backend, String data) {
         this.id = id;
         this.backend = backend;
         this.timestamp = timestamp;
-        this.url = url;
+        this.data = data;
     }
 
     public long getId() {
@@ -33,8 +33,8 @@ public class TrackingRecord {
         return backend;
     }
 
-    public String getUrl() {
-        return url;
+    public String getData() {
+        return data;
     }
 
     @Override
@@ -43,6 +43,6 @@ public class TrackingRecord {
                 .add("id", id)
                 .add("timestamp", timestamp)
                 .add("backend", backend)
-                .add("url", url).toString();
+                .add("data", data).toString();
     }
 }

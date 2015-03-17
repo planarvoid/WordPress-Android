@@ -10,16 +10,16 @@ class TrackingHandlerFactory {
 
     private final NetworkConnectionHelper networkConnectionHelper;
     private final TrackingStorage storage;
-    private final TrackingApi trackingApi;
+    private final TrackingApiFactory trackingApiFactory;
 
     @Inject
-    TrackingHandlerFactory(NetworkConnectionHelper networkConnectionHelper, TrackingStorage storage, TrackingApi trackingApi) {
+    TrackingHandlerFactory(NetworkConnectionHelper networkConnectionHelper, TrackingStorage storage, TrackingApiFactory trackingApiFactory) {
         this.networkConnectionHelper = networkConnectionHelper;
         this.storage = storage;
-        this.trackingApi = trackingApi;
+        this.trackingApiFactory = trackingApiFactory;
     }
 
     TrackingHandler create(Looper looper) {
-        return new TrackingHandler(looper, networkConnectionHelper, storage, trackingApi);
+        return new TrackingHandler(looper, networkConnectionHelper, storage, trackingApiFactory);
     }
 }
