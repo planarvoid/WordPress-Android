@@ -19,6 +19,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -140,11 +141,17 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         // here we assume that the list you are looking at is up to date with the database, which is not necessarily the case
         // a sync may have happened in the background. This is def. an edge case, but worth handling maybe??
-        Urn initialTrack = ((PropertySet) adapterView.getItemAtPosition(position)).get(TrackProperty.URN);
-        PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
-        playbackOperations
-                .playLikes(initialTrack, position, playSessionSource)
-                .subscribe(expandPlayerSubscriberProvider.get());
+        PropertySet item = (PropertySet) adapterView.getItemAtPosition(position);
+        if (item == null) {
+            String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
+            ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
+        } else {
+            Urn initialTrack = ((PropertySet) adapterView.getItemAtPosition(position)).get(TrackProperty.URN);
+            PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
+            playbackOperations
+                    .playLikes(initialTrack, position, playSessionSource)
+                    .subscribe(expandPlayerSubscriberProvider.get());
+        }
     }
 
     private class OfflineSyncStopped extends DefaultSubscriber<OfflineContentEvent> {

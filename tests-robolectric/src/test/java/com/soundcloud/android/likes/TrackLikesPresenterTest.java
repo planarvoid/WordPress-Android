@@ -6,6 +6,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
@@ -125,6 +126,13 @@ public class TrackLikesPresenterTest {
         presenter.onItemClick(listView, view, 0, 0);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(likedUrns));
+    }
+
+    @Test
+    public void shouldNotPlayTracksOnListItemClickIfItemIsNull() {
+        when(listView.getItemAtPosition(0)).thenReturn(null);
+        presenter.onItemClick(listView, view, 0, 0);
+        verifyZeroInteractions(playbackOperations);
     }
 
     @Test
