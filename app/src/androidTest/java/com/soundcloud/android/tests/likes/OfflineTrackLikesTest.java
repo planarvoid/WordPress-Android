@@ -29,12 +29,6 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         super.setUp();
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        resetOfflineSyncState(getInstrumentation().getTargetContext());
-        super.tearDown();
-    }
-
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(getActivity());
 
