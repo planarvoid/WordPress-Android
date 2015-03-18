@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -31,7 +32,7 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
 
     @Test
     public void updatesLikeStatusWhenLikingTrack() throws Exception {
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, true));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, true));
         expect(result.success()).toBeTrue();
 
         databaseAssertions().assertLikedTrackPendingAddition(targetUrn);
@@ -41,10 +42,10 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
     public void updatesLikesCountInSoundsWhenLiked() throws Exception {
         databaseAssertions().assertLikesCount(targetUrn, 34);
 
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, true));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, true));
         expect(result.success()).toBeTrue();
 
-        expect((Integer) command.getUpdatedLikesCount()).toBe(35);
+        expect(command.getUpdatedLikesCount()).toBe(35);
         databaseAssertions().assertLikesCount(targetUrn, 35);
     }
 
@@ -52,7 +53,7 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
     public void upsertReplacesLikedTrack() throws Exception {
         Urn trackUrn = testFixtures().insertLikedTrackPendingRemoval(new Date()).getUrn();
 
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(trackUrn, true));
+        final WriteResult result = command.call(new UpdateLikeParams(trackUrn, true));
         expect(result.success()).toBeTrue();
 
         databaseAssertions().assertLikedTrackPendingAddition(trackUrn);
@@ -60,7 +61,7 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
 
     @Test
     public void updatesLikeStatusWhenUnlikingTrack() throws Exception {
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, false));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, false));
         expect(result.success()).toBeTrue();
 
         databaseAssertions().assertLikedTrackPendingRemoval(targetUrn);
@@ -70,7 +71,7 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
     public void updatesLikesCountInSoundsWhenUnliked() throws Exception {
         updateLikesCount();
 
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, false));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, false));
         expect(result.success()).toBeTrue();
 
         expect(command.getUpdatedLikesCount()).toBe(0);

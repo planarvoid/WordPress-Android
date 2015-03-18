@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -31,7 +32,7 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
 
     @Test
     public void updatesLikeStatusWhenLikingTrack() throws Exception {
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, true));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, true));
         expect(result.success()).toBeTrue();
 
         databaseAssertions().assertLikedPlaylistPendingAddition(targetUrn);
@@ -41,10 +42,10 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
     public void updatesLikesCountInSoundsWhenLiked() throws Exception {
         databaseAssertions().assertLikesCount(targetUrn, 10);
 
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, true));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, true));
         expect(result.success()).toBeTrue();
 
-        expect((Integer) command.getUpdatedLikesCount()).toBe(11);
+        expect(command.getUpdatedLikesCount()).toBe(11);
         databaseAssertions().assertLikesCount(targetUrn, 11);
     }
 
@@ -52,7 +53,7 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
     public void upsertReplacesLikedPlaylist() throws Exception {
         Urn playlistUrn = testFixtures().insertLikedPlaylistPendingRemoval(new Date()).getUrn();
 
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(playlistUrn, true));
+        final WriteResult result = command.call(new UpdateLikeParams(playlistUrn, true));
         expect(result.success()).toBeTrue();
 
         databaseAssertions().assertLikedPlaylistPendingAddition(playlistUrn);
@@ -60,7 +61,7 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
 
     @Test
     public void updatesLikeStatusWhenUnlikingPlaylist() throws Exception {
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, false));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, false));
         expect(result.success()).toBeTrue();
 
         databaseAssertions().assertLikedPlaylistPendingRemoval(targetUrn);
@@ -70,7 +71,7 @@ public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
     public void updatesLikesCountInSoundsWhenUnliked() throws Exception {
         updateLikesCount();
 
-        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, false));
+        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, false));
         expect(result.success()).toBeTrue();
 
         expect(command.getUpdatedLikesCount()).toBe(0);
