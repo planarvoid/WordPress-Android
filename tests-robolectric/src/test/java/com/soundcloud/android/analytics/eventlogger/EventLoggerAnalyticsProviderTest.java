@@ -35,6 +35,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import android.content.SharedPreferences;
+
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -46,6 +48,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Mock private EventLoggerDataBuilderFactory dataBuilderFactory;
     @Mock private EventLoggerDataBuilder dataBuilder;
     @Mock private FeatureFlags featureFlags;
+    @Mock private SharedPreferences sharedPreferences;
 
     private Urn userUrn = Urn.forUser(123L);
     private TrackSourceInfo trackSourceInfo;
