@@ -17,6 +17,9 @@ import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.settings.DeveloperSettings;
+
+import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 
@@ -31,9 +34,11 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     private final FeatureFlags flags;
 
     private final String currentBackend;
+    private final SharedPreferences sharedPreferences;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerDataBuilderFactory dataBuilderFactory, FeatureFlags flags) {
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerDataBuilderFactory dataBuilderFactory, FeatureFlags flags, SharedPreferences sharedPreferences) {
+        this.sharedPreferences = sharedPreferences;
         currentBackend = flags.isEnabled(Flag.EVENTLOGGER_BATCHING) ? BATCH_BACKEND_NAME : LEGACY_BACKEND_NAME;
         dataBuilder = dataBuilderFactory.create(currentBackend);
         this.eventTracker = eventTracker;
@@ -128,6 +133,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void trackEvent(long timeStamp, String data) {
         eventTracker.trackEvent(new TrackingRecord(timeStamp, currentBackend, data));
+        if (sharedPreferences.getBoolean(DeveloperSettings.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)){
+            eventTracker.flush(currentBackend);
+        }
     }
 
 }

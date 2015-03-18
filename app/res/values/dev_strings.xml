@@ -31,4 +31,7 @@
     <string name="dev_clear_recordings">Clear all recordings?</string>
     <string name="dev_configuration_features">Configuration Features</string>
 
+    <string name="pref_dev_flush_eventlogger_instantly">Flush Eventlogger Instantly</string>
+    <string name="pref_dev_flush_eventlogger_instantly_summary">Flush eventlogger whenever it receives an event. This helps with event validation</string>
+
 </resources>

@@ -47,5 +47,11 @@
             android:summary="@string/pref_dev_http_proxy_summary"
             android:title="@string/pref_dev_http_proxy" />
 
+        <CheckBoxPreference
+            android:key="@string/key_dev_flush_eventlogger_instantly"
+            android:title="@string/pref_dev_flush_eventlogger_instantly"
+            android:summary="@string/pref_dev_flush_eventlogger_instantly_summary"
+            android:defaultValue="false" />
+
     </PreferenceCategory>
 </PreferenceScreen>

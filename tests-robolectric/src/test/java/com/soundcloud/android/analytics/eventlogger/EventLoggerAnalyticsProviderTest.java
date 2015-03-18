@@ -53,7 +53,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Before
     public void setUp() throws Exception {
         when(dataBuilderFactory.create(anyString())).thenReturn(dataBuilder);
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilderFactory, featureFlags);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilderFactory, featureFlags, sharedPreferences);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
     }
 

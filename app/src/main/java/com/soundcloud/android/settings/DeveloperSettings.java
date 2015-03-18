@@ -37,6 +37,7 @@ public class DeveloperSettings {
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";
     public static final String DEV_CONFIG_FEATURES = "dev.configFeatures";
+    public static final String DEV_FLUSH_EVENTLOGGER_INSTANTLY = "dev.flushEventloggerInstantly";
 
     private final SoundCloudApplication application;
 
