@@ -3,7 +3,7 @@ package com.soundcloud.android.commands;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 
-public abstract class WriteStorageCommand<I, O extends WriteResult> extends Command<I, O> {
+public abstract class WriteStorageCommand<I, R extends WriteResult, O> extends Command<I, O> {
 
     private final PropellerDatabase propeller;
 
@@ -13,12 +13,14 @@ public abstract class WriteStorageCommand<I, O extends WriteResult> extends Comm
 
     @Override
     public O call(I input) {
-        final O result = write(propeller, input);
+        final R result = write(propeller, input);
         if (result.success()) {
-            return result;
+            return transform(result);
         }
         throw result.getFailure();
     }
 
-    protected abstract O write(PropellerDatabase propeller, I input);
+    protected abstract R write(PropellerDatabase propeller, I input);
+
+    protected abstract O transform(R result);
 }

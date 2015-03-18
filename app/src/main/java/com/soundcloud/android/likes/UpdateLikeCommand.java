@@ -22,7 +22,7 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLikeParams, WriteResult> {
+class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLikeParams, WriteResult, Integer> {
 
     private int updatedLikesCount;
 
@@ -45,6 +45,11 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
                 step(propeller.upsert(Table.Likes, buildContentValuesForLike(params)));
             }
         });
+    }
+
+    @Override
+    protected Integer transform(WriteResult result) {
+        return updatedLikesCount;
     }
 
     private int obtainNewLikesCount(PropellerDatabase propeller, UpdateLikeParams params) {
@@ -77,10 +82,6 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
 
     private int getSoundType(Urn targetUrn) {
         return targetUrn.isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST;
-    }
-
-    int getUpdatedLikesCount() {
-        return updatedLikesCount;
     }
 
     private static class LikeCountMapper extends RxResultMapper<PropertySet> {

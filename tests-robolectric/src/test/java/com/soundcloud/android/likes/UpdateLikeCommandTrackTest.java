@@ -8,7 +8,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.WhereBuilder;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +31,7 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
 
     @Test
     public void updatesLikeStatusWhenLikingTrack() throws Exception {
-        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, true));
-        expect(result.success()).toBeTrue();
+        command.call(new UpdateLikeParams(targetUrn, true));
 
         databaseAssertions().assertLikedTrackPendingAddition(targetUrn);
     }
@@ -42,10 +40,9 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
     public void updatesLikesCountInSoundsWhenLiked() throws Exception {
         databaseAssertions().assertLikesCount(targetUrn, 34);
 
-        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, true));
-        expect(result.success()).toBeTrue();
+        final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, true));
 
-        expect(command.getUpdatedLikesCount()).toBe(35);
+        expect(newLikesCount).toBe(35);
         databaseAssertions().assertLikesCount(targetUrn, 35);
     }
 
@@ -53,16 +50,14 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
     public void upsertReplacesLikedTrack() throws Exception {
         Urn trackUrn = testFixtures().insertLikedTrackPendingRemoval(new Date()).getUrn();
 
-        final WriteResult result = command.call(new UpdateLikeParams(trackUrn, true));
-        expect(result.success()).toBeTrue();
+        command.call(new UpdateLikeParams(trackUrn, true));
 
         databaseAssertions().assertLikedTrackPendingAddition(trackUrn);
     }
 
     @Test
     public void updatesLikeStatusWhenUnlikingTrack() throws Exception {
-        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, false));
-        expect(result.success()).toBeTrue();
+        command.call(new UpdateLikeParams(targetUrn, false));
 
         databaseAssertions().assertLikedTrackPendingRemoval(targetUrn);
     }
@@ -71,10 +66,9 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
     public void updatesLikesCountInSoundsWhenUnliked() throws Exception {
         updateLikesCount();
 
-        final WriteResult result = command.call(new UpdateLikeParams(targetUrn, false));
-        expect(result.success()).toBeTrue();
+        final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, false));
 
-        expect(command.getUpdatedLikesCount()).toBe(0);
+        expect(newLikesCount).toBe(0);
         databaseAssertions().assertLikesCount(targetUrn, 0);
     }
 

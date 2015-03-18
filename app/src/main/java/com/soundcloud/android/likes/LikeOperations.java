@@ -11,7 +11,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -59,13 +58,13 @@ public class LikeOperations {
                 .subscribeOn(scheduler);
     }
 
-    private Func1<WriteResult, PropertySet> toChangeSet(final Urn targetUrn, final boolean addLike) {
-        return new Func1<WriteResult, PropertySet>() {
+    private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn, final boolean addLike) {
+        return new Func1<Integer, PropertySet>() {
             @Override
-            public PropertySet call(WriteResult txnResult) {
+            public PropertySet call(Integer newLikesCount) {
                 return PropertySet.from(
                         PlayableProperty.URN.bind(targetUrn),
-                        PlayableProperty.LIKES_COUNT.bind(storeLikeCommand.getUpdatedLikesCount()),
+                        PlayableProperty.LIKES_COUNT.bind(newLikesCount),
                         PlayableProperty.IS_LIKED.bind(addLike));
             }
         };

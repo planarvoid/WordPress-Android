@@ -14,9 +14,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.testsupport.fixtures.TestStorageResults;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,15 +49,12 @@ public class LikeOperationsTest {
                 syncInitiator,
                 eventBus,
                 scheduler);
-        when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(
-                Observable.<WriteResult>just(TestStorageResults.successfulChange()));
+        when(updateLikeCommand.toObservable(any(UpdateLikeParams.class))).thenReturn(Observable.just(5));
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
     }
 
     @Test
     public void toggleLikeAddsNewLikeAndEmitsEntityChangeSet() {
-        when(updateLikeCommand.getUpdatedLikesCount()).thenReturn(5);
-
         operations.toggleLike(targetUrn, true).subscribe(observer);
 
         verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());
@@ -70,8 +65,6 @@ public class LikeOperationsTest {
 
     @Test
     public void toggleLikeRemovesLikeAndEmitsEntityChangeSet() {
-        when(updateLikeCommand.getUpdatedLikesCount()).thenReturn(5);
-
         operations.toggleLike(targetUrn, false).subscribe(observer);
 
         verify(updateLikeCommand).toObservable(commandParamsCaptor.capture());

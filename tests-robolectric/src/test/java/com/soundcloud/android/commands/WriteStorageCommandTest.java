@@ -16,14 +16,14 @@ public class WriteStorageCommandTest {
 
     @Mock private PropellerDatabase propeller;
 
-    private WriteStorageCommand<String, InsertResult> command = new WriteStorageCommand<String, InsertResult>(propeller) {
+    private DefaultWriteStorageCommand<String, InsertResult> command = new DefaultWriteStorageCommand<String, InsertResult>(propeller) {
         @Override
         protected InsertResult write(PropellerDatabase propeller, String input) {
             return TestStorageResults.successfulInsert();
         }
     };
 
-    private WriteStorageCommand<String, InsertResult> failedCommand = new WriteStorageCommand<String, InsertResult>(propeller) {
+    private DefaultWriteStorageCommand<String, InsertResult> failedCommand = new DefaultWriteStorageCommand<String, InsertResult>(propeller) {
         @Override
         protected InsertResult write(PropellerDatabase propeller, String input) {
             return TestStorageResults.failedInsert();

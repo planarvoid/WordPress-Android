@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync.playlists;
 
-import com.soundcloud.android.commands.WriteStorageCommand;
+import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -9,7 +9,7 @@ import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 
-public class RemoveLocalPlaylistsCommand extends WriteStorageCommand<Void, WriteResult> {
+public class RemoveLocalPlaylistsCommand extends DefaultWriteStorageCommand<Void, WriteResult> {
 
     @Inject
     RemoveLocalPlaylistsCommand(PropellerDatabase propeller) {
