@@ -152,18 +152,14 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     }
 
     @Override
-    public void onToggleLike(boolean isLiked) {
+    public void onToggleLike(boolean addLike) {
         if (playlistInfo != null) {
-            final PropertySet propertySet = playlistInfo.getSourceSet();
-
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(isLiked,
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
                     Screen.PLAYLIST_DETAILS.get(),
                     PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
                     playlistInfo.getUrn()));
 
-            fireAndForget(isLiked
-                    ? likeOperations.addLike(propertySet)
-                    : likeOperations.removeLike(propertySet));
+            fireAndForget(likeOperations.toggleLike(playlistInfo.getUrn(), addLike));
         }
     }
 

@@ -1,12 +1,19 @@
 package com.soundcloud.android.likes;
 
-import com.soundcloud.android.model.PlayableProperty;
+import static com.soundcloud.android.Expect.expect;
+
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.query.WhereBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.ContentValues;
 
 import java.util.Date;
 
@@ -14,47 +21,69 @@ import java.util.Date;
 public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
 
     private UpdateLikeCommand command;
-    private PropertySet playlist;
+    private Urn targetUrn;
 
     @Before
     public void setUp() throws Exception {
         command = new UpdateLikeCommand(propeller());
+        targetUrn = testFixtures().insertPlaylist().getUrn();
     }
 
     @Test
-    public void upsertLikedPlaylist() throws Exception {
-        setUpPlaylistForLiking();
+    public void updatesLikeStatusWhenLikingTrack() throws Exception {
+        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, true));
+        expect(result.success()).toBeTrue();
 
-        command.with(playlist).call();
-
-        databaseAssertions().assertLikedPlaylistPendingAddition(playlist);
+        databaseAssertions().assertLikedPlaylistPendingAddition(targetUrn);
     }
 
     @Test
-    public void upsertUnlikedPlaylist() throws Exception {
-        setUpPlaylistForUnLiking();
+    public void updatesLikesCountInSoundsWhenLiked() throws Exception {
+        databaseAssertions().assertLikesCount(targetUrn, 10);
 
-        command.with(playlist).call();
+        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, true));
+        expect(result.success()).toBeTrue();
 
-        databaseAssertions().assertLikedPlaylistPendingRemoval(playlist);
+        expect((Integer) command.getUpdatedLikesCount()).toBe(11);
+        databaseAssertions().assertLikesCount(targetUrn, 11);
     }
 
-    private void setUpPlaylistForLiking() {
-        final Date created = new Date();
-        playlist = testFixtures().insertPlaylist()
-                .toPropertySet()
-                .put(LikeProperty.CREATED_AT, created)
-                .put(LikeProperty.ADDED_AT, created)
-                .put(PlayableProperty.IS_LIKED, true);
+    @Test
+    public void upsertReplacesLikedPlaylist() throws Exception {
+        Urn playlistUrn = testFixtures().insertLikedPlaylistPendingRemoval(new Date()).getUrn();
+
+        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(playlistUrn, true));
+        expect(result.success()).toBeTrue();
+
+        databaseAssertions().assertLikedPlaylistPendingAddition(playlistUrn);
     }
 
-    private void setUpPlaylistForUnLiking() {
-        final Date created = new Date();
-        playlist = testFixtures().insertPlaylist()
-                .toPropertySet()
-                .put(LikeProperty.CREATED_AT, created)
-                .put(LikeProperty.REMOVED_AT, created)
-                .put(PlayableProperty.IS_LIKED, false);
+    @Test
+    public void updatesLikeStatusWhenUnlikingPlaylist() throws Exception {
+        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, false));
+        expect(result.success()).toBeTrue();
+
+        databaseAssertions().assertLikedPlaylistPendingRemoval(targetUrn);
+    }
+
+    @Test
+    public void updatesLikesCountInSoundsWhenUnliked() throws Exception {
+        updateLikesCount();
+
+        final WriteResult result = command.call(new UpdateLikeCommand.UpdateLikeParams(targetUrn, false));
+        expect(result.success()).toBeTrue();
+
+        expect(command.getUpdatedLikesCount()).toBe(0);
+        databaseAssertions().assertLikesCount(targetUrn, 0);
+    }
+
+    private void updateLikesCount() {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Sounds.LIKES_COUNT, 1);
+        expect(propeller().update(Table.Sounds, cv, new WhereBuilder()
+                .whereEq(TableColumns.Sounds._ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)).success()).toBeTrue();
+        databaseAssertions().assertLikesCount(targetUrn, 1);
     }
 
 }

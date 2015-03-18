@@ -99,7 +99,7 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldPublishUIEventWhenLikingAPlaylist() {
         controller.setPlaylistInfo(playlistInfo);
-        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.just(PropertySet.create()));
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         onEngagementListener.onToggleLike(true);
 
@@ -111,7 +111,7 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldPublishUIEventWhenUnlikingPlaylist() {
         controller.setPlaylistInfo(playlistInfo);
-        when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.just(PropertySet.create()));
+        when(likeOperations.toggleLike(playlistInfo.getUrn(), false)).thenReturn(Observable.just(PropertySet.create()));
 
         onEngagementListener.onToggleLike(false);
 
@@ -186,11 +186,11 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldLikePlaylistWhenCheckingLikeButton() {
         controller.setPlaylistInfo(playlistInfo);
-        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.just(PropertySet.create()));
+        when(likeOperations.toggleLike(playlistInfo.getUrn(), true)).thenReturn(Observable.just(PropertySet.create()));
 
         onEngagementListener.onToggleLike(true);
 
-        verify(likeOperations).addLike(eq(playlistInfo.getSourceSet()));
+        verify(likeOperations).toggleLike(playlistInfo.getUrn(), true);
     }
 
     @Test
@@ -209,7 +209,7 @@ public class PlaylistEngagementsPresenterTest {
 
         final Subscription likeSubscription = mock(Subscription.class);
         final Observable observable = TestObservables.fromSubscription(likeSubscription);
-        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(observable);
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(observable);
 
         onEngagementListener.onToggleLike(true);
 

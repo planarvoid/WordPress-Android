@@ -8,12 +8,10 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadResult;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryBinding;
 
@@ -71,44 +69,44 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.TrackPolicies.POLICY, track.getPolicy())), counts(1));
     }
 
-    public void assertLikedTrackPendingAddition(PropertySet track) {
-        assertLikedPendingAddition(track, TableColumns.Sounds.TYPE_TRACK);
+    public void assertLikedTrackPendingAddition(Urn targetUrn) {
+        assertLikedPendingAddition(targetUrn, TableColumns.Sounds.TYPE_TRACK);
     }
 
-    public void assertLikedPlaylistPendingAddition(PropertySet track) {
-        assertLikedPendingAddition(track, TableColumns.Sounds.TYPE_PLAYLIST);
+    public void assertLikedPlaylistPendingAddition(Urn targetUrn) {
+        assertLikedPendingAddition(targetUrn, TableColumns.Sounds.TYPE_PLAYLIST);
     }
 
-    public void assertLikesCount(Urn urn, Integer newLikesCount) {
+    public void assertLikesCount(Urn urn, int newLikesCount) {
         assertThat(select(from(Table.SoundView.name())
                 .whereEq(TableColumns.SoundView._ID, urn.getNumericId())
-                .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(TableColumns.SoundView._TYPE, urn.isTrack()
+                        ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereEq(TableColumns.SoundView.LIKES_COUNT, newLikesCount)), counts(1));
     }
 
-    private void assertLikedPendingAddition(PropertySet track, int type) {
+    private void assertLikedPendingAddition(Urn targetUrn, int type) {
         assertThat(select(from(Table.Likes.name())
-                .whereEq(TableColumns.Likes._ID, track.get(LikeProperty.TARGET_URN).getNumericId())
+                .whereEq(TableColumns.Likes._ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.Likes._TYPE, type)
-                .whereEq(TableColumns.Likes.ADDED_AT, track.get(LikeProperty.ADDED_AT).getTime())
-                .whereEq(TableColumns.Likes.CREATED_AT, track.get(LikeProperty.CREATED_AT).getTime())
+                .whereNotNull(TableColumns.Likes.ADDED_AT)
                 .whereNull(TableColumns.Likes.REMOVED_AT)), counts(1));
     }
 
-    public void assertLikedTrackPendingRemoval(PropertySet track) {
-        assertLikedPendingRemoval(track, TableColumns.Sounds.TYPE_TRACK);
+    public void assertLikedTrackPendingRemoval(Urn targetUrn) {
+        assertLikedPendingRemoval(targetUrn, TableColumns.Sounds.TYPE_TRACK);
     }
 
-    public void assertLikedPlaylistPendingRemoval(PropertySet track) {
-        assertLikedPendingRemoval(track, TableColumns.Sounds.TYPE_PLAYLIST);
+    public void assertLikedPlaylistPendingRemoval(Urn targetUrn) {
+        assertLikedPendingRemoval(targetUrn, TableColumns.Sounds.TYPE_PLAYLIST);
     }
 
-    private void assertLikedPendingRemoval(PropertySet track, int type) {
+    private void assertLikedPendingRemoval(Urn targetUrn, int type) {
         assertThat(select(from(Table.Likes.name())
-                        .whereEq(TableColumns.Likes._ID, track.get(LikeProperty.TARGET_URN).getNumericId())
-                        .whereEq(TableColumns.Likes._TYPE, type)
-                        .whereEq(TableColumns.Likes.REMOVED_AT, track.get(LikeProperty.REMOVED_AT).getTime())),
-                counts(1));
+                .whereEq(TableColumns.Likes._ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.Likes._TYPE, type)
+                .whereNull(TableColumns.Likes.ADDED_AT)
+                .whereNotNull(TableColumns.Likes.REMOVED_AT)), counts(1));
     }
 
     public void assertPlayableUserInserted(ApiUser user) {
