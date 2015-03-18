@@ -24,7 +24,7 @@ class TrackingDbHelper extends SQLiteOpenHelper {
     };
 
     private static final String DATABASE_NAME = "SoundCloud-tracking.sqlite";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     static final String DATABASE_CREATE_EVENTS_TABLE = "CREATE TABLE IF NOT EXISTS " + EVENTS_TABLE.name() + "(" +
             TrackingColumns._ID + " INTEGER PRIMARY KEY," +
@@ -57,9 +57,7 @@ class TrackingDbHelper extends SQLiteOpenHelper {
     abstract class TrackingColumns implements BaseColumns {
         static final String TIMESTAMP = "timestamp";
         static final String BACKEND = "backend";
-
-        // "url" is a legacy column name until we implement a real migration, since we don't want drop any ad $$$
-        static final String DATA = "url";
+        static final String DATA = "data";
     }
 
 }
