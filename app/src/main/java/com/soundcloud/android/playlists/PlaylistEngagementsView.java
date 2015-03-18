@@ -56,6 +56,7 @@ public abstract class PlaylistEngagementsView {
         void onShare();
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
         void onUpsell();
+        void onPlayShuffled();
     }
 
     protected void updateToggleButton(@Nullable ToggleButton button, int actionStringID, int descriptionPluralID, int count, boolean checked,

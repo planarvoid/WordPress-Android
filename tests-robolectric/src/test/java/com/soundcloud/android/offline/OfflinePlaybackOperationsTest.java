@@ -133,14 +133,14 @@ public class OfflinePlaybackOperationsTest {
     }
 
     @Test
-    public void shouldPlayOfflineOnlyTracksShuffledWhenOfflinePlayQueueCreated() {
+    public void shouldPlayOfflineLikesOnlyTracksShuffledWhenOfflinePlayQueueCreated() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(offlineTracksStorage.likesUrns()).thenReturn(tracksObservable);
         when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
                 .thenReturn(Observable.<List<Urn>>empty());
 
-        operations.playTracksShuffled(playSessionSource).subscribe();
+        operations.playLikedTracksShuffled(playSessionSource).subscribe();
 
         verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
     }
@@ -152,7 +152,32 @@ public class OfflinePlaybackOperationsTest {
         when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
                 .thenReturn(Observable.<List<Urn>>empty());
 
-        operations.playTracksShuffled(playSessionSource).subscribe();
+        operations.playLikedTracksShuffled(playSessionSource).subscribe();
+
+        verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
+    }
+
+    @Test
+    public void shouldPlayOfflinePlaylistTracksShuffledWhenOfflinePlayQueueCreated() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(false);
+        when(offlineTracksStorage.playlistTrackUrns(playlistUrn)).thenReturn(tracksObservable);
+        when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
+                .thenReturn(Observable.<List<Urn>>empty());
+
+        operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
+
+        verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
+    }
+
+    @Test
+    public void shouldPlayAllPlaylistTracksShuffledWhenNoOfflinePlayQueueCreated() {
+        when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(tracksObservable);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
+                .thenReturn(Observable.<List<Urn>>empty());
+
+        operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
 
         verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
     }

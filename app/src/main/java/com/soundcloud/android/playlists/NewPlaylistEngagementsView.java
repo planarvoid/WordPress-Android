@@ -18,7 +18,7 @@ import android.widget.ToggleButton;
 public class NewPlaylistEngagementsView extends PlaylistEngagementsView implements PopupMenuWrapperListener {
 
     @InjectView(R.id.toggle_like) ToggleButton likeToggle;
-    @InjectView(R.id.overflow_button) View overflowButton;
+    @InjectView(R.id.playlist_details_overflow_button) View overflowButton;
     @InjectView(R.id.playlist_info_text) TextView infoText;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
@@ -151,6 +151,9 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
                 return true;
             case R.id.upsell_offline_content:
                 getListener().onUpsell();
+                return true;
+            case R.id.shuffle:
+                getListener().onPlayShuffled();
                 return true;
             default:
                 throw new IllegalArgumentException("Unexpected menu item clicked " + menuItem);

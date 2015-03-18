@@ -3,6 +3,7 @@ package com.soundcloud.android.screens;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.framework.Han;
@@ -25,6 +26,11 @@ public class PlaylistDetailsScreen extends Screen {
 
     public void clickBack() {
         testDriver.goBack();
+    }
+
+    public PlaylistOverflowMenu clickPlaylistOverflowButton() {
+        testDriver.findElements(With.id(R.id.playlist_details_overflow_button)).get(0).click();
+        return new PlaylistOverflowMenu(testDriver);
     }
 
     @Override

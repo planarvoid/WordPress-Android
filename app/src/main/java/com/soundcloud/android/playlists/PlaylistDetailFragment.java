@@ -302,19 +302,23 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void playTracksAtPosition(int trackPosition, Subscriber<List<Urn>> playbackSubscriber) {
-        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
-        playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
-
+        final PlaySessionSource playSessionSource = getPlaySessionSource();
         final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
         offlinePlaybackOperations
                 .playPlaylist(playlistInfo.getUrn(), initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
     }
 
+    private PlaySessionSource getPlaySessionSource() {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
+        playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
+        return playSessionSource;
+    }
+
     protected void refreshMetaData(PlaylistInfo playlistInfo) {
         this.playlistInfo = playlistInfo;
         playlistPresenter.setPlaylist(playlistInfo);
-        engagementsPresenter.setPlaylistInfo(playlistInfo);
+        engagementsPresenter.setPlaylistInfo(playlistInfo, getPlaySessionSource());
 
         if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
             infoHeaderText.setText(createHeaderText(playlistInfo));

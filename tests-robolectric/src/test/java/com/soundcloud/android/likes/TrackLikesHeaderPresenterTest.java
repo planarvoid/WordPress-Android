@@ -217,7 +217,7 @@ public class TrackLikesHeaderPresenterTest {
 
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
-        when(playbackOperations.playTracksShuffled(any(PlaySessionSource.class)))
+        when(playbackOperations.playLikedTracksShuffled(any(PlaySessionSource.class)))
                 .thenReturn(Observable.<List<Urn>>empty());
         presenter.onClick(null);
         expect(eventBus.lastEventOn(EventQueue.TRACKING).getKind()).toEqual(UIEvent.KIND_SHUFFLE_LIKES);

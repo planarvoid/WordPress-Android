@@ -15,6 +15,10 @@ import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.playback.ShowPlayerSubscriber;
+import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -38,6 +42,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private Context context;
     private PlaylistInfo playlistInfo;
     private OriginProvider originProvider;
+    private PlaySessionSource playSessionSourceInfo = PlaySessionSource.EMPTY;
 
     private final RepostOperations repostOperations;
     private final AccountOperations accountOperations;
@@ -46,8 +51,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final PlaylistEngagementsView playlistEngagementsView;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineOperations;
+    private final OfflinePlaybackOperations offlinePlaybackOperations;
+    private final PlaybackToastHelper playbackToastHelper;
 
     private CompositeSubscription subscription = new CompositeSubscription();
+
 
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
@@ -56,7 +64,9 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                                         LikeOperations likeOperations,
                                         PlaylistEngagementsView playlistEngagementsView,
                                         FeatureOperations featureOperations,
-                                        OfflineContentOperations offlineOperations) {
+                                        OfflineContentOperations offlineOperations,
+                                        OfflinePlaybackOperations offlinePlaybackOperations,
+                                        PlaybackToastHelper playbackToastHelper) {
         this.eventBus = eventBus;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
@@ -64,6 +74,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.playlistEngagementsView = playlistEngagementsView;
         this.featureOperations = featureOperations;
         this.offlineOperations = offlineOperations;
+        this.offlinePlaybackOperations = offlinePlaybackOperations;
+        this.playbackToastHelper = playbackToastHelper;
     }
 
     void bindView(View rootView) {
@@ -104,8 +116,9 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.originProvider = originProvider;
     }
 
-    void setPlaylistInfo(@NotNull PlaylistInfo playlistInfo) {
+    void setPlaylistInfo(@NotNull PlaylistInfo playlistInfo, PlaySessionSource playSessionSource) {
         this.playlistInfo = playlistInfo;
+        this.playSessionSourceInfo = playSessionSource;
 
         final String trackCount = context.getResources().getQuantityString(
                 R.plurals.number_of_sounds, playlistInfo.getTrackCount(), playlistInfo.getTrackCount());
@@ -149,6 +162,12 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onUpsell() {
         // No-op
+    }
+
+    @Override
+    public void onPlayShuffled() {
+        offlinePlaybackOperations.playPlaylistShuffled(playlistInfo.getUrn(), playSessionSourceInfo)
+            .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
     }
 
     @Override
@@ -233,5 +252,4 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             }
         }
     }
-
 }

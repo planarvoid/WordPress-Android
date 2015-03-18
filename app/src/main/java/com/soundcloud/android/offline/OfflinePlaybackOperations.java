@@ -67,6 +67,14 @@ public class OfflinePlaybackOperations {
                 .playTracks(playlistOperations.trackUrnsForPlayback(playlistUrn), initialTrack, position, sessionSource);
     }
 
+    public Observable<List<Urn>> playPlaylistShuffled(Urn playlistUrn, final PlaySessionSource sessionSource) {
+        final Observable<List<Urn>> trackUrnsObservable = shouldCreateOfflinePlayQueue()
+                ? offlineTracksStorage.playlistTrackUrns(playlistUrn)
+                : playlistOperations.trackUrnsForPlayback(playlistUrn);
+
+        return playbackOperations.playTracksShuffled(trackUrnsObservable, sessionSource);
+    }
+
     private Func1<List<Urn>, Observable<List<Urn>>> playIfAvailableOffline(final Urn trackUrn, final int position, final PlaySessionSource sessionSource) {
         return new Func1<List<Urn>, Observable<List<Urn>>>() {
             @Override
@@ -80,7 +88,7 @@ public class OfflinePlaybackOperations {
         };
     }
 
-    public Observable<List<Urn>> playTracksShuffled(PlaySessionSource playSessionSource) {
+    public Observable<List<Urn>> playLikedTracksShuffled(PlaySessionSource playSessionSource) {
         final Observable<List<Urn>> likedTracks = shouldCreateOfflinePlayQueue()
                 ? offlineTracksStorage.likesUrns()
                 : likeOperations.likedTrackUrns();

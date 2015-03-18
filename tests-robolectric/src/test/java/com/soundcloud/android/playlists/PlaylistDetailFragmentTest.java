@@ -288,7 +288,7 @@ public class PlaylistDetailFragmentTest {
     @Test
     public void setsPlayableOnEngagementsControllerWhenPlaylistIsReturned() throws Exception {
         createFragmentView();
-        verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo);
+        verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo, getPlaySessionSource());
     }
 
     @Test
@@ -299,10 +299,9 @@ public class PlaylistDetailFragmentTest {
         createFragmentView();
 
         InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo);
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(updatedPlaylistInfo);
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo, getPlaySessionSource());
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(updatedPlaylistInfo, getPlaySessionSource(updatedPlaylistInfo));
     }
-
 
     @Test
     public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() throws Exception {
@@ -464,6 +463,16 @@ public class PlaylistDetailFragmentTest {
 
     private ToggleButton getToggleButton(View layout) {
         return (ToggleButton) layout.findViewById(R.id.toggle_play_pause);
+    }
+
+    private PlaySessionSource getPlaySessionSource() {
+        return getPlaySessionSource(playlistInfo);
+    }
+
+    private PlaySessionSource getPlaySessionSource(PlaylistInfo playlistInfo) {
+        final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
+        playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());;
+        return playSessionSource;
     }
 
 }
