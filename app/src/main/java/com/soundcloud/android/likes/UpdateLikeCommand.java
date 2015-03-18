@@ -1,5 +1,6 @@
 package com.soundcloud.android.likes;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -19,6 +20,7 @@ import android.content.ContentValues;
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +31,11 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
     @Inject
     UpdateLikeCommand(PropellerDatabase propeller) {
         super(propeller);
+    }
+
+    @VisibleForTesting
+    UpdateLikeCommand(PropellerDatabase propeller, Provider<Thread> currentThreadProvider) {
+        super(propeller, currentThreadProvider);
     }
 
     @Override
