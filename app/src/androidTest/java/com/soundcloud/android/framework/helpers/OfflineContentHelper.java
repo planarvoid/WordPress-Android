@@ -21,8 +21,8 @@ public class OfflineContentHelper {
     public static void clearOfflineContent(Context context) {
         // remove metadata - not sure how to do it differently
         final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
-        Table.TrackDownloads.recreate(db);
-        Table.OfflineContent.recreate(db);
+        db.delete(Table.TrackDownloads.name(), null, null);
+        db.delete(Table.OfflineContent.name(), null, null);
         // remove actual files
         IOUtils.cleanDir(OFFLINE_DIR);
     }
