@@ -16,6 +16,7 @@
     <string name="public_api_base_url">https://api.soundcloud.com</string>
     <string name="mobile_api_base_url">https://api-mobile-dev.soundcloud.com</string>
     <string name="event_logger_base_url">http://eventlogger.soundcloud.com</string>
+    <string name="eventgateway_url">https://eventgateway.soundcloud.com/v1/events</string>
     <string name="cast_receiver_app_id">0E41F66F</string>
 
     <!-- Feature flags (enabled) -->
@@ -28,5 +29,5 @@
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
-    <bool name="feature_eventlogger_batching">false</bool>
+    <bool name="feature_eventlogger_batching">true</bool>
 </resources>

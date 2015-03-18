@@ -11,17 +11,20 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.content.res.Resources;
+
 @RunWith(SoundCloudTestRunner.class)
 public class TrackingApiFactoryTest {
 
     @Mock private OkHttpClient httpClient;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private Resources resources;
 
     private TrackingApiFactory apiFactory;
 
     @Before
     public void setUp() throws Exception {
-        apiFactory = new TrackingApiFactory(httpClient, deviceHelper);
+        apiFactory = new TrackingApiFactory(httpClient, deviceHelper, resources);
     }
 
     @Test

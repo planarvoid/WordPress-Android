@@ -26,8 +26,6 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     public static final String LEGACY_BACKEND_NAME = "eventlogger";
     public static final String BATCH_BACKEND_NAME = "boogaloo";
 
-    public static final String BATCH_ENDPOINT = "https://eventgateway.soundcloud.com/v1/events";
-
     private final EventTracker eventTracker;
     private final EventLoggerDataBuilder dataBuilder;
     private final FeatureFlags flags;
