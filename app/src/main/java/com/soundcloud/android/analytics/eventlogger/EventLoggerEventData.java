@@ -37,8 +37,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.soundcloud.android.utils.ScTextUtils;
 
-import android.support.annotation.Nullable;
-
 import java.util.HashMap;
 
 final class EventLoggerEventData {
@@ -77,10 +75,8 @@ final class EventLoggerEventData {
         return this;
     }
 
-    public EventLoggerEventData clickObject(@Nullable String clickObject) {
-        if (ScTextUtils.isNotBlank(clickObject)) {
-            addToPayload(CLICK_OBJECT, clickObject);
-        }
+    public EventLoggerEventData clickObject(String clickObject) {
+        addToPayload(CLICK_OBJECT, clickObject);
         return this;
     }
 
