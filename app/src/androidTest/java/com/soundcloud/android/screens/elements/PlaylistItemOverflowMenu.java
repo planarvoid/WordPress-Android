@@ -5,14 +5,10 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
-import java.util.List;
-
-public class PlaylistItemOverflowMenu {
-
-    private final Han testDriver;
+public class PlaylistItemOverflowMenu extends PopupMenuElement {
 
     public PlaylistItemOverflowMenu(Han testDriver) {
-        this.testDriver = testDriver;
+        super(testDriver);
     }
     public void toggleLike() {
         likeItem().click();
@@ -26,19 +22,10 @@ public class PlaylistItemOverflowMenu {
         return new TextElement(viewElement.findElement(With.className("android.widget.TextView")));
     }
 
-    private ViewElement container() {
-        return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
-    }
-
     private ViewElement likeItem() {
         if(menuItems().size() == 2) {
             return menuItems().get(1);
         }
         return menuItems().get(0);
-    }
-
-
-    private List<ViewElement> menuItems() {
-        return container().findElements(With.classSimpleName("ListMenuItemView"));
     }
 }

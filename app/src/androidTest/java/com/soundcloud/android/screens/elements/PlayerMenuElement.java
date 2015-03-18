@@ -1,26 +1,15 @@
 package com.soundcloud.android.screens.elements;
 
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.screens.AddCommentScreen;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.TrackInfoScreen;
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.with.With;
 
-import android.widget.TextView;
-
-import java.util.List;
-
-public class PlayerMenuElement {
-
-    private final Han testDriver;
-    private final Waiter waiter;
+public class PlayerMenuElement extends PopupMenuElement {
 
     public PlayerMenuElement(Han solo) {
-        testDriver = solo;
-        waiter = new Waiter(testDriver);
-        waiter.waitForElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
+        super(solo);
     }
 
     public TrackInfoScreen clickInfo() {
@@ -58,15 +47,5 @@ public class PlayerMenuElement {
 
     private ViewElement info() {
         return menuItems().get(4);
-    }
-
-
-    private ViewElement container() {
-        return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
-    }
-
-    private List<ViewElement> menuItems() {
-        waiter.waitForElement(TextView.class);
-        return container().findElements(With.classSimpleName("ListMenuItemView"));
     }
 }
