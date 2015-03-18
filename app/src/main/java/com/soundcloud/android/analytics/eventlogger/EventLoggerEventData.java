@@ -51,152 +51,158 @@ final class EventLoggerEventData {
         this.event = event;
         this.version = version;
         this.payload = new HashMap<>();
-        payload.put(CLIENT_ID, clientId);
-        payload.put(ANONYMOUS_ID, anonymousId);
-        payload.put(USER, loggedInUserUrn);
-        payload.put(TIMESTAMP, timestamp);
+        addToPayload(CLIENT_ID, clientId);
+        addToPayload(ANONYMOUS_ID, anonymousId);
+        addToPayload(USER, loggedInUserUrn);
+        addToPayload(TIMESTAMP, timestamp);
     }
 
     public EventLoggerEventData pageName(String pageName) {
-        payload.put(PAGE_NAME, pageName);
+        addToPayload(PAGE_NAME, pageName);
         return this;
     }
 
     public EventLoggerEventData adUrn(String adUrn) {
-        payload.put(AD_URN, adUrn);
+        addToPayload(AD_URN, adUrn);
         return this;
     }
 
     public EventLoggerEventData clickName(String clickName) {
-        payload.put(CLICK_NAME, clickName);
+        addToPayload(CLICK_NAME, clickName);
         return this;
     }
 
     public EventLoggerEventData clickTarget(String clickTarget) {
-        payload.put(CLICK_TARGET, clickTarget);
+        addToPayload(CLICK_TARGET, clickTarget);
         return this;
     }
 
     public EventLoggerEventData clickObject(@Nullable String clickObject) {
         if (ScTextUtils.isNotBlank(clickObject)) {
-            payload.put(CLICK_OBJECT, clickObject);
+            addToPayload(CLICK_OBJECT, clickObject);
         }
         return this;
     }
 
     public EventLoggerEventData externalMedia(String externalMedia) {
-        payload.put(EXTERNAL_MEDIA, externalMedia);
+        addToPayload(EXTERNAL_MEDIA, externalMedia);
         return this;
     }
 
     public EventLoggerEventData monetizedObject(String monetizedObject) {
-        payload.put(MONETIZED_OBJECT, monetizedObject);
+        addToPayload(MONETIZED_OBJECT, monetizedObject);
         return this;
     }
 
     public EventLoggerEventData monetizationType(String monetizationType) {
-        payload.put(MONETIZATION_TYPE, monetizationType);
+        addToPayload(MONETIZATION_TYPE, monetizationType);
         return this;
     }
 
     public EventLoggerEventData impressionName(String impressionName) {
-        payload.put(IMPRESSION_NAME, impressionName);
+        addToPayload(IMPRESSION_NAME, impressionName);
         return this;
     }
 
     public EventLoggerEventData impressionObject(String impressionObject) {
-        payload.put(IMPRESSION_OBJECT, impressionObject);
+        addToPayload(IMPRESSION_OBJECT, impressionObject);
         return this;
     }
 
     public EventLoggerEventData duration(long duration) {
-        payload.put(DURATION, String.valueOf(duration));
+        addToPayload(DURATION, String.valueOf(duration));
         return this;
     }
 
     public EventLoggerEventData sound(String legacySoundUrn) {
-        payload.put(SOUND, legacySoundUrn);
+        addToPayload(SOUND, legacySoundUrn);
         return this;
     }
 
     public EventLoggerEventData trigger(String trigger) {
-        payload.put(TRIGGER, trigger);
+        addToPayload(TRIGGER, trigger);
         return this;
     }
 
     public EventLoggerEventData protocol(String protocol) {
-        payload.put(PROTOCOL, protocol);
+        addToPayload(PROTOCOL, protocol);
         return this;
     }
 
     public EventLoggerEventData playerType(String playa) {
-        payload.put(PLAYER_TYPE, playa);
+        addToPayload(PLAYER_TYPE, playa);
         return this;
     }
 
     public EventLoggerEventData connectionType(String connectionType) {
-        payload.put(CONNECTION_TYPE, connectionType);
+        addToPayload(CONNECTION_TYPE, connectionType);
         return this;
     }
 
     public EventLoggerEventData source(String source) {
-        payload.put(SOURCE, source);
+        addToPayload(SOURCE, source);
         return this;
     }
 
     public EventLoggerEventData sourceVersion(String version) {
-        payload.put(SOURCE_VERSION, version);
+        addToPayload(SOURCE_VERSION, version);
         return this;
     }
 
     public EventLoggerEventData playlistId(String playlistId) {
-        payload.put(PLAYLIST_ID, playlistId);
+        addToPayload(PLAYLIST_ID, playlistId);
         return this;
     }
 
     public EventLoggerEventData playlistPosition(String position) {
-        payload.put(PLAYLIST_POSITION, position);
+        addToPayload(PLAYLIST_POSITION, String.valueOf(position));
         return this;
     }
 
     public EventLoggerEventData latency(long latency) {
-        payload.put(LATENCY, String.valueOf(latency));
+        addToPayload(LATENCY, String.valueOf(latency));
         return this;
     }
 
     public EventLoggerEventData type(String type) {
-        payload.put(TYPE, type);
+        addToPayload(TYPE, type);
         return this;
     }
 
     public EventLoggerEventData host(String host) {
-        payload.put(HOST, host);
+        addToPayload(HOST, host);
         return this;
     }
 
     public EventLoggerEventData os(String osVersion) {
-        payload.put(OS, osVersion);
+        addToPayload(OS, osVersion);
         return this;
     }
 
     public EventLoggerEventData bitrate(String bitrate) {
-        payload.put(BITRATE, bitrate);
+        addToPayload(BITRATE, bitrate);
         return this;
     }
 
     public EventLoggerEventData format(String format) {
-        payload.put(FORMAT, format);
+        addToPayload(FORMAT, format);
         return this;
     }
 
     public EventLoggerEventData errorCode(String errorCode) {
-        payload.put(ERROR_CODE, errorCode);
+        addToPayload(ERROR_CODE, errorCode);
         return this;
     }
 
     public EventLoggerEventData url(String url) {
-        payload.put(URL, url);
+        addToPayload(URL, url);
         return this;
+    }
+    
+    private void addToPayload(String key, String value) {
+        if (ScTextUtils.isNotBlank(value)) {
+            payload.put(key, value);
+        }
     }
 
     @Override
