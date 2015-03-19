@@ -37,12 +37,16 @@ public class PlaylistsScreen extends Screen {
         return new PlaylistDetailsScreen(testDriver);
     }
 
+    //TODO: Wait for the tab to be displayed
     public void touchLikedPlaylistsTab() {
         touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
+        waiter.waitTwoSeconds();
     }
 
+    //TODO: Wait for the tab to be displayed
     public void touchPostedPlaylistsTab() {
         touchTab(testDriver.getString(R.string.your_playlists_tab).toUpperCase());
+        waiter.waitTwoSeconds();
     }
 
     public int getLoadedTrackCount(){
