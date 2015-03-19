@@ -13,6 +13,8 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
+import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.provider.BaseColumns;
 
@@ -34,13 +36,15 @@ public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Boolean, C
     public Collection<Urn> call() throws Exception {
         final long stalePolicyTimestamp = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(24);
         final Collection<Urn> set = new TreeSet<>();
+        final Where stalePolicyCondition = new WhereBuilder()
+                .whereLt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), stalePolicyTimestamp)
+                .orWhereNull(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED));
         if (input) {
             set.addAll(database.query(buildOfflineLikedTracksQuery()
-                    .where(getStalePolicyCondition(), stalePolicyTimestamp))
-                    .toList(new UrnMapper()));
+                    .where(stalePolicyCondition)).toList(new UrnMapper()));
         }
         set.addAll(database.query(buildOfflinePlaylistTracksQuery()
-                .where(getStalePolicyCondition(), stalePolicyTimestamp))
+                .where(stalePolicyCondition))
                 .toList(new UrnMapper()));
         return set;
     }
@@ -60,10 +64,5 @@ public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Boolean, C
                 .select(field(trackIdFromPlaylistTracks).as(BaseColumns._ID))
                 .innerJoin(OfflineContent.name(), TableColumns.PlaylistTracks.PLAYLIST_ID, TableColumns.OfflineContent._ID)
                 .leftJoin(TrackPolicies.name(), trackIdFromPlaylistTracks, Table.TrackPolicies + "." + TableColumns.TrackPolicies.TRACK_ID);
-    }
-
-    private String getStalePolicyCondition() {
-        final String lastUpdateColumn = TrackPolicies.name() + "." + TableColumns.TrackPolicies.LAST_UPDATED;
-        return lastUpdateColumn + " < ? OR " + lastUpdateColumn + " IS NULL";
     }
 }
