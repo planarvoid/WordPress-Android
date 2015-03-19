@@ -1,10 +1,10 @@
 package com.soundcloud.android.framework;
 
-import android.content.Context;
-
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.api.ApiWrapper;
+
+import android.content.Context;
 
 import java.io.IOException;
 
@@ -95,5 +95,6 @@ public class TestUser {
     public static final TestUser subscribeUser  = new TestUser("scandsubscribe",        "scandsubscribe@gmail.com",     "s0undcl0ud");
     public static final TestUser likesUser      = new TestUser("sctestlike",            "soundcloudtestlike@gmail.com", "passwordyeah77");
     public static final TestUser offlineUser    = new TestUser("sctestoffline",         "sctestoffline@gmail.com",      "passwordyeah88");
+    public static final TestUser offlinePlaylistUser = new TestUser("sctestoffline_playlist",      "sctestoffline_playlist@gmail.com","passwordyeah88");
     public static final TestUser offlineEmptyUser    = new TestUser("sctestoffline_empty",         "sctestoffline_empty@gmail.com",   "passwordyeah88");
 }

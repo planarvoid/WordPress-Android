@@ -5,9 +5,9 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 
-public class AddToPlaylistsScreen extends Screen {
+public class AddToPlaylistScreen extends Screen {
 
-    public AddToPlaylistsScreen(Han solo) {
+    public AddToPlaylistScreen(Han solo) {
         super(solo);
     }
 

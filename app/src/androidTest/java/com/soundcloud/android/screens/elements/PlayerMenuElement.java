@@ -1,7 +1,7 @@
 package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.screens.AddCommentScreen;
-import com.soundcloud.android.screens.AddToPlaylistsScreen;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.TrackInfoScreen;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -30,9 +30,9 @@ public class PlayerMenuElement {
         return trackInfoScreen;
     }
 
-    public AddToPlaylistsScreen clickAddToPlaylist() {
+    public AddToPlaylistScreen clickAddToPlaylist() {
         addToPlaylistItem().click();
-        return new AddToPlaylistsScreen(testDriver);
+        return new AddToPlaylistScreen(testDriver);
     }
 
     public AddCommentScreen clickComment() {

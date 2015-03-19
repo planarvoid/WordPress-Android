@@ -8,7 +8,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.AddToPlaylistsScreen;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -46,11 +46,11 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerAddTrackToPlaylist() {
-        final AddToPlaylistsScreen addToPlaylistsScreen = streamScreen.clickFirstTrack()
+        final AddToPlaylistScreen addToPlaylistScreen = streamScreen.clickFirstTrack()
                 .clickMenu()
                 .clickAddToPlaylist();
 
-        assertThat(addToPlaylistsScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
+        assertThat(addToPlaylistScreen, is(com.soundcloud.android.framework.matcher.screen.IsVisible.visible()));
     }
 
     private void openPlaylist() {

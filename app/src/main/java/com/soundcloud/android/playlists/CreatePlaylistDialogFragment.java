@@ -2,8 +2,11 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -32,6 +35,11 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     @Inject PlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
     @Inject ApplicationProperties properties;
+    @Inject FeatureOperations featureOperations;
+
+    @InjectView(android.R.id.edit) EditText input;
+    @InjectView(R.id.chk_private) CheckBox privacy;
+    @InjectView(R.id.chk_offline) CheckBox offline;
 
     public static CreatePlaylistDialogFragment from(long trackId, String invokerScreen, String contextScreen) {
         return createFragment(createBundle(trackId, invokerScreen, contextScreen));
@@ -58,16 +66,12 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     @Override
     protected Builder build(Builder initialBuilder) {
         final View dialogView = View.inflate(getActivity(), R.layout.dialog_create_new_playlist, null);
-        final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
-        final CheckBox privacy = (CheckBox) dialogView.findViewById(R.id.chk_private);
+        ButterKnife.inject(this, dialogView);
 
         initialBuilder.setTitle(R.string.create_new_playlist);
         initialBuilder.setView(dialogView);
 
-        if (!properties.isDevBuildRunningOnDevice()){
-            privacy.setVisibility(View.GONE);
-        }
-
+        setChecksVisibility();
         initialBuilder.setNegativeButton(R.string.cancel,new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,6 +94,16 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         return initialBuilder;
     }
 
+    private void setChecksVisibility() {
+        if (!properties.isDevBuildRunningOnDevice()){
+            privacy.setVisibility(View.GONE);
+        }
+
+        if (!featureOperations.isOfflineContentEnabled()){
+            offline.setVisibility(View.GONE);
+        }
+    }
+
     public void show(FragmentManager fragmentManager) {
         show(fragmentManager, CREATE_PLAYLIST_DIALOG_TAG);
     }
@@ -105,4 +119,5 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         final String contextScreen = getArguments().getString(KEY_CONTEXT_SCREEN);
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAddToPlaylist(invokerScreen, contextScreen, true, trackId));
     }
+
 }

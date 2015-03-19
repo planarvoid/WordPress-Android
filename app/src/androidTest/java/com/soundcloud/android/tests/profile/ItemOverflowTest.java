@@ -6,7 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.AddToPlaylistsScreen;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -33,7 +33,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
                 .clickFirstTrackOverflowButton()
                 .clickAdToPlaylist();
 
-        final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
-        assertThat(addToPlaylistsScreen, is(visible()));
+        final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
+        assertThat(addToPlaylistScreen, is(visible()));
     }
 }

@@ -1,11 +1,14 @@
 package com.soundcloud.android.tests.playlist;
 
-import static com.soundcloud.android.framework.TestUser.playlistUser;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.ConfigurationHelper;
+import com.soundcloud.android.framework.helpers.OfflineContentHelper;
+import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
@@ -13,17 +16,22 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
+import android.content.Context;
+
+public class ItemOverflowOfflineTest extends ActivityTest<MainActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
 
-    public ItemOverflowTest() {
-        super(LauncherActivity.class);
+    public ItemOverflowOfflineTest() {
+        super(MainActivity.class);
     }
 
     @Override
     protected void setUp() throws Exception {
-        playlistUser.logIn(getInstrumentation().getTargetContext());
+        final Context context = getInstrumentation().getTargetContext();
+
+        resetOfflineSyncState(context);
+        TestUser.offlinePlaylistUser.logIn(context);
         super.setUp();
 
         menuScreen = new MenuScreen(solo);
@@ -35,19 +43,9 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }
 
-    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
-        playlistDetailsScreen
-                .scrollToFirstTrackItem()
-                .clickFirstTrackOverflowButton()
-                .clickAdToPlaylist();
+    public void testClickingOnNewPlaylistItemOpensDialogWithOfflineOption() {
+        enableOfflineContent(getActivity());
 
-        final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
-        assertThat(addToPlaylistScreen, is(visible()));
-    }
-
-    //Ignored because of unchangeable configuration for debug build type.
-    //Github issue: https://github.com/soundcloud/SoundCloud-Android/issues/2914
-    public void ignore_testClickingOnNewPlaylistItemOpensDialog() {
         playlistDetailsScreen
                 .scrollToFirstTrackItem()
                 .clickFirstTrackOverflowButton()
@@ -56,6 +54,11 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         final CreatePlaylistScreen createPlaylistScreen = addToPlaylistScreen.clickCreateNewPlaylist();
         assertThat(createPlaylistScreen, is(visible()));
-        assertThat(createPlaylistScreen.offlineCheck().isVisible(), is(false));
+        assertThat(createPlaylistScreen.offlineCheck().isVisible(), is(true));
+    }
+
+    private void resetOfflineSyncState(Context context) {
+        ConfigurationHelper.disableOfflineSync(context);
+        OfflineContentHelper.clearOfflineContent(context);
     }
 }
