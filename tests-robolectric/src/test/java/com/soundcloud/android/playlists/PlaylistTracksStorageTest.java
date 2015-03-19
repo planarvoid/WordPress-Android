@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
@@ -24,6 +26,7 @@ import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistTracksStorageTest extends StorageIntegrationTest {
@@ -65,10 +68,41 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiPlaylist apiPlaylist = testFixtures().insertEmptyPlaylist();
 
         playlistTracksStorage.addTrackToPlaylist(apiPlaylist.getUrn(), TRACK_URN)
-                .subscribeOn(Schedulers.immediate())
                 .subscribe(testObserver);
 
         databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), Arrays.asList(TRACK_URN));
+    }
+
+    @Test
+    public void playlistForAddingTrackLoadsPlaylistWithCorrectIsAddedStatus() {
+        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+
+        ApiPlaylist apiPlaylist1 = insertPostedPlaylist();
+        ApiPlaylist apiPlaylist2 = insertPostedPlaylist();
+        ApiTrack apiTrack = testFixtures().insertPlaylistTrack(apiPlaylist2.getUrn(), 0);
+
+        playlistTracksStorage.playlistsForAddingTrack(apiTrack.getUrn())
+                .subscribe(testObserver);
+
+        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        expect(result).toContainExactly(
+                playlistForTrackPropertySet(apiPlaylist1, false),
+                playlistForTrackPropertySet(apiPlaylist2, true));
+    }
+
+    private ApiPlaylist insertPostedPlaylist() {
+        ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylist();
+        testFixtures().insertPlaylistPost(apiPlaylist1.getUrn().getNumericId(), dateProvider.getCurrentDate().getTime(), false);
+        return apiPlaylist1;
+    }
+
+    private PropertySet playlistForTrackPropertySet(ApiPlaylist apiPlaylist, boolean isAdded) {
+        return PropertySet.from(
+                TrackInPlaylistProperty.URN.bind(apiPlaylist.getUrn()),
+                TrackInPlaylistProperty.TITLE.bind(apiPlaylist.getTitle()),
+                TrackInPlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()),
+                TrackInPlaylistProperty.ADDED_TO_URN.bind(isAdded)
+        );
     }
 
     @Test

@@ -60,6 +60,10 @@ public class PlaylistOperations {
         this.offlineOperations = offlineOperations;
     }
 
+    Observable<List<PropertySet>> loadPlaylistForAddingTrack(Urn trackUrn) {
+        return playlistTracksStorage.playlistsForAddingTrack(trackUrn);
+    }
+
     public Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
                 .subscribeOn(storageScheduler)
@@ -75,7 +79,7 @@ public class PlaylistOperations {
         });
     }
 
-    public Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
+    Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
         return playlistTracksStorage.addTrackToPlaylist(playlistUrn, trackUrn)
                 .subscribeOn(storageScheduler)
                 .doOnNext(publishEntityStateChanged)

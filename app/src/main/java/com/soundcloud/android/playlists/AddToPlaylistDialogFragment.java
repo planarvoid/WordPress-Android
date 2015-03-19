@@ -1,7 +1,9 @@
 package com.soundcloud.android.playlists;
 
 import static rx.android.observables.AndroidObservable.bindFragment;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
@@ -11,38 +13,32 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
-import com.soundcloud.android.storage.Table;
-import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
+import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.Loader;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class AddToPlaylistDialogFragment extends BaseDialogFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddToPlaylistDialogFragment extends BaseDialogFragment {
 
     private static final String PLAYLIST_DIALOG_TAG = "create_playlist_dialog";
 
@@ -51,15 +47,13 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
     private static final String KEY_INVOKER_SCREEN = "INVOKER_LOCATION";
 
-    private static final String COL_ALREADY_ADDED = "ALREADY_ADDED";
-
-    private static final int LOADER_ID = 1;
-    private static final int NEW_PLAYLIST_ITEM = -1;
     private static final int CLOSE_DELAY_MILLIS = 500;
 
     private MyPlaylistsAdapter adapter;
     private Subscription addTrackSubscription = Subscriptions.empty();
+    private Subscription loadPlaylistSubscription = Subscriptions.empty();
 
+    private Observable<List<PropertySet>> loadPlaylists;
     @Inject PlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
 
@@ -84,6 +78,24 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
 
     public AddToPlaylistDialogFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        setRetainInstance(true);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        final Urn trackUrn = Urn.forTrack(getArguments().getLong(KEY_TRACK_ID));
+        loadPlaylists = playlistOperations
+                .loadPlaylistForAddingTrack(trackUrn)
+                .observeOn(mainThread())
+                .cache();
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        loadPlaylistSubscription = loadPlaylists.subscribe(new PlaylistLoadedSubscriber());
     }
 
     @Override
@@ -94,7 +106,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final long rowId = adapter.getItemId(position);
-                if (rowId == NEW_PLAYLIST_ITEM) {
+                if (rowId == Urn.NOT_SET.getNumericId()) {
                     showPlaylistCreationScreen();
                     getDialog().dismiss();
                 } else if (getActivity() != null) {
@@ -108,8 +120,6 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
                 dismiss();
             }
         });
-        getActivity().getSupportLoaderManager().restartLoader(LOADER_ID, getArguments(), this);
-
         return builder;
     }
 
@@ -148,49 +158,8 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
     @Override
     public void onDestroy() {
         addTrackSubscription.unsubscribe();
+        loadPlaylistSubscription.unsubscribe();
         super.onDestroy();
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new AsyncTaskLoader<Cursor>(getActivity()) {
-            @Override
-            protected void onStartLoading() {
-                forceLoad();
-            }
-
-            @Override
-            public Cursor loadInBackground() {
-                final String existsCol = "EXISTS (SELECT 1 FROM " + Table.PlaylistTracks
-                        + " WHERE " + TableColumns.PlaylistTracks.TRACK_ID + " = " + getArguments().getLong(KEY_TRACK_ID) + " AND " +
-                        TableColumns.PlaylistTracks.PLAYLIST_ID + " = " + TableColumns.PlaylistTracksView._ID + ") as " + COL_ALREADY_ADDED;
-
-                Cursor dbCursor = getContext().getContentResolver().query(
-                        Content.ME_PLAYLISTS.uri,
-                        new String[]{TableColumns.PlaylistTracksView._ID,
-                                TableColumns.PlaylistTracksView.TITLE,
-                                TableColumns.PlaylistTracksView.TRACK_COUNT,
-                                existsCol},
-                        null, null, null);
-
-                MatrixCursor extras = new MatrixCursor(new String[]{TableColumns.PlaylistTracksView._ID,
-                        TableColumns.PlaylistTracksView.TITLE, TableColumns.PlaylistTracksView.TRACK_COUNT, COL_ALREADY_ADDED});
-
-                extras.addRow(new Object[]{NEW_PLAYLIST_ITEM, getContext().getString(R.string.create_new_playlist), -1, 0});
-
-                return new MergeCursor(new Cursor[]{extras, dbCursor});
-            }
-        };
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        adapter.setCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        adapter.setCursor(null);
     }
 
     private final class TrackAddedSubscriber extends DefaultSubscriber<PropertySet> {
@@ -214,9 +183,8 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
         }
     }
 
-    private static class MyPlaylistsAdapter extends BaseAdapter {
+    private static class MyPlaylistsAdapter extends ItemAdapter<PropertySet> {
         private final Context context;
-        private Cursor cursor;
 
         public MyPlaylistsAdapter(Context c) {
             context = c;
@@ -224,33 +192,20 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
 
         @Override
         public int getCount() {
-            return cursor == null ? 0 : cursor.getCount();
+            return items.size();
         }
 
-        public Object getItem(int position) {
-            if (cursor == null) {
-                return null;
-            } else {
-                cursor.moveToPosition(position);
-                return cursor;
-            }
+        public PropertySet getItem(int position) {
+            return items.get(position);
         }
 
         public long getItemId(int position) {
-            if (cursor != null && cursor.moveToPosition(position)) {
-                return cursor.getLong(cursor.getColumnIndex(TableColumns.PlaylistTracksView._ID));
-            } else {
-                return 0;
-            }
+            return getItem(position).getOrElse(TrackInPlaylistProperty.URN, Urn.NOT_SET).getNumericId();
         }
 
         @Override
         public boolean isEnabled(int position) {
-            if (cursor != null && cursor.moveToPosition(position)) {
-                return cursor.getInt(cursor.getColumnIndex(COL_ALREADY_ADDED)) != 1;
-            } else {
-                return false;
-            }
+            return !getItem(position).getOrElse(TrackInPlaylistProperty.ADDED_TO_URN, false);
         }
 
         @Override
@@ -259,32 +214,37 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment implements L
                 convertView = View.inflate(context, R.layout.add_to_playlist_list_item, null);
             }
 
-            if (cursor.moveToPosition(position)) {
-                final TextView txtTitle = (TextView) convertView.findViewById(R.id.title);
-                final TextView txtTrackCount = ((TextView) convertView.findViewById(R.id.trackCount));
+            final PropertySet item = getItem(position);
+            final TextView txtTitle = (TextView) convertView.findViewById(R.id.title);
+            final TextView txtTrackCount = ((TextView) convertView.findViewById(R.id.trackCount));
 
-                // text colors
-                final boolean alreadyAdded = (cursor.getInt(cursor.getColumnIndex(COL_ALREADY_ADDED)) == 1);
-                txtTitle.setEnabled(!alreadyAdded);
+            // text colors
+            txtTitle.setEnabled(isEnabled(position));
+            txtTitle.setText(item.getOrElse(TrackInPlaylistProperty.TITLE, context.getString(R.string.create_new_playlist)));
 
-                txtTitle.setText(cursor.getString(cursor.getColumnIndex(TableColumns.PlaylistTracksView.TITLE)));
-                final int trackCount = cursor.getInt(cursor.getColumnIndex(TableColumns.PlaylistTracksView.TRACK_COUNT));
-                if (trackCount == -1) {
-                    txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                            null, null, context.getResources().getDrawable(R.drawable.ic_plus), null);
-                    txtTrackCount.setText(null);
-                } else {
-                    txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                            context.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
-                    txtTrackCount.setText(String.valueOf(trackCount));
-                }
+            final int trackCount = item.getOrElse(TrackInPlaylistProperty.TRACK_COUNT, Consts.NOT_SET);
+            if (trackCount == Consts.NOT_SET) {
+                txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
+                        null, null, context.getResources().getDrawable(R.drawable.ic_plus), null);
+                txtTrackCount.setText(null);
+            } else {
+                txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
+                        context.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
+                txtTrackCount.setText(String.valueOf(trackCount));
             }
+
             return convertView;
         }
+    }
 
-        public void setCursor(Cursor data) {
-            cursor = data;
-            notifyDataSetChanged();
+    private class PlaylistLoadedSubscriber extends DefaultSubscriber<List<PropertySet>> {
+        @Override
+        public void onNext(List<PropertySet> args) {
+            adapter.addItem(PropertySet.create());
+            for (PropertySet p : args) {
+                adapter.addItem(p);
+            }
+            adapter.notifyDataSetChanged();
         }
     }
 }
