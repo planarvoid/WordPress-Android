@@ -24,7 +24,7 @@ public class PlaylistsScreen extends Screen {
     }
 
     public boolean hasLikes() {
-        return playlistsListOnCurrentPage().getItemCount() > 0;
+        return !emptyView().isVisible() && playlistsListOnCurrentPage().getItemCount() > 0;
     }
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {
@@ -74,7 +74,7 @@ public class PlaylistsScreen extends Screen {
     }
 
     private ListElement playlistsListOnCurrentPage() {
-        return new ListElement(getViewPager().getCurrentPage(ListView.class), testDriver.getSolo());
+        return testDriver.findElement(With.className(ListView.class)).toListView();
     }
 
     private void touchTab(String tabText) {
