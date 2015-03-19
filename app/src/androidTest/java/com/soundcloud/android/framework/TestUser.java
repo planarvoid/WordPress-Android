@@ -38,11 +38,28 @@ public class TestUser {
 
     public boolean logIn(Context context) {
         ApiWrapper apiWrapper = AccountAssistant.createApiWrapper(context);
-        try {
-            return AccountAssistant.addAccountAndEnableSync(context, getToken(context, apiWrapper), getUser(apiWrapper));
-        } catch (IOException e) {
-            throw new AssertionError("error logging in: " + e.getMessage());
+        int maxRetries = 3;
+        int tryCount = 0;
+        boolean result = false;
+        boolean shouldRetry = true;
+        while(shouldRetry){
+            try {
+                tryCount++;
+                result = AccountAssistant.addAccountAndEnableSync(context, getToken(context, apiWrapper), getUser(apiWrapper));
+            } catch (IOException e) {
+
+                if (!shouldRetry) {
+                    throw new AssertionError("error logging in: " + e.getMessage());
+                }
+            }
+            try {
+                shouldRetry = (result == false) && (tryCount < maxRetries);
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
+        return result;
     }
 
     protected PublicApiUser getUser(ApiWrapper apiWrapper) throws IOException {
