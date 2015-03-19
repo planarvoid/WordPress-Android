@@ -30,10 +30,10 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     // Given I go the playlists screen
     // Then the playlists should the first one
     public void testLastLikedPlaylistShouldAppearOnTop() {
-        networkManager.switchWifiOff();
 
         final PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
+        networkManager.switchWifiOff();
         final String expectedTitle = playlistsScreen.get(0).getTitle();
         likePlaylistAt(playlistsScreen, 0);
 
