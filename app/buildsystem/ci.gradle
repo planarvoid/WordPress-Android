@@ -50,7 +50,7 @@ task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembl
 // ALPHA BUILDS
 // *********************************************************************************************************************
 
-task updateAlphaVersion(dependsOn: ['incrementVersionName', 'incrementVersionCode']) {
+task updateAlphaVersion(dependsOn: ['incrementVersionName', 'setAlphaVersionCode']) {
   description = 'Updates local AndroidManifest versions for Alpha deploy.'
 }
 

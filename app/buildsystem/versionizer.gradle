@@ -68,6 +68,16 @@ task incrementVersionCode {
   }
 }
 
+task setAlphaVersionCode {
+  description = 'Sets version code in the AndroidManifest.xml file of the main app to arbitrary value.'
+  doLast {
+    def manifestFile = file('AndroidManifest.xml')
+    def matcherVersionCode = Pattern.compile('versionCode=\"(\\d+)\"').matcher( manifestFile.getText())
+    matcherVersionCode.find()
+    manifestFile.write(matcherVersionCode.replaceAll('versionCode=\"' + 1000 + '\"'))
+  }
+}
+
 task incrementVersionName {
   description = 'Increments version name in the AndroidManifest.xml file of the main app.'
   doLast {
