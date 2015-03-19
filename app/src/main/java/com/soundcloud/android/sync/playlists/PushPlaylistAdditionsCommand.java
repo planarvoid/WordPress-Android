@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.playlists;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
@@ -24,24 +25,35 @@ class PushPlaylistAdditionsCommand extends LegacyCommand<Collection<Urn>, Collec
         this.apiClient = apiClient;
     }
 
-    public PushPlaylistAdditionsCommand with(Urn playlistUrn){
+    public PushPlaylistAdditionsCommand with(Urn playlistUrn) {
         this.playlistUrn = playlistUrn;
         return this;
     }
 
     public Collection<Urn> call() throws Exception {
         List<Urn> successes = new ArrayList<>(input.size());
-        for (Urn urn : input){
+        for (Urn urn : input) {
             final ApiRequest<ApiPlaylistWithTracks> request =
                     ApiRequest.Builder.<ApiPlaylistWithTracks>post(ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn))
                             .forPrivateApi(1)
                             .withContent(Collections.singletonMap("track_urn", urn.toString()))
                             .build();
+
             final ApiResponse apiResponse = apiClient.fetchResponse(request);
-            if (apiResponse.isSuccess()){
+            if (apiResponse.isSuccess()) {
                 successes.add(urn);
+            } else {
+                throwNetworkOrServerError(apiResponse);
             }
         }
         return successes;
+    }
+
+    // also used in PushPlaylistRemovalCommand. Might want to think about consolidating this on ApiResponse
+    private void throwNetworkOrServerError(ApiResponse apiResponse) throws ApiRequestException {
+        final ApiRequestException failure = apiResponse.getFailure();
+        if (failure != null && (failure.reason() == ApiRequestException.Reason.NETWORK_ERROR || apiResponse.getStatusCode() >= 500)) {
+            throw failure;
+        }
     }
 }

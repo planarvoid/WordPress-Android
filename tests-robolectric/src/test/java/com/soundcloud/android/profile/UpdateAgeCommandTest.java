@@ -13,7 +13,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
+import com.soundcloud.android.api.TestApiResponses;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;

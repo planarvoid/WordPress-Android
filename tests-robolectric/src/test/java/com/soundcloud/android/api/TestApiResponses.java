@@ -1,6 +1,6 @@
-package com.soundcloud.android.testsupport.fixtures;
+package com.soundcloud.android.api;
 
-import com.soundcloud.android.api.ApiResponse;
+import java.io.IOException;
 
 public final class TestApiResponses {
 
@@ -10,6 +10,10 @@ public final class TestApiResponses {
 
     public static ApiResponse status(int statusCode) {
         return new ApiResponse(null, statusCode, null);
+    }
+
+    public static ApiResponse networkError() {
+        return new ApiResponse(ApiRequestException.networkError(null, new IOException()));
     }
 
     private TestApiResponses() {

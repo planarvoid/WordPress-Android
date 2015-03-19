@@ -19,7 +19,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.fixtures.TestApiResponses;
+import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;

@@ -3,6 +3,8 @@ package com.soundcloud.android.sync.playlists;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
 
@@ -20,19 +22,27 @@ class PushPlaylistRemovalsCommand extends LegacyCommand<Collection<Urn>, Collect
         this.apiClient = apiClient;
     }
 
-    public PushPlaylistRemovalsCommand with(Urn playlistUrn){
+    public PushPlaylistRemovalsCommand with(Urn playlistUrn) {
         this.playlistUrn = playlistUrn;
         return this;
     }
 
     public Collection<Urn> call() throws Exception {
-        for (Urn urn : input){
+        for (Urn urn : input) {
             final ApiRequest request =
                     ApiRequest.Builder.<ApiPlaylistWithTracks>delete(ApiEndpoints.PLAYLIST_REMOVE_TRACK.path(playlistUrn, urn))
                             .forPrivateApi(1)
                             .build();
-            apiClient.fetchResponse(request);
+            throwNetworkOrServerError(apiClient.fetchResponse(request));
         }
         return input;
     }
+
+    private void throwNetworkOrServerError(ApiResponse apiResponse) throws ApiRequestException {
+        final ApiRequestException failure = apiResponse.getFailure();
+        if (failure != null && (failure.reason() == ApiRequestException.Reason.NETWORK_ERROR || apiResponse.getStatusCode() >= 500)) {
+            throw failure;
+        }
+    }
+
 }
