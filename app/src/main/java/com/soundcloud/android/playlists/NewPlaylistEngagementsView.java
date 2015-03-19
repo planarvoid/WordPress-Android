@@ -2,8 +2,10 @@ package com.soundcloud.android.playlists;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
@@ -12,24 +14,24 @@ import android.content.res.Resources;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class NewPlaylistEngagementsView extends PlaylistEngagementsView implements PopupMenuWrapperListener {
 
     @InjectView(R.id.toggle_like) ToggleButton likeToggle;
     @InjectView(R.id.playlist_details_overflow_button) View overflowButton;
-    @InjectView(R.id.playlist_info_text) TextView infoText;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final FeatureOperations featureOperations;
+    private final DownloadableHeaderView downloadableHeaderView;
     private PopupMenuWrapper popupMenuWrapper;
 
     public NewPlaylistEngagementsView(Context context, Resources resources,
-                                      PopupMenuWrapper.Factory popupMenuWrapperFactory, FeatureOperations featureOperations) {
+                                      PopupMenuWrapper.Factory popupMenuWrapperFactory, FeatureOperations featureOperations, DownloadableHeaderView downloadableHeaderView) {
         super(context, resources);
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.featureOperations = featureOperations;
+        this.downloadableHeaderView = downloadableHeaderView;
     }
 
     @Override
@@ -42,19 +44,17 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
         popupMenuWrapper.inflate(R.menu.playlist_details_actions);
         popupMenuWrapper.setOnMenuItemClickListener(this);
 
-        likeToggle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getListener().onToggleLike(likeToggle.isChecked());
-            }
-        });
+        downloadableHeaderView.onViewCreated(engagementsView);
+    }
 
-        overflowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                popupMenuWrapper.show();
-            }
-        });
+    @OnClick(R.id.toggle_like)
+    void onToggleLikeClicked(View view) {
+        getListener().onToggleLike(likeToggle.isChecked());
+    }
+
+    @OnClick(R.id.playlist_details_overflow_button)
+    void onOverflowButtonClicked(View view) {
+        popupMenuWrapper.show();
     }
 
     @Override
@@ -63,10 +63,22 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @Override
-    void showOfflineAvailability(boolean isAvailable) {
+    void setOfflineOptionsMenu(boolean isAvailable) {
         popupMenuWrapper.setItemVisible(R.id.make_offline_available, !isAvailable);
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
         popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
+    }
+
+    void showDefaultState() {
+        downloadableHeaderView.showNoOfflineState();
+    }
+
+    void showDownloadingState() {
+        downloadableHeaderView.showDownloadingState();
+    }
+
+    void showDownloadedState() {
+        downloadableHeaderView.showDownloadedState();
     }
 
     @Override
@@ -123,7 +135,7 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
 
     @Override
     void setInfoText(String message) {
-        infoText.setText(message);
+        downloadableHeaderView.setHeaderText(message);
     }
 
     @Override

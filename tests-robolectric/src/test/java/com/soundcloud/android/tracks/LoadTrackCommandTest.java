@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -42,7 +43,7 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
         PropertySet track = command.with(apiTrack.getUrn()).call();
 
         final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(1000L));
+        expected.put(OfflineProperty.DOWNLOADED_AT, new Date(1000L));
         expect(track).toEqual(expected);
     }
 
@@ -54,7 +55,7 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
         PropertySet track = command.with(apiTrack.getUrn()).call();
 
         final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.put(TrackProperty.OFFLINE_REMOVED_AT, new Date(2000L));
+        expected.put(OfflineProperty.REMOVED_AT, new Date(2000L));
         expect(track).toEqual(expected);
     }
 

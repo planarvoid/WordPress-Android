@@ -10,9 +10,12 @@ import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.POSITIO
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
+import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
+import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
 
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import rx.Observable;
@@ -59,6 +62,32 @@ class OfflineTracksStorage {
                 .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
                 .whereNull(TrackDownloads.field(REMOVED_AT))
                 .order(Likes.field(CREATED_AT), Query.ORDER_DESC);
+
+        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+    }
+
+    Observable<List<Urn>> pendingLikedTracksUrns() {
+        final Query query = Query.from(TrackDownloads.name())
+                .select(TrackDownloads.field(_ID))
+                .innerJoin(Likes.name(), TrackDownloads.field(_ID), Likes.field(_ID))
+                .whereNull(TrackDownloads.field(REMOVED_AT))
+                .whereNull(TrackDownloads.field(DOWNLOADED_AT))
+                .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
+                .whereNotNull(TrackDownloads.field(REQUESTED_AT))
+                .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
+
+        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+    }
+
+    Observable<List<Urn>> pendingPlaylistTracksUrns(Urn playlist) {
+        final Query query = Query.from(TrackDownloads.name())
+                .select(TrackDownloads.field(_ID))
+                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads.field(_ID))
+                .whereEq(PlaylistTracks.field(PLAYLIST_ID), playlist.getNumericId())
+                .whereNull(TrackDownloads.field(REMOVED_AT))
+                .whereNull(TrackDownloads.field(DOWNLOADED_AT))
+                .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
+                .whereNotNull(TrackDownloads.field(REQUESTED_AT));
 
         return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
     }

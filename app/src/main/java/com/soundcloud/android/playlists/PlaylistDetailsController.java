@@ -1,5 +1,7 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
+
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -9,6 +11,7 @@ import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -82,6 +85,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, trackPresenter)),
+                eventBus.subscribe(CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.propeller.PropertySet;
 
@@ -56,24 +57,24 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
 
     @VisibleForTesting
     Boolean isDownloading(PropertySet track) {
-        return track.getOrElse(TrackProperty.OFFLINE_DOWNLOADING, false);
+        return track.getOrElse(OfflineProperty.DOWNLOADING, false);
     }
 
     @VisibleForTesting
     boolean isPendingDownload(PropertySet track) {
-        final Date removedAt = track.getOrElse(TrackProperty.OFFLINE_REMOVED_AT, MIN_DATE);
-        final Date unavailableAt = track.getOrElse(TrackProperty.OFFLINE_UNAVAILABLE_AT, MIN_DATE);
-        return track.contains(TrackProperty.OFFLINE_REQUESTED_AT)
-                && !track.getOrElse(TrackProperty.OFFLINE_DOWNLOADING, false)
-                && track.get(TrackProperty.OFFLINE_REQUESTED_AT).after(removedAt)
-                && track.get(TrackProperty.OFFLINE_REQUESTED_AT).after(unavailableAt);
+        final Date removedAt = track.getOrElse(OfflineProperty.REMOVED_AT, MIN_DATE);
+        final Date unavailableAt = track.getOrElse(OfflineProperty.UNAVAILABLE_AT, MIN_DATE);
+        return track.contains(OfflineProperty.REQUESTED_AT)
+                && !track.getOrElse(OfflineProperty.DOWNLOADING, false)
+                && track.get(OfflineProperty.REQUESTED_AT).after(removedAt)
+                && track.get(OfflineProperty.REQUESTED_AT).after(unavailableAt);
     }
 
     @VisibleForTesting
     boolean isDownloaded(PropertySet track) {
-        final Date removedAt = track.getOrElse(TrackProperty.OFFLINE_REMOVED_AT, MIN_DATE);
-        return track.contains(TrackProperty.OFFLINE_DOWNLOADED_AT)
-                && track.get(TrackProperty.OFFLINE_DOWNLOADED_AT).after(removedAt);
+        final Date removedAt = track.getOrElse(OfflineProperty.REMOVED_AT, MIN_DATE);
+        return track.contains(OfflineProperty.DOWNLOADED_AT)
+                && track.get(OfflineProperty.DOWNLOADED_AT).after(removedAt);
     }
 
     private void setNoOfflineState(ImageView downloadProgressIcon) {

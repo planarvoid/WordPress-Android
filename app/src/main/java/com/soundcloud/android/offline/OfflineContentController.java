@@ -54,13 +54,15 @@ public class OfflineContentController {
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
-    public OfflineContentController(Context context, EventBus eventBus, OfflineSettingsStorage settingsStorage, OfflinePlaylistStorage playlistStorage) {
+    public OfflineContentController(Context context, EventBus eventBus,
+                                    OfflineSettingsStorage settingsStorage,
+                                    OfflinePlaylistStorage playlistStorage) {
         this.context = context;
         this.eventBus = eventBus;
         this.settingStorage = settingsStorage;
         this.playlistStorage = playlistStorage;
 
-        this.offlineLikedTracksToggle = settingsStorage.getOfflineLikedTracksChanged();
+        this.offlineLikedTracksToggle = settingsStorage.getOfflineLikedTracksStatusChange();
     }
 
     public void subscribe() {

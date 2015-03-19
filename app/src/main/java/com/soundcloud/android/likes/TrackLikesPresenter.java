@@ -1,12 +1,11 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
-import static com.soundcloud.android.events.EventQueue.OFFLINE_CONTENT;
 import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -16,12 +15,12 @@ import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -119,7 +118,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(OFFLINE_CONTENT, new OfflineSyncStopped()),
+                eventBus.subscribe(CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
                 likeOperations.onTrackLiked().observeOn(AndroidSchedulers.mainThread()).subscribe(new PrependItemToListSubscriber(adapter)),
                 likeOperations.onTrackUnliked().observeOn(AndroidSchedulers.mainThread()).subscribe(new RemoveEntityListSubscriber(adapter))
@@ -151,15 +150,6 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
             playbackOperations
                     .playLikes(initialTrack, position, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
-        }
-    }
-
-    private class OfflineSyncStopped extends DefaultSubscriber<OfflineContentEvent> {
-        @Override
-        public void onNext(OfflineContentEvent event) {
-            if (event.getKind() == OfflineContentEvent.STOP) {
-                adapter.notifyDataSetChanged();
-            }
         }
     }
 

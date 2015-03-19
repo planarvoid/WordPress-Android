@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
@@ -28,7 +29,7 @@ public class TrackLikesHeaderViewTest {
 
     @Before
     public void setUp() throws Exception {
-        trackLikesHeaderView = new TrackLikesHeaderView();
+        trackLikesHeaderView = new TrackLikesHeaderView(new DownloadableHeaderView(Robolectric.application.getResources()));
         View view = mock(View.class);
         when(view.getContext()).thenReturn(Robolectric.application);
         trackLikesHeaderView.onViewCreated(view);
@@ -83,30 +84,6 @@ public class TrackLikesHeaderViewTest {
         trackLikesHeaderView.updateTrackCount(1);
         expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
                 .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 1, 1));
-    }
-
-    @Test
-    public void doNotUpdateTextWhenUpdatingTrackCountOnSyncingState() {
-        trackLikesHeaderView.showSyncingState();
-        trackLikesHeaderView.updateTrackCount(4);
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
-                .getString(R.string.offline_update_in_progress));
-    }
-
-    @Test
-    public void showDefaultStateShowsTrackCountOnHeaderText() {
-        trackLikesHeaderView.updateTrackCount(2);
-        trackLikesHeaderView.showDefaultState();
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
-                .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 2, 2));
-    }
-
-    @Test
-    public void showDownloadedStateShowsTrackCountOnHeaderText() {
-        trackLikesHeaderView.updateTrackCount(2);
-        trackLikesHeaderView.showDownloadedState();
-        expect(getHeaderText().getText().toString()).toEqual(Robolectric.application.getResources()
-                .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 2, 2));
     }
 
     private View getShuffleButton() {

@@ -111,6 +111,18 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_REPOSTED.bind(true));
     }
 
+    public static PropertySet expectedTrackForListItem(Urn urn) {
+        return PropertySet.from(
+                TrackProperty.URN.bind(urn),
+                TrackProperty.TITLE.bind("Title " + urn),
+                TrackProperty.CREATOR_NAME.bind("Creator " + urn),
+                TrackProperty.DURATION.bind(10),
+                TrackProperty.PLAY_COUNT.bind(4),
+                TrackProperty.LIKES_COUNT.bind(2),
+                LikeProperty.CREATED_AT.bind(new Date()),
+                TrackProperty.IS_PRIVATE.bind(false));
+    }
+
     public static PropertySet expectedLikedTrackForLikesScreen() {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forTrack(123L)),

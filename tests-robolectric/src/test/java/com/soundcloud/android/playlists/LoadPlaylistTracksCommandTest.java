@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -51,13 +52,13 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest{
 
         expect(command.with(apiPlaylist.getUrn()).call()).toContain(
                 fromApiTrack(apiTrack1)
-                        .put(TrackProperty.OFFLINE_DOWNLOADED_AT, new Date(100L))
-                        .put(TrackProperty.OFFLINE_REQUESTED_AT, new Date(100L)),
+                        .put(OfflineProperty.DOWNLOADED_AT, new Date(100L))
+                        .put(OfflineProperty.REQUESTED_AT, new Date(100L)),
                 fromApiTrack(apiTrack2)
-                        .put(TrackProperty.OFFLINE_REQUESTED_AT, new Date(200L)),
+                        .put(OfflineProperty.REQUESTED_AT, new Date(200L)),
                 fromApiTrack(apiTrack3)
-                        .put(TrackProperty.OFFLINE_REMOVED_AT, new Date(300L))
-                        .put(TrackProperty.OFFLINE_REQUESTED_AT, new Date(300L))
+                        .put(OfflineProperty.REMOVED_AT, new Date(300L))
+                        .put(OfflineProperty.REQUESTED_AT, new Date(300L))
         );
     }
 

@@ -4,33 +4,25 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.offline.DownloadableHeaderView;
 
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 
 class TrackLikesHeaderView {
 
     private View headerView;
-    @InjectView(R.id.header_text) TextView headerText;
+    private final DownloadableHeaderView downloadableHeaderView;
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
-    @InjectView(R.id.download_state) ImageView downloadState;
 
-    private State state = State.DEFAULT;
     private int trackCount;
 
-    private enum State {
-        DEFAULT, SYNCING, DOWNLOADED
-    }
-
     @Inject
-    TrackLikesHeaderView() {
-        // For Dagger
+    TrackLikesHeaderView(DownloadableHeaderView downloadableHeaderView) {
+        this.downloadableHeaderView = downloadableHeaderView;
     }
 
     @VisibleForTesting
@@ -40,6 +32,7 @@ class TrackLikesHeaderView {
 
     void onViewCreated(View view) {
         headerView = View.inflate(view.getContext(), R.layout.track_likes_header, null);
+        downloadableHeaderView.onViewCreated(headerView);
         ButterKnife.inject(this, headerView);
     }
 
@@ -57,50 +50,31 @@ class TrackLikesHeaderView {
     }
 
     void showDefaultState() {
-        state = State.DEFAULT;
-        downloadState.clearAnimation();
-
-        downloadState.setVisibility(View.GONE);
-        downloadState.setImageDrawable(null);
-
+        downloadableHeaderView.showNoOfflineState();
         updateTrackCount(trackCount);
     }
 
-    void showSyncingState() {
-        state = State.SYNCING;
-        downloadState.clearAnimation();
-
-        downloadState.setVisibility(View.VISIBLE);
-        downloadState.setImageResource(R.drawable.header_syncing);
-        headerText.setText(headerView.getContext().getString(R.string.offline_update_in_progress));
-
-        AnimUtils.runSpinClockwiseAnimationOn(downloadState.getContext(), downloadState);
+    void showDownloadingState() {
+        downloadableHeaderView.showDownloadingState();
     }
 
     void showDownloadedState() {
-        state = State.DOWNLOADED;
-        downloadState.clearAnimation();
-
-        downloadState.setVisibility(View.VISIBLE);
-        downloadState.setImageResource(R.drawable.header_downloaded);
-
+        downloadableHeaderView.showDownloadedState();
         updateTrackCount(trackCount);
     }
 
     void updateTrackCount(int trackCount) {
         this.trackCount = trackCount;
-        if (state != State.SYNCING) {
-            updateHeaderTextWithTrackCount(trackCount);
-        }
+        downloadableHeaderView.setHeaderText(getHeaderText(trackCount));
         updateShuffleButton(trackCount);
     }
 
-    private void updateHeaderTextWithTrackCount(int likedTracks) {
+    private String getHeaderText(int likedTracks) {
         if (likedTracks == 0) {
-            headerText.setText(headerView.getContext().getString(R.string.number_of_liked_tracks_you_liked_zero));
+            return headerView.getContext().getString(R.string.number_of_liked_tracks_you_liked_zero);
         } else {
-            headerText.setText(headerView.getContext().getResources()
-                    .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks));
+            return headerView.getContext().getResources()
+                    .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, likedTracks, likedTracks);
         }
     }
 

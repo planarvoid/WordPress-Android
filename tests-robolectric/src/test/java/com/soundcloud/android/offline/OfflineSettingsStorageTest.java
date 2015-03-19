@@ -29,7 +29,7 @@ public class OfflineSettingsStorageTest {
 
     @Test
     public void receivesUpdatesToLikeStatusChanges() {
-        storage.getOfflineLikedTracksChanged().subscribe(testObserver);
+        storage.getOfflineLikedTracksStatusChange().subscribe(testObserver);
         storage.setOfflineLikedTracksEnabled(true);
         expect(testObserver.getOnNextEvents().get(0)).toBeTrue();
     }

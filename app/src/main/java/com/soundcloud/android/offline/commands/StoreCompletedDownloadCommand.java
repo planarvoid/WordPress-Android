@@ -3,6 +3,7 @@ package com.soundcloud.android.offline.commands;
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.Table.TrackDownloads;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
+import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
 
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.offline.DownloadResult;
@@ -29,6 +30,7 @@ public class StoreCompletedDownloadCommand extends StoreCommand<DownloadResult> 
     private ContentValues buildContentValues(DownloadResult downloadResult) {
         return ContentValuesBuilder.values(2)
                 .put(_ID, downloadResult.getUrn().getNumericId())
+                .put(UNAVAILABLE_AT, null)
                 .put(DOWNLOADED_AT, downloadResult.getTimestamp())
                 .get();
     }

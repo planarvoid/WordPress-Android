@@ -65,7 +65,22 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
     }
 
     @Override
-    void showOfflineAvailability(boolean isAvailable) {
+    void setOfflineOptionsMenu(boolean isAvailable) {
+        // no-op
+    }
+
+    @Override
+    void showDefaultState() {
+        // no-op
+    }
+
+    @Override
+    void showDownloadingState() {
+        // no-op
+    }
+
+    @Override
+    void showDownloadedState() {
         // no-op
     }
 

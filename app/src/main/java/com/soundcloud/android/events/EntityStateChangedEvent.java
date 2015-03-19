@@ -5,6 +5,7 @@ import com.google.common.collect.Collections2;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -100,23 +101,26 @@ public final class EntityStateChangedEvent {
     private final int kind;
     private final Map<Urn, PropertySet> changeMap;
 
-    public static EntityStateChangedEvent downloadStarted(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD,
-                PropertySet.from(
-                        TrackProperty.URN.bind(track),
-                        TrackProperty.OFFLINE_DOWNLOADING.bind(true))
-        );
+    public static EntityStateChangedEvent downloadRequested(Collection<Urn> tracks) {
+        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
+            @Override
+            public PropertySet apply(Urn urn) {
+                return PropertySet.from(
+                        TrackProperty.URN.bind(urn),
+                        OfflineProperty.REQUESTED_AT.bind(new Date()));
+            }
+        });
+
+        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
     }
 
     public static EntityStateChangedEvent downloadFinished(Urn track) {
         return new EntityStateChangedEvent(DOWNLOAD,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
-                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
-                        TrackProperty.OFFLINE_DOWNLOADED_AT.bind(new Date()))
+                        OfflineProperty.DOWNLOADED_AT.bind(new Date()))
         );
     }
-
 
     public static EntityStateChangedEvent downloadFinished(Collection<Urn> tracks) {
         Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
@@ -124,8 +128,7 @@ public final class EntityStateChangedEvent {
             public PropertySet apply(Urn urn) {
                 return PropertySet.from(
                         TrackProperty.URN.bind(urn),
-                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
-                        TrackProperty.OFFLINE_DOWNLOADED_AT.bind(new Date()));
+                        OfflineProperty.DOWNLOADED_AT.bind(new Date()));
             }
         });
 
@@ -136,24 +139,9 @@ public final class EntityStateChangedEvent {
         return new EntityStateChangedEvent(DOWNLOAD,
                 PropertySet.from(
                         TrackProperty.URN.bind(track),
-                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
-                        TrackProperty.OFFLINE_UNAVAILABLE_AT.bind(new Date())
+                        OfflineProperty.UNAVAILABLE_AT.bind(new Date())
                 )
         );
-    }
-
-    public static EntityStateChangedEvent downloadPending(Collection<Urn> tracks) {
-        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
-            @Override
-            public PropertySet apply(Urn urn) {
-                return PropertySet.from(
-                        TrackProperty.URN.bind(urn),
-                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
-                        TrackProperty.OFFLINE_REQUESTED_AT.bind(new Date()));
-            }
-        });
-
-        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
     }
 
     public static EntityStateChangedEvent downloadRemoved(Collection<Urn> tracks) {
@@ -162,8 +150,7 @@ public final class EntityStateChangedEvent {
             public PropertySet apply(Urn urn) {
                 return PropertySet.from(
                         TrackProperty.URN.bind(urn),
-                        TrackProperty.OFFLINE_DOWNLOADING.bind(false),
-                        TrackProperty.OFFLINE_REMOVED_AT.bind(new Date()));
+                        OfflineProperty.REMOVED_AT.bind(new Date()));
             }
         });
 
@@ -273,5 +260,13 @@ public final class EntityStateChangedEvent {
 
     private Boolean isTrackRemovedEvent() {
         return kind == TRACK_REMOVED_FROM_PLAYLIST;
+    }
+
+    @Override
+    public String toString() {
+        return "EntityStateChangedEvent{" +
+                "kind=" + kind +
+                ", changeMap=" + changeMap +
+                '}';
     }
 }

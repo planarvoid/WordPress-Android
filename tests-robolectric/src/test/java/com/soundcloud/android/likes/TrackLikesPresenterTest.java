@@ -4,13 +4,10 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -133,26 +130,6 @@ public class TrackLikesPresenterTest {
         when(listView.getItemAtPosition(0)).thenReturn(null);
         presenter.onItemClick(listView, view, 0, 0);
         verifyZeroInteractions(playbackOperations);
-    }
-
-    @Test
-    public void shouldNotRefreshListContentAfterOtherOfflineSyncEvents() throws Exception {
-        presenter.onCreate(fragment, null);
-
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.idle());
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
-
-        verify(adapter, never()).clear();
-    }
-
-    @Test
-    public void shouldListenForDownloadStopEventAndUpdateTheListToRemoveDownloadIndicators() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
-        verify(adapter).notifyDataSetChanged();
     }
 
     @Test

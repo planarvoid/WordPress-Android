@@ -447,6 +447,14 @@ public class DatabaseFixtures {
         return insertInto(Table.TrackDownloads, cv);
     }
 
+    public long insertUnavailableTrackDownload(Urn trackUrn, long unavailableTimestamp) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, 33333333L);
+        cv.put(TableColumns.TrackDownloads.UNAVAILABLE_AT, unavailableTimestamp);
+        return insertInto(Table.TrackDownloads, cv);
+    }
+
     public long insertTrackDownloadPendingRemoval(Urn trackUrn, long removedAtTimestamp) {
         return insertTrackDownloadPendingRemoval(trackUrn, removedAtTimestamp, removedAtTimestamp);
     }

@@ -36,7 +36,13 @@ public abstract class PlaylistEngagementsView {
         this.listener = listener;
     }
 
-    abstract void showOfflineAvailability(boolean isAvailable);
+    abstract void setOfflineOptionsMenu(boolean isAvailable);
+
+    abstract void showDefaultState();
+
+    abstract void showDownloadingState();
+
+    abstract void showDownloadedState();
 
     abstract void showUpsell();
 

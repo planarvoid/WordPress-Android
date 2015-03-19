@@ -61,6 +61,12 @@ public class DatabaseAssertions {
         assertTrackPolicyInserted(track);
     }
 
+    public void assertDownloadIsAvailable(Urn track) {
+        assertThat(select(from(Table.TrackDownloads.name())
+                .whereEq(TableColumns.TrackDownloads._ID, track.getNumericId())
+                .whereNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)), counts(1));
+    }
+
     public void assertPlaylistTrackForRemoval(long playlistId, Urn urn) {
         assertThat(select(from(Table.PlaylistTracks.name())
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)

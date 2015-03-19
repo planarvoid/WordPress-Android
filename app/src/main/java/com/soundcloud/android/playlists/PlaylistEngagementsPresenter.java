@@ -14,6 +14,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -25,7 +26,10 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.subscriptions.SerialSubscription;
+import rx.subscriptions.Subscriptions;
 import rx.functions.Action0;
 import rx.subscriptions.CompositeSubscription;
 
@@ -55,7 +59,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaybackToastHelper playbackToastHelper;
 
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private Subscription foregroundSubscription = Subscriptions.empty();
+    private SerialSubscription offlineStateSubscription = new SerialSubscription();
 
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
@@ -101,16 +106,15 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     }
 
     @Override
-    public void onStart(Fragment fragment) {
-        subscription = new CompositeSubscription();
-        subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateLikeOrRepost()));
+    public void onResume(Fragment fragment) {
+        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateLikeOrRepost());
     }
 
     @Override
-    public void onStop(Fragment fragment) {
-        subscription.unsubscribe();
+    public void onPause(Fragment fragment) {
+        foregroundSubscription.unsubscribe();
+        offlineStateSubscription.unsubscribe();
     }
-
 
     void setOriginProvider(OriginProvider originProvider) {
         this.originProvider = originProvider;
@@ -139,11 +143,15 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         }
 
         updateOfflineAvailability();
+        offlineStateSubscription.set(offlineOperations
+                .getPlaylistDownloadState(playlistInfo.getUrn())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DownloadStateSubscriber()));
     }
 
     private void updateOfflineAvailability() {
         if (featureOperations.isOfflineContentEnabled()) {
-            playlistEngagementsView.showOfflineAvailability(playlistInfo.isOfflineAvailable());
+            playlistEngagementsView.setOfflineOptionsMenu(playlistInfo.isOfflineAvailable());
         } else if (featureOperations.isOfflineContentUpsellEnabled()) {
             playlistEngagementsView.showUpsell();
         } else {
@@ -261,6 +269,28 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                 if (changeSet.contains(PlaylistProperty.IS_MARKED_FOR_OFFLINE)) {
                     updateOfflineAvailability();
                 }
+            }
+        }
+    }
+
+    private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
+        @Override
+        public void onNext(DownloadState downloadState) {
+            switch (downloadState) {
+                case DOWNLOADED:
+                    playlistEngagementsView.showDownloadedState();
+                    break;
+                case DOWNLOADING:
+                    playlistEngagementsView.showDownloadingState();
+                    break;
+                case REQUESTED:
+                    playlistEngagementsView.showDefaultState();
+                    break;
+                case NO_OFFLINE:
+                    playlistEngagementsView.showDefaultState();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown state:" + downloadState);
             }
         }
     }

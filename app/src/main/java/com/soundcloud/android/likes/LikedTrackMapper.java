@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.CursorReader;
@@ -33,16 +34,16 @@ public class LikedTrackMapper extends RxResultMapper<PropertySet> {
 
     private void addOptionalOfflineSyncDates(CursorReader cursorReader, PropertySet propertySet) {
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)){
-            propertySet.put(TrackProperty.OFFLINE_DOWNLOADED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.DOWNLOADED_AT));
+            propertySet.put(OfflineProperty.DOWNLOADED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.DOWNLOADED_AT));
         }
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.REMOVED_AT)){
-            propertySet.put(TrackProperty.OFFLINE_REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REMOVED_AT));
+            propertySet.put(OfflineProperty.REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REMOVED_AT));
         }
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)){
-            propertySet.put(TrackProperty.OFFLINE_UNAVAILABLE_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.UNAVAILABLE_AT));
+            propertySet.put(OfflineProperty.UNAVAILABLE_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.UNAVAILABLE_AT));
         }
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.REQUESTED_AT)) {
-            propertySet.put(TrackProperty.OFFLINE_REQUESTED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REQUESTED_AT));
+            propertySet.put(OfflineProperty.REQUESTED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REQUESTED_AT));
         }
     }
 

@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
@@ -49,11 +50,11 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         }
 
         if (cursorReader.isNotNull(SoundView.OFFLINE_DOWNLOADED_AT)) {
-            propertySet.put(TrackProperty.OFFLINE_DOWNLOADED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_DOWNLOADED_AT));
+            propertySet.put(OfflineProperty.DOWNLOADED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_DOWNLOADED_AT));
         }
 
         if (cursorReader.isNotNull(SoundView.OFFLINE_REMOVED_AT)) {
-            propertySet.put(TrackProperty.OFFLINE_REMOVED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_REMOVED_AT));
+            propertySet.put(OfflineProperty.REMOVED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_REMOVED_AT));
         }
 
         // synced tracks that might not have a user if they haven't been lazily updated yet

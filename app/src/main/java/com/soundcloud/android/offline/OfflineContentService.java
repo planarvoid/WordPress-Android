@@ -8,9 +8,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -124,6 +124,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         notificationController.onDownloadSuccess();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFinished(result.getUrn()));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.stop(result.getUrn()));
 
         downloadNextOrFinish();
     }
@@ -134,6 +135,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         notificationController.onDownloadError();
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFailed(result.getUrn()));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.stop(result.getUrn()));
 
         if (result.isFailure()) {
             stopAndRetryLater();
@@ -170,7 +172,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
         downloadHandler.sendMessage(message);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadStarted(request.urn));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.start(request.urn));
     }
 
     @Override
@@ -193,7 +195,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
             updateRequestQueue(requests);
 
             if (!downloadHandler.isDownloading()) {
-                eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.start());
                 downloadNextOrFinish();
             }
         }
@@ -224,7 +225,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private void publishEntityChangedEventForNewRequests(List<DownloadRequest> pendingRequests) {
         final Collection<DownloadRequest> newRequests = subtract(pendingRequests, requestsQueue);
         if (!newRequests.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadPending(toUrns(newRequests)));
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadRequested(toUrns(newRequests)));
         }
     }
 
@@ -238,8 +239,6 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     }
 
     private void stop() {
-        eventBus.publish(EventQueue.OFFLINE_CONTENT, OfflineContentEvent.stop());
-
         Log.d(TAG, "Stopping the service");
         loadRequestsSubscription.unsubscribe();
         downloadHandler.quit();

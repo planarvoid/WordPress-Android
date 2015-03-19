@@ -14,7 +14,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -220,13 +219,13 @@ public class OfflinePlaybackOperationsTest {
     }
 
     private PropertySet downloadedTrack() {
-        return PropertySet.from(TrackProperty.OFFLINE_DOWNLOADED_AT.bind(new Date()));
+        return PropertySet.from(OfflineProperty.DOWNLOADED_AT.bind(new Date()));
     }
 
     private PropertySet removedTrack() {
         return PropertySet.from(
-                TrackProperty.OFFLINE_DOWNLOADED_AT.bind(new Date()),
-                TrackProperty.OFFLINE_REMOVED_AT.bind(new Date()));
+                OfflineProperty.DOWNLOADED_AT.bind(new Date()),
+                OfflineProperty.REMOVED_AT.bind(new Date()));
     }
 
     private PropertySet notDownloadedTrack() {

@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -69,19 +70,19 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
     }
 
     private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(TrackProperty.OFFLINE_REQUESTED_AT, requestedAt);
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.REQUESTED_AT, requestedAt);
     }
 
     private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date downloadedAt) {
         return expectedLikedTrackFor(track, likedAt)
-                .put(TrackProperty.OFFLINE_REQUESTED_AT, requestedAt)
-                .put(TrackProperty.OFFLINE_DOWNLOADED_AT, downloadedAt);
+                .put(OfflineProperty.REQUESTED_AT, requestedAt)
+                .put(OfflineProperty.DOWNLOADED_AT, downloadedAt);
     }
 
     private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date removedAt) {
         return expectedLikedTrackFor(track, likedAt)
-                .put(TrackProperty.OFFLINE_REQUESTED_AT, requestedAt)
-                .put(TrackProperty.OFFLINE_REMOVED_AT, removedAt);
+                .put(OfflineProperty.REQUESTED_AT, requestedAt)
+                .put(OfflineProperty.REMOVED_AT, removedAt);
     }
 
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {

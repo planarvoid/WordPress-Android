@@ -5,16 +5,14 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.OfflineContentEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -40,43 +38,37 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesHeaderPresenterTest {
 
+    private static final Urn TRACK1 = Urn.forTrack(123L);
+    private static final Urn TRACK2 = Urn.forTrack(456L);
     private TrackLikesHeaderPresenter presenter;
 
     @Mock private TrackLikesHeaderView headerView;
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
-    @Mock private FeatureOperations featureOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private ListBinding<PropertySet, PropertySet> listBinding;
     @Mock private Fragment fragment;
     @Mock private View layoutView;
     @Mock private ListView listView;
-    private TestEventBus eventBus = new TestEventBus();
+    private TestEventBus eventBus;
     private List<Urn> likedTrackUrns;
 
     @Before
     public void setUp() throws Exception {
+        eventBus = new TestEventBus();
         presenter = new TrackLikesHeaderPresenter(headerView,
                 likeOperations,
                 offlineContentOperations,
-                featureOperations,
                 playbackOperations,
                 TestSubscribers.expandPlayerSubscriber(),
                 eventBus);
 
-        when(offlineContentOperations.onStarted()).thenReturn(Observable.<OfflineContentEvent>never());
-        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.<Integer>never());
-
-        likedTrackUrns = Lists.newArrayList(Urn.forTrack(123L), Urn.forTrack(456L));
+        likedTrackUrns = Lists.newArrayList(TRACK1, TRACK2);
     }
 
-    // Reaction to Offline Content Sync events
-    //
-    // On Sync Started
     @Test
-    public void showHeaderDefaultOnSyncStartedWithOfflineSyncAvailable() {
-        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+    public void showHeaderDefaultStateOnRequestedState() {
+        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.REQUESTED));
 
         presenter.onResume(fragment);
 
@@ -84,89 +76,30 @@ public class TrackLikesHeaderPresenterTest {
     }
 
     @Test
-    public void showHeaderDefaultOnSyncStartedWithOfflineSyncEnabled() {
-        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
+    public void showHeaderDownloadingOnDownloadingState() {
+        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.DOWNLOADING));
 
         presenter.onResume(fragment);
 
-        verify(headerView).showDefaultState();
+        verify(headerView).showDownloadingState();
     }
 
     @Test
-    public void showHeaderSyncingOnSyncStartedWithOfflineSyncEnabledAndAvailable() {
-        when(offlineContentOperations.onStarted()).thenReturn(Observable.just(OfflineContentEvent.start()));
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
-
-        presenter.onResume(fragment);
-
-        verify(headerView).showSyncingState();
-    }
-
-    @Test
-    public void doNotChangeHeaderOnSyncStartedEventsAfterOnPause() {
-        PublishSubject<OfflineContentEvent> offlineSyncEvents = PublishSubject.create();
-        when(offlineContentOperations.onStarted()).thenReturn(offlineSyncEvents);
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        presenter.onResume(fragment);
-        presenter.onPause(fragment);
-        offlineSyncEvents.onNext(OfflineContentEvent.start());
-
-        verifyNoMoreInteractions(headerView);
-    }
-
-    @Test
-    public void doNotChangeHeaderOnSyncStoppedEventsAfterOnPause() {
-        PublishSubject<OfflineContentEvent> offlineSyncEvents = PublishSubject.create();
-        when(offlineContentOperations.onStarted()).thenReturn(offlineSyncEvents);
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        presenter.onResume(fragment);
-        presenter.onPause(fragment);
-        offlineSyncEvents.onNext(OfflineContentEvent.stop());
-
-        verifyNoMoreInteractions(headerView);
-    }
-
-    // On Sync Finished or Idle
-    @Test
-    public void showHeaderDefaultOnSyncFinishedOrIdleWithDownloadedTracks() {
-        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        presenter.onResume(fragment);
-        verify(headerView).showDefaultState();
-    }
-
-    @Test
-    public void showHeaderDefaultOnSyncFinishedOrIdleWithOfflineSyncAvailable() {
-        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-
-        presenter.onResume(fragment);
-
-        verify(headerView).showDefaultState();
-    }
-
-    @Test
-    public void showHeaderDefaultOnSyncFinishedOrIdleWithOfflineSyncEnabled() {
-        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
-
-        presenter.onResume(fragment);
-
-        verify(headerView).showDefaultState();
-    }
-
-    @Test
-    public void showHeaderDownloadedOnSyncFinishedOrIdleWithDownloadTracksAndOfflineAvailableAndEnabled() {
-        when(offlineContentOperations.onFinishedOrIdleWithDownloadedCount()).thenReturn(Observable.just(3));
-        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
+    public void showHeaderDownloadedStateOnDownloadedState() {
+        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.DOWNLOADED));
 
         presenter.onResume(fragment);
 
         verify(headerView).showDownloadedState();
+    }
+
+    @Test
+    public void showHeaderDefaultStateOnNoOffline() {
+        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.NO_OFFLINE));
+
+        presenter.onResume(fragment);
+
+        verify(headerView).showDefaultState();
     }
 
     @Test
@@ -199,7 +132,7 @@ public class TrackLikesHeaderPresenterTest {
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
         presenter.onViewCreated(layoutView, listView);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 5));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK1, true, 5));
 
         verify(headerView).updateTrackCount(2);
     }
@@ -210,7 +143,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onViewCreated(layoutView, listView);
         presenter.onDestroyView(fragment);
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 5));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK1, true, 5));
 
         verify(headerView, never()).updateTrackCount(anyInt());
     }

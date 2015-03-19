@@ -28,8 +28,8 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadsOfflineLikesOrderedByLikeDate() {
-        final Urn track1 = insertOfflineLike(100);
-        final Urn track2 = insertOfflineLike(200);
+        final Urn track1 = insertOfflineLikeDownloadCompleted(100);
+        final Urn track2 = insertOfflineLikeDownloadCompleted(200);
 
         storage.likesUrns().subscribe(observer);
 
@@ -57,15 +57,27 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadsOfflineLikedTracksPendingDownload() {
+        insertOfflineLikeDownloadCompleted(100);
+        final Urn track1 = insertOfflineLikePendingDownload(200);
+        final Urn track2 = insertOfflineLikePendingDownload(300);
+
+        storage.pendingLikedTracksUrns().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toContainExactly(track1, track2);
+    }
+
+    @Test
     public void loadsOfflineTracksFromAPlaylist() {
         final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
-        final Urn trackUrn0 = insertOfflinePlaylistTrack(playlistUrn, 0);
-        final Urn trackUrn1 = insertOfflinePlaylistTrack(playlistUrn, 1);
+        final Urn trackUrn1 = insertOfflinePlaylistTrack(playlistUrn, 0);
+        final Urn trackUrn2 = insertOfflinePlaylistTrack(playlistUrn, 1);
 
         storage.playlistTrackUrns(playlistUrn).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(trackUrn0, trackUrn1);
+        expect(observer.getOnNextEvents().get(0)).toContainExactly(trackUrn1, trackUrn2);
     }
 
     @Test
@@ -80,15 +92,41 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
         expect(observer.getOnNextEvents().get(0)).toBeEmpty();
     }
 
+    @Test
+    public void loadsOfflinePendingTrackFromAPlaylist() {
+        final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
+        insertOfflinePlaylistTrack(playlistUrn, 0);
+        final Urn trackUrn1 = insertOfflinePlaylistTrackPendingDownload(playlistUrn, 1);
+        final Urn trackUrn2 = insertOfflinePlaylistTrackPendingDownload(playlistUrn, 2);
+
+        storage.pendingPlaylistTracksUrns(playlistUrn).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toContainExactly(trackUrn1, trackUrn2);
+    }
+
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {
         final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
         testFixtures().insertCompletedTrackDownload(track.getUrn(), 100);
         return track.getUrn();
     }
 
-    private Urn insertOfflineLike(long likedAt) {
+    private Urn insertOfflinePlaylistTrackPendingDownload(Urn playlist, int position) {
+        final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
+        testFixtures().insertRequestedTrackDownload(track.getUrn(), 100);
+        return track.getUrn();
+    }
+
+    private Urn insertOfflineLikeDownloadCompleted(long likedAt) {
         final ApiTrack track = testFixtures().insertLikedTrack(new Date(likedAt));
         testFixtures().insertCompletedTrackDownload(track.getUrn(), 100, 200);
+
+        return track.getUrn();
+    }
+
+    private Urn insertOfflineLikePendingDownload(long likedAt) {
+        final ApiTrack track = testFixtures().insertLikedTrack(new Date(likedAt));
+        testFixtures().insertRequestedTrackDownload(track.getUrn(), 100);
 
         return track.getUrn();
     }

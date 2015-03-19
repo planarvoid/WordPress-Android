@@ -30,4 +30,14 @@ public class StoreCompletedDownloadCommandTest extends StorageIntegrationTest {
         databaseAssertions().assertDownloadResultsInserted(downloadResult);
     }
 
+    @Test
+    public void resetUnavailableAtWhenDownloaded() {
+        final Urn trackUrn = Urn.forTrack(123L);
+        testFixtures().insertUnavailableTrackDownload(trackUrn, 100L);
+
+        final DownloadResult downloadResult = DownloadResult.success(trackUrn);
+        command.with(downloadResult).call();
+
+        databaseAssertions().assertDownloadIsAvailable(trackUrn);
+    }
 }

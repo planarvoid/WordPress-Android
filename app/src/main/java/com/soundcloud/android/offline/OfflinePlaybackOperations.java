@@ -8,7 +8,6 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackUtils;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistOperations;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -44,8 +43,8 @@ public class OfflinePlaybackOperations {
 
     public boolean shouldPlayOffline(PropertySet track) {
         return featureOperations.isOfflineContentEnabled()
-                && track.getOrElseNull(TrackProperty.OFFLINE_DOWNLOADED_AT) != null
-                && track.getOrElseNull(TrackProperty.OFFLINE_REMOVED_AT) == null;
+                && track.getOrElseNull(OfflineProperty.DOWNLOADED_AT) != null
+                && track.getOrElseNull(OfflineProperty.REMOVED_AT) == null;
     }
 
     public Observable<List<Urn>> playLikes(final Urn trackUrn, final int position, final PlaySessionSource playSessionSource) {

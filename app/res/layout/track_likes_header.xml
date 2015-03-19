@@ -11,18 +11,7 @@
                   android:gravity="center_vertical"
                   android:padding="@dimen/default_list_item_padding">
 
-        <ImageView
-            android:id="@+id/download_state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/collection_download_state_margin_right"/>
-
-        <com.soundcloud.android.view.CustomFontTextView
-                android:id="@+id/header_text"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                app:custom_font="fonts/Roboto-Regular.ttf" />
+        <include layout="@layout/downloadable_header" />
 
         <com.soundcloud.android.view.CustomButton
                 android:id="@+id/shuffle_btn"
