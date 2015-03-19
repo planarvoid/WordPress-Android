@@ -21,6 +21,10 @@ public class ViewPagerElement extends Element {
         return R.id.pager;
     }
 
+    /**
+     * @deprecated Please use testDriver fo find your elements
+     */
+    @Deprecated
     public  <T extends View> View getCurrentPage(Class<T> viewClass) {
         return solo.getSolo().getCurrentViews(viewClass, getVisiblePage()).get(0);
     }
