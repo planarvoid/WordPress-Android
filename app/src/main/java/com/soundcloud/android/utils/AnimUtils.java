@@ -1,11 +1,18 @@
 package com.soundcloud.android.utils;
 
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.AnimatorListenerAdapter;
+import com.nineoldandroids.animation.ValueAnimator;
+import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 
 import android.content.Context;
+import android.support.v4.view.ViewCompat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ListView;
 
 public final class AnimUtils {
 
@@ -96,4 +103,50 @@ public final class AnimUtils {
             }
         }
     }
+
+    public static void removeItemFromList(ListView listView, final int position, final ItemRemovalCallback callback) {
+        final int firstListItemPosition = listView.getFirstVisiblePosition();
+        final int lastListItemPosition = firstListItemPosition + listView.getChildCount() - 1;
+
+        if (position >= firstListItemPosition && position <= lastListItemPosition) {
+            final int childIndex = position - listView.getFirstVisiblePosition() + listView.getHeaderViewsCount();
+            final View removeView = listView.getChildAt(childIndex);
+            removeItemAnimated(removeView, position, callback);
+        } else {
+            callback.onAnimationComplete(position);
+        }
+    }
+
+    private static void removeItemAnimated(final View removeView, final int position, final ItemRemovalCallback callback) {
+        final ViewGroup.LayoutParams removeParams = removeView.getLayoutParams();
+        final int startHeight = removeView.getHeight();
+
+        ValueAnimator animator = ValueAnimator.ofInt(startHeight, 0)
+                .setDuration(removeView.getResources().getInteger(android.R.integer.config_shortAnimTime));
+        ViewCompat.setHasTransientState(removeView, true);
+        ViewHelper.setAlpha(removeView, 0);
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                callback.onAnimationComplete(position);
+                removeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                removeView.setLayoutParams(removeParams);
+                ViewHelper.setAlpha(removeView, 1);
+                ViewCompat.setHasTransientState(removeView, false);
+            }
+        });
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                removeParams.height = (Integer) valueAnimator.getAnimatedValue();
+                removeView.setLayoutParams(removeParams);
+            }
+        });
+        animator.start();
+    }
+
+    public static interface ItemRemovalCallback {
+        void onAnimationComplete(int position);
+    }
+
 }

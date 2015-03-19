@@ -2,10 +2,9 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -20,8 +19,8 @@ class SplitScreenController extends PlaylistDetailsController {
     private View listViewContainer;
 
     @Inject
-    SplitScreenController(DownloadableTrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter, EventBus eventBus) {
-        super(trackPresenter, adapter, eventBus);
+    SplitScreenController(PlaylistTrackItemPresenter trackPresenter, EventBus eventBus) {
+        super(trackPresenter, new ItemAdapter<>(trackPresenter), eventBus);
     }
 
     @Override
@@ -36,7 +35,7 @@ class SplitScreenController extends PlaylistDetailsController {
         emptyView.setMessageText(layout.getContext().getString(R.string.empty_playlist_description));
 
         listViewContainer = layout.findViewById(R.id.container);
-        ListView listView = (ListView) layout.findViewById(android.R.id.list);
+        listView = (ListView) layout.findViewById(android.R.id.list);
         listView.setEmptyView(emptyView);
     }
 

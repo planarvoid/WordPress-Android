@@ -49,7 +49,7 @@ public class ItemOverflowOfflineTest extends ActivityTest<MainActivity> {
         playlistDetailsScreen
                 .scrollToFirstTrackItem()
                 .clickFirstTrackOverflowButton()
-                .clickAdToPlaylist();
+                .clickAddToPlaylist();
 
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         final CreatePlaylistScreen createPlaylistScreen = addToPlaylistScreen.clickCreateNewPlaylist();

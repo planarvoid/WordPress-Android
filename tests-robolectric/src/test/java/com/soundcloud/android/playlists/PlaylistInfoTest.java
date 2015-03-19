@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistInfoTest {
@@ -77,6 +78,51 @@ public class PlaylistInfoTest {
 
         final PlaylistInfo playlistInfo = createPlaylistMetaData(metadata, Arrays.asList(TestPropertySets.fromApiTrack()));
         expect(playlistInfo.needsTracks()).toBeFalse();
+    }
+
+    @Test
+    public void returnsTrackCountFromPlaylistMetadataIfTracksMissing() throws Exception {
+        final PropertySet metadata = PropertySet.from(
+                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
+                PlaylistProperty.TRACK_COUNT.bind(2)
+        );
+
+        final PlaylistInfo playlistInfo = createPlaylistMetaData(metadata, Collections.<PropertySet>emptyList());
+        expect(playlistInfo.getTrackCount()).toEqual(2);
+    }
+
+    @Test
+    public void returnsTrackCountFromTracklistIfTracksAreThere() throws Exception {
+        final PropertySet metadata = PropertySet.from(
+                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
+                PlaylistProperty.TRACK_COUNT.bind(1)
+        );
+
+        final PlaylistInfo playlistInfo = createPlaylistMetaData(metadata, Arrays.asList(TestPropertySets.fromApiTrack(), TestPropertySets.fromApiTrack()));
+        expect(playlistInfo.getTrackCount()).toEqual(2);
+    }
+
+    @Test
+    public void returnsDurationFromPlaylistMetadataIfTracksMissing() throws Exception {
+        final PropertySet metadata = PropertySet.from(
+                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
+                PlaylistProperty.TRACK_COUNT.bind(1),
+                PlaylistProperty.DURATION.bind((int) TimeUnit.SECONDS.toMillis(60))
+        );
+
+        final PlaylistInfo playlistInfo = createPlaylistMetaData(metadata, Collections.<PropertySet>emptyList());
+        expect(playlistInfo.getDuration()).toEqual("1:00");
+    }
+
+    @Test
+    public void returnsDurationFromTracklistIfTracksAreThere() throws Exception {
+        final PropertySet metadata = PropertySet.from(
+                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
+                PlaylistProperty.DURATION.bind((int) TimeUnit.SECONDS.toMillis(60))
+        );
+
+        final PlaylistInfo playlistInfo = createPlaylistMetaData(metadata, Arrays.asList(TestPropertySets.fromApiTrack(), TestPropertySets.fromApiTrack()));
+        expect(playlistInfo.getDuration()).toEqual("0:24");
     }
 
     @Test

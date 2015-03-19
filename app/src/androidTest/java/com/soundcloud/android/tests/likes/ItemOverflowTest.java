@@ -33,7 +33,7 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     public void ignoreLikes_testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
         screen
                 .clickFirstTrackOverflowButton()
-                .clickAdToPlaylist();
+                .clickAddToPlaylist();
 
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         assertThat(addToPlaylistScreen, is(visible()));

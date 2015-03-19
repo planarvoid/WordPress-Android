@@ -281,7 +281,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         if (content.shouldListenForPlaylistChanges()) {
             subscription.add(eventBus
                     .queue(EventQueue.ENTITY_STATE_CHANGED)
-                    .filter(EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER)
+                    .filter(EntityStateChangedEvent.IS_PLAYLIST_CONTENT_CHANGED_FILTER)
                     .subscribe(new PlaylistChangedSubscriber(adapter)));
         }
 

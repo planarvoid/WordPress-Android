@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -10,10 +11,12 @@ import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
+import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
+import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -31,28 +34,44 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     private final Context context;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
+    private final PlaylistOperations playlistOperations;
     private final ScreenProvider screenProvider;
 
     private FragmentActivity activity;
     private PropertySet track;
+    private int positionInAdapter;
     private Subscription trackSubscription = Subscriptions.empty();
+
+    @Nullable private RemoveTrackListener removeTrackListener;
+
+    public static interface RemoveTrackListener {
+        void onPlaylistTrackRemoved(int position);
+        Urn getPlaylistUrn();
+    }
 
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
                            LoadTrackCommand loadTrackCommand,
                            EventBus eventBus, Context context,
-                           LikeOperations likeOperations, ScreenProvider screenProvider) {
+                           LikeOperations likeOperations, PlaylistOperations playlistOperations, ScreenProvider screenProvider) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.loadTrackCommand = loadTrackCommand;
         this.eventBus = eventBus;
         this.context = context;
         this.likeOperations = likeOperations;
+        this.playlistOperations = playlistOperations;
         this.screenProvider = screenProvider;
     }
 
-    public void show(FragmentActivity activity, View button, PropertySet track) {
+    public void show(FragmentActivity activity, View button, PropertySet track, int position) {
+        show(activity, button, track, position, null);
+    }
+
+    public void show(FragmentActivity activity, View button, PropertySet track, int positionInAdapter, RemoveTrackListener removeTrackListener) {
         this.activity = activity;
         this.track = track;
+        this.positionInAdapter = positionInAdapter;
+        this.removeTrackListener = removeTrackListener;
         final PopupMenuWrapper menu = setupMenu(button);
         loadTrack(menu);
     }
@@ -63,6 +82,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
         menu.setOnMenuItemClickListener(this);
         menu.setOnDismissListener(this);
         menu.setItemEnabled(R.id.add_to_likes, false);
+        menu.setItemVisible(R.id.add_to_playlist, getOwnedPlaylistUrn() == Urn.NOT_SET);
+        menu.setItemVisible(R.id.remove_from_playlist, getOwnedPlaylistUrn() != Urn.NOT_SET);
         menu.show();
         return menu;
     }
@@ -93,6 +114,17 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
             case R.id.add_to_playlist:
                 showAddToPlaylistDialog();
                 return true;
+            case R.id.remove_from_playlist:
+                playlistOperations.removeTrackFromPlaylist(getOwnedPlaylistUrn(), track.get(TrackProperty.URN))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new DefaultSubscriber<PropertySet>(){
+                    @Override
+                    public void onNext(PropertySet args) {
+                        Preconditions.checkNotNull(removeTrackListener);
+                        removeTrackListener.onPlaylistTrackRemoved(positionInAdapter);
+                    }
+                });
+                return true;
             default:
                 return false;
         }
@@ -110,6 +142,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
         likeOperations.toggleLike(trackUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context, addLike));
+
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
                 screenProvider.getLastScreenTag(), trackUrn));
     }
@@ -138,6 +171,10 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
                 item.setTitle(R.string.like);
             }
         }
+    }
+
+    private Urn getOwnedPlaylistUrn() {
+        return removeTrackListener == null ? Urn.NOT_SET : removeTrackListener.getPlaylistUrn();
     }
 
 }

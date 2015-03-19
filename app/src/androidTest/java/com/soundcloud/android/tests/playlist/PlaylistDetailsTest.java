@@ -7,11 +7,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
+import org.hamcrest.core.Is;
 
 public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
 
@@ -56,5 +59,28 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen.clickHeaderPause();
 
         assertThat(playlistDetailsScreen.isPlayToggleChecked(), is(false));
+    }
+
+    public void testRemovingAndAddingTrackFromPlaylist() throws Exception {
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistDetailsScreen detailsScreen = playlistsScreen.clickPlaylistAt(0);
+
+        String title = detailsScreen.getTitle();
+        int initialTrackCount = playlistsScreen.getLoadedTrackCount();
+
+        VisualPlayerElement player = detailsScreen.clickFirstTrack();
+        player.pressBackToCollapse();
+
+        TrackItemMenuElement menu = detailsScreen.clickFirstTrackOverflowButton();
+        menu.clickRemoveFromPlaylist();
+
+        assertThat(playlistsScreen.getLoadedTrackCount(), Is.is(initialTrackCount - 1));
+
+        player.tapFooter();
+        AddToPlaylistScreen addToPlaylistScreen = player.clickMenu().clickAddToPlaylist();
+        addToPlaylistScreen.clickPlaylistWithTitle(title);
+        player.pressBackToCollapse();
+
+        assertThat(playlistsScreen.getLoadedTrackCount(), Is.is(initialTrackCount));
     }
 }

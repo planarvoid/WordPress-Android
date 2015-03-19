@@ -5,12 +5,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -42,6 +45,7 @@ import com.xtremelabs.robolectric.shadows.ShadowToast;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -78,6 +82,7 @@ public class PlaylistDetailFragmentTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private Intent intent;
     @Mock private FeatureFlags featureFlags;
+    @Mock private AccountOperations accountOperations;
 
     @Before
     public void setUp() throws Exception {
@@ -93,7 +98,8 @@ public class PlaylistDetailFragmentTest {
                 playQueueManager,
                 new PlaylistPresenter(imageOperations),
                 TestSubscribers.expandPlayerSubscriber(),
-                featureFlags
+                featureFlags,
+                accountOperations
         );
 
         Robolectric.shadowOf(fragment).setActivity(activity);
@@ -118,6 +124,45 @@ public class PlaylistDetailFragmentTest {
         View layout = createFragmentView();
 
         expect(getToggleButton(layout).getVisibility()).toBe(View.GONE);
+    }
+
+    @Test
+    public void playlistInfoForOwnPlaylistSetsTrackRemovalForPlaylistOnController() throws Exception {
+        final PlaylistInfo playlistWithoutTracks = createPlaylistWithoutTracks();
+        when(accountOperations.isLoggedInUser(playlistWithoutTracks.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistWithoutTracks.getCreatorUrn());
+        when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
+        createFragmentView();
+
+        verify(controller).showTrackRemovalOptions(eq(playlistWithoutTracks.getUrn()), any(PlaylistDetailsController.Listener.class));
+    }
+
+    @Test
+    public void playlistContentChangeForcesReloadOfPlaylistInfo() throws Exception {
+        PlaylistInfo updatedPlaylistInfo = createPlaylist();
+        when(accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn())).thenReturn(true);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistInfo.getCreatorUrn());
+        when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistInfo), Observable.just(updatedPlaylistInfo));
+        createFragmentView();
+
+        ArgumentCaptor<PlaylistDetailsController.Listener> captor = ArgumentCaptor.forClass(PlaylistDetailsController.Listener.class);
+        verify(controller).showTrackRemovalOptions(same(playlistInfo.getUrn()), captor.capture());
+
+        captor.getValue().onPlaylistContentChanged();
+
+        InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo);
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(updatedPlaylistInfo);
+    }
+
+    @Test
+    public void playlistInfoForOwnPlaylistDoesNotSetTracksAsRemovableOnController() throws Exception {
+        final PlaylistInfo playlistWithoutTracks = createPlaylistWithoutTracks();
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistWithoutTracks.getCreatorUrn());
+        when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
+        createFragmentView();
+
+        verify(controller, never()).showTrackRemovalOptions(any(Urn.class), any(PlaylistDetailsController.Listener.class));
     }
 
     @Test

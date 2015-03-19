@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class TrackItemPresenter implements CellPresenter<PropertySet> {
 
     private final ImageOperations imageOperations;
-    private final TrackItemMenuPresenter trackItemMenuPresenter;
+    protected final TrackItemMenuPresenter trackItemMenuPresenter;
 
     private Urn playingTrack = Urn.NOT_SET;
 
@@ -51,16 +51,20 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         toggleReposterView(itemView, track);
 
         loadArtwork(itemView, track);
-        setupOverFlow(itemView.findViewById(R.id.overflow_button), track);
+        setupOverFlow(itemView.findViewById(R.id.overflow_button), track, position);
     }
 
-    private void setupOverFlow(final View button, final PropertySet track) {
+    protected void setupOverFlow(final View button, final PropertySet track, final int position) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track);
+                showTrackItemMenu(button, track, position);
             }
         });
+    }
+
+    protected void showTrackItemMenu(View button, PropertySet track, int position) {
+        trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position);
     }
 
     private void loadArtwork(View itemView, PropertySet track) {

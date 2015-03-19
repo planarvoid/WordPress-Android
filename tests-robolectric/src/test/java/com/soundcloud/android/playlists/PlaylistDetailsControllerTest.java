@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -21,7 +21,7 @@ public class PlaylistDetailsControllerTest {
 
     PlaylistDetailsController controller;
 
-    @Mock private DownloadableTrackItemPresenter trackItemPresenter;
+    @Mock private PlaylistTrackItemPresenter trackItemPresenter;
     @Mock private ItemAdapter itemAdapter;
     private EventBus eventBus = new TestEventBus();
 
@@ -43,7 +43,7 @@ public class PlaylistDetailsControllerTest {
 
     private static class PlaylistDetailsControllerImpl extends PlaylistDetailsController {
 
-        protected PlaylistDetailsControllerImpl(DownloadableTrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter, EventBus eventBus) {
+        protected PlaylistDetailsControllerImpl(PlaylistTrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter, EventBus eventBus) {
             super(trackPresenter, adapter, eventBus);
         }
 

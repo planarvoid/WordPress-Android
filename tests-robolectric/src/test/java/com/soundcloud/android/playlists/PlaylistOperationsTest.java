@@ -1,6 +1,8 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
+import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -21,6 +23,8 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -47,6 +51,10 @@ public class PlaylistOperationsTest {
     @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     @Mock private Action0 requestSystemSyncAction;
     @Mock private OfflineContentOperations offlineOperations;
+    @Mock private AddTrackToPlaylistCommand addTrackToPlaylistCommand;
+    @Mock private RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
+    @Captor private ArgumentCaptor<AddTrackToPlaylistParams> addTrackCommandParamsCaptor;
+    @Captor private ArgumentCaptor<RemoveTrackFromPlaylistParams> removeTrackCommandParamsCaptor;
 
     private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
     private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
@@ -54,13 +62,12 @@ public class PlaylistOperationsTest {
     private final Urn trackUrn = Urn.forTrack(123L);
     private TestEventBus eventBus;
 
-
     @Before
     public void setUp() {
         eventBus = new TestEventBus();
         operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, tracksStorage,
-                loadPlaylistCommand, loadPlaylistTrackUrns, loadPlaylistTracksCommand, eventBus, offlineOperations);
-        when(tracksStorage.addTrackToPlaylist(any(Urn.class), any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
+                loadPlaylistCommand, loadPlaylistTrackUrns, loadPlaylistTracksCommand, offlineOperations,
+                addTrackToPlaylistCommand, removeTrackFromPlaylistCommand, eventBus);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
 
     }
@@ -190,42 +197,92 @@ public class PlaylistOperationsTest {
 
     @Test
     public void shouldPublishEntityChangedEventAfterAddingATrackToPlaylist() {
-        final PropertySet changeSet = trackAddedChangeSet(playlist.getUrn());
-        when(tracksStorage.addTrackToPlaylist(playlist.getUrn(), trackUrn)).thenReturn(Observable.just(changeSet));
+        when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class))).thenReturn(Observable.just(1));
 
         operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe();
+
+        verifyAddToPlaylistParams();
 
         final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
         expect(event.getKind()).toEqual(EntityStateChangedEvent.TRACK_ADDED_TO_PLAYLIST);
         expect(event.getNextUrn()).toEqual(playlist.getUrn());
-        expect(event.getChangeMap().get(playlist.getUrn())).toEqual(changeSet);
+        expect(event.getChangeMap().get(playlist.getUrn())).toEqual(playlistChangeSet(playlist.getUrn()));
+
     }
 
     @Test
     public void shouldRequestSystemSyncAfterAddingATrackToPlaylist() {
-        final PropertySet changeSet = trackAddedChangeSet(playlist.getUrn());
-        when(tracksStorage.addTrackToPlaylist(playlist.getUrn(), trackUrn)).thenReturn(Observable.just(changeSet));
+        when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class))).thenReturn(Observable.just(1));
 
         operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe();
 
+        verifyAddToPlaylistParams();
         verify(requestSystemSyncAction).call();
     }
 
     @Test
     public void shouldNotPublishEntityChangedEventWhenAddingTrackToPlaylistFailed() {
-        TestObserver<PropertySet> testObserver = new TestObserver<>();
-        when(tracksStorage.addTrackToPlaylist(playlist.getUrn(), trackUrn))
-                .thenReturn(Observable.<PropertySet>error(new Exception("Something bad happened")));
+        when(addTrackToPlaylistCommand.toObservable(any(AddTrackToPlaylistParams.class)))
+                .thenReturn(Observable.<Integer>error(new Exception()));
 
-        operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe(testObserver);
+        operations.addTrackToPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestObserver<PropertySet>());
 
+        verifyAddToPlaylistParams();
         eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
     }
 
-    private PropertySet trackAddedChangeSet(Urn playlistUrn) {
+    @Test
+    public void shouldPublishEntityChangedEventAfterRemovingTrackFromPlaylist() {
+        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(Observable.just(1));
+
+        operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe();
+
+        verifyRemoveFromPlaylistParams();
+
+        final EntityStateChangedEvent event = eventBus.lastEventOn(EventQueue.ENTITY_STATE_CHANGED);
+        expect(event.getKind()).toEqual(EntityStateChangedEvent.TRACK_REMOVED_FROM_PLAYLIST);
+        expect(event.getNextUrn()).toEqual(playlist.getUrn());
+        expect(event.getChangeMap().get(playlist.getUrn())).toEqual(playlistChangeSet(playlist.getUrn()));
+
+    }
+
+    @Test
+    public void shouldRequestSystemSyncAfterRemovingTrackFromPlaylist() {
+        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class))).thenReturn(Observable.just(1));
+
+        operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe();
+
+        verifyRemoveFromPlaylistParams();
+        verify(requestSystemSyncAction).call();
+    }
+
+    @Test
+    public void shouldNotPublishEntityChangedEventWhenRemovingTrackFromPlaylistFailed() {
+        when(removeTrackFromPlaylistCommand.toObservable(any(RemoveTrackFromPlaylistParams.class)))
+                .thenReturn(Observable.<Integer>error(new Exception()));
+
+        operations.removeTrackFromPlaylist(playlist.getUrn(), trackUrn).subscribe(new TestObserver<PropertySet>());
+
+        verifyRemoveFromPlaylistParams();
+        eventBus.verifyNoEventsOn(EventQueue.ENTITY_STATE_CHANGED);
+    }
+
+    private PropertySet playlistChangeSet(Urn playlistUrn) {
         return PropertySet.from(
                 PlaylistProperty.URN.bind(playlistUrn),
                 PlaylistProperty.TRACK_COUNT.bind(1)
         );
+    }
+
+    private void verifyAddToPlaylistParams() {
+        verify(addTrackToPlaylistCommand).toObservable(addTrackCommandParamsCaptor.capture());
+        expect(addTrackCommandParamsCaptor.getValue().playlistUrn).toEqual(playlist.getUrn());
+        expect(addTrackCommandParamsCaptor.getValue().trackUrn).toEqual(trackUrn);
+    }
+
+    private void verifyRemoveFromPlaylistParams() {
+        verify(removeTrackFromPlaylistCommand).toObservable(removeTrackCommandParamsCaptor.capture());
+        expect(removeTrackCommandParamsCaptor.getValue().playlistUrn).toEqual(playlist.getUrn());
+        expect(removeTrackCommandParamsCaptor.getValue().trackUrn).toEqual(trackUrn);
     }
 }

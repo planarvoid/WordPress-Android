@@ -40,7 +40,7 @@ public class SinglePlaylistSyncerFactory {
                 removePlaylist.with(playlistUrn),
                 loadUnpushedTracksForPlaylist.with(playlistUrn),
                 pushPlaylistAdditions.with(playlistUrn),
-                pushPlaylistRemovals,
+                pushPlaylistRemovals.with(playlistUrn),
                 storeTracks,
                 storePlaylist,
                 replacePlaylistTracks.with(playlistUrn));

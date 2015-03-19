@@ -39,6 +39,8 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
     private PlaylistTracksStorage playlistTracksStorage;
 
+    private TestObserver<PropertySet> testObserver = new TestObserver<>();
+
     @Before
     public void setUp() throws Exception {
         playlistTracksStorage = new PlaylistTracksStorage(testScheduler(), dateProvider, accountOperations);
@@ -48,7 +50,6 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
     @Test
     public void addsTrackToAPlaylistReturnsChangeSetWithUpdatedTrackCount() {
-        final TestObserver<PropertySet> testObserver = new TestObserver<>();
         final ApiPlaylist apiPlaylist = testFixtures().insertEmptyPlaylist();
 
         playlistTracksStorage.addTrackToPlaylist(apiPlaylist.getUrn(), TRACK_URN)
@@ -64,7 +65,6 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
     @Test
     public void addsTrackToPlaylistWritesTrackToPlaylistTracksTable() {
-        final TestObserver<PropertySet> testObserver = new TestObserver<>();
         final ApiPlaylist apiPlaylist = testFixtures().insertEmptyPlaylist();
 
         playlistTracksStorage.addTrackToPlaylist(apiPlaylist.getUrn(), TRACK_URN)

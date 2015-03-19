@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class DefaultControllerTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private DownloadableTrackItemPresenter trackPresenter;
+    @Mock private PlaylistTrackItemPresenter trackPresenter;
     @Mock private InlinePlaylistTracksAdapter adapter;
     @Mock private ListView listView;
     @Mock private Resources resources;
@@ -34,7 +34,7 @@ public class DefaultControllerTest {
     @Before
     public void setUp() throws Exception {
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
-        when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
+        when(adapter.getPlaylistItemPresenter()).thenReturn(trackPresenter);
         controller = new DefaultController(adapter, eventBus);
         controller.onViewCreated(layout, null);
     }

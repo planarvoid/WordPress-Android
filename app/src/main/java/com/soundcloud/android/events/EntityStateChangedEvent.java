@@ -25,6 +25,7 @@ public final class EntityStateChangedEvent {
     public static final int REPOST = 3;
     public static final int MARKED_FOR_OFFLINE = 4;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
+    public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -79,6 +80,13 @@ public final class EntityStateChangedEvent {
         @Override
         public Boolean call(EntityStateChangedEvent event) {
             return event.isTrackAddedEvent();
+        }
+    };
+
+    public static final Func1<EntityStateChangedEvent, Boolean> IS_PLAYLIST_CONTENT_CHANGED_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent event) {
+            return event.isTrackAddedEvent() || event.isTrackRemovedEvent();
         }
     };
 
@@ -207,6 +215,10 @@ public final class EntityStateChangedEvent {
         return new EntityStateChangedEvent(TRACK_ADDED_TO_PLAYLIST, newPlaylistState);
     }
 
+    public static EntityStateChangedEvent fromTrackRemovedFromPlaylist(PropertySet newPlaylistState) {
+        return new EntityStateChangedEvent(TRACK_REMOVED_FROM_PLAYLIST, newPlaylistState);
+    }
+
     EntityStateChangedEvent(int kind, Collection<PropertySet> changedEntities) {
         this.kind = kind;
         this.changeMap = new ArrayMap<>(changedEntities.size());
@@ -257,5 +269,9 @@ public final class EntityStateChangedEvent {
 
     private Boolean isTrackAddedEvent() {
         return kind == TRACK_ADDED_TO_PLAYLIST;
+    }
+
+    private Boolean isTrackRemovedEvent() {
+        return kind == TRACK_REMOVED_FROM_PLAYLIST;
     }
 }
