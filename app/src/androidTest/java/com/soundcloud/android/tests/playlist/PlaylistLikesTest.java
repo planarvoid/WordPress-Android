@@ -25,12 +25,18 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
 
     public void testDrawerShowsPlaylists() {
         final PlaylistsScreen playlistsScreen = NavigationHelper.openLikedPlaylists(menuScreen);
+        if(!playlistsScreen.hasLikes()) {
+            playlistsScreen.pullToRefresh();
+        }
         PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistOnCurrentPageAt(0);
         assertEquals("Should go to Playlist screen", true, playlistDetailsScreen.isVisible());
     }
 
     public void testLoadsNextPage() {
         final PlaylistsScreen playlistsScreen = NavigationHelper.openLikedPlaylists(menuScreen);
+        if(!playlistsScreen.hasLikes()) {
+            playlistsScreen.pullToRefresh();
+        }
         int numberOfTracks = playlistsScreen.getLoadedTrackCount();
         assertThat(numberOfTracks, is(greaterThan(0)));
 
