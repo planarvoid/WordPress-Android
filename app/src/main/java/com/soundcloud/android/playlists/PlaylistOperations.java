@@ -3,12 +3,10 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
-import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
@@ -32,10 +30,10 @@ public class PlaylistOperations {
     private final LoadPlaylistCommand loadPlaylistCommand;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
-    private final CreateNewPlaylistCommand createNewPlaylist;
     private final PlaylistTracksStorage playlistTracksStorage;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
+    private final OfflineContentOperations offlineOperations;
 
     private final Func2<PropertySet, List<PropertySet>, PlaylistInfo> mergePlaylistWithTracks = new Func2<PropertySet, List<PropertySet>, PlaylistInfo>() {
         @Override
@@ -51,28 +49,30 @@ public class PlaylistOperations {
                        LoadPlaylistCommand loadPlaylistCommand,
                        LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns,
                        LoadPlaylistTracksCommand loadPlaylistTracksCommand,
-                       CreateNewPlaylistCommand createNewPlaylistCommand, EventBus eventBus) {
+                       EventBus eventBus, OfflineContentOperations offlineOperations) {
         this.storageScheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.loadPlaylistCommand = loadPlaylistCommand;
         this.playlistTracksStorage = playlistTracksStorage;
         this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
-        this.createNewPlaylist = createNewPlaylistCommand;
         this.eventBus = eventBus;
+        this.offlineOperations = offlineOperations;
     }
 
     public Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
-        return createNewPlaylist.with(new CreateNewPlaylistCommand.Params(title, isPrivate, firstTrackUrn))
-                .toObservable()
+        return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
                 .subscribeOn(storageScheduler)
-                .map(new Func1<WriteResult, Urn>() {
-                    @Override
-                    public Urn call(WriteResult txnResult) {
-                        final InsertResult insertResult = (InsertResult) ((TxnResult) txnResult).getResults().get(0);
-                        return Urn.forPlaylist(insertResult.getRowId());
-                    }
-                }).doOnCompleted(syncInitiator.requestSystemSyncAction());
+                .doOnCompleted(syncInitiator.requestSystemSyncAction());
+    }
+
+    public Observable<Boolean> createNewOfflinePlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
+        return createNewPlaylist(title, isPrivate, firstTrackUrn).flatMap(new Func1<Urn, Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call(Urn urn) {
+                return offlineOperations.makePlaylistAvailableOffline(urn);
+            }
+        });
     }
 
     public Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
@@ -129,5 +129,4 @@ public class PlaylistOperations {
             }
         };
     }
-
 }

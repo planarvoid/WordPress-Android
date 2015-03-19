@@ -12,14 +12,12 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.TxnResult;
-import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,8 +45,8 @@ public class PlaylistOperationsTest {
     @Mock private LoadPlaylistCommand loadPlaylistCommand;
     @Mock private LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     @Mock private LoadPlaylistTracksCommand loadPlaylistTracksCommand;
-    @Mock private CreateNewPlaylistCommand createNewPlaylistCommand;
     @Mock private Action0 requestSystemSyncAction;
+    @Mock private OfflineContentOperations offlineOperations;
 
     private final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
     private final PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
@@ -61,7 +59,7 @@ public class PlaylistOperationsTest {
     public void setUp() {
         eventBus = new TestEventBus();
         operations = new PlaylistOperations(Schedulers.immediate(), syncInitiator, tracksStorage,
-                loadPlaylistCommand, loadPlaylistTrackUrns, loadPlaylistTracksCommand, createNewPlaylistCommand, eventBus);
+                loadPlaylistCommand, loadPlaylistTrackUrns, loadPlaylistTracksCommand, eventBus, offlineOperations);
         when(tracksStorage.addTrackToPlaylist(any(Urn.class), any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
 
@@ -173,9 +171,7 @@ public class PlaylistOperationsTest {
     @Test
     public void shouldCreateNewPlaylistUsingCommand() {
         TestObserver<Urn> observer = new TestObserver<>();
-        final TxnResult txnResult = new TxnResult();
-        txnResult.add(new InsertResult(1L));
-        when(createNewPlaylistCommand.toObservable()).thenReturn(Observable.just((WriteResult) txnResult));
+        when(tracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(Observable.just(Urn.forPlaylist(1L)));
 
         operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
 
@@ -185,9 +181,7 @@ public class PlaylistOperationsTest {
     @Test
     public void shouldRequestSystemSyncAfterCreatingPlaylist() throws Exception {
         TestObserver<Urn> observer = new TestObserver<>();
-        final TxnResult txnResult = new TxnResult();
-        txnResult.add(new InsertResult(1L));
-        when(createNewPlaylistCommand.toObservable()).thenReturn(Observable.just((WriteResult) txnResult));
+        when(tracksStorage.createNewPlaylist("title", true, Urn.forTrack(123))).thenReturn(Observable.just(Urn.forPlaylist(123)));
 
         operations.createNewPlaylist("title", true, Urn.forTrack(123)).subscribe(observer);
 

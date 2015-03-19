@@ -13,6 +13,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import eu.inmite.android.lib.dialogs.BaseDialogFragment;
+import rx.Observable;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -85,7 +86,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
                 if (TextUtils.isEmpty(playlistTitle)) {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                 } else {
-                    createPlaylist(playlistTitle, properties.isDevBuildRunningOnDevice() && privacy.isChecked());
+                    createPlaylist(playlistTitle, properties.isDevBuildRunningOnDevice() && privacy.isChecked(), offline.isChecked());
                     Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
                     getDialog().dismiss();
                 }
@@ -108,9 +109,13 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         show(fragmentManager, CREATE_PLAYLIST_DIALOG_TAG);
     }
 
-    private void createPlaylist(final String title, final boolean isPrivate) {
+    private void createPlaylist(final String title, final boolean isPrivate, final boolean isOffline) {
         final long firstTrackId = getArguments().getLong(KEY_TRACK_ID);
-        fireAndForget(playlistOperations.createNewPlaylist(title, isPrivate, Urn.forTrack(firstTrackId)));
+        Observable<?> observable = isOffline
+                ? playlistOperations.createNewOfflinePlaylist(title, isPrivate, Urn.forTrack(firstTrackId))
+                : playlistOperations.createNewPlaylist(title, isPrivate, Urn.forTrack(firstTrackId));
+
+        fireAndForget(observable);
         trackAddingToPlaylistEvent(firstTrackId);
     }
 
