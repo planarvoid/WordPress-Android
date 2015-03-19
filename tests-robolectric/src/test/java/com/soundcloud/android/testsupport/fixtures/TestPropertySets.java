@@ -192,18 +192,19 @@ public abstract class TestPropertySets {
                     PlayableProperty.IS_REPOSTED.bind(isReposted));
     }
 
-    public static PropertySet unlikedTrack(Urn trackUrn) {
+    public static PropertySet likedEntityChangeSet(Urn targetUrn, int likesCount) {
         return PropertySet.from(
-                PlayableProperty.URN.bind(trackUrn),
-                PlayableProperty.IS_LIKED.bind(false)
+                PlayableProperty.URN.bind(targetUrn),
+                PlayableProperty.LIKES_COUNT.bind(likesCount),
+                PlayableProperty.IS_LIKED.bind(true)
         );
     }
 
-    public static PropertySet likedTrack(Urn trackUrn) {
+    public static PropertySet unlikedEntityChangeSet(Urn targetUrn, int likesCount) {
         return PropertySet.from(
-                PlayableProperty.URN.bind(trackUrn),
-                PlayableProperty.LIKES_COUNT.bind(12),
-                PlayableProperty.IS_LIKED.bind(true)
+                PlayableProperty.URN.bind(targetUrn),
+                PlayableProperty.LIKES_COUNT.bind(likesCount),
+                PlayableProperty.IS_LIKED.bind(false)
         );
     }
 

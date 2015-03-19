@@ -1,15 +1,19 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.query.WhereBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import android.content.ContentValues;
 
 import java.util.Date;
 
@@ -17,97 +21,63 @@ import java.util.Date;
 public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
 
     private UpdateLikeCommand command;
-    private PropertySet track;
+    private Urn targetUrn;
 
     @Before
     public void setUp() throws Exception {
         command = new UpdateLikeCommand(propeller());
+        targetUrn = testFixtures().insertTrack().getUrn();
     }
 
     @Test
-    public void insertLikedTrack() throws Exception {
-        setUpTrackForLiking();
+    public void updatesLikeStatusWhenLikingTrack() throws Exception {
+        command.call(new UpdateLikeParams(targetUrn, true));
 
-        command.with(track).call();
-
-        databaseAssertions().assertLikedTrackPendingAddition(track);
+        databaseAssertions().assertLikedTrackPendingAddition(targetUrn);
     }
 
     @Test
     public void updatesLikesCountInSoundsWhenLiked() throws Exception {
-        setUpTrackForLiking();
+        databaseAssertions().assertLikesCount(targetUrn, 34);
 
-        PropertySet changeSet = command.with(track).call();
+        final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, true));
 
-        final Integer newLikesCount = changeSet.get(PlayableProperty.LIKES_COUNT);
-        final Integer oldLikesCount = track.get(PlayableProperty.LIKES_COUNT);
-
-        expect(newLikesCount).toBe(oldLikesCount + 1);
-        databaseAssertions().assertLikesCount(track.get(PlayableProperty.URN), newLikesCount);
+        expect(newLikesCount).toBe(35);
+        databaseAssertions().assertLikesCount(targetUrn, 35);
     }
 
     @Test
-    public void upsertRemovedLikedTrack() throws Exception {
-        setUpTrackForLiking(testFixtures().insertLikedTrackPendingRemoval(new Date()));
+    public void upsertReplacesLikedTrack() throws Exception {
+        Urn trackUrn = testFixtures().insertLikedTrackPendingRemoval(new Date()).getUrn();
 
-        command.with(track).call();
+        command.call(new UpdateLikeParams(trackUrn, true));
 
-        databaseAssertions().assertLikedTrackPendingAddition(track);
+        databaseAssertions().assertLikedTrackPendingAddition(trackUrn);
     }
 
     @Test
-    public void insertUnlikedTrack() throws Exception {
-        setUpTrackForUnLiking();
+    public void updatesLikeStatusWhenUnlikingTrack() throws Exception {
+        command.call(new UpdateLikeParams(targetUrn, false));
 
-        command.with(track).call();
-
-        databaseAssertions().assertLikedTrackPendingRemoval(track);
+        databaseAssertions().assertLikedTrackPendingRemoval(targetUrn);
     }
 
     @Test
     public void updatesLikesCountInSoundsWhenUnliked() throws Exception {
-        setUpTrackForUnLiking();
+        updateLikesCount();
 
-        PropertySet changeSet = command.with(track).call();
+        final int newLikesCount = command.call(new UpdateLikeParams(targetUrn, false));
 
-        final Integer newLikesCount = changeSet.get(PlayableProperty.LIKES_COUNT);
-        final Integer oldLikesCount = track.get(PlayableProperty.LIKES_COUNT);
-
-        expect(newLikesCount).toBe(oldLikesCount - 1);
-        databaseAssertions().assertLikesCount(track.get(PlayableProperty.URN), newLikesCount);
+        expect(newLikesCount).toBe(0);
+        databaseAssertions().assertLikesCount(targetUrn, 0);
     }
 
-    @Test
-    public void updatesTrackLikeToBePendingRemoval() throws Exception {
-        setUpTrackForUnLiking(testFixtures().insertLikedTrack(new Date()));
-
-        command.with(track).call();
-
-        databaseAssertions().assertLikedTrackPendingRemoval(track);
+    private void updateLikesCount() {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Sounds.LIKES_COUNT, 1);
+        expect(propeller().update(Table.Sounds, cv, new WhereBuilder()
+                .whereEq(TableColumns.Sounds._ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)).success()).toBeTrue();
+        databaseAssertions().assertLikesCount(targetUrn, 1);
     }
-
-    private void setUpTrackForLiking() {
-        setUpTrackForLiking(testFixtures().insertTrack());
-    }
-
-    private void setUpTrackForLiking(ApiTrack apiTrack) {
-        final Date created = new Date();
-        track = apiTrack.toPropertySet()
-                .put(LikeProperty.CREATED_AT, created)
-                .put(LikeProperty.ADDED_AT, created)
-                .put(PlayableProperty.IS_LIKED, true);
-    }
-
-    private void setUpTrackForUnLiking() {
-        setUpTrackForUnLiking(testFixtures().insertTrack());
-    }
-
-    private void setUpTrackForUnLiking(ApiTrack apiTrack) {
-        final Date created = new Date();
-        track = apiTrack.toPropertySet()
-                .put(LikeProperty.CREATED_AT, created)
-                .put(LikeProperty.REMOVED_AT, created)
-                .put(PlayableProperty.IS_LIKED, false);
-    }
-
 }

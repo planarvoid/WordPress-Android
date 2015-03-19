@@ -1,7 +1,7 @@
 package com.soundcloud.android.associations;
 
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.commands.WriteStorageCommand;
+import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -28,7 +28,7 @@ class RepostStorage {
     }
 
     Command<Urn, InsertResult> addRepost() {
-        return new WriteStorageCommand<Urn, InsertResult>(propeller) {
+        return new DefaultWriteStorageCommand<Urn, InsertResult>(propeller) {
             @Override
             public InsertResult write(PropellerDatabase propeller, Urn urn) {
                 final ContentValues values = new ContentValues();
@@ -43,7 +43,7 @@ class RepostStorage {
     }
 
     Command<Urn, ChangeResult> removeRepost() {
-        return new WriteStorageCommand<Urn, ChangeResult>(propeller) {
+        return new DefaultWriteStorageCommand<Urn, ChangeResult>(propeller) {
             @Override
             public ChangeResult write(PropellerDatabase propeller, Urn urn) {
                 final Where whereClause = new WhereBuilder()

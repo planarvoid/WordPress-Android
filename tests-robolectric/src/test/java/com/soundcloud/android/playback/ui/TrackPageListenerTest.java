@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +11,6 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -56,26 +54,26 @@ public class TrackPageListenerTest {
 
     @Test
     public void onToggleUnlikedTrackLikesViaLikesOperations() {
-        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
-        verify(likeOperations).addLike(PropertySet.from(PlayableProperty.URN.bind(TRACK_URN)));
+        verify(likeOperations).toggleLike(TRACK_URN, true);
     }
 
     @Test
     public void onToggleLikedTrackLikesViaUnlikesOperations() {
-        when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
 
-        verify(likeOperations).removeLike(PropertySet.from(PlayableProperty.URN.bind(TRACK_URN)));
+        verify(likeOperations).toggleLike(TRACK_URN, false);
     }
 
     @Test
     public void onToggleLikeEmitsLikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
-        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.toggleLike(TRACK_URN, true)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(true, TRACK_URN);
 
@@ -86,7 +84,7 @@ public class TrackPageListenerTest {
     @Test
     public void onToggleLikeEmitsUnlikeEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
-        when(likeOperations.removeLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>empty());
+        when(likeOperations.toggleLike(TRACK_URN, false)).thenReturn(Observable.<PropertySet>empty());
 
         listener.onToggleLike(false, TRACK_URN);
 

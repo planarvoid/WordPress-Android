@@ -1,20 +1,23 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
+import rx.functions.Func1;
 
 import javax.inject.Inject;
 import javax.inject.Named;
-import java.util.Date;
 
 public class LikeOperations {
 
@@ -45,29 +48,25 @@ public class LikeOperations {
         this.syncInitiator = syncInitiator;
     }
 
-    public Observable<PropertySet> addLike(final PropertySet sound) {
-        sound.put(PlayableProperty.IS_LIKED, true);
-        Date likeTime = new Date();
-        sound.put(LikeProperty.CREATED_AT, likeTime);
-        sound.put(LikeProperty.ADDED_AT, likeTime);
-        return toggleLike(sound);
-    }
-
-    public Observable<PropertySet> removeLike(final PropertySet sound) {
-        sound.put(PlayableProperty.IS_LIKED, false);
-        Date unlikeTime = new Date();
-        sound.put(LikeProperty.CREATED_AT, unlikeTime);
-        sound.put(LikeProperty.REMOVED_AT, unlikeTime);
-        return toggleLike(sound);
-    }
-
-    private Observable<PropertySet> toggleLike(PropertySet likeProperties) {
+    public Observable<PropertySet> toggleLike(Urn targetUrn, boolean addLike) {
+        final UpdateLikeParams params = new UpdateLikeParams(targetUrn, addLike);
         return storeLikeCommand
-                .with(likeProperties)
-                .toObservable()
+                .toObservable(params)
+                .map(toChangeSet(targetUrn, addLike))
                 .doOnNext(publishPlayableChanged)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction())
                 .subscribeOn(scheduler);
     }
 
+    private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn, final boolean addLike) {
+        return new Func1<Integer, PropertySet>() {
+            @Override
+            public PropertySet call(Integer newLikesCount) {
+                return PropertySet.from(
+                        PlayableProperty.URN.bind(targetUrn),
+                        PlayableProperty.LIKES_COUNT.bind(newLikesCount),
+                        PlayableProperty.IS_LIKED.bind(addLike));
+            }
+        };
+    }
 }

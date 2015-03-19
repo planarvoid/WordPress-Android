@@ -9,7 +9,6 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -100,16 +99,10 @@ public class PlayerWidgetController {
 
     public void handleToggleLikeAction(boolean addLike) {
         final Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
-        toggleLike(addLike, currentTrackUrn);
+        fireAndForget(likeOperations.toggleLike(currentTrackUrn, addLike));
 
-        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(), currentTrackUrn));
-    }
-
-    private void toggleLike(boolean addLike, Urn trackUrn) {
-        final PropertySet propertySet = PropertySet.from(PlayableProperty.URN.bind(trackUrn));
-        fireAndForget(addLike
-                ? likeOperations.addLike(propertySet)
-                : likeOperations.removeLike(propertySet));
+        eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(
+                addLike, Screen.WIDGET.get(), playQueueManager.getScreenTag(), currentTrackUrn));
     }
 
     /**

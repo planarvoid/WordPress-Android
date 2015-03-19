@@ -1,6 +1,6 @@
 package com.soundcloud.android.likes;
 
-import com.soundcloud.android.commands.LegacyCommand;
+import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -10,6 +10,7 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.WhereBuilder;
 import com.soundcloud.propeller.rx.RxResultMapper;
@@ -18,67 +19,62 @@ import android.content.ContentValues;
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
+import java.util.Date;
 import java.util.List;
 
-class UpdateLikeCommand extends LegacyCommand<PropertySet, PropertySet, UpdateLikeCommand> {
+class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLikeParams, WriteResult, Integer> {
 
-    private final PropellerDatabase database;
+    private int updatedLikesCount;
 
     @Inject
-    UpdateLikeCommand(PropellerDatabase database) {
-        this.database = database;
+    UpdateLikeCommand(PropellerDatabase propeller) {
+        super(propeller);
     }
 
     @Override
-    public PropertySet call() throws Exception {
-        final boolean addLike = input.get(PlayableProperty.IS_LIKED);
-        final Urn urn = input.get(LikeProperty.TARGET_URN);
-        final int updatedLikesCount = getUpdatedLikesCount(urn, addLike);
+    protected WriteResult write(PropellerDatabase propeller, final UpdateLikeParams params) {
+        updatedLikesCount = obtainNewLikesCount(propeller, params);
 
-        updateLikesCount(urn, updatedLikesCount);
-        updateLikes(addLike);
-
-        return PropertySet.from(PlayableProperty.URN.bind(urn), PlayableProperty.LIKES_COUNT.bind(updatedLikesCount),
-                PlayableProperty.IS_LIKED.bind(addLike));
+        return propeller.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                step(propeller.update(Table.Sounds, ContentValuesBuilder.values().put(TableColumns.Sounds.LIKES_COUNT, updatedLikesCount).get(),
+                        new WhereBuilder()
+                                .whereEq(TableColumns.Sounds._ID, params.targetUrn.getNumericId())
+                                .whereEq(TableColumns.Sounds._TYPE, getSoundType(params.targetUrn))));
+                step(propeller.upsert(Table.Likes, buildContentValuesForLike(params)));
+            }
+        });
     }
 
-    private void updateLikes(boolean addLike) {
-        database.upsert(Table.Likes, buildContentValuesForLike(input, addLike));
+    @Override
+    protected Integer transform(WriteResult result) {
+        return updatedLikesCount;
     }
 
-    private int getUpdatedLikesCount(Urn urn, boolean addLike) {
-        final int count = readLikesCount(urn);
-        return addLike ? count + 1 : count - 1;
-    }
-
-    private void updateLikesCount(Urn urn, int updatedLikesCount) {
-        database.update(Table.Sounds, ContentValuesBuilder.values().put(TableColumns.Sounds.LIKES_COUNT, updatedLikesCount).get(),
-                new WhereBuilder()
-                        .whereEq(TableColumns.Sounds._ID, urn.getNumericId())
-                        .whereEq(TableColumns.Sounds._TYPE, getSoundType(urn)));
-    }
-
-    private int readLikesCount(Urn targetUrn) {
-        List<PropertySet> result = database.query(Query.from(Table.SoundView.name())
+    private int obtainNewLikesCount(PropellerDatabase propeller, UpdateLikeParams params) {
+        List<PropertySet> result = propeller.query(Query.from(Table.SoundView.name())
                 .select(TableColumns.SoundView._ID, TableColumns.SoundView.LIKES_COUNT)
-                .whereEq(TableColumns.SoundView._ID, targetUrn.getNumericId())
-                .whereEq(TableColumns.SoundView._TYPE, getSoundType(targetUrn)))
+                .whereEq(TableColumns.SoundView._ID, params.targetUrn.getNumericId())
+                .whereEq(TableColumns.SoundView._TYPE, getSoundType(params.targetUrn)))
                 .toList(new LikeCountMapper());
 
-        return result.iterator().next().get(PlayableProperty.LIKES_COUNT);
+        final int count = result.iterator().next().get(PlayableProperty.LIKES_COUNT);
+        return params.addLike ? count + 1 : count - 1;
     }
 
-    private ContentValues buildContentValuesForLike(PropertySet like, boolean addLike) {
+    private ContentValues buildContentValuesForLike(UpdateLikeParams params) {
+        final Date now = new Date();
         final ContentValues cv = new ContentValues();
-        final Urn targetUrn = like.get(LikeProperty.TARGET_URN);
+        final Urn targetUrn = params.targetUrn;
         cv.put(TableColumns.Likes._ID, targetUrn.getNumericId());
         cv.put(TableColumns.Likes._TYPE, getSoundType(targetUrn));
-        cv.put(TableColumns.Likes.CREATED_AT, like.get(LikeProperty.CREATED_AT).getTime());
-        if (addLike) {
-            cv.put(TableColumns.Likes.ADDED_AT, like.get(LikeProperty.ADDED_AT).getTime());
+        cv.put(TableColumns.Likes.CREATED_AT, now.getTime());
+        if (params.addLike) {
+            cv.put(TableColumns.Likes.ADDED_AT, now.getTime());
             cv.putNull(TableColumns.Likes.REMOVED_AT);
         } else {
-            cv.put(TableColumns.Likes.REMOVED_AT, like.get(LikeProperty.REMOVED_AT).getTime());
+            cv.put(TableColumns.Likes.REMOVED_AT, now.getTime());
             cv.putNull(TableColumns.Likes.ADDED_AT);
         }
         return cv;
@@ -97,6 +93,16 @@ class UpdateLikeCommand extends LegacyCommand<PropertySet, PropertySet, UpdateLi
             propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
 
             return propertySet;
+        }
+    }
+
+    static final class UpdateLikeParams {
+        final boolean addLike;
+        final Urn targetUrn;
+
+        UpdateLikeParams(Urn targetUrn, boolean addLike) {
+            this.addLike = addLike;
+            this.targetUrn = targetUrn;
         }
     }
 }

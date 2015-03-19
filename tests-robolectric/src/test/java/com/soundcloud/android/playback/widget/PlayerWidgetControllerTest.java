@@ -4,6 +4,7 @@ import static com.pivotallabs.greatexpectations.Expect.expect;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForWidget;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -248,11 +249,11 @@ public class PlayerWidgetControllerTest {
     public void toggleLikeActionTriggersToggleLikeOperations() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
-        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>never());
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);
 
-        verify(likeOperations).addLike(eq(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123)))));
+        verify(likeOperations).toggleLike(Urn.forTrack(123), true);
     }
 
     @Test
@@ -260,7 +261,7 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
-        when(likeOperations.addLike(any(PropertySet.class))).thenReturn(Observable.<PropertySet>never());
+        when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);
 

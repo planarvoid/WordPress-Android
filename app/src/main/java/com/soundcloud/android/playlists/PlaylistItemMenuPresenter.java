@@ -18,7 +18,6 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
-import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -95,16 +94,12 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     private void handleLike() {
         final Urn trackUrn = playlist.get(TrackProperty.URN);
         final Boolean addLike = !playlist.get(TrackProperty.IS_LIKED);
-        getToggleLikeObservable(addLike)
+        likeOperations.toggleLike(trackUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context, addLike));
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
                         screenProvider.getLastScreenTag(), trackUrn));
-    }
-
-    private Observable<PropertySet> getToggleLikeObservable(boolean addLike) {
-        return addLike ? likeOperations.addLike(playlist) : likeOperations.removeLike(playlist);
     }
 
     private PopupMenuWrapper setupMenu(View button) {
