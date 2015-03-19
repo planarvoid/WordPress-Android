@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.query.WhereBuilder;
@@ -18,7 +19,6 @@ import com.soundcloud.propeller.query.WhereBuilder;
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
-import java.util.List;
 
 public class LoadLikedPlaylistCommand extends LegacyCommand<Urn, PropertySet, LoadLikedPlaylistCommand> {
 
@@ -31,8 +31,8 @@ public class LoadLikedPlaylistCommand extends LegacyCommand<Urn, PropertySet, Lo
 
     @Override
     public PropertySet call() throws Exception {
-        final List<PropertySet> queryResult = database.query(buildQuery(input)).toList(new LikedPlaylistMapper());
-        return queryResult.isEmpty() ? PropertySet.create() : queryResult.get(0);
+        final QueryResult queryResult = database.query(buildQuery(input));
+        return queryResult.firstOrDefault(new LikedPlaylistMapper(), PropertySet.create());
     }
 
     private Query buildQuery(Urn input) {

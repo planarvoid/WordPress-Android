@@ -1,10 +1,13 @@
 package com.soundcloud.android.storage;
 
+import static com.soundcloud.propeller.query.ColumnFunctions.exists;
+import static com.soundcloud.propeller.query.Query.apply;
+import static com.soundcloud.propeller.query.Query.from;
+
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
-import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.query.WhereBuilder;
 
@@ -22,15 +25,15 @@ public class PlaylistStorage {
     }
 
     public boolean hasLocalPlaylists() {
-        final QueryResult queryResult = propeller.query(Query.from(Table.Sounds.name())
+        final QueryResult queryResult = propeller.query(apply(exists(from(Table.Sounds.name())
                 .select(TableColumns.SoundView._ID)
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .whereLt(TableColumns.Sounds._ID, 0));
-        return !queryResult.toList(new LocalPlaylistUrnMapper()).isEmpty();
+                .whereLt(TableColumns.Sounds._ID, 0)).as("has_local_playlists")));
+        return queryResult.first(Boolean.class);
     }
 
     public Set<Urn> getPlaylistsDueForSync() {
-        final QueryResult queryResult = propeller.query(Query.from(Table.PlaylistTracks.name())
+        final QueryResult queryResult = propeller.query(from(Table.PlaylistTracks.name())
                 .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
                 .where(getWhereHasLocalTracks()));
 
@@ -44,13 +47,5 @@ public class PlaylistStorage {
     private Where getWhereHasLocalTracks() {
         return new WhereBuilder().where(TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL OR "
                 + TableColumns.PlaylistTracks.REMOVED_AT + " IS NOT NULL");
-    }
-
-
-    private class LocalPlaylistUrnMapper implements com.soundcloud.propeller.ResultMapper<Urn> {
-        @Override
-        public Urn map(CursorReader reader) {
-            return Urn.forPlaylist(reader.getLong(TableColumns.SoundView._ID));
-        }
     }
 }

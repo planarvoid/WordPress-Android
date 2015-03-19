@@ -60,7 +60,7 @@ class PlaylistTracksStorage {
                 .whereEq(SoundView._ID, playlistUrn.getNumericId())
                 .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .leftJoin(Table.PlaylistTracks.name(), SoundView._ID, PlaylistTracks.PLAYLIST_ID))
-                .toList(new UpdatedCountMapper()).get(0);
+                .first(new UpdatedCountMapper());
     }
 
     private ContentValues getContentValues(long playlistId, Urn trackUrn, int position) {

@@ -1,28 +1,23 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.storage.TableColumns.SoundView;
+import static com.soundcloud.propeller.query.Query.from;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.WriteStorageCommand;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.ContentValuesBuilder;
-import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.WhereBuilder;
-import com.soundcloud.propeller.rx.RxResultMapper;
 
 import android.content.ContentValues;
-import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.Date;
-import java.util.List;
 
 class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLikeParams, WriteResult, Integer> {
 
@@ -60,13 +55,11 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
     }
 
     private int obtainNewLikesCount(PropellerDatabase propeller, UpdateLikeParams params) {
-        List<PropertySet> result = propeller.query(Query.from(Table.SoundView.name())
-                .select(TableColumns.SoundView._ID, TableColumns.SoundView.LIKES_COUNT)
-                .whereEq(TableColumns.SoundView._ID, params.targetUrn.getNumericId())
-                .whereEq(TableColumns.SoundView._TYPE, getSoundType(params.targetUrn)))
-                .toList(new LikeCountMapper());
-
-        final int count = result.iterator().next().get(PlayableProperty.LIKES_COUNT);
+        int count = propeller.query(from(Table.SoundView.name())
+                .select(SoundView.LIKES_COUNT)
+                .whereEq(SoundView._ID, params.targetUrn.getNumericId())
+                .whereEq(SoundView._TYPE, getSoundType(params.targetUrn)))
+                .first(Integer.class);
         return params.addLike ? count + 1 : count - 1;
     }
 
@@ -89,18 +82,6 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
 
     private int getSoundType(Urn targetUrn) {
         return targetUrn.isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST;
-    }
-
-    private static class LikeCountMapper extends RxResultMapper<PropertySet> {
-        @Override
-        public PropertySet map(CursorReader cursorReader) {
-            final PropertySet propertySet = PropertySet.create(cursorReader.getColumnCount());
-
-            propertySet.put(TrackProperty.URN, Urn.forTrack(cursorReader.getLong(BaseColumns._ID)));
-            propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
-
-            return propertySet;
-        }
     }
 
     static final class UpdateLikeParams {

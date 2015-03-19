@@ -10,8 +10,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
-import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.query.WhereBuilder;
@@ -31,10 +29,11 @@ class OfflinePlaylistStorage {
         this.databaseScheduler = databaseScheduler;
     }
 
-    public Boolean isOfflinePlaylist(Urn playlistUrn) {
+    //TODO: this will run on the main thread: https://github.com/soundcloud/SoundCloud-Android/issues/2911
+    public boolean isOfflinePlaylist(Urn playlistUrn) {
         return databaseScheduler.database()
                 .query(isMarkedForOfflineQuery(playlistUrn))
-                .toList(new IsOfflinePlaylistMapper()).get(0);
+                .first(Boolean.class);
     }
 
     public Observable<ChangeResult> storeAsOfflinePlaylist(Urn playlistUrn) {
@@ -64,11 +63,4 @@ class OfflinePlaylistStorage {
                 .whereEq(_TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
     }
 
-    private final class IsOfflinePlaylistMapper implements ResultMapper<Boolean> {
-
-        @Override
-        public Boolean map(CursorReader reader) {
-            return reader.getBoolean(IS_OFFLINE_PLAYLIST);
-        }
-    }
 }
