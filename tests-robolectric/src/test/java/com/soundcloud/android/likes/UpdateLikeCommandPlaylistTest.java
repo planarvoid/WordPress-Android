@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -12,6 +13,7 @@ import com.soundcloud.propeller.query.WhereBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.content.ContentValues;
 
@@ -20,12 +22,14 @@ import java.util.Date;
 @RunWith(SoundCloudTestRunner.class)
 public class UpdateLikeCommandPlaylistTest extends StorageIntegrationTest {
 
+    @Mock private Thread backgroundThread;
+
     private UpdateLikeCommand command;
     private Urn targetUrn;
 
     @Before
     public void setUp() throws Exception {
-        command = new UpdateLikeCommand(propeller());
+        command = new UpdateLikeCommand(propeller(), providerOf(backgroundThread));
         targetUrn = testFixtures().insertPlaylist().getUrn();
     }
 
