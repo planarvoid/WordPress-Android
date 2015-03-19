@@ -31,6 +31,7 @@ public class AudioAdTest extends AdBaseTest {
 
     public void testTappingArtworkPausesAd() {
         swipeToAd();
+        playerElement.waitForPlayState();
         playerElement.clickArtwork();
         assertThat(playerElement, is(not(Playing())));
     }
