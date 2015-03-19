@@ -38,6 +38,7 @@ public class AudioAdTest extends AdBaseTest {
 
     public void testTappingArtworkTwiceResumePlayingAd() {
         swipeToAd();
+        playerElement.waitForPlayState();
         playerElement.clickArtwork();
         playerElement.waitForPlayButton();
         playerElement.clickArtwork();
