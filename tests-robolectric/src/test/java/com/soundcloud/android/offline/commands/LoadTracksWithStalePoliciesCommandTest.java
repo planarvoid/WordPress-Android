@@ -39,8 +39,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     @Test
     public void loadsLikeWithMissingPolicyWhenFeatureEnabled() throws Exception {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
-        database().delete(Table.TrackPolicies.name(),
-                new WhereBuilder().whereEq(TableColumns.TrackPolicies.TRACK_ID, apiTrack.getId()).build(), null);
+        propeller().delete(Table.TrackPolicies, new WhereBuilder().whereEq(TableColumns.TrackPolicies.TRACK_ID, apiTrack.getId()));
 
         Collection<Urn> trackLikes = command.with(true).call();
 

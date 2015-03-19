@@ -35,7 +35,7 @@ public class PlaylistStorage {
     public Set<Urn> getPlaylistsDueForSync() {
         final QueryResult queryResult = propeller.query(from(Table.PlaylistTracks.name())
                 .select(TableColumns.PlaylistTracks.PLAYLIST_ID)
-                .where(getWhereHasLocalTracks()));
+                .where(hasLocalTracks()));
 
         Set<Urn> returnSet = new HashSet<>();
         for (CursorReader reader : queryResult) {
@@ -44,8 +44,9 @@ public class PlaylistStorage {
         return returnSet;
     }
 
-    private Where getWhereHasLocalTracks() {
-        return new WhereBuilder().where(TableColumns.PlaylistTracks.ADDED_AT + " IS NOT NULL OR "
-                + TableColumns.PlaylistTracks.REMOVED_AT + " IS NOT NULL");
+    private Where hasLocalTracks() {
+        return new WhereBuilder()
+                .whereNotNull(TableColumns.PlaylistTracks.ADDED_AT)
+                .orWhereNotNull(TableColumns.PlaylistTracks.REMOVED_AT);
     }
 }
