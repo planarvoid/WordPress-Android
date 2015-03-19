@@ -7,6 +7,7 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistsScreen;
+import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
@@ -42,5 +43,17 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
 
         final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
         assertThat(addToPlaylistsScreen, is(visible()));
+    }
+
+    public void testClickingOnNewPlaylistItemOpensDialog() {
+        playlistDetailsScreen
+                .scrollToFirstTrackItem()
+                .clickFirstTrackOverflowButton()
+                .clickAdToPlaylist();
+
+        final AddToPlaylistsScreen addToPlaylistsScreen = new AddToPlaylistsScreen(solo);
+        final CreatePlaylistScreen createPlaylistScreen = addToPlaylistsScreen.clickCreateNewPlaylist();
+        assertThat(createPlaylistScreen, is(visible()));
+        assertThat(createPlaylistScreen.offlineCheck().isVisible(), is(false));
     }
 }

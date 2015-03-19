@@ -2,12 +2,13 @@ package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 
-public class AddToPlaylistsScreen extends Screen {
+public class CreatePlaylistScreen extends Screen {
 
-    public AddToPlaylistsScreen(Han solo) {
+    public CreatePlaylistScreen(Han solo) {
         super(solo);
     }
 
@@ -18,12 +19,10 @@ public class AddToPlaylistsScreen extends Screen {
 
     @Override
     public boolean isVisible() {
-        return waiter.waitForFragmentByTag("create_playlist_dialog");
+        return waiter.waitForFragmentByTag("create_new_set_dialog");
     }
 
-    public CreatePlaylistScreen clickCreateNewPlaylist() {
-        testDriver.findElements(With.text(testDriver.getString(R.string.create_new_playlist))).get(0).click();
-
-        return new CreatePlaylistScreen(testDriver);
+    public ViewElement offlineCheck() {
+        return testDriver.findElement(With.id(R.id.chk_offline));
     }
 }
