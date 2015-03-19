@@ -54,7 +54,9 @@ public class TestUser {
             }
             try {
                 shouldRetry = (result == false) && (tryCount < maxRetries);
-                Thread.sleep(5000);
+                if(shouldRetry) {
+                    Thread.sleep(5000);
+                }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
