@@ -58,9 +58,33 @@ public class ReplacePlaylistPostCommandTest extends StorageIntegrationTest {
         testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
 
         WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
-        System.out.println(result.getFailure());
         expect(result.success()).toBeTrue();
 
         databaseAssertions().assertPlaylistPostInsertedFor(newPlaylist);
+    }
+
+    @Test
+    public void shouldUpdateOfflineContentWithPlaylistId() throws Exception {
+        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
+        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
+        testFixtures().insertPlaylistMarkedForOfflineSync(oldPlaylist);
+
+        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
+        expect(result.success()).toBeTrue();
+
+        databaseAssertions().assertPlaylistMarkedForOfflineSync(newPlaylist.getUrn());
+    }
+
+    @Test
+    public void shouldNotUpdateOfflineContentWithPlaylistId() throws Exception {
+        ApiPlaylist oldPlaylist = testFixtures().insertLocalPlaylist();
+        ApiPlaylist newPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        testFixtures().insertPlaylistPost(oldPlaylist.getId(), 123L, false);
+
+        WriteResult result = command.with(Pair.create(oldPlaylist.getUrn(), newPlaylist)).call();
+        expect(result.success()).toBeTrue();
+
+        databaseAssertions().assertPlaylistNotMarkedForOfflineSync(newPlaylist.getUrn());
     }
 }

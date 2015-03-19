@@ -10,6 +10,8 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.WhereBuilder;
@@ -57,6 +59,19 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
                 step(propeller.update(Table.Posts, playlistPostValues, new WhereBuilder()
                         .whereEq(Posts.TARGET_ID, localPlaylistUrn.getNumericId())
                         .whereEq(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)));
+
+
+                // update offline playlist if exists
+                final ContentValues offlinePlaylistValues = new ContentValues();
+                offlinePlaylistValues.put(TableColumns.OfflineContent._ID, newPlaylist.getUrn().getNumericId());
+                offlinePlaylistValues.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
+
+                final ChangeResult changeResult = step(propeller.delete(Table.OfflineContent, new WhereBuilder()
+                        .whereEq(Sounds._ID, localPlaylistUrn.getNumericId())));
+
+                if (changeResult.getNumRowsAffected() > 0) {
+                    step(propeller.insert(Table.OfflineContent, offlinePlaylistValues));
+                }
             }
         });
     }

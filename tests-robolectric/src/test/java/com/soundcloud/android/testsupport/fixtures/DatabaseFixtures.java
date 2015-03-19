@@ -473,4 +473,11 @@ public class DatabaseFixtures {
         insertInto(Table.OfflineContent, cv);
         return apiPlaylist;
     }
+
+    public long insertPlaylistMarkedForOfflineSync(ApiPlaylist playlist) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.OfflineContent._ID, playlist.getUrn().getNumericId());
+        cv.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
+        return insertInto(Table.OfflineContent, cv);
+    }
 }
