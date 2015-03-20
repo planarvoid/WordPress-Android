@@ -73,7 +73,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
         initialBuilder.setView(dialogView);
 
         setChecksVisibility();
-        initialBuilder.setNegativeButton(R.string.cancel,new View.OnClickListener() {
+        initialBuilder.setNegativeButton(R.string.cancel, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getDialog().dismiss();
@@ -96,11 +96,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     }
 
     private void setChecksVisibility() {
-        if (!properties.isDevBuildRunningOnDevice()){
-            privacy.setVisibility(View.GONE);
-        }
-
-        if (!featureOperations.isOfflineContentEnabled()){
+        if (!featureOperations.isOfflineContentEnabled()) {
             offline.setVisibility(View.GONE);
         }
     }
