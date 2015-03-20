@@ -39,6 +39,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     @Before
     public void setUp() throws Exception {
         playlistTracksStorage = new PlaylistTracksStorage(testScheduler(), dateProvider, accountOperations);
+
         when(dateProvider.getCurrentDate()).thenReturn(ADDED_AT);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(321L));
     }
@@ -46,10 +47,9 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     @Test
     public void playlistForAddingTrackLoadsPlaylistWithCorrectIsAddedStatus() {
         final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
-
-        ApiPlaylist apiPlaylist1 = insertPostedPlaylist();
-        ApiPlaylist apiPlaylist2 = insertPostedPlaylist();
-        ApiTrack apiTrack = testFixtures().insertPlaylistTrack(apiPlaylist2.getUrn(), 0);
+        final ApiPlaylist apiPlaylist1 = insertPostedPlaylist();
+        final ApiPlaylist apiPlaylist2 = insertPostedPlaylist();
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(apiPlaylist2.getUrn(), 0);
 
         playlistTracksStorage.playlistsForAddingTrack(apiTrack.getUrn())
                 .subscribe(testObserver);
@@ -60,19 +60,17 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 playlistForTrackPropertySet(apiPlaylist2, true));
     }
 
-    private ApiPlaylist insertPostedPlaylist() {
-        ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylist();
-        testFixtures().insertPlaylistPost(apiPlaylist1.getUrn().getNumericId(), dateProvider.getCurrentDate().getTime(), false);
-        return apiPlaylist1;
-    }
+    @Test
+    public void playlistForAddingTracksDoNoIncludeRepostedPlaylists() {
+        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        final ApiTrack apiTrack = testFixtures().insertTrack();
+        testFixtures().insertPlaylistRepost(apiPlaylist.getId(), dateProvider.getCurrentDate().getTime());
 
-    private PropertySet playlistForTrackPropertySet(ApiPlaylist apiPlaylist, boolean isAdded) {
-        return PropertySet.from(
-                TrackInPlaylistProperty.URN.bind(apiPlaylist.getUrn()),
-                TrackInPlaylistProperty.TITLE.bind(apiPlaylist.getTitle()),
-                TrackInPlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()),
-                TrackInPlaylistProperty.ADDED_TO_URN.bind(isAdded)
-        );
+        playlistTracksStorage.playlistsForAddingTrack(apiTrack.getUrn()).subscribe(testObserver);
+
+        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        expect(result).toBeEmpty();
     }
 
     @Test
@@ -117,4 +115,20 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
                 .whereEq(TableColumns.Sounds.SHARING, Sharing.from(!isPrivate).value())
                 .whereEq(TableColumns.Sounds.TITLE, title)), counts(1));
     }
+
+    private ApiPlaylist insertPostedPlaylist() {
+        ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        testFixtures().insertPlaylistPost(apiPlaylist.getUrn().getNumericId(), dateProvider.getCurrentDate().getTime(), false);
+        return apiPlaylist;
+    }
+
+    private PropertySet playlistForTrackPropertySet(ApiPlaylist apiPlaylist, boolean isAdded) {
+        return PropertySet.from(
+                TrackInPlaylistProperty.URN.bind(apiPlaylist.getUrn()),
+                TrackInPlaylistProperty.TITLE.bind(apiPlaylist.getTitle()),
+                TrackInPlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()),
+                TrackInPlaylistProperty.ADDED_TO_URN.bind(isAdded)
+        );
+    }
+
 }
