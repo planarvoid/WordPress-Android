@@ -355,8 +355,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     protected void refreshMetaData(PlaylistInfo playlistInfo) {
-
-        if (accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn())) {
+        if (playlistInfo.isOwnedBy(accountOperations.getLoggedInUserUrn())) {
             controller.showTrackRemovalOptions(playlistInfo.getUrn(), this);
         }
 

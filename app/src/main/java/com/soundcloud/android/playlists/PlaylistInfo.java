@@ -65,6 +65,10 @@ class PlaylistInfo {
         return sourceSet.get(PlaylistProperty.IS_REPOSTED);
     }
 
+    public boolean isOwnedBy(Urn userUrn) {
+        return userUrn.equals(getCreatorUrn());
+    }
+
     public List<PropertySet> getTracks() {
         return tracks;
     }

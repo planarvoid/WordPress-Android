@@ -113,6 +113,7 @@ public class PlaylistDetailFragmentTest {
         when(controller.getAdapter()).thenReturn(adapter);
         when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistInfo));
         when(offlinePlaybackOperations.playPlaylist(any(Urn.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(312L));
 
         fragment.onAttach(activity);
         activity.setIntent(intent);
@@ -129,7 +130,6 @@ public class PlaylistDetailFragmentTest {
     @Test
     public void playlistInfoForOwnPlaylistSetsTrackRemovalForPlaylistOnController() throws Exception {
         final PlaylistInfo playlistWithoutTracks = createPlaylistWithoutTracks();
-        when(accountOperations.isLoggedInUser(playlistWithoutTracks.getCreatorUrn())).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistWithoutTracks.getCreatorUrn());
         when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
         createFragmentView();
@@ -140,7 +140,6 @@ public class PlaylistDetailFragmentTest {
     @Test
     public void playlistContentChangeForcesReloadOfPlaylistInfo() throws Exception {
         PlaylistInfo updatedPlaylistInfo = createPlaylist();
-        when(accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn())).thenReturn(true);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistInfo.getCreatorUrn());
         when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistInfo), Observable.just(updatedPlaylistInfo));
         createFragmentView();
@@ -156,9 +155,8 @@ public class PlaylistDetailFragmentTest {
     }
 
     @Test
-    public void playlistInfoForOwnPlaylistDoesNotSetTracksAsRemovableOnController() throws Exception {
+    public void playlistInfoForNonOwnedPlaylistDoesNotSetTracksAsRemovableOnController() throws Exception {
         final PlaylistInfo playlistWithoutTracks = createPlaylistWithoutTracks();
-        when(accountOperations.getLoggedInUserUrn()).thenReturn(playlistWithoutTracks.getCreatorUrn());
         when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(Observable.just(playlistWithoutTracks));
         createFragmentView();
 

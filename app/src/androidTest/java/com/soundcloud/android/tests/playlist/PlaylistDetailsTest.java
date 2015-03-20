@@ -14,12 +14,10 @@ import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-import org.hamcrest.core.Is;
 
 public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
-    private PlaylistsScreen playlistsScreen;
 
     public PlaylistDetailsTest() {
         super(LauncherActivity.class);
@@ -35,7 +33,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }
@@ -74,13 +72,13 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         TrackItemMenuElement menu = detailsScreen.clickFirstTrackOverflowButton();
         menu.clickRemoveFromPlaylist();
 
-        assertThat(playlistsScreen.getLoadedTrackCount(), Is.is(initialTrackCount - 1));
+        assertThat(playlistsScreen.getLoadedTrackCount(), is(initialTrackCount - 1));
 
         player.tapFooter();
         AddToPlaylistScreen addToPlaylistScreen = player.clickMenu().clickAddToPlaylist();
         addToPlaylistScreen.clickPlaylistWithTitle(title);
         player.pressBackToCollapse();
 
-        assertThat(playlistsScreen.getLoadedTrackCount(), Is.is(initialTrackCount));
+        assertThat(playlistsScreen.getLoadedTrackCount(), is(initialTrackCount));
     }
 }
