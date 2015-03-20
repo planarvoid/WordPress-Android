@@ -27,14 +27,10 @@ staticAnalysis.mustRunAfter("assemble${project.buildType.capitalize()}CI")
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task assembleDebugCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleDebug']) {
-  description = 'Assembles all Debug builds for CI. Pre-dexing is disabled.'
-  rootProject.ext.preDexLibs = false
+task buildDebugCI(dependsOn: ['assembleDebug', 'staticAnalysis']) {
+  description = 'Assembles Debug build and performs static analysis for CI.'
 }
-
-task buildDebugCI(dependsOn: ['assembleDebugCI', 'staticAnalysis']) {
-  description = 'Assembles all Debug builds and performs static analysis for CI.'
-}
+buildDebugCI.mustRunAfter('updateVersion')
 
 task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleEnd2end']) {
   description = 'Assembles End2End debug build for payments test on CI.'
@@ -62,13 +58,10 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionAlpha']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task assembleBetaCI(dependsOn: ['renameApk', 'updateVersion', 'assembleBeta']) {
-  description = 'Assembles all Beta builds for CI'
+task buildBetaCI(dependsOn: ['assembleBeta']) {
+  description = 'Assembles Beta build for CI.'
 }
-
-task buildBetaCI(dependsOn: ['assembleBetaCI', 'staticAnalysis']) {
-  description = 'Assembles all Beta builds and performs static analysis for CI.'
-}
+buildBetaCI.mustRunAfter('updateVersion')
 
 task deployBeta(dependsOn: ['commitVersionBump', 'uploadStore', 'uploadGithub']) {
   description = 'Deploy Beta build to playstore and github.'
@@ -79,26 +72,23 @@ deployBeta.mustRunAfter('buildBetaCI')
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task assembleReleaseNoProguardCI(dependsOn: ['renameApk', 'updateVersion', 'assembleReleaseNoProguard']) {
-  description = 'Assembles all Release builds for CI'
+task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard', 'staticAnalysis']) {
+  description = 'Assembles Release (without ProGuard!) build for CI.'
 }
-
-task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguardCI', 'staticAnalysis']) {
-  description = 'Assembles all Release (without ProGuard!) builds and performs static analysis for CI.'
-}
+buildReleaseNoProguardCI.mustRunAfter('updateVersion')
 
 task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assembleRelease', 'uploadStore',
                                        'uploadGithub']) {
   description = 'Builds and deploys Release build to playstore and github.'
 }
-assembleRelease.mustRunAfter('renameApk')
+assembleRelease.mustRunAfter('renameApk', 'commitVersionBump')
 
 // *********************************************************************************************************************
 // HELPERS
 // *********************************************************************************************************************
 
-task updateVersion(dependsOn: ['incrementVersionName', 'incrementVersionCode']) {
-  description = 'Updates AndroidManifest versionName and versionCode.'
+task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVersionCode']) {
+  description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
 }
 
 task uploadStore(type: Exec) {
