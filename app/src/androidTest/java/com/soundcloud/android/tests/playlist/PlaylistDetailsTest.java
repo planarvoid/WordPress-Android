@@ -16,7 +16,7 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
-
+    private PlaylistsScreen playlistsScreen;
     private PlaylistDetailsScreen playlistDetailsScreen;
 
     public PlaylistDetailsTest() {
@@ -33,7 +33,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }
@@ -60,16 +60,13 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testRemovingAndAddingTrackFromPlaylist() throws Exception {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
-        PlaylistDetailsScreen detailsScreen = playlistsScreen.clickPlaylistAt(0);
-
-        String title = detailsScreen.getTitle();
+        String title = playlistDetailsScreen.getTitle();
         int initialTrackCount = playlistsScreen.getLoadedTrackCount();
 
-        VisualPlayerElement player = detailsScreen.clickFirstTrack();
+        VisualPlayerElement player = playlistDetailsScreen.clickFirstTrack();
         player.pressBackToCollapse();
 
-        TrackItemMenuElement menu = detailsScreen.clickFirstTrackOverflowButton();
+        TrackItemMenuElement menu = playlistDetailsScreen.clickFirstTrackOverflowButton();
         menu.clickRemoveFromPlaylist();
 
         assertThat(playlistsScreen.getLoadedTrackCount(), is(initialTrackCount - 1));
