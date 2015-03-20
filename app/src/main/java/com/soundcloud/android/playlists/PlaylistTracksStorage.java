@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.accounts.AccountOperations;
@@ -20,7 +21,6 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.WhereBuilder;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
@@ -105,7 +105,7 @@ class PlaylistTracksStorage {
 
     private Query trackInPlaylist(Urn trackUrn) {
         return Query.from(Table.PlaylistTracks.name())
-                .innerJoin(Table.Sounds.name(), new WhereBuilder()
+                .innerJoin(Table.Sounds.name(), filter()
                         .whereEq(PlaylistTracks.PLAYLIST_ID, Table.SoundView.field(SoundView._ID))
                         .whereEq(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
                         .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST));
