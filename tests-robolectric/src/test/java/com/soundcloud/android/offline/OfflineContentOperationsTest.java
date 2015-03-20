@@ -10,10 +10,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.LoadDownloadedCommand;
-import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsRequestsCommand;
-import com.soundcloud.android.offline.commands.LoadPendingRemovalsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
 import com.soundcloud.android.offline.commands.StoreDownloadedCommand;
@@ -54,9 +51,6 @@ public class OfflineContentOperationsTest {
     @Mock private StorePendingRemovalsCommand storePendingRemovalsCommand;
     @Mock private StoreDownloadedCommand storeDownloadedCommand;
     @Mock private LoadPendingDownloadsRequestsCommand loadPendingDownloadsRequestsCommand;
-    @Mock private LoadPendingDownloadsCommand loadPendingDownloadsCommand;
-    @Mock private LoadPendingRemovalsCommand loadPendingRemovalsCommand;
-    @Mock private LoadDownloadedCommand loadDownloadedCommand;
     @Mock private LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     @Mock private LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies;
     @Mock private ChangeResult changeResult;
@@ -80,20 +74,17 @@ public class OfflineContentOperationsTest {
         when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
 
         when(loadPendingDownloadsRequestsCommand.toObservable()).thenReturn(Observable.<List<DownloadRequest>>empty());
-        when(loadPendingDownloadsCommand.toObservable()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
-        when(loadPendingRemovalsCommand.toObservable()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
-        when(loadDownloadedCommand.toObservable()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
+        when(offlineTracksStorage.pendingDownloads()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
+        when(offlineTracksStorage.pendingRemovals()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
+        when(offlineTracksStorage.downloaded()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
         when(changeResult.success()).thenReturn(true);
 
         operations = new OfflineContentOperations(
-                loadDownloadedCommand,
                 storePendingDownloadsCommand,
                 storePendingRemovalsCommand,
                 storeDownloadedCommand,
                 loadTracksWithStalePolicies,
-                loadPendingRemovalsCommand,
                 loadPendingDownloadsRequestsCommand,
-                loadPendingDownloadsCommand,
                 settingsStorage,
                 eventBus,
                 playlistStorage,
@@ -352,15 +343,15 @@ public class OfflineContentOperationsTest {
     }
 
     private void actualPendingRemovals(Urn... tracks) {
-        when(loadPendingRemovalsCommand.toObservable()).thenReturn(Observable.just(Arrays.asList(tracks)));
+        when(offlineTracksStorage.pendingRemovals()).thenReturn(Observable.just(Arrays.asList(tracks)));
     }
 
     private void actualPendingDownloads(Urn... tracks) {
-        when(loadPendingDownloadsCommand.toObservable()).thenReturn(Observable.just(Arrays.asList(tracks)));
+        when(offlineTracksStorage.pendingDownloads()).thenReturn(Observable.just(Arrays.asList(tracks)));
     }
 
     private void actualDownloadedTracks(Urn... tracks) {
-        when(loadDownloadedCommand.toObservable()).thenReturn(Observable.just(Arrays.asList(tracks)));
+        when(offlineTracksStorage.downloaded()).thenReturn(Observable.just(Arrays.asList(tracks)));
     }
 
     private void expectedOfflineTracks(Urn... tracks) {

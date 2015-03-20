@@ -9,10 +9,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.LoadDownloadedCommand;
-import com.soundcloud.android.offline.commands.LoadPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadPendingDownloadsRequestsCommand;
-import com.soundcloud.android.offline.commands.LoadPendingRemovalsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
 import com.soundcloud.android.offline.commands.StoreDownloadedCommand;
@@ -35,10 +32,7 @@ import java.util.List;
 public class OfflineContentOperations {
 
     private final LoadPendingDownloadsRequestsCommand loadPendingDownloadRequests;
-    private final LoadPendingRemovalsCommand loadPendingRemovalsCommand;
-    private final LoadDownloadedCommand loadDownloadedCommand;
-    private final LoadPendingDownloadsCommand loadPendingDownloadsCommand;
-
+    
     private final StorePendingDownloadsCommand storePendingDownloadsCommand;
     private final StorePendingRemovalsCommand storePendingRemovalsCommand;
     private final StoreDownloadedCommand storeDownloadedCommand;
@@ -94,27 +88,21 @@ public class OfflineContentOperations {
     };
 
     @Inject
-    public OfflineContentOperations(LoadDownloadedCommand loadDownloadedCommand,
-                                    StorePendingDownloadsCommand storePendingDownloadsCommand,
+    public OfflineContentOperations(StorePendingDownloadsCommand storePendingDownloadsCommand,
                                     StorePendingRemovalsCommand storePendingRemovalsCommand,
                                     StoreDownloadedCommand storeDownloadedCommand,
                                     LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies,
-                                    LoadPendingRemovalsCommand loadPendingRemovalsCommand,
                                     LoadPendingDownloadsRequestsCommand loadPendingCommand,
-                                    LoadPendingDownloadsCommand loadPendingDownloadsCommand,
                                     OfflineSettingsStorage settingsStorage,
                                     EventBus eventBus,
                                     OfflinePlaylistStorage playlistStorage,
                                     PolicyOperations policyOperations,
                                     LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies,
                                     OfflineTracksStorage tracksStorage) {
-        this.loadDownloadedCommand = loadDownloadedCommand;
         this.storePendingDownloadsCommand = storePendingDownloadsCommand;
         this.storePendingRemovalsCommand = storePendingRemovalsCommand;
         this.storeDownloadedCommand = storeDownloadedCommand;
         this.loadTracksWithStatePolicies = loadTracksWithStatePolicies;
-        this.loadPendingRemovalsCommand = loadPendingRemovalsCommand;
-        this.loadPendingDownloadsCommand = loadPendingDownloadsCommand;
         this.settingsStorage = settingsStorage;
         this.loadPendingDownloadRequests = loadPendingCommand;
         this.eventBus = eventBus;
@@ -254,9 +242,9 @@ public class OfflineContentOperations {
         return Observable
                 .zip(
                         loadTracksWithValidPolicies.call(isOfflineLikedTracksEnabled()),
-                        loadPendingDownloadsCommand.toObservable(),
-                        loadPendingRemovalsCommand.toObservable(),
-                        loadDownloadedCommand.toObservable(),
+                        tracksStorage.pendingDownloads(),
+                        tracksStorage.pendingRemovals(),
+                        tracksStorage.downloaded(),
                         offlineContentQueueDifferentialUpdate
                 );
     }

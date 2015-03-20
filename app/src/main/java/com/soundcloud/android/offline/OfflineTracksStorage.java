@@ -12,11 +12,13 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOA
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import rx.Observable;
 
@@ -89,6 +91,36 @@ class OfflineTracksStorage {
                 .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
                 .whereNotNull(TrackDownloads.field(REQUESTED_AT));
 
+        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+    }
+
+    /**
+     * @return list of track urns to be downloaded
+     */
+    Observable<List<Urn>> pendingDownloads() {
+        final Where isPendingDownloads = filter()
+                .whereNull(REMOVED_AT)
+                .whereNull(DOWNLOADED_AT)
+                .whereNotNull(REQUESTED_AT);
+
+        return scheduler.scheduleQuery(Query.from(TrackDownloads.name())
+                .where(isPendingDownloads))
+                .map(new UrnMapper()).toList();
+    }
+
+    /**
+     * @return list of offline tracks pending removal
+     */
+    public Observable<List<Urn>> pendingRemovals() {
+        final Query query = Query.from(TrackDownloads.name()).whereNotNull(REMOVED_AT);
+        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+    }
+
+    /**
+     * @return list of tracks that are already downloaded
+     */
+    public Observable<List<Urn>> downloaded() {
+        final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT);
         return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
     }
 }
