@@ -56,8 +56,6 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         final int initialLikedTracksCount = likesScreen.getLoadedTrackCount();
 
         final VisualPlayerElement player = likesScreen.clickTrack(0);
-        player.playForFiveSeconds();
-        networkManager.switchWifiOff();
 
         player.tapToggleLikeButton();
         player.pressBackToCollapse();
@@ -69,8 +67,6 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         player.pressBackToCollapse();
 
         assertThat(likesScreen.getLoadedTrackCount(), equalTo(initialLikedTracksCount));
-
-        networkManager.switchWifiOn();
     }
 
 }
