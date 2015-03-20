@@ -79,6 +79,7 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public VisualPlayerElement clickFirstTrack() {
+        scrollToFirstTrackItem();
         return clickNthTrack(0);
     }
 
@@ -105,6 +106,7 @@ public class PlaylistDetailsScreen extends Screen {
 
     //TODO: This should operate on TrackListItem POM
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
+        scrollToFirstTrackItem();
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver
                 .findElements(With.id(R.id.overflow_button))
