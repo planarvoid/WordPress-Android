@@ -27,7 +27,7 @@ staticAnalysis.mustRunAfter("build${project.buildType.capitalize()}CI")
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task buildDebugCI(dependsOn: ['assembleDebug', 'staticAnalysis']) {
+task buildDebugCI(dependsOn: ['assembleDebug']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
 buildDebugCI.mustRunAfter('updateVersion')
@@ -72,7 +72,7 @@ deployBeta.mustRunAfter('buildBetaCI')
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard', 'staticAnalysis']) {
+task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard']) {
   description = 'Assembles Release (without ProGuard!) build for CI.'
 }
 buildReleaseNoProguardCI.mustRunAfter('updateVersion')
