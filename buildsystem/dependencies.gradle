@@ -32,7 +32,7 @@ ext {
   findBugsAnnotationVersion = '3.0.0'
   findBugsJsr305Version = '3.0.0'
   intellijAnnotationsVersion = '9.0.4'
-  skippyVersion = '654'
+  skippyVersion = '613'
   soundCloudVorbisEncoderVersion = '1.0.9-SNAPSHOT'
   comscoreVersion = '2.1407.28'
   adjustAndroidVersion = '3.6.1'
