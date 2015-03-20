@@ -28,7 +28,7 @@ ext {
   butterKnifeVersion = '5.1.2'
   guavaRepackVersion = '14.11.14'
   sqliteJdbcVersion = '3.7.15-M1'
-  propellerVersion = '0.39'
+  propellerVersion = '0.40'
   findBugsAnnotationVersion = '3.0.0'
   findBugsJsr305Version = '3.0.0'
   intellijAnnotationsVersion = '9.0.4'

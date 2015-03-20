@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics;
 
 import static com.soundcloud.android.analytics.TrackingDbHelper.EVENTS_TABLE;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
@@ -13,7 +14,6 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.ResultMapper;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.ContentValues;
@@ -93,7 +93,7 @@ class TrackingStorage {
         do {
             final int end = Math.min(start + FIXED_BATCH_SIZE, idList.size());
             final List<String> idBatch = idList.subList(start, end);
-            final Where whereClause = new WhereBuilder().whereIn(TrackingDbHelper.TrackingColumns._ID, idBatch);
+            final Where whereClause = filter().whereIn(TrackingDbHelper.TrackingColumns._ID, idBatch);
             changeResult = propeller.delete(EVENTS_TABLE, whereClause);
 
             start += FIXED_BATCH_SIZE;

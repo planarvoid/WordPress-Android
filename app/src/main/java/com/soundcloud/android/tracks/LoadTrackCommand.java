@@ -8,7 +8,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
+import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 
 import javax.inject.Inject;
@@ -50,7 +50,7 @@ public class LoadTrackCommand extends SingleResourceQueryCommand<Urn> {
     }
 
     private Query likeQuery() {
-        final Where joinConditions = new WhereBuilder()
+        final Where joinConditions = Filter.filter()
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
@@ -62,7 +62,7 @@ public class LoadTrackCommand extends SingleResourceQueryCommand<Urn> {
     }
 
     private Query repostQuery() {
-        final Where joinConditions = new WhereBuilder()
+        final Where joinConditions = Filter.filter()
                 .whereEq(TableColumns.Sounds._ID, TableColumns.Posts.TARGET_ID)
                 .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
 

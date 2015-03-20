@@ -10,9 +10,9 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
 import rx.Observable;
 
@@ -58,7 +58,7 @@ class OfflinePlaylistStorage {
     }
 
     private Where buildWhereClause(Urn urn) {
-        return new WhereBuilder()
+        return Filter.filter()
                 .whereEq(_ID, urn.getNumericId())
                 .whereEq(_TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
     }

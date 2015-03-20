@@ -1,12 +1,13 @@
 package com.soundcloud.android.sync.playlists;
 
+import static com.soundcloud.propeller.query.Filter.filter;
+
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.content.ContentValues;
 
@@ -32,7 +33,8 @@ class ReplacePlaylistTracksCommand extends StoreCommand<List<Urn>> {
         return database.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.delete(Table.PlaylistTracks, new WhereBuilder().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())));
+                step(propeller.delete(Table.PlaylistTracks,
+                        filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())));
                 for (int i = 0; i < input.size(); i++){
                     step(propeller.upsert(Table.PlaylistTracks, buildPlaylistTrackContentValues(input.get(i), i)));
                 }

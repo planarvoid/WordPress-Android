@@ -3,13 +3,13 @@ package com.soundcloud.android.likes;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.query.WhereBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -79,7 +79,7 @@ public class UpdateLikeCommandTrackTest extends StorageIntegrationTest {
     private void updateLikesCount() {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Sounds.LIKES_COUNT, 1);
-        expect(propeller().update(Table.Sounds, cv, new WhereBuilder()
+        expect(propeller().update(Table.Sounds, cv, filter()
                 .whereEq(TableColumns.Sounds._ID, targetUrn.getNumericId())
                 .whereEq(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)).success()).toBeTrue();
         databaseAssertions().assertLikesCount(targetUrn, 1);

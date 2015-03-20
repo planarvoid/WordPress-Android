@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.posts;
 
+import static com.soundcloud.propeller.query.Filter.filter;
+
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -7,7 +9,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -24,7 +25,7 @@ class RemovePostsCommand extends StoreCommand<Collection<PropertySet>> {
         WriteResult writeResult = null;
         for (PropertySet post : input) {
             final Urn urn = post.get(PostProperty.TARGET_URN);
-            writeResult = database.delete(Table.Posts, new WhereBuilder()
+            writeResult = database.delete(Table.Posts, filter()
                     .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
                     .whereEq(TableColumns.Posts.TARGET_TYPE, urn.isTrack()
                             ? TableColumns.Sounds.TYPE_TRACK

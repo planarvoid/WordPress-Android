@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.posts;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.Posts;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.commands.LegacyCommand;
@@ -14,7 +15,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.content.ContentValues;
 import android.util.Pair;
@@ -45,18 +45,18 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
                 // update the playlist tracks entries
                 final ContentValues playlistTracksValues = new ContentValues();
                 playlistTracksValues.put(PlaylistTracks.PLAYLIST_ID, newPlaylist.getId());
-                step(propeller.update(Table.PlaylistTracks, playlistTracksValues, new WhereBuilder()
-                        .whereEq(PlaylistTracks.PLAYLIST_ID, localPlaylistUrn.getNumericId())));
+                step(propeller.update(Table.PlaylistTracks, playlistTracksValues,
+                        filter().whereEq(PlaylistTracks.PLAYLIST_ID, localPlaylistUrn.getNumericId())));
 
                 // remove the old playlist entry
-                step(propeller.delete(Table.Sounds, new WhereBuilder()
+                step(propeller.delete(Table.Sounds, filter()
                         .whereEq(Sounds._ID, localPlaylistUrn.getNumericId())
                         .whereEq(Sounds._TYPE, Sounds.TYPE_PLAYLIST)));
 
                 // make sure the posted playlist appears under the new ID in the Posts table
                 final ContentValues playlistPostValues = new ContentValues();
                 playlistPostValues.put(Posts.TARGET_ID, newPlaylist.getId());
-                step(propeller.update(Table.Posts, playlistPostValues, new WhereBuilder()
+                step(propeller.update(Table.Posts, playlistPostValues, filter()
                         .whereEq(Posts.TARGET_ID, localPlaylistUrn.getNumericId())
                         .whereEq(Posts.TARGET_TYPE, Sounds.TYPE_PLAYLIST)));
 
@@ -66,8 +66,8 @@ class ReplacePlaylistPostCommand extends LegacyCommand<Pair<Urn, ApiPlaylist>, W
                 offlinePlaylistValues.put(TableColumns.OfflineContent._ID, newPlaylist.getUrn().getNumericId());
                 offlinePlaylistValues.put(TableColumns.OfflineContent._TYPE, TableColumns.OfflineContent.TYPE_PLAYLIST);
 
-                final ChangeResult changeResult = step(propeller.delete(Table.OfflineContent, new WhereBuilder()
-                        .whereEq(Sounds._ID, localPlaylistUrn.getNumericId())));
+                final ChangeResult changeResult = step(propeller.delete(Table.OfflineContent,
+                        filter().whereEq(Sounds._ID, localPlaylistUrn.getNumericId())));
 
                 if (changeResult.getNumRowsAffected() > 0) {
                     step(propeller.insert(Table.OfflineContent, offlinePlaylistValues));

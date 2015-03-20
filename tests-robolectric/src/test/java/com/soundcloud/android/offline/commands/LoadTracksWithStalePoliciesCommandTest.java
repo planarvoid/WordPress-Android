@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline.commands;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -9,7 +10,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.propeller.query.WhereBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTe
     @Test
     public void loadsLikeWithMissingPolicyWhenFeatureEnabled() throws Exception {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
-        propeller().delete(Table.TrackPolicies, new WhereBuilder().whereEq(TableColumns.TrackPolicies.TRACK_ID, apiTrack.getId()));
+        propeller().delete(Table.TrackPolicies, filter().whereEq(TableColumns.TrackPolicies.TRACK_ID, apiTrack.getId()));
 
         Collection<Urn> trackLikes = command.with(true).call();
 

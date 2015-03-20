@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
@@ -14,7 +15,6 @@ import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.provider.BaseColumns;
 
@@ -40,7 +40,7 @@ public class LoadLikedPlaylistCommand extends LegacyCommand<Urn, PropertySet, Lo
     }
 
     static Query playlistLikeQuery() {
-        final Where likesSoundViewJoin = new WhereBuilder()
+        final Where likesSoundViewJoin = filter()
                 .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), Table.SoundView.field(TableColumns.SoundView._TYPE))
                 .whereEq(Table.Likes.field(TableColumns.Likes._ID), Table.SoundView.field(TableColumns.SoundView._ID));
 

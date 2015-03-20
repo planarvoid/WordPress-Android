@@ -12,9 +12,9 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -59,7 +59,7 @@ public class DeletePendingRemovalCommand extends LegacyCommand<Urn, List<Urn>, D
     }
 
     private ChangeResult deleteFromDatabase(Urn track) {
-        final Where whereClause = new WhereBuilder().whereEq(_ID, track.getNumericId());
+        final Where whereClause = Filter.filter().whereEq(_ID, track.getNumericId());
         return database.delete(TrackDownloads, whereClause);
     }
 

@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.Table.OfflineContent;
 import static com.soundcloud.android.storage.Table.PlaylistTracks;
 import static com.soundcloud.android.storage.Table.TrackPolicies;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.UrnMapper;
@@ -14,7 +15,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.provider.BaseColumns;
 
@@ -36,7 +36,7 @@ public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Boolean, C
     public Collection<Urn> call() throws Exception {
         final long stalePolicyTimestamp = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(24);
         final Collection<Urn> set = new TreeSet<>();
-        final Where stalePolicyCondition = new WhereBuilder()
+        final Where stalePolicyCondition = filter()
                 .whereLt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), stalePolicyTimestamp)
                 .orWhereNull(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED));
         if (input) {

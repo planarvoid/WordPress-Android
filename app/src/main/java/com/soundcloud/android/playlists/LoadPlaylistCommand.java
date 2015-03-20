@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.model.Urn;
@@ -12,7 +13,6 @@ import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 
@@ -57,7 +57,7 @@ class LoadPlaylistCommand extends LegacyCommand<Urn, PropertySet, LoadPlaylistCo
     }
 
     private Query likeQuery() {
-        final Where joinConditions = new WhereBuilder()
+        final Where joinConditions = filter()
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
                 .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
 
@@ -69,7 +69,7 @@ class LoadPlaylistCommand extends LegacyCommand<Urn, PropertySet, LoadPlaylistCo
     }
 
     private Query repostQuery() {
-        final Where joinConditions = new WhereBuilder()
+        final Where joinConditions = filter()
                 .whereEq(TableColumns.Sounds._ID, TableColumns.Posts.TARGET_ID)
                 .whereEq(TableColumns.Sounds._TYPE, TableColumns.Posts.TARGET_TYPE);
 

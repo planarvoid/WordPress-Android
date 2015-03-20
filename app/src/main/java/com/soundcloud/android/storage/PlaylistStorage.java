@@ -1,6 +1,7 @@
 package com.soundcloud.android.storage;
 
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
+import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
 import static com.soundcloud.propeller.query.Query.from;
 
@@ -9,7 +10,6 @@ import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -45,7 +45,7 @@ public class PlaylistStorage {
     }
 
     private Where hasLocalTracks() {
-        return new WhereBuilder()
+        return filter()
                 .whereNotNull(TableColumns.PlaylistTracks.ADDED_AT)
                 .orWhereNotNull(TableColumns.PlaylistTracks.REMOVED_AT);
     }

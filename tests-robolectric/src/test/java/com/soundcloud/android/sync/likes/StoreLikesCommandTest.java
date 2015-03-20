@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync.likes;
 
 import static com.soundcloud.android.utils.CollectionUtils.toPropertySets;
+import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
@@ -14,7 +15,6 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.WhereBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +54,7 @@ public class StoreLikesCommandTest extends StorageIntegrationTest {
                         .put(TableColumns.Likes.REMOVED_AT, 123L)
                         .put(TableColumns.Likes.ADDED_AT, 123L)
                         .get(),
-                new WhereBuilder().whereEq("_id", trackLike.get(LikeProperty.TARGET_URN).getNumericId()));
+                filter().whereEq("_id", trackLike.get(LikeProperty.TARGET_URN).getNumericId()));
 
         // replace the like, removal date should disappear
         command.with(Arrays.asList(trackLike)).call();

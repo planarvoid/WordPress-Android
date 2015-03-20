@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.propeller.query.Filter.filter;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -16,7 +17,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.query.WhereBuilder;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -151,7 +151,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final ApiTrack deletedTrack = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(deletedTrack.getId(), TIMESTAMP);
         testFixtures().insertStreamTrackPost(testFixtures().insertTrack().getId(), TIMESTAMP);
-        propeller().delete(Table.Sounds, new WhereBuilder().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
+        propeller().delete(Table.Sounds, filter().whereEq(TableColumns.Sounds._ID, deletedTrack.getId()));
 
         TestObserver<PropertySet> observer = new TestObserver<>();
         storage.streamItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);

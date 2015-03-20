@@ -1,5 +1,7 @@
 package com.soundcloud.android.associations;
 
+import static com.soundcloud.propeller.query.Filter.filter;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
@@ -12,7 +14,6 @@ import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.content.ContentValues;
 
@@ -58,7 +59,7 @@ class RepostStorage {
         return new DefaultWriteStorageCommand<Urn, ChangeResult>(propeller, currentThreadProvider) {
             @Override
             public ChangeResult write(PropellerDatabase propeller, Urn urn) {
-                final Where whereClause = new WhereBuilder()
+                final Where whereClause = filter()
                         .whereEq(TableColumns.Posts.TARGET_ID, urn.getNumericId())
                         .whereEq(TableColumns.Posts.TARGET_TYPE, urn.isTrack() ? TableColumns.Sounds.TYPE_TRACK : TableColumns.Sounds.TYPE_PLAYLIST)
                         .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);

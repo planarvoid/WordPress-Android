@@ -1,6 +1,7 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.storage.TableColumns.SoundView;
+import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -11,7 +12,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import android.content.ContentValues;
 
@@ -41,8 +41,7 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.update(Table.Sounds, ContentValuesBuilder.values().put(TableColumns.Sounds.LIKES_COUNT, updatedLikesCount).get(),
-                        new WhereBuilder()
-                                .whereEq(TableColumns.Sounds._ID, params.targetUrn.getNumericId())
+                        filter().whereEq(TableColumns.Sounds._ID, params.targetUrn.getNumericId())
                                 .whereEq(TableColumns.Sounds._TYPE, getSoundType(params.targetUrn))));
                 step(propeller.upsert(Table.Likes, buildContentValuesForLike(params)));
             }

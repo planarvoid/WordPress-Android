@@ -1,5 +1,7 @@
 package com.soundcloud.android.sync.likes;
 
+import static com.soundcloud.propeller.query.Filter.filter;
+
 import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.storage.Table;
@@ -7,7 +9,6 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
-import com.soundcloud.propeller.query.WhereBuilder;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ class RemoveLikesCommand extends StoreCommand<Collection<PropertySet>> {
         for (PropertySet like : input) {
             ids.add(like.get(LikeProperty.TARGET_URN).getNumericId());
         }
-        return database.delete(Table.Likes, new WhereBuilder()
+        return database.delete(Table.Likes, filter()
                 .whereIn(TableColumns.Likes._ID, ids)
                 .whereEq(TableColumns.Likes._TYPE, type));
     }
