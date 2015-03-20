@@ -87,9 +87,9 @@ class PlaylistInfo {
     }
 
     public int getTrackCount() {
-        return tracks.size() > 0
-                ? tracks.size()
-                : sourceSet.get(PlaylistProperty.TRACK_COUNT);
+        return tracks.isEmpty()
+                ? sourceSet.get(PlaylistProperty.TRACK_COUNT)
+                : tracks.size();
     }
 
     public boolean isPrivate() {

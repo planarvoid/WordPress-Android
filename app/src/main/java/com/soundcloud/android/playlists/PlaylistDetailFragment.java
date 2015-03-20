@@ -86,7 +86,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private Observable<PlaylistInfo> loadPlaylist;
     private Subscription playlistSubscription = Subscriptions.empty();
-    private CompositeSubscription eventSubscription = new CompositeSubscription();
+    private final CompositeSubscription eventSubscription = new CompositeSubscription();
 
     private View headerUsernameText;
     private TextView infoHeaderText;
