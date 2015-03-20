@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER;
-import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_ADDED_TO_PLAYLIST_FILTER;
+import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_CONTENT_CHANGED_FILTER;
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -83,7 +83,7 @@ public class OfflineContentController {
     private Observable<EntityStateChangedEvent> getOfflinePlaylistChangedEvents() {
         return Observable.merge(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER),
-                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_TRACK_ADDED_TO_PLAYLIST_FILTER).filter(isOfflinePlaylist)
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER).filter(isOfflinePlaylist)
         );
     }
 

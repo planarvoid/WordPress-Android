@@ -39,7 +39,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen
                 .scrollToFirstTrackItem()
                 .clickFirstTrackOverflowButton()
-                .clickAdToPlaylist();
+                .clickAddToPlaylist();
 
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         assertThat(addToPlaylistScreen, is(visible()));
@@ -51,7 +51,7 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen
                 .scrollToFirstTrackItem()
                 .clickFirstTrackOverflowButton()
-                .clickAdToPlaylist();
+                .clickAddToPlaylist();
 
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         final CreatePlaylistScreen createPlaylistScreen = addToPlaylistScreen.clickCreateNewPlaylist();

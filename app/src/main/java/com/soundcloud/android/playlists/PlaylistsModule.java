@@ -7,11 +7,8 @@ import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.tracks.TrackItemPresenter;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.PropertySet;
 import dagger.Module;
 import dagger.Provides;
 
@@ -43,11 +40,6 @@ public class PlaylistsModule {
         } else {
             return defaultController.get();
         }
-    }
-
-    @Provides
-    public ItemAdapter<PropertySet> provideSplitScreenItemAdapter(TrackItemPresenter trackRowPresenter) {
-        return new ItemAdapter<>(trackRowPresenter);
     }
 
     @Provides

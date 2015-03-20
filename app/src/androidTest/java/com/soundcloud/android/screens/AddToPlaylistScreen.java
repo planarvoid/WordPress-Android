@@ -23,7 +23,11 @@ public class AddToPlaylistScreen extends Screen {
 
     public CreatePlaylistScreen clickCreateNewPlaylist() {
         testDriver.findElements(With.text(testDriver.getString(R.string.create_new_playlist))).get(0).click();
+        return new CreatePlaylistScreen(testDriver);
+    }
 
+    public CreatePlaylistScreen clickPlaylistWithTitle(String title) {
+        testDriver.findElements(With.text(title)).get(0).click();
         return new CreatePlaylistScreen(testDriver);
     }
 }

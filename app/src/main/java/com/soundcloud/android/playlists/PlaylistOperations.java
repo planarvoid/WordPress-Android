@@ -1,5 +1,8 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
+import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
+
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -19,10 +22,17 @@ import java.util.List;
 
 public class PlaylistOperations {
 
-    private final Action1<PropertySet> publishEntityStateChanged = new Action1<PropertySet>() {
+    private final Action1<PropertySet> publishTrackAddedToPlaylistEvent = new Action1<PropertySet>() {
         @Override
-        public void call(PropertySet newRepostState) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackAddedToPlaylist(newRepostState));
+        public void call(PropertySet newPlaylistTrackData) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackAddedToPlaylist(newPlaylistTrackData));
+        }
+    };
+
+    private final Action1<PropertySet> publishTrackRemovedFromPlaylistEvent = new Action1<PropertySet>() {
+        @Override
+        public void call(PropertySet newPlaylistTrackData) {
+            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromTrackRemovedFromPlaylist(newPlaylistTrackData));
         }
     };
 
@@ -31,6 +41,8 @@ public class PlaylistOperations {
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final PlaylistTracksStorage playlistTracksStorage;
+    private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
+    private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
     private final OfflineContentOperations offlineOperations;
@@ -49,13 +61,18 @@ public class PlaylistOperations {
                        LoadPlaylistCommand loadPlaylistCommand,
                        LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns,
                        LoadPlaylistTracksCommand loadPlaylistTracksCommand,
-                       EventBus eventBus, OfflineContentOperations offlineOperations) {
+                       OfflineContentOperations offlineOperations,
+                       AddTrackToPlaylistCommand addTrackToPlaylistCommand,
+                       RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
+                       EventBus eventBus) {
         this.storageScheduler = scheduler;
         this.syncInitiator = syncInitiator;
-        this.loadPlaylistCommand = loadPlaylistCommand;
         this.playlistTracksStorage = playlistTracksStorage;
+        this.loadPlaylistCommand = loadPlaylistCommand;
         this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
         this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
+        this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
+        this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.eventBus = eventBus;
         this.offlineOperations = offlineOperations;
     }
@@ -79,11 +96,33 @@ public class PlaylistOperations {
         });
     }
 
-    Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
-        return playlistTracksStorage.addTrackToPlaylist(playlistUrn, trackUrn)
-                .subscribeOn(storageScheduler)
-                .doOnNext(publishEntityStateChanged)
-                .doOnCompleted(syncInitiator.requestSystemSyncAction());
+    public Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
+        final AddTrackToPlaylistParams params = new AddTrackToPlaylistParams(playlistUrn, trackUrn);
+        return addTrackToPlaylistCommand.toObservable(params)
+                .map(toChangeSet(playlistUrn))
+                .doOnNext(publishTrackAddedToPlaylistEvent)
+                .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                .subscribeOn(storageScheduler);
+    }
+
+    public Observable<PropertySet> removeTrackFromPlaylist(Urn playlistUrn, Urn trackUrn) {
+        final RemoveTrackFromPlaylistParams params = new RemoveTrackFromPlaylistParams(playlistUrn, trackUrn);
+        return removeTrackFromPlaylistCommand.toObservable(params)
+                .map(toChangeSet(playlistUrn))
+                .doOnNext(publishTrackRemovedFromPlaylistEvent)
+                .doOnCompleted(syncInitiator.requestSystemSyncAction())
+                .subscribeOn(storageScheduler);
+    }
+
+    private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn) {
+        return new Func1<Integer, PropertySet>() {
+            @Override
+            public PropertySet call(Integer newTrackCount) {
+                return PropertySet.from(
+                        PlaylistProperty.URN.bind(targetUrn),
+                        PlaylistProperty.TRACK_COUNT.bind(newTrackCount));
+            }
+        };
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
@@ -117,7 +156,7 @@ public class PlaylistOperations {
             @Override
             public Observable<PlaylistInfo> call(PlaylistInfo playlistInfo) {
 
-                if (playlistInfo.isLocalPlaylist()){
+                if (playlistInfo.isLocalPlaylist()) {
                     syncInitiator.syncLocalPlaylists();
                     return Observable.just(playlistInfo);
 

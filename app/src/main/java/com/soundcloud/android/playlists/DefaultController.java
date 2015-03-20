@@ -12,12 +12,11 @@ import javax.inject.Inject;
 
 class DefaultController extends PlaylistDetailsController {
 
-    private ListView listView;
     private final InlinePlaylistTracksAdapter adapter;
 
     @Inject
     DefaultController(InlinePlaylistTracksAdapter itemAdapter, EventBus eventBus) {
-        super(itemAdapter.getTrackPresenter(), itemAdapter, eventBus);
+        super(itemAdapter.getPlaylistItemPresenter(), itemAdapter, eventBus);
         this.adapter = itemAdapter;
     }
 

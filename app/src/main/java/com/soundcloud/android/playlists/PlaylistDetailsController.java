@@ -1,10 +1,13 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
@@ -15,21 +18,52 @@ import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ListView;
 
 import javax.inject.Inject;
 
-abstract class PlaylistDetailsController implements EmptyViewAware {
+abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMenuPresenter.RemoveTrackListener {
 
-    private final DownloadableTrackItemPresenter trackPresenter;
+    private final PlaylistTrackItemPresenter trackPresenter;
     private final ItemAdapter<PropertySet> adapter;
     private final EventBus eventBus;
-    private Subscription eventSubscriptions = Subscriptions.empty();
 
-    protected PlaylistDetailsController(DownloadableTrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter,
+    private Subscription eventSubscriptions = Subscriptions.empty();
+    private Urn playlistUrn = Urn.NOT_SET;
+
+    protected ListView listView;
+    private Listener listener;
+
+    static interface Listener {
+        void onPlaylistContentChanged();
+    }
+
+    protected PlaylistDetailsController(PlaylistTrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter,
                                         EventBus eventBus) {
         this.trackPresenter = trackPresenter;
         this.adapter = adapter;
         this.eventBus = eventBus;
+        trackPresenter.setRemoveTrackListener(this);
+    }
+
+    public void showTrackRemovalOptions(final Urn urn, Listener listener){
+        this.playlistUrn = urn;
+        this.listener = listener;
+    }
+
+    public void onPlaylistTrackRemoved(int position) {
+        AnimUtils.removeItemFromList(listView, position, new AnimUtils.ItemRemovalCallback() {
+            @Override
+            public void onAnimationComplete(int position) {
+                adapter.removeAt(position);
+                adapter.notifyDataSetChanged();
+                listener.onPlaylistContentChanged();
+            }
+        });
+    }
+
+    public Urn getPlaylistUrn(){
+        return playlistUrn;
     }
 
     ItemAdapter<PropertySet> getAdapter() {

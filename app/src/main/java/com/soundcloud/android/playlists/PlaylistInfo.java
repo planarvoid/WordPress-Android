@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -64,16 +65,31 @@ class PlaylistInfo {
         return sourceSet.get(PlaylistProperty.IS_REPOSTED);
     }
 
+    public boolean isOwnedBy(Urn userUrn) {
+        return userUrn.equals(getCreatorUrn());
+    }
+
     public List<PropertySet> getTracks() {
         return tracks;
     }
 
     public String getDuration() {
-        return ScTextUtils.formatTimestamp(sourceSet.get(PlaylistProperty.DURATION), TimeUnit.MILLISECONDS);
+        final long duration = tracks.isEmpty() ? sourceSet.get(PlaylistProperty.DURATION) : getCombinedTrackDurations();
+        return ScTextUtils.formatTimestamp(duration, TimeUnit.MILLISECONDS);
+    }
+
+    private long getCombinedTrackDurations() {
+        long duration = 0;
+        for (PropertySet track : tracks){
+            duration += track.get(TrackProperty.DURATION);
+        }
+        return duration;
     }
 
     public int getTrackCount() {
-        return sourceSet.get(PlaylistProperty.TRACK_COUNT);
+        return tracks.size() > 0
+                ? tracks.size()
+                : sourceSet.get(PlaylistProperty.TRACK_COUNT);
     }
 
     public boolean isPrivate() {

@@ -61,6 +61,13 @@ public class DatabaseAssertions {
         assertTrackPolicyInserted(track);
     }
 
+    public void assertPlaylistTrackForRemoval(long playlistId, Urn urn) {
+        assertThat(select(from(Table.PlaylistTracks.name())
+                .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
+                .whereEq(TableColumns.PlaylistTracks.TRACK_ID, urn.getNumericId())
+                .whereNotNull(TableColumns.PlaylistTracks.REMOVED_AT)), counts(1));
+    }
+
     private void assertTrackPolicyInserted(ApiTrack track) {
         assertThat(select(from(Table.TrackPolicies.name())
                 .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())

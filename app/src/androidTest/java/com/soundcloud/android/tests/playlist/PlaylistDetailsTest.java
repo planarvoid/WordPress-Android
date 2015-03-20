@@ -7,16 +7,17 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.main.LauncherActivity;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
 
     private PlaylistDetailsScreen playlistDetailsScreen;
-    private PlaylistsScreen playlistsScreen;
 
     public PlaylistDetailsTest() {
         super(LauncherActivity.class);
@@ -32,7 +33,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }
@@ -56,5 +57,28 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         playlistDetailsScreen.clickHeaderPause();
 
         assertThat(playlistDetailsScreen.isPlayToggleChecked(), is(false));
+    }
+
+    public void testRemovingAndAddingTrackFromPlaylist() throws Exception {
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistDetailsScreen detailsScreen = playlistsScreen.clickPlaylistAt(0);
+
+        String title = detailsScreen.getTitle();
+        int initialTrackCount = playlistsScreen.getLoadedTrackCount();
+
+        VisualPlayerElement player = detailsScreen.clickFirstTrack();
+        player.pressBackToCollapse();
+
+        TrackItemMenuElement menu = detailsScreen.clickFirstTrackOverflowButton();
+        menu.clickRemoveFromPlaylist();
+
+        assertThat(playlistsScreen.getLoadedTrackCount(), is(initialTrackCount - 1));
+
+        player.tapFooter();
+        AddToPlaylistScreen addToPlaylistScreen = player.clickMenu().clickAddToPlaylist();
+        addToPlaylistScreen.clickPlaylistWithTitle(title);
+        player.pressBackToCollapse();
+
+        assertThat(playlistsScreen.getLoadedTrackCount(), is(initialTrackCount));
     }
 }

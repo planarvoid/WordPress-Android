@@ -35,7 +35,7 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
                 .doSearch("clownstep")
                 .touchTracksTab()
                 .clickFirstTrackOverflowButton()
-                .clickAdToPlaylist();
+                .clickAddToPlaylist();
 
         final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         assertThat(addToPlaylistScreen, is(visible()));
