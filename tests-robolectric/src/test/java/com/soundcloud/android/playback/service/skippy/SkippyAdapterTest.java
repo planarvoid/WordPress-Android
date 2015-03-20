@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.service.skippy;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.skippy.Skippy.Error;
-import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
 import static com.soundcloud.android.skippy.Skippy.PlayListener;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason;
@@ -12,7 +11,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -543,9 +541,7 @@ public class SkippyAdapterTest {
 
     @Test
     public void onErrorPublishesPlaybackErrorEvent() throws Exception {
-        ErrorCategory errorCategory = mock(ErrorCategory.class);
-        when(errorCategory.getCategory()).thenReturn(ErrorCategory.Category.CODEC_DECODER);
-        skippyAdapter.onErrorMessage(errorCategory, "sourceFile", 1, "message", "uri", CDN_HOST);
+        skippyAdapter.onErrorMessage("CODEC_DECODER", "sourceFile", 1, "message", "uri", CDN_HOST);
 
         final PlaybackErrorEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_ERROR);
         expect(event.getBitrate()).toEqual("128");
