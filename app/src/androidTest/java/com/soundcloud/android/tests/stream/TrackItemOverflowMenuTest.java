@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.playlist;
+package com.soundcloud.android.tests.stream;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
@@ -15,13 +15,13 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
+public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     private StreamScreen streamScreen;
 
     private PlaylistDetailsScreen playlistDetailsScreen;
     private AddToPlaylistScreen addToPlaylistScreen;
 
-    public ItemOverflowTest() {
+    public TrackItemOverflowMenuTest() {
         super(LauncherActivity.class);
     }
 
