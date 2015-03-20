@@ -3,9 +3,8 @@
               style="@style/NewPlaylistActionContainer"
               android:orientation="horizontal"
               android:gravity="center_vertical">
-    <TextView
-        style="@style/PlaylistInfo.Light"
-        android:id="@+id/playlist_info_text"/>
+
+    <include layout="@layout/downloadable_header" />
 
     <ToggleButton
         android:id="@+id/toggle_like"
