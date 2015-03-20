@@ -122,7 +122,7 @@ public final class UIEvent extends TrackingEvent {
         return new UIEvent(KIND_SHUFFLE_PLAYLIST)
                 .put(KEY_CONTEXT, screenTag)
                 .put(KEY_RESOURCES_TYPE, TYPE_PLAYLIST)
-                .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));;
+                .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));
     }
 
     public static UIEvent fromProfileNav() {
