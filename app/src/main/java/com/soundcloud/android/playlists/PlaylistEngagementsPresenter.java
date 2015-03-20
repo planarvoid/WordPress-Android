@@ -26,6 +26,7 @@ import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
@@ -56,6 +57,12 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
+    private final Action0 sendShufflePlaylistAnalytics = new Action0() {
+        @Override
+        public void call() {
+            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShufflePlaylist());
+        }
+    };
 
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
@@ -127,9 +134,9 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
         playlistEngagementsView.updateLikeItem(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
 
-        if (playlistInfo.isPublic()){
+        if (playlistInfo.isPublic()) {
             boolean showRepost = !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
-            if (showRepost){
+            if (showRepost) {
                 playlistEngagementsView.showPublicOptions(this.playlistInfo.isRepostedByUser());
             } else {
                 playlistEngagementsView.showPublicOptionsForYourTrack();
@@ -166,8 +173,10 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onPlayShuffled() {
-        offlinePlaybackOperations.playPlaylistShuffled(playlistInfo.getUrn(), playSessionSourceInfo)
-            .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+        offlinePlaybackOperations
+                .playPlaylistShuffled(playlistInfo.getUrn(), playSessionSourceInfo)
+                .doOnCompleted(sendShufflePlaylistAnalytics)
+                .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
     }
 
     @Override
@@ -187,7 +196,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         if (playlistInfo != null) {
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(isReposted,
                     PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
-            if (showResultToast){
+            if (showResultToast) {
                 repostOperations.toggleRepost(playlistInfo.getUrn(), isReposted)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(context, isReposted));

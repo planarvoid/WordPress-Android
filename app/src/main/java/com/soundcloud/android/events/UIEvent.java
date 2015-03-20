@@ -55,6 +55,7 @@ public final class UIEvent extends TrackingEvent {
     public static final String KIND_COMMENT = "comment";
     public static final String KIND_SHARE = "share";
     public static final String KIND_SHUFFLE_LIKES = "shuffle_likes";
+    public static final String KIND_SHUFFLE_PLAYLIST = "shuffle_playlist";
     public static final String KIND_NAVIGATION = "navigation";
     public static final String KIND_AUDIO_AD_CLICK = "audio_ad_click";
     public static final String KIND_SKIP_AUDIO_AD_CLICK = "skip_audio_ad_click";
@@ -115,6 +116,13 @@ public final class UIEvent extends TrackingEvent {
 
     public static UIEvent fromShuffleMyLikes() {
         return new UIEvent(KIND_SHUFFLE_LIKES);
+    }
+
+    public static UIEvent fromShufflePlaylist( String screenTag, @NotNull Urn resourceUrn) {
+        return new UIEvent(KIND_SHUFFLE_PLAYLIST)
+                .put(KEY_CONTEXT, screenTag)
+                .put(KEY_RESOURCES_TYPE, TYPE_PLAYLIST)
+                .put(KEY_RESOURCE_ID, String.valueOf(resourceUrn.getNumericId()));;
     }
 
     public static UIEvent fromProfileNav() {
