@@ -142,6 +142,12 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             playlistEngagementsView.hidePublicOptions();
         }
 
+        if (playlistInfo.getTrackCount() > 1){
+            playlistEngagementsView.enableShuffle();
+        } else {
+            playlistEngagementsView.disableShuffle();
+        }
+
         updateOfflineAvailability();
         offlineStateSubscription.set(offlineOperations
                 .getPlaylistDownloadState(playlistInfo.getUrn())

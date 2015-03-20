@@ -56,6 +56,10 @@ public abstract class PlaylistEngagementsView {
 
     abstract void updateLikeItem(int likesCount, boolean likedByUser);
 
+    abstract void enableShuffle();
+
+    abstract void disableShuffle();
+
     public interface OnEngagementListener {
         void onToggleLike(boolean isLiked);
         void onToggleRepost(boolean isReposted, boolean showResultToast);
