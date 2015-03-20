@@ -150,8 +150,8 @@ public class PlaylistDetailFragmentTest {
         captor.getValue().onPlaylistContentChanged();
 
         InOrder inOrder = Mockito.inOrder(playlistEngagementsPresenter);
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(playlistInfo);
-        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(updatedPlaylistInfo);
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(playlistInfo), any(PlaySessionSource.class));
+        inOrder.verify(playlistEngagementsPresenter).setPlaylistInfo(eq(updatedPlaylistInfo), any(PlaySessionSource.class));
     }
 
     @Test
