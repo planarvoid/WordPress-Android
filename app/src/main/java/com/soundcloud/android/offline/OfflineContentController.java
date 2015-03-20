@@ -6,6 +6,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIK
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
@@ -44,9 +45,9 @@ public class OfflineContentController {
         }
     };
 
-    private final Func1<EntityStateChangedEvent, Boolean> isOfflinePlaylist = new Func1<EntityStateChangedEvent, Boolean>() {
+    private final Func1<EntityStateChangedEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<EntityStateChangedEvent, Observable<Boolean>>() {
         @Override
-        public Boolean call(EntityStateChangedEvent event) {
+        public Observable<Boolean> call(EntityStateChangedEvent event) {
             return playlistStorage.isOfflinePlaylist(event.getNextUrn());
         }
     };
@@ -82,10 +83,12 @@ public class OfflineContentController {
                 );
     }
 
-    private Observable<EntityStateChangedEvent> getOfflinePlaylistChangedEvents() {
+    private Observable<Object> getOfflinePlaylistChangedEvents() {
         return Observable.merge(
                 eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER),
-                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER).filter(isOfflinePlaylist)
+                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                        .filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER)
+                        .flatMap(isOfflinePlaylist).filter(RxUtils.IS_TRUE)
         );
     }
 

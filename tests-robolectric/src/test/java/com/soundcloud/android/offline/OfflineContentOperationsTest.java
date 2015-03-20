@@ -171,6 +171,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void getNoOfflinePlaylistWhenIsNotOfflinePlaylist() {
         final TestObserver<DownloadState> observer = new TestObserver<>();
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
 
         operations.getPlaylistDownloadState(PLAYLIST).subscribe(observer);
 
@@ -180,7 +181,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void getDownloadingPlaylistWhenCurrentStartedDownloadIsAPlaylistTrack() {
         final TestObserver<DownloadState> observer = new TestObserver<>();
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(true);
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
         when(offlineTracksStorage.pendingPlaylistTracksUrns(PLAYLIST)).thenReturn(Observable.just(Arrays.asList(TRACK_URN_1)));
 
         operations.getPlaylistDownloadState(PLAYLIST).subscribe(observer);
@@ -192,7 +193,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void getDownloadedPlaylistWhenNoPendingPlaylistTracksAndIsOfflinePlaylist() {
         final TestObserver<DownloadState> observer = new TestObserver<>();
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(true);
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
         when(offlineTracksStorage.pendingPlaylistTracksUrns(PLAYLIST)).thenReturn(Observable.just(Collections.<Urn>emptyList()));
 
         operations.getPlaylistDownloadState(PLAYLIST).subscribe(observer);
@@ -203,7 +204,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void getRequestedPlaylistWhenPendingPlaylistTracksAndNotCurrentlyDownloading() {
         final TestObserver<DownloadState> observer = new TestObserver<>();
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(true);
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
         when(offlineTracksStorage.pendingPlaylistTracksUrns(PLAYLIST)).thenReturn(Observable.just(Arrays.asList(TRACK_URN_1)));
 
         operations.getPlaylistDownloadState(PLAYLIST).subscribe(observer);
@@ -214,7 +215,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void getDownloadingPlaylistWhenPendingPlaylistTracksAndCurrentlyDownloading() {
         final TestObserver<DownloadState> observer = new TestObserver<>();
-        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(true);
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
         when(offlineTracksStorage.pendingPlaylistTracksUrns(PLAYLIST)).thenReturn(Observable.just(Arrays.asList(TRACK_URN_1)));
 
         operations.getPlaylistDownloadState(PLAYLIST).subscribe(observer);
