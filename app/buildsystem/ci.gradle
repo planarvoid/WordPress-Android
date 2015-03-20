@@ -21,7 +21,7 @@ task renameApk << {
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lint${project.buildType.capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
-staticAnalysis.mustRunAfter("assemble${project.buildType.capitalize()}CI")
+staticAnalysis.mustRunAfter("build${project.buildType.capitalize()}CI")
 
 // *********************************************************************************************************************
 // DEBUG BUILDS
