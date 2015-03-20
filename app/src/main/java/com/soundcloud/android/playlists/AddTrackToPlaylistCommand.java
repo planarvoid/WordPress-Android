@@ -55,7 +55,7 @@ class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCo
                 .whereEq(SoundView._ID, playlistUrn.getNumericId())
                 .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .leftJoin(Table.PlaylistTracks.name(), SoundView._ID, TableColumns.PlaylistTracks.PLAYLIST_ID))
-                .toList(new TrackCountMapper()).get(0);
+                .first(new TrackCountMapper());
     }
 
     private ContentValues getContentValues(long playlistId, Urn trackUrn, int position) {

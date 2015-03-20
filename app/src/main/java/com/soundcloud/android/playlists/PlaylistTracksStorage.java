@@ -16,26 +16,21 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
-import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
-import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 import rx.functions.Func1;
-import rx.util.async.operators.OperatorFromFunctionals;
 
 import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 class PlaylistTracksStorage {
     private static final String TRACK_EXISTS_COL_ALIAS = "track_exists_in_playlist";
-    private final PropellerDatabase propeller;
     private final DatabaseScheduler scheduler;
     private final DateProvider dateProvider;
     private final AccountOperations accountOperations;
@@ -43,7 +38,6 @@ class PlaylistTracksStorage {
     @Inject
     PlaylistTracksStorage(DatabaseScheduler scheduler, DateProvider dateProvider, AccountOperations accountOperations) {
         this.scheduler = scheduler;
-        this.propeller = scheduler.database();
         this.dateProvider = dateProvider;
         this.accountOperations = accountOperations;
     }
@@ -60,25 +54,6 @@ class PlaylistTracksStorage {
                 step(propeller.insert(Table.PlaylistTracks, getContentValuesForPlaylistTrack(localId, firstTrackUrn)));
             }
         }).map(toPlaylistUrn(localId));
-    }
-
-    Observable<PropertySet> addTrackToPlaylist(final Urn playlistUrn, final Urn trackUrn) {
-        return Observable.create(OperatorFromFunctionals.fromCallable(new Callable<PropertySet>() {
-            @Override
-            public PropertySet call() throws Exception {
-                final int trackCount = getUpdatedTracksCount(playlistUrn);
-                final InsertResult insert = propeller.insert(Table.PlaylistTracks,
-                        getContentValues(playlistUrn.getNumericId(), trackUrn, trackCount - 1));
-
-                if (insert.success()) {
-                    return PropertySet.from(
-                            PlaylistProperty.URN.bind(playlistUrn),
-                            PlaylistProperty.TRACK_COUNT.bind(trackCount));
-                } else {
-                    throw insert.getFailure();
-                }
-            }
-        }));
     }
 
     Observable<List<PropertySet>> playlistsForAddingTrack(Urn trackUrn) {
@@ -116,29 +91,14 @@ class PlaylistTracksStorage {
         return new Func1<TxnResult, Urn>() {
             @Override
             public Urn call(TxnResult txnResult) {
-                if (txnResult.success()) {
-                    return Urn.forPlaylist(localId);
-                } else {
-                    throw txnResult.getFailure();
-                }
+                return Urn.forPlaylist(localId);
             }
         };
     }
 
-    private int getUpdatedTracksCount(Urn playlistUrn) {
-        return propeller.query(Query.from(Table.SoundView.name())
-                .select(
-                        SoundView.TRACK_COUNT,
-                        count(PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT))
-                .whereEq(SoundView._ID, playlistUrn.getNumericId())
-                .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
-                .leftJoin(Table.PlaylistTracks.name(), SoundView._ID, PlaylistTracks.PLAYLIST_ID))
-                .first(new UpdatedCountMapper());
-    }
-
-    private ContentValues getContentValues(long playlistId, Urn trackUrn, int position) {
+    private ContentValues getContentValuesForPlaylistTrack(long playlistNumericId, Urn trackUrn, int position) {
         return ContentValuesBuilder.values()
-                .put(PlaylistTracks.PLAYLIST_ID, playlistId)
+                .put(PlaylistTracks.PLAYLIST_ID, playlistNumericId)
                 .put(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
                 .put(PlaylistTracks.POSITION, position)
                 .put(PlaylistTracks.ADDED_AT, dateProvider.getCurrentDate().getTime())
@@ -146,11 +106,7 @@ class PlaylistTracksStorage {
     }
 
     private ContentValues getContentValuesForPlaylistTrack(long playlistId, Urn firstTrackUrn) {
-        return ContentValuesBuilder.values()
-                .put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
-                .put(TableColumns.PlaylistTracks.TRACK_ID, firstTrackUrn.getNumericId())
-                .put(TableColumns.PlaylistTracks.POSITION, 0)
-                .get();
+        return getContentValuesForPlaylistTrack(playlistId, firstTrackUrn, 0);
     }
 
     private ContentValues getContentValuesForPlaylistsTable(long localId, long createdAt, String title, boolean isPrivate) {
@@ -171,13 +127,6 @@ class PlaylistTracksStorage {
                 .put(TableColumns.Posts.CREATED_AT, createdAt)
                 .put(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_POST)
                 .get();
-    }
-
-    private static final class UpdatedCountMapper extends RxResultMapper<Integer> {
-        @Override
-        public Integer map(CursorReader cursorReader) {
-            return PlaylistMapper.getTrackCount(cursorReader) + 1;
-        }
     }
 
     private static final class PlaylistWithTrackMapper extends PlaylistMapper {

@@ -22,7 +22,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.observers.TestObserver;
-import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -35,42 +34,13 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     @Mock private AccountOperations accountOperations;
 
     private static final Date ADDED_AT = new Date();
-    private static final Urn TRACK_URN = Urn.forTrack(123L);
-
     private PlaylistTracksStorage playlistTracksStorage;
-
-    private TestObserver<PropertySet> testObserver = new TestObserver<>();
 
     @Before
     public void setUp() throws Exception {
         playlistTracksStorage = new PlaylistTracksStorage(testScheduler(), dateProvider, accountOperations);
         when(dateProvider.getCurrentDate()).thenReturn(ADDED_AT);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(321L));
-    }
-
-    @Test
-    public void addsTrackToAPlaylistReturnsChangeSetWithUpdatedTrackCount() {
-        final ApiPlaylist apiPlaylist = testFixtures().insertEmptyPlaylist();
-
-        playlistTracksStorage.addTrackToPlaylist(apiPlaylist.getUrn(), TRACK_URN)
-                .subscribeOn(Schedulers.immediate())
-                .subscribe(testObserver);
-
-        testObserver.assertReceivedOnNext(Arrays.asList(
-                PropertySet.from(
-                        PlaylistProperty.URN.bind(apiPlaylist.getUrn()),
-                        PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount() + 1))
-        ));
-    }
-
-    @Test
-    public void addsTrackToPlaylistWritesTrackToPlaylistTracksTable() {
-        final ApiPlaylist apiPlaylist = testFixtures().insertEmptyPlaylist();
-
-        playlistTracksStorage.addTrackToPlaylist(apiPlaylist.getUrn(), TRACK_URN)
-                .subscribe(testObserver);
-
-        databaseAssertions().assertPlaylistTracklist(apiPlaylist.getUrn().getNumericId(), Arrays.asList(TRACK_URN));
     }
 
     @Test
