@@ -27,7 +27,7 @@ staticAnalysis.mustRunAfter("build${project.buildType.capitalize()}CI")
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task buildDebugCI(dependsOn: ['renameApk', 'assembleDebug']) {
+task buildDebugCI(dependsOn: ['assembleDebug']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
 buildDebugCI.mustRunAfter('updateVersion')
