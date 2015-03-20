@@ -57,13 +57,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     private CompositeSubscription subscription = new CompositeSubscription();
 
-    private final Action0 sendShufflePlaylistAnalytics = new Action0() {
-        @Override
-        public void call() {
-            eventBus.publish(EventQueue.TRACKING, UIEvent.fromShufflePlaylist());
-        }
-    };
-
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
                                         RepostOperations repostOperations,
@@ -175,8 +168,18 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     public void onPlayShuffled() {
         offlinePlaybackOperations
                 .playPlaylistShuffled(playlistInfo.getUrn(), playSessionSourceInfo)
-                .doOnCompleted(sendShufflePlaylistAnalytics)
+                .doOnCompleted(publishAnalyticsEventForShuffle())
                 .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+    }
+
+    private Action0 publishAnalyticsEventForShuffle() {
+        return new Action0() {
+            @Override
+            public void call() {
+                final UIEvent fromShufflePlaylist = UIEvent.fromShufflePlaylist(originProvider.getScreenTag(), playlistInfo.getUrn());
+                eventBus.publish(EventQueue.TRACKING, fromShufflePlaylist);
+            }
+        };
     }
 
     @Override
