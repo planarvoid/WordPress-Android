@@ -46,10 +46,10 @@ public class OfflineContentOperations {
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
 
-    private static final Func2<CurrentDownloadEvent, Boolean, CurrentDownloadEvent> TO_CURRENT_DOWNLOAD_EVENT = new Func2<CurrentDownloadEvent, Boolean, CurrentDownloadEvent>() {
+    private static final Func2<CurrentDownloadEvent, Boolean, State> TO_AGGREGATED_STATES = new Func2<CurrentDownloadEvent, Boolean, State>() {
         @Override
-        public CurrentDownloadEvent call(CurrentDownloadEvent event, Boolean ignored) {
-            return event;
+        public State call(CurrentDownloadEvent event, Boolean isOfflineContentEnabled) {
+            return new State(event, isOfflineContentEnabled);
         }
     };
 
@@ -149,7 +149,7 @@ public class OfflineContentOperations {
         return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(isOfflinePlaylistStatusChange(playlist))
                 .map(toOfflinePlaylistStatus(playlist))
-                .startWith(isOfflinePlaylist(playlist));
+                .startWith(playlistStorage.isOfflinePlaylist(playlist));
     }
 
     private Func1<EntityStateChangedEvent, Boolean> toOfflinePlaylistStatus(final Urn playlist) {
@@ -171,65 +171,44 @@ public class OfflineContentOperations {
     }
 
     public Observable<DownloadState> getPlaylistDownloadState(final Urn playlist) {
-        return Observable.combineLatest(
-                eventBus.queue(EventQueue.CURRENT_DOWNLOAD),
-                getOfflinePlaylistStatus(playlist),
-                TO_CURRENT_DOWNLOAD_EVENT)
-                .flatMap(new Func1<CurrentDownloadEvent, Observable<DownloadState>>() {
-                    @Override
-                    public Observable<DownloadState> call(final CurrentDownloadEvent event) {
-                        if (isOfflinePlaylist(playlist)) {
-                            return tracksStorage
-                                    .pendingPlaylistTracksUrns(playlist)
-                                    .map(new Func1<List<Urn>, DownloadState>() {
-                                        @Override
-                                        public DownloadState call(List<Urn> pendingDownloads) {
-                                            return toDownloadState(pendingDownloads, event);
-                                        }
-                                    });
-                        }
-                        return Observable.just(DownloadState.NO_OFFLINE);
-                    }
-                })
-                .distinctUntilChanged();
-    }
-
-    private boolean isOfflinePlaylist(Urn playlist) {
-        return playlistStorage.isOfflinePlaylist(playlist);
+        return getDownloadState(tracksStorage.pendingPlaylistTracksUrns(playlist), getOfflinePlaylistStatus(playlist));
     }
 
     public Observable<DownloadState> getLikedTracksDownloadState() {
+        return getDownloadState(tracksStorage.pendingLikedTracksUrns(), settingsStorage.getOfflineLikedTracksStatus());
+    }
+
+    private Observable<DownloadState> getDownloadState(final Observable<List<Urn>> pendingDownloads, Observable<Boolean> offlineContentStatus) {
         return Observable.combineLatest(
                 eventBus.queue(EventQueue.CURRENT_DOWNLOAD),
-                settingsStorage.getOfflineLikedTracksStatus(),
-                TO_CURRENT_DOWNLOAD_EVENT)
-                .flatMap(new Func1<CurrentDownloadEvent, Observable<DownloadState>>() {
-                    @Override
-                    public Observable<DownloadState> call(final CurrentDownloadEvent event) {
-                        if (isOfflineLikedTracksEnabled()) {
-                            return tracksStorage
-                                    .pendingLikedTracksUrns()
-                                    .map(new Func1<List<Urn>, DownloadState>() {
-                                        @Override
-                                        public DownloadState call(List<Urn> pendingDownloads) {
-                                            return toDownloadState(pendingDownloads, event);
-                                        }
-                                    });
-                        }
-                        return Observable.just(DownloadState.NO_OFFLINE);
-                    }
-                })
+                offlineContentStatus,
+                TO_AGGREGATED_STATES)
+                .flatMap(toDownloadState(pendingDownloads))
                 .distinctUntilChanged();
     }
 
-    private DownloadState toDownloadState(Collection<Urn> pendingDownloads, CurrentDownloadEvent event) {
-        if (pendingDownloads.isEmpty()) {
-            return DownloadState.DOWNLOADED;
-        } else if (event.wasStarted() && pendingDownloads.contains(event.getTrackUrn())) {
-            return DownloadState.DOWNLOADING;
-        } else {
-            return DownloadState.REQUESTED;
-        }
+    private Func1<State, Observable<DownloadState>> toDownloadState(final Observable<List<Urn>> pendingDownloads) {
+        return new Func1<State, Observable<DownloadState>>() {
+            @Override
+            public Observable<DownloadState> call(final State state) {
+                if (state.isOfflineContentEnabled) {
+                    return pendingDownloads
+                            .map(new Func1<List<Urn>, DownloadState>() {
+                                @Override
+                                public DownloadState call(List<Urn> pendingDownloads) {
+                                    if (pendingDownloads.isEmpty()) {
+                                        return DownloadState.DOWNLOADED;
+                                    } else if (state.currentDownloadEvent.wasStarted() && pendingDownloads.contains(state.currentDownloadEvent.getTrackUrn())) {
+                                        return DownloadState.DOWNLOADING;
+                                    } else {
+                                        return DownloadState.REQUESTED;
+                                    }
+                                }
+                            });
+                }
+                return Observable.just(DownloadState.NO_OFFLINE);
+            }
+        };
     }
 
     Observable<List<DownloadRequest>> loadDownloadRequests() {
@@ -278,5 +257,15 @@ public class OfflineContentOperations {
     Observable<Void> updateStalePolicies() {
         return loadTracksWithStatePolicies.call(isOfflineLikedTracksEnabled())
                 .flatMap(UPDATE_POLICIES);
+    }
+
+    private static class State {
+        public final CurrentDownloadEvent currentDownloadEvent;
+        public final Boolean isOfflineContentEnabled;
+
+        public State(CurrentDownloadEvent event, Boolean isOfflineContentEnabled) {
+            this.currentDownloadEvent = event;
+            this.isOfflineContentEnabled = isOfflineContentEnabled;
+        }
     }
 }
