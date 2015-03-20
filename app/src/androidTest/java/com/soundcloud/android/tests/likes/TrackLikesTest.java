@@ -58,7 +58,7 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
         final VisualPlayerElement player = likesScreen.clickTrack(0);
 
         player.tapToggleLikeButton();
-        player.pressBackToCollapse();
+        player.pressCloseButton();
 
         assertThat(likesScreen.getLoadedTrackCount(), equalTo(initialLikedTracksCount - 1));
 
