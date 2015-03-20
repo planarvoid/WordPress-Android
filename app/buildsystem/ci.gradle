@@ -1,6 +1,3 @@
-// this will get set by renameApk task
-def apkPath = ''
-
 // Since for CI we always do full clean builds, we don't want to pre-dex
 // See http://tools.android.com/tech-docs/new-build-system/tips
 subprojects {
@@ -16,17 +13,15 @@ subprojects {
 task renameApk << {
   project.('android').applicationVariants.all { variant ->
     variant.outputs.each { output ->
-      def newApkName = "soundcloud-android-${project.ext.versionName}-${variant.name}.apk"
-      apkPath = "${project.buildDir}/outputs/apk/${newApkName}"
-      output.outputFile = new File(apkPath)
+      output.outputFile = new File(project.ext.apkPath)
     }
   }
 }
 
-task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', 'lintDebug']) {
+task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lint${project.buildType.capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
-staticAnalysis.mustRunAfter('assembleDebugCI', 'assembleBetaCI', 'assembleReleaseCI')
+staticAnalysis.mustRunAfter("assemble${project.buildType.capitalize()}CI")
 
 // *********************************************************************************************************************
 // DEBUG BUILDS
@@ -67,73 +62,55 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionAlpha']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task assembleBetaCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleBeta']) {
+task assembleBetaCI(dependsOn: ['renameApk', 'updateVersion', 'assembleBeta']) {
   description = 'Assembles all Beta builds for CI'
 }
 
-task buildBetaCI(dependsOn: ['assembleBetaCI', 'checkstyle', 'findbugs', 'pmd', 'lintBeta']) {
+task buildBetaCI(dependsOn: ['assembleBetaCI', 'staticAnalysis']) {
   description = 'Assembles all Beta builds and performs static analysis for CI.'
 }
 
-task deployBeta(type: Exec, dependsOn: ['incrementVersionCode', 'commitVersionBump', 'uploadStoreBeta', 'tag',
-                                        'uploadGithub']) {
+task deployBeta(dependsOn: ['commitVersionBump', 'uploadStore', 'uploadGithub']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 deployBeta.mustRunAfter('buildBetaCI')
-
-task uploadStoreBeta(type: Exec) {
-  description = 'Uploads Beta apk to Google Play Store.'
-  commandLine 'apublisher','-n', rootProject.applicationId, '-a', apkPath, '-t', 'beta', '-d'
-}
 
 // *********************************************************************************************************************
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task assembleReleaseCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleRelease']) {
+task assembleReleaseNoProguardCI(dependsOn: ['renameApk', 'updateVersion', 'assembleReleaseNoProguard']) {
   description = 'Assembles all Release builds for CI'
 }
 
-task buildReleaseCI(dependsOn: ['assembleReleaseCI', 'checkstyle', 'findbugs', 'pmd', 'lintRelease']) {
-  description = 'Assembles all Release builds and performs static analysis for CI.'
+task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguardCI', 'staticAnalysis']) {
+  description = 'Assembles all Release (without ProGuard!) builds and performs static analysis for CI.'
 }
 
-task deployRelease(type: Exec, dependsOn: ['incrementVersionCode', 'commitVersionBump', 'uploadStoreRelease', 'tag',
-                                           'uploadGithub']) {
-  description = 'Deploy Release build to playstore and github.'
+task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assembleRelease', 'uploadStore',
+                                       'uploadGithub']) {
+  description = 'Builds and deploys Release build to playstore and github.'
 }
-deployRelease.mustRunAfter('buildReleaseCI')
-
-task uploadStoreRelease(type: Exec) {
-  description = 'Uploads Release apk to Google Play Store.'
-  commandLine 'apublisher','-n', rootProject.applicationId, '-a', apkPath, '-t', 'release', '-d'
-}
+assembleRelease.mustRunAfter('renameApk')
 
 // *********************************************************************************************************************
-// Rake Wrappers
+// HELPERS
 // *********************************************************************************************************************
 
-task commitVersionBump(type: Exec) {
-  description = 'Commits versionCode and versionName bump to Github. Currently using rake to do so.'
-  commandLine 'rake', 'github:commit_versioncode_bump'
-}
-commitVersionBump.mustRunAfter('incrementVersionCode', 'incrementVersionName')
-
-task tag(type: Exec) {
-  description = 'Tags the current version. Currently using rake to do so.'
-  commandLine 'rake', 'tag'
+task updateVersion(dependsOn: ['incrementVersionName', 'incrementVersionCode']) {
+  description = 'Updates AndroidManifest versionName and versionCode.'
 }
 
-task uploadGithub(type: Exec) {
-  description = 'Creates a new release and uploads to Github. Currently using rake to do so.'
-  commandLine 'rake', 'upload:github'
+task uploadStore(type: Exec) {
+  description = 'Uploads apk to Google Play Store.'
+  commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', project.buildType, '-d'
 }
 
 // *********************************************************************************************************************
 // ACCEPTANCE TESTS
 // *********************************************************************************************************************
 
-task assembleAcceptanceTest(dependsOn: ['assembleDebugAndroidTest']) {
+task assembleAcceptanceTest(dependsOn: ["assemble${project.buildType.capitalize()}AndroidTest"]) {
   description = 'Assembles all the Test applications.'
 }
 

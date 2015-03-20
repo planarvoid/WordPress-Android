@@ -1,0 +1,26 @@
+import groovy.json.JsonSlurper
+
+def tag   = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
+def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'
+def owner = 'soundcloud'
+def repo  = 'soundcloud-android'
+
+task uploadGithub << {
+  // Create a new github release
+  def json = "{" +
+          "\"tag_name\" : \"$tag\", " +
+          "\"target_commitish\" : \"$project.ext.gitBranch\", " +
+          "\"name\" : \"$project.ext.releaseName\", " +
+          "\"body\" : \"$project.ext.releaseBody\"}"
+  def url = "https://api.github.com/repos/$owner/$repo/releases?access_token=$token"
+  def result = ['curl', '-vs', '--data', json, url].execute()
+  def jsonResult = new JsonSlurper().parseText(result.text)
+  def releaseId = jsonResult.get('id')
+
+  // upload apk -> .zip to github release
+  def uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
+          "soundcloud-android.zip&access_token=$token"
+  def cmd = ['curl', '-vs', '-H', 'Content-Type: application/zip', '--data-binary', "@$project.ext.apkPath", uploadUrl]
+  def uploadResult = cmd.execute()
+  println uploadResult.text
+}
