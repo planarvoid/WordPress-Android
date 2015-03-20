@@ -7,6 +7,7 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.AddToPlaylistScreen;
 
 public class TrackItemMenuElement extends PopupMenuElement {
 
@@ -18,8 +19,9 @@ public class TrackItemMenuElement extends PopupMenuElement {
         menuItems().get(0).click();
     }
 
-    public void clickAddToPlaylist() {
+    public AddToPlaylistScreen clickAddToPlaylist() {
         clickItemWithText(1, "Add");
+        return new AddToPlaylistScreen(testDriver);
     }
 
     public void clickRemoveFromPlaylist() {
