@@ -23,12 +23,12 @@ public class NetworkTest extends ActivityTest<MainActivity> {
         networkManager.switchWifiOn();
     }
 
-    public void testSwitchOffWifi() {
+    public void ignore_testSwitchOffWifi() {
         networkManager.switchWifiOff();
         assertFalse("Wifi was not switched off", networkManager.isWifiEnabled());
     }
 
-    public void testSwitchOnWifi() {
+    public void ignore_testSwitchOnWifi() {
         networkManager.switchWifiOff();
         assertFalse("Wifi was not switched off", networkManager.isWifiEnabled());
 
