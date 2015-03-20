@@ -9,8 +9,8 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.query.Filter;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.WhereBuilder;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
 import android.content.ContentValues;
@@ -43,7 +43,7 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.delete(Table.PlaylistTracks, new WhereBuilder().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, params.playlistUrn.getNumericId())));
+                step(propeller.delete(Table.PlaylistTracks, Filter.filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, params.playlistUrn.getNumericId())));
                 for (int i = 0; i < playlistTracks.size(); i++) {
                     step(propeller.upsert(Table.PlaylistTracks, buildPlaylistTrackContentValues(params.playlistUrn, playlistTracks.get(i), i)));
                 }
