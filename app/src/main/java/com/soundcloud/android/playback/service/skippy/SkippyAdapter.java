@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.service.skippy;
 
 import static com.google.common.base.Preconditions.checkState;
-import static com.soundcloud.android.skippy.Skippy.ErrorCategory;
 import static com.soundcloud.android.skippy.Skippy.PlaybackMetric;
 import static com.soundcloud.android.skippy.Skippy.Reason.BUFFERING;
 import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
@@ -411,14 +410,14 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     }
 
     @Override
-    public void onErrorMessage(ErrorCategory category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
+    public void onErrorMessage(String category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
 
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         if (!ConnectionType.UNKNOWN.equals(currentConnectionType)){
             ErrorUtils.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
         }
 
-        final PlaybackErrorEvent event = new PlaybackErrorEvent(category.getCategory().name(), getPlaybackProtocol(),
+        final PlaybackErrorEvent event = new PlaybackErrorEvent(category, getPlaybackProtocol(),
                 cdn, currentConnectionType);
         eventBus.publish(EventQueue.PLAYBACK_ERROR, event);
     }
@@ -482,11 +481,11 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
 
     private static class SkippyException extends Exception {
-        private final ErrorCategory errorCategory;
+        private final String errorCategory;
         private final int line;
         private final String sourceFile;
 
-        private SkippyException(ErrorCategory category, int line, String sourceFile) {
+        private SkippyException(String category, int line, String sourceFile) {
             this.errorCategory = category;
             this.line = line;
             this.sourceFile = sourceFile;
@@ -494,13 +493,13 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
         @Override
         public String getMessage() {
-            return errorCategory.getCategory().name();
+            return errorCategory;
 
         }
 
         @Override
         public StackTraceElement[] getStackTrace() {
-            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(errorCategory.getCategory().name(), ScTextUtils.EMPTY_STRING, sourceFile, line)};
+            StackTraceElement[] stack = new StackTraceElement[]{new StackTraceElement(errorCategory, ScTextUtils.EMPTY_STRING, sourceFile, line)};
             return stack;
         }
     }
