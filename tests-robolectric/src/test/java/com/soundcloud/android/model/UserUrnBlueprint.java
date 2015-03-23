@@ -1,6 +1,5 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.model;
 
-import com.soundcloud.android.model.Urn;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 

@@ -1,6 +1,5 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.events;
 
-import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;

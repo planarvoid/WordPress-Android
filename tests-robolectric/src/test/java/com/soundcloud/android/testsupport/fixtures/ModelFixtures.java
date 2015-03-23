@@ -5,36 +5,36 @@ import com.soundcloud.android.ads.ApiCompanionAdBlueprint;
 import com.soundcloud.android.ads.ApiDisplayPropertiesBlueprint;
 import com.soundcloud.android.ads.ApiInterstitialBlueprint;
 import com.soundcloud.android.ads.ApiLeaveBehindBlueprint;
+import com.soundcloud.android.api.legacy.model.AffiliationActivityBlueprint;
 import com.soundcloud.android.api.legacy.model.Association;
+import com.soundcloud.android.api.legacy.model.PublicApiCommentBlueprint;
+import com.soundcloud.android.api.legacy.model.PublicApiPlaylistBlueprint;
+import com.soundcloud.android.api.legacy.model.PublicApiTrackBlueprint;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.legacy.model.PublicApiUserBlueprint;
+import com.soundcloud.android.api.legacy.model.RecordingBlueprint;
+import com.soundcloud.android.api.legacy.model.TrackStatsBlueprint;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistBlueprint;
+import com.soundcloud.android.api.model.ApiPlaylistPostBlueprint;
+import com.soundcloud.android.api.model.ApiPlaylistRepostBlueprint;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiTrackBlueprint;
+import com.soundcloud.android.api.model.ApiTrackPostBlueprint;
+import com.soundcloud.android.api.model.ApiTrackRepostBlueprint;
+import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
+import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
+import com.soundcloud.android.model.UserUrnBlueprint;
+import com.soundcloud.android.onboarding.suggestions.CategoryBlueprint;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUserBlueprint;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
-import com.soundcloud.android.testsupport.blueprints.AffiliationActivityBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiPlaylistBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiPlaylistPostBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiPlaylistRepostBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiTrackBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiTrackPostBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiTrackRepostBlueprint;
-import com.soundcloud.android.testsupport.blueprints.ApiUserBlueprint;
-import com.soundcloud.android.testsupport.blueprints.CategoryBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PlaybackSessionEventBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiCommentBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiPlaylistBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiTrackBlueprint;
-import com.soundcloud.android.testsupport.blueprints.PublicApiUserBlueprint;
-import com.soundcloud.android.testsupport.blueprints.RecordingBlueprint;
-import com.soundcloud.android.testsupport.blueprints.SuggestedUserBlueprint;
-import com.soundcloud.android.testsupport.blueprints.TrackStatsBlueprint;
-import com.soundcloud.android.testsupport.blueprints.UserUrnBlueprint;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
@@ -103,7 +103,6 @@ public class ModelFixtures {
             userAssociations.add(association);
         }
         return userAssociations;
-
     }
 
     public static ApiLike apiTrackLike() {

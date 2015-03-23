@@ -1,8 +1,5 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.api.legacy.model;
 
-import com.soundcloud.android.api.legacy.model.PublicApiComment;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;

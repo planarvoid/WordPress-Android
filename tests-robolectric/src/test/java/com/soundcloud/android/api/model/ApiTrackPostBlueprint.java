@@ -1,6 +1,5 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.api.model;
 
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.stream.ApiStreamTrackPost;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;

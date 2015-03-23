@@ -1,21 +1,19 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.api.model;
 
-import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.stream.ApiStreamTrackRepost;
+import com.soundcloud.android.api.model.stream.ApiStreamPlaylistRepost;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 import java.util.Date;
 
-@Blueprint(ApiStreamTrackRepost.class)
-public class ApiTrackRepostBlueprint {
+@Blueprint(ApiStreamPlaylistRepost.class)
+public class ApiPlaylistRepostBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new ApiStreamTrackRepost(
-                    ModelFixtures.create(ApiTrack.class),
+            return new ApiStreamPlaylistRepost(
+                    ModelFixtures.create(ApiPlaylist.class),
                     ModelFixtures.create(ApiUser.class),
                     new Date()
             );
