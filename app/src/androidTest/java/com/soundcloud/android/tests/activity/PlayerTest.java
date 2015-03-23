@@ -31,7 +31,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
-    @AvailabilityTest
     public void testVisualPlayerIsAccessible() {
         player = streamScreen.clickFirstTrack();
         assertThat(player, is(expanded()));

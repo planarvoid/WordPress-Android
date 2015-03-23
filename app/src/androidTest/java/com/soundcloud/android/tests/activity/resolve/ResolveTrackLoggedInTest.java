@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.tests.AvailabilityTest;
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -27,6 +28,7 @@ public class ResolveTrackLoggedInTest extends ResolveBaseTest {
         return TestConsts.CHE_FLUTE_URI;
     }
 
+    @AvailabilityTest
     public void testShouldOpenPlayerFromDeeplink() {
         assertThat(new StreamScreen(solo), is(visible()));
         assertThat(visualPlayer, is(expanded()));
