@@ -60,6 +60,10 @@ public interface Params {
         String PASSWORD_CONFIRMATION = "user[password_confirmation]";
         String TERMS_OF_USE = "user[terms_of_use]";
         String AVATAR = "user[avatar_data]";
+        String GENDER = "user[gender]";
+        String CUSTOM_GENDER = "user[custom_gender]";
+        String DATE_OF_BIRTH_MONTH = "user[date_of_birth][month]";
+        String DATE_OF_BIRTH_YEAR = "user[date_of_birth][year]";
     }
 
     /**

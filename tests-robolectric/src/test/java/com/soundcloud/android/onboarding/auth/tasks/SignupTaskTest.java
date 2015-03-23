@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.UserStorage;
@@ -172,6 +173,8 @@ public class SignupTaskTest {
         Bundle bundle = new Bundle();
         bundle.putString(SignupTask.KEY_USERNAME, "username");
         bundle.putString(SignupTask.KEY_PASSWORD, "password");
+        bundle.putSerializable(SignupTask.KEY_BIRTHDAY, BirthdayInfo.buildFrom(11, 1981));
+        bundle.putString(SignupTask.KEY_GENDER, "fluid");
         return bundle;
     }
 

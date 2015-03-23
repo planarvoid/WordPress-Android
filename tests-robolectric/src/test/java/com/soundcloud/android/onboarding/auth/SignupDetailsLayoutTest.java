@@ -21,53 +21,53 @@ import android.widget.LinearLayout;
 import java.io.File;
 
 @RunWith(SoundCloudTestRunner.class)
-public class UserDetailsLayoutTest {
+public class SignupDetailsLayoutTest {
 
-    @Mock UserDetailsLayout.UserDetailsHandler userDetailsHandler;
+    @Mock SignupDetailsLayout.UserDetailsHandler userDetailsHandler;
 
-    private UserDetailsLayout userDetailsLayout;
+    private SignupDetailsLayout signupDetailsLayout;
     private Button saveButton;
 
 
     @Before
     public void setUp() throws Exception {
-        userDetailsLayout = prepareUserDetailsLayout();
-        userDetailsLayout.setUserDetailsHandler(userDetailsHandler);
+        signupDetailsLayout = prepareUserDetailsLayout();
+        signupDetailsLayout.setUserDetailsHandler(userDetailsHandler);
 
-        saveButton = (Button) userDetailsLayout.findViewById(R.id.btn_save);
+        saveButton = (Button) signupDetailsLayout.findViewById(R.id.btn_save);
     }
 
     @Test
     public void onImageTakeResetsTemporaryImageFileWhenResultCodeIsNotOK() {
-        userDetailsLayout.setAvatarTemporaryFile(mock(File.class));
+        signupDetailsLayout.setAvatarTemporaryFile(mock(File.class));
 
-        userDetailsLayout.onImageTake(Activity.RESULT_CANCELED);
+        signupDetailsLayout.onImageTake(Activity.RESULT_CANCELED);
         saveButton.performClick();
 
-        verify(userDetailsHandler).onSubmitDetails(anyString(), isNull(File.class));
+        verify(userDetailsHandler).onSubmitUserDetails(anyString(), isNull(File.class));
     }
 
     @Test
     public void onImageDoesNotResetTemporaryImageWhenActivityResultIsOK() {
-        userDetailsLayout.setAvatarTemporaryFile(mock(File.class));
+        signupDetailsLayout.setAvatarTemporaryFile(mock(File.class));
 
-        userDetailsLayout.onImageTake(Activity.RESULT_OK);
+        signupDetailsLayout.onImageTake(Activity.RESULT_OK);
         saveButton.performClick();
 
-        verify(userDetailsHandler).onSubmitDetails(anyString(), isNotNull(File.class));
+        verify(userDetailsHandler).onSubmitUserDetails(anyString(), isNotNull(File.class));
     }
 
-    private UserDetailsLayout prepareUserDetailsLayout() {
+    private SignupDetailsLayout prepareUserDetailsLayout() {
         // static ImageUtils require activity to be passed
         Activity sampleActivity = new Activity();
         ViewStub viewStub = new ViewStub(sampleActivity);
-        viewStub.setLayoutResource(R.layout.signup_details);
+        viewStub.setLayoutResource(R.layout.signup_user_details);
 
         // View stub needs a parent layout
         LinearLayout layout = new LinearLayout(sampleActivity);
         layout.addView(viewStub);
 
-        return (UserDetailsLayout) viewStub.inflate();
+        return (SignupDetailsLayout) viewStub.inflate();
     }
 
 }

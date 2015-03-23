@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.soundcloud.android.onboarding.auth.SignupMethodLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent">
+    <LinearLayout style="@style/SignUp.Content">
+
+        <include layout="@layout/auth_buttons_social"/>
+
+        <Button android:id="@+id/signup_with_email"
+                style="@style/Tour.BottomButton"
+                android:text="@string/tour_signup_button"
+                android:layout_width="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_gravity="center_horizontal"
+                android:minWidth="250dp"
+                android:maxWidth="500dp"/>
+
+    </LinearLayout>
+</com.soundcloud.android.onboarding.auth.SignupMethodLayout>

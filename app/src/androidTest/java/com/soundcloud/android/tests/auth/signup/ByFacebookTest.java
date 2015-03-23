@@ -1,9 +1,9 @@
 package com.soundcloud.android.tests.auth.signup;
 
-import static com.soundcloud.android.framework.TestUser.Facebook;
-
-import com.soundcloud.android.tests.auth.SignUpTest;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
+import com.soundcloud.android.tests.auth.SignUpTest;
+
+import static com.soundcloud.android.framework.TestUser.Facebook;
 
 public class ByFacebookTest extends SignUpTest {
     FBWebViewScreen fbWebViewScreen;
@@ -18,10 +18,10 @@ public class ByFacebookTest extends SignUpTest {
     }
 
     public void testUserFollowSingleSuccess() throws Exception {
-        signUpScreen = homeScreen.clickSignUpButton();
+        signUpMethodScreen = homeScreen.clickSignUpButton();
 
-        signUpScreen.clickFacebookButton();
-        signUpScreen.acceptTerms();
+        signUpMethodScreen.clickFacebookButton();
+        signUpMethodScreen.acceptTerms();
         fbWebViewScreen = new FBWebViewScreen(solo);
 
         //otherwise field suggestions pop put and don't allow password field to be clicked
@@ -29,7 +29,7 @@ public class ByFacebookTest extends SignUpTest {
         fbWebViewScreen.typeEmail(Facebook.getEmail());
         fbWebViewScreen.submit();
 
-        suggestedUsersScreen = signUpScreen.waitForSuggestedUsers();
+        suggestedUsersScreen = signUpMethodScreen.waitForSuggestedUsers();
         assertTrue(suggestedUsersScreen.hasContent());
         assertTrue(suggestedUsersScreen.hasMusicSection());
         assertTrue(suggestedUsersScreen.hasAudioSection());

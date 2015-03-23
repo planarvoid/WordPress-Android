@@ -1,14 +1,15 @@
 package com.soundcloud.android.screens.search;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.search.SearchActivity;
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.with.With;
 
 import android.widget.ListView;
 
@@ -40,9 +41,10 @@ public class SearchResultsScreen extends Screen {
         testDriver.findElement(With.id(R.id.playlist_list_item)).click();
     }
 
-    public void clickFirstUserItem() {
+    public ProfileScreen clickFirstUserItem() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.findElement(With.id(R.id.user_list_item)).click();
+        return new ProfileScreen(testDriver);
     }
 
     public void pressBack() {

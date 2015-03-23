@@ -83,7 +83,7 @@
     <string name="authentication_add_info_add_image_msg">ابتسم، سوف تظهر هذه الصورة في ملف التعريف.</string>
     <string name="authentication_add_info_msg">على وشك الاتمام. الآن اختر اسم مستخدم وأضف صورة لتخصيص ملفك التعريفي.</string>
     <string name="authentication_add_info_username_hint">اسم المستخدم</string>
-    <string name="authentication_by_signing_in_I_agree_to_the">أقر أنه بموجب التسجيل، فإنني أوافق على شروط الاستخدام وسياسة خصوصية SoundCloud.</string>
+    <string name="onboarding_agreement_statement">أقر أنه بموجب التسجيل، فإنني أوافق على شروط الاستخدام وسياسة خصوصية SoundCloud.</string>
     <string name="authentication_choose_a_password">6 أحرف على الأقل</string>
     <string name="authentication_error_incomplete_fields">يرجى تعبئة كل الحقول.</string>
     <string name="authentication_error_invalid_email">يرجى إدخال عنوان بريد إلكتروني صالح.</string>
@@ -508,7 +508,6 @@
     <string name="tour_text_2">كافة أنواع الموسيقى والأصوات الجديدة والفريدة</string>
     <string name="tour_title_3">اتصال ومشاركة</string>
     <string name="tour_text_3">اعثر على مؤلفي الموسيقى والصوت لاستماعهم ومتابعتهم، وشارك الأصوات التي تحبها</string>
-    <string name="tour_signup_header">أو التسجيل باستخدام عنوان بريدك الإلكتروني</string>
     <string name="tour_login_header">أو قم بتسجيل الدخول باستخدام حسابك</string>
 
     <!-- __UPLOAD -->

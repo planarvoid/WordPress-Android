@@ -1,24 +1,29 @@
 package com.soundcloud.android.tests.auth.signup;
 
+import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.screens.auth.signup.SignupEmailTakenScreen;
+import com.soundcloud.android.tests.auth.SignUpTest;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.tests.auth.SignUpTest;
-import com.soundcloud.android.screens.auth.signup.SignupEmailTakenScreen;
-import com.soundcloud.android.framework.TestUser;
-
 public class ByEmailShowingEmailTakenDialogTest extends SignUpTest {
+
     public ByEmailShowingEmailTakenDialogTest() {
         super();
     }
 
     public void testEmailTakenSignup() throws Exception {
-        signUpScreen = homeScreen.clickSignUpButton();
+        signUpMethodScreen = homeScreen.clickSignUpButton();
+        signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
 
-        signUpScreen.typeEmail(generateEmail());
-        signUpScreen.typePassword("password123");
-        signUpScreen.signup();
-        signUpScreen.acceptTerms();
+        signUpBasicsScreen.typeEmail(generateEmail());
+        signUpBasicsScreen.typePassword("password123");
+        signUpBasicsScreen.chooseBirthMonth("April");
+        signUpBasicsScreen.typeBirthYear("1984");
+
+        signUpBasicsScreen.signup();
+        signUpBasicsScreen.acceptTerms();
 
         SignupEmailTakenScreen dialog = new SignupEmailTakenScreen(solo);
         assertThat(dialog.isVisible(), is(true));

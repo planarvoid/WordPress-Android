@@ -1,10 +1,10 @@
 package com.soundcloud.android.onboarding.auth;
 
+import butterknife.OnClick;
 import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.widget.RelativeLayout;
 
 public abstract class AuthLayout extends RelativeLayout {
@@ -26,23 +26,15 @@ public abstract class AuthLayout extends RelativeLayout {
         super(context, attrs, defStyle);
     }
 
-    abstract AuthHandler getAuthHandler();
+    protected abstract AuthHandler getAuthHandler();
 
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
+    @OnClick(R.id.google_plus_btn)
+    public void onGooglePlusClick() {
+        getAuthHandler().onGooglePlusAuth();
+    }
 
-        findViewById(R.id.google_plus_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) { getAuthHandler().onGooglePlusAuth();
-            }
-        });
-
-        findViewById(R.id.facebook_btn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getAuthHandler().onFacebookAuth();
-            }
-        });
+    @OnClick(R.id.facebook_btn)
+    public void onFacebookClick() {
+        getAuthHandler().onFacebookAuth();
     }
 }

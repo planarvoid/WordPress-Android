@@ -14,6 +14,7 @@ import com.soundcloud.api.Request;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import java.io.File;
@@ -49,7 +50,7 @@ public class AddUserInfoTask extends AuthTask {
             if (avatarFile != null && avatarFile.canWrite()) {
                 updateMe.withFile(Params.User.AVATAR, avatarFile);
             }
-            SoundCloudApplication app = getSoundCloudApplication();
+            Context app = getSoundCloudApplication();
             HttpResponse resp = oldCloudAPI.put(updateMe);
             switch (resp.getStatusLine().getStatusCode()) {
                 case HttpStatus.SC_OK:

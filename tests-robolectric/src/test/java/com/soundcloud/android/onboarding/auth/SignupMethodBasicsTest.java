@@ -8,26 +8,26 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(DefaultTestRunner.class)
-public class SignUpLayoutTest {
+public class SignupMethodBasicsTest {
 
     @Test
     public void shouldNotAcceptPasswordShorterThan6Characters() throws Exception {
-        expect(SignUpLayout.checkPassword("12345")).toBeFalse();
+        expect(SignupBasicsLayout.checkPassword("12345")).toBeFalse();
     }
 
     @Test
     public void shouldNotAcceptEmptyPassword() throws Exception {
-        expect(SignUpLayout.checkPassword(null)).toBeFalse();
+        expect(SignupBasicsLayout.checkPassword(null)).toBeFalse();
     }
 
     @Test
     public void shouldNotAcceptEmptyStringAsPassword() throws Exception {
-        expect(SignUpLayout.checkPassword("")).toBeFalse();
+        expect(SignupBasicsLayout.checkPassword("")).toBeFalse();
     }
 
     @Test
     public void shouldAccept6CharactersPassword() throws Exception {
-        expect(SignUpLayout.checkPassword("123456")).toBeTrue();
+        expect(SignupBasicsLayout.checkPassword("123456")).toBeTrue();
     }
 
 }

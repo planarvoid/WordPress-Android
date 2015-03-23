@@ -9,6 +9,7 @@ import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
@@ -18,6 +19,7 @@ import com.soundcloud.api.Request;
 import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
 
@@ -28,6 +30,8 @@ public class SignupTask extends AuthTask {
     private static final String TAG = SignupTask.class.getSimpleName();
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
+    public static final String KEY_BIRTHDAY = "birthday";
+    public static final String KEY_GENDER = "gender";
 
     private TokenInformationGenerator tokenInformationGenerator;
     private PublicCloudAPI publicApi;
@@ -96,11 +100,15 @@ public class SignupTask extends AuthTask {
     }
 
     private HttpResponse postSignupRequest(Bundle parameters, Token signupToken) throws IOException {
+        BirthdayInfo birthday = (BirthdayInfo) parameters.getSerializable(KEY_BIRTHDAY);
         return publicApi.post(Request.to(Endpoints.USERS).with(
                 Params.User.EMAIL, parameters.getString(KEY_USERNAME),
                 Params.User.PASSWORD, parameters.getString(KEY_PASSWORD),
                 Params.User.PASSWORD_CONFIRMATION, parameters.getString(KEY_PASSWORD),
-                Params.User.TERMS_OF_USE, "1"
+                Params.User.TERMS_OF_USE, "1",
+                Params.User.GENDER, parameters.getString(KEY_GENDER),
+                Params.User.DATE_OF_BIRTH_MONTH, birthday.month,
+                Params.User.DATE_OF_BIRTH_YEAR, birthday.year
         ).usingToken(signupToken));
     }
 
