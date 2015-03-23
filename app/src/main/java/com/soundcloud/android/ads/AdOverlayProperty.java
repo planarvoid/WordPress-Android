@@ -8,7 +8,6 @@ import java.util.List;
 
 public class AdOverlayProperty {
     public static final Property<String> IMAGE_URL = Property.of(AdOverlayProperty.class, String.class);
-    public static final Property<String> AD_URN = Property.of(AdOverlayProperty.class, String.class);
     public static final Property<Uri> CLICK_THROUGH_URL = Property.of(AdOverlayProperty.class, Uri.class);
     public static final Property<List<String>> TRACKING_IMPRESSION_URLS = Property.ofList(AdOverlayProperty.class, String.class);
     public static final Property<List<String>> TRACKING_CLICK_URLS = Property.ofList(AdOverlayProperty.class, String.class);

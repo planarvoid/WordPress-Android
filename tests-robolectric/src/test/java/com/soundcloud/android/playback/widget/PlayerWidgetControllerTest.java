@@ -143,7 +143,7 @@ public class PlayerWidgetControllerTest {
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
         expect(captor.getValue().get(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(captor.getValue().contains(AdProperty.AD_AUDIO_URN)).toBeFalse();
+        expect(captor.getValue().contains(AdProperty.AUDIO_AD_URN)).toBeFalse();
     }
 
     @Test
@@ -159,7 +159,7 @@ public class PlayerWidgetControllerTest {
         ArgumentCaptor<PropertySet> captor = ArgumentCaptor.forClass(PropertySet.class);
         verify(playerWidgetPresenter).updateTrackInformation(eq(context), captor.capture());
         expect(captor.getValue().get(PlayableProperty.IS_LIKED)).toBeTrue();
-        expect(captor.getValue().contains(AdProperty.AD_AUDIO_URN)).toBeTrue();
+        expect(captor.getValue().contains(AdProperty.AUDIO_AD_URN)).toBeTrue();
     }
 
     @Test

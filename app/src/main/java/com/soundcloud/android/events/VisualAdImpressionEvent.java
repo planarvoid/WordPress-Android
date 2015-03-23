@@ -21,7 +21,7 @@ public class VisualAdImpressionEvent extends TrackingEvent {
         put(AdTrackingKeys.KEY_USER_URN, userUrn.toString());
         put(AdTrackingKeys.KEY_AD_TRACK_URN, audioAdTrack.toString());
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, adMetaData.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
-        put(AdTrackingKeys.KEY_AD_URN, adMetaData.get(AdProperty.AD_AUDIO_URN));
+        put(AdTrackingKeys.KEY_AD_URN, adMetaData.get(AdProperty.COMPANION_URN));
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, adMetaData.get(AdProperty.ARTWORK).toString());
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, sessionSource.getOriginScreen());
         this.impressionUrls = adMetaData.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS);

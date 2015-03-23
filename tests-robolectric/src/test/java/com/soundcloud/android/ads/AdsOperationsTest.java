@@ -162,7 +162,6 @@ public class AdsOperationsTest {
         expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(LeaveBehindProperty.AD_URN, adsWithOnlyAudioAd.audioAd().getUrn())
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn()));
     }
 
@@ -184,7 +183,6 @@ public class AdsOperationsTest {
         expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(LeaveBehindProperty.AD_URN, fullAdsForTrack.audioAd().getUrn())
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, fullAdsForTrack.audioAd().getApiTrack().getUrn()));
     }
 
@@ -240,7 +238,6 @@ public class AdsOperationsTest {
         expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
-                .put(LeaveBehindProperty.AD_URN, noInterstitial.audioAd().getUrn())
                 .put(LeaveBehindProperty.AUDIO_AD_TRACK_URN, noInterstitial.audioAd().getApiTrack().getUrn()));
     }
 

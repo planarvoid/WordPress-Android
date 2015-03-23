@@ -22,7 +22,8 @@ import java.util.Date;
 public abstract class TestPropertySets {
     public static PropertySet audioAdProperties(Urn monetizedTrack) {
         return PropertySet.from(
-                AdProperty.AD_AUDIO_URN.bind("advertisement:123"),
+                AdProperty.AUDIO_AD_URN.bind("ad:audio:123"),
+                AdProperty.COMPANION_URN.bind("ad:visual:123"),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
                 AdProperty.ARTWORK.bind(Uri.parse("http:a//d.artwork.url")),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://ad.click.through.url")),
@@ -73,7 +74,6 @@ public abstract class TestPropertySets {
 
     public static PropertySet leaveBehindForPlayer() {
         return PropertySet.from(
-                LeaveBehindProperty.AD_URN.bind("adswizz:ads:123"),
                 LeaveBehindProperty.AUDIO_AD_TRACK_URN.bind(Urn.forTrack(123L)),
                 LeaveBehindProperty.LEAVE_BEHIND_URN.bind("adswizz:leavebehind:1105"),
                 LeaveBehindProperty.IMAGE_URL.bind("https://va.sndcdn.com/mlb/sqsp-example-leave-behind.jpg"),

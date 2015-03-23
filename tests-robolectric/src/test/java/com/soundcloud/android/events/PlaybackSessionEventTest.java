@@ -100,7 +100,7 @@ public class PlaybackSessionEventTest {
                 USER_URN, trackSourceInfo, PROGRESS, 1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE).withAudioAd(audioAd);
 
         expect(event.isAd()).toBeTrue();
-        expect(event.get(AdTrackingKeys.KEY_AD_URN)).toEqual("advertisement:123");
+        expect(event.get(AdTrackingKeys.KEY_AD_URN)).toEqual("ad:audio:123");
         expect(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(TRACK_URN.toString());
         expect(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(AdProperty.ARTWORK).toString());
         expect(event.getAudioAdImpressionUrls()).toContain("adswizzUrl", "advertiserUrl");

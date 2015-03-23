@@ -30,7 +30,7 @@ public class AdOverlayTrackingEventTest extends TestCase {
         AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forImpression(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
         expect(uiEvent.getKind()).toEqual(AdOverlayTrackingEvent.KIND_IMPRESSION);
         expect(uiEvent.getTimeStamp()).toEqual(1000L);
-        expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.AD_URN));
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.LEAVE_BEHIND_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(LeaveBehindProperty.IMAGE_URL).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).toEqual(audioAd.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());
@@ -43,7 +43,7 @@ public class AdOverlayTrackingEventTest extends TestCase {
         AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forClick(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
         expect(uiEvent.getKind()).toEqual(AdOverlayTrackingEvent.KIND_CLICK);
         expect(uiEvent.getTimeStamp()).toEqual(1000L);
-        expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.AD_URN));
+        expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.LEAVE_BEHIND_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(LeaveBehindProperty.IMAGE_URL).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL)).toEqual(audioAd.get(LeaveBehindProperty.CLICK_THROUGH_URL).toString());

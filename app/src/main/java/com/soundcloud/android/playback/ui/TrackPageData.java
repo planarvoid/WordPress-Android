@@ -31,7 +31,7 @@ final class TrackPageData {
     }
 
     boolean isAdPage(){
-        return properties.contains(AdProperty.AD_AUDIO_URN);
+        return properties.contains(AdProperty.AUDIO_AD_URN);
     }
 
     boolean hasAdOverlay() {

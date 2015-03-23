@@ -32,11 +32,11 @@ public final class AdOverlayTrackingEvent extends TrackingEvent {
         put(AdTrackingKeys.KEY_CLICK_THROUGH_URL, adMetaData.get(AdOverlayProperty.CLICK_THROUGH_URL).toString());
         put(AdTrackingKeys.KEY_ORIGIN_SCREEN, getNonNullOriginScreenValue(trackSourceInfo));
 
-        if (adMetaData.contains(LeaveBehindProperty.AD_URN)){
-            put(AdTrackingKeys.KEY_AD_URN, adMetaData.get(LeaveBehindProperty.AD_URN));
+        if (adMetaData.contains(LeaveBehindProperty.LEAVE_BEHIND_URN)) {
+            put(AdTrackingKeys.KEY_AD_URN, adMetaData.get(LeaveBehindProperty.LEAVE_BEHIND_URN));
             put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_AUDIO_AD);
             put(AdTrackingKeys.KEY_AD_TYPE, TYPE_LEAVE_BEHIND);
-        } else if (adMetaData.contains(InterstitialProperty.INTERSTITIAL_URN)){
+        } else if (adMetaData.contains(InterstitialProperty.INTERSTITIAL_URN)) {
             put(AdTrackingKeys.KEY_AD_URN, adMetaData.get(InterstitialProperty.INTERSTITIAL_URN));
             put(AdTrackingKeys.KEY_MONETIZATION_TYPE, TYPE_INTERSTITIAL);
             put(AdTrackingKeys.KEY_AD_TYPE, TYPE_INTERSTITIAL);

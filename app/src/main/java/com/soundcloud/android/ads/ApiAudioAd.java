@@ -64,6 +64,7 @@ class ApiAudioAd implements PropertySetSource {
         return leaveBehind;
     }
 
+    @VisibleForTesting
     public ApiCompanionAd getCompanion() {
         return visualAd;
     }
@@ -85,8 +86,8 @@ class ApiAudioAd implements PropertySetSource {
     @Override
     public PropertySet toPropertySet() {
         return PropertySet.from(
-                AdProperty.AD_AUDIO_URN.bind(urn),
-                AdProperty.AD_VISUAL_URN.bind(visualAd.urn),
+                AdProperty.AUDIO_AD_URN.bind(urn),
+                AdProperty.COMPANION_URN.bind(visualAd.urn),
                 AdProperty.ARTWORK.bind(Uri.parse(visualAd.imageUrl)),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse(visualAd.clickthroughUrl)),
                 AdProperty.DEFAULT_TEXT_COLOR.bind(visualAd.displayProperties.defaultTextColor),
@@ -114,4 +115,5 @@ class ApiAudioAd implements PropertySetSource {
                 .add("trackingSkipUrls", trackingSkipUrls)
                 .toString();
     }
+
 }
