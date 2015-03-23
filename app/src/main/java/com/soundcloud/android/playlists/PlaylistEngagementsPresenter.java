@@ -28,10 +28,8 @@ import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.SerialSubscription;
 import rx.subscriptions.Subscriptions;
 import rx.functions.Action0;
-import rx.subscriptions.CompositeSubscription;
 
 import android.content.Context;
 import android.content.Intent;
@@ -60,7 +58,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final PlaybackToastHelper playbackToastHelper;
 
     private Subscription foregroundSubscription = Subscriptions.empty();
-    private SerialSubscription offlineStateSubscription = new SerialSubscription();
+    private Subscription offlineStateSubscription = Subscriptions.empty();
 
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
@@ -149,10 +147,11 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         }
 
         updateOfflineAvailability();
-        offlineStateSubscription.set(offlineOperations
+        offlineStateSubscription.unsubscribe();
+        offlineStateSubscription = offlineOperations
                 .getPlaylistDownloadState(playlistInfo.getUrn())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DownloadStateSubscriber()));
+                .subscribe(new DownloadStateSubscriber());
     }
 
     private void updateOfflineAvailability() {
