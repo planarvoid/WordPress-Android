@@ -67,5 +67,11 @@ class StrictSSLHttpClient {
         public InputStream getInputStream() {
             return response.body().byteStream();
         }
+
+        public void close() {
+            try {
+                response.body().close();
+            } catch (IOException ignored) {}
+        }
     }
 }
