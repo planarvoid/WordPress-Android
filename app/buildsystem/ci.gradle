@@ -116,3 +116,11 @@ task assembleAcceptanceTest(dependsOn: ["assemble${project.buildType.capitalize(
 //  commandLine "rubotium", "-t", "${findTestApp}", "-a", "${findApp}", "-r", "${runner}", "--sdk=19", "-d", "Nexus"
 //  //, "-H", "${findHelperApp}"
 //}
+
+// *********************************************************************************************************************
+// UNIT TESTS
+// *********************************************************************************************************************
+
+task runUnitTests(dependsOn: ["test${project.buildType.capitalize()}"]) {
+  description = 'Run unit tests for the build type specified by BUILD_TYPE environment variable.'
+}
