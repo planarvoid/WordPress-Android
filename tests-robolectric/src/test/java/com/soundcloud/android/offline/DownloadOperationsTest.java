@@ -57,9 +57,9 @@ public class DownloadOperationsTest {
 
         operations.download(downloadRequest);
 
-        InOrder inOrder = inOrder(fileStorage, downloadStream);
+        InOrder inOrder = inOrder(fileStorage, response);
         inOrder.verify(fileStorage).storeTrack(trackUrn, downloadStream);
-        inOrder.verify(downloadStream).close();
+        inOrder.verify(response).close();
     }
 
     @Test

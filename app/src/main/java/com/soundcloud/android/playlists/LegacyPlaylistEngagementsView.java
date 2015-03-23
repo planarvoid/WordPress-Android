@@ -66,11 +66,18 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
 
     @Override
     void setOfflineOptionsMenu(boolean isAvailable) {
+    }
+
+    @Override
+    void enableShuffle() {
         // no-op
     }
 
     @Override
     void showDefaultState() {
+
+    }
+    void disableShuffle() {
         // no-op
     }
 
@@ -81,7 +88,7 @@ public class LegacyPlaylistEngagementsView extends PlaylistEngagementsView {
 
     @Override
     void showDownloadedState() {
-        // no-op
+
     }
 
     @Override

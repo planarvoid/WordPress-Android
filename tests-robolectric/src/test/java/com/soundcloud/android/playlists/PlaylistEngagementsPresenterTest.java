@@ -404,6 +404,27 @@ public class PlaylistEngagementsPresenterTest {
         verify(engagementsView).showDownloadedState();
     }
 
+    @Test
+    public void disablesShuffleWithOneTrack() throws Exception {
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false);
+        sourceSet.put(PlaylistProperty.TRACK_COUNT, 1);
+        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class));
+
+        controller.setPlaylistInfo(new PlaylistInfo(sourceSet, tracks), getPlaySessionSource());
+
+        verify(engagementsView).disableShuffle();
+    }
+
+    @Test
+    public void enablesShuffleWithMoreThanOneTrack() throws Exception {
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false);
+        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 2));
+
+        controller.setPlaylistInfo(new PlaylistInfo(sourceSet, tracks), getPlaySessionSource());
+
+        verify(engagementsView).enableShuffle();
+    }
+
     private PlaylistInfo createPublicPlaylistInfo() {
         return createPlaylistInfoWithSharing(Sharing.PUBLIC);
     }

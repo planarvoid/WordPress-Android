@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
-
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -9,6 +7,9 @@ import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import rx.observers.TestObserver;
+
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflinePlaylistStorageTest extends StorageIntegrationTest {
@@ -40,13 +41,20 @@ public class OfflinePlaylistStorageTest extends StorageIntegrationTest {
 
     @Test
     public void isOfflinePlaylistReturnsTrueForOfflinePlaylist() {
+        final TestObserver<Boolean> testObserver = new TestObserver<>();
         final Urn playlistUrn = testFixtures().insertPlaylistMarkedForOfflineSync().getUrn();
 
-        expect(playlistStorage.isOfflinePlaylist(playlistUrn)).toBeTrue();
+        playlistStorage.isOfflinePlaylist(playlistUrn).subscribe(testObserver);
+
+        testObserver.assertReceivedOnNext(Arrays.asList(true));
     }
 
     @Test
     public void isOfflinePlaylistReturnsFalseForNonOfflinePlaylist() throws Exception {
-        expect(playlistStorage.isOfflinePlaylist(Urn.forPlaylist(123L))).toBeFalse();
+        final TestObserver<Boolean> testObserver = new TestObserver<>();
+
+        playlistStorage.isOfflinePlaylist(Urn.forPlaylist(123L)).subscribe(testObserver);
+
+        testObserver.assertReceivedOnNext(Arrays.asList(false));
     }
 }

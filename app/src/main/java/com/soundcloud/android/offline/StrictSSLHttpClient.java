@@ -5,6 +5,7 @@ import static com.soundcloud.android.offline.OfflineContentService.TAG;
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -66,6 +67,10 @@ class StrictSSLHttpClient {
 
         public InputStream getInputStream() {
             return response.body().byteStream();
+        }
+
+        public void close() {
+            IOUtils.close(response.body());
         }
     }
 }

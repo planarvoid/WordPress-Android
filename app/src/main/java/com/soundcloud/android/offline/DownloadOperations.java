@@ -4,14 +4,12 @@ import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import rx.Observable;
 
 import javax.inject.Inject;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 class DownloadOperations {
@@ -55,8 +53,10 @@ class DownloadOperations {
     }
 
     public DownloadResult download(DownloadRequest track) {
+        StrictSSLHttpClient.DownloadResponse response = null;
+
         try {
-            final StrictSSLHttpClient.DownloadResponse response = strictSSLHttpClient.downloadFile(track.fileUrl);
+            response = strictSSLHttpClient.downloadFile(track.fileUrl);
             if (response.isUnavailable()) {
                 return DownloadResult.unavailable(track.urn);
             } else if (response.isFailure()) {
@@ -67,17 +67,16 @@ class DownloadOperations {
         } catch (EncryptionException | IOException e) {
             deleteTrack(track.urn);
             return DownloadResult.failed(track.urn);
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 
     private void saveFile(DownloadRequest track, StrictSSLHttpClient.DownloadResponse response) throws IOException, EncryptionException {
-        final InputStream input = response.getInputStream();
-        try {
-            fileStorage.storeTrack(track.urn, input);
-            Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
-        } finally {
-            IOUtils.close(input);
-        }
+        fileStorage.storeTrack(track.urn, response.getInputStream());
+        Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
     }
 
 }

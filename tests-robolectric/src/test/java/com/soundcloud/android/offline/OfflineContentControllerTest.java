@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.content.Intent;
@@ -135,7 +136,7 @@ public class OfflineContentControllerTest {
     @Test
     public void startsOfflineSyncWhenTrackAddedToPlaylistMarkedAsAvailableOffline() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(true);
+        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(true));
         controller.subscribe();
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
@@ -147,7 +148,7 @@ public class OfflineContentControllerTest {
     @Test
     public void doesNotStartOfflineSyncWhenTrackAddedToNonOfflinePlaylist() {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(false);
+        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(false));
         controller.subscribe();
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,

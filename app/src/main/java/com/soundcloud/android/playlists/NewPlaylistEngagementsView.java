@@ -100,7 +100,6 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
         popupMenuWrapper.setItemVisible(R.id.share, true);
         popupMenuWrapper.setItemVisible(R.id.repost, false);
         popupMenuWrapper.setItemVisible(R.id.unpost, false);
-        overflowButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -108,7 +107,6 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
         popupMenuWrapper.setItemVisible(R.id.share, true);
         popupMenuWrapper.setItemVisible(R.id.repost, !repostedByUser);
         popupMenuWrapper.setItemVisible(R.id.unpost, repostedByUser);
-        overflowButton.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -116,11 +114,6 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
         popupMenuWrapper.setItemVisible(R.id.share, false);
         popupMenuWrapper.setItemVisible(R.id.repost, false);
         popupMenuWrapper.setItemVisible(R.id.unpost, false);
-
-        final boolean offlineOptionsEnabled = featureOperations.isOfflineContentEnabled()
-                || featureOperations.isOfflineContentUpsellEnabled();
-
-        overflowButton.setVisibility(offlineOptionsEnabled ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -131,6 +124,16 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
                 likesCount,
                 likedByUser,
                 R.string.accessibility_stats_user_liked);
+    }
+
+    @Override
+    void enableShuffle() {
+        popupMenuWrapper.setItemEnabled(R.id.shuffle, true);
+    }
+
+    @Override
+    void disableShuffle() {
+        popupMenuWrapper.setItemEnabled(R.id.shuffle, false);
     }
 
     @Override

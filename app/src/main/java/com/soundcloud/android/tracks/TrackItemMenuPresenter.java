@@ -115,8 +115,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
                 showAddToPlaylistDialog();
                 return true;
             case R.id.remove_from_playlist:
-                Preconditions.checkNotNull(removeTrackListener);
-                playlistOperations.removeTrackFromPlaylist(getPlaylistUrn(), track.get(TrackProperty.URN))
+                Preconditions.checkState(isOwnedPlaylist());
+                playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.get(TrackProperty.URN))
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new DefaultSubscriber<PropertySet>(){
                     @Override
@@ -174,11 +174,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private boolean isOwnedPlaylist() {
-        return removeTrackListener != null;
-    }
-
-    private Urn getPlaylistUrn() {
-        return removeTrackListener.getPlaylistUrn();
+        return removeTrackListener != null && !removeTrackListener.getPlaylistUrn().equals(Urn.NOT_SET);
     }
 
 }
