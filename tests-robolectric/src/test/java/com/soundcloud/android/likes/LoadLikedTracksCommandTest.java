@@ -40,7 +40,7 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
 
         testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), REQUESTED_DATE.getTime(), DOWNLOADED_DATE.getTime());
         testFixtures().insertTrackDownloadPendingRemoval(track2.get(TrackProperty.URN), REQUESTED_DATE.getTime(), REMOVED_DATE.getTime());
-        testFixtures().insertRequestedTrackDownload(track3.get(TrackProperty.URN), REQUESTED_DATE.getTime());
+        testFixtures().insertTrackPendingDownload(track3.get(TrackProperty.URN), REQUESTED_DATE.getTime());
     }
 
     @Test

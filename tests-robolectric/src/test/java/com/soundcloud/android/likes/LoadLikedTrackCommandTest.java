@@ -61,7 +61,7 @@ public class LoadLikedTrackCommandTest extends StorageIntegrationTest {
     @Test
     public void loadsRequestedTrackLike() throws Exception {
         track1 = testFixtures().insertLikedTrack(LIKED_DATE_1).toPropertySet();
-        testFixtures().insertRequestedTrackDownload(track1.get(TrackProperty.URN), REQUESTED_DATE.getTime());
+        testFixtures().insertTrackPendingDownload(track1.get(TrackProperty.URN), REQUESTED_DATE.getTime());
 
         PropertySet result = command.with(track1.get(TrackProperty.URN)).call();
 

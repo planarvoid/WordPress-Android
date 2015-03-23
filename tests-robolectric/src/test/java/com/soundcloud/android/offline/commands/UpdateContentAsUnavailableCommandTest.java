@@ -26,7 +26,7 @@ public class UpdateContentAsUnavailableCommandTest extends StorageIntegrationTes
 
     @Test
     public void markTrackAsUnavailable() throws Exception {
-        testFixtures().insertRequestedTrackDownload(TRACK_URN, 100L);
+        testFixtures().insertTrackPendingDownload(TRACK_URN, 100L);
 
         command.with(TRACK_URN).call();
 

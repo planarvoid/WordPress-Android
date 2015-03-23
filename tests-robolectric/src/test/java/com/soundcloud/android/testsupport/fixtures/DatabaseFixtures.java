@@ -135,6 +135,14 @@ public class DatabaseFixtures {
         return apiTrack;
     }
 
+    public long insertPlaylistTrack(Urn playlistUrn, Urn trackUrn, int position) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId());
+        cv.put(TableColumns.PlaylistTracks.TRACK_ID, trackUrn.getNumericId());
+        cv.put(TableColumns.PlaylistTracks.POSITION, position);
+        return insertInto(Table.PlaylistTracks, cv);
+    }
+
     public ApiTrack insertPlaylistTrackPendingAddition(ApiPlaylist playlist, int position, Date additionDate) {
         final ApiTrack apiTrack = insertPlaylistTrack(playlist, position);
         database.execSQL("UPDATE PlaylistTracks SET added_at=" + additionDate.getTime()
@@ -428,10 +436,16 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public long insertRequestedTrackDownload(Urn trackUrn, long addedTimestamp) {
+    public ApiTrack insertLikedTrackPendingDownload(Date likeDate) {
+        ApiTrack apiTrack = insertLikedTrack(likeDate);
+        insertTrackPendingDownload(apiTrack.getUrn(), System.currentTimeMillis());
+        return apiTrack;
+    }
+
+    public long insertTrackPendingDownload(Urn trackUrn, long requestedAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
-        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, addedTimestamp);
+        cv.put(TableColumns.TrackDownloads.REQUESTED_AT, requestedAt);
         return insertInto(Table.TrackDownloads, cv);
     }
 

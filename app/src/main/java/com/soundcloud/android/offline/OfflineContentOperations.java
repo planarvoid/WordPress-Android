@@ -9,7 +9,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.LoadPendingDownloadsRequestsCommand;
+import com.soundcloud.android.offline.commands.LoadPrioritizedPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
 import com.soundcloud.android.offline.commands.StoreDownloadedCommand;
@@ -31,7 +31,7 @@ import java.util.List;
 
 public class OfflineContentOperations {
 
-    private final LoadPendingDownloadsRequestsCommand loadPendingDownloadRequests;
+    private final LoadPrioritizedPendingDownloadsCommand loadPendingDownloadRequests;
     
     private final StorePendingDownloadsCommand storePendingDownloadsCommand;
     private final StorePendingRemovalsCommand storePendingRemovalsCommand;
@@ -92,7 +92,7 @@ public class OfflineContentOperations {
                                     StorePendingRemovalsCommand storePendingRemovalsCommand,
                                     StoreDownloadedCommand storeDownloadedCommand,
                                     LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies,
-                                    LoadPendingDownloadsRequestsCommand loadPendingCommand,
+                                    LoadPrioritizedPendingDownloadsCommand loadPendingCommand,
                                     OfflineSettingsStorage settingsStorage,
                                     EventBus eventBus,
                                     OfflinePlaylistStorage playlistStorage,

@@ -10,7 +10,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.LoadPendingDownloadsRequestsCommand;
+import com.soundcloud.android.offline.commands.LoadPrioritizedPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
 import com.soundcloud.android.offline.commands.StoreDownloadedCommand;
@@ -50,7 +50,7 @@ public class OfflineContentOperationsTest {
     @Mock private StorePendingDownloadsCommand storePendingDownloadsCommand;
     @Mock private StorePendingRemovalsCommand storePendingRemovalsCommand;
     @Mock private StoreDownloadedCommand storeDownloadedCommand;
-    @Mock private LoadPendingDownloadsRequestsCommand loadPendingDownloadsRequestsCommand;
+    @Mock private LoadPrioritizedPendingDownloadsCommand loadPrioritizedPendingDownloadsCommand;
     @Mock private LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     @Mock private LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies;
     @Mock private ChangeResult changeResult;
@@ -73,7 +73,7 @@ public class OfflineContentOperationsTest {
         when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.just(LIKED_TRACKS));
         when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
 
-        when(loadPendingDownloadsRequestsCommand.toObservable()).thenReturn(Observable.<List<DownloadRequest>>empty());
+        when(loadPrioritizedPendingDownloadsCommand.toObservable()).thenReturn(Observable.<List<DownloadRequest>>empty());
         when(offlineTracksStorage.pendingDownloads()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
         when(offlineTracksStorage.pendingRemovals()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
         when(offlineTracksStorage.downloaded()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
@@ -84,7 +84,7 @@ public class OfflineContentOperationsTest {
                 storePendingRemovalsCommand,
                 storeDownloadedCommand,
                 loadTracksWithStalePolicies,
-                loadPendingDownloadsRequestsCommand,
+                loadPrioritizedPendingDownloadsCommand,
                 settingsStorage,
                 eventBus,
                 playlistStorage,
@@ -229,7 +229,7 @@ public class OfflineContentOperationsTest {
     public void loadDownloadRequestsLoadsUpdatedPendingDownloads() {
         final TestObserver<List<DownloadRequest>> observer = new TestObserver<>();
         final List<DownloadRequest> requests = Arrays.asList(new DownloadRequest(Urn.forTrack(123L), "http://"));
-        when(loadPendingDownloadsRequestsCommand.toObservable()).thenReturn(Observable.just(requests));
+        when(loadPrioritizedPendingDownloadsCommand.toObservable()).thenReturn(Observable.just(requests));
 
         operations.loadDownloadRequests().subscribe(observer);
 

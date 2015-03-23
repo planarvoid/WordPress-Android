@@ -23,7 +23,7 @@ public class StoreCompletedDownloadCommandTest extends StorageIntegrationTest {
     public void updatesDownloadTracksWithDownloadResults() throws PropellerWriteException {
         final Urn trackUrn = Urn.forTrack(123L);
         final DownloadResult downloadResult = DownloadResult.success(trackUrn);
-        testFixtures().insertRequestedTrackDownload(trackUrn, 100L);
+        testFixtures().insertTrackPendingDownload(trackUrn, 100L);
 
         command.with(downloadResult).call();
 

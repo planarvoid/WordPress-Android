@@ -47,7 +47,7 @@ public class LoadPlaylistTracksCommandTest extends StorageIntegrationTest{
         final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
 
         testFixtures().insertCompletedTrackDownload(apiTrack1.getUrn(), 100L);
-        testFixtures().insertRequestedTrackDownload(apiTrack2.getUrn(), 200L);
+        testFixtures().insertTrackPendingDownload(apiTrack2.getUrn(), 200L);
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack3.getUrn(), 300L);
 
         expect(command.with(apiPlaylist.getUrn()).call()).toContain(

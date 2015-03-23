@@ -136,7 +136,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     private Urn insertOfflinePlaylistTrackPendingDownload(Urn playlist, int position) {
         final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
-        testFixtures().insertRequestedTrackDownload(track.getUrn(), 100);
+        testFixtures().insertTrackPendingDownload(track.getUrn(), 100);
         return track.getUrn();
     }
 
@@ -149,7 +149,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     private Urn insertOfflineLikePendingDownload(long likedAt) {
         final ApiTrack track = testFixtures().insertLikedTrack(new Date(likedAt));
-        testFixtures().insertRequestedTrackDownload(track.getUrn(), 100);
+        testFixtures().insertTrackPendingDownload(track.getUrn(), 100);
 
         return track.getUrn();
     }
