@@ -176,12 +176,12 @@ public class VisualPlayerElement extends Element {
     }
 
     public void swipeNext() {
-        solo.swipeLeft(0.4f);
+        solo.swipeLeft();
         waiter.waitForPlayerPage();
     }
 
     public void swipePrevious() {
-        solo.swipeRight(0.4f);
+        solo.swipeRight();
         waiter.waitForPlayerPage();
     }
 
