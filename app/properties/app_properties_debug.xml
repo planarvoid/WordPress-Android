@@ -17,7 +17,7 @@
     <string name="mobile_api_base_url">https://api-mobile-dev.soundcloud.com</string>
     <string name="event_logger_base_url">http://eventlogger.soundcloud.com</string>
     <string name="eventgateway_url">https://eventgateway.soundcloud.com/v1/events</string>
-    <string name="cast_receiver_app_id">0E41F66F</string>
+    <string name="cast_receiver_app_id">D76AE674</string>
 
     <!-- Feature flags (enabled) -->
     <bool name="feature_google_cast">true</bool>
