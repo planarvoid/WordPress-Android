@@ -22,7 +22,7 @@ import java.util.Date;
 public abstract class TestPropertySets {
     public static PropertySet audioAdProperties(Urn monetizedTrack) {
         return PropertySet.from(
-                AdProperty.AD_URN.bind("advertisement:123"),
+                AdProperty.AD_AUDIO_URN.bind("advertisement:123"),
                 AdProperty.MONETIZABLE_TRACK_URN.bind(monetizedTrack),
                 AdProperty.ARTWORK.bind(Uri.parse("http:a//d.artwork.url")),
                 AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse("http://ad.click.through.url")),

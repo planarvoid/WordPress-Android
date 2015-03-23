@@ -1,13 +1,12 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.ads;
 
-import com.soundcloud.android.ads.ApiInterstitial;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 import java.util.Collections;
 
 @Blueprint(ApiInterstitial.class)
-public class InterstitialBlueprint {
+public class ApiInterstitialBlueprint {
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override

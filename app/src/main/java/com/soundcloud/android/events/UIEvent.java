@@ -165,7 +165,7 @@ public final class UIEvent extends TrackingEvent {
 
     private static UIEvent withBasicAudioAdAttributes(UIEvent event, PropertySet audioAd, Urn audioAdTrack, Urn user, @Nullable TrackSourceInfo trackSourceInfo) {
         return event
-                .put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN))
+                .put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_AUDIO_URN))
                 .put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, audioAdTrack.toString())
                 .put(AdTrackingKeys.KEY_USER_URN, user.toString())
                 .put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())

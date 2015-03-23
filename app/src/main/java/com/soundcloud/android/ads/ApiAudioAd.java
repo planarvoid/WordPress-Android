@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Objects;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.propeller.PropertySet;
@@ -12,18 +13,18 @@ import android.net.Uri;
 
 import java.util.List;
 
-public class ApiAudioAd implements PropertySetSource {
+class ApiAudioAd implements PropertySetSource {
 
     private final String urn;
     private final ApiTrack apiTrack;
 
-    private final ApiVisualAdWithButton visualAd;
+    private final ApiCompanionAd visualAd;
+    private final ApiLeaveBehind leaveBehind;
 
-    private final ApiLeaveBehind apiLeaveBehind;
-    private final List<String> trackingImpressionUrls;
+    public final List<String> trackingImpressionUrls;
+    public final List<String> trackingFinishUrls;
+    public final List<String> trackingSkipUrls;
 
-    private final List<String> trackingFinishUrls;
-    private final List<String> trackingSkipUrls;
     @JsonCreator
     public ApiAudioAd(@JsonProperty("urn") String urn,
                       @JsonProperty("track") ApiTrack apiTrack,
@@ -35,12 +36,12 @@ public class ApiAudioAd implements PropertySetSource {
     }
 
     @VisibleForTesting
-    public ApiAudioAd(String urn, ApiTrack apiTrack, ApiVisualAdWithButton visualAd, ApiLeaveBehind apiLeaveBehind, List<String> trackingImpressionUrls,
+    public ApiAudioAd(String urn, ApiTrack apiTrack, ApiCompanionAd visualAd, ApiLeaveBehind leaveBehind, List<String> trackingImpressionUrls,
                       List<String> trackingFinishUrls, List<String> trackingSkipUrls) {
         this.urn = urn;
         this.apiTrack = apiTrack;
         this.visualAd = visualAd;
-        this.apiLeaveBehind = apiLeaveBehind;
+        this.leaveBehind = leaveBehind;
         this.trackingImpressionUrls = trackingImpressionUrls;
         this.trackingFinishUrls = trackingFinishUrls;
         this.trackingSkipUrls = trackingSkipUrls;
@@ -54,42 +55,27 @@ public class ApiAudioAd implements PropertySetSource {
         return apiTrack;
     }
 
-    public ApiVisualAd getVisualAd() {
-        return visualAd;
-    }
-
     public boolean hasApiLeaveBehind() {
-        return apiLeaveBehind != null;
+        return leaveBehind != null;
     }
 
     @Nullable
-    public ApiLeaveBehind getApiLeaveBehind() {
-        return apiLeaveBehind;
+    public ApiLeaveBehind getLeaveBehind() {
+        return leaveBehind;
     }
 
-    @VisibleForTesting
-    /* package */ List<String> getTrackingImpressionUrls() {
-        return trackingImpressionUrls;
-    }
-
-    @VisibleForTesting
-    /* package */ List<String> getTrackingFinishUrls() {
-        return trackingFinishUrls;
-    }
-
-    @VisibleForTesting
-    /* package */ List<String> getTrackingSkipUrls() {
-        return trackingSkipUrls;
+    public ApiCompanionAd getCompanion() {
+        return visualAd;
     }
 
     private static class RelatedResources {
 
-        private final ApiVisualAdWithButton visualAd;
-
+        private final ApiCompanionAd visualAd;
         private final ApiLeaveBehind apiLeaveBehind;
 
         @JsonCreator
-        private RelatedResources(@JsonProperty("visual_ad") ApiVisualAdWithButton visualAd, @JsonProperty("leave_behind") ApiLeaveBehind apiLeaveBehind) {
+        private RelatedResources(@JsonProperty("visual_ad") ApiCompanionAd visualAd,
+                                 @JsonProperty("leave_behind") ApiLeaveBehind apiLeaveBehind) {
             this.visualAd = visualAd;
             this.apiLeaveBehind = apiLeaveBehind;
         }
@@ -99,32 +85,33 @@ public class ApiAudioAd implements PropertySetSource {
     @Override
     public PropertySet toPropertySet() {
         return PropertySet.from(
-                AdProperty.AD_URN.bind(urn),
-                AdProperty.ARTWORK.bind(Uri.parse(visualAd.getImageUrl())),
-                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse(visualAd.getClickthroughUrl())),
-                AdProperty.DEFAULT_TEXT_COLOR.bind(visualAd.getDisplayProperties().getDefaultTextColor()),
-                AdProperty.DEFAULT_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getDefaultBackgroundColor()),
-                AdProperty.PRESSED_TEXT_COLOR.bind(visualAd.getDisplayProperties().getPressedTextColor()),
-                AdProperty.PRESSED_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getPressedBackgroundColor()),
-                AdProperty.FOCUSED_TEXT_COLOR.bind(visualAd.getDisplayProperties().getFocusedTextColor()),
-                AdProperty.FOCUSED_BACKGROUND_COLOR.bind(visualAd.getDisplayProperties().getFocusedBackgroundColor()),
+                AdProperty.AD_AUDIO_URN.bind(urn),
+                AdProperty.AD_VISUAL_URN.bind(visualAd.urn),
+                AdProperty.ARTWORK.bind(Uri.parse(visualAd.imageUrl)),
+                AdProperty.CLICK_THROUGH_LINK.bind(Uri.parse(visualAd.clickthroughUrl)),
+                AdProperty.DEFAULT_TEXT_COLOR.bind(visualAd.displayProperties.defaultTextColor),
+                AdProperty.DEFAULT_BACKGROUND_COLOR.bind(visualAd.displayProperties.defaultBackgroundColor),
+                AdProperty.PRESSED_TEXT_COLOR.bind(visualAd.displayProperties.pressedTextColor),
+                AdProperty.PRESSED_BACKGROUND_COLOR.bind(visualAd.displayProperties.pressedBackgroundColor),
+                AdProperty.FOCUSED_TEXT_COLOR.bind(visualAd.displayProperties.focusedTextColor),
+                AdProperty.FOCUSED_BACKGROUND_COLOR.bind(visualAd.displayProperties.focusedBackgroundColor),
                 AdProperty.AUDIO_AD_IMPRESSION_URLS.bind(trackingImpressionUrls),
                 AdProperty.AUDIO_AD_FINISH_URLS.bind(trackingFinishUrls),
-                AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(visualAd.getTrackingClickUrls()),
+                AdProperty.AUDIO_AD_CLICKTHROUGH_URLS.bind(visualAd.trackingClickUrls),
                 AdProperty.AUDIO_AD_SKIP_URLS.bind(trackingSkipUrls),
-                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.getTrackingImpressionUrls()));
+                AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS.bind(visualAd.trackingImpressionUrls));
     }
 
     @Override
     public String toString() {
-        return "AudioAd{" +
-                "urn='" + urn + '\'' +
-                ", apiTrack=" + apiTrack +
-                ", visualAd=" + visualAd +
-                ", leaveBehind=" + apiLeaveBehind +
-                ", trackingImpressionUrls=" + trackingImpressionUrls +
-                ", trackingFinishUrls=" + trackingFinishUrls +
-                ", trackingSkipUrls=" + trackingSkipUrls +
-                '}';
+        return Objects.toStringHelper(getClass())
+                .add("urn", urn)
+                .add("apiTrack", apiTrack)
+                .add("visualAd", visualAd)
+                .add("leaveBehind", leaveBehind)
+                .add("trackingImpressionUrls", trackingImpressionUrls)
+                .add("trackingFinishUrls", trackingFinishUrls)
+                .add("trackingSkipUrls", trackingSkipUrls)
+                .toString();
     }
 }

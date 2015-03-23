@@ -14,16 +14,15 @@ public class DisplayPropertiesTest {
 
     @Test
     public void deserializeDisplayProperties() throws IOException {
-        DisplayProperties properties = TestHelper.getObjectMapper().readValue(
-                getClass().getResourceAsStream("display_properties.json"), DisplayProperties.class);
+        ApiDisplayProperties properties = TestHelper.getObjectMapper().readValue(
+                getClass().getResourceAsStream("display_properties.json"), ApiDisplayProperties.class);
 
-        expect(properties.getDefaultBackgroundColor()).toEqual("#000000");
-        expect(properties.getDefaultTextColor()).toEqual("#FFFFFF");
-        expect(properties.getPressedBackgroundColor()).toEqual("#575057");
-        expect(properties.getPressedTextColor()).toEqual("#FFB225");
-        expect(properties.getFocusedBackgroundColor()).toEqual("#FFFFB7");
-        expect(properties.getFocusedTextColor()).toEqual("#00CFEE");
+        expect(properties.defaultBackgroundColor).toEqual("#000000");
+        expect(properties.defaultTextColor).toEqual("#FFFFFF");
+        expect(properties.pressedBackgroundColor).toEqual("#575057");
+        expect(properties.pressedTextColor).toEqual("#FFB225");
+        expect(properties.focusedBackgroundColor).toEqual("#FFFFB7");
+        expect(properties.focusedTextColor).toEqual("#00CFEE");
     }
-
 
 }

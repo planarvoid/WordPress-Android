@@ -18,7 +18,6 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.fixtures.AdFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -160,7 +159,7 @@ public class AdsOperationsTest {
 
         expect(playQueue.getUrn(0)).toEqual(adsWithOnlyAudioAd.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getApiLeaveBehind()
+        expect(playQueue.getMetaData(1)).toEqual(adsWithOnlyAudioAd.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AD_URN, adsWithOnlyAudioAd.audioAd().getUrn())
@@ -182,7 +181,7 @@ public class AdsOperationsTest {
 
         expect(playQueue.getUrn(0)).toEqual(fullAdsForTrack.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getApiLeaveBehind()
+        expect(playQueue.getMetaData(1)).toEqual(fullAdsForTrack.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AD_URN, fullAdsForTrack.audioAd().getUrn())
@@ -238,7 +237,7 @@ public class AdsOperationsTest {
 
         expect(playQueue.getUrn(0)).toEqual(noInterstitial.audioAd().getApiTrack().getUrn());
         expect(playQueue.getUrn(1)).toEqual(TRACK_URN);
-        expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getApiLeaveBehind()
+        expect(playQueue.getMetaData(1)).toEqual(noInterstitial.audioAd().getLeaveBehind()
                 .toPropertySet()
                 .put(AdOverlayProperty.META_AD_DISMISSED, false)
                 .put(LeaveBehindProperty.AD_URN, noInterstitial.audioAd().getUrn())

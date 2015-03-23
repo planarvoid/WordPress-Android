@@ -89,7 +89,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     // Use this constructor for an audio ad playback event
     public PlaybackSessionEvent withAudioAd(PropertySet audioAd) {
         put(AdTrackingKeys.KEY_USER_URN, get(KEY_USER_URN));
-        put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_URN));
+        put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AD_AUDIO_URN));
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString());
         put(AdTrackingKeys.KEY_AD_TRACK_URN, get(KEY_TRACK_URN));

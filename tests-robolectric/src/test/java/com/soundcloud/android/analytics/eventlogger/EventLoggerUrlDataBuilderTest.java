@@ -391,7 +391,7 @@ public class EventLoggerUrlDataBuilderTest {
                 + "&trigger=manual"
                 + "&page_name=origin"
                 + "&protocol=hls"
-                + "&ad_urn=" + URLEncoder.encode(audioAdMetadata.get(AdProperty.AD_URN), "utf8")
+                + "&ad_urn=" + URLEncoder.encode(audioAdMetadata.get(AdProperty.AD_AUDIO_URN), "utf8")
                 + "&monetization_type=audio_ad"
                 + "&monetized_object=" + audioAdMetadata.get(AdProperty.MONETIZABLE_TRACK_URN).toEncodedString()
                 + "&player_type=PLAYA"
@@ -412,7 +412,7 @@ public class EventLoggerUrlDataBuilderTest {
                 + "&ts=321"
                 + "&user=" + userUrn.toEncodedString()
                 + "&page_name=" + "origin"
-                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_AUDIO_URN), "utf8")
                 + "&impression_name=audio_ad_impression"
                 + "&impression_object=" + audioAdTrack.get(TrackProperty.URN).toEncodedString()
                 + "&monetization_type=audio_ad"
@@ -433,7 +433,7 @@ public class EventLoggerUrlDataBuilderTest {
                 + "&ts=321"
                 + "&user=" + userUrn.toEncodedString()
                 + "&page_name=" + "origin"
-                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), Charsets.UTF_8.displayName())
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_AUDIO_URN), Charsets.UTF_8.displayName())
                 + "&impression_name=companion_display"
                 + "&impression_object=" + audioAdTrackUrn.toEncodedString()
                 + "&monetization_type=" + "audio_ad"
@@ -541,7 +541,7 @@ public class EventLoggerUrlDataBuilderTest {
                 + "&user=" + userUrn.toEncodedString()
                 + "&anonymous_id=9876"
                 + "&ts=1000"
-                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_AUDIO_URN), "utf8")
                 + "&page_name=" + "origin"
                 + "&click_name=clickthrough::companion_display"
                 + "&click_object=" + audioAdTrackUrn.toEncodedString()
@@ -564,7 +564,7 @@ public class EventLoggerUrlDataBuilderTest {
                 + "&user=" + userUrn.toEncodedString()
                 + "&page_name=" + "origin"
                 + "&click_name=ad::skip"
-                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_AUDIO_URN), "utf8")
                 + "&click_object=" + audioAdTrackUrn.toEncodedString()
                 + "&external_media=" + audioAd.get(AdProperty.ARTWORK)
                 + "&monetized_object=" + monetizedTrackUrn.toEncodedString()
@@ -585,7 +585,7 @@ public class EventLoggerUrlDataBuilderTest {
                 + "&ts=1000"
                 + "&user=" + "soundcloud:users:1"
                 + "&page_name=" + "screen"
-                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_URN), "utf8")
+                + "&ad_urn=" + URLEncoder.encode(audioAd.get(AdProperty.AD_AUDIO_URN), "utf8")
                 + "&click_name=ad::finish"
                 + "&click_object=" + URLEncoder.encode(stopEvent.get(PlaybackSessionEvent.KEY_TRACK_URN), "utf8")
                 + "&external_media=" + audioAd.get(AdProperty.ARTWORK)
