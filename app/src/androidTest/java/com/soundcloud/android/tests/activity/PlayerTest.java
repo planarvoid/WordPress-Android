@@ -13,6 +13,7 @@ import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.tests.AvailabilityTest;
 
 
 public class PlayerTest extends ActivityTest<MainActivity> {
@@ -30,6 +31,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         streamScreen = new StreamScreen(solo);
     }
 
+    @AvailabilityTest
     public void testVisualPlayerIsAccessible() {
         player = streamScreen.clickFirstTrack();
         assertThat(player, is(expanded()));
