@@ -58,11 +58,11 @@ You can run all or individual unit tests using Gradle. `cd` into the parent modu
 
 to run all tests, or
 
-    $ ./gradlew test --tests *TrackingApiTest
+    $ ./gradlew tests-robolectric:test --tests *SimpleTrackingApiTest
 
 to run all tests inside a class, or
 
-    $ ./gradlew test --tests *TrackingApiTest.shouldSetUserAgentHeader
+    $ ./gradlew tests-robolectric:test --tests *SimpleTrackingApiTest.failedTest
     
 to run one single test.
 
