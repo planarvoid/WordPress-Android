@@ -32,10 +32,11 @@ task buildDebugCI(dependsOn: ['assembleDebug']) {
 }
 buildDebugCI.mustRunAfter('updateVersion')
 
-task assembleEnd2endCI(dependsOn: ['renameApk', 'incrementVersionName', 'assembleEnd2end']) {
+task buildEnd2endCI(dependsOn: ['assembleEnd2end']) {
   description = 'Assembles End2End debug build for payments test on CI.'
   rootProject.ext.preDexLibs = false
 }
+buildEnd2endCI.mustRunAfter('updateVersion')
 
 // *********************************************************************************************************************
 // ALPHA BUILDS
