@@ -33,12 +33,14 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
 
+    private final Urn trackUrn;
     private final int duration;
     private final long progress;
 
     private int stopReason;
     private long listenTime;
     private final TrackSourceInfo trackSourceInfo;
+
     private List<String> adCompanionImpressionUrls = Collections.emptyList();
     private List<String> adImpressionUrls = Collections.emptyList();
     private List<String> adFinishedUrls = Collections.emptyList();
@@ -75,7 +77,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private PlaybackSessionEvent(String eventKind, PropertySet track, Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
                                  String protocol, String playerType, String connectionType) {
         super(eventKind, timestamp);
-        put(KEY_TRACK_URN, track.get(TrackProperty.URN).toString());
+        this.trackUrn = track.get(TrackProperty.URN);
+        put(KEY_TRACK_URN, trackUrn.toString());
         put(KEY_USER_URN, userUrn.toString());
         put(KEY_PROTOCOL, protocol);
         put(KEY_POLICY, track.getOrElseNull(TrackProperty.POLICY));
@@ -139,6 +142,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
 
     public List<String> getAudioAdCompanionImpressionUrls() {
         return adCompanionImpressionUrls;
+    }
+
+    public Urn getTrackUrn() {
+        return trackUrn;
     }
 
     private void setListenTime(long listenTime) {

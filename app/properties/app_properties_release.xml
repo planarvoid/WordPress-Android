@@ -29,4 +29,5 @@
     <bool name="feature_configuration_features">false</bool>
     <bool name="feature_new_playlist_engagements">false</bool>
     <bool name="feature_eventlogger_batching">false</bool>
+    <bool name="feature_eventlogger_search">false</bool>
 </resources>

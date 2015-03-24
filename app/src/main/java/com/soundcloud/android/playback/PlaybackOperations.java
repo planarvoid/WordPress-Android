@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -174,8 +175,10 @@ public class PlaybackOperations {
         return playTracksList(Observable.just(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), true);
     }
 
-    public Observable<List<Urn>> startPlaybackWithRecommendations(Urn urn, Screen screen) {
-        return playTracksList(Observable.just(urn).toList(), urn, 0, new PlaySessionSource(screen), true);
+    public Observable<List<Urn>> startPlaybackWithRecommendations(Urn urn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+        return playTracksList(Observable.just(urn).toList(), urn, 0, playSessionSource, true);
     }
 
     public void togglePlayback() {

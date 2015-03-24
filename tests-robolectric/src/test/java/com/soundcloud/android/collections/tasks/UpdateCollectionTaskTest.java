@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -74,7 +75,7 @@ public class UpdateCollectionTaskTest {
         }
 
         @Override
-        public int handleListItemClick(Context context, int position, long id, Screen screen) {
+        public int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
             return 0;
         }
     }

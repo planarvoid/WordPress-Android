@@ -23,7 +23,7 @@ import java.util.Set;
  * <p/>
  * <pre>
  * {
- * "tx_id" : "92dbb484c0d144afa6c193ece99514f3",
+ * "query_urn" : "soundcloud:search-suggest:4aceafa4290a4580bfc9f5d306ffb917",
  * "query_time_in_millis" : 0,
  * "query" : "f",
  * "limit" : 5,
@@ -42,7 +42,7 @@ import java.util.Set;
  */
 public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public final static SearchSuggestions EMPTY = new SearchSuggestions();
-    public String tx_id;
+    public String query_urn;
     public long query_time_in_millis;
     public String query;
     public int limit;
@@ -67,7 +67,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
     public void putRemoteIds(List<Long> missingTracks, List<Long> missingUsers, List<Long> missingPlaylists) {
         for (Query q : this) {
-            if (!q.isLocal()) {
+            if (q.isRemote()) {
                 if (Query.KIND_USER.equals(q.kind)) {
                     missingUsers.add(q.id);
                 } else if (Query.KIND_TRACK.equals(q.kind)) {
@@ -80,23 +80,36 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     }
 
     public Cursor asCursor() {
+        int searchQueryIndex = 0;
         final MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
+
         for (SearchSuggestions.Query q : this) {
             if (!Query.SUPPORTED_KINDS.contains(q.kind)) {
                 continue;
             }
+            addQueryToCursor(cursor, q, searchQueryIndex);
 
-            cursor.addRow(new Object[]{
-                    -1,                // suggestion id
-                    q.id,              // id
-                    q.query,           // SUGGEST_COLUMN_TEXT_1
-                    q.getIntentData(), // SUGGEST_COLUMN_INTENT_DATA
-                    null,              // this is not used anymore, we can remove this column
-                    q.isLocal() ? 1 : 0,
-                    buildHighlightData(q)
-            });
+            if(q.isRemote()) {
+                searchQueryIndex = searchQueryIndex + 1;
+            }
         }
         return cursor;
+    }
+
+    private void addQueryToCursor(MatrixCursor cursor, Query q, int searchQueryIndex) {
+        boolean isLocal = q.isLocal();
+
+        cursor.addRow(new Object[]{
+                -1,                                 // suggestion id
+                q.id,                               // id
+                q.query,                            // SUGGEST_COLUMN_TEXT_1
+                q.getIntentData(),                  // SUGGEST_COLUMN_INTENT_DATA
+                null,                               // this is not used anymore, we can remove this column
+                isLocal ? 1 : 0,                    // local
+                buildHighlightData(q),              // highlight
+                isLocal ? null : query_urn,         // Set query_urn only on remote suggestions
+                isLocal ? -1 : searchQueryIndex     // Set query_position only on remote suggestions
+        });
     }
 
     public void add(Query q) {
@@ -107,12 +120,17 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         return suggestions.contains(q);
     }
 
-    public SearchSuggestions merge(SearchSuggestions other) {
+    public SearchSuggestions mergeWithRemote(SearchSuggestions remoteSuggestions) {
         SearchSuggestions merged = new SearchSuggestions();
+
+        if (remoteSuggestions.query_urn != null) {
+            merged.query_urn = remoteSuggestions.query_urn;
+        }
+
         for (Query q : this) {
             merged.add(q);
         }
-        for (Query q : other) {
+        for (Query q : remoteSuggestions) {
             if (!merged.contains(q)) {
                 merged.add(q);
             }
@@ -140,6 +158,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
                 ", query='" + query + '\'' +
                 ", limit=" + limit +
                 ", suggestions=" + suggestions +
+                ", query_urn=" + query_urn +
                 '}';
     }
 
@@ -178,6 +197,8 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
             q.iconUri = iconUrl;
             q.intentData = intentData;
             q.kind = Query.kindFromContentUri(Uri.parse(intentData));
+            q.query_urn = query_urn;
+            q.query_position = -1;
             suggestions.add(q);
         }
     }
@@ -189,18 +210,20 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         public static final String KIND_PLAYLIST = "playlist"; //TODO: check if it will be called that way
         public static final Set<String> SUPPORTED_KINDS = new HashSet<String>();
 
-        static {
-            SUPPORTED_KINDS.add(KIND_USER);
-            SUPPORTED_KINDS.add(KIND_TRACK);
-            //TODO: SUPPORTED_KINDS.add(KIND_PLAYLIST);
-        }
-
         // Search suggest API fields
         public String query;
         public String kind;
         public long id;
         public long score;
         public List<Map<String, Integer>> highlights;
+        public String query_urn;
+        public int query_position;
+
+        static {
+            SUPPORTED_KINDS.add(KIND_USER);
+            SUPPORTED_KINDS.add(KIND_TRACK);
+            //TODO: SUPPORTED_KINDS.add(KIND_PLAYLIST);
+        }
 
         // internal fields
         private String iconUri;
@@ -265,6 +288,10 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
 
         public boolean isLocal() {
             return score == 0;
+        }
+
+        public boolean isRemote() {
+            return score != 0;
         }
 
         private Uri contentProviderUri() {

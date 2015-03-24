@@ -26,6 +26,7 @@ import rx.Observable;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Parcelable;
 
 import java.util.List;
 
@@ -77,6 +78,8 @@ public class ResolveActivityTest {
         Screen.DEEPLINK.addToIntent(expected);
         expected.putExtra(PlaylistDetailActivity.EXTRA_URN, playlist.getUrn());
         expected.putExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, false);
+        expected.putExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, (Parcelable) null);
+
         expect(shadowOf(activity).getNextStartedActivity()).toEqual(expected);
     }
 

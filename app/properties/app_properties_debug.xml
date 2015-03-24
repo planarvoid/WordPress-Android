@@ -30,4 +30,5 @@
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_eventlogger_batching">true</bool>
+    <bool name="feature_eventlogger_search">true</bool>
 </resources>

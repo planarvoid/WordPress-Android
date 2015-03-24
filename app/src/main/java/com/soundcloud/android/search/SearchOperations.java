@@ -5,6 +5,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiScheduler;
@@ -12,13 +13,14 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.model.SearchCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -39,11 +41,11 @@ class SearchOperations {
     static final int TYPE_PLAYLISTS = 2;
     static final int TYPE_USERS = 3;
 
-    static final Func1<ModelCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
-            new Func1<ModelCollection<? extends PropertySetSource>, SearchResult>() {
+    static final Func1<SearchCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
+            new Func1<SearchCollection<? extends PropertySetSource>, SearchResult>() {
         @Override
-        public SearchResult call(ModelCollection<? extends PropertySetSource> propertySetSources) {
-            return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink());
+        public SearchResult call(SearchCollection<? extends PropertySetSource> propertySetSources) {
+            return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(), propertySetSources.getQueryUrn());
         }
     };
 
@@ -127,14 +129,30 @@ class SearchOperations {
 
     class SearchResultPager extends Pager<SearchResult> {
         private final int searchType;
+        private Optional<Urn> maybeQueryUrn;
+        private List<Urn> allUrns;
 
         SearchResultPager(int searchType) {
             this.searchType = searchType;
         }
 
+        public SearchQuerySourceInfo getSearchQuerySourceInfo() {
+            return new SearchQuerySourceInfo(maybeQueryUrn.get());
+        }
+
+
+        public SearchQuerySourceInfo getSearchQuerySourceInfo(int clickPosition, Urn clickUrn) {
+            SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(maybeQueryUrn.get(), clickPosition, clickUrn);
+            searchQuerySourceInfo.setQueryResults(allUrns);
+            return searchQuerySourceInfo;
+        }
+
         @Override
         public Observable<SearchResult> call(SearchResult searchResultsCollection) {
             final Optional<Link> nextHref = searchResultsCollection.nextHref;
+            maybeQueryUrn = searchResultsCollection.queryUrn;
+            allUrns = CollectionUtils.extractUrnsFromEntities(searchResultsCollection.getItems());
+
             if (nextHref.isPresent()) {
                 return nextResultPage(nextHref.get(), searchType);
             } else {
@@ -171,30 +189,30 @@ class SearchOperations {
 
     }
 
-    private final class TrackSearchStrategy extends SearchStrategy<ModelCollection<ApiTrack>> {
+    private final class TrackSearchStrategy extends SearchStrategy<SearchCollection<ApiTrack>> {
 
         protected TrackSearchStrategy() {
-            super(new TypeToken<ModelCollection<ApiTrack>>() {
+            super(new TypeToken<SearchCollection<ApiTrack>>() {
             }, ApiEndpoints.SEARCH_TRACKS.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiTrack>> builder) {
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiTrack>> builder) {
             return apiScheduler.mappedResponse(builder.build())
                     .doOnNext(storeTracksCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
     }
 
-    private final class PlaylistSearchStrategy extends SearchStrategy<ModelCollection<ApiPlaylist>> {
+    private final class PlaylistSearchStrategy extends SearchStrategy<SearchCollection<ApiPlaylist>> {
 
         protected PlaylistSearchStrategy() {
-            super(new TypeToken<ModelCollection<ApiPlaylist>>() {
+            super(new TypeToken<SearchCollection<ApiPlaylist>>() {
             }, ApiEndpoints.SEARCH_PLAYLISTS.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiPlaylist>> builder) {
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiPlaylist>> builder) {
             return apiScheduler.mappedResponse(builder.build())
                     .doOnNext(storePlaylistsCommand.toAction())
                     .map(TO_SEARCH_RESULT)
@@ -202,30 +220,30 @@ class SearchOperations {
         }
     }
 
-    private final class UserSearchStrategy extends SearchStrategy<ModelCollection<ApiUser>> {
+    private final class UserSearchStrategy extends SearchStrategy<SearchCollection<ApiUser>> {
 
         protected UserSearchStrategy() {
-            super(new TypeToken<ModelCollection<ApiUser>>() {
+            super(new TypeToken<SearchCollection<ApiUser>>() {
             }, ApiEndpoints.SEARCH_USERS.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiUser>> builder) {
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiUser>> builder) {
             return apiScheduler.mappedResponse(builder.build())
                     .doOnNext(storeUsersCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
     }
 
-    private final class UniversalSearchStrategy extends SearchStrategy<ModelCollection<ApiUniversalSearchItem>> {
+    private final class UniversalSearchStrategy extends SearchStrategy<SearchCollection<ApiUniversalSearchItem>> {
 
         protected UniversalSearchStrategy() {
-            super(new TypeToken<ModelCollection<ApiUniversalSearchItem>>() {
+            super(new TypeToken<SearchCollection<ApiUniversalSearchItem>>() {
             }, ApiEndpoints.SEARCH_ALL.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ModelCollection<ApiUniversalSearchItem>> builder) {
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiUniversalSearchItem>> builder) {
             return apiScheduler.mappedResponse(builder.build())
                     .doOnNext(cacheUniversalSearchCommand.toAction())
                     .map(TO_SEARCH_RESULT)

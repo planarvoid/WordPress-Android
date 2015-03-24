@@ -24,6 +24,8 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAY
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
@@ -194,7 +196,17 @@ final class EventLoggerEventData {
         addToPayload(URL, url);
         return this;
     }
-    
+
+    public EventLoggerEventData queryUrn(String queryUrn) {
+        addToPayload(QUERY_URN, queryUrn);
+        return this;
+    }
+
+    public EventLoggerEventData queryPosition(String queryPosition) {
+        addToPayload(QUERY_POSITION, queryPosition);
+        return this;
+    }
+
     private void addToPayload(String key, String value) {
         if (ScTextUtils.isNotBlank(value)) {
             payload.put(key, value);

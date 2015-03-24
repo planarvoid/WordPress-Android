@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
@@ -19,6 +20,7 @@ import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -26,6 +28,7 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
@@ -52,12 +55,14 @@ public class EventLoggerAnalyticsProviderTest {
 
     private Urn userUrn = Urn.forUser(123L);
     private TrackSourceInfo trackSourceInfo;
+    private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Before
     public void setUp() throws Exception {
         when(dataBuilderFactory.create(anyString())).thenReturn(dataBuilder);
         eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilderFactory, featureFlags, sharedPreferences);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
+        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
     }
 
     @Test
@@ -177,7 +182,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        captor.getValue().getData().equals("ForAudioAdImpression");
+        expect(captor.getValue().getData()).toEqual("ForAudioAdImpression");
     }
 
     @Test
@@ -189,7 +194,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        captor.getValue().getData().equals("ForAudioAdClick");
+        expect(captor.getValue().getData()).toEqual("ForAudioAdClick");
     }
 
     @Test
@@ -211,12 +216,47 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        captor.getValue().getData().equals("ForScreenEvent");
+        expect(captor.getValue().getData()).toEqual("ForScreenEvent");
+    }
+
+    @Test
+    public void shouldTrackSearchSuggestionSearchEvents() {
+        SearchEvent event = SearchEvent.searchSuggestion(Content.SEARCH, false, searchQuerySourceInfo);
+        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
+    }
+
+    @Test
+    public void shouldTrackTapTrackOnScreenSearchEvents() {
+        SearchEvent event = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
+        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
+    }
+
+    @Test
+    public void shouldTrackTapUserOnScreenSearchEvents() {
+        SearchEvent event = SearchEvent.tapUserOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
+        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
+    }
+
+    @Test
+    public void shouldTrackSearchStartSearchEvents() {
+        SearchEvent event = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
+        expect(searchEventUrlCaptor("ForSearchEvent", event)).toEqual("ForSearchEvent");
     }
 
     @Test
     public void shouldForwardFlushCallToEventTracker() {
         eventLoggerAnalyticsProvider.flush();
         verify(eventTracker).flush(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+    }
+
+    private String searchEventUrlCaptor(String name, SearchEvent event) {
+        when(featureFlags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)).thenReturn(true);
+        when(dataBuilder.build(event)).thenReturn(name);
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        return captor.getValue().getData();
     }
 }

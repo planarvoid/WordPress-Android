@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
@@ -306,7 +307,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         }
     }
 
-    public abstract int handleListItemClick(Context context, int position, long id, Screen screen);
+    public abstract int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo);
 
     public interface ItemClickResults {
         int IGNORE = 0;

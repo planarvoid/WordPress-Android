@@ -9,6 +9,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -59,9 +60,11 @@ import javax.inject.Provider;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
+@SuppressWarnings("PMD.TooManyFields")
 public class PlaylistDetailFragment extends LightCycleSupportFragment implements AdapterView.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener, PlaylistDetailsController.Listener {
 
     public static final String EXTRA_URN = "urn";
+    public static final String EXTRA_QUERY_SOURCE_INFO = "query_source_info";
 
     @Inject PlaylistDetailsController.Provider controllerProvider;
     @Inject PlaylistOperations playlistOperations;
@@ -134,9 +137,10 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     };
 
-    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen) {
+    public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         final Bundle bundle = new Bundle();
         bundle.putParcelable(EXTRA_URN, playlistUrn);
+        bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
         screen.addToBundle(bundle);
         PlaylistDetailFragment fragment = new PlaylistDetailFragment();
         fragment.setArguments(bundle);
@@ -274,6 +278,10 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         return getArguments().getParcelable(EXTRA_URN);
     }
 
+    private SearchQuerySourceInfo getSearchQuerySourceInfo() {
+        return getArguments().getParcelable(EXTRA_QUERY_SOURCE_INFO);
+    }
+
     private void configureInfoViews(View layout) {
         View details = layout.findViewById(R.id.playlist_details);
         if (details == null) {
@@ -334,6 +342,12 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private void playTracksAtPosition(int trackPosition, Subscriber<List<Urn>> playbackSubscriber) {
         final PlaySessionSource playSessionSource = getPlaySessionSource();
         final TrackItem initialTrack = controller.getAdapter().getItem(trackPosition);
+        SearchQuerySourceInfo searchQuerySourceInfo = getSearchQuerySourceInfo();
+
+        if (searchQuerySourceInfo != null) {
+            playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+        }
+        
         offlinePlaybackOperations
                 .playPlaylist(playlistInfo.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);

@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -246,7 +247,7 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id, Screen screen) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
             final Recording r = (Recording) getItem(position);
             if (r.upload_status == Recording.Status.UPLOADING) {

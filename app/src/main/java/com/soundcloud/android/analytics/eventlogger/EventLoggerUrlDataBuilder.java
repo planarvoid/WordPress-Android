@@ -12,6 +12,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
@@ -253,6 +254,12 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
                 .appendQueryParameter(EventLoggerParam.ERROR_CODE, event.getCategory())
                 .appendQueryParameter(EventLoggerParam.CONNECTION_TYPE, event.getConnectionType().getValue())
                 .build().toString();
+    }
+
+    @Override
+    public String build(SearchEvent event) {
+        // not implementing
+        return null;
     }
 
     private Uri.Builder buildUriForPath(String path, long timestamp) {

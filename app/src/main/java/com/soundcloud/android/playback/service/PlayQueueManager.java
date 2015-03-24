@@ -278,6 +278,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
         final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(playSessionSource.getOriginScreen(), currentTrackIsUserTriggered);
         trackSourceInfo.setSource(getCurrentTrackSource(), getCurrentTrackSourceVersion());
+
+        if (playSessionSource.isFromQuery()) {
+            trackSourceInfo.setSearchQuerySourceInfo(playSessionSource.getSearchQuerySourceInfo());
+        }
+
         if (playSessionSource.isFromPlaylist()) {
             trackSourceInfo.setOriginPlaylist(playSessionSource.getPlaylistUrn(), getCurrentPosition(), playSessionSource.getPlaylistOwnerUrn());
         }

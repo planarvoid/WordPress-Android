@@ -1,13 +1,30 @@
 package com.soundcloud.android.profile;
 
-import static android.text.TextUtils.isEmpty;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -35,30 +52,17 @@ import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-import org.jetbrains.annotations.Nullable;
-import rx.android.schedulers.AndroidSchedulers;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.ToggleButton;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 
+import rx.android.schedulers.AndroidSchedulers;
+
+import static android.text.TextUtils.isEmpty;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+
+@SuppressWarnings("PMD.TooManyFields")
 public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
         ActionBar.OnNavigationListener, FetchModelTask.Listener<PublicApiUser>, ViewPager.OnPageChangeListener {
@@ -66,6 +70,7 @@ public class ProfileActivity extends ScActivity implements
     public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER_URN = "userUrn";
     public static final String EXTRA_USER = "user";
+    public static final String EXTRA_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
     private final BroadcastReceiver recordListener = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -82,12 +87,14 @@ public class ProfileActivity extends ScActivity implements
     @Inject SlidingPlayerController playerController;
     @Inject AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
+
     private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
     private ImageView userImage;
     private FetchUserTask loadUserTask;
     private UserInfoFragment userInfoFragment;
     private int initialOtherFollowers;
+    private SearchQuerySourceInfo searchQuerySourceInfo;
 
     public ProfileActivity() {
         attachLightCycle(playerController);
@@ -97,8 +104,13 @@ public class ProfileActivity extends ScActivity implements
 
     @Deprecated
     public static boolean start(Context context, Urn urn) {
-            context.startActivity(getIntent(context, urn));
-            return true;
+        context.startActivity(getIntent(context, urn));
+        return true;
+    }
+
+    public static Intent getIntent(Context context, Urn userUrn, SearchQuerySourceInfo searchQuerySourceInfo) {
+        return ProfileActivity.getIntent(context, userUrn)
+                .putExtra(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
     public static Intent getIntent(Context context, Urn userUrn) {
@@ -316,6 +328,10 @@ public class ProfileActivity extends ScActivity implements
             loadYou();
         }
 
+        if (intent.hasExtra(EXTRA_QUERY_SOURCE_INFO)) {
+            searchQuerySourceInfo = intent.getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
+        }
+
         if (!isLoggedInUser()) {
             followingOperations.requestUserFollowings(this);
         }
@@ -487,6 +503,7 @@ public class ProfileActivity extends ScActivity implements
                 Content content;
                 Uri contentUri;
                 Screen screen;
+
                 if (isLoggedInUser()) {
                     content = currentTab.youContent;
                     contentUri = content.uri;
@@ -496,7 +513,9 @@ public class ProfileActivity extends ScActivity implements
                     contentUri = content.forId(user.getId());
                     screen = currentTab.userScreen;
                 }
-                ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(), screen);
+
+                ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(),
+                        screen, searchQuerySourceForTab(currentTab));
                 listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, user));
                 return listFragment;
             }
@@ -510,6 +529,13 @@ public class ProfileActivity extends ScActivity implements
         @Override
         public CharSequence getPageTitle(int position) {
             return Tab.getTitle(getResources(), position, isLoggedInUser());
+        }
+
+        private SearchQuerySourceInfo searchQuerySourceForTab(Tab tab) {
+            if (tab == Tab.followers || tab == Tab.followings) {
+                return null;
+            }
+            return searchQuerySourceInfo;
         }
     }
 }

@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -13,6 +14,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
@@ -141,28 +143,35 @@ public class SearchActionBarController extends ActionBarController {
 
         }
 
-        trackSuggestion(position, itemUri);
+        SearchQuerySourceInfo searchQuerySourceInfo = getQuerySourceInfo(position);
+        trackSuggestion(position, itemUri, searchQuerySourceInfo);
 
         final Urn urn = suggestionsAdapter.getUrn(position);
         if (urn.isTrack()) {
-            playTrack(urn);
+            playTrack(urn, searchQuerySourceInfo);
         } else {
             final Intent intent = new Intent(Intent.ACTION_VIEW);
+
+            // note: add query_source_info to playlist once we support playlist suggestions
+            if (urn.isUser()) {
+                intent.putExtra(ProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+            }
+
             Screen.SEARCH_SUGGESTIONS.addToIntent(intent);
             activity.startActivity(intent.setData(itemUri));
         }
     }
 
-    private void playTrack(Urn urn) {
-        playbackOperations.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS)
+    private void playTrack(Urn urn, SearchQuerySourceInfo searchQuerySourceInfo) {
+        playbackOperations.startPlaybackWithRecommendations(urn, Screen.SEARCH_SUGGESTIONS, searchQuerySourceInfo)
                 .subscribe(expandPlayerSubscriberProvider.get());
         clearFocus();
         searchView.setSuggestionsAdapter(null);
     }
 
-    private void trackSuggestion(int position, Uri itemUri) {
+    private void trackSuggestion(int position, Uri itemUri, SearchQuerySourceInfo searchQuerySourceInfo) {
         final SearchEvent event = SearchEvent.searchSuggestion(
-                Content.match(itemUri), suggestionsAdapter.isLocalResult(position));
+                Content.match(itemUri), suggestionsAdapter.isLocalResult(position), searchQuerySourceInfo);
         eventBus.publish(EventQueue.TRACKING, event);
     }
 
@@ -274,6 +283,19 @@ public class SearchActionBarController extends ActionBarController {
         } else {
             searchCallback.performTextSearch(trimmedQuery);
         }
+    }
+
+    private SearchQuerySourceInfo getQuerySourceInfo(int position) {
+        SearchQuerySourceInfo searchQuerySourceInfo = null;
+        Urn queryUrn = suggestionsAdapter.getQueryUrn(position);
+
+        if (!queryUrn.equals(Urn.NOT_SET)) {
+            searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn,
+                    suggestionsAdapter.getQueryPosition(position),
+                    suggestionsAdapter.getUrn(position));
+        }
+
+        return searchQuerySourceInfo;
     }
 
     public interface SearchCallback {

@@ -103,7 +103,7 @@ public class UserAdapterTest {
         PublicApiUser user = createUser();
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
+        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent.getComponent().getClassName()).toEqual(ProfileActivity.class.getName());

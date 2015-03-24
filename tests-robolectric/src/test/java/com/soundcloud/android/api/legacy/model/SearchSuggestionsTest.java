@@ -30,7 +30,7 @@ public class SearchSuggestionsTest {
         SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
                 "/com/soundcloud/android/api/legacy/model/suggest_users.json");
 
-        expect(suggestions.tx_id).toEqual("92dbb484c0d144afa6c193ece99514f3");
+        expect(suggestions.query_urn).toEqual("soundcloud:search-suggest:d8e3e4f81f6449d7a96a238d4b222865");
         expect(suggestions.query_time_in_millis).toEqual(1l);
         expect(suggestions.query).toEqual("f");
         expect(suggestions.limit).toEqual(5);
@@ -108,7 +108,7 @@ public class SearchSuggestionsTest {
         SearchSuggestions remote = TestHelper.readJson(SearchSuggestions.class,
                 "/com/soundcloud/android/api/legacy/model/suggest_users.json");
 
-        SearchSuggestions merged = local.merge(remote);
+        SearchSuggestions merged = local.mergeWithRemote(remote);
 
         expect(merged.size()).toEqual(7); // 5 remote + 3 local (1 dup)
         Iterator<Query> it = merged.iterator();
@@ -211,4 +211,68 @@ public class SearchSuggestionsTest {
         expect(userIds.contains(2097360L)).toBeTrue();
         expect(playlistIds.contains(324731L)).toBeTrue();
     }
+
+    @Test
+    public void shouldAddQueryUrnForRemoteSuggestions() throws IOException {
+        String expectedQueryUrnString = "soundcloud:search-suggest:d8e3e4f81f6449d7a96a238d4b222865";
+        SearchSuggestions suggestions = TestHelper.readJson(SearchSuggestions.class,
+                "/com/soundcloud/android/api/legacy/model/suggest_mixed.json");
+
+        Cursor c = suggestions.asCursor();
+
+        expect(c.getCount()).toBe(3);
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.QUERY_URN))).toEqual(expectedQueryUrnString);
+        expect(c.getInt(c.getColumnIndex(SuggestionsAdapter.QUERY_POSITION))).toEqual(0);
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.QUERY_URN))).toEqual(expectedQueryUrnString);
+        expect(c.getInt(c.getColumnIndex(SuggestionsAdapter.QUERY_POSITION))).toEqual(1);
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.QUERY_URN))).toEqual(expectedQueryUrnString);
+        expect(c.getInt(c.getColumnIndex(SuggestionsAdapter.QUERY_POSITION))).toEqual(2);
+        expect(c.moveToNext()).toBeFalse();
+    }
+
+    @Test
+    public void shouldKeepOriginalQueryPositionOnRemoteSuggestions() throws IOException {
+        String expectedQueryUrnString = "soundcloud:search-suggest:d8e3e4f81f6449d7a96a238d4b222865";
+        MatrixCursor cursor = new MatrixCursor(SuggestionsAdapter.COLUMN_NAMES);
+        cursor.addRow(new Object[] {
+                1,
+                123,
+                "foo user",
+                Content.USER.forId(123).toString(),
+                null,
+        });
+        cursor.addRow(new Object[] {
+                2,
+                1234,
+                "foo track",
+                Content.TRACK.forId(1234).toString(),
+                null,
+        });
+
+        SearchSuggestions local = new SearchSuggestions(cursor);
+        SearchSuggestions remote = TestHelper.readJson(SearchSuggestions.class,
+                "/com/soundcloud/android/api/legacy/model/suggest_users.json");
+
+        SearchSuggestions merged = local.mergeWithRemote(remote);
+
+        Cursor c = merged.asCursor();
+
+        expect(c.getCount()).toBe(7); // 2 local + 5 remote
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.QUERY_URN))).toBeNull();
+        expect(c.getInt(c.getColumnIndex(SuggestionsAdapter.QUERY_POSITION))).toEqual(-1);
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.QUERY_URN))).toBeNull();
+        expect(c.getInt(c.getColumnIndex(SuggestionsAdapter.QUERY_POSITION))).toEqual(-1);
+        expect(c.moveToNext()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.QUERY_URN))).toEqual(expectedQueryUrnString);
+        expect(c.getInt(c.getColumnIndex(SuggestionsAdapter.QUERY_POSITION))).toEqual(0);
+        expect(c.moveToLast()).toBeTrue();
+        expect(c.getString(c.getColumnIndex(SuggestionsAdapter.QUERY_URN))).toEqual(expectedQueryUrnString);
+        expect(c.getInt(c.getColumnIndex(SuggestionsAdapter.QUERY_POSITION))).toEqual(4);
+    }
+
 }

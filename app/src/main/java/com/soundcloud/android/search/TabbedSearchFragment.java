@@ -32,6 +32,7 @@ public class TabbedSearchFragment extends Fragment {
 
     private ViewPager pager;
 
+
     public static TabbedSearchFragment newInstance(String query) {
         TabbedSearchFragment fragment = new TabbedSearchFragment();
 
@@ -69,7 +70,8 @@ public class TabbedSearchFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         String query = getArguments().getString(KEY_QUERY);
-        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(resources, this.getChildFragmentManager(), query);
+        boolean firstTime = savedInstanceState == null;
+        SearchPagerAdapter searchPagerAdapter = new SearchPagerAdapter(resources, this.getChildFragmentManager(), query, firstTime);
 
         pager = (ViewPager) view.findViewById(R.id.pager);
         pager.setAdapter(searchPagerAdapter);

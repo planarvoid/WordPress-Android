@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -115,39 +116,48 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id, Screen screen) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         Playable playable = data.get(position).getPlayable();
+
         if (playable instanceof PublicApiTrack) {
             if (Content.match(contentUri).isMine()) {
-                playTrack(position, screen, contentUri);
+                playTrack(position, screen, contentUri, searchQuerySourceInfo);
             } else {
-                playTrack(position, screen);
+                playTrack(position, screen, searchQuerySourceInfo);
             }
         } else if (playable instanceof PublicApiPlaylist) {
-            startPlaylistActivity(context, screen, (PublicApiPlaylist) playable);
+            startPlaylistActivity(context, screen, (PublicApiPlaylist) playable, searchQuerySourceInfo);
         }
         return ItemClickResults.LEAVING;
     }
 
-    private void playTrack(int position, Screen screen) {
+    private void playTrack(int position, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         final List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
         final int adjustedPosition = filterPlayables(data.subList(0, position)).size();
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
         playbackOperations
-                .playTracks(trackUrns, adjustedPosition, new PlaySessionSource(screen))
+                .playTracks(trackUrns, adjustedPosition, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
 
-    private void playTrack(int position, Screen screen, Uri streamUri) {
+    private void playTrack(int position, Screen screen, Uri streamUri, SearchQuerySourceInfo searchQuerySourceInfo) {
         List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
         int adjustedPosition = filterPlayables(data.subList(0, position)).size();
         Urn initialTrack = trackUrns.get(adjustedPosition);
+        final PlaySessionSource playSessionSource = new PlaySessionSource(screen);
+
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
         playbackOperations
-                .playTracksFromUri(streamUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
+                .playTracksFromUri(streamUri, adjustedPosition, initialTrack, playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
 
-    private void startPlaylistActivity(Context context, Screen screen, PublicApiPlaylist playable) {
-        PlaylistDetailActivity.start(context, playable.getUrn(), screen);
+    private void startPlaylistActivity(Context context, Screen screen, PublicApiPlaylist playable, SearchQuerySourceInfo searchQuerySourceInfo) {
+        PlaylistDetailActivity.start(context, playable.getUrn(), screen, searchQuerySourceInfo);
     }
 
     @Override

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -72,6 +73,7 @@ public class PlaybackOperationsTest {
     @Mock private PlaybackStrategy playbackStrategy;
     private TestObserver<List<Urn>> observer;
     private TestEventBus eventBus = new TestEventBus();
+    private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Before
     public void setUp() throws Exception {
@@ -94,6 +96,7 @@ public class PlaybackOperationsTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
         observer = new TestObserver<>();
+        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, new Urn("soundcloud:tracks:1"));
     }
 
     @Test
@@ -670,21 +673,21 @@ public class PlaybackOperationsTest {
 
     @Test
     public void startPlaybackWithRecommendationsByIdSetsPlayQueueOnPlayQueueManager() {
-        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN).subscribe();
+        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN, searchQuerySourceInfo).subscribe();
 
         checkSetNewPlayQueueArgs(0, new PlaySessionSource(ORIGIN_SCREEN.get()), 123L);
     }
 
     @Test
     public void startPlaybackWithRecommendationsByIdOpensCurrentThroughPlaybackService() {
-        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN).subscribe();
+        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN, searchQuerySourceInfo).subscribe();
 
         verify(playbackStrategy).playCurrent();
     }
 
     @Test
     public void startPlaybackWithRecommendationsByIdCallsFetchRelatedOnPlayQueueManager() {
-        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN).subscribe();
+        playbackOperations.startPlaybackWithRecommendations(TRACK_URN, ORIGIN_SCREEN, searchQuerySourceInfo).subscribe();
 
         verify(playQueueManager).fetchTracksRelatedToCurrentTrack();
     }
