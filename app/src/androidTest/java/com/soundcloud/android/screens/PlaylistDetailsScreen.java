@@ -93,7 +93,6 @@ public class PlaylistDetailsScreen extends Screen {
                 .findElements(With.id(R.id.track_list_item))
                 .get(trackIndex).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
-        visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
