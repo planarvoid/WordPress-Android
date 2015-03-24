@@ -8,7 +8,8 @@ import android.net.Uri;
 import java.util.List;
 
 public class AdProperty {
-    public static final Property<String> AD_URN = Property.of(AdProperty.class, String.class);
+    public static final Property<String> AUDIO_AD_URN = Property.of(AdProperty.class, String.class);
+    public static final Property<String> COMPANION_URN = Property.of(AdProperty.class, String.class);
     public static final Property<Urn> MONETIZABLE_TRACK_URN =  Property.of(AdProperty.class, Urn.class);
     public static final Property<Uri> CLICK_THROUGH_LINK = Property.of(AdProperty.class, Uri.class);
     public static final Property<Uri> ARTWORK = Property.of(AdProperty.class, Uri.class);

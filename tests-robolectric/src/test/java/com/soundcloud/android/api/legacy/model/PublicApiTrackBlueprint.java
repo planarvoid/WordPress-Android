@@ -1,7 +1,5 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.api.legacy.model;
 
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
@@ -10,24 +8,27 @@ import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 import java.util.Date;
 
 @Deprecated
-@Blueprint(PublicApiPlaylist.class)
-public class PublicApiPlaylistBlueprint {
+@Blueprint(PublicApiTrack.class)
+public class PublicApiTrackBlueprint {
 
     private static long runningId = 1L;
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new PublicApiPlaylist(runningId++);
+            return new PublicApiTrack(runningId++);
         }
     };
 
     @Default
-    String title = "new playlist " + System.currentTimeMillis();
+    String title = "new track " + System.currentTimeMillis();
+
+    @Mapped
+    PublicApiUser user;
 
     @Default
     Date createdAt = new Date();
 
-    @Mapped
-    PublicApiUser user;
+    @Default
+    String policy = "monetizable";
 }

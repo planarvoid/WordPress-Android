@@ -1,16 +1,15 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.ads;
 
-import com.soundcloud.android.ads.DisplayProperties;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
-@Blueprint(DisplayProperties.class)
-public class DisplayPropertiesBlueprint {
+@Blueprint(ApiDisplayProperties.class)
+public class ApiDisplayPropertiesBlueprint {
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new DisplayProperties(
+            return new ApiDisplayProperties(
                     "#111111",
                     "#222222",
                     "#333333",

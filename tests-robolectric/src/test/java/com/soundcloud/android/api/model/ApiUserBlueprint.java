@@ -1,20 +1,19 @@
-package com.soundcloud.android.testsupport.blueprints;
+package com.soundcloud.android.api.model;
 
-import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 import com.tobedevoured.modelcitizen.callback.FieldCallback;
 
-@Blueprint(SuggestedUser.class)
-public class SuggestedUserBlueprint {
+@Blueprint(ApiUser.class)
+public class ApiUserBlueprint {
 
     private static long runningId = 1L;
 
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new SuggestedUser("soundcloud:users:" + runningId++);
+            return new ApiUser("soundcloud:users:" + runningId++);
         }
     };
 
@@ -22,16 +21,14 @@ public class SuggestedUserBlueprint {
     FieldCallback username = new FieldCallback() {
         @Override
         public Object get(Object referenceModel) {
-            return "user" + ((SuggestedUser) referenceModel).getId();
+            return "user" + ((ApiUser) referenceModel).getId();
         }
     };
 
     @Default
-    String city = "Berlin";
+    String country = "Country";
 
     @Default
-    String country = "Germany";
+    int followersCount = 100;
 
-    @Default
-    String token = "gUgTzUrZoWnuuDVHdrJNoCyGAls2fW3BWDdYfUxCPFMI4tGe3RiP4/7j9x7f\\nOVKNVtHd3BIXWzlwonKt5oAjMw==\\n";
 }

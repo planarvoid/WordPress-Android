@@ -81,7 +81,7 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
     @Override
     public String build(AdOverlayTrackingEvent event) {
         if (event.getKind().equals(AdOverlayTrackingEvent.KIND_CLICK)) {
-            return transform(getAudioAddClickThroughEvent(event));
+            return transform(getAudioAdClickThroughEvent(event));
         } else {
             return transform(getAudioAdImpressionEvent(event));
         }
@@ -98,7 +98,7 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE));
     }
 
-    private EventLoggerEventData getAudioAddClickThroughEvent(AdOverlayTrackingEvent event) {
+    private EventLoggerEventData getAudioAdClickThroughEvent(AdOverlayTrackingEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))

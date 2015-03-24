@@ -9,9 +9,7 @@ import android.net.Uri;
 
 import java.util.List;
 
-public class ApiInterstitial extends ApiVisualAd implements PropertySetSource {
-
-    private final String urn;
+class ApiInterstitial extends ApiBaseAdVisual implements PropertySetSource {
 
     @JsonCreator
     public ApiInterstitial(
@@ -20,28 +18,16 @@ public class ApiInterstitial extends ApiVisualAd implements PropertySetSource {
             @JsonProperty("clickthrough_url") String clickthroughUrl,
             @JsonProperty("tracking_impression_urls") List<String> trackingImpressionUrls,
             @JsonProperty("tracking_click_urls") List<String> trackingClickUrls) {
-        super(imageUrl, clickthroughUrl, trackingImpressionUrls, trackingClickUrls);
-        this.urn = urn;
-    }
-
-    public String getUrn() {
-        return urn;
-    }
-
-    @Override
-    public String toString() {
-        return "ApiInterstitial{" +
-                "urn='" + urn + '\'' +
-                '}';
+        super(urn, imageUrl, clickthroughUrl, trackingImpressionUrls, trackingClickUrls);
     }
 
     @Override
     public PropertySet toPropertySet() {
         return PropertySet.from(
                 InterstitialProperty.INTERSTITIAL_URN.bind(urn),
-                InterstitialProperty.IMAGE_URL.bind(getImageUrl()),
-                InterstitialProperty.CLICK_THROUGH_URL.bind(Uri.parse(getClickthroughUrl())),
-                InterstitialProperty.TRACKING_IMPRESSION_URLS.bind(getTrackingImpressionUrls()),
-                InterstitialProperty.TRACKING_CLICK_URLS.bind(getTrackingClickUrls()));
+                InterstitialProperty.IMAGE_URL.bind(imageUrl),
+                InterstitialProperty.CLICK_THROUGH_URL.bind(Uri.parse(clickthroughUrl)),
+                InterstitialProperty.TRACKING_IMPRESSION_URLS.bind(trackingImpressionUrls),
+                InterstitialProperty.TRACKING_CLICK_URLS.bind(trackingClickUrls));
     }
 }

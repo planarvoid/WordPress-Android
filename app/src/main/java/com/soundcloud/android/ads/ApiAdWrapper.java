@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ApiAdWrapper {
+class ApiAdWrapper {
 
     @Nullable private final ApiAudioAd apiAudioAd;
     @Nullable private final ApiInterstitial interstitial;

@@ -1,10 +1,7 @@
-package com.soundcloud.android.testsupport.fixtures;
+package com.soundcloud.android.ads;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.ads.ApiAdWrapper;
-import com.soundcloud.android.ads.ApiAdsForTrack;
-import com.soundcloud.android.ads.ApiAudioAd;
-import com.soundcloud.android.ads.ApiInterstitial;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 
 public class AdFixtures {
 

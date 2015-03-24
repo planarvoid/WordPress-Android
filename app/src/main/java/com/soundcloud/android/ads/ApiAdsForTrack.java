@@ -5,7 +5,7 @@ import com.soundcloud.android.api.model.ModelCollection;
 
 import java.util.List;
 
-public class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> {
+class ApiAdsForTrack extends ModelCollection<ApiAdWrapper> {
 
     public ApiAdsForTrack() {
         // for deserialization
