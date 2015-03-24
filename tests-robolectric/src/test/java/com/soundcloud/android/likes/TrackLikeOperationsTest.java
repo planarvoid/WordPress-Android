@@ -27,9 +27,11 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.android.Pager;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,6 +77,20 @@ public class TrackLikeOperationsTest {
 
         verify(observer).onNext(likedTracks);
         verify(observer).onCompleted();
+    }
+
+    @Test
+    public void doesNotSyncTrackLikesIfSecondPageIsEmpty() throws Exception {
+        final List<PropertySet> firstPage = createPageOfTrackLikes(PAGE_SIZE);
+        when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.just(Collections.<PropertySet>emptyList()));
+        final PublishSubject<SyncResult> syncObservable = PublishSubject.create();
+        when(syncInitiator.syncTrackLikes()).thenReturn(syncObservable);
+
+        final Pager<List<PropertySet>> listPager = operations.likedTracksPager();
+        listPager.page(operations.likedTracks()).subscribe(observer);
+        listPager.next();
+
+        expect(syncObservable.hasObservers()).toBeFalse();
     }
 
     @Test

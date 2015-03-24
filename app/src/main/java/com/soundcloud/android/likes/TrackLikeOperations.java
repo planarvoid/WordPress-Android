@@ -87,12 +87,16 @@ public class TrackLikeOperations {
     }
 
     private Observable<List<PropertySet>> likedTracks(long beforeTime) {
+        return loadLikedTracksInternal(beforeTime)
+                .lift(new OperatorSwitchOnEmptyList<>(updatedLikedTracks()));
+    }
+
+    private Observable<List<PropertySet>> loadLikedTracksInternal(long beforeTime) {
         return loadLikedTracksCommand
                 .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
                 .toObservable()
                 .doOnNext(requestTracksSyncAction)
-                .subscribeOn(scheduler)
-                .lift(new OperatorSwitchOnEmptyList<>(updatedLikedTracks()));
+                .subscribeOn(scheduler);
     }
 
     public Observable<List<PropertySet>> updatedLikedTracks() {
@@ -106,7 +110,7 @@ public class TrackLikeOperations {
                 if (result.size() < PAGE_SIZE) {
                     return Pager.finish();
                 } else {
-                    return likedTracks(getLast(result).get(LikeProperty.CREATED_AT).getTime());
+                    return loadLikedTracksInternal(getLast(result).get(LikeProperty.CREATED_AT).getTime());
                 }
             }
         };
