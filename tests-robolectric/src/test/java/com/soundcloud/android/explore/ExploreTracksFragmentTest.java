@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import static rx.Observable.just;
 
 import com.soundcloud.android.actionbar.PullToRefreshController;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -19,6 +18,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -45,7 +45,7 @@ public class ExploreTracksFragmentTest {
     private ExploreTracksFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
 
-    @Mock private PagingItemAdapter<ApiTrack> adapter;
+    @Mock private PagingItemAdapter<TrackItem> adapter;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private ExploreTracksOperations exploreTracksOperations;
@@ -106,12 +106,12 @@ public class ExploreTracksFragmentTest {
     @Test
     public void shouldPlaySelectedTrackWhenItemClicked() throws CreateModelException {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        when(adapter.getItem(0)).thenReturn(track);
+        when(adapter.getItem(0)).thenReturn(TrackItem.from(track));
 
         fragment.onItemClick(null, null, 0, 0);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
-        verify(playbackOperations).playTrackWithRecommendations(new PublicApiTrack(track).getUrn(), playSessionSource);
+        verify(playbackOperations).playTrackWithRecommendations(track.getUrn(), playSessionSource);
     }
 
     @Test
@@ -121,14 +121,14 @@ public class ExploreTracksFragmentTest {
         when(exploreTracksOperations.getSuggestedTracks(any(ExploreGenre.class)))
                 .thenReturn(just(collection));
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        when(adapter.getItem(0)).thenReturn(track);
+        when(adapter.getItem(0)).thenReturn(TrackItem.from(track));
 
         fragment.onCreate(null);
         fragment.onItemClick(null, null, 0, 0);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource("screen");
         playSessionSource.setExploreVersion("tag");
-        verify(playbackOperations).playTrackWithRecommendations(new PublicApiTrack(track).getUrn(), playSessionSource);
+        verify(playbackOperations).playTrackWithRecommendations(track.getUrn(), playSessionSource);
     }
 
     private View createFragmentView() {

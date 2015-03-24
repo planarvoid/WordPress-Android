@@ -15,6 +15,7 @@ import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -25,7 +26,6 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
@@ -38,9 +38,8 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.List;
 
-class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
+class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
         implements AdapterView.OnItemClickListener {
 
     final TrackLikesActionMenuController actionMenuController;
@@ -84,25 +83,25 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
     }
 
     @Override
-    protected ListBinding<PropertySet, PropertySet> onBuildListBinding() {
+    protected ListBinding<PropertySet, TrackItem> onBuildListBinding() {
         return ListBinding.pagedList(
                 likeOperations.likedTracks(),
                 adapter,
                 likeOperations.likedTracksPager(),
-                UtilityFunctions.<List<PropertySet>>identity());
+                TrackItem.fromPropertySets());
     }
 
     @Override
-    protected ListBinding<PropertySet, PropertySet> onBuildRefreshBinding() {
+    protected ListBinding<PropertySet, TrackItem> onBuildRefreshBinding() {
         return ListBinding.pagedList(
                 likeOperations.updatedLikedTracks(),
                 adapter,
                 likeOperations.likedTracksPager(),
-                UtilityFunctions.<List<PropertySet>>identity());
+                TrackItem.fromPropertySets());
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<PropertySet, PropertySet> listBinding) {
+    protected void onSubscribeListBinding(ListBinding<PropertySet, TrackItem> listBinding) {
         headerPresenter.onSubscribeListObservers(listBinding);
     }
 
@@ -120,8 +119,12 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, PropertySet>
                 eventBus.subscribe(PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
                 eventBus.subscribe(CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                likeOperations.onTrackLiked().observeOn(AndroidSchedulers.mainThread()).subscribe(new PrependItemToListSubscriber(adapter)),
-                likeOperations.onTrackUnliked().observeOn(AndroidSchedulers.mainThread()).subscribe(new RemoveEntityListSubscriber(adapter))
+                likeOperations.onTrackLiked()
+                        .map(TrackItem.fromPropertySet())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new PrependItemToListSubscriber<>(adapter)),
+                likeOperations.onTrackUnliked()
+                        .observeOn(AndroidSchedulers.mainThread()).subscribe(new RemoveEntityListSubscriber(adapter))
         );
     }
 

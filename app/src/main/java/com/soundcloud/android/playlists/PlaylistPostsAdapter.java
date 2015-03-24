@@ -4,10 +4,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -19,8 +18,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistPostsAdapter extends PagingItemAdapter<PropertySet>
-        implements ReactiveAdapter<Iterable<PropertySet>> {
+public class PlaylistPostsAdapter extends PagingItemAdapter<PlaylistItem>
+        implements ReactiveAdapter<Iterable<PlaylistItem>> {
 
     private final DefaultSupportFragmentLightCycle lifeCycleHandler;
     private Subscription eventSubscriptions = Subscriptions.empty();

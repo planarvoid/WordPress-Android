@@ -15,6 +15,7 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -38,7 +39,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
     @Inject UserItemPresenter presenter;
     @Inject FollowingOperations followingOperations;
 
-    private final List<PropertySet> users = new ArrayList<>(Consts.LIST_PAGE_SIZE);
+    private final List<UserItem> users = new ArrayList<>(Consts.LIST_PAGE_SIZE);
 
     public UserAdapter(Uri uri) {
         super(uri);
@@ -95,18 +96,19 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
 
     public void updateItems(Map<Urn, PublicApiResource> updatedItems) {
         for (int i = 0; i < users.size(); i++) {
-            final Urn key = users.get(i).get(UserProperty.URN);
+            final Urn key = users.get(i).getEntityUrn();
             if (updatedItems.containsKey(key)) {
-                users.set(i, putFollowStatus(((PublicApiUser) updatedItems.get(key)).toPropertySet()));
+                final PublicApiUser publicApiUser = (PublicApiUser) updatedItems.get(key);
+                users.set(i, putFollowStatus(UserItem.from(publicApiUser.toPropertySet())));
             }
         }
         notifyDataSetChanged();
     }
 
-    private List<PropertySet> toPropertySets(List<PublicApiResource> items) {
-        List<PropertySet> newItems = new ArrayList<PropertySet>(items.size());
+    private List<UserItem> toPropertySets(List<PublicApiResource> items) {
+        List<UserItem> newItems = new ArrayList<>(items.size());
         for (PublicApiResource item : items) {
-            newItems.add(putFollowStatus(getUser(item).toPropertySet()));
+            newItems.add(putFollowStatus(UserItem.from(getUser(item).toPropertySet())));
         }
         return newItems;
     }
@@ -123,13 +125,15 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
 
     @Override
     public void onFollowChanged() {
-        for (PropertySet propertySet : users){
+        for (UserItem propertySet : users){
             putFollowStatus(propertySet);
         }
         notifyDataSetChanged();
     }
 
-    private PropertySet putFollowStatus(PropertySet source) {
-        return source.put(UserProperty.IS_FOLLOWED_BY_ME, followingOperations.isFollowing(source.get(UserProperty.URN)));
+    private UserItem putFollowStatus(UserItem source) {
+        final boolean following = followingOperations.isFollowing(source.getEntityUrn());
+        source.update(PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(following)));
+        return source;
     }
 }

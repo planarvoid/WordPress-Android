@@ -36,6 +36,7 @@ public class TrackItemPresenterTest {
 
     private View itemView;
     private PropertySet propertySet;
+    private TrackItem trackItem;
 
     @Before
     public void setUp() throws Exception {
@@ -46,6 +47,7 @@ public class TrackItemPresenterTest {
                 TrackProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
         );
+        trackItem = TrackItem.from(propertySet);
 
         final Context context = Robolectric.application;
         itemView = LayoutInflater.from(context).inflate(R.layout.track_list_item, new FrameLayout(context), false);
@@ -53,28 +55,28 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldBindTitleToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_subheader).getText()).toEqual("title");
     }
 
     @Test
     public void shouldBindDurationToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_right_info).getText()).toEqual("3:47");
     }
 
     @Test
     public void shouldBindCreatorToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_header).getText()).toEqual("creator");
     }
 
     @Test
     public void shouldBindPlayCountToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter).getText()).toEqual("870");
     }
@@ -82,7 +84,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldHidePlayCountIfPlayCountNotSet() {
         propertySet.put(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeInvisible();
     }
@@ -90,7 +92,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldHidePlayCountIfEqualOrLessZero() {
         propertySet.put(TrackProperty.PLAY_COUNT, 0);
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeInvisible();
     }
@@ -98,7 +100,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldBindReposterIfAny() {
         propertySet.put(TrackProperty.REPOSTER, "reposter");
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.reposter)).toBeVisible();
         expect(textView(R.id.reposter).getText()).toEqual("reposter");
@@ -106,7 +108,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldNotBindReposterIfNone() {
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.reposter)).toBeGone();
     }
@@ -114,7 +116,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldShowPrivateIndicatorIfTrackIsPrivate() {
         propertySet.put(TrackProperty.IS_PRIVATE, true);
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.private_indicator)).toBeVisible();
         expect(textView(R.id.now_playing)).toBeInvisible();
@@ -124,7 +126,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldHidePrivateIndicatorIfTrackIsPublic() {
         propertySet.put(TrackProperty.IS_PRIVATE, false);
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.private_indicator)).toBeGone();
         expect(textView(R.id.now_playing)).toBeInvisible();
@@ -134,7 +136,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldHighlightCurrentlyPlayingTrack() {
         presenter.setPlayingTrack(Urn.forTrack(123));
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeInvisible();
         expect(textView(R.id.now_playing)).toBeVisible();
@@ -143,7 +145,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldNotHighlightTrackRowIfNotCurrentlyPlayingTrack() {
         presenter.setPlayingTrack(Urn.forTrack(-1));
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeVisible();
         expect(textView(R.id.now_playing)).toBeInvisible();
@@ -151,7 +153,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldLoadTrackArtwork() {
-        presenter.bindItemView(0, itemView, Arrays.asList(propertySet));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
         verify(imageOperations).displayInAdapterView(
                 Urn.forTrack(123),
                 ApiImageSize.getListItemImageSize(itemView.getContext()),

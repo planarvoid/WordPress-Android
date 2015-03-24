@@ -17,7 +17,6 @@ import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.internal.util.UtilityFunctions;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
@@ -26,9 +25,9 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
-import java.util.List;
 
-public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PropertySet> implements AdapterView.OnItemClickListener {
+public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PlaylistItem>
+        implements AdapterView.OnItemClickListener {
 
     private final PlaylistLikeOperations likeOperations;
     private final PagedPlaylistsAdapter adapter;
@@ -63,8 +62,13 @@ public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PropertyS
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
-                likeOperations.onPlaylistLiked().observeOn(AndroidSchedulers.mainThread()).subscribe(new PrependItemToListSubscriber(adapter)),
-                likeOperations.onPlaylistUnliked().observeOn(AndroidSchedulers.mainThread()).subscribe(new RemoveEntityListSubscriber(adapter))
+                likeOperations.onPlaylistLiked()
+                        .map(PlaylistItem.fromPropertySet())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new PrependItemToListSubscriber<>(adapter)),
+                likeOperations.onPlaylistUnliked()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RemoveEntityListSubscriber(adapter))
         );
     }
 
@@ -75,31 +79,31 @@ public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PropertyS
     }
 
     @Override
-    protected ListBinding<PropertySet, PropertySet> onBuildListBinding() {
+    protected ListBinding<PropertySet, PlaylistItem> onBuildListBinding() {
         return ListBinding.pagedList(
                 likeOperations.likedPlaylists(),
                 adapter,
                 likeOperations.likedPlaylistsPager(),
-                UtilityFunctions.<List<PropertySet>>identity());
+                PlaylistItem.fromPropertySets());
     }
 
     @Override
-    protected ListBinding<PropertySet, PropertySet> onBuildRefreshBinding() {
+    protected ListBinding<PropertySet, PlaylistItem> onBuildRefreshBinding() {
         return ListBinding.pagedList(
                 likeOperations.updatedLikedPlaylists(),
                 adapter,
                 likeOperations.likedPlaylistsPager(),
-                UtilityFunctions.<List<PropertySet>>identity());
+                PlaylistItem.fromPropertySets());
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<PropertySet, PropertySet> listBinding) {
+    protected void onSubscribeListBinding(ListBinding<PropertySet, PlaylistItem> listBinding) {
         // No-op
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Urn playlistUrn = adapter.getItem(position).get(PlaylistProperty.URN);
+        Urn playlistUrn = adapter.getItem(position).getEntityUrn();
         PlaylistDetailActivity.start(adapterView.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
     }
 }

@@ -18,7 +18,6 @@ import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -35,10 +34,9 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
@@ -77,7 +75,7 @@ public class PlaylistDetailFragmentTest {
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistEngagementsPresenter playlistEngagementsPresenter;
-    @Mock private ItemAdapter adapter;
+    @Mock private ItemAdapter<TrackItem> adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private Intent intent;
@@ -182,8 +180,8 @@ public class PlaylistDetailFragmentTest {
     public void shouldAutoPlayIfAutoPlaySetOnIntentIfPlaylistIsNotEmpty() throws Exception {
         when(intent.getBooleanExtra(eq(PlaylistDetailActivity.EXTRA_AUTO_PLAY), anyBoolean())).thenReturn(true);
 
-        final PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-        when(adapter.getItem(0)).thenReturn(track.toPropertySet());
+        TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
+        when(adapter.getItem(0)).thenReturn(playlistTrack);
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
         playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
@@ -192,7 +190,7 @@ public class PlaylistDetailFragmentTest {
 
         createFragmentView();
 
-        verify(offlinePlaybackOperations).playPlaylist(playlistInfo.getUrn(), track.getUrn(), 0, playSessionSource);
+        verify(offlinePlaybackOperations).playPlaylist(playlistInfo.getUrn(), playlistTrack.getEntityUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -207,8 +205,8 @@ public class PlaylistDetailFragmentTest {
 
     @Test
     public void shouldPlayPlaylistOnToggleToPlayState() throws Exception {
-        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        when(adapter.getItem(0)).thenReturn(track.toPropertySet());
+        final TrackItem playlistTrack = ModelFixtures.create(TrackItem.class);
+        when(adapter.getItem(0)).thenReturn(playlistTrack);
         View layout = createFragmentView();
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
@@ -216,7 +214,7 @@ public class PlaylistDetailFragmentTest {
 
         getToggleButton(layout).performClick();
 
-        verify(offlinePlaybackOperations).playPlaylist(playlistInfo.getUrn(), track.getUrn(), 0, playSessionSource);
+        verify(offlinePlaybackOperations).playPlaylist(playlistInfo.getUrn(), playlistTrack.getEntityUrn(), 0, playSessionSource);
     }
 
     @Test
@@ -232,9 +230,7 @@ public class PlaylistDetailFragmentTest {
     @Test
     public void shouldUncheckPlayToggleOnTogglePlayStateWhenSkippingIsDisabled() throws Exception {
         when(playbackOperations.shouldDisableSkipping()).thenReturn(true);
-        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-
-        when(adapter.getItem(0)).thenReturn(track.toPropertySet());
+        when(adapter.getItem(0)).thenReturn(ModelFixtures.create(TrackItem.class));
         View layout = createFragmentView();
         ToggleButton toggleButton = getToggleButton(layout);
 
@@ -353,7 +349,7 @@ public class PlaylistDetailFragmentTest {
 
         InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).clear();
-        for (PropertySet track : playlistInfo.getTracks()) {
+        for (TrackItem track : playlistInfo.getTracks()) {
             inOrder.verify(adapter).addItem(track);
         }
     }
@@ -371,11 +367,11 @@ public class PlaylistDetailFragmentTest {
 
         InOrder inOrder = Mockito.inOrder(adapter);
         inOrder.verify(adapter).clear();
-        for (PropertySet track : playlistInfo.getTracks()) {
+        for (TrackItem track : playlistInfo.getTracks()) {
             inOrder.verify(adapter).addItem(track);
         }
         inOrder.verify(adapter).clear();
-        for (PropertySet track : updatedPlaylistInfo.getTracks()) {
+        for (TrackItem track : updatedPlaylistInfo.getTracks()) {
             inOrder.verify(adapter).addItem(track);
         }
     }
@@ -495,13 +491,13 @@ public class PlaylistDetailFragmentTest {
     private PlaylistInfo createPlaylist() {
         return new PlaylistInfo(
                 ModelFixtures.create(ApiPlaylist.class).toPropertySet(),
-                CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 10)));
+                ModelFixtures.trackItems(10));
     }
 
     private PlaylistInfo createPlaylistWithoutTracks() {
         return new PlaylistInfo(
                 ModelFixtures.create(ApiPlaylist.class).toPropertySet(),
-                Collections.<PropertySet>emptyList());
+                Collections.<TrackItem>emptyList());
     }
 
     private ToggleButton getToggleButton(View layout) {

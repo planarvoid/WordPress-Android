@@ -2,7 +2,6 @@ package com.soundcloud.android.tracks;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -17,7 +16,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TrackGridPresenter implements CellPresenter<ApiTrack> {
+public class TrackGridPresenter implements CellPresenter<TrackItem> {
 
     private final ImageOperations imageOperations;
 
@@ -42,11 +41,11 @@ public class TrackGridPresenter implements CellPresenter<ApiTrack> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<ApiTrack> tracks) {
+    public void bindItemView(int position, View itemView, List<TrackItem> tracks) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        ApiTrack track = tracks.get(position);
+        TrackItem track = tracks.get(position);
 
-        viewHolder.username.setText(track.getUserName());
+        viewHolder.username.setText(track.getCreatorName());
         viewHolder.title.setText(track.getTitle());
 
         if (TextUtils.isEmpty(track.getGenre())) {
@@ -55,11 +54,11 @@ public class TrackGridPresenter implements CellPresenter<ApiTrack> {
             viewHolder.genre.setText("#" + track.getGenre());
             viewHolder.genre.setVisibility(View.VISIBLE);
         }
-        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getStats().getPlaybackCount());
+        final String playcountWithCommas = ScTextUtils.formatNumberWithCommas(track.getPlayCount());
         viewHolder.playcount.setText(playcountWithCommas);
 
         final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
-        imageOperations.displayInAdapterView(track.getUrn(), apiImageSize, viewHolder.imageView);
+        imageOperations.displayInAdapterView(track.getEntityUrn(), apiImageSize, viewHolder.imageView);
     }
 
     @VisibleForTesting

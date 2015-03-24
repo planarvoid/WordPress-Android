@@ -7,13 +7,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -25,10 +25,11 @@ import android.widget.ListView;
 
 import javax.inject.Inject;
 
+
 abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMenuPresenter.RemoveTrackListener {
 
     private final PlaylistTrackItemPresenter trackPresenter;
-    private final ItemAdapter<PropertySet> adapter;
+    private final ItemAdapter<TrackItem> adapter;
     private final EventBus eventBus;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
@@ -41,7 +42,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         void onPlaylistContentChanged();
     }
 
-    protected PlaylistDetailsController(PlaylistTrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter,
+    protected PlaylistDetailsController(PlaylistTrackItemPresenter trackPresenter, ItemAdapter<TrackItem> adapter,
                                         EventBus eventBus) {
         this.trackPresenter = trackPresenter;
         this.adapter = adapter;
@@ -69,7 +70,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         return playlistUrn;
     }
 
-    ItemAdapter<PropertySet> getAdapter() {
+    ItemAdapter<TrackItem> getAdapter() {
         return adapter;
     }
 

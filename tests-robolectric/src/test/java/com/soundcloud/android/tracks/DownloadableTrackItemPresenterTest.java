@@ -29,7 +29,7 @@ public class DownloadableTrackItemPresenterTest {
 
     @Test
     public void showsNoOfflineStateWhenNoOfflineProperties() {
-        final PropertySet item = PropertySet.create();
+        final TrackItem item = TrackItem.from(PropertySet.create());
 
         expect(presenter.isDownloading(item)).toBeFalse();
         expect(presenter.isPendingDownload(item)).toBeFalse();
@@ -38,7 +38,7 @@ public class DownloadableTrackItemPresenterTest {
 
     @Test
     public void showsPendingDownloadState() {
-        final PropertySet item = PropertySet.from(OfflineProperty.REQUESTED_AT.bind(new Date()));
+        final TrackItem item = TrackItem.from(PropertySet.from(OfflineProperty.REQUESTED_AT.bind(new Date())));
 
         expect(presenter.isDownloading(item)).toBeFalse();
         expect(presenter.isPendingDownload(item)).toBeTrue();
@@ -47,9 +47,9 @@ public class DownloadableTrackItemPresenterTest {
 
     @Test
     public void showsPendingDownloadStateWhenResurrecting() {
-        final PropertySet item = PropertySet.from(
+        final TrackItem item = TrackItem.from(PropertySet.from(
                 OfflineProperty.REMOVED_AT.bind(new Date(0)),
-                OfflineProperty.REQUESTED_AT.bind(new Date()));
+                OfflineProperty.REQUESTED_AT.bind(new Date())));
 
         expect(presenter.isDownloading(item)).toBeFalse();
         expect(presenter.isPendingDownload(item)).toBeTrue();
@@ -58,9 +58,9 @@ public class DownloadableTrackItemPresenterTest {
 
     @Test
     public void showsDownloadingState() {
-        final PropertySet item = PropertySet.from(
+        final TrackItem item = TrackItem.from(PropertySet.from(
                 OfflineProperty.DOWNLOADING.bind(true),
-                OfflineProperty.REQUESTED_AT.bind(new Date()));
+                OfflineProperty.REQUESTED_AT.bind(new Date())));
 
         expect(presenter.isDownloading(item)).toBeTrue();
         expect(presenter.isPendingDownload(item)).toBeFalse();
@@ -69,10 +69,10 @@ public class DownloadableTrackItemPresenterTest {
 
     @Test
     public void showsDownloadingStateWhenResurrecting() {
-        final PropertySet item = PropertySet.from(
+        final TrackItem item = TrackItem.from(PropertySet.from(
                 OfflineProperty.REMOVED_AT.bind(new Date(0)),
                 OfflineProperty.DOWNLOADING.bind(true),
-                OfflineProperty.REQUESTED_AT.bind(new Date()));
+                OfflineProperty.REQUESTED_AT.bind(new Date())));
 
         expect(presenter.isDownloading(item)).toBeTrue();
         expect(presenter.isPendingDownload(item)).toBeFalse();
@@ -81,7 +81,8 @@ public class DownloadableTrackItemPresenterTest {
 
     @Test
     public void showsDownloadedState() {
-        final PropertySet item = PropertySet.from(OfflineProperty.DOWNLOADED_AT.bind(new Date()));
+        final TrackItem item = TrackItem.from(
+                PropertySet.from(OfflineProperty.DOWNLOADED_AT.bind(new Date())));
 
         expect(presenter.isDownloading(item)).toBeFalse();
         expect(presenter.isPendingDownload(item)).toBeFalse();
@@ -90,9 +91,9 @@ public class DownloadableTrackItemPresenterTest {
 
     @Test
     public void showsDownloadedStateWhenResurrecting() {
-        final PropertySet item = PropertySet.from(
+        final TrackItem item = TrackItem.from(PropertySet.from(
                 OfflineProperty.REMOVED_AT.bind(new Date(0)),
-                OfflineProperty.DOWNLOADED_AT.bind(new Date()));
+                OfflineProperty.DOWNLOADED_AT.bind(new Date())));
 
         expect(presenter.isDownloading(item)).toBeFalse();
         expect(presenter.isPendingDownload(item)).toBeFalse();

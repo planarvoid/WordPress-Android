@@ -6,14 +6,13 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
@@ -32,20 +31,21 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import javax.inject.Inject;
+import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class PlaylistResultsFragment extends LightCycleSupportFragment
-        implements ReactiveListComponent<ConnectableObservable<ApiPlaylistCollection>> {
+        implements ReactiveListComponent<ConnectableObservable<List<PlaylistItem>>> {
 
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
 
     @Inject ListViewController listViewController;
     @Inject PlaylistDiscoveryOperations operations;
-    @Inject PagingItemAdapter<ApiPlaylist> adapter;
+    @Inject PagingItemAdapter<PlaylistItem> adapter;
     @Inject EventBus eventBus;
 
-    private ConnectableObservable<ApiPlaylistCollection> observable;
+    private ConnectableObservable<List<PlaylistItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
     private PlaylistDiscoveryOperations.PlaylistPager pager;
 
@@ -65,7 +65,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
 
     @VisibleForTesting
     PlaylistResultsFragment(PlaylistDiscoveryOperations operations, ListViewController listViewController,
-                            PagingItemAdapter<ApiPlaylist> adapter, EventBus eventBus) {
+                            PagingItemAdapter<PlaylistItem> adapter, EventBus eventBus) {
         this.operations = operations;
         this.listViewController = listViewController;
         this.adapter = adapter;
@@ -77,7 +77,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
         super.onCreate(savedInstanceState);
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
         this.pager = operations.pager(playlistTag);
-        listViewController.setAdapter(adapter, pager);
+        listViewController.setAdapter(adapter, pager, PlaylistItem.<ApiPlaylistCollection>fromApiPlaylists());
         listViewController.setScrollListener(new AbsListViewParallaxer(null));
 
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SEARCH_PLAYLIST_DISCO));
@@ -85,13 +85,16 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
     }
 
     @Override
-    public ConnectableObservable<ApiPlaylistCollection> buildObservable() {
+    public ConnectableObservable<List<PlaylistItem>> buildObservable() {
         String playlistTag = getArguments().getString(KEY_PLAYLIST_TAG);
-        return pager.page(operations.playlistsForTag(playlistTag)).observeOn(mainThread()).replay();
+        return pager.page(operations.playlistsForTag(playlistTag))
+                .map(PlaylistItem.fromApiPlaylists())
+                .observeOn(mainThread())
+                .replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<ApiPlaylistCollection> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<PlaylistItem>> observable) {
         this.observable = observable;
         this.observable.subscribe(adapter);
         connectionSubscription = observable.connect();
@@ -119,8 +122,8 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        ApiPlaylist playlist = adapter.getItem(position);
-        PlaylistDetailActivity.start(getActivity(), new PublicApiPlaylist(playlist).getUrn(), Screen.SEARCH_PLAYLIST_DISCO);
+        PlaylistItem playlist = adapter.getItem(position);
+        PlaylistDetailActivity.start(getActivity(), playlist.getEntityUrn(), Screen.SEARCH_PLAYLIST_DISCO);
         eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_PLAYLIST_DISCO));
     }
 }

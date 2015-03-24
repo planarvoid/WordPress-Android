@@ -20,8 +20,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserProperty;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.android.users.UserItem;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -47,7 +46,7 @@ public class UserAdapterTest {
     @Mock private FollowingOperations followingOperations;
     @Mock private ViewGroup itemView;
 
-    @Captor private ArgumentCaptor<List<PropertySet>> propSetCaptor;
+    @Captor private ArgumentCaptor<List<UserItem>> itemCaptor;
 
     @Before
     public void setup() {
@@ -76,12 +75,11 @@ public class UserAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
         adapter.bindRow(0, itemView);
 
-        verify(userPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
-        PropertySet convertedTrack = propSetCaptor.getValue().get(0);
-        expect(convertedTrack.get(UserProperty.URN)).toEqual(user.getUrn());
-        expect(convertedTrack.get(UserProperty.USERNAME)).toEqual(user.getUsername());
-        expect(convertedTrack.get(UserProperty.FOLLOWERS_COUNT)).toEqual(user.followers_count);
-        expect(convertedTrack.get(UserProperty.IS_FOLLOWED_BY_ME)).toEqual(true);
+        verify(userPresenter).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
+        UserItem userItem = itemCaptor.getValue().get(0);
+        expect(userItem.getEntityUrn()).toEqual(user.getUrn());
+        expect(userItem.getName()).toEqual(user.getUsername());
+        expect(userItem.getFollowersCount()).toEqual(user.followers_count);
     }
 
     @Test
@@ -95,9 +93,9 @@ public class UserAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(user2));
         adapter.bindRow(0, itemView);
 
-        verify(userPresenter, times(2)).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
-        PropertySet convertedTrack = propSetCaptor.getAllValues().get(1).get(0);
-        expect(convertedTrack.get(UserProperty.URN)).toEqual(user2.getUrn());
+        verify(userPresenter, times(2)).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
+        UserItem userItem = itemCaptor.getAllValues().get(1).get(0);
+        expect(userItem.getEntityUrn()).toEqual(user2.getUrn());
     }
 
     @Test
@@ -128,12 +126,11 @@ public class UserAdapterTest {
 
         adapter.bindRow(1, itemView);
 
-        verify(userPresenter).bindItemView(eq(1), refEq(itemView), propSetCaptor.capture());
-        PropertySet convertedUser = propSetCaptor.getValue().get(1);
-        expect(convertedUser.get(UserProperty.URN)).toEqual(user2AfterUpdate.getUrn());
-        expect(convertedUser.get(UserProperty.USERNAME)).toEqual(user2AfterUpdate.getUsername());
-        expect(convertedUser.get(UserProperty.FOLLOWERS_COUNT)).toEqual(user2AfterUpdate.followers_count);
-        expect(convertedUser.get(UserProperty.IS_FOLLOWED_BY_ME)).toEqual(true);
+        verify(userPresenter).bindItemView(eq(1), refEq(itemView), itemCaptor.capture());
+        UserItem userItem = itemCaptor.getValue().get(1);
+        expect(userItem.getEntityUrn()).toEqual(user2AfterUpdate.getUrn());
+        expect(userItem.getName()).toEqual(user2AfterUpdate.getUsername());
+        expect(userItem.getFollowersCount()).toEqual(user2AfterUpdate.followers_count);
     }
 
     @Test
@@ -156,8 +153,8 @@ public class UserAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(userPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
-        expect(propSetCaptor.getValue().get(0).get(UserProperty.URN)).toEqual(user.getUrn());
+        verify(userPresenter).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
+        expect(itemCaptor.getValue().get(0).getEntityUrn()).toEqual(user.getUrn());
     }
 
     private PublicApiUser copyUser(PublicApiUser user) throws CreateModelException {

@@ -2,15 +2,28 @@ package com.soundcloud.android.comments;
 
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.propeller.PropertySet;
 
 import java.util.Date;
 
-public class Comment {
+public class Comment implements ListItem {
 
     private final PublicApiComment apiComment;
 
     Comment(PublicApiComment apiComment) {
         this.apiComment = apiComment;
+    }
+
+    @Override
+    public Comment update(PropertySet sourceSet) {
+        // NOP
+        return this;
+    }
+
+    @Override
+    public Urn getEntityUrn() {
+        return apiComment.getUrn();
     }
 
     Urn getUserUrn() {

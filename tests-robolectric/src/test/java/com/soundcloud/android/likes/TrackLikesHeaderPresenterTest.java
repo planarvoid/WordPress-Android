@@ -21,6 +21,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public class TrackLikesHeaderPresenterTest {
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;
-    @Mock private ListBinding<PropertySet, PropertySet> listBinding;
+    @Mock private ListBinding<PropertySet, TrackItem> listBinding;
     @Mock private Fragment fragment;
     @Mock private View layoutView;
     @Mock private ListView listView;
@@ -104,7 +105,8 @@ public class TrackLikesHeaderPresenterTest {
 
     @Test
     public void onSubscribeListObserversUpdatesHeaderViewTrackCountOnlyOnce() {
-        when(listBinding.getSource()).thenReturn(Observable.just(TestPropertySets.expectedLikedTrackForLikesScreen()).toList());
+        when(listBinding.getSource()).thenReturn(
+                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList());
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
 
         presenter.onViewCreated(layoutView, listView);
@@ -115,7 +117,8 @@ public class TrackLikesHeaderPresenterTest {
 
     @Test
     public void doNotUpdateTrackCountAfterViewIsDestroyed() {
-        when(listBinding.getSource()).thenReturn(Observable.just(TestPropertySets.expectedLikedTrackForLikesScreen()).toList());
+        when(listBinding.getSource()).thenReturn(
+                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList());
         PublishSubject<List<Urn>> likedTrackUrnsObservable = PublishSubject.create();
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
 

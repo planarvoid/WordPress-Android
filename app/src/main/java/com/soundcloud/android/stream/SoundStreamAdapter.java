@@ -3,14 +3,13 @@ package com.soundcloud.android.stream;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -23,7 +22,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements SupportFragmentLightCycle {
+class SoundStreamAdapter extends PagingItemAdapter<PlayableItem> implements SupportFragmentLightCycle {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
@@ -45,7 +44,7 @@ class SoundStreamAdapter extends PagingItemAdapter<PropertySet> implements Suppo
         final int itemViewType = super.getItemViewType(position);
         if (itemViewType == IGNORE_ITEM_VIEW_TYPE) {
             return itemViewType;
-        } else if (getItem(position).get(PlayableProperty.URN).isTrack()) {
+        } else if (getItem(position).getEntityUrn().isTrack()) {
             return TRACK_ITEM_TYPE;
         } else {
             return PLAYLIST_ITEM_TYPE;

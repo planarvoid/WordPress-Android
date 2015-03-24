@@ -19,8 +19,8 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistLikesAdapter extends PagingItemAdapter<PropertySet>
-        implements ReactiveAdapter<Iterable<PropertySet>> {
+public class PlaylistLikesAdapter extends PagingItemAdapter<PlaylistItem>
+        implements ReactiveAdapter<Iterable<PlaylistItem>> {
 
     private final DefaultSupportFragmentLightCycle lifeCycleHandler;
     private Subscription eventSubscriptions = Subscriptions.empty();
@@ -48,7 +48,4 @@ public class PlaylistLikesAdapter extends PagingItemAdapter<PropertySet>
         };
     }
 
-    public DefaultSupportFragmentLightCycle getLifeCycleHandler() {
-        return lifeCycleHandler;
-    }
 }

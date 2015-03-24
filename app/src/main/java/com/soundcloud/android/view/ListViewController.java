@@ -7,6 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -55,7 +56,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
      * Use this method to connect an adapter and pager object to get paged list views. The given item mapper can
      * apply an optional transformation of items before adding them to the adapter, e.g. when mapping to a view model.
      */
-    public <T, R, CollT extends Iterable<T>>
+    public <T, R extends ListItem, CollT extends Iterable<T>>
     void setAdapter(final PagingItemAdapter<R> adapter, final Pager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
         this.adapter = adapter;
         this.pager = pager;
@@ -72,7 +73,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
      * Like {@link #setAdapter(com.soundcloud.android.view.adapters.PagingItemAdapter, rx.android.Pager)}, but does
      * not perform any item mapping.
      */
-    public <T, CollT extends Iterable<T>> void setAdapter(final PagingItemAdapter<T> adapter, final Pager<CollT> pager) {
+    public <T extends ListItem, CollT extends Iterable<T>> void setAdapter(final PagingItemAdapter<T> adapter, final Pager<CollT> pager) {
         setAdapter(adapter, pager, UtilityFunctions.<CollT>identity());
     }
 

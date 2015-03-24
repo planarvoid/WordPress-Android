@@ -17,12 +17,16 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.propeller.PropertySet;
@@ -40,6 +44,7 @@ import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.AdapterView;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -122,7 +127,7 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void playlistItemClickShouldOpenPlaylistActivity() {
-        when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(PLAYLIST_URN)));
+        when(adapter.getItem(0)).thenReturn(PlaylistItem.from(PropertySet.from(PlayableProperty.URN.bind(PLAYLIST_URN))));
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -136,7 +141,7 @@ public class SearchResultsFragmentTest {
     public void playlistItemClickShouldPublishSearchEventFromPlaylistTab() {
         fragment = createFragment(SearchOperations.TYPE_PLAYLISTS);
         fragment.onCreate(null);
-        when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(PLAYLIST_URN)));
+        when(adapter.getItem(0)).thenReturn(PlaylistItem.from(PropertySet.from(PlayableProperty.URN.bind(PLAYLIST_URN))));
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -148,7 +153,7 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void userItemClickShouldOpenProfileActivity() {
-        when(adapter.getItem(0)).thenReturn(PropertySet.from(UserProperty.URN.bind(USER_URN)));
+        when(adapter.getItem(0)).thenReturn(UserItem.from(PropertySet.from(UserProperty.URN.bind(USER_URN))));
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -162,7 +167,7 @@ public class SearchResultsFragmentTest {
     public void userItemClickShouldPublishSearchEventFromUsersTab() {
         fragment = createFragment(SearchOperations.TYPE_USERS);
         fragment.onCreate(null);
-        when(adapter.getItem(0)).thenReturn(PropertySet.from(UserProperty.URN.bind(USER_URN)));
+        when(adapter.getItem(0)).thenReturn(UserItem.from(PropertySet.from(UserProperty.URN.bind(USER_URN))));
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -187,8 +192,9 @@ public class SearchResultsFragmentTest {
 
     private TestObservables.MockObservable<List<Urn>> setupAdapterAndPlaybackOperations(Screen screen) {
         TestObservables.MockObservable<List<Urn>> playbackObservable = TestObservables.emptyObservable();
-        when(adapter.getItem(0)).thenReturn(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
-        when(adapter.getItems()).thenReturn(Lists.<PropertySet>newArrayList(PropertySet.from(TrackProperty.URN.bind(TRACK_URN))));
+        final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
+        when(adapter.getItem(0)).thenReturn(trackItem);
+        when(adapter.getItems()).thenReturn(Arrays.asList((ListItem) trackItem));
         when(playbackOperations
                 .playTracks(eq(Lists.newArrayList(TRACK_URN)), eq(TRACK_URN), eq(0), eq(new PlaySessionSource(screen))))
                 .thenReturn(playbackObservable);

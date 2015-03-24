@@ -28,7 +28,7 @@ public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdap
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    public PagingItemAdapter(CellPresenterEntity<T>... cellPresenterEntities) {
+    public PagingItemAdapter(CellPresenterEntity<?>... cellPresenterEntities) {
         super(cellPresenterEntities);
         this.progressItemLayoutResId = R.layout.list_loading_item;
     }

@@ -16,11 +16,14 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -47,7 +50,7 @@ public class SearchResultsAdapterTest {
     @Mock private ViewGroup itemView;
     @Mock private Fragment fragment;
 
-    @Captor private ArgumentCaptor<List<PropertySet>> propSetCaptor;
+    @Captor private ArgumentCaptor<List<PlaylistItem>> playlistItemCaptor;
 
     private TestEventBus eventBus = new TestEventBus();
     private SearchResultsAdapter adapter;
@@ -59,9 +62,9 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void shouldDifferentiateItemViewTypesForUniversalSearchResult() {
-        adapter.addItem(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
-        adapter.addItem(ApiUniversalSearchItem.forTrack(ModelFixtures.create(ApiTrack.class)).toPropertySet());
-        adapter.addItem(ApiUniversalSearchItem.forPlaylist(ModelFixtures.create(ApiPlaylist.class)).toPropertySet());
+        adapter.addItem(dummyUserItem());
+        adapter.addItem(dummyTrackItem());
+        adapter.addItem(dummyPlaylistItem());
 
         expect(adapter.getItemViewType(0)).toEqual(TYPE_USER);
         expect(adapter.getItemViewType(1)).toEqual(TYPE_TRACK);
@@ -70,9 +73,9 @@ public class SearchResultsAdapterTest {
 
     @Test
     public void shouldDifferentiateItemViewTypesForDifferentResultTypes() {
-        adapter.addItem(ModelFixtures.create(ApiUser.class).toPropertySet());
-        adapter.addItem(ModelFixtures.create(ApiTrack.class).toPropertySet());
-        adapter.addItem(ModelFixtures.create(ApiPlaylist.class).toPropertySet());
+        adapter.addItem(dummyUserItem());
+        adapter.addItem(dummyTrackItem());
+        adapter.addItem(dummyPlaylistItem());
 
         expect(adapter.getItemViewType(0)).toEqual(TYPE_USER);
         expect(adapter.getItemViewType(1)).toEqual(TYPE_TRACK);
@@ -102,9 +105,9 @@ public class SearchResultsAdapterTest {
     public void playableChangedEventShouldUpdateAdapterToReflectTheLatestLikeStatus() {
         PropertySet unlikedPlaylist = ModelFixtures.create(ApiPlaylist.class).toPropertySet();
         unlikedPlaylist.put(PlaylistProperty.IS_LIKED, false);
-        adapter.addItem(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
-        adapter.addItem(ApiUniversalSearchItem.forTrack(ModelFixtures.create(ApiTrack.class)).toPropertySet());
-        adapter.addItem(unlikedPlaylist);
+        adapter.addItem(dummyUserItem());
+        adapter.addItem(dummyTrackItem());
+        adapter.addItem(PlaylistItem.from(unlikedPlaylist));
         adapter.onViewCreated(fragment, null, null);
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
@@ -113,8 +116,8 @@ public class SearchResultsAdapterTest {
         final int playlistPosition = 2;
         adapter.getView(playlistPosition, itemView, new FrameLayout(Robolectric.application));
 
-        verify(playlistPresenter).bindItemView(eq(playlistPosition), refEq(itemView), propSetCaptor.capture());
-        expect(propSetCaptor.getValue().get(playlistPosition).get(PlayableProperty.IS_LIKED)).toBeTrue();
+        verify(playlistPresenter).bindItemView(eq(playlistPosition), refEq(itemView), playlistItemCaptor.capture());
+        expect(playlistItemCaptor.getValue().get(playlistPosition).isLiked()).toBeTrue();
     }
 
     @Test
@@ -122,5 +125,17 @@ public class SearchResultsAdapterTest {
         adapter.onViewCreated(fragment, null, null);
         adapter.onDestroyView(fragment);
         eventBus.verifyUnsubscribed();
+    }
+
+    private UserItem dummyUserItem() {
+        return UserItem.from(ApiUniversalSearchItem.forUser(ModelFixtures.create(ApiUser.class)).toPropertySet());
+    }
+
+    private TrackItem dummyTrackItem() {
+        return TrackItem.from(ApiUniversalSearchItem.forTrack(ModelFixtures.create(ApiTrack.class)).toPropertySet());
+    }
+
+    private PlaylistItem dummyPlaylistItem() {
+        return PlaylistItem.from(ApiUniversalSearchItem.forPlaylist(ModelFixtures.create(ApiPlaylist.class)).toPropertySet());
     }
 }

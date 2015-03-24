@@ -17,15 +17,18 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
@@ -45,14 +48,34 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class SearchResultsFragment extends LightCycleSupportFragment
-        implements ReactiveListComponent<ConnectableObservable<List<PropertySet>>> {
+        implements ReactiveListComponent<ConnectableObservable<List<ListItem>>> {
 
     static final String EXTRA_QUERY = "query";
     static final String EXTRA_TYPE = "type";
+
+    private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<ListItem>>() {
+        @Override
+        public List<ListItem> call(SearchResult searchResult) {
+            final List<PropertySet> sourceSets = searchResult.getItems();
+            final List<ListItem> items = new ArrayList<>(sourceSets.size());
+            for (PropertySet source : sourceSets) {
+                final Urn urn = source.get(EntityProperty.URN);
+                if (urn.isTrack()) {
+                    items.add(TrackItem.from(source));
+                } else if (urn.isPlaylist()) {
+                    items.add(PlaylistItem.from(source));
+                } else if (urn.isUser()) {
+                    items.add(UserItem.from(source));
+                }
+            }
+            return items;
+        }
+    };
 
     private static final Predicate<Urn> TRACK_PREDICATE = new Predicate<Urn>() {
         @Override
@@ -61,10 +84,10 @@ public class SearchResultsFragment extends LightCycleSupportFragment
         }
     };
 
-    private final Function<PropertySet, Urn> toUrn = new Function<PropertySet, Urn>() {
+    private final Function<ListItem, Urn> toUrn = new Function<ListItem, Urn>() {
         @Override
-        public Urn apply(PropertySet input) {
-            return getUrn(input);
+        public Urn apply(ListItem model) {
+            return model.getEntityUrn();
         }
     };
 
@@ -76,16 +99,9 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     @Inject SearchResultsAdapter adapter;
 
     private int searchType;
-    private ConnectableObservable<List<PropertySet>> observable;
+    private ConnectableObservable<List<ListItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
     private SearchOperations.SearchResultPager pager;
-
-    private final Func1<SearchResult, List<PropertySet>> TO_PROPERTY_SET = new Func1<SearchResult, List<PropertySet>>() {
-        @Override
-        public List<PropertySet> call(SearchResult searchResult) {
-            return searchResult.getItems();
-        }
-    };
 
     public static SearchResultsFragment newInstance(int type, String query) {
         SearchResultsFragment fragment = new SearchResultsFragment();
@@ -124,21 +140,23 @@ public class SearchResultsFragment extends LightCycleSupportFragment
 
         searchType = getArguments().getInt(EXTRA_TYPE);
         pager = searchOperations.pager(searchType);
-        listViewController.setAdapter(adapter, pager);
+        listViewController.setAdapter(adapter, pager, TO_PRESENTATION_MODELS);
 
         connectObservable(buildObservable());
     }
 
     @Override
-    public ConnectableObservable<List<PropertySet>> buildObservable() {
+    public ConnectableObservable<List<ListItem>> buildObservable() {
         final String query = getArguments().getString(EXTRA_QUERY);
         final Observable<SearchResult> observable = searchOperations.searchResult(query, searchType);
-        return pager.page(observable).map(TO_PROPERTY_SET)
-                .observeOn(mainThread()).replay();
+        return pager.page(observable)
+                .map(TO_PRESENTATION_MODELS)
+                .observeOn(mainThread())
+                .replay();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<List<PropertySet>> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<ListItem>> observable) {
         this.observable = observable;
         observable.subscribe(adapter);
         connectionSubscription = observable.connect();
@@ -172,7 +190,8 @@ public class SearchResultsFragment extends LightCycleSupportFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Urn urn = getUrn(adapter.getItem(position));
+        final ListItem item = adapter.getItem(position);
+        Urn urn = item.getEntityUrn();
         if (urn.isTrack()) {
             final List<Urn> trackUrns = filterTracks(toUrn(adapter.getItems()));
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
@@ -192,12 +211,8 @@ public class SearchResultsFragment extends LightCycleSupportFragment
         return Lists.newArrayList(Iterables.filter(urns, TRACK_PREDICATE));
     }
 
-    private List<Urn> toUrn(List<PropertySet> properties) {
-        return Lists.transform(properties, toUrn);
-    }
-
-    private Urn getUrn(PropertySet propertySet) {
-        return propertySet.getOrElse(UserProperty.URN, PlayableProperty.URN);
+    private List<Urn> toUrn(List<ListItem> items) {
+        return Lists.transform(items, toUrn);
     }
 
     private Screen getTrackingScreen() {

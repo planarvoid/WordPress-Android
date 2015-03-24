@@ -19,6 +19,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -92,7 +93,7 @@ public class PlaylistOperationsTest {
 
         operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
 
-        verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), Arrays.asList(track1, track2)));
+        verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), trackItems()));
         verify(playlistInfoObserver).onCompleted();
     }
 
@@ -106,7 +107,7 @@ public class PlaylistOperationsTest {
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), Arrays.asList(track1, track2)));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), trackItems()));
         inOrder.verify(playlistInfoObserver).onCompleted();
     }
 
@@ -120,7 +121,7 @@ public class PlaylistOperationsTest {
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), Arrays.asList(track1, track2)));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), trackItems()));
         inOrder.verify(playlistInfoObserver).onCompleted();
     }
 
@@ -136,8 +137,8 @@ public class PlaylistOperationsTest {
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), emptyTrackList));
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), trackList));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), TrackItem.fromPropertySets().call(emptyTrackList)));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();
     }
 
@@ -153,7 +154,7 @@ public class PlaylistOperationsTest {
         operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
 
         verify(syncInitiator, never()).syncPlaylist(playlist.getUrn());
-        verify(playlistInfoObserver).onNext(new PlaylistInfo(playlistProperties, emptyTrackList));
+        verify(playlistInfoObserver).onNext(new PlaylistInfo(playlistProperties, TrackItem.fromPropertySets().call(emptyTrackList)));
         verify(playlistInfoObserver).onCompleted();
     }
 
@@ -170,7 +171,7 @@ public class PlaylistOperationsTest {
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncLocalPlaylists();
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlistProperties, trackList));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlistProperties, TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();
         verify(syncInitiator, never()).syncPlaylist(playlistProperties.get(PlaylistProperty.URN));
     }
@@ -272,6 +273,10 @@ public class PlaylistOperationsTest {
                 PlaylistProperty.URN.bind(playlistUrn),
                 PlaylistProperty.TRACK_COUNT.bind(1)
         );
+    }
+
+    private List<TrackItem> trackItems() {
+        return Arrays.asList(TrackItem.from(track1), TrackItem.from(track2));
     }
 
     private void verifyAddToPlaylistParams() {

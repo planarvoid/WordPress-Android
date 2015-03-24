@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -15,7 +16,6 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
@@ -39,7 +39,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
 
-    private PropertySet playlist;
+    private PlaylistItem playlist;
     private Subscription playlistSubscription = Subscriptions.empty();
     private boolean allowOfflineOptions;
 
@@ -56,7 +56,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
         this.offlineContentOperations = offlineContentOperations;
     }
 
-    public void show(View button, PropertySet playlist, boolean allowOfflineOptions) {
+    public void show(View button, PlaylistItem playlist, boolean allowOfflineOptions) {
         this.playlist = playlist;
         this.allowOfflineOptions = allowOfflineOptions;
         final PopupMenuWrapper menu = setupMenu(button);
@@ -81,10 +81,10 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
                 // TODO
                 return true;
             case R.id.make_offline_available:
-                fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.get(PlaylistProperty.URN)));
+                fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getEntityUrn()));
                 return true;
             case R.id.make_offline_unavailable:
-                fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.get(PlaylistProperty.URN)));
+                fireAndForget(offlineContentOperations.makePlaylistUnavailableOffline(playlist.getEntityUrn()));
                 return true;
             default:
                 return false;
@@ -92,14 +92,14 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private void handleLike() {
-        final Urn trackUrn = playlist.get(TrackProperty.URN);
-        final Boolean addLike = !playlist.get(TrackProperty.IS_LIKED);
-        likeOperations.toggleLike(trackUrn, addLike)
+        final Urn playlistUrn = playlist.getEntityUrn();
+        final Boolean addLike = !playlist.isLiked();
+        likeOperations.toggleLike(playlistUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context, addLike));
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
-                        screenProvider.getLastScreenTag(), trackUrn));
+                        screenProvider.getLastScreenTag(), playlistUrn));
     }
 
     private PopupMenuWrapper setupMenu(View button) {
@@ -108,20 +108,11 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
         menu.setOnMenuItemClickListener(this);
         menu.setOnDismissListener(this);
 
-        configureLikeOption(menu);
+        updateLikeActionTitle(menu, playlist.isLiked());
         configureInitialOfflineOptions(menu);
 
         menu.show();
         return menu;
-    }
-
-    private void configureLikeOption(PopupMenuWrapper menu) {
-        if (playlist.contains(TrackProperty.IS_LIKED)){
-            updateLikeActionTitle(menu, playlist.get(TrackProperty.IS_LIKED));
-            menu.setItemEnabled(R.id.add_to_likes, true);
-        } else {
-            menu.setItemEnabled(R.id.add_to_likes, false);
-        }
     }
 
     private void updateLikeActionTitle(PopupMenuWrapper menu, boolean isLiked) {
@@ -134,16 +125,17 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private void configureInitialOfflineOptions(PopupMenuWrapper menu) {
-        if (playlist.contains(PlaylistProperty.IS_MARKED_FOR_OFFLINE) && allowOfflineOptions) {
-            configureOfflineOptions(menu);
+        final Optional<Boolean> maybeMarkedForOffline = playlist.isMarkedForOffline();
+        if (maybeMarkedForOffline.isPresent() && allowOfflineOptions) {
+            configureOfflineOptions(menu, maybeMarkedForOffline);
         } else {
             hideAllOfflineContentOptions(menu);
         }
     }
 
-    private void configureOfflineOptions(PopupMenuWrapper menu) {
-        if (featureOperations.isOfflineContentEnabled() && allowOfflineOptions) {
-            showOfflineContentOption(menu);
+    private void configureOfflineOptions(PopupMenuWrapper menu, Optional<Boolean> maybeMarkedForOffline) {
+        if (featureOperations.isOfflineContentEnabled() && allowOfflineOptions && maybeMarkedForOffline.isPresent()) {
+            showOfflineContentOption(menu, maybeMarkedForOffline.get());
         } else if (featureOperations.isOfflineContentUpsellEnabled() && allowOfflineOptions) {
             showUpsellOption(menu);
         } else {
@@ -151,8 +143,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
         }
     }
 
-    private void showOfflineContentOption(PopupMenuWrapper menu) {
-        if (playlist.get(PlaylistProperty.IS_MARKED_FOR_OFFLINE)) {
+    private void showOfflineContentOption(PopupMenuWrapper menu, boolean isMarkedForOffline) {
+        if (isMarkedForOffline) {
             showOfflineRemovalOption(menu);
         } else {
             showOfflineDownloadOption(menu);
@@ -186,17 +178,17 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     private void loadPlaylist(PopupMenuWrapper menu) {
         playlistSubscription.unsubscribe();
         playlistSubscription = loadPlaylistCommand
-                .with(playlist.get(PlaylistProperty.URN))
+                .with(playlist.getEntityUrn())
                 .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaylistSubscriber(playlist, menu));
     }
 
     private class PlaylistSubscriber extends DefaultSubscriber<PropertySet> {
-        private final PropertySet playlist;
+        private final PlaylistItem playlist;
         private final PopupMenuWrapper menu;
 
-        public PlaylistSubscriber(PropertySet playlist, PopupMenuWrapper menu) {
+        public PlaylistSubscriber(PlaylistItem playlist, PopupMenuWrapper menu) {
             this.playlist = playlist;
             this.menu = menu;
         }
@@ -204,8 +196,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
         @Override
         public void onNext(PropertySet details) {
             playlist.update(details);
-            configureLikeOption(menu);
-            configureOfflineOptions(menu);
+            updateLikeActionTitle(menu, playlist.isLiked());
+            configureOfflineOptions(menu, playlist.isMarkedForOffline());
         }
     }
 }

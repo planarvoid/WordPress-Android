@@ -1,13 +1,13 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.tracks.DownloadableTrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;
 
-class PagedTracksAdapter extends PagingItemAdapter<PropertySet> {
+class PagedTracksAdapter extends PagingItemAdapter<TrackItem> {
 
     private final TrackItemPresenter trackPresenter;
 

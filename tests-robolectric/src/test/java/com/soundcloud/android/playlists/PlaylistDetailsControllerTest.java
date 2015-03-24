@@ -7,8 +7,8 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,13 +37,14 @@ public class PlaylistDetailsControllerTest {
 
     @Test
     public void hasTracksIsTrueIfAdapterDataIsNotEmpty() throws Exception {
-        when(itemAdapter.getItems()).thenReturn(Arrays.asList(0,1,2));
+        when(itemAdapter.getItems()).thenReturn(Arrays.asList(0, 1, 2));
         expect(controller.hasTracks()).toBeTrue();
     }
 
     private static class PlaylistDetailsControllerImpl extends PlaylistDetailsController {
 
-        protected PlaylistDetailsControllerImpl(PlaylistTrackItemPresenter trackPresenter, ItemAdapter<PropertySet> adapter, EventBus eventBus) {
+        protected PlaylistDetailsControllerImpl(PlaylistTrackItemPresenter trackPresenter,
+                                                ItemAdapter<TrackItem> adapter, EventBus eventBus) {
             super(trackPresenter, adapter, eventBus);
         }
 

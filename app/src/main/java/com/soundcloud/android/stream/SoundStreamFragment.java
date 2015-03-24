@@ -9,18 +9,23 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
@@ -34,14 +39,33 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class SoundStreamFragment extends LightCycleSupportFragment
-        implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
+        implements RefreshableListComponent<ConnectableObservable<List<PlayableItem>>> {
 
     @VisibleForTesting
     static final String ONBOARDING_RESULT_EXTRA = "onboarding.result";
+
+    private static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
+            new Func1<List<PropertySet>, List<PlayableItem>>() {
+                @Override
+                public List<PlayableItem> call(List<PropertySet> bindings) {
+                    final List<PlayableItem> items = new ArrayList<>(bindings.size());
+                    for (PropertySet source : bindings) {
+                        final Urn urn = source.get(EntityProperty.URN);
+                        if (urn.isTrack()) {
+                            items.add(TrackItem.from(source));
+                        } else if (urn.isPlaylist()) {
+                            items.add(PlaylistItem.from(source));
+                        }
+                    }
+                    return items;
+                }
+            };
+
 
     @Inject SoundStreamOperations operations;
     @Inject SoundStreamAdapter adapter;
@@ -50,7 +74,7 @@ public class SoundStreamFragment extends LightCycleSupportFragment
     @Inject PlaybackOperations playbackOperations;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
-    private ConnectableObservable<List<PropertySet>> observable;
+    private ConnectableObservable<List<PlayableItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
 
     public static SoundStreamFragment create(boolean onboardingSucceeded) {
@@ -84,7 +108,7 @@ public class SoundStreamFragment extends LightCycleSupportFragment
     }
 
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter, operations.pager());
+        listViewController.setAdapter(adapter, operations.pager(), PAGE_TRANSFORMER);
         pullToRefreshController.setRefreshListener(this, adapter);
 
         attachLightCycle(listViewController);
@@ -93,25 +117,28 @@ public class SoundStreamFragment extends LightCycleSupportFragment
     }
 
     @Override
-    public ConnectableObservable<List<PropertySet>> buildObservable() {
+    public ConnectableObservable<List<PlayableItem>> buildObservable() {
         return buildPagedObservable(operations.existingStreamItems());
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<List<PropertySet>> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<PlayableItem>> observable) {
         this.observable = observable;
         this.connectionSubscription = observable.connect();
         return connectionSubscription;
     }
 
     @Override
-    public ConnectableObservable<List<PropertySet>> refreshObservable() {
+    public ConnectableObservable<List<PlayableItem>> refreshObservable() {
         return buildPagedObservable(operations.updatedStreamItems());
     }
 
-    private ConnectableObservable<List<PropertySet>> buildPagedObservable(Observable<List<PropertySet>> source) {
-        final ConnectableObservable<List<PropertySet>> observable =
-                operations.pager().page(source).observeOn(mainThread()).replay();
+    private ConnectableObservable<List<PlayableItem>> buildPagedObservable(Observable<List<PropertySet>> source) {
+        final ConnectableObservable<List<PlayableItem>> observable =
+                operations.pager().page(source)
+                        .map(PAGE_TRANSFORMER)
+                        .observeOn(mainThread())
+                        .replay();
         observable.subscribe(adapter);
         return observable;
     }
@@ -161,8 +188,8 @@ public class SoundStreamFragment extends LightCycleSupportFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final PropertySet item = adapter.getItem(position);
-        final Urn playableUrn = item.get(PlayableProperty.URN);
+        final ListItem item = adapter.getItem(position);
+        final Urn playableUrn = item.getEntityUrn();
         if (playableUrn.isTrack()) {
             playbackOperations
                     .playTracks(operations.trackUrnsForPlayback(),

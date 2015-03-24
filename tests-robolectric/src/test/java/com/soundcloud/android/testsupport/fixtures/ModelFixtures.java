@@ -35,6 +35,10 @@ import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.playlists.ApiPlaylistWithTracks;
 import com.soundcloud.android.sync.posts.ApiPost;
 import com.soundcloud.android.sync.posts.ApiPostItem;
+import com.soundcloud.android.playlists.PlaylistItemBlueprint;
+import com.soundcloud.android.tracks.TrackItemBlueprint;
+import com.soundcloud.android.users.UserItemBlueprint;
+import com.soundcloud.android.tracks.TrackItem;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.tobedevoured.modelcitizen.ModelFactory;
 import com.tobedevoured.modelcitizen.RegisterBlueprintException;
@@ -74,6 +78,9 @@ public class ModelFixtures {
             modelFactory.registerBlueprint(ApiPlaylistPostBlueprint.class);
             modelFactory.registerBlueprint(ApiPlaylistRepostBlueprint.class);
             modelFactory.registerBlueprint(ConfigurationBlueprint.class);
+            modelFactory.registerBlueprint(TrackItemBlueprint.class);
+            modelFactory.registerBlueprint(PlaylistItemBlueprint.class);
+            modelFactory.registerBlueprint(UserItemBlueprint.class);
         } catch (RegisterBlueprintException e) {
             throw new RuntimeException(e);
         }
@@ -143,4 +150,7 @@ public class ModelFixtures {
         return new ApiPost(apiTrack.getUrn(), new Date());
     }
 
+    public static List<TrackItem> trackItems(int count) {
+        return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
+    }
 }

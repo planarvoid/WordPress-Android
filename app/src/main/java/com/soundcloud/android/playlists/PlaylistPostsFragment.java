@@ -29,20 +29,20 @@ import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class PlaylistPostsFragment extends LightCycleSupportFragment
-        implements RefreshableListComponent<ConnectableObservable<List<PropertySet>>> {
+        implements RefreshableListComponent<ConnectableObservable<List<PlaylistItem>>> {
 
     @Inject PlaylistPostsAdapter adapter;
     @Inject PlaylistPostOperations playlistPostOperations;
     @Inject ListViewController listViewController;
     @Inject PullToRefreshController pullToRefreshController;
 
-    private ConnectableObservable<List<PropertySet>> observable;
+    private ConnectableObservable<List<PlaylistItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
 
     public PlaylistPostsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
 
-        listViewController.setAdapter(adapter, playlistPostOperations.postedPlaylistsPager());
+        listViewController.setAdapter(adapter, playlistPostOperations.postedPlaylistsPager(), PlaylistItem.fromPropertySets());
         pullToRefreshController.setRefreshListener(this, adapter);
 
         attachLightCycle(listViewController);
@@ -90,31 +90,35 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
     }
 
     @Override
-    public ConnectableObservable<List<PropertySet>> buildObservable() {
+    public ConnectableObservable<List<PlaylistItem>> buildObservable() {
         return pagedObservable(playlistPostOperations.postedPlaylists());
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<List<PropertySet>> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<PlaylistItem>> observable) {
         this.observable = observable;
         return observable.connect();
     }
 
     @Override
-    public ConnectableObservable<List<PropertySet>> refreshObservable() {
+    public ConnectableObservable<List<PlaylistItem>> refreshObservable() {
         return pagedObservable(playlistPostOperations.updatedPostedPlaylists());
     }
 
-    private ConnectableObservable<List<PropertySet>> pagedObservable(Observable<List<PropertySet>> source) {
-        final ConnectableObservable<List<PropertySet>> observable =
-                playlistPostOperations.postedPlaylistsPager().page(source).observeOn(mainThread()).replay();
+    private ConnectableObservable<List<PlaylistItem>> pagedObservable(Observable<List<PropertySet>> source) {
+        final ConnectableObservable<List<PlaylistItem>> observable =
+                playlistPostOperations.postedPlaylistsPager()
+                        .page(source)
+                        .map(PlaylistItem.fromPropertySets())
+                        .observeOn(mainThread())
+                        .replay();
         observable.subscribe(adapter);
         return observable;
     }
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-        Urn playlistUrn = adapter.getItem(position).get(PlaylistProperty.URN);
+        Urn playlistUrn = adapter.getItem(position).getEntityUrn();
         PlaylistDetailActivity.start(getActivity(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
     }
 }

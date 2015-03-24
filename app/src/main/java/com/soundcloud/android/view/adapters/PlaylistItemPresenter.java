@@ -1,9 +1,11 @@
 package com.soundcloud.android.view.adapters;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -22,7 +24,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
+public class PlaylistItemPresenter implements CellPresenter<PlaylistItem> {
 
     private final Resources resources;
     private final ImageOperations imageOperations;
@@ -31,7 +33,8 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
     private boolean allowOfflineOptions;
 
     @Inject
-    public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations, PlaylistItemMenuPresenter playlistItemMenuPresenter, FeatureFlags featureFlags) {
+    public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations,
+                                 PlaylistItemMenuPresenter playlistItemMenuPresenter, FeatureFlags featureFlags) {
         this.resources = resources;
         this.imageOperations = imageOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
@@ -44,10 +47,10 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PropertySet> playlists) {
-        final PropertySet playlist = playlists.get(position);
-        getTextView(itemView, R.id.list_item_header).setText(playlist.get(PlayableProperty.CREATOR_NAME));
-        getTextView(itemView, R.id.list_item_subheader).setText(playlist.get(PlayableProperty.TITLE));
+    public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
+        final PlaylistItem playlist = playlists.get(position);
+        getTextView(itemView, R.id.list_item_header).setText(playlist.getCreatorName());
+        getTextView(itemView, R.id.list_item_subheader).setText(playlist.getTitle());
 
         showTrackCount(itemView, playlist);
         showReposter(itemView, playlist);
@@ -61,7 +64,7 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
         this.allowOfflineOptions = true;
     }
 
-    private void setupOverFlow(final View button, final PropertySet playlist) {
+    private void setupOverFlow(final View button, final PlaylistItem playlist) {
         if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -74,23 +77,24 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
         }
     }
 
-    private void showTrackCount(View itemView, PropertySet propertySet) {
-        final int trackCount = propertySet.get(PlaylistProperty.TRACK_COUNT);
+    private void showTrackCount(View itemView, PlaylistItem playlist) {
+        final int trackCount = playlist.getTrackCount();
         final String numberOfTracks = resources.getQuantityString(R.plurals.number_of_sounds, trackCount, trackCount);
         getTextView(itemView, R.id.list_item_right_info).setText(numberOfTracks);
     }
 
-    private void showReposter(View itemView, PropertySet propertySet) {
+    private void showReposter(View itemView, PlaylistItem playlist) {
         final TextView reposterView = getTextView(itemView, R.id.reposter);
-        if (propertySet.contains(PlayableProperty.REPOSTER)) {
+        final Optional<String> optionalReposter = playlist.getReposter();
+        if (optionalReposter.isPresent()) {
             reposterView.setVisibility(View.VISIBLE);
-            reposterView.setText(propertySet.get(PlayableProperty.REPOSTER));
+            reposterView.setText(optionalReposter.get());
         } else {
             reposterView.setVisibility(View.GONE);
         }
     }
 
-    private void showAdditionalInformation(View itemView, PropertySet playlist) {
+    private void showAdditionalInformation(View itemView, PlaylistItem playlist) {
         hideAllAdditionalInformation(itemView);
         if (isPrivatePlaylist(playlist)) {
             showPrivateIndicator(itemView);
@@ -104,28 +108,28 @@ public class PlaylistItemPresenter implements CellPresenter<PropertySet> {
         getTextView(itemView, R.id.private_indicator).setVisibility(View.GONE);
     }
 
-    private Boolean isPrivatePlaylist(PropertySet playlist) {
-        return playlist.contains(PlayableProperty.IS_PRIVATE) && playlist.get(PlayableProperty.IS_PRIVATE);
+    private Boolean isPrivatePlaylist(PlaylistItem playlist) {
+        return playlist.isPrivate();
     }
 
     private void showPrivateIndicator(View itemView) {
         getTextView(itemView, R.id.private_indicator).setVisibility(View.VISIBLE);
     }
 
-    private void loadArtwork(View itemView, PropertySet playlist) {
+    private void loadArtwork(View itemView, PlaylistItem playlist) {
         imageOperations.displayInAdapterView(
-                playlist.get(PlayableProperty.URN), ApiImageSize.getListItemImageSize(itemView.getContext()),
+                playlist.getEntityUrn(), ApiImageSize.getListItemImageSize(itemView.getContext()),
                 (ImageView) itemView.findViewById(R.id.image));
     }
 
-    private void showLikeCount(View itemView, PropertySet propertySet) {
+    private void showLikeCount(View itemView, PlaylistItem playlist) {
         final TextView likesCountText = getTextView(itemView, R.id.list_item_counter);
-        final int likesCount = propertySet.get(PlayableProperty.LIKES_COUNT);
+        final int likesCount = playlist.getLikesCount();
         if (hasLike(likesCount)) {
             likesCountText.setVisibility(View.VISIBLE);
             likesCountText.setText(ScTextUtils.formatNumberWithCommas(likesCount));
             final Drawable heartIcon = likesCountText.getCompoundDrawables()[0];
-            heartIcon.setLevel(propertySet.getOrElse(PlayableProperty.IS_LIKED, false) ? 1 : 0);
+            heartIcon.setLevel(playlist.isLiked() ? 1 : 0);
         }
     }
 

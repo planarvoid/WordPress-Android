@@ -16,10 +16,8 @@ import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackInfoFragment;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.propeller.PropertySet;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
@@ -142,14 +140,9 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     private void showAddToPlaylistDialog(PlayerTrack track) {
-        PropertySet trackPropertySet = track.toPropertySet();
-        if (trackPropertySet == null) {
-            // Do nothing and report a silent exception
-            ErrorUtils.handleSilentException(new IllegalStateException("PlayerTrack is backed by a null property set"));
-        } else {
-            AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(trackPropertySet, ScreenElement.PLAYER.get(), playQueueManager.getScreenTag());
-            from.show(activity.getSupportFragmentManager());
-        }
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
+                track.getUrn(), track.getTitle(), ScreenElement.PLAYER.get(), playQueueManager.getScreenTag());
+        from.show(activity.getSupportFragmentManager());
     }
 
     public void setTrack(PlayerTrack track) {
@@ -164,7 +157,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
         popupMenuWrapper.setItemVisible(R.id.repost, !isUserRepost);
     }
 
-    private void setMenuPrivacy(boolean isPrivate){
+    private void setMenuPrivacy(boolean isPrivate) {
         popupMenuWrapper.setItemEnabled(R.id.unpost, !isPrivate);
         popupMenuWrapper.setItemEnabled(R.id.repost, !isPrivate);
         popupMenuWrapper.setItemEnabled(R.id.share, !isPrivate);

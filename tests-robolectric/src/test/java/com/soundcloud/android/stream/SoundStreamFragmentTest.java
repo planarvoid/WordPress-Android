@@ -16,14 +16,16 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.propeller.PropertySet;
@@ -136,14 +138,15 @@ public class SoundStreamFragmentTest {
     @Test
     public void shouldPlayTrackWhenClickingOnTrackItem() {
         Robolectric.shadowOf(fragment).setActivity(activity);
-        final Observable<List<Urn>> streamTracks = just((Urn.forTrack(123))).toList();
+        final TrackItem trackItem = ModelFixtures.create(TrackItem.class);
+        final Observable<List<Urn>> streamTracks = just((trackItem.getEntityUrn())).toList();
         when(soundStreamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
-        when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
+        when(adapter.getItem(0)).thenReturn(trackItem);
         fragment.onItemClick(null, null, 0, -1);
 
         verify(playbackOperations).playTracks(
                 eq(streamTracks),
-                eq(Urn.forTrack(123)),
+                eq(trackItem.getEntityUrn()),
                 eq(0),
                 eq(new PlaySessionSource(Screen.SIDE_MENU_STREAM)));
     }
@@ -151,13 +154,14 @@ public class SoundStreamFragmentTest {
     @Test
     public void shouldOpenPlaylistScreenWhenClickingOnPlaylistItem() {
         Robolectric.shadowOf(fragment).setActivity(activity);
-        when(adapter.getItem(0)).thenReturn(PropertySet.from(PlayableProperty.URN.bind(Urn.forPlaylist(123))));
+        final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
+        when(adapter.getItem(0)).thenReturn(playlistItem);
         fragment.onItemClick(null, null, 0, -1);
 
         final Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(Urn.forPlaylist(123));
+        expect(intent.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlistItem.getEntityUrn());
     }
 
     @Test

@@ -8,12 +8,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
@@ -57,14 +55,14 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment {
     @Inject PlaylistOperations playlistOperations;
     @Inject EventBus eventBus;
 
-    public static AddToPlaylistDialogFragment from(PropertySet track, String invokerScreen, String contextScreen) {
-        return createFragment(createBundle(track, invokerScreen, contextScreen));
+    public static AddToPlaylistDialogFragment from(Urn trackUrn, String trackTitle, String invokerScreen, String contextScreen) {
+        return createFragment(createBundle(trackUrn, trackTitle, invokerScreen, contextScreen));
     }
 
-    private static Bundle createBundle(PropertySet track, String invokerScreen, String contextScreen) {
+    private static Bundle createBundle(Urn trackUrn, String trackTitle, String invokerScreen, String contextScreen) {
         Bundle bundle = new Bundle();
-        bundle.putLong(KEY_TRACK_ID, track.get(TrackProperty.URN).getNumericId());
-        bundle.putString(KEY_TRACK_TITLE, track.get(PlayableProperty.TITLE));
+        bundle.putLong(KEY_TRACK_ID, trackUrn.getNumericId());
+        bundle.putString(KEY_TRACK_TITLE, trackTitle);
         bundle.putString(KEY_INVOKER_SCREEN, invokerScreen);
         bundle.putString(KEY_CONTEXT_SCREEN, contextScreen);
         return bundle;

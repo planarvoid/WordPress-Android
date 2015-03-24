@@ -5,12 +5,6 @@ import rx.functions.Func1;
 
 public final class RxUtils {
 
-    public static final Func1<Boolean, Boolean> IS_FALSE = new Func1<Boolean, Boolean>() {
-        @Override
-        public Boolean call(Boolean isEnabled) {
-            return !isEnabled;
-        }
-    };
     public static final Func1<Boolean, Boolean> IS_TRUE = new Func1<Boolean, Boolean>() {
         @Override
         public Boolean call(Boolean isEnabled) {

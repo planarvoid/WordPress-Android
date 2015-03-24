@@ -29,12 +29,11 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -129,7 +128,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final DefaultSubscriber<EntityStateChangedEvent> trackAddedToPlaylist = new DefaultSubscriber<EntityStateChangedEvent>() {
         @Override
         public void onNext(EntityStateChangedEvent event) {
-            if (event.getNextUrn().equals(playlistInfo.getUrn())){
+            if (event.getNextUrn().equals(playlistInfo.getUrn())) {
                 onPlaylistContentChanged();
             }
         }
@@ -334,9 +333,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private void playTracksAtPosition(int trackPosition, Subscriber<List<Urn>> playbackSubscriber) {
         final PlaySessionSource playSessionSource = getPlaySessionSource();
-        final PropertySet initialTrack = controller.getAdapter().getItem(trackPosition);
+        final TrackItem initialTrack = controller.getAdapter().getItem(trackPosition);
         offlinePlaybackOperations
-                .playPlaylist(playlistInfo.getUrn(), initialTrack.get(TrackProperty.URN), trackPosition, playSessionSource)
+                .playPlaylist(playlistInfo.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
     }
 
@@ -368,12 +367,10 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
 
         // don't register clicks before we have a valid playlist
-        final List<PropertySet> tracks = playlistInfo.getTracks();
-        if (tracks != null && tracks.size() > 0) {
-            if (playToggle.getVisibility() != View.VISIBLE) {
-                playToggle.setVisibility(View.VISIBLE);
-                AnimUtils.runFadeInAnimationOn(getActivity(), playToggle);
-            }
+        final List<TrackItem> tracks = playlistInfo.getTracks();
+        if (!tracks.isEmpty()) {
+            playToggle.setVisibility(View.VISIBLE);
+            AnimUtils.runFadeInAnimationOn(getActivity(), playToggle);
         } else {
             playToggle.setVisibility(View.GONE);
         }
@@ -389,9 +386,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void updateTracksAdapter(PlaylistInfo playlist) {
-        final ItemAdapter<PropertySet> adapter = controller.getAdapter();
+        final ItemAdapter<TrackItem> adapter = controller.getAdapter();
         adapter.clear();
-        for (PropertySet track : playlist.getTracks()) {
+        for (TrackItem track : playlist.getTracks()) {
             adapter.addItem(track);
         }
         adapter.notifyDataSetChanged();

@@ -1,8 +1,5 @@
 package com.soundcloud.android.view.adapters;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -10,20 +7,19 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
-import com.soundcloud.android.collections.ScBaseAdapter;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
@@ -41,13 +37,12 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Temporarily used to adapt ScListFragment lists that use public API models to PropertySets and the new cell design
  */
 @Deprecated
-public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
+public class SoundAdapter extends LegacyAdapterBridge<PublicApiResource> {
 
     private static final int TRACK_VIEW_TYPE = 0;
     private static final int PLAYLIST_VIEW_TYPE = 1;
@@ -59,8 +54,6 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
-
-    private final List<PropertySet> propertySets = new ArrayList<PropertySet>(Consts.LIST_PAGE_SIZE);
 
     @Deprecated
     public SoundAdapter(Uri uri) {
@@ -106,60 +99,41 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
     @Override
     protected void bindRow(int position, View rowView) {
         if (isTrack(position)) {
-            trackPresenter.bindItemView(position, rowView, propertySets);
+            trackPresenter.bindItemView(position, rowView, (List) listItems);
         } else {
             // We assume this is a playlist
-            playlistPresenter.bindItemView(position, rowView, propertySets);
+            playlistPresenter.bindItemView(position, rowView, (List) listItems);
         }
     }
 
     @Override
-    public void clearData() {
-        super.clearData();
-        this.propertySets.clear();
-    }
-
-    @Override
-    public void addItems(List<PublicApiResource> newItems) {
-        super.addItems(newItems);
-        this.propertySets.addAll(toPropertySets(newItems));
-    }
-
-    private List<PropertySet> toPropertySets(List<PublicApiResource> items) {
-        ArrayList<PropertySet> propSets = new ArrayList<PropertySet>(items.size());
+    protected List<PlayableItem> toPresentationModels(List<PublicApiResource> items) {
+        ArrayList<PlayableItem> models = new ArrayList<>(items.size());
 
         List<Urn> tracksMissingTitles = new ArrayList<>();
         for (PublicApiResource resource : items) {
             Playable playable = ((PlayableHolder) resource).getPlayable();
-            if (playable.getTitle() == null){
+            if (playable.getTitle() == null) {
                 tracksMissingTitles.add(playable.getUrn());
             }
-            propSets.add(playable.toPropertySet());
+            models.add(playable.getUrn().isTrack()
+                    ? TrackItem.from(toPropertySet(resource))
+                    : PlaylistItem.from(toPropertySet(resource)));
         }
 
-        if (!tracksMissingTitles.isEmpty()){
+        if (!tracksMissingTitles.isEmpty()) {
             final String message = String.format("Invalid collection tracks found from uri : %s , tracks : %s",
                     contentUri, TextUtils.join(", ", tracksMissingTitles));
             ErrorUtils.handleSilentException(new IllegalStateException(message));
         }
 
-        return propSets;
+        return models;
     }
 
     @Override
-    public void updateItems(Map<Urn, PublicApiResource> updatedItems){
-        for (int i = 0; i < propertySets.size(); i++) {
-            final PropertySet originalPropertySet = propertySets.get(i);
-            final Urn key = originalPropertySet.get(PlayableProperty.URN);
-            if (updatedItems.containsKey(key)){
-                propertySets.set(i, ((PlayableHolder) updatedItems.get(key)).getPlayable().toPropertySet());
-            }
-        }
-        notifyDataSetChanged();
-    }
-
-    private boolean isTrack(int position) {
-        return propertySets.get(position).get(PlayableProperty.URN).isTrack();
+    protected PropertySet toPropertySet(PublicApiResource item) {
+        Playable playable = ((PlayableHolder) item).getPlayable();
+        return playable.toPropertySet();
     }
 
     @Override
@@ -209,22 +183,5 @@ public class SoundAdapter extends ScBaseAdapter<PublicApiResource> {
     @Override
     public void onDestroyView() {
         eventSubscriptions.unsubscribe();
-    }
-
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(final EntityStateChangedEvent event) {
-            final int index = Iterables.indexOf(propertySets, new Predicate<PropertySet>() {
-                @Override
-                public boolean apply(PropertySet item) {
-                    return item.get(PlayableProperty.URN).equals(event.getNextUrn());
-                }
-            });
-
-            if (index > -1) {
-                propertySets.get(index).update(event.getNextChangeSet());
-                notifyDataSetChanged();
-            }
-        }
     }
 }

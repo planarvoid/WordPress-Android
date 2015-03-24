@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -47,9 +48,10 @@ public class PlaylistOperations {
     private final EventBus eventBus;
     private final OfflineContentOperations offlineOperations;
 
-    private final Func2<PropertySet, List<PropertySet>, PlaylistInfo> mergePlaylistWithTracks = new Func2<PropertySet, List<PropertySet>, PlaylistInfo>() {
+    private final Func2<PropertySet, List<TrackItem>, PlaylistInfo> mergePlaylistWithTracks =
+            new Func2<PropertySet, List<TrackItem>, PlaylistInfo>() {
         @Override
-        public PlaylistInfo call(PropertySet playlist, List<PropertySet> tracks) {
+        public PlaylistInfo call(PropertySet playlist, List<TrackItem> tracks) {
             return new PlaylistInfo(playlist, tracks);
         }
     };
@@ -147,7 +149,8 @@ public class PlaylistOperations {
 
     private Observable<PlaylistInfo> createPlaylistInfoLoadObservable(Urn playlistUrn) {
         final Observable<PropertySet> loadPlaylist = loadPlaylistCommand.with(playlistUrn).toObservable();
-        final Observable<List<PropertySet>> loadPlaylistTracks = loadPlaylistTracksCommand.with(playlistUrn).toObservable();
+        final Observable<List<TrackItem>> loadPlaylistTracks =
+                loadPlaylistTracksCommand.with(playlistUrn).toObservable().map(TrackItem.fromPropertySets());
         return Observable.zip(loadPlaylist, loadPlaylistTracks, mergePlaylistWithTracks).subscribeOn(storageScheduler);
     }
 

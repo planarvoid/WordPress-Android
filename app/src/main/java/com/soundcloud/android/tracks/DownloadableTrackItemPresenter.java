@@ -1,12 +1,11 @@
 package com.soundcloud.android.tracks;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.propeller.PropertySet;
 
 import android.view.View;
 import android.widget.ImageView;
@@ -16,7 +15,6 @@ import java.util.Date;
 import java.util.List;
 
 public class DownloadableTrackItemPresenter extends TrackItemPresenter {
-    private static final Date MIN_DATE = new Date(0L);
     private final FeatureOperations featureOperations;
 
     @Inject
@@ -28,14 +26,14 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PropertySet> trackItems) {
+    public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
         super.bindItemView(position, itemView, trackItems);
-        final PropertySet track = trackItems.get(position);
+        final TrackItem track = trackItems.get(position);
 
         setDownloadProgressIndicator(itemView, track);
     }
 
-    private void setDownloadProgressIndicator(View itemView, PropertySet track) {
+    private void setDownloadProgressIndicator(View itemView, TrackItem track) {
 
         final ImageView downloadProgressIcon = (ImageView) itemView.findViewById(R.id.download_progress_icon);
         downloadProgressIcon.clearAnimation();
@@ -56,25 +54,26 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
     }
 
     @VisibleForTesting
-    Boolean isDownloading(PropertySet track) {
-        return track.getOrElse(OfflineProperty.DOWNLOADING, false);
+    Boolean isDownloading(TrackItem track) {
+        return track.isDownloading();
     }
 
     @VisibleForTesting
-    boolean isPendingDownload(PropertySet track) {
-        final Date removedAt = track.getOrElse(OfflineProperty.REMOVED_AT, MIN_DATE);
-        final Date unavailableAt = track.getOrElse(OfflineProperty.UNAVAILABLE_AT, MIN_DATE);
-        return track.contains(OfflineProperty.REQUESTED_AT)
-                && !track.getOrElse(OfflineProperty.DOWNLOADING, false)
-                && track.get(OfflineProperty.REQUESTED_AT).after(removedAt)
-                && track.get(OfflineProperty.REQUESTED_AT).after(unavailableAt);
+    boolean isPendingDownload(TrackItem track) {
+        final Date removedAt = track.getDownloadRemovedAt();
+        final Date unavailableAt = track.getDownloadUnavailableAt();
+        final Optional<Date> downloadRequestedAt = track.getDownloadRequestedAt();
+        return !track.isDownloading()
+                && downloadRequestedAt.isPresent()
+                && downloadRequestedAt.get().after(removedAt)
+                && downloadRequestedAt.get().after(unavailableAt);
     }
 
     @VisibleForTesting
-    boolean isDownloaded(PropertySet track) {
-        final Date removedAt = track.getOrElse(OfflineProperty.REMOVED_AT, MIN_DATE);
-        return track.contains(OfflineProperty.DOWNLOADED_AT)
-                && track.get(OfflineProperty.DOWNLOADED_AT).after(removedAt);
+    boolean isDownloaded(TrackItem track) {
+        final Date removedAt = track.getDownloadRemovedAt();
+        final Optional<Date> maybeDownloadedAt = track.getDownloadedAt();
+        return maybeDownloadedAt.isPresent() && maybeDownloadedAt.get().after(removedAt);
     }
 
     private void setNoOfflineState(ImageView downloadProgressIcon) {

@@ -10,6 +10,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PagedPlaylistsAdapter;
 import com.soundcloud.android.playlists.PlaylistDetailFragment;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistLikesPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
@@ -71,7 +72,7 @@ public class PlaylistLikesPresenterTest {
     @Test
     public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
         PropertySet clickedPlaylist = TestPropertySets.expectedLikedPlaylistForPlaylistsScreen();
-        when(adapter.getItem(0)).thenReturn(clickedPlaylist);
+        when(adapter.getItem(0)).thenReturn(PlaylistItem.from(clickedPlaylist));
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, fragmentView, null);
 

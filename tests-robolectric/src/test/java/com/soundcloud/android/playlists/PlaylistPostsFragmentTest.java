@@ -68,7 +68,7 @@ public class PlaylistPostsFragmentTest {
 
     @Test
     public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
-        PropertySet clickedPlaylist = TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen();
+        PlaylistItem clickedPlaylist = PlaylistItem.from(TestPropertySets.expectedPostedPlaylistsForPostedPlaylistsScreen());
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
         fragment.onCreate(null);
         createFragmentView();
@@ -79,7 +79,7 @@ public class PlaylistPostsFragmentTest {
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
         expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN))
-                .toEqual(clickedPlaylist.get(PlaylistProperty.URN));
+                .toEqual(clickedPlaylist.getEntityUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SIDE_MENU_PLAYLISTS);
     }
 

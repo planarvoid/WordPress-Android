@@ -2,17 +2,15 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UserItemPresenter;
-import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -25,7 +23,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements SupportFragmentLightCycle<Fragment> {
+class SearchResultsAdapter extends PagingItemAdapter<ListItem> implements SupportFragmentLightCycle<Fragment> {
 
     static final int TYPE_USER = 0;
     static final int TYPE_TRACK = 1;
@@ -67,8 +65,8 @@ class SearchResultsAdapter extends PagingItemAdapter<PropertySet> implements Sup
     }
 
     private Urn getUrn(int position) {
-        final PropertySet item = getItem(position);
-        return item.getOrElse(UserProperty.URN, PlayableProperty.URN);
+        final ListItem item = getItem(position);
+        return item.getEntityUrn();
     }
 
     @Override

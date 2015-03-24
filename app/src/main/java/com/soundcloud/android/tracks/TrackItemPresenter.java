@@ -1,13 +1,12 @@
 package com.soundcloud.android.tracks;
 
-import com.soundcloud.android.Consts;
+import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
-import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import android.support.v4.app.FragmentActivity;
@@ -21,7 +20,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class TrackItemPresenter implements CellPresenter<PropertySet> {
+public class TrackItemPresenter implements CellPresenter<TrackItem> {
 
     private final ImageOperations imageOperations;
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
@@ -40,11 +39,11 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PropertySet> trackItems) {
-        final PropertySet track = trackItems.get(position);
-        getTextView(itemView, R.id.list_item_header).setText(track.getOrElse(TrackProperty.CREATOR_NAME, ScTextUtils.EMPTY_STRING));
-        getTextView(itemView, R.id.list_item_subheader).setText(track.getOrElse(TrackProperty.TITLE, ScTextUtils.EMPTY_STRING));
-        final String formattedDuration = ScTextUtils.formatTimestamp(track.get(TrackProperty.DURATION), TimeUnit.MILLISECONDS);
+    public void bindItemView(int position, View itemView, List<TrackItem> trackItems) {
+        final TrackItem track = trackItems.get(position);
+        getTextView(itemView, R.id.list_item_header).setText(track.getCreatorName());
+        getTextView(itemView, R.id.list_item_subheader).setText(track.getTitle());
+        final String formattedDuration = ScTextUtils.formatTimestamp(track.getDuration(), TimeUnit.MILLISECONDS);
         getTextView(itemView, R.id.list_item_right_info).setText(formattedDuration);
 
         showRelevantAdditionalInformation(itemView, track);
@@ -54,7 +53,7 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         setupOverFlow(itemView.findViewById(R.id.overflow_button), track, position);
     }
 
-    protected void setupOverFlow(final View button, final PropertySet track, final int position) {
+    protected void setupOverFlow(final View button, final TrackItem track, final int position) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,39 +62,36 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         });
     }
 
-    protected void showTrackItemMenu(View button, PropertySet track, int position) {
+    protected void showTrackItemMenu(View button, TrackItem track, int position) {
         trackItemMenuPresenter.show((FragmentActivity) button.getContext(), button, track, position);
     }
 
-    private void loadArtwork(View itemView, PropertySet track) {
+    private void loadArtwork(View itemView, TrackItem track) {
         imageOperations.displayInAdapterView(
-                track.get(TrackProperty.URN), ApiImageSize.getListItemImageSize(itemView.getContext()),
+                track.getEntityUrn(), ApiImageSize.getListItemImageSize(itemView.getContext()),
                 (ImageView) itemView.findViewById(R.id.image));
     }
 
-    private void toggleReposterView(View itemView, PropertySet track) {
+    private void toggleReposterView(View itemView, TrackItem track) {
         final TextView reposterView = getTextView(itemView, R.id.reposter);
-        if (track.contains(TrackProperty.REPOSTER)) {
+        final Optional<String> optionalReposter = track.getReposter();
+        if (optionalReposter.isPresent()) {
             reposterView.setVisibility(View.VISIBLE);
-            reposterView.setText(track.get(TrackProperty.REPOSTER));
+            reposterView.setText(optionalReposter.get());
         } else {
             reposterView.setVisibility(View.GONE);
         }
     }
 
-    private void showRelevantAdditionalInformation(View itemView, PropertySet track) {
+    private void showRelevantAdditionalInformation(View itemView, TrackItem track) {
         hideAllAdditionalInformation(itemView);
-        if (track.get(TrackProperty.URN).equals(playingTrack)) {
+        if (track.getEntityUrn().equals(playingTrack)) {
             showNowPlaying(itemView);
-        } else if (isPrivateTrack(track)) {
+        } else if (track.isPrivate()) {
             showPrivateIndicator(itemView);
         } else {
             showPlayCount(itemView, track);
         }
-    }
-
-    private Boolean isPrivateTrack(PropertySet track) {
-        return track.contains(TrackProperty.IS_PRIVATE) && track.get(TrackProperty.IS_PRIVATE);
     }
 
     private void hideAllAdditionalInformation(View itemView) {
@@ -112,8 +108,8 @@ public class TrackItemPresenter implements CellPresenter<PropertySet> {
         getTextView(itemView, R.id.private_indicator).setVisibility(View.VISIBLE);
     }
 
-    private void showPlayCount(View itemView, PropertySet track) {
-        final int playCount = track.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
+    private void showPlayCount(View itemView, TrackItem track) {
+        final int playCount = track.getPlayCount();
         if (hasPlayCount(playCount)) {
             final TextView playCountText = getTextView(itemView, R.id.list_item_counter);
             playCountText.setVisibility(View.VISIBLE);

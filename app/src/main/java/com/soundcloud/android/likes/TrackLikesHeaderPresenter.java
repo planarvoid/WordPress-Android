@@ -15,6 +15,7 @@ import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListHeaderPresenter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -114,7 +115,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                 .subscribe(expandPlayerSubscriberProvider.get());
     }
 
-    public void onSubscribeListObservers(ListBinding<PropertySet, PropertySet> listBinding) {
+    public void onSubscribeListObservers(ListBinding<PropertySet, TrackItem> listBinding) {
         ConnectableObservable<List<Urn>> allLikedTrackUrns = listBinding.getSource()
                 .first()
                 .flatMap(loadAllTrackUrns)

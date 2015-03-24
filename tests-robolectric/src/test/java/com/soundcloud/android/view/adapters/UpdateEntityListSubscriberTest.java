@@ -11,6 +11,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class UpdateEntityListSubscriberTest {
 
     private UpdateEntityListSubscriber updateEntityListSubscriber;
 
-    @Mock private ItemAdapter<PropertySet> adapter;
+    @Mock private ItemAdapter<TrackItem> adapter;
 
     @Before
     public void setUp() throws Exception {
@@ -36,19 +37,19 @@ public class UpdateEntityListSubscriberTest {
     @Test
     public void updatesItemWithTheSameUrnAndNotifies() throws Exception {
 
-        PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
+        TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
-        PropertySet updated = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        updated.put(PlayableProperty.URN, track1.get(PlayableProperty.URN));
-        updated.put(PlayableProperty.CREATOR_NAME, UPDATED_CREATOR);
+        PropertySet changeSet = PropertySet.from(
+            PlayableProperty.URN.bind(track1.getEntityUrn()),
+            PlayableProperty.CREATOR_NAME.bind(UPDATED_CREATOR));
 
-        when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
+        when(adapter.getItems()).thenReturn(Arrays.asList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(updated));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(changeSet));
         updateEntityListSubscriber.onNext(event);
 
-        expect(track1.get(PlayableProperty.CREATOR_NAME)).toEqual(UPDATED_CREATOR);
+        expect(track1.getCreatorName()).toEqual(UPDATED_CREATOR);
         verify(adapter).notifyDataSetChanged();
 
     }
@@ -56,14 +57,14 @@ public class UpdateEntityListSubscriberTest {
     @Test
     public void doesNotNotifyWithNoMatchingUrns() throws Exception {
 
-        PropertySet track1 = ModelFixtures.create(ApiTrack.class).toPropertySet();
-        PropertySet track2 = ModelFixtures.create(ApiTrack.class).toPropertySet();
+        TrackItem track1 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
+        TrackItem track2 = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
-        PropertySet updated = ModelFixtures.create(ApiTrack.class).toPropertySet();
+        PropertySet changeSet = ModelFixtures.create(ApiTrack.class).toPropertySet();
 
         when(adapter.getItems()).thenReturn(Lists.newArrayList(track1, track2));
 
-        final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(updated));
+        final EntityStateChangedEvent event = EntityStateChangedEvent.fromSync(Arrays.asList(changeSet));
         updateEntityListSubscriber.onNext(event);
 
         verify(adapter, never()).notifyDataSetChanged();

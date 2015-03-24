@@ -38,7 +38,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     private final ScreenProvider screenProvider;
 
     private FragmentActivity activity;
-    private PropertySet track;
+    private TrackItem track;
     private int positionInAdapter;
     private Subscription trackSubscription = Subscriptions.empty();
 
@@ -63,11 +63,11 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
         this.screenProvider = screenProvider;
     }
 
-    public void show(FragmentActivity activity, View button, PropertySet track, int positionInAdapter) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter) {
         show(activity, button, track, positionInAdapter, null);
     }
 
-    public void show(FragmentActivity activity, View button, PropertySet track, int positionInAdapter, RemoveTrackListener removeTrackListener) {
+    public void show(FragmentActivity activity, View button, TrackItem track, int positionInAdapter, RemoveTrackListener removeTrackListener) {
         this.activity = activity;
         this.track = track;
         this.positionInAdapter = positionInAdapter;
@@ -91,7 +91,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     private void loadTrack(PopupMenuWrapper menu) {
         trackSubscription.unsubscribe();
         trackSubscription = loadTrackCommand
-                .with(track.get(TrackProperty.URN))
+                .with(track.getEntityUrn())
                 .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackSubscriber(track, menu));
@@ -116,7 +116,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
                 return true;
             case R.id.remove_from_playlist:
                 Preconditions.checkState(isOwnedPlaylist());
-                playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.get(TrackProperty.URN))
+                playlistOperations.removeTrackFromPlaylist(removeTrackListener.getPlaylistUrn(), track.getEntityUrn())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new DefaultSubscriber<PropertySet>(){
                     @Override
@@ -131,14 +131,15 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private void showAddToPlaylistDialog() {
-        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(track, ScreenElement.LIST.get(),
+        AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
+                track.getEntityUrn(), track.getTitle(), ScreenElement.LIST.get(),
                 screenProvider.getLastScreenTag());
         from.show(activity.getSupportFragmentManager());
     }
 
     private void handleLike() {
-        final Urn trackUrn = track.get(TrackProperty.URN);
-        final Boolean addLike = !track.get(TrackProperty.IS_LIKED);
+        final Urn trackUrn = track.getEntityUrn();
+        final boolean addLike = !track.isLiked();
         likeOperations.toggleLike(trackUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new LikeToggleSubscriber(context, addLike));
@@ -148,10 +149,10 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     }
 
     private static class TrackSubscriber extends DefaultSubscriber<PropertySet> {
-        private final PropertySet track;
+        private final TrackItem track;
         private final PopupMenuWrapper menu;
 
-        public TrackSubscriber(PropertySet track, PopupMenuWrapper menu) {
+        public TrackSubscriber(TrackItem track, PopupMenuWrapper menu) {
             this.track = track;
             this.menu = menu;
         }
@@ -159,7 +160,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
         @Override
         public void onNext(PropertySet details) {
             track.update(details);
-            updateLikeActionTitle(track.get(TrackProperty.IS_LIKED));
+            updateLikeActionTitle(track.isLiked());
             menu.setItemEnabled(R.id.add_to_likes, true);
         }
 

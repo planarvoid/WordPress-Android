@@ -8,8 +8,11 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.propeller.PropertySet;
@@ -44,13 +47,13 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void shouldReportTrackTypeForTracks() {
-        adapter.addItem(PropertySet.from(PlayableProperty.URN.bind(Urn.forTrack(123))));
+        adapter.addItem(ModelFixtures.create(TrackItem.class));
         expect(adapter.getItemViewType(0)).toEqual(SoundStreamAdapter.TRACK_ITEM_TYPE);
     }
 
     @Test
     public void shouldReportPlaylistTypeForPlaylists() {
-        adapter.addItem(PropertySet.from(PlayableProperty.URN.bind(Urn.forPlaylist(123))));
+        adapter.addItem(ModelFixtures.create(PlaylistItem.class));
         expect(adapter.getItemViewType(0)).toEqual(SoundStreamAdapter.PLAYLIST_ITEM_TYPE);
     }
 
@@ -72,8 +75,8 @@ public class SoundStreamAdapterTest {
 
     @Test
     public void playableChangedEventShouldUpdateAdapterToReflectTheLatestLikeStatus() {
-        final PropertySet unlikedPlaylist = buildUnlikedPlaylist(123L);
-        final PropertySet likedPlaylist = buildLikedPlaylist(456L);
+        final PlaylistItem unlikedPlaylist = buildUnlikedPlaylist(123L);
+        final PlaylistItem likedPlaylist = buildLikedPlaylist(456L);
 
         adapter.addItem(unlikedPlaylist);
         adapter.addItem(likedPlaylist);
@@ -82,7 +85,7 @@ public class SoundStreamAdapterTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forPlaylist(123L), true, 1));
 
         expect(adapter.getItems()).toContainExactly(
-                unlikedPlaylist.merge(
+                unlikedPlaylist.update(
                         PropertySet.from(
                                 PlayableProperty.IS_LIKED.bind(true),
                                 PlayableProperty.LIKES_COUNT.bind(1)
@@ -98,19 +101,19 @@ public class SoundStreamAdapterTest {
         eventBus.verifyUnsubscribed();
     }
 
-    private PropertySet buildLikedPlaylist(long id) {
-        return PropertySet.from(
+    private PlaylistItem buildLikedPlaylist(long id) {
+        return PlaylistItem.from(PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(id)),
                 PlayableProperty.IS_LIKED.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1)
-        );
+        ));
     }
 
-    private PropertySet buildUnlikedPlaylist(long id) {
-        return PropertySet.from(
+    private PlaylistItem buildUnlikedPlaylist(long id) {
+        return PlaylistItem.from(PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(id)),
                 PlayableProperty.IS_LIKED.bind(false),
                 PlayableProperty.LIKES_COUNT.bind(0)
-        );
+        ));
     }
 }

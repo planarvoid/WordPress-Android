@@ -7,7 +7,6 @@ import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -17,6 +16,7 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistDetailFragment;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -43,6 +43,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
 
+import java.util.Arrays;
+
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistResultsFragmentTest {
 
@@ -54,7 +56,7 @@ public class PlaylistResultsFragmentTest {
 
     @Mock private PlaylistDiscoveryOperations operations;
     @Mock private ListViewController listViewController;
-    @Mock private PagingItemAdapter<ApiPlaylist> adapter;
+    @Mock private PagingItemAdapter<PlaylistItem> adapter;
     @Mock private EmptyView emptyView;
     @Mock private Subscription subscription;
     @Mock private PlaylistDiscoveryOperations.PlaylistPager pager;
@@ -73,15 +75,15 @@ public class PlaylistResultsFragmentTest {
     @Test
     public void shouldPerformPlaylistTagSearchWithTagFromBundleInOnCreate() throws Exception {
         ApiPlaylistCollection collection = new ApiPlaylistCollection();
-        ApiPlaylist playlist = new ApiPlaylist();
-        collection.setCollection(Lists.newArrayList(playlist));
+        ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        collection.setCollection(Arrays.asList(playlist));
         final Observable<ApiPlaylistCollection> observable = Observable.just(collection);
         when(pager.page(observable)).thenReturn(observable);
         when(operations.playlistsForTag("selected tag")).thenReturn(observable);
 
         fragment.onCreate(null);
 
-        verify(adapter).onNext(collection);
+        verify(adapter).onNext(Arrays.asList(PlaylistItem.from(playlist)));
     }
 
     @Test
@@ -100,7 +102,7 @@ public class PlaylistResultsFragmentTest {
 
     @Test
     public void shouldOpenPlaylistActivityWhenClickingPlaylistItem() throws CreateModelException {
-        ApiPlaylist clickedPlaylist = ModelFixtures.create(ApiPlaylist.class);
+        PlaylistItem clickedPlaylist = ModelFixtures.create(PlaylistItem.class);
         when(adapter.getItem(0)).thenReturn(clickedPlaylist);
 
         fragment.onCreate(null);
@@ -111,14 +113,13 @@ public class PlaylistResultsFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN)).toEqual(clickedPlaylist.getUrn());
+        expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN)).toEqual(clickedPlaylist.getEntityUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 
     @Test
     public void shouldPublishSearchEventWhenResultOnPlaylistTagResultsIsClicked() throws Exception {
-        ApiPlaylist clickedPlaylist = ModelFixtures.create(ApiPlaylist.class);
-        when(adapter.getItem(0)).thenReturn(clickedPlaylist);
+        when(adapter.getItem(0)).thenReturn(ModelFixtures.create(PlaylistItem.class));
 
         fragment.onCreate(null);
         createFragmentView();

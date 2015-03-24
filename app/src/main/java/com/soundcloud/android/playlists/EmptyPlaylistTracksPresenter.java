@@ -2,11 +2,11 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.adapters.CellPresenter;
-import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
 import android.view.View;
@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class EmptyPlaylistTracksPresenter implements CellPresenter<PropertySet>, EmptyViewAware {
+class EmptyPlaylistTracksPresenter implements CellPresenter<TrackItem>, EmptyViewAware {
 
     private int emptyViewStatus = EmptyView.Status.WAITING;
 
@@ -37,7 +37,7 @@ class EmptyPlaylistTracksPresenter implements CellPresenter<PropertySet>, EmptyV
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<PropertySet> items) {
+    public void bindItemView(int position, View itemView, List<TrackItem> items) {
         ((EmptyView) itemView).setStatus(emptyViewStatus);
     }
 

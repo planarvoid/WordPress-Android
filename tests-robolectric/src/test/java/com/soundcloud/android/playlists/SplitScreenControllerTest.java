@@ -10,9 +10,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class SplitScreenControllerTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlaylistTrackItemPresenter trackPresenter;
-    @Mock private ItemAdapter<PropertySet> adapter;
+    @Mock private ItemAdapter<TrackItem> adapter;
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;
     @Mock private View container;

@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.presentation.ListItem;
 import rx.Observer;
 
 import android.util.SparseArray;
@@ -22,12 +23,12 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
     protected final List<ItemT> items;
-    protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
+    protected final SparseArray<CellPresenter<?>> cellPresenters;
 
-    public ItemAdapter(CellPresenterEntity<ItemT>... cellPresenterEntities) {
+    public ItemAdapter(CellPresenterEntity<?>... cellPresenterEntities) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
         this.cellPresenters = new SparseArray<>(cellPresenterEntities.length);
-        for (CellPresenterEntity<ItemT> entity : cellPresenterEntities) {
+        for (CellPresenterEntity<?> entity : cellPresenterEntities) {
             this.cellPresenters.put(entity.itemViewType, entity.cellPresenter);
         }
     }
@@ -75,12 +76,12 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final CellPresenter<ItemT> presenter = cellPresenters.get(getItemViewType(position));
+        final CellPresenter<?> presenter = cellPresenters.get(getItemViewType(position));
         View itemView = convertView;
         if (itemView == null) {
             itemView = presenter.createItemView(position, parent);
         }
-        presenter.bindItemView(position, itemView, items);
+        presenter.bindItemView(position, itemView, (List) items);
         return itemView;
     }
 
@@ -101,7 +102,7 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable
         notifyDataSetChanged();
     }
 
-    public static class CellPresenterEntity<ItemT>  {
+    public static class CellPresenterEntity<ItemT extends ListItem>  {
         private final int itemViewType;
         private final CellPresenter<ItemT> cellPresenter;
 

@@ -7,7 +7,9 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +21,7 @@ import rx.subjects.PublishSubject;
 public class RemoveEntityListSubscriberTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
-    @Mock private ItemAdapter<PropertySet> adapter;
+    @Mock private ItemAdapter<ListItem> adapter;
     private PublishSubject<Urn> observable;
 
     @Before
@@ -31,7 +33,7 @@ public class RemoveEntityListSubscriberTest {
 
     @Test
     public void onNextShouldRemoveEntityFromAdapter() {
-        PropertySet item = PropertySet.from(EntityProperty.URN.bind(TRACK_URN));
+        TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
         when(adapter.getCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
@@ -42,7 +44,7 @@ public class RemoveEntityListSubscriberTest {
 
     @Test
     public void onNextShouldNotifyDataSetChangedOnSuccessfulRemoval() {
-        PropertySet item = PropertySet.from(EntityProperty.URN.bind(TRACK_URN));
+        TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
         when(adapter.getCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
@@ -53,7 +55,7 @@ public class RemoveEntityListSubscriberTest {
 
     @Test
     public void onNextShouldNotNotifyDataSetChangedIfNoRemovalWasMade() {
-        PropertySet item = PropertySet.from(EntityProperty.URN.bind(TRACK_URN));
+        TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
         when(adapter.getCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 

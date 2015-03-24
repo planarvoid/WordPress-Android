@@ -45,30 +45,31 @@ public class TrackGridPresenterTest {
 
     @Test
     public void shouldBindItemView() throws CreateModelException {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        TrackItem trackItem = TrackItem.from(ModelFixtures.create(ApiTrack.class));
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
         ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        presenter.bindItemView(0, itemView, Arrays.asList(track));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
-        expect(viewHolder.title.getText()).toEqual(track.getTitle());
-        expect(viewHolder.username.getText()).toEqual(track.getUserName());
+        expect(viewHolder.title.getText()).toEqual(trackItem.getTitle());
+        expect(viewHolder.username.getText()).toEqual(trackItem.getCreatorName());
     }
 
     @Test
     public void shouldHideGenreIfNoGenreAvailable() throws CreateModelException {
-        ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        track.setGenre(null);
+        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
+        apiTrack.setGenre(null);
+        TrackItem trackItem = TrackItem.from(apiTrack);
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
         TrackGridPresenter.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        presenter.bindItemView(0, itemView, Arrays.asList(track));
+        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(viewHolder.genre.getVisibility()).toEqual(View.GONE);
     }

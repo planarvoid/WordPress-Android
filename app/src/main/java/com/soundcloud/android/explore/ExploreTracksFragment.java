@@ -7,12 +7,11 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
@@ -31,23 +30,24 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.List;
 
 @SuppressLint("ValidFragment")
 public class ExploreTracksFragment extends LightCycleSupportFragment
-        implements RefreshableListComponent<ConnectableObservable<SuggestedTracksCollection>> {
+        implements RefreshableListComponent<ConnectableObservable<List<TrackItem>>> {
 
     static final String SCREEN_TAG_EXTRA = "screen_tag";
 
     private String trackingTag;
 
-    @Inject PagingItemAdapter<ApiTrack> adapter;
+    @Inject PagingItemAdapter<TrackItem> adapter;
     @Inject PlaybackOperations playbackOperations;
     @Inject ExploreTracksOperations operations;
     @Inject PullToRefreshController pullToRefreshController;
     @Inject ListViewController listViewController;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
-    private ConnectableObservable<SuggestedTracksCollection> observable;
+    private ConnectableObservable<List<TrackItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
 
     public static ExploreTracksFragment create(ExploreGenre category, Screen screenTag) {
@@ -65,7 +65,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
     }
 
     @VisibleForTesting
-    ExploreTracksFragment(PagingItemAdapter<ApiTrack> adapter,
+    ExploreTracksFragment(PagingItemAdapter<TrackItem> adapter,
                           PlaybackOperations playbackOperations,
                           ExploreTracksOperations operations,
                           PullToRefreshController pullToRefreshController,
@@ -81,7 +81,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
     }
 
     private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter, operations.pager());
+        listViewController.setAdapter(adapter, operations.pager(), TrackItem.<SuggestedTracksCollection>fromApiTracks());
         listViewController.setScrollListener(new AbsListViewParallaxer(null));
         pullToRefreshController.setRefreshListener(this, adapter);
         attachLightCycle(this.listViewController);
@@ -96,28 +96,30 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
     }
 
     @Override
-    public ConnectableObservable<SuggestedTracksCollection> buildObservable() {
+    public ConnectableObservable<List<TrackItem>> buildObservable() {
         final ExploreGenre category = getArguments().getParcelable(ExploreGenre.EXPLORE_GENRE_EXTRA);
-        final ConnectableObservable<SuggestedTracksCollection> observable =
-                operations.pager().page(operations.getSuggestedTracks(category)
-                .doOnNext(new Action1<SuggestedTracksCollection>() {
-                    @Override
-                    public void call(SuggestedTracksCollection page) {
-                        trackingTag = page.getTrackingTag();
-                    }
-                }))
-                .observeOn(mainThread()).replay();
+        final ConnectableObservable<List<TrackItem>> observable =
+                operations.pager().page(operations.getSuggestedTracks(category))
+                        .doOnNext(new Action1<SuggestedTracksCollection>() {
+                            @Override
+                            public void call(SuggestedTracksCollection page) {
+                                trackingTag = page.getTrackingTag();
+                            }
+                        })
+                        .map(TrackItem.<SuggestedTracksCollection>fromApiTracks())
+                        .observeOn(mainThread()).replay();
+
         observable.subscribe(adapter);
         return observable;
     }
 
     @Override
-    public ConnectableObservable<SuggestedTracksCollection> refreshObservable() {
+    public ConnectableObservable<List<TrackItem>> refreshObservable() {
         return buildObservable();
     }
 
     @Override
-    public Subscription connectObservable(ConnectableObservable<SuggestedTracksCollection> observable) {
+    public Subscription connectObservable(ConnectableObservable<List<TrackItem>> observable) {
         this.observable = observable;
         connectionSubscription = this.observable.connect();
         return connectionSubscription;
@@ -138,12 +140,12 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final PublicApiTrack track = new PublicApiTrack(adapter.getItem(position));
+        final TrackItem track = adapter.getItem(position);
         final String screenTagExtra = getArguments().getString(SCREEN_TAG_EXTRA);
         final PlaySessionSource playSessionSource = new PlaySessionSource(screenTagExtra);
         playSessionSource.setExploreVersion(trackingTag);
         playbackOperations
-                .playTrackWithRecommendations(track.getUrn(), playSessionSource)
+                .playTrackWithRecommendations(track.getEntityUrn(), playSessionSource)
                 .subscribe(subscriberProvider.get());
     }
 
@@ -152,4 +154,5 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
         connectionSubscription.unsubscribe();
         super.onDestroy();
     }
+
 }

@@ -2,7 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -13,9 +13,9 @@ import java.util.concurrent.TimeUnit;
 class PlaylistInfo {
 
     @NotNull private final PropertySet sourceSet;
-    @NotNull private final List<PropertySet> tracks;
+    @NotNull private final List<TrackItem> tracks;
 
-    PlaylistInfo(@NotNull PropertySet sourceSet, @NotNull List<PropertySet> tracks) {
+    PlaylistInfo(@NotNull PropertySet sourceSet, @NotNull List<TrackItem> tracks) {
         this.sourceSet = sourceSet;
         this.tracks = tracks;
     }
@@ -69,7 +69,8 @@ class PlaylistInfo {
         return userUrn.equals(getCreatorUrn());
     }
 
-    public List<PropertySet> getTracks() {
+    @NotNull
+    public List<TrackItem> getTracks() {
         return tracks;
     }
 
@@ -80,8 +81,8 @@ class PlaylistInfo {
 
     private long getCombinedTrackDurations() {
         long duration = 0;
-        for (PropertySet track : tracks){
-            duration += track.get(TrackProperty.DURATION);
+        for (TrackItem track : tracks){
+            duration += track.getDuration();
         }
         return duration;
     }

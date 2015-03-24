@@ -17,7 +17,6 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
-import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -36,7 +35,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.CollectionUtils;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -408,7 +407,7 @@ public class PlaylistEngagementsPresenterTest {
     public void disablesShuffleWithOneTrack() throws Exception {
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false);
         sourceSet.put(PlaylistProperty.TRACK_COUNT, 1);
-        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class));
+        List<TrackItem> tracks = ModelFixtures.trackItems(1);
 
         controller.setPlaylistInfo(new PlaylistInfo(sourceSet, tracks), getPlaySessionSource());
 
@@ -418,7 +417,7 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void enablesShuffleWithMoreThanOneTrack() throws Exception {
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false);
-        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 2));
+        List<TrackItem> tracks = ModelFixtures.trackItems(10);
 
         controller.setPlaylistInfo(new PlaylistInfo(sourceSet, tracks), getPlaySessionSource());
 
@@ -435,13 +434,13 @@ public class PlaylistEngagementsPresenterTest {
 
     private PlaylistInfo createPlaylistInfoWithSharing(Sharing sharing) {
         final PropertySet sourceSet = createPlaylistProperties(sharing, false);
-        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 10));
+        List<TrackItem> tracks = ModelFixtures.trackItems(10);
         return new PlaylistInfo(sourceSet, tracks);
     }
 
     private PlaylistInfo createPlaylistInfoWithOfflineAvailability(boolean markedForOffline) {
         final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, markedForOffline);
-        List<PropertySet> tracks = CollectionUtils.toPropertySets(ModelFixtures.create(ApiTrack.class, 10));
+        List<TrackItem> tracks = ModelFixtures.trackItems(10);
         return new PlaylistInfo(sourceSet, tracks);
     }
 

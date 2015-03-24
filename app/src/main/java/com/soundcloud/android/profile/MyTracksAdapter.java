@@ -1,9 +1,5 @@
 package com.soundcloud.android.profile;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
@@ -15,10 +11,8 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
-import com.soundcloud.android.collections.ScBaseAdapter;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
@@ -27,14 +21,15 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.LegacyAdapterBridge;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
@@ -55,10 +50,9 @@ import javax.inject.Provider;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Deprecated
-public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
+public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
 
     private static final int TYPE_PENDING_RECORDING = 0;
     private static final int TYPE_NEW_TRACK = 1;
@@ -78,7 +72,6 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
-    private final List<PropertySet> propertySets = new ArrayList<PropertySet>(Consts.LIST_PAGE_SIZE);
 
     public MyTracksAdapter(ScActivity activity) {
         super(Content.ME_SOUNDS.uri);
@@ -117,11 +110,6 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         return position < getPendingRecordingsCount();
     }
 
-    private boolean isTrack(int position) {
-        final PublicApiResource item = getItem(position);
-        return item instanceof SoundAssociation && ((SoundAssociation) item).getPlayable() instanceof PublicApiTrack;
-    }
-
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
@@ -136,11 +124,11 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
             pendingRecordingItemPresenter.bindItemView(position, rowView, recordingData);
         } else {
-            getCellPresenter(position).bindItemView(position - getPendingRecordingsCount(), rowView, propertySets);
+            getCellPresenter(position).bindItemView(position - getPendingRecordingsCount(), rowView, (List) listItems);
         }
     }
 
-    private CellPresenter<PropertySet> getCellPresenter(final int position) {
+    private CellPresenter<? extends PlayableItem> getCellPresenter(final int position) {
         if (isTrack(position)) {
             return trackItemPresenter;
         } else {
@@ -149,37 +137,8 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     @Override
-    public void addItems(List<PublicApiResource> newItems) {
-        super.addItems(newItems);
-        this.propertySets.addAll(toPropertySets(newItems));
-    }
-
-    @Override
-    public void updateItems(Map<Urn, PublicApiResource> updatedItems) {
-        for (int i = 0; i < propertySets.size(); i++) {
-            final PropertySet originalPropertySet = propertySets.get(i);
-            final Urn key = originalPropertySet.get(PlayableProperty.URN);
-            if (updatedItems.containsKey(key)) {
-                propertySets.set(i, toPropertySetKeepingReposterInfo(updatedItems.get(key), originalPropertySet));
-            }
-        }
-        notifyDataSetChanged();
-    }
-
-    private List<PropertySet> toPropertySets(List<? extends PublicApiResource> items) {
-        final List<PropertySet> propertySets = Lists.newArrayListWithExpectedSize(items.size());
-        for (PublicApiResource resource : items) {
-            if (resource instanceof SoundAssociation) {
-                final PropertySet propertySet = toPropertySet((SoundAssociation) resource);
-                propertySets.add(propertySet);
-            } else {
-                throw new IllegalArgumentException("Items is not a SoundAssociation. Item : " + resource);
-            }
-        }
-        return propertySets;
-    }
-
-    private PropertySet toPropertySet(SoundAssociation soundAssociation) {
+    protected PropertySet toPropertySet(PublicApiResource resource) {
+        SoundAssociation soundAssociation = (SoundAssociation) resource;
         PropertySet propertySet = soundAssociation.getPlayable().toPropertySet();
         if (soundAssociation.associationType == ScContentProvider.CollectionItemTypes.REPOST
                 && activity instanceof ProfileActivity) {
@@ -187,14 +146,6 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
             propertySet.put(PlayableProperty.REPOSTER, reposter.getUsername());
         }
 
-        return propertySet;
-    }
-
-    private PropertySet toPropertySetKeepingReposterInfo(PublicApiResource resource, PropertySet originalPropertySet) {
-        final PropertySet propertySet = ((Playable) resource).toPropertySet();
-        if (originalPropertySet.contains(PlayableProperty.REPOSTER)) {
-            propertySet.put(PlayableProperty.REPOSTER, originalPropertySet.get(PlayableProperty.REPOSTER));
-        }
         return propertySet;
     }
 
@@ -320,7 +271,7 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
                     .playTracksFromUri(contentUri, adjustedPosition, initialTrack, new PlaySessionSource(screen))
                     .subscribe(subscriberProvider.get());
         } else if (playable instanceof PublicApiPlaylist) {
-            PlaylistDetailActivity.start(context, ((PublicApiPlaylist) playable).getUrn(), Screen.SIDE_MENU_STREAM);
+            PlaylistDetailActivity.start(context, playable.getUrn(), Screen.SIDE_MENU_STREAM);
         }
     }
 
@@ -354,12 +305,6 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     }
 
     @Override
-    public void clearData() {
-        super.clearData();
-        this.propertySets.clear();
-    }
-
-    @Override
     public void onViewCreated() {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackItemPresenter)),
@@ -370,23 +315,6 @@ public class MyTracksAdapter extends ScBaseAdapter<PublicApiResource> {
     @Override
     public void onDestroyView() {
         eventSubscriptions.unsubscribe();
-    }
-
-    private final class PlayableChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-        @Override
-        public void onNext(final EntityStateChangedEvent event) {
-            final int index = Iterables.indexOf(propertySets, new Predicate<PropertySet>() {
-                @Override
-                public boolean apply(PropertySet item) {
-                    return item.get(PlayableProperty.URN).equals(event.getNextUrn());
-                }
-            });
-
-            if (index > -1) {
-                propertySets.get(index).update(event.getNextChangeSet());
-                notifyDataSetChanged();
-            }
-        }
     }
 
     @Override

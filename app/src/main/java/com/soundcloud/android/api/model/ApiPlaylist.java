@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.propeller.PropertySet;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -148,7 +149,9 @@ public class ApiPlaylist extends ScModel implements PropertySetSource {
                 PlaylistProperty.LIKES_COUNT.bind(getStats().getLikesCount()),
                 PlaylistProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
                 PlaylistProperty.CREATOR_NAME.bind(getUsername()),
-                PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET)
+                PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
+                //TODO: Use Optional Property
+                PlaylistProperty.TAGS.bind(tags != null ? tags : Collections.<String>emptyList())
         );
     }
 

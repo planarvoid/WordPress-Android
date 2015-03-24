@@ -5,9 +5,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.view.View;
@@ -18,7 +18,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistGridPresenter implements CellPresenter<ApiPlaylist> {
+public class PlaylistGridPresenter implements CellPresenter<PlaylistItem> {
 
     private final ImageOperations imageOperations;
 
@@ -42,11 +42,11 @@ public class PlaylistGridPresenter implements CellPresenter<ApiPlaylist> {
     }
 
     @Override
-    public void bindItemView(int position, View itemView, List<ApiPlaylist> playlists) {
+    public void bindItemView(int position, View itemView, List<PlaylistItem> playlists) {
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
-        final ApiPlaylist playlist = playlists.get(position);
+        final PlaylistItem playlist = playlists.get(position);
 
-        viewHolder.username.setText(playlist.getUsername());
+        viewHolder.username.setText(playlist.getCreatorName());
         viewHolder.title.setText(playlist.getTitle());
         String tracksQuantity = itemView.getResources().getQuantityString(R.plurals.number_of_sounds,
                 playlist.getTrackCount(), playlist.getTrackCount());
@@ -54,7 +54,7 @@ public class PlaylistGridPresenter implements CellPresenter<ApiPlaylist> {
         viewHolder.tagList.setText(formatTags(playlist.getTags()));
 
         final ApiImageSize apiImageSize = ApiImageSize.getFullImageSize(itemView.getResources());
-        imageOperations.displayInAdapterView(playlist.getUrn(), apiImageSize, viewHolder.imageView);
+        imageOperations.displayInAdapterView(playlist.getEntityUrn(), apiImageSize, viewHolder.imageView);
     }
 
     private String formatTags(List<String> tags) {

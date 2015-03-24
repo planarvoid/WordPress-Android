@@ -20,19 +20,18 @@ import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -64,7 +63,7 @@ public class SoundAdapterTest {
     @Mock private PlaylistItemPresenter playlistPresenter;
     @Mock private ViewGroup itemView;
 
-    @Captor private ArgumentCaptor<List<PropertySet>> propSetCaptor;
+    @Captor private ArgumentCaptor<List<PlayableItem>> itemCaptor;
 
     @Before
     public void setup() {
@@ -112,15 +111,13 @@ public class SoundAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
-        PropertySet convertedTrack = propSetCaptor.getValue().get(0);
-        expect(convertedTrack.get(TrackProperty.URN)).toEqual(track.getUrn());
-        expect(convertedTrack.get(TrackProperty.PLAY_COUNT)).toEqual(track.playback_count);
-        expect(convertedTrack.get(PlayableProperty.TITLE)).toEqual(track.getTitle());
-        expect(convertedTrack.get(PlayableProperty.DURATION)).toEqual(track.duration);
-        expect(convertedTrack.get(PlayableProperty.CREATOR_URN)).toEqual(track.getUser().getUrn());
-        expect(convertedTrack.get(PlayableProperty.CREATOR_NAME)).toEqual(track.getUser().getUsername());
-        expect(convertedTrack.get(PlayableProperty.IS_PRIVATE)).toEqual(track.isPrivate());
+        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        TrackItem convertedTrack = (TrackItem) itemCaptor.getValue().get(0);
+        expect(convertedTrack.getEntityUrn()).toEqual(track.getUrn());
+        expect(convertedTrack.getTitle()).toEqual(track.getTitle());
+        expect(convertedTrack.getDuration()).toEqual((long) track.duration);
+        expect(convertedTrack.getCreatorName()).toEqual(track.getUser().getUsername());
+        expect(convertedTrack.isPrivate()).toEqual(track.isPrivate());
     }
 
     @Test
@@ -134,9 +131,9 @@ public class SoundAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(track2));
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter, times(2)).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
-        PropertySet convertedTrack = propSetCaptor.getAllValues().get(1).get(0);
-        expect(convertedTrack.get(TrackProperty.URN)).toEqual(track2.getUrn());
+        verify(trackPresenter, times(2)).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        PlayableItem convertedTrack = itemCaptor.getAllValues().get(1).get(0);
+        expect(convertedTrack.getEntityUrn()).toEqual(track2.getUrn());
     }
 
     @Test
@@ -194,8 +191,8 @@ public class SoundAdapterTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(unlikedPlaylist.getUrn(), true, 1));
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), propSetCaptor.capture());
-        expect(propSetCaptor.getValue().get(0).get(PlayableProperty.IS_LIKED)).toBeTrue();
+        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        expect(itemCaptor.getValue().get(0).isLiked()).toBeTrue();
     }
 
     @Test
