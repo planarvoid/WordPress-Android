@@ -17,6 +17,7 @@ import rx.Subscription;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.AccountManagerFuture;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.util.Log;
@@ -123,7 +124,20 @@ public final class AccountAssistant {
 
         Log.i(TAG, String.format("LoggedInUser: %s", getAccount(context).name));
 
+        AccountManagerFuture<Boolean> accountManagerFuture =
+                AccountManager.get(context).removeAccount(account, null, null);
+        return accountManagerFuture.getResult(3, TimeUnit.SECONDS);
+    }
 
+    public static boolean logOutWithAccountCleanup(Instrumentation instrumentation) throws Exception {
+        Context context = instrumentation.getTargetContext();
+        Subscription subscription = AccountAssistant.accountDataCleanup(context);
+        boolean result = AccountAssistant.logOut(context);
+        AccountAssistant.waitForAccountDataCleanup(subscription);
+        return result;
+    }
+
+    public static Subscription accountDataCleanup(Context context) {
         final Subscription subscription = SoundCloudApplication.fromContext(context).getEventBus().subscribe(
                 EventQueue.CURRENT_USER_CHANGED, new DefaultSubscriber<CurrentUserChangedEvent>() {
 
@@ -138,9 +152,10 @@ public final class AccountAssistant {
                         }
                     }
                 });
+        return subscription;
+    }
 
-        AccountManager.get(context).removeAccount(account, null, null);
-
+    public static void waitForAccountDataCleanup(Subscription subscription) throws Exception{
         lock.lock();
         // wait for the data cleanup action
         try {
@@ -150,10 +165,7 @@ public final class AccountAssistant {
             lock.unlock();
             subscription.unsubscribe();
         }
-
-        return true;
     }
-
 
     public static Account getAccount(Context context) {
         AccountManager am = AccountManager.get(context);

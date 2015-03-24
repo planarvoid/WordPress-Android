@@ -6,7 +6,6 @@ import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.helpers.networkmanager.NetworkManager;
 import com.soundcloud.android.framework.observers.ToastObserver;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MenuScreen;
@@ -45,6 +44,10 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         solo = new Han(getInstrumentation());
         solo.setup();
         waiter = new Waiter(solo);
+
+        AccountAssistant.logOut(getInstrumentation());
+        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
+
         observeToasts();
         networkManager = new NetworkManager(getInstrumentation().getContext());
 
@@ -66,7 +69,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         toastObserver.stopObserving();
         networkManager.switchWifiOn();
         networkManager.unbind();
-        AccountAssistant.logOut(getInstrumentation());
+
+        AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
         if (solo != null) {
