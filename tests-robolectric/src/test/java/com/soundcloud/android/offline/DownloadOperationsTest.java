@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import rx.schedulers.Schedulers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +45,7 @@ public class DownloadOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                connectionHelper, offlineSettings);
+                connectionHelper, offlineSettings, Schedulers.immediate());
         when(httpClient.downloadFile(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
         when(response.isUnavailable()).thenReturn(false);

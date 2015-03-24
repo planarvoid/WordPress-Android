@@ -1,6 +1,5 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
@@ -24,11 +23,10 @@ public class RepostStorageTest extends StorageIntegrationTest {
     private RepostStorage repostStorage;
 
     @Mock private DateProvider dateProvider;
-    @Mock private Thread backgroundThread;
 
     @Before
     public void setUp() throws Exception {
-        repostStorage = new RepostStorage(propeller(), dateProvider, providerOf(backgroundThread));
+        repostStorage = new RepostStorage(propeller(), dateProvider);
         when(dateProvider.getCurrentDate()).thenReturn(CREATED_AT);
     }
 

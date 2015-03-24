@@ -18,7 +18,7 @@ public class OfflinePlaylistStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() {
-        playlistStorage = new OfflinePlaylistStorage(testScheduler());
+        playlistStorage = new OfflinePlaylistStorage(propellerRx());
     }
 
     @Test

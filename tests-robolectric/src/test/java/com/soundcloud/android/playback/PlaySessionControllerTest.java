@@ -23,7 +23,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
@@ -48,7 +48,7 @@ public class PlaySessionControllerTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private Resources resources;
-    @Mock private TrackOperations trackOperations;
+    @Mock private TrackRepository trackRepository;
     @Mock private Lazy<IRemoteAudioManager> audioManagerProvider;
     @Mock private IRemoteAudioManager audioManager;
     @Mock private ImageOperations imageOperations;
@@ -63,7 +63,7 @@ public class PlaySessionControllerTest {
     public void setUp() throws Exception {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
         when(audioManagerProvider.get()).thenReturn(audioManager);
-        controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackOperations,
+        controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackRepository,
                 audioManagerProvider, imageOperations, playSessionStateProvider);
         controller.subscribe();
 
@@ -71,7 +71,7 @@ public class PlaySessionControllerTest {
         trackWithAdMeta = audioAdProperties(Urn.forTrack(123L)).merge(track);
         trackUrn = track.get(TrackProperty.URN);
 
-        when(trackOperations.track(trackUrn)).thenReturn(Observable.just(track));
+        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
     }
 
     @Test

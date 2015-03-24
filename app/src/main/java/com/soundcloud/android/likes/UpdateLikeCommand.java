@@ -4,7 +4,6 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.from;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -16,7 +15,6 @@ import com.soundcloud.propeller.WriteResult;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.Date;
 
 class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLikeParams, WriteResult, Integer> {
@@ -26,11 +24,6 @@ class UpdateLikeCommand extends WriteStorageCommand<UpdateLikeCommand.UpdateLike
     @Inject
     UpdateLikeCommand(PropellerDatabase propeller) {
         super(propeller);
-    }
-
-    @VisibleForTesting
-    UpdateLikeCommand(PropellerDatabase propeller, Provider<Thread> currentThreadProvider) {
-        super(propeller, currentThreadProvider);
     }
 
     @Override

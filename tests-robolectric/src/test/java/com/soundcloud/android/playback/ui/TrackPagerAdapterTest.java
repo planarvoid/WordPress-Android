@@ -29,7 +29,7 @@ import com.soundcloud.android.playback.service.Playa.Reason;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class TrackPagerAdapterTest {
 
     @Mock private PlayQueueManager playQueueManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
-    @Mock private TrackOperations trackOperations;
+    @Mock private TrackRepository trackRepository;
     @Mock private TrackPagePresenter trackPagePresenter;
     @Mock private AdPagePresenter adPagePresenter;
     @Mock private PlaybackOperations playbackOperations;
@@ -93,7 +93,7 @@ public class TrackPagerAdapterTest {
         when(adPagePresenter.createItemView(container, skipListener)).thenReturn(adView);
 
         eventBus = new TestEventBus();
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackOperations, trackPagePresenter, adPagePresenter, eventBus);
+        adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackRepository, trackPagePresenter, adPagePresenter, eventBus);
         adapter.initialize(container, skipListener, viewVisibilityProvider);
         adapter.setCurrentData(trackPageData);
 
@@ -101,7 +101,7 @@ public class TrackPagerAdapterTest {
                 PlayableProperty.TITLE.bind("title"),
                 PlayableProperty.CREATOR_NAME.bind("artist"));
 
-        when(trackOperations.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
+        when(trackRepository.track(MONETIZABLE_TRACK_URN)).thenReturn(Observable.just(
                 PropertySet.from(
                         TrackProperty.URN.bind(MONETIZABLE_TRACK_URN),
                         PlayableProperty.TITLE.bind("title"),
@@ -246,7 +246,7 @@ public class TrackPagerAdapterTest {
     public void getViewClearsRecycledViewWithUrnForCurrentPosition() {
         when(trackPagePresenter.accept(any(View.class))).thenReturn(true);
         when(playQueueManager.getUrnAtPosition(0)).thenReturn(TRACK1_URN);
-        when(trackOperations.track(TRACK1_URN)).thenReturn(Observable.<PropertySet>empty());
+        when(trackRepository.track(TRACK1_URN)).thenReturn(Observable.<PropertySet>empty());
 
         adapter.instantiateItem(container, 0);
 
@@ -256,7 +256,7 @@ public class TrackPagerAdapterTest {
     @Test
     public void getViewUsesCachedObservableIfAlreadyInCache() {
         getPageView();
-        verify(trackOperations).track(TRACK1_URN);
+        verify(trackRepository).track(TRACK1_URN);
     }
 
     @Test
@@ -461,7 +461,7 @@ public class TrackPagerAdapterTest {
     private void setupGetCurrentViewPreconditions(int position, Urn trackUrn) {
         track.put(TrackProperty.URN, trackUrn);
         when(playQueueManager.getUrnAtPosition(position)).thenReturn(trackUrn);
-        when(trackOperations.track(trackUrn)).thenReturn(Observable.just(track));
+        when(trackRepository.track(trackUrn)).thenReturn(Observable.just(track));
     }
 
     private void setCurrentTrackState(int position, Urn trackUrn, boolean isCurrentTrack) {

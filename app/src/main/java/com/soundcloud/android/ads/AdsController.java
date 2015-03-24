@@ -11,7 +11,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -43,7 +43,7 @@ public class AdsController {
     private final VisualAdImpressionOperations visualAdImpressionOperations;
     private final AdOverlayImpressionOperations adOverlayImpressionOperations;
     private final PlayQueueManager playQueueManager;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
     private final Scheduler scheduler;
     private final long fetchOperationStaleTime;
 
@@ -114,27 +114,27 @@ public class AdsController {
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
                          PlayQueueManager playQueueManager,
-                         TrackOperations trackOperations) {
+                         TrackRepository trackRepository) {
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-                playQueueManager, trackOperations, AndroidSchedulers.mainThread());
+                playQueueManager, trackRepository, AndroidSchedulers.mainThread());
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
                          PlayQueueManager playQueueManager,
-                         TrackOperations trackOperations,
+                         TrackRepository trackRepository,
                          Scheduler scheduler) {
 
         this(eventBus, adsOperations, visualAdImpressionOperations, adOverlayImpressionOperations,
-                playQueueManager, trackOperations, scheduler, DEFAULT_OPERATION_STALE_TIME);
+                playQueueManager, trackRepository, scheduler, DEFAULT_OPERATION_STALE_TIME);
     }
 
     public AdsController(EventBus eventBus, AdsOperations adsOperations,
                          VisualAdImpressionOperations visualAdImpressionOperations,
                          AdOverlayImpressionOperations adOverlayImpressionOperations,
                          PlayQueueManager playQueueManager,
-                         TrackOperations trackOperations,
+                         TrackRepository trackRepository,
                          Scheduler scheduler,
                          long fetchOperationStaleTime) {
 
@@ -143,7 +143,7 @@ public class AdsController {
         this.visualAdImpressionOperations = visualAdImpressionOperations;
         this.adOverlayImpressionOperations = adOverlayImpressionOperations;
         this.playQueueManager = playQueueManager;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.scheduler = scheduler;
         this.fetchOperationStaleTime = fetchOperationStaleTime;
     }
@@ -196,7 +196,7 @@ public class AdsController {
     }
 
     private void createAdsFetchObservable(Urn trackUrn, DefaultSubscriber<ApiAdsForTrack> audioAdSubscriber) {
-        final Observable<ApiAdsForTrack> apiAdsForTrack = trackOperations.track(trackUrn)
+        final Observable<ApiAdsForTrack> apiAdsForTrack = trackRepository.track(trackUrn)
                 .filter(IS_MONETIZABLE)
                 .flatMap(fetchAudioAd)
                 .observeOn(AndroidSchedulers.mainThread());

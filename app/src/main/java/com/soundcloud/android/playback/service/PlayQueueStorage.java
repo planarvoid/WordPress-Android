@@ -8,7 +8,7 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 import rx.functions.Func1;
@@ -23,15 +23,15 @@ public class PlayQueueStorage {
 
     private static final Table TABLE = Table.PlayQueue;
 
-    private final DatabaseScheduler scheduler;
+    private final PropellerRx propellerRx;
 
     @Inject
-    public PlayQueueStorage(DatabaseScheduler scheduler) {
-        this.scheduler = scheduler;
+    public PlayQueueStorage(PropellerRx propellerRx) {
+        this.propellerRx = propellerRx;
     }
 
     public Observable<ChangeResult> clearAsync() {
-        return scheduler.scheduleTruncate(TABLE);
+        return propellerRx.truncate(TABLE);
     }
 
     public Observable<TxnResult> storeAsync(final PlayQueue playQueue) {
@@ -49,13 +49,13 @@ public class PlayQueueStorage {
         return clearAsync().flatMap(new Func1<ChangeResult, Observable<TxnResult>>() {
             @Override
             public Observable<TxnResult> call(ChangeResult changeResult) {
-                return scheduler.scheduleBulkInsert(TABLE, newItems);
+                return propellerRx.bulkInsert(TABLE, newItems);
             }
         });
     }
 
     public Observable<PlayQueueItem> loadAsync() {
-        return scheduler.scheduleQuery(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
+        return propellerRx.query(Query.from(TABLE.name())).map(new RxResultMapper<PlayQueueItem>() {
             @Override
             public PlayQueueItem map(CursorReader reader) {
                 return PlayQueueItem.fromTrack(

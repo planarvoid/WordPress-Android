@@ -38,7 +38,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        playlistTracksStorage = new PlaylistTracksStorage(testScheduler(), dateProvider, accountOperations);
+        playlistTracksStorage = new PlaylistTracksStorage(propellerRx(), dateProvider, accountOperations);
 
         when(dateProvider.getCurrentDate()).thenReturn(ADDED_AT);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(321L));

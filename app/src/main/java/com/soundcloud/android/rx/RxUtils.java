@@ -1,5 +1,6 @@
 package com.soundcloud.android.rx;
 
+import rx.Observable;
 import rx.Observer;
 import rx.functions.Func1;
 
@@ -11,6 +12,7 @@ public final class RxUtils {
             return isEnabled;
         }
     };
+
     public static final Func1<Object, Void> TO_VOID = new Func1<Object, Void>() {
         @Override
         public Void call(Object ignore) {
@@ -29,6 +31,15 @@ public final class RxUtils {
             @Override
             public T call(Object o) {
                 return obj;
+            }
+        };
+    }
+
+    public static <T> Func1<Object, Observable<T>> continueWith(final Observable<T> continuation) {
+        return new Func1<Object, Observable<T>>() {
+            @Override
+            public Observable<T> call(Object o) {
+                return continuation;
             }
         };
     }

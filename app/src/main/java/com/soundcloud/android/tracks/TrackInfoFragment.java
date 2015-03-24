@@ -37,7 +37,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
     private static final String EXTRA_URN = "Urn";
     private static final int COLLAPSE_DELAY_MILLIS = 300;
 
-    @Inject TrackOperations trackOperations;
+    @Inject TrackRepository trackRepository;
     @Inject EventBus eventBus;
     @Inject ImageOperations imageOperations;
     @Inject TrackInfoPresenter presenter;
@@ -66,7 +66,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYER_INFO));
 
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
-        loadTrack = trackOperations.fullTrackWithUpdate(getArguments().<Urn>getParcelable(EXTRA_URN))
+        loadTrack = trackRepository.fullTrackWithUpdate(getArguments().<Urn>getParcelable(EXTRA_URN))
                 .observeOn(mainThread())
                 .cache();
     }

@@ -15,7 +15,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -40,14 +40,14 @@ public class PeripheralsControllerTest {
     private Context context;
 
     @Mock
-    private TrackOperations trackOperations;
+    private TrackRepository trackRepository;
 
     @Captor
     private ArgumentCaptor<Intent> captor;
 
     @Before
     public void setUp() {
-        controller = new PeripheralsController(context, eventBus, trackOperations);
+        controller = new PeripheralsController(context, eventBus, trackRepository);
         controller.subscribe();
     }
 
@@ -86,7 +86,7 @@ public class PeripheralsControllerTest {
     public void shouldBroadcastTrackInformationWhenThePlayQueueChanges() {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         final Urn trackUrn = track.get(TrackProperty.URN);
-        when(trackOperations.track(eq(trackUrn))).thenReturn(Observable.just(track));
+        when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
 
@@ -115,7 +115,7 @@ public class PeripheralsControllerTest {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         track.put(PlayableProperty.CREATOR_NAME, "");
         final Urn trackUrn = track.get(TrackProperty.URN);
-        when(trackOperations.track(eq(trackUrn))).thenReturn(Observable.just(track));
+        when(trackRepository.track(eq(trackUrn))).thenReturn(Observable.just(track));
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
 

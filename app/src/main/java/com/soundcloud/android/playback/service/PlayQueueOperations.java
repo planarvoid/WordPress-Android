@@ -4,13 +4,14 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
@@ -19,6 +20,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 public class PlayQueueOperations {
@@ -28,15 +30,18 @@ public class PlayQueueOperations {
     private final SharedPreferences sharedPreferences;
     private final PlayQueueStorage playQueueStorage;
     private final StoreTracksCommand storeTracksCommand;
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
+    private final Scheduler scheduler;
 
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
-                               StoreTracksCommand storeTracksCommand, ApiScheduler apiScheduler) {
+                               StoreTracksCommand storeTracksCommand, ApiClientRx apiClientRx,
+                               @Named("Storage") Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
+        this.scheduler = scheduler;
         this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
         this.playQueueStorage = playQueueStorage;
-        this.apiScheduler = apiScheduler;
+        this.apiClientRx = apiClientRx;
     }
 
     public long getLastStoredSeekPosition() {
@@ -58,19 +63,24 @@ public class PlayQueueOperations {
     @Nullable
     public Observable<PlayQueue> getLastStoredPlayQueue() {
         if (getLastStoredPlayingTrackId() != Consts.NOT_SET) {
-            return playQueueStorage.loadAsync().toList()
+            return playQueueStorage.loadAsync()
+                    .toList()
                     .map(new Func1<List<PlayQueueItem>, PlayQueue>() {
                         @Override
                         public PlayQueue call(List<PlayQueueItem> playQueueItems) {
                             return new PlayQueue(playQueueItems);
                         }
-                    }).observeOn(AndroidSchedulers.mainThread());
+                    })
+                    .subscribeOn(scheduler)
+                    .observeOn(AndroidSchedulers.mainThread());
         }
         return null;
     }
 
     public Subscription saveQueue(PlayQueue playQueue) {
-        return fireAndForget(playQueueStorage.storeAsync(playQueue));
+        return fireAndForget(
+                playQueueStorage.storeAsync(playQueue).subscribeOn(scheduler)
+        );
     }
 
     public void savePositionInfo(int position, Urn currentUrn, PlaySessionSource playSessionSource, long seekPosition) {
@@ -93,7 +103,9 @@ public class PlayQueueOperations {
         editor.remove(Keys.SEEK_POSITION.name());
         PlaySessionSource.clearPreferenceKeys(editor);
         editor.apply();
-        fireAndForget(playQueueStorage.clearAsync());
+        fireAndForget(
+                playQueueStorage.clearAsync().subscribeOn(scheduler)
+        );
     }
 
     public Observable<RecommendedTracksCollection> getRelatedTracks(Urn urn) {
@@ -102,7 +114,9 @@ public class PlayQueueOperations {
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
 
-        return apiScheduler.mappedResponse(request).doOnNext(storeTracksCommand.toAction());
+        return apiClientRx.mappedResponse(request)
+                .doOnNext(storeTracksCommand.toAction())
+                .subscribeOn(scheduler);
     }
 
     enum Keys {

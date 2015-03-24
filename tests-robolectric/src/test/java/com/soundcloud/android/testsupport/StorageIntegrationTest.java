@@ -3,6 +3,7 @@ package com.soundcloud.android.testsupport;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.testsupport.fixtures.DatabaseFixtures;
 import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.test.IntegrationTest;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Rule;
@@ -18,6 +19,7 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
 
     private DatabaseFixtures helper;
     private DatabaseScheduler scheduler;
+    private PropellerRx propellerRx;
     private DatabaseAssertions databaseAssertions;
 
     protected DatabaseFixtures testFixtures() {
@@ -32,6 +34,10 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
         return scheduler;
     }
 
+    protected PropellerRx propellerRx() {
+        return propellerRx;
+    }
+
     @Override
     protected SQLiteDatabase provideDatabase() {
         return new DatabaseManager(Robolectric.application).getWritableDatabase();
@@ -43,6 +49,7 @@ public abstract class StorageIntegrationTest extends IntegrationTest {
             helper = new DatabaseFixtures(database());
             databaseAssertions = new DatabaseAssertions(database());
             scheduler = new DatabaseScheduler(propeller(), Schedulers.immediate());
+            propellerRx = new PropellerRx(propeller());
         }
 
     }

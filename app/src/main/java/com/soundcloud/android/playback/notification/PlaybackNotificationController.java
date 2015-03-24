@@ -10,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
@@ -35,7 +35,7 @@ public class PlaybackNotificationController {
     public static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
     private final PlaybackNotificationPresenter presenter;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
     private final NotificationManager notificationManager;
     private final EventBus eventBus;
     private final ImageOperations imageOperations;
@@ -67,7 +67,7 @@ public class PlaybackNotificationController {
         @Override
         public Observable<NotificationBuilder> call(CurrentPlayQueueTrackEvent playQueueEvent) {
             imageSubscription.unsubscribe();
-            return trackOperations
+            return trackRepository
                     .track(playQueueEvent.getCurrentTrackUrn()).observeOn(AndroidSchedulers.mainThread())
                     .map(PropertySetFunctions.mergeInto(playQueueEvent.getCurrentMetaData()))
                     .flatMap(toNotification).cache();
@@ -77,10 +77,10 @@ public class PlaybackNotificationController {
     private NotificationBuilder notificationBuilder;
 
     @Inject
-    public PlaybackNotificationController(TrackOperations trackOperations, PlaybackNotificationPresenter presenter,
+    public PlaybackNotificationController(TrackRepository trackRepository, PlaybackNotificationPresenter presenter,
                                           NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations,
                                           Provider<NotificationBuilder> builderProvider, PlaybackStateProvider playbackStateProvider) {
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
         this.eventBus = eventBus;

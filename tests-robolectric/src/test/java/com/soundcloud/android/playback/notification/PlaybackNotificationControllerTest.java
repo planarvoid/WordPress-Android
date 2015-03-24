@@ -22,7 +22,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class PlaybackNotificationControllerTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private Context context;
-    @Mock private TrackOperations trackOperations;
+    @Mock private TrackRepository trackRepository;
     @Mock private ImageOperations imageOperations;
     @Mock private ApplicationProperties applicationProperties;
     @Mock private PlaybackNotificationPresenter playbackNotificationPresenter;
@@ -65,10 +65,10 @@ public class PlaybackNotificationControllerTest {
     @Before
     public void setUp() throws Exception {
         trackProperties = expectedTrackForPlayer();
-        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
 
         controller = new PlaybackNotificationController(
-                trackOperations,
+                trackRepository,
                 playbackNotificationPresenter,
                 notificationManager,
                 eventBus,

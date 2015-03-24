@@ -1,5 +1,7 @@
 package com.soundcloud.android.tracks;
 
+import static com.soundcloud.android.rx.RxUtils.continueWith;
+
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -8,18 +10,19 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
-import java.util.List;
+import javax.inject.Named;
 
-public class TrackOperations {
+public class TrackRepository {
 
-    private final LoadTrackCommand loadTrack;
-    private final LoadTrackDescriptionCommand loadTrackDescription;
+    private final TrackStorage trackStorage;
     private final EventBus eventBus;
     private final SyncInitiator syncInitiator;
+    private final Scheduler scheduler;
 
     // TODO: should this be fired from the syncer instead?
     private final Action1<PropertySet> publishTrackChanged = new Action1<PropertySet>() {
@@ -30,50 +33,45 @@ public class TrackOperations {
     };
 
     @Inject
-    public TrackOperations(LoadTrackCommand loadTrack, LoadTrackDescriptionCommand loadTrackDescription, EventBus eventBus, SyncInitiator syncInitiator) {
-        this.loadTrack = loadTrack;
-        this.loadTrackDescription = loadTrackDescription;
+    public TrackRepository(TrackStorage trackStorage,
+                           EventBus eventBus, SyncInitiator syncInitiator, @Named("Storage") Scheduler scheduler) {
+        this.trackStorage = trackStorage;
         this.eventBus = eventBus;
         this.syncInitiator = syncInitiator;
+        this.scheduler = scheduler;
     }
 
     public Observable<PropertySet> track(final Urn trackUrn) {
-        return trackFromStorage(trackUrn).toList().flatMap(syncIfEmpty(trackUrn));
+        return trackFromStorage(trackUrn).flatMap(syncIfEmpty(trackUrn));
     }
 
     Observable<PropertySet> fullTrackWithUpdate(final Urn trackUrn) {
         return Observable.concat(
                 fullTrackFromStorage(trackUrn),
-                syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn))
-                        .doOnNext(publishTrackChanged)
+                syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn)).doOnNext(publishTrackChanged)
         );
     }
 
-    private Func1<List<PropertySet>, Observable<PropertySet>> syncIfEmpty(final Urn trackUrn) {
-        return new Func1<List<PropertySet>, Observable<PropertySet>>() {
+    private Func1<PropertySet, Observable<PropertySet>> syncIfEmpty(final Urn trackUrn) {
+        return new Func1<PropertySet, Observable<PropertySet>>() {
             @Override
-            public Observable<PropertySet> call(List<PropertySet> propertySets) {
-                return propertySets.isEmpty() ? syncThenLoadTrack(trackUrn, trackFromStorage(trackUrn))
-                        : Observable.just(propertySets.get(0));
+            public Observable<PropertySet> call(PropertySet track) {
+                return track.isEmpty() ? syncThenLoadTrack(trackUrn, trackFromStorage(trackUrn))
+                        : Observable.just(track);
             }
         };
     }
 
     private Observable<PropertySet> trackFromStorage(Urn trackUrn) {
-        return loadTrack.with(trackUrn).toObservable();
+        return trackStorage.loadTrack(trackUrn).subscribeOn(scheduler);
     }
 
     private Observable<PropertySet> fullTrackFromStorage(Urn trackUrn) {
-        return trackFromStorage(trackUrn).zipWith(loadTrackDescription.with(trackUrn).toObservable(), PropertySetFunctions.mergeLeft());
+        return trackFromStorage(trackUrn)
+                .zipWith(trackStorage.loadTrackDescription(trackUrn), PropertySetFunctions.mergeLeft());
     }
 
     private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {
-        return syncInitiator.syncTrack(trackUrn)
-                .flatMap(new Func1<Boolean, Observable<PropertySet>>() {
-                    @Override
-                    public Observable<PropertySet> call(Boolean trackWasUpdated) {
-                        return loadObservable;
-                    }
-                });
+        return syncInitiator.syncTrack(trackUrn).flatMap(continueWith(loadObservable));
     }
 }

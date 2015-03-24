@@ -46,11 +46,11 @@ public class OfflineContentOperations {
 
     private final OfflineTracksStorage tracksStorage;
     private final SecureFileStorage secureFileStorage;
-    private final Scheduler scheduler;
     private final OfflinePlaylistStorage playlistStorage;
     private final OfflineSettingsStorage settingsStorage;
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
+    private final Scheduler scheduler;
 
     private static final Func2<CurrentDownloadEvent, Boolean, State> TO_AGGREGATED_STATES = new Func2<CurrentDownloadEvent, Boolean, State>() {
         @Override
@@ -130,13 +130,15 @@ public class OfflineContentOperations {
     public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn) {
         return playlistStorage.storeAsOfflinePlaylist(playlistUrn)
                 .map(WRITE_RESULT_TO_SUCCESS)
-                .doOnNext(publishMarkedForOfflineChange(playlistUrn, true));
+                .doOnNext(publishMarkedForOfflineChange(playlistUrn, true))
+                .subscribeOn(scheduler);
     }
 
     public Observable<Boolean> makePlaylistUnavailableOffline(final Urn playlistUrn) {
         return playlistStorage.removeFromOfflinePlaylists(playlistUrn)
                 .map(WRITE_RESULT_TO_SUCCESS)
-                .doOnNext(publishMarkedForOfflineChange(playlistUrn, false));
+                .doOnNext(publishMarkedForOfflineChange(playlistUrn, false))
+                .subscribeOn(scheduler);
     }
 
     public boolean isOfflineLikedTracksEnabled() {
@@ -191,11 +193,17 @@ public class OfflineContentOperations {
     }
 
     public Observable<DownloadState> getPlaylistDownloadState(final Urn playlist) {
-        return getDownloadState(tracksStorage.pendingPlaylistTracksUrns(playlist), getOfflinePlaylistStatus(playlist));
+        return getDownloadState(
+                tracksStorage.pendingPlaylistTracksUrns(playlist),
+                getOfflinePlaylistStatus(playlist)
+        ).subscribeOn(scheduler);
     }
 
     public Observable<DownloadState> getLikedTracksDownloadState() {
-        return getDownloadState(tracksStorage.pendingLikedTracksUrns(), settingsStorage.getOfflineLikedTracksStatus());
+        return getDownloadState(
+                tracksStorage.pendingLikedTracksUrns(),
+                settingsStorage.getOfflineLikedTracksStatus()
+        ).subscribeOn(scheduler);
     }
 
     private Observable<DownloadState> getDownloadState(final Observable<List<Urn>> pendingDownloads, Observable<Boolean> offlineContentStatus) {
@@ -234,7 +242,8 @@ public class OfflineContentOperations {
     Observable<List<DownloadRequest>> loadDownloadRequests() {
         return updateStalePolicies()
                 .flatMap(updateOfflineQueue)
-                .flatMap(loadPendingDownloadRequests);
+                .flatMap(loadPendingDownloadRequests)
+                .subscribeOn(scheduler);
     }
 
     private Observable<Void> updateOfflineQueue() {

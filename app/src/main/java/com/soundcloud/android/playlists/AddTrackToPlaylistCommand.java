@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -19,7 +18,6 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCommand.AddTrackToPlaylistParams, WriteResult, Integer> {
 
@@ -30,12 +28,6 @@ class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCo
     @Inject
     AddTrackToPlaylistCommand(PropellerDatabase propeller, DateProvider dateProvider) {
         super(propeller);
-        this.dateProvider = dateProvider;
-    }
-
-    @VisibleForTesting
-    AddTrackToPlaylistCommand(PropellerDatabase propeller, Provider<Thread> currentThreadProvider, DateProvider dateProvider) {
-        super(propeller, currentThreadProvider);
         this.dateProvider = dateProvider;
     }
 

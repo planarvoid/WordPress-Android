@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
@@ -38,7 +38,7 @@ public class PlayerWidgetController {
     private final PlayerWidgetPresenter presenter;
     private final PlaySessionStateProvider playSessionsStateProvider;
     private final PlayQueueManager playQueueManager;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
 
@@ -52,13 +52,13 @@ public class PlayerWidgetController {
     @Inject
     public PlayerWidgetController(Context context, PlayerWidgetPresenter presenter,
                                   PlaySessionStateProvider playSessionsStateProvider,
-                                  PlayQueueManager playQueueManager, TrackOperations trackOperations,
+                                  PlayQueueManager playQueueManager, TrackRepository trackRepository,
                                   EventBus eventBus, LikeOperations likeOperations) {
         this.context = context;
         this.presenter = presenter;
         this.playSessionsStateProvider = playSessionsStateProvider;
         this.playQueueManager = playQueueManager;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.eventBus = eventBus;
         this.likeOperations = likeOperations;
     }
@@ -94,7 +94,7 @@ public class PlayerWidgetController {
     }
 
     private Observable<PropertySet> loadTrackWithAdMeta(Urn urn, PropertySet metaData) {
-        return trackOperations.track(urn).map(PropertySetFunctions.mergeWith(metaData));
+        return trackRepository.track(urn).map(PropertySetFunctions.mergeWith(metaData));
     }
 
     public void handleToggleLikeAction(boolean addLike) {

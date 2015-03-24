@@ -9,7 +9,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
 import rx.subjects.ReplaySubject;
@@ -19,7 +19,7 @@ import javax.inject.Inject;
 public class PlaybackSessionAnalyticsController {
 
     private final EventBus eventBus;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
     private final AccountOperations accountOperations;
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
@@ -38,11 +38,11 @@ public class PlaybackSessionAnalyticsController {
     };
 
     @Inject
-    public PlaybackSessionAnalyticsController(EventBus eventBus, TrackOperations trackOperations,
+    public PlaybackSessionAnalyticsController(EventBus eventBus, TrackRepository trackRepository,
                                               AccountOperations accountOperations, PlayQueueManager playQueueManager,
                                               AdsOperations adsOperations) {
         this.eventBus = eventBus;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
@@ -58,7 +58,7 @@ public class PlaybackSessionAnalyticsController {
             }
 
             trackObservable = ReplaySubject.createWithSize(1);
-            trackOperations.track(currentTrack).subscribe(trackObservable);
+            trackRepository.track(currentTrack).subscribe(trackObservable);
         }
 
         if (stateTransition.isPlayerPlaying()) {

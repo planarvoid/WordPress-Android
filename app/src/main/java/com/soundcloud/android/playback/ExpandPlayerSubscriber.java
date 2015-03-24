@@ -40,6 +40,8 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
 
     @Override
     public void onError(Throwable e) {
-        playbackToastHelper.showToastOnPlaybackError(e);
+        if (!playbackToastHelper.showToastOnPlaybackError(e)) {
+            super.onError(e);
+        }
     }
 }

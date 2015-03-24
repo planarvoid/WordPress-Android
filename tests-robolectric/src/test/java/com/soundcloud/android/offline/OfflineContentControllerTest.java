@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import android.content.Intent;
@@ -38,7 +39,8 @@ public class OfflineContentControllerTest {
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(settingsStorage.getOfflineLikedTracksStatusChange()).thenReturn(offlineLikeToggleSetting);
 
-        controller = new OfflineContentController(Robolectric.application, eventBus, settingsStorage, playlistStorage);
+        controller = new OfflineContentController(Robolectric.application, eventBus, settingsStorage,
+                playlistStorage, Schedulers.immediate());
     }
 
     @Test

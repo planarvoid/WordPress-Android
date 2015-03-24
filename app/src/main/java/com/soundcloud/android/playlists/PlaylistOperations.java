@@ -38,7 +38,7 @@ public class PlaylistOperations {
         }
     };
 
-    private final Scheduler storageScheduler;
+    private final Scheduler scheduler;
     private final LoadPlaylistCommand loadPlaylistCommand;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
     private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
@@ -77,7 +77,7 @@ public class PlaylistOperations {
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
                        EventBus eventBus) {
-        this.storageScheduler = scheduler;
+        this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistTracksStorage = playlistTracksStorage;
         this.loadPlaylistCommand = loadPlaylistCommand;
@@ -90,12 +90,14 @@ public class PlaylistOperations {
     }
 
     Observable<List<PropertySet>> loadPlaylistForAddingTrack(Urn trackUrn) {
-        return playlistTracksStorage.playlistsForAddingTrack(trackUrn);
+        return playlistTracksStorage
+                .playlistsForAddingTrack(trackUrn)
+                .subscribeOn(scheduler);
     }
 
     public Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
-                .subscribeOn(storageScheduler)
+                .subscribeOn(scheduler)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
@@ -114,7 +116,7 @@ public class PlaylistOperations {
                 .map(toChangeSet(playlistUrn))
                 .doOnNext(publishTrackAddedToPlaylistEvent)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction())
-                .subscribeOn(storageScheduler);
+                .subscribeOn(scheduler);
     }
 
     public Observable<PropertySet> removeTrackFromPlaylist(Urn playlistUrn, Urn trackUrn) {
@@ -123,7 +125,7 @@ public class PlaylistOperations {
                 .map(toChangeSet(playlistUrn))
                 .doOnNext(publishTrackRemovedFromPlaylistEvent)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction())
-                .subscribeOn(storageScheduler);
+                .subscribeOn(scheduler);
     }
 
     private Func1<Integer, PropertySet> toChangeSet(final Urn targetUrn) {
@@ -140,7 +142,7 @@ public class PlaylistOperations {
     public Observable<List<Urn>> trackUrnsForPlayback(Urn playlistUrn) {
         return loadPlaylistTrackUrns.with(playlistUrn)
                 .toObservable()
-                .subscribeOn(storageScheduler);
+                .subscribeOn(scheduler);
     }
 
     Observable<PlaylistInfo> playlistInfo(final Urn playlistUrn) {
@@ -163,7 +165,7 @@ public class PlaylistOperations {
         final Observable<PropertySet> loadPlaylist = loadPlaylistCommand.with(playlistUrn).toObservable();
         final Observable<List<TrackItem>> loadPlaylistTracks =
                 loadPlaylistTracksCommand.with(playlistUrn).toObservable().map(TrackItem.fromPropertySets());
-        return Observable.zip(loadPlaylist, loadPlaylistTracks, mergePlaylistWithTracks).subscribeOn(storageScheduler);
+        return Observable.zip(loadPlaylist, loadPlaylistTracks, mergePlaylistWithTracks).subscribeOn(scheduler);
     }
 
     private Func1<PlaylistInfo, Observable<PlaylistInfo>> syncIfNecessary(final Urn playlistUrn) {

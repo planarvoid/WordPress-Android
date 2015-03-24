@@ -2,6 +2,7 @@ package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
@@ -39,12 +40,20 @@ public class ExpandPlayerSubscriberTest {
     }
 
     @Test
-    public void onErrorPassesExceptionToPlaybackToastHelper() {
+    public void onErrorPassesPlaybackExceptionsToPlaybackToastHelper() {
         final Exception someException = new Exception("some exception");
 
         subscriber.onError(someException);
 
         verify(playbackToastHelper).showToastOnPlaybackError(someException);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void onErrorRethrowsExceptionIfNotHandledByPlaybackToastHelper() throws Exception {
+        final IllegalArgumentException someException = new IllegalArgumentException("some exception");
+        when(playbackToastHelper.showToastOnPlaybackError(someException)).thenReturn(false);
+
+        subscriber.onError(someException);
     }
 
     @Test

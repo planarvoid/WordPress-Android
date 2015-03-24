@@ -35,12 +35,11 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     private SoundStreamStorage storage;
 
-    @Mock
-    private Observer<PropertySet> observer;
+    @Mock private Observer<PropertySet> observer;
 
     @Before
     public void setup() {
-        storage = new SoundStreamStorage(testScheduler(), propeller());
+        storage = new SoundStreamStorage(propellerRx(), propeller());
     }
 
     @Test

@@ -1,23 +1,18 @@
 package com.soundcloud.android.api;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.io.IOException;
 
-@Deprecated
-public class ApiScheduler {
+public class ApiClientRx {
 
     private final ApiClient apiClient;
-    private final Scheduler scheduler;
 
     @Inject
-    public ApiScheduler(ApiClient apiClient, @Named("API") Scheduler scheduler) {
+    public ApiClientRx(ApiClient apiClient) {
         this.apiClient = apiClient;
-        this.scheduler = scheduler;
     }
 
     public ApiClient getApiClient() {
@@ -36,7 +31,7 @@ public class ApiScheduler {
                     subscriber.onError(response.getFailure());
                 }
             }
-        }).subscribeOn(scheduler);
+        });
     }
 
     public <T> Observable<T> mappedResponse(final ApiRequest<T> request) {
@@ -55,6 +50,6 @@ public class ApiScheduler {
                     subscriber.onError(e);
                 }
             }
-        }).subscribeOn(scheduler);
+        });
     }
 }
