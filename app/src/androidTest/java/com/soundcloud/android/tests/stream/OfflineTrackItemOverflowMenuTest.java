@@ -26,12 +26,16 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
     }
 
     @Override
+    protected void logInHelper() {
+        TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     protected void setUp() throws Exception {
 
         final Context context = getInstrumentation().getTargetContext();
 
         resetOfflineSyncState(context);
-        TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
 
         menuScreen = new MenuScreen(solo);

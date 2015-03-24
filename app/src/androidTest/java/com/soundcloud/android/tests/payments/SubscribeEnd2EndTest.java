@@ -19,9 +19,13 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        TestUser.subscribeUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     public void setUp() throws Exception {
         setDependsOn(Flag.PAYMENTS_TEST);
-        TestUser.subscribeUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
         settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
     }

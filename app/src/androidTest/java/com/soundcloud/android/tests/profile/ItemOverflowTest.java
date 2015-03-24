@@ -20,8 +20,12 @@ public class ItemOverflowTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    protected void logInHelper() {
         streamUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
+    protected void setUp() throws Exception {
         super.setUp();
 
         menuScreen = new MenuScreen(solo);

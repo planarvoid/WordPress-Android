@@ -25,9 +25,12 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+    }
 
+    @Override
+    public void setUp() throws Exception {
         super.setUp();
 
         MainScreen mainScreen = new MainScreen(solo);

@@ -16,9 +16,8 @@ public class EmptyTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         emptyUser.logIn(getInstrumentation().getTargetContext());
-        super.setUp();
     }
 
     public void testShowsEmptyLikesScreen() {

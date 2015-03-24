@@ -19,9 +19,8 @@ public class StreamTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    protected void logInHelper() {
         streamUser.logIn(getInstrumentation().getTargetContext());
-        super.setUp();
     }
 
     public void testStreamShouldHaveCorrectTitle() {

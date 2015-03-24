@@ -19,9 +19,8 @@ public class PlaylistPostsTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
-        super.setUp();
     }
 
     public void testDrawerShowsPlaylists() {

@@ -23,8 +23,12 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
+    public void setUp() throws Exception {
         super.setUp();
         streamScreen = new StreamScreen(solo);
     }

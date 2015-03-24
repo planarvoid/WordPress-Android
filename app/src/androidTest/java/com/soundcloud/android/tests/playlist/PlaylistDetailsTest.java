@@ -24,9 +24,12 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         playlistUser.logIn(getInstrumentation().getTargetContext());
+    }
 
+    @Override
+    public void setUp() throws Exception {
         super.setUp();
 
         menuScreen = new MenuScreen(solo);

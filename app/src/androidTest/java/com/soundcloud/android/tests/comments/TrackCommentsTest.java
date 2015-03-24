@@ -20,8 +20,12 @@ public class TrackCommentsTest extends ActivityTest<MainActivity> {
         super(MainActivity.class);
     }
 
-    public void setUp() throws Exception {
+    @Override
+    protected void logInHelper() {
         testUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    public void setUp() throws Exception {
         super.setUp();
         ActivitiesScreen activitiesScreen = NavigationHelper.openActivities(new StreamScreen(solo));
         trackCommentsScreen = activitiesScreen.clickComment();

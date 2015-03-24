@@ -16,10 +16,10 @@ public class EmptyPlaylistPostsTest extends ActivityTest<MainActivity> {
         super(MainActivity.class);
     }
 
+
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         emptyUser.logIn(getInstrumentation().getTargetContext());
-        super.setUp();
     }
 
     public void testShowsEmptyPostsScreen() {

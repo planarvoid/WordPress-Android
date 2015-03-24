@@ -21,11 +21,15 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     public void setUp() throws Exception {
         final Context context = getInstrumentation().getTargetContext();
 
         resetOfflineSyncState(context);
-        TestUser.offlineUser.logIn(context);
         super.setUp();
     }
 

@@ -19,8 +19,12 @@ public abstract class ResolveBaseTest extends ActivityTest<ResolveActivity> {
     protected abstract Uri getUri();
 
     @Override
-    protected void setUp() throws Exception {
+    protected void logInHelper() {
         defaultUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
+    protected void setUp() throws Exception {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
         assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();

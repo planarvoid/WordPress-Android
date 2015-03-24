@@ -20,9 +20,12 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         TestUser.defaultUser.logIn(getInstrumentation().getTargetContext());
+    }
 
+    @Override
+    public void setUp() throws Exception {
         super.setUp();
 
         playlistTagsScreen = new MainScreen(solo)

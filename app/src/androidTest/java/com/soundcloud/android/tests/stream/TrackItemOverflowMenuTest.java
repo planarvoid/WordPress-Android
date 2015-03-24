@@ -26,8 +26,12 @@ public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    protected void logInHelper() {
         TestUser.streamUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
+    protected void setUp() throws Exception {
         super.setUp();
 
         menuScreen = new MenuScreen(solo);

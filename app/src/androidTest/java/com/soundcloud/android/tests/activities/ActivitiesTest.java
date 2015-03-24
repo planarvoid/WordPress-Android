@@ -24,8 +24,12 @@ public class ActivitiesTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         TestUser.testUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
+    public void setUp() throws Exception {
         super.setUp();
 
         waiter = new Waiter(solo);

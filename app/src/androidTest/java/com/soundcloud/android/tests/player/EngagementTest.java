@@ -17,9 +17,9 @@ public class EngagementTest extends ActivityTest<MainActivity> {
         super(MainActivity.class);
     }
 
-    public void setUp() throws Exception {
+    @Override
+    protected void logInHelper() {
         TestUser.privateUser.logIn(getInstrumentation().getTargetContext());
-        super.setUp();
     }
 
     public void testPrivateTrackHasDisabledShareAndRepost() {

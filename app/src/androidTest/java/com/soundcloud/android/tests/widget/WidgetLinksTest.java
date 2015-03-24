@@ -20,9 +20,12 @@ public class WidgetLinksTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    protected void logInHelper() {
         defaultUser.logIn(getInstrumentation().getTargetContext());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
+    }
+
+    @Override
+    protected void setUp() throws Exception {
         super.setUp();
     }
 

@@ -20,9 +20,13 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     }
 
     @Override
+    protected void logInHelper() {
+        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     public void setUp() throws Exception {
         setDependsOn(Flag.NEW_PLAYLIST_ENGAGEMENTS);
-        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
     }
 

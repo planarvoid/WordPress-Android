@@ -25,9 +25,13 @@ public class PlaylistDetailsNewEngagementsTest extends ActivityTest<LauncherActi
     }
 
     @Override
+    protected void logInHelper() {
+        TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     public void setUp() throws Exception {
         setDependsOn(Flag.NEW_PLAYLIST_ENGAGEMENTS);
-        TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());
         super.setUp();
 
         menuScreen = new MenuScreen(solo);

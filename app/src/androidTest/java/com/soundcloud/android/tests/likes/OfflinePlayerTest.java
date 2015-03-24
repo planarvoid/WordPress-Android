@@ -21,10 +21,13 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        TestUser.offlineUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     public void setUp() throws Exception {
         final Context context = getInstrumentation().getTargetContext();
-        TestUser.offlineUser.logIn(context);
-
         super.setUp();
 
         clearOfflineContent(context);

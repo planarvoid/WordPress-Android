@@ -21,9 +21,8 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     @Override
-    public void setUp() throws Exception {
+    protected void logInHelper() {
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
-        super.setUp();
     }
 
     public void testClickingShuffleButtonOpensPlayer() {
