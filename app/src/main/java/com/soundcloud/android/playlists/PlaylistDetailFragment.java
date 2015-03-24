@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
 import static rx.android.observables.AndroidObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
@@ -9,8 +10,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.OriginProvider;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -32,6 +33,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.ItemAdapter;
@@ -425,9 +427,15 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            controller.setEmptyViewStatus(EmptyView.Status.ERROR);
-            showContent(true);
-            pullToRefreshController.stopRefreshing();
+            if (e instanceof PlaylistMissingException){
+                // we successfully synced and failed to load, so the playlist is most likely gone or not accessible
+                Toast.makeText(getActivity(), R.string.playlist_load_error, Toast.LENGTH_SHORT).show();
+                getActivity().finish();
+            } else {
+                controller.setEmptyViewStatus(ErrorUtils.getEmptyViewStatusFromApiException(e));
+                showContent(true);
+                pullToRefreshController.stopRefreshing();
+            }
         }
 
         @Override

@@ -16,6 +16,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
@@ -321,7 +322,15 @@ public class PlaylistDetailFragmentTest {
         when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(
                 Observable.<PlaylistInfo>error(new Exception("something bad happened")));
         createFragmentView();
-        verify(controller).setEmptyViewStatus(EmptyView.Status.ERROR);
+        verify(controller).setEmptyViewStatus(EmptyView.Status.SERVER_ERROR);
+    }
+
+    @Test
+    public void setsEmptyViewToConnectionErrorWhenApiRequestNetworkError() throws Exception {
+        when(playlistOperations.playlistInfo(any(Urn.class))).thenReturn(
+                Observable.<PlaylistInfo>error(TestApiResponses.networkError().getFailure()));
+        createFragmentView();
+        verify(controller).setEmptyViewStatus(EmptyView.Status.CONNECTION_ERROR);
     }
 
     @Test

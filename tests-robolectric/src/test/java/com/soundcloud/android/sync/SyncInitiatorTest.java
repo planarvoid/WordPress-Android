@@ -101,7 +101,7 @@ public class SyncInitiatorTest {
     @Test
     public void shouldCreateIntentForSyncingSinglePlaylist() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(1L);
-        initiator.syncPlaylist(playlistUrn).subscribe(legacySyncSubscriber);
+        initiator.syncPlaylist(playlistUrn).subscribe(syncSubscriber);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();

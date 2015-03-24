@@ -4,6 +4,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncFailedException;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Subscription;
@@ -18,13 +19,15 @@ import javax.inject.Inject;
 @Deprecated // use ListPresenter or EmptyViewPresenter
 public class EmptyViewController extends DefaultSupportFragmentLightCycle {
 
+    private final NetworkConnectionHelper networkConnectionHelper;
     private EmptyView emptyView;
     private int emptyViewStatus = EmptyView.Status.WAITING;
 
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
-    public EmptyViewController() {
+    public EmptyViewController(NetworkConnectionHelper networkConnectionHelper) {
+        this.networkConnectionHelper = networkConnectionHelper;
     }
 
     @Override
@@ -82,7 +85,8 @@ public class EmptyViewController extends DefaultSupportFragmentLightCycle {
                 updateEmptyViewStatus(networkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
             } if (error instanceof SyncFailedException) {
                 // default Sync Failures to connection for now as we can't tell the diff
-                updateEmptyViewStatus(EmptyView.Status.CONNECTION_ERROR);
+                updateEmptyViewStatus(networkConnectionHelper.isNetworkConnected()
+                        ? EmptyView.Status.SERVER_ERROR : EmptyView.Status.CONNECTION_ERROR);
             } else {
                 super.onError(error);
             }

@@ -1,11 +1,14 @@
 package com.soundcloud.android.utils;
 
+import static com.soundcloud.android.playlists.PlaylistOperations.PlaylistMissingException;
+
 import com.crashlytics.android.Crashlytics;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
+import com.soundcloud.android.view.EmptyView;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorFailedException;
@@ -88,9 +91,15 @@ public final class ErrorUtils {
         });
     }
 
+    public static int getEmptyViewStatusFromApiException(Throwable e) {
+        final boolean isNetworkError = e instanceof ApiRequestException
+                && ((ApiRequestException) e).reason() == ApiRequestException.Reason.NETWORK_ERROR;
+        return isNetworkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR;
+    }
+
     @VisibleForTesting
     static boolean includeInReports(Throwable t) {
-        if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t)) {
+        if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t) || t instanceof PlaylistMissingException) {
             return false;
         }
         if (t instanceof ApiRequestException) {

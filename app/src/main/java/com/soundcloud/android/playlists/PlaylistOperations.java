@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -53,6 +54,15 @@ public class PlaylistOperations {
         @Override
         public PlaylistInfo call(PropertySet playlist, List<TrackItem> tracks) {
             return new PlaylistInfo(playlist, tracks);
+        }
+    };
+
+    private final Func1<PlaylistInfo, Observable<PlaylistInfo>> validateLoadedPlaylist = new Func1<PlaylistInfo, Observable<PlaylistInfo>>() {
+        @Override
+        public Observable<PlaylistInfo> call(PlaylistInfo playlistInfo) {
+            return playlistInfo.isMissingMetaData()
+                    ? Observable.<PlaylistInfo>error(new PlaylistOperations.PlaylistMissingException())
+                    : Observable.just(playlistInfo);
         }
     };
 
@@ -139,12 +149,14 @@ public class PlaylistOperations {
     }
 
     Observable<PlaylistInfo> updatedPlaylistInfo(final Urn playlistUrn) {
-        return syncInitiator.syncPlaylist(playlistUrn).flatMap(new Func1<Boolean, Observable<PlaylistInfo>>() {
-            @Override
-            public Observable<PlaylistInfo> call(Boolean playlistWasUpdated) {
-                return createPlaylistInfoLoadObservable(playlistUrn);
-            }
-        });
+        return syncInitiator.syncPlaylist(playlistUrn)
+                .flatMap(new Func1<SyncResult, Observable<PlaylistInfo>>() {
+                    @Override
+                    public Observable<PlaylistInfo> call(SyncResult playlistWasUpdated) {
+                        return createPlaylistInfoLoadObservable(playlistUrn)
+                                .flatMap(validateLoadedPlaylist);
+                    }
+                });
     }
 
     private Observable<PlaylistInfo> createPlaylistInfoLoadObservable(Urn playlistUrn) {
@@ -174,5 +186,9 @@ public class PlaylistOperations {
                 }
             }
         };
+    }
+
+    public static class PlaylistMissingException extends Exception {
+
     }
 }

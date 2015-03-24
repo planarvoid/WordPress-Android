@@ -11,6 +11,7 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.sync.SyncFailedException;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ import android.view.View;
 @RunWith(SoundCloudTestRunner.class)
 public class EmptyViewControllerTest {
 
-    private EmptyViewController controller = new EmptyViewController();
+    private EmptyViewController controller;
 
     private Fragment fragment = new Fragment();
     private Bundle fragmentArgs = new Bundle();
@@ -39,10 +40,12 @@ public class EmptyViewControllerTest {
     @Mock private EmptyView emptyView;
     @Mock private ReactiveComponent reactiveComponent;
     @Mock private Subscription subscription;
+    @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Captor private ArgumentCaptor<EmptyView.RetryListener> retryListenerCaptor;
 
     @Before
     public void setup() {
+        controller = new EmptyViewController(networkConnectionHelper);
         fragment.setArguments(fragmentArgs);
         when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         observable = TestObservables.emptyConnectableObservable(subscription);
@@ -77,10 +80,18 @@ public class EmptyViewControllerTest {
     }
 
     @Test
-    public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForSyncFailedException() {
+    public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForSyncFailedExceptionWithNoConnection() {
         controller.onViewCreated(fragment, layout, null);
         controller.connect(reactiveComponent, Observable.error(mock(SyncFailedException.class)));
         verify(emptyView).setStatus(EmptyView.Status.CONNECTION_ERROR);
+    }
+
+    @Test
+    public void shouldSetEmptyViewStateToConnectionErrorWhenControllerReceivesErrorForSyncFailedExceptionWithConnection() {
+        when(networkConnectionHelper.isNetworkConnected()).thenReturn(true);
+        controller.onViewCreated(fragment, layout, null);
+        controller.connect(reactiveComponent, Observable.error(mock(SyncFailedException.class)));
+        verify(emptyView).setStatus(EmptyView.Status.SERVER_ERROR);
     }
 
     @Test

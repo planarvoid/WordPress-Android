@@ -196,8 +196,8 @@ public class SyncInitiator {
                 .setData(Content.ME_PLAYLISTS.uri));
     }
 
-    public Observable<Boolean> syncPlaylist(final Urn playlistUrn) {
-        return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn).map(convertToLegacyResult);
+    public Observable<SyncResult> syncPlaylist(final Urn playlistUrn) {
+        return requestSyncObservable(SyncActions.SYNC_PLAYLIST, playlistUrn);
     }
 
     public Observable<Boolean> syncTrack(final Urn trackUrn) {

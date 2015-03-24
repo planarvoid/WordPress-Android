@@ -17,7 +17,9 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
@@ -99,7 +101,7 @@ public class PlaylistOperationsTest {
 
     @Test
     public void updatedPlaylistSyncsThenLoadsFromStorage() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(true));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_PLAYLIST, true)));
         when(loadPlaylistTracksCommand.toObservable()).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
         when(loadPlaylistCommand.toObservable()).thenReturn(Observable.just(playlist.toPropertySet()));
 
@@ -113,7 +115,7 @@ public class PlaylistOperationsTest {
 
     @Test
     public void loadsPlaylistAndSyncsBeforeEmittingIfPlaylistMetaDataMissing() {
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(true));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_PLAYLIST, true)));
         when(loadPlaylistTracksCommand.toObservable()).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
         when(loadPlaylistCommand.toObservable()).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(playlist.toPropertySet()));
 
@@ -126,10 +128,23 @@ public class PlaylistOperationsTest {
     }
 
     @Test
+    public void loadsPlaylistAndSyncsBeforeEmittingAPlaylistMissingExceptionIfPlaylistMetaDataStillMissing() {
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_PLAYLIST, true)));
+        when(loadPlaylistTracksCommand.toObservable()).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
+        when(loadPlaylistCommand.toObservable()).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(PropertySet.create()));
+
+        operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
+
+        InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
+        inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
+        inOrder.verify(playlistInfoObserver).onError(any(PlaylistOperations.PlaylistMissingException.class));
+    }
+
+    @Test
     public void loadsPlaylistAndEmitsAgainAfterSyncIfNoTracksAvailable() {
         final List<PropertySet> emptyTrackList = Collections.emptyList();
         final List<PropertySet> trackList = Arrays.asList(track1, track2);
-        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(true));
+        when(syncInitiator.syncPlaylist(playlist.getUrn())).thenReturn(Observable.just(SyncResult.success(SyncActions.SYNC_PLAYLIST, true)));
         when(loadPlaylistTracksCommand.toObservable()).thenReturn(Observable.just(emptyTrackList), Observable.just(trackList));
         when(loadPlaylistCommand.toObservable()).thenReturn(Observable.just(playlist.toPropertySet()));
 
