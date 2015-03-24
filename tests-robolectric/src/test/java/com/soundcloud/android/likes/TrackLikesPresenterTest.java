@@ -17,8 +17,9 @@ import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -113,11 +114,11 @@ public class TrackLikesPresenterTest {
 
     @Test
     public void shouldPlayLikedTracksOnListItemClick() {
-        final PropertySet clickedTrack = TestPropertySets.expectedLikedTrackForLikesScreen();
+        final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
         final List<Urn> likedUrns = Arrays.asList(TRACK_URN);
         final Observable<List<Urn>> likedUrnsObservable = Observable.just(likedUrns);
-        when(listView.getItemAtPosition(0)).thenReturn(clickedTrack);
-        when(playbackOperations.playLikes(eq(clickedTrack.get(TrackProperty.URN)), eq(0), isA(PlaySessionSource.class)))
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        when(playbackOperations.playLikes(eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(likedUrnsObservable);
 
         presenter.onItemClick(listView, view, 0, 0);
