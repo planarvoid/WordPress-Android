@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.activity.resolve;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
+
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
@@ -15,10 +17,13 @@ public class ResolveExploreTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        defaultUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     protected void setUp() throws Exception {
         Uri uri = Uri.parse("http://soundcloud.com/explore");
-        AccountAssistant.loginAsDefault(getInstrumentation());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(uri));
         super.setUp();
     }

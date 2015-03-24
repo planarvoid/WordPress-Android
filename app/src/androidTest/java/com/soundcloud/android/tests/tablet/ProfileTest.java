@@ -26,9 +26,12 @@ public class ProfileTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        followedUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     protected void setUp() throws Exception {
-        AccountAssistant.loginAs(getInstrumentation(), followedUser.getPermalink(), followedUser.getPassword());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
         myProfileScreen = new MenuScreenTablet(solo).clickUserProfile();
         navigateToFollower();

@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.tablet;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
+
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MenuScreenTablet;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -17,9 +19,12 @@ public class MyProfileTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        defaultUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     protected void setUp() throws Exception {
-        AccountAssistant.loginAsDefault(getInstrumentation());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
         profileScreen = new MenuScreenTablet(solo).clickUserProfile();
     }

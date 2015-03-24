@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.activity.resolve;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
+
 import com.soundcloud.android.tests.TestConsts;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
@@ -19,10 +21,13 @@ public class ResolveTwitterUriTest extends ActivityTest<ResolveActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        defaultUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     protected void setUp() throws Exception {
         Uri uri = TestConsts.TWITTER_SOUND_URI;
-        AccountAssistant.loginAsDefault(getInstrumentation());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(uri));
         super.setUp();
 

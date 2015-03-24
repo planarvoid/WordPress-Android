@@ -1,12 +1,13 @@
 package com.soundcloud.android.tests.drawer;
 
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
+
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class DrawerTest extends ActivityTest<LauncherActivity> {
@@ -16,10 +17,8 @@ public class DrawerTest extends ActivityTest<LauncherActivity> {
     }
 
     @Override
-    protected void setUp() throws Exception {
-        AccountAssistant.loginAsDefault(getInstrumentation());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-        super.setUp();
+    protected void logInHelper() {
+        defaultUser.logIn(getInstrumentation().getTargetContext());
     }
 
     public void testOpeningOverflowDoesNotCloseDrawer() {

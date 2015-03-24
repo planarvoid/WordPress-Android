@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.search.intents;
 
+import static com.soundcloud.android.framework.TestUser.defaultUser;
+
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
@@ -14,10 +16,13 @@ public abstract class SearchIntentsBaseTest extends ActivityTest<SearchActivity>
     }
 
     @Override
+    protected void logInHelper() {
+        defaultUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     protected void setUp() throws Exception {
-        AccountAssistant.loginAsDefault(getInstrumentation());
         setActivityIntent(getIntent());
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
         waiter = new Waiter(solo);
     }

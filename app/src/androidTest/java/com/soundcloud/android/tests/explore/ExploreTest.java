@@ -7,12 +7,11 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.Waiter;
 
 public class ExploreTest extends ActivityTest<MainActivity> {
     private Waiter waiter;
@@ -24,8 +23,12 @@ public class ExploreTest extends ActivityTest<MainActivity> {
     }
 
     @Override
+    protected void logInHelper() {
+        testUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
     public void setUp() throws Exception {
-        AccountAssistant.loginAs(getInstrumentation(), testUser.getPermalink(), testUser.getPassword());
         super.setUp();
 
         waiter = new Waiter(solo);
