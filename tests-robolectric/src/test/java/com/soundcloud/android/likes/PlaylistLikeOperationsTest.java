@@ -2,7 +2,9 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.likes.LikeOperations.PAGE_SIZE;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,9 +29,11 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
+import rx.android.Pager;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,8 +46,7 @@ public class PlaylistLikeOperationsTest {
     private PlaylistLikeOperations operations;
 
     @Mock private Observer<List<PropertySet>> observer;
-    @Mock private LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
-    @Mock private LoadLikedPlaylistCommand loadLikedPlaylistCommand;
+    @Mock private PlaylistLikesStorage storage;
     @Mock private SyncInitiator syncInitiator;
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private Action0 requestSystemSyncAction;
@@ -54,18 +57,16 @@ public class PlaylistLikeOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new PlaylistLikeOperations(
-                loadLikedPlaylistsCommand,
-                loadLikedPlaylistCommand,
-                syncInitiator,
+                storage, syncInitiator,
                 eventBus,
                 scheduler, networkConnectionHelper);
         when(syncInitiator.requestSystemSyncAction()).thenReturn(requestSystemSyncAction);
     }
 
     @Test
-    public void syncAndLoadPlaylistLikesWhenInitialPlaylistLoadReturnsEmptyList() {
+     public void syncAndLoadPlaylistLikesWhenInitialPlaylistLoadReturnsEmptyList() {
         List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedPlaylists));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()), Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
 
         operations.likedPlaylists().subscribe(observer);
@@ -75,9 +76,23 @@ public class PlaylistLikeOperationsTest {
     }
 
     @Test
-    public void likedPlaylistsReturnsLikedTracksFromStorage() {
+    public void shouldNotSyncPlaylistOnEmptySecondPage() {
+        final List<PropertySet> firstPage = createPageOfPlaylistLikes(PAGE_SIZE);
+        when(storage.loadLikedPlaylists(anyInt(), anyLong())).thenReturn(Observable.just(firstPage), Observable.just(Collections.<PropertySet>emptyList()));
+        final PublishSubject<SyncResult> syncObservable = PublishSubject.create();
+        when(syncInitiator.syncPlaylistLikes()).thenReturn(syncObservable);
+
+        final Pager<List<PropertySet>> listPager = operations.likedPlaylistsPager();
+        listPager.page(operations.likedPlaylists()).subscribe(observer);
+        listPager.next();
+
+        expect(syncObservable.hasObservers()).toBeFalse();
+    }
+
+    @Test
+    public void likedPlaylistsReturnsLikedPlaylistsFromStorage() {
         List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedPlaylists().subscribe(observer);
@@ -89,7 +104,7 @@ public class PlaylistLikeOperationsTest {
     @Test
     public void likedPlaylistsRequestsUpdatesFromSyncer() {
         List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
         when(networkConnectionHelper.isWifiConnected()).thenReturn(true);
 
@@ -101,7 +116,7 @@ public class PlaylistLikeOperationsTest {
     @Test
     public void likedPlaylistsDoesNotRequestUpdatesFromSyncerWhenOffWifi() {
         List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedPlaylists().subscribe(observer);
@@ -111,7 +126,7 @@ public class PlaylistLikeOperationsTest {
 
     @Test
     public void likedPlaylistsDoesNotUpdateEmptyPageWithSyncer() {
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedPlaylists().subscribe(observer);
@@ -122,21 +137,22 @@ public class PlaylistLikeOperationsTest {
     @Test
     public void playlistPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         final List<PropertySet> firstPage = createPageOfPlaylistLikes(PAGE_SIZE);
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
+        final long lastTimestampOfFirstPage = firstPage.get(firstPage.size() - 1).get(LikeProperty.CREATED_AT).getTime();
+        when(storage.loadLikedPlaylists(anyInt(), anyLong())).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedPlaylistsPager().page(operations.likedPlaylists()).subscribe(observer);
         operations.likedPlaylistsPager().next();
 
-        final ChronologicalQueryParams params = loadLikedPlaylistsCommand.getInput();
-        expect(params.getTimestamp()).toEqual(firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime());
+        InOrder inOrder = inOrder(storage);
+        inOrder.verify(storage).loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE);
+        inOrder.verify(storage).loadLikedPlaylists(PAGE_SIZE, lastTimestampOfFirstPage);
     }
 
     @Test
     public void playlistPagerFinishesIfLastPageIncomplete() throws Exception {
-
         final List<PropertySet> firstPage = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(firstPage));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
         operations.likedPlaylistsPager().page(operations.likedPlaylists()).subscribe(observer);
@@ -150,7 +166,7 @@ public class PlaylistLikeOperationsTest {
     @Test
     public void updatedLikedPlaylistsReloadsLikedPlaylistsAfterSyncWithChange() {
         List<PropertySet> likedPlaylists = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(likedPlaylists));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(likedPlaylists));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.just(SyncResult.success("any intent action", true)));
 
         operations.updatedLikedPlaylists().subscribe(observer);
@@ -164,7 +180,7 @@ public class PlaylistLikeOperationsTest {
 
     @Test
     public void syncAndLoadEmptyPlaylistLikesResults() {
-        when(loadLikedPlaylistsCommand.toObservable()).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
+        when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(Collections.<PropertySet>emptyList()));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.just(SyncResult.success("action", false)));
 
         operations.likedPlaylists().subscribe(observer);
@@ -176,11 +192,12 @@ public class PlaylistLikeOperationsTest {
     @Test
     public void onPlaylistLikedEventReturnsPlaylistInfoFromLike() throws Exception {
         final PropertySet likedPlaylist = TestPropertySets.expectedLikedPlaylistForPlaylistsScreen();
-        when(loadLikedPlaylistCommand.toObservable()).thenReturn(Observable.just(likedPlaylist));
+        final Urn playlistUrn = likedPlaylist.get(PlaylistProperty.URN);
+        when(storage.loadLikedPlaylist(playlistUrn)).thenReturn(Observable.just(likedPlaylist));
 
         final TestObserver<PropertySet> observer = new TestObserver<>();
         operations.onPlaylistLiked().subscribe(observer);
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(likedPlaylist.get(PlaylistProperty.URN), true, 5));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(playlistUrn, true, 5));
 
         expect(observer.getOnNextEvents()).toContainExactly(likedPlaylist);
     }

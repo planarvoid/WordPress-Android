@@ -39,9 +39,6 @@ class SoundStreamStorage {
         final Query query = Query.from(Table.SoundStreamView.name())
                 .select(soundStreamSelection())
                 .whereLt(SoundStreamView.CREATED_AT, timestamp)
-                        // TODO: poor man's check to remove orphaned tracks and playlists;
-                        // We need to address this properly with a schema refactor, cf:
-                        // https://github.com/soundcloud/SoundCloud-Android/issues/1524
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 

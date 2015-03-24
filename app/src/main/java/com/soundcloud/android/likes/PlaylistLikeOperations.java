@@ -28,20 +28,11 @@ public class PlaylistLikeOperations {
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
-    private final LoadLikedPlaylistsCommand loadLikedPlaylistsCommand;
-    private final LoadLikedPlaylistCommand loadLikedPlaylistCommand;
+    private final PlaylistLikesStorage storage;
     private final Scheduler scheduler;
     private final SyncInitiator syncInitiator;
     private final EventBus eventBus;
     private final NetworkConnectionHelper networkConnectionHelper;
-
-    private final Func1<SyncResult, ChronologicalQueryParams> toInitalPageParams = new Func1<SyncResult, ChronologicalQueryParams>() {
-        @Override
-        public ChronologicalQueryParams call(SyncResult syncResult) {
-            return new ChronologicalQueryParams(PAGE_SIZE, Long.MAX_VALUE);
-        }
-    };
-
 
     private final Action1<List<PropertySet>> requestPlaylistsSyncAction = new Action1<List<PropertySet>>() {
         @Override
@@ -52,26 +43,37 @@ public class PlaylistLikeOperations {
         }
     };
 
+    private final Func1<Urn, Observable<PropertySet>> toLoadLikedPlaylist = new Func1<Urn, Observable<PropertySet>>() {
+        @Override
+        public Observable<PropertySet> call(Urn urn) {
+            return storage.loadLikedPlaylist(urn);
+        }
+    };
+
+    private final Func1<SyncResult, Observable<List<PropertySet>>> toLoadLikedPlaylists = new Func1<SyncResult, Observable<List<PropertySet>>>() {
+        @Override
+        public Observable<List<PropertySet>> call(SyncResult syncResult) {
+            return storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE);
+        }
+    };
+
     @Inject
-    public PlaylistLikeOperations(LoadLikedPlaylistsCommand loadLikedPlaylistsCommand,
-                                  LoadLikedPlaylistCommand loadLikedPlaylistCommand,
-                                  SyncInitiator syncInitiator,
+    public PlaylistLikeOperations(PlaylistLikesStorage storage, SyncInitiator syncInitiator,
                                   EventBus eventBus,
                                   @Named("Storage") Scheduler scheduler,
                                   NetworkConnectionHelper networkConnectionHelper) {
-        this.loadLikedPlaylistsCommand = loadLikedPlaylistsCommand;
-        this.loadLikedPlaylistCommand = loadLikedPlaylistCommand;
+        this.storage = storage;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.networkConnectionHelper = networkConnectionHelper;
     }
 
-    public Observable<PropertySet> onPlaylistLiked(){
+    public Observable<PropertySet> onPlaylistLiked() {
         return eventBus.queue(ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_PLAYLIST_LIKED_FILTER)
                 .map(EntityStateChangedEvent.TO_URN)
-                .flatMap(loadLikedPlaylistCommand);
+                .flatMap(toLoadLikedPlaylist);
     }
 
     public Observable<Urn> onPlaylistUnliked() {
@@ -80,22 +82,24 @@ public class PlaylistLikeOperations {
                 .map(EntityStateChangedEvent.TO_URN);
     }
 
-
     public Observable<List<PropertySet>> likedPlaylists() {
         return likedPlaylists(Long.MAX_VALUE);
     }
 
     public Observable<List<PropertySet>> likedPlaylists(long beforeTime) {
-        return loadLikedPlaylistsCommand
-                .with(new ChronologicalQueryParams(PAGE_SIZE, beforeTime))
-                .toObservable()
-                .doOnNext(requestPlaylistsSyncAction)
-                .subscribeOn(scheduler)
+        return loadLikedPlaylistsInternal(beforeTime)
                 .lift(new OperatorSwitchOnEmptyList<>(updatedLikedPlaylists()));
     }
 
+    private Observable<List<PropertySet>> loadLikedPlaylistsInternal(long beforeTime) {
+        return storage.loadLikedPlaylists(PAGE_SIZE, beforeTime)
+                .doOnNext(requestPlaylistsSyncAction)
+                .subscribeOn(scheduler);
+    }
+
     public Observable<List<PropertySet>> updatedLikedPlaylists() {
-        return syncInitiator.syncPlaylistLikes().map(toInitalPageParams).flatMap(loadLikedPlaylistsCommand);
+        return syncInitiator.syncPlaylistLikes()
+                .flatMap(toLoadLikedPlaylists);
     }
 
     public Pager<List<PropertySet>> likedPlaylistsPager() {
@@ -105,7 +109,7 @@ public class PlaylistLikeOperations {
                 if (result.size() < PAGE_SIZE) {
                     return Pager.finish();
                 } else {
-                    return likedPlaylists(getLast(result).get(LikeProperty.CREATED_AT).getTime());
+                    return loadLikedPlaylistsInternal(getLast(result).get(LikeProperty.CREATED_AT).getTime());
                 }
             }
         };
