@@ -27,10 +27,9 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        final Context context = getInstrumentation().getTargetContext();
         super.setUp();
 
-        clearOfflineContent(context);
+        clearOfflineContent(getInstrumentation().getTargetContext());
         enableOfflineContent(getActivity());
         likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
     }
