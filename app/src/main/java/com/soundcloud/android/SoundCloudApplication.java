@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.enableSy
 
 import com.crashlytics.android.Crashlytics;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.ads.AdsController;
 import com.soundcloud.android.analytics.AnalyticsEngine;
 import com.soundcloud.android.analytics.AnalyticsModule;
@@ -99,6 +100,7 @@ public class SoundCloudApplication extends Application {
     @Inject ConfigurationFeatureController configurationFeatureController;
     @Inject CastSessionReconnector castSessionReconnector;
     @Inject ScreenProvider screenProvider;
+    @Inject AdIdHelper adIdHelper;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -138,6 +140,8 @@ public class SoundCloudApplication extends Application {
             setupStrictMode();
             Log.i(TAG, DeviceHelper.getBuildInfo());
         }
+
+        adIdHelper.init();
 
         memoryReporter.reportSystemMemoryStats();
 

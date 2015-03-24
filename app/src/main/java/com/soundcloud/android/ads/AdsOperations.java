@@ -14,7 +14,6 @@ import com.soundcloud.android.events.PlayQueueEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.functions.Action1;
@@ -27,7 +26,6 @@ import java.util.Arrays;
 public class AdsOperations {
 
     private final StoreTracksCommand storeTracksCommand;
-    private final DeviceHelper deviceHelper;
     private final PlayQueueManager playQueueManager;
     private final ApiScheduler apiScheduler;
     private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
@@ -47,10 +45,8 @@ public class AdsOperations {
     };
 
     @Inject
-    AdsOperations(StoreTracksCommand storeTracksCommand, DeviceHelper deviceHelper,
-                  PlayQueueManager playQueueManager, ApiScheduler apiScheduler) {
+    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager, ApiScheduler apiScheduler) {
         this.storeTracksCommand = storeTracksCommand;
-        this.deviceHelper = deviceHelper;
         this.playQueueManager = playQueueManager;
         this.apiScheduler = apiScheduler;
     }
@@ -60,7 +56,6 @@ public class AdsOperations {
         final ApiRequest<ApiAdsForTrack> request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ApiAdsForTrack.class))
-                .withHeader(ApiRequest.HEADER_UDID, deviceHelper.getUDID())
                 .build();
 
         return apiScheduler.mappedResponse(request)
