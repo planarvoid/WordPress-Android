@@ -26,7 +26,6 @@ public abstract class ResolveBaseTest extends ActivityTest<ResolveActivity> {
     @Override
     protected void setUp() throws Exception {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
-        assertNotNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
         super.setUp();
     }
 
