@@ -1,23 +1,34 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.storage.provider.Content;
 
 import java.util.Locale;
 
 public final class SearchEvent extends TrackingEvent {
 
-    private static final String KEY_TYPE = "type";
+    public static final String KEY_TYPE = "type";
+    public static final String KEY_PAGE_NAME = "page_name";
+    public static final String KEY_CLICK_NAME = "click_name";
+    public static final String KEY_CLICK_OBJECT = "click_object";
+    public static final String KEY_CONTEXT = "context";
+    public static final String KEY_QUERY_URN = "query_urn";
+    public static final String KEY_CLICK_POSITION = "click_position";
+    public static final String KEY_CONTENT = "content";
+
     private static final String KEY_LOCATION = "location";
-    private static final String KEY_CONTEXT = "context";
-    private static final String KEY_CONTENT = "content";
 
     private static final String TYPE_TAG = "tag";
     private static final String TYPE_NORMAL = "normal";
     private static final String TYPE_TRACK = "track";
     private static final String TYPE_PLAYLIST = "playlist";
     private static final String TYPE_USER = "user";
+
+    public static final String CLICK_NAME_PLAY = "play";
+    public static final String CLICK_NAME_OPEN_PLAYLIST = "open_playlist";
+    public static final String CLICK_NAME_OPEN_PROFILE = "open_profile";
+    public static final String CLICK_NAME_ITEM_NAVIGATION = "item_navigation";
 
     private static final String CONTEXT_PERSONAL = "personal";
     private static final String CONTEXT_GLOBAL = "global";
@@ -35,11 +46,15 @@ public final class SearchEvent extends TrackingEvent {
     public static final String KIND_SUGGESTION = "suggestion";
     public static final String KIND_SUBMIT = "submit";
     public static final String KIND_RESULTS = "results";
+    public static final String CLICK_NAME_SEARCH = "search";
 
-    public static SearchEvent searchSuggestion(Content itemKind, boolean localResult) {
+    public static SearchEvent searchSuggestion(Content itemKind, boolean localResult, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_SUGGESTION)
+                .put(KEY_PAGE_NAME, Screen.SEARCH_SUGGESTIONS.get())
+                .put(KEY_CLICK_NAME, CLICK_NAME_ITEM_NAVIGATION)
                 .put(KEY_TYPE, itemKind.name().toLowerCase(Locale.US))
-                .put(KEY_CONTEXT, localResult ? CONTEXT_PERSONAL : CONTEXT_GLOBAL);
+                .put(KEY_CONTEXT, localResult ? CONTEXT_PERSONAL : CONTEXT_GLOBAL)
+                .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
     public static SearchEvent recentTagSearch(String tagQuery) {
@@ -60,29 +75,66 @@ public final class SearchEvent extends TrackingEvent {
         return new SearchEvent(KIND_SUBMIT)
                 .put(KEY_TYPE, tagSearch ? TYPE_TAG : TYPE_NORMAL)
                 .put(KEY_LOCATION, viaShortcut ? LOCATION_SUGGESTION : LOCATION_FIELD)
+                .put(KEY_CLICK_NAME, CLICK_NAME_SEARCH)
                 .put(KEY_CONTENT, query);
     }
 
-    public static SearchEvent tapTrackOnScreen(Screen screen) {
+    public static SearchEvent tapTrackOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
+                .put(KEY_PAGE_NAME, screen.get())
+                .put(KEY_CLICK_NAME, CLICK_NAME_PLAY)
                 .put(KEY_TYPE, TYPE_TRACK)
-                .put(KEY_CONTEXT, eventAttributeFromScreen(screen));
+                .put(KEY_CONTEXT, eventAttributeFromScreen(screen))
+                .addSearchQuerySourceInfo(searchQuerySourceInfo);
     }
 
     public static SearchEvent tapPlaylistOnScreen(Screen screen) {
-        return new SearchEvent(KIND_RESULTS)
-                .put(KEY_TYPE, TYPE_PLAYLIST)
-                .put(KEY_CONTEXT, eventAttributeFromScreen(screen));
+        return tapPlaylistOnScreen(screen, null);
     }
 
-    public static SearchEvent tapUserOnScreen(Screen screen) {
+    public static SearchEvent tapPlaylistOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         return new SearchEvent(KIND_RESULTS)
+                .put(KEY_PAGE_NAME, screen.get())
+                .put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PLAYLIST)
+                .put(KEY_TYPE, TYPE_PLAYLIST)
+                .put(KEY_CONTEXT, eventAttributeFromScreen(screen))
+                .addSearchQuerySourceInfo(searchQuerySourceInfo);
+    }
+
+    public static SearchEvent tapUserOnScreen(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        return new SearchEvent(KIND_RESULTS)
+                .put(KEY_PAGE_NAME, screen.get())
+                .put(KEY_CLICK_NAME, CLICK_NAME_OPEN_PROFILE)
                 .put(KEY_TYPE, TYPE_USER)
-                .put(KEY_CONTEXT, eventAttributeFromScreen(screen));
+                .put(KEY_CONTEXT, eventAttributeFromScreen(screen))
+                .addSearchQuerySourceInfo(searchQuerySourceInfo);
+    }
+
+    public static SearchEvent searchStart(Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        return new SearchEvent(KIND_SUBMIT)
+                .put(KEY_PAGE_NAME, screen.get())
+                .put(KEY_CLICK_NAME, CLICK_NAME_SEARCH)
+                .addSearchQuerySourceInfo(searchQuerySourceInfo);
+    }
+
+    private SearchEvent addSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
+        if (searchQuerySourceInfo != null) {
+            put(KEY_QUERY_URN, searchQuerySourceInfo.getQueryUrn().toString());
+
+            final int currentPosition = searchQuerySourceInfo.getClickPosition();
+            if (currentPosition >= 0) {
+                put(KEY_CLICK_POSITION, Integer.toString(currentPosition));
+            }
+
+            if (searchQuerySourceInfo.getClickUrn() != null) {
+                put(KEY_CLICK_OBJECT, searchQuerySourceInfo.getClickUrn().toString());
+            }
+        }
+        return this;
     }
 
     private SearchEvent(String kind) {
-        super(kind, Consts.NOT_SET);
+        super(kind, System.currentTimeMillis());
     }
 
     @Override

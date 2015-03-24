@@ -4,6 +4,7 @@ import static android.os.Process.THREAD_PRIORITY_DEFAULT;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
@@ -74,6 +75,8 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
     public static final String LOCAL = "_local";
     public static final String HIGHLIGHTS = "_highlights";
+    public static final String QUERY_URN = "_query_urn";
+    public static final String QUERY_POSITION = "_query_position";
 
     public static final String[] COLUMN_NAMES = new String[]{
             BaseColumns._ID,                 // suggest id
@@ -82,7 +85,9 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             SearchManager.SUGGEST_COLUMN_INTENT_DATA,
             TableColumns.Suggestions.ICON_URL,
             LOCAL,
-            HIGHLIGHTS
+            HIGHLIGHTS,
+            QUERY_URN,
+            QUERY_POSITION
     };
 
     //FIXME: ported this over to use static handler classes, but why not use AsyncTask instead?
@@ -150,6 +155,25 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         final String data = cursor.getString(cursor.getColumnIndex(SearchManager.SUGGEST_COLUMN_INTENT_DATA));
         cursor.close();
         return Uri.parse(data);
+    }
+
+    public Urn getQueryUrn(int position) {
+        final Cursor cursor = (Cursor) getItem(position);
+        try {
+            final String data = cursor.getString(cursor.getColumnIndex(SuggestionsAdapter.QUERY_URN));
+            return data == null ? Urn.NOT_SET : new Urn(data);
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public int getQueryPosition(int position) {
+        final Cursor cursor = (Cursor) getItem(position);
+        try {
+            return cursor.getInt(cursor.getColumnIndex(SuggestionsAdapter.QUERY_POSITION));
+        } finally {
+            cursor.close();
+        }
     }
 
     private int getUriType(Uri uri) {
@@ -270,7 +294,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     private Cursor getMixedCursor() {
         if (!remoteSuggestions.isEmpty()) {
             if (!localSuggestions.isEmpty()) {
-                return withHeader(localSuggestions.merge(remoteSuggestions).asCursor());
+                return withHeader(localSuggestions.mergeWithRemote(remoteSuggestions).asCursor());
             } else {
                 return withHeader(remoteSuggestions.asCursor());
             }
@@ -335,13 +359,15 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
         MatrixCursor cursor = new MatrixCursor(COLUMN_NAMES, 1);
         if (!TextUtils.isEmpty(constraint)) {
             cursor.addRow(new Object[]{
-                    -1,
-                    -1,
+                    Consts.NOT_SET,
+                    Consts.NOT_SET,
                     context.getResources().getString(R.string.search_for_query, constraint),
                     Content.SEARCH_ITEM.forQuery(constraint),
                     "",
                     1 /* local */,
-                    null
+                    null,
+                    null,
+                    Consts.NOT_SET
             });
         }
         return cursor;

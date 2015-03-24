@@ -11,6 +11,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Link;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -76,7 +77,7 @@ public class PlayFromVoiceSearchActivityTest {
     @Test
     public void trackSearchErrorFallsBackToSearchActivityWithNoResults() throws Exception {
         activity.setIntent(getPlayFromSearchIntent(QUERY));
-        searchResult = new SearchResult(new ArrayList(), Optional.<Link>absent());
+        searchResult = new SearchResult(new ArrayList(), Optional.<Link>absent(), Optional.<Urn>absent());
 
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(Observable.just(searchResult));
 
@@ -90,7 +91,7 @@ public class PlayFromVoiceSearchActivityTest {
     @Test
     public void callsPlayTrackWithSearchResult() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        searchResult = new SearchResult(Arrays.asList(apiTrack), Optional.<Link>absent());
+        searchResult = new SearchResult(Arrays.asList(apiTrack), Optional.<Link>absent(), Optional.<Urn>absent());
 
         activity.setIntent(getPlayFromSearchIntent(QUERY));
         when(searchOperations.searchResult(QUERY, SearchOperations.TYPE_TRACKS)).thenReturn(Observable.just(searchResult));
@@ -135,7 +136,7 @@ public class PlayFromVoiceSearchActivityTest {
         final ApiPlaylist apiPlaylist = ModelFixtures.create(ApiPlaylist.class);
 
         List<ApiPlaylist> playlistResults = Arrays.asList(ModelFixtures.create(ApiPlaylist.class), apiPlaylist);
-        Observable<SearchResult> searchResultObservable = Observable.just(new SearchResult(playlistResults, Optional.<Link>absent()));
+        Observable<SearchResult> searchResultObservable = Observable.just(new SearchResult(playlistResults, Optional.<Link>absent(), Optional.<Urn>absent()));
 
         when(searchOperations.searchResult(GENRE, SearchOperations.TYPE_PLAYLISTS)).thenReturn(searchResultObservable);
         when(random.nextInt(2)).thenReturn(1);

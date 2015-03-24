@@ -19,6 +19,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -48,6 +49,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -220,6 +222,26 @@ public class PlayQueueManagerTest {
         final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
         expect(trackSourceInfo.getSource()).toEqual("explore");
         expect(trackSourceInfo.getSourceVersion()).toEqual("1.0");
+    }
+
+    @Test
+    public void shouldReturnTrackSourceInfoWithQuerySourceInfoIfSet() {
+        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"), 5, new Urn("soundcloud:click:123"));
+        searchQuerySourceInfo.setQueryResults(new ArrayList<>(Arrays.asList(Urn.forTrack(1), Urn.forTrack(2))));
+
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+
+        expect(trackSourceInfo.getSearchQuerySourceInfo()).toEqual(searchQuerySourceInfo);
+    }
+
+    @Test
+    public void shouldReturnTrackSourceInfoWithoutQuerySourceInfoIfNotSet() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L), playSessionSource), 1, playSessionSource);
+        final TrackSourceInfo trackSourceInfo = playQueueManager.getCurrentTrackSourceInfo();
+
+        expect(trackSourceInfo.getSearchQuerySourceInfo()).toBeNull();
     }
 
     @Test

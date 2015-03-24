@@ -1,7 +1,27 @@
 package com.soundcloud.android.collections;
 
-import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
-import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+import android.widget.ListView;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -10,6 +30,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.activities.ActivitiesAdapter;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
@@ -41,35 +62,18 @@ import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.api.Request;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import rx.subscriptions.CompositeSubscription;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.ContentObserver;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.ListFragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.ListView;
+import java.lang.ref.WeakReference;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
+
+import rx.subscriptions.CompositeSubscription;
+
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
+import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 @Deprecated
 public class ScListFragment extends ListFragment implements OnRefreshListener,
@@ -84,6 +88,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     private static final String EXTRA_TITLE_ID = "title";
     private static final String EXTRA_USERNAME = "username";
     private static final String EXTRA_SCREEN = "screen";
+    private static final String EXTRA_QUERY_SOURCE_INFO = "querySourceInfo";
     private static final String KEY_IS_RETAINED = "is_retained";
     private final DetachableResultReceiver detachableReceiver = new DetachableResultReceiver(new Handler());
     private final BroadcastReceiver playbackStatusListener = new BroadcastReceiver() {
@@ -146,12 +151,13 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return fragment;
     }
 
-    public static ScListFragment newInstance(Uri contentUri, String username, Screen screen) {
+    public static ScListFragment newInstance(Uri contentUri, String username, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         ScListFragment fragment = new ScListFragment();
         Bundle args = new Bundle();
         args.putParcelable(EXTRA_CONTENT_URI, contentUri);
         args.putString(EXTRA_USERNAME, username);
         args.putSerializable(EXTRA_SCREEN, screen);
+        args.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
         fragment.setArguments(args);
         return fragment;
     }
@@ -350,7 +356,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         super.onListItemClick(l, v, position, id);
         final ScBaseAdapter adapter = getListAdapter();
         if (adapter != null) {
-            adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen());
+            SearchQuerySourceInfo searchQuerySourceInfo = (SearchQuerySourceInfo) getArguments().get(EXTRA_QUERY_SOURCE_INFO);
+            adapter.handleListItemClick(getActivity(), position - getListView().getHeaderViewsCount(), id, getScreen(), searchQuerySourceInfo);
         }
     }
 

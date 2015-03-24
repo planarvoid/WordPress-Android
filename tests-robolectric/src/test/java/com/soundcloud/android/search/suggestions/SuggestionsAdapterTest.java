@@ -136,6 +136,26 @@ public class SuggestionsAdapterTest {
     }
 
     @Test
+    public void shouldGetQueryUrnForItemPosition() {
+        mockCursorQueryUrn();
+        createAdapter();
+
+        Urn urn = adapter.getQueryUrn(0);
+
+        expect(urn.toString()).toEqual("soundcloud:search:123");
+    }
+
+    @Test
+    public void shouldGetQueryPositionForItemPosition() {
+        mockCursorQueryPosition();
+        createAdapter();
+
+        int position = adapter.getQueryPosition(0);
+
+        expect(position).toEqual(5);
+    }
+
+    @Test
     public void shouldReportCorrectSourceForPosition() throws IOException {
         mockPublicApi("suggest_mixed.json");
         mockCursorSource(1);
@@ -172,6 +192,20 @@ public class SuggestionsAdapterTest {
         final int fakeIdColumn = 3;
         when(cursor.getColumnIndex(TableColumns.Suggestions.ID)).thenReturn(fakeIdColumn);
         when(cursor.getLong(fakeIdColumn)).thenReturn(1L);
+    }
+
+    private void mockCursorQueryUrn() {
+        mockCursorContentType(Content.USER.forId(1L));
+        final int fakeIdColumn = 7;
+        when(cursor.getColumnIndex(SuggestionsAdapter.QUERY_URN)).thenReturn(fakeIdColumn);
+        when(cursor.getString(fakeIdColumn)).thenReturn("soundcloud:search:123");
+    }
+
+    private void mockCursorQueryPosition() {
+        mockCursorContentType(Content.USER.forId(1L));
+        final int fakeIdColumn = 8;
+        when(cursor.getColumnIndex(SuggestionsAdapter.QUERY_POSITION)).thenReturn(fakeIdColumn);
+        when(cursor.getInt(fakeIdColumn)).thenReturn(5);
     }
 
     private void mockContext() {

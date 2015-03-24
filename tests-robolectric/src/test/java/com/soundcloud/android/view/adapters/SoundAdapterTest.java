@@ -141,7 +141,7 @@ public class SoundAdapterTest {
         PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(track));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
+        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
 
         verify(playbackOperations).playTracksFromUri(
                 eq(Content.ME_LIKES.uri),
@@ -155,7 +155,7 @@ public class SoundAdapterTest {
         PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         adapter.addItems(Arrays.<PublicApiResource>asList(playlist));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
+        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();

@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -32,6 +34,7 @@ public class PlaySessionSourceTest {
         expect(playSessionSource.getPlaylistOwnerUrn()).toEqual(Urn.NOT_SET);
         expect(playSessionSource.getInitialSource()).toEqual(ScTextUtils.EMPTY_STRING);
         expect(playSessionSource.getInitialSourceVersion()).toEqual(ScTextUtils.EMPTY_STRING);
+        expect(playSessionSource.getSearchQuerySourceInfo()).toBeNull();
     }
 
     @Test
@@ -46,7 +49,6 @@ public class PlaySessionSourceTest {
 
     @Test
     public void shouldCreatePlaySessionSourceFromOriginPageAndSetId() throws Exception {
-
         PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_PAGE);
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
 
@@ -82,10 +84,22 @@ public class PlaySessionSourceTest {
     }
 
     @Test
+    public void shouldCreateQuerySourceInfoFromTrackSourceInfo() throws Exception {
+        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
+        PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SEARCH_EVERYTHING);
+        playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
+        expect(playSessionSource.getSearchQuerySourceInfo()).toEqual(searchQuerySourceInfo);
+        expect(playSessionSource.isFromQuery()).toEqual(true);
+    }
+
+    @Test
     public void shouldBeParcelable() throws Exception {
+        SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
         PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
         original.setExploreVersion(EXPLORE_TAG);
         original.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+        original.setSearchQuerySourceInfo(searchQuerySourceInfo);
 
         Parcel parcel = Parcel.obtain();
         original.writeToParcel(parcel, 0);
@@ -96,6 +110,7 @@ public class PlaySessionSourceTest {
         expect(copy.getPlaylistOwnerUrn()).toEqual(playlist.getUserUrn());
         expect(copy.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(copy.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
+        expect(copy.getSearchQuerySourceInfo()).toEqual(searchQuerySourceInfo);
     }
 
     @Test

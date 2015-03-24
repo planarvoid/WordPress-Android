@@ -1,5 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import android.content.SharedPreferences;
+
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
@@ -11,6 +13,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
@@ -18,8 +21,6 @@ import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.DeveloperSettings;
-
-import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 
@@ -71,6 +72,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleLeaveBehindTracking((AdOverlayTrackingEvent) event);
         } else if (event instanceof ScreenEvent && flags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)) {
             handleScreenEvent((ScreenEvent) event);
+        } else if (event instanceof SearchEvent) {
+            handleSearchEvent((SearchEvent) event);
         }
     }
 
@@ -106,6 +109,21 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     private void handleUIEvent(UIEvent event) {
         if (UIEvent.KIND_AUDIO_AD_CLICK.equals(event.getKind()) || UIEvent.KIND_SKIP_AUDIO_AD_CLICK.equals(event.getKind())) {
             trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+        }
+    }
+
+    private void handleSearchEvent(SearchEvent event) {
+        if(flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
+            switch (event.getKind()) {
+                case SearchEvent.KIND_RESULTS:
+                case SearchEvent.KIND_SUBMIT:
+                case SearchEvent.KIND_SUGGESTION:
+                    trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+                    break;
+                default:
+                    // no-op, ignoring certain types
+                    break;
+            }
         }
     }
 

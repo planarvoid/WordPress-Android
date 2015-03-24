@@ -1,6 +1,7 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
@@ -10,10 +11,14 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.DeviceHelper;
 
 import android.content.res.Resources;
@@ -25,13 +30,15 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
     private static final String BOOGALOO_VERSION = "v0.0.0";
 
     private final JsonTransformer jsonTransformer;
+    private final FeatureFlags flags;
 
     @Inject
     public EventLoggerJsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
                                       DeviceHelper deviceHelper, AccountOperations accountOperations,
-                                      JsonTransformer jsonTransformer) {
+                                      JsonTransformer jsonTransformer, FeatureFlags flags) {
         super(resources, experimentOperations, deviceHelper, accountOperations);
         this.jsonTransformer = jsonTransformer;
+        this.flags = flags;
     }
 
     @Override
@@ -57,25 +64,25 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
 
     private EventLoggerEventData getAudioAdSkipClickEvent(UIEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                    .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
-                    .clickName("ad::skip")
-                    .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN))
-                    .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
-                    .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                    .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                    .externalMedia(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
+                .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
+                .clickName("ad::skip")
+                .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
+                .externalMedia(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
     private EventLoggerEventData getAudioAdClickEvent(UIEvent event) {
         return buildBaseEvent(CLICK_EVENT, event)
-                    .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
-                    .clickName("clickthrough::companion_display")
-                    .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL))
-                    .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN))
-                    .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
-                    .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                    .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
-                    .externalMedia(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
+                .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
+                .clickName("clickthrough::companion_display")
+                .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_THROUGH_URL))
+                .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
+                .monetizationType(MONETIZATION_TYPE_AUDIO_AD)
+                .externalMedia(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
     @Override
@@ -162,10 +169,11 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
     }
 
     private EventLoggerEventData buildAudioEvent(PlaybackSessionEvent event) {
+        final Urn urn = event.getTrackUrn();
         EventLoggerEventData data = buildBaseEvent(AUDIO_EVENT, event)
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .duration(event.getDuration())
-                .sound(getLegacyTrackUrn(event.get(PlaybackSessionEvent.KEY_TRACK_URN)))
+                .sound(getLegacyTrackUrn(urn.toString()))
                 .trigger(getTrigger(event.getTrackSourceInfo()))
                 .protocol(event.get(PlaybackSessionEvent.KEY_PROTOCOL))
                 .playerType(event.get(PlaybackSessionEvent.PLAYER_TYPE))
@@ -183,6 +191,14 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
         if (trackSourceInfo.isFromPlaylist()) {
             data.playlistId(String.valueOf(trackSourceInfo.getPlaylistUrn().getNumericId()));
             data.playlistPosition(String.valueOf(trackSourceInfo.getPlaylistPosition()));
+        }
+
+        if(flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
+            if (trackSourceInfo.isFromSearchQuery()) {
+                SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
+                data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
+                data.queryPosition(String.valueOf(searchQuerySourceInfo.getUpdatedResultPosition(urn)));
+            }
         }
         return data;
     }
@@ -205,6 +221,27 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
     @Override
     public String build(PlaybackErrorEvent event) {
         return transform(buildPlaybackErrorEvent(event));
+    }
+
+    @Override
+    public String build(SearchEvent event) {
+        switch (event.getKind()) {
+            case SearchEvent.KIND_RESULTS:
+            case SearchEvent.KIND_SUGGESTION:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .pageName(event.get(SearchEvent.KEY_PAGE_NAME))
+                        .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
+                        .queryPosition(event.get(SearchEvent.KEY_CLICK_POSITION))
+                        .clickName(event.get(SearchEvent.KEY_CLICK_NAME))
+                        .clickObject(event.get(SearchEvent.KEY_CLICK_OBJECT)));
+
+            case SearchEvent.KIND_SUBMIT:
+                return transform(buildBaseEvent(CLICK_EVENT, event)
+                        .queryUrn(event.get(SearchEvent.KEY_QUERY_URN))
+                        .clickName(event.get(SearchEvent.KEY_CLICK_NAME)));
+            default:
+                throw new IllegalArgumentException("Unexpected Search Event type " + event);
+        }
     }
 
     private EventLoggerEventData buildPlaybackErrorEvent(PlaybackErrorEvent event) {

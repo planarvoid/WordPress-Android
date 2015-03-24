@@ -1,11 +1,11 @@
 package com.soundcloud.android.search;
 
-import com.soundcloud.android.R;
-
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import com.soundcloud.android.R;
 
 public class SearchPagerAdapter extends FragmentPagerAdapter {
 
@@ -16,24 +16,26 @@ public class SearchPagerAdapter extends FragmentPagerAdapter {
 
     private final Resources resources;
     private final String query;
+    private final boolean firstTime;
 
-    public SearchPagerAdapter(Resources resources, FragmentManager fm, String query) {
+    public SearchPagerAdapter(Resources resources, FragmentManager fm, String query, boolean firstTime) {
         super(fm);
         this.resources = resources;
         this.query = query;
+        this.firstTime = firstTime;
     }
 
     @Override
     public Fragment getItem(int position) {
         switch(position) {
             case TAB_ALL:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_ALL, query);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_ALL, query, firstTime);
             case TAB_TRACKS:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_TRACKS, query);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_TRACKS, query, false);
             case TAB_PLAYLISTS:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_PLAYLISTS, query);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_PLAYLISTS, query, false);
             case TAB_PEOPLE:
-                return SearchResultsFragment.newInstance(SearchOperations.TYPE_USERS, query);
+                return SearchResultsFragment.newInstance(SearchOperations.TYPE_USERS, query, false);
             default:
                 throw new IllegalArgumentException("Unexpected position for getItem " + position);
         }

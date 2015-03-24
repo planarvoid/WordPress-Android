@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -30,12 +31,14 @@ public class PlaySessionSource implements Parcelable {
     private Urn playlistUrn = Urn.NOT_SET;
     private Urn playlistOwnerUrn = Urn.NOT_SET;
     private String exploreVersion;
+    private SearchQuerySourceInfo searchQuerySourceInfo;
 
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
         exploreVersion = in.readString();
         playlistUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
         playlistOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
+        searchQuerySourceInfo = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
     }
 
     public PlaySessionSource(SharedPreferences sharedPreferences) {
@@ -92,6 +95,10 @@ public class PlaySessionSource implements Parcelable {
         return playlistUrn != Urn.NOT_SET;
     }
 
+    public boolean isFromQuery() {
+        return searchQuerySourceInfo != null;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -103,6 +110,7 @@ public class PlaySessionSource implements Parcelable {
         dest.writeString(exploreVersion);
         dest.writeParcelable(playlistUrn, 0);
         dest.writeParcelable(playlistOwnerUrn, 0);
+        dest.writeParcelable(searchQuerySourceInfo, 0);
     }
 
     public void saveToPreferences(SharedPreferences.Editor editor) {
@@ -135,6 +143,14 @@ public class PlaySessionSource implements Parcelable {
     @Override
     public int hashCode() {
         return Objects.hashCode(playlistUrn, playlistOwnerUrn, exploreVersion, originScreen);
+    }
+
+    public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
+        this.searchQuerySourceInfo = searchQuerySourceInfo;
+    }
+
+    public SearchQuerySourceInfo getSearchQuerySourceInfo() {
+        return searchQuerySourceInfo;
     }
 
     public enum DiscoverySource {

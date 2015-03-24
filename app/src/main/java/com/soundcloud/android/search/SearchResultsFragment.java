@@ -14,6 +14,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
@@ -35,6 +36,7 @@ import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -57,6 +59,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
 
     static final String EXTRA_QUERY = "query";
     static final String EXTRA_TYPE = "type";
+    static final String EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT = "publishSearchSubmissionEvent";
 
     private static final Func1<SearchResult, List<ListItem>> TO_PRESENTATION_MODELS = new Func1<SearchResult, List<ListItem>>() {
         @Override
@@ -99,16 +102,28 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     @Inject SearchResultsAdapter adapter;
 
     private int searchType;
+    private boolean publishSearchSubmissionEvent;
     private ConnectableObservable<List<ListItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
     private SearchOperations.SearchResultPager pager;
 
-    public static SearchResultsFragment newInstance(int type, String query) {
+    private final Action1<List<ListItem>> publishOnFirstPage = new Action1<List<ListItem>>() {
+        @Override
+        public void call(List<ListItem> listItems) {
+            if (publishSearchSubmissionEvent) {
+                publishSearchSubmissionEvent = false;
+                eventBus.publish(EventQueue.TRACKING, SearchEvent.searchStart(getTrackingScreen(), pager.getSearchQuerySourceInfo()));
+            }
+        }
+    };
+
+    public static SearchResultsFragment newInstance(int type, String query, boolean publishSearchSubmissionEvent) {
         SearchResultsFragment fragment = new SearchResultsFragment();
 
         Bundle bundle = new Bundle();
         bundle.putInt(EXTRA_TYPE, type);
         bundle.putString(EXTRA_QUERY, query);
+        bundle.putBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, publishSearchSubmissionEvent);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -125,19 +140,22 @@ public class SearchResultsFragment extends LightCycleSupportFragment
                           ListViewController listViewController,
                           SearchResultsAdapter adapter,
                           Provider<ExpandPlayerSubscriber> subscriberProvider,
-                          EventBus eventBus) {
+                          EventBus eventBus,
+                          SearchOperations.SearchResultPager pager) {
         this.searchOperations = operations;
         this.playbackOperations = playbackOperations;
         this.listViewController = listViewController;
         this.adapter = adapter;
         this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
+        this.pager = pager;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        publishSearchSubmissionEvent = getArguments().getBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, false);
         searchType = getArguments().getInt(EXTRA_TYPE);
         pager = searchOperations.pager(searchType);
         listViewController.setAdapter(adapter, pager, TO_PRESENTATION_MODELS);
@@ -151,6 +169,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
         final Observable<SearchResult> observable = searchOperations.searchResult(query, searchType);
         return pager.page(observable)
                 .map(TO_PRESENTATION_MODELS)
+                .doOnNext(publishOnFirstPage)
                 .observeOn(mainThread())
                 .replay();
     }
@@ -192,18 +211,23 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final ListItem item = adapter.getItem(position);
         Urn urn = item.getEntityUrn();
+        SearchQuerySourceInfo searchQuerySourceInfo = pager.getSearchQuerySourceInfo(position, urn);
+
         if (urn.isTrack()) {
             final List<Urn> trackUrns = filterTracks(toUrn(adapter.getItems()));
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen()));
+            final PlaySessionSource playSessionSource = new PlaySessionSource(getTrackingScreen());
+            playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapTrackOnScreen(getTrackingScreen(), searchQuerySourceInfo));
             playbackOperations
-                    .playTracks(trackUrns, urn, trackUrns.indexOf(urn), new PlaySessionSource(getTrackingScreen()))
+                    .playTracks(trackUrns, urn, trackUrns.indexOf(urn), playSessionSource)
                     .subscribe(subscriberProvider.get());
         } else if (urn.isPlaylist()) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen()));
-            PlaylistDetailActivity.start(getActivity(), urn, getTrackingScreen());
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapPlaylistOnScreen(getTrackingScreen(), searchQuerySourceInfo));
+            PlaylistDetailActivity.start(getActivity(), urn, getTrackingScreen(), false, searchQuerySourceInfo);
         } else if (urn.isUser()) {
-            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen()));
-            startActivity(ProfileActivity.getIntent(getActivity(), urn));
+            eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen(), searchQuerySourceInfo));
+            startActivity(ProfileActivity.getIntent(getActivity(), urn, searchQuerySourceInfo));
         }
     }
 
@@ -229,5 +253,4 @@ public class SearchResultsFragment extends LightCycleSupportFragment
                 throw new IllegalArgumentException("Query type not valid");
         }
     }
-
 }

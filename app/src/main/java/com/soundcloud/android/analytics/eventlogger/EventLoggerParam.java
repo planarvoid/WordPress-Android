@@ -40,4 +40,7 @@ class EventLoggerParam {
     static final String CLICK_OBJECT = "click_object";
     static final String CLICK_TARGET = "click_target";
     static final String REASON = "reason";
+    // search tracking
+    static final String QUERY_URN = "query_urn";
+    static final String QUERY_POSITION = "query_position";
 }

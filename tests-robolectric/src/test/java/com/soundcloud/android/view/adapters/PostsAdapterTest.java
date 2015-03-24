@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Maps;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -60,6 +61,7 @@ public class PostsAdapterTest {
     private PostsAdapter adapter;
 
     private TestEventBus eventBus = new TestEventBus();
+    private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private TrackItemPresenter trackPresenter;
@@ -74,6 +76,7 @@ public class PostsAdapterTest {
                 .thenReturn(Observable.<List<Urn>>empty());
         adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus, TestSubscribers.expandPlayerSubscriber());
+        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"), 0, new Urn("soundcloud:click:123"));
     }
 
 
@@ -134,7 +137,7 @@ public class PostsAdapterTest {
         PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
         adapter.addItems(Arrays.asList(new SoundAssociation(track)));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
+        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
 
         List<Urn> trackUrns = Arrays.asList(track.getUrn());
         Urn initialTrack = trackUrns.get(0);
@@ -150,13 +153,14 @@ public class PostsAdapterTest {
         PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
         adapter.addItems(Arrays.asList(new SoundAssociation(playlist)));
 
-        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES);
+        adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, searchQuerySourceInfo);
 
         ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
         Intent startedActivity = application.getNextStartedActivity();
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
         expect(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlist.getUrn());
+        expect(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO)).toEqual(searchQuerySourceInfo);
     }
 
     @Test

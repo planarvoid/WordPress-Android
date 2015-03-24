@@ -3,6 +3,7 @@ package com.soundcloud.android.search;
 import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.model.PropertySetSource;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 
@@ -13,8 +14,9 @@ import java.util.List;
 class SearchResult implements Iterable<PropertySet> {
     private final List<PropertySet> items;
     final Optional<Link> nextHref;
+    final Optional<Urn> queryUrn;
 
-    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref) {
+    SearchResult(List<? extends PropertySetSource> items, Optional<Link> nextHref, Optional<Urn> queryUrn) {
         int emptyItems = 0;
         this.items = new ArrayList<>(items.size());
         for (PropertySetSource source : items) {
@@ -25,6 +27,7 @@ class SearchResult implements Iterable<PropertySet> {
             }
         }
         this.nextHref = nextHref;
+        this.queryUrn = queryUrn;
         if (emptyItems > 0) {
             ErrorUtils.handleSilentException(getMissingItemException(items, nextHref, emptyItems));
         }

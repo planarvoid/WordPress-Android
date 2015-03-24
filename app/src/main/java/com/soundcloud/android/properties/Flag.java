@@ -12,7 +12,8 @@ public enum Flag {
     RELOAD_LAST_PLAYQUEUE(R.bool.feature_reload_last_playqueue),
     EVENTLOGGER_PAGE_VIEW_EVENTS(R.bool.feature_eventlogger_page_view),
     NEW_PLAYLIST_ENGAGEMENTS(R.bool.feature_new_playlist_engagements),
-    EVENTLOGGER_BATCHING(R.bool.feature_eventlogger_batching);
+    EVENTLOGGER_BATCHING(R.bool.feature_eventlogger_batching),
+    EVENTLOGGER_SEARCH_EVENTS(R.bool.feature_eventlogger_search);
 
     private final int resourceId;
 

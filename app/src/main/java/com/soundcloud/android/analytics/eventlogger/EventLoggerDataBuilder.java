@@ -8,6 +8,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -53,6 +54,8 @@ public abstract class EventLoggerDataBuilder {
     public abstract String build(PlaybackPerformanceEvent eventData);
 
     public abstract String build(PlaybackErrorEvent eventData);
+
+    public abstract String build(SearchEvent event);
 
     public abstract String buildForAudioAdImpression(PlaybackSessionEvent eventData);
 

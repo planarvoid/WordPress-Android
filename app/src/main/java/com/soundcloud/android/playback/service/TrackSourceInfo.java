@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
@@ -16,6 +17,8 @@ public class TrackSourceInfo {
     private Urn playlistOwnerUrn = Urn.NOT_SET;
     private int playlistPosition;
 
+    private SearchQuerySourceInfo searchQuerySourceInfo;
+
     public TrackSourceInfo(String originScreen, boolean userTriggered) {
         this.originScreen = originScreen;
         this.userTriggered = userTriggered;
@@ -30,6 +33,14 @@ public class TrackSourceInfo {
         this.playlistUrn = playlistUrn;
         this.playlistPosition = position;
         this.playlistOwnerUrn = playlistOwnerUrn;
+    }
+
+    public void setSearchQuerySourceInfo(SearchQuerySourceInfo searchQuerySourceInfo) {
+        this.searchQuerySourceInfo = searchQuerySourceInfo;
+    }
+
+    public SearchQuerySourceInfo getSearchQuerySourceInfo() {
+        return searchQuerySourceInfo;
     }
 
     public boolean getIsUserTriggered() {
@@ -68,6 +79,10 @@ public class TrackSourceInfo {
         return playlistUrn != Urn.NOT_SET;
     }
 
+    public boolean isFromSearchQuery() {
+        return searchQuerySourceInfo != null;
+    }
+
     @Override
     public String toString() {
         final Objects.ToStringHelper toStringHelper = Objects.toStringHelper(TrackSourceInfo.class)
@@ -83,6 +98,11 @@ public class TrackSourceInfo {
                     .add("playlistOwnerUrn", playlistOwnerUrn);
         }
 
+        if (isFromSearchQuery()) {
+            toStringHelper.add("searchQuerySourceInfo", searchQuerySourceInfo);
+        }
+
         return toStringHelper.toString();
     }
+
 }

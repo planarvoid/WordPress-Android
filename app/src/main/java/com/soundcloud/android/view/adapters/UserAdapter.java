@@ -6,6 +6,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -114,8 +115,11 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id, Screen screen) {
-        context.startActivity(new Intent(context, ProfileActivity.class).putExtra(ProfileActivity.EXTRA_USER, getUser(getItem(position))));
+    public int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+        context.startActivity(
+                new Intent(context, ProfileActivity.class)
+                        .putExtra(ProfileActivity.EXTRA_USER, getUser(getItem(position)))
+                        .putExtra(ProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
         return ItemClickResults.LEAVING;
     }
 

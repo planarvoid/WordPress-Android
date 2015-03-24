@@ -4,6 +4,7 @@ import static com.soundcloud.android.api.legacy.model.activities.Activity.Type;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.api.legacy.model.Playable;
@@ -136,7 +137,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     @Override
-    public int handleListItemClick(Context context, int position, long id, Screen screen) {
+    public int handleListItemClick(Context context, int position, long id, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
 
         Type type = Type.values()[getItemViewType(position)];
         switch (type) {
