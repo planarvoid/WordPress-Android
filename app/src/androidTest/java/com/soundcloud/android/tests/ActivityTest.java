@@ -59,6 +59,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         networkManager.bind();
 
+        logIn();
+
         getActivity();
 
         super.setUp(); // do not move, this has to run after the above
@@ -133,6 +135,13 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     public MenuScreen getMenuScreen() {
         return menuScreen;
+    }
+
+    protected final void logIn() {
+        logInHelper();
+    }
+
+    protected void logInHelper() {
     }
 
     public final void observeToasts() {
