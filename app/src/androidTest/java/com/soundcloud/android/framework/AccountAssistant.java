@@ -41,50 +41,11 @@ public final class AccountAssistant {
     private static final Lock lock = new ReentrantLock();
     private static final Condition accountDataCleaned = lock.newCondition();
 
-    public static Account loginAsDefault(final Instrumentation instrumentation) throws Exception {
-        final Context context = instrumentation.getTargetContext();
-        return TestUser.defaultUser.logIn(context) ? getAccount(context) : null;
-    }
-
-
-    public static Account loginAs(final Instrumentation instrumentation,
-                                  final String username,
-                                  final String password) throws Exception {
-
-        final Account account = getAccount(instrumentation.getTargetContext());
-        if (account != null && account.name.equals(username)) {
-            Log.i(TAG, "Already logged in");
-            return account;
-        } else if (account != null && !account.name.equals(username)) {
-            if (!logOut(instrumentation)) {
-                throw new RuntimeException("Could not log out of SoundCloud Account");
-            }
-        }
-        return login(username, password, instrumentation);
-    }
-
     protected static Token getToken(Context context, ApiWrapper apiWrapper, String username, String password) throws IOException {
         final Token token = apiWrapper.login(username, password);
         final SoundCloudApplication application = SoundCloudApplication.fromContext(context);
         application.getAccountOperations().updateToken(token);
         return token;
-    }
-
-    private static Account login(String username, String password, Instrumentation instrumentation) {
-        Context context = instrumentation.getTargetContext();
-        ApiWrapper apiWrapper = createApiWrapper(context);
-        try {
-            Token token = getToken(context, apiWrapper, username, password);
-            PublicApiUser user = getLoggedInUser(apiWrapper);
-            if (addAccountAndEnableSync(context, token, user)) {
-                return getAccount(context);
-            }
-        } catch (IOException e) {
-            Log.i(TAG, "error logging in", e);
-            throw new AssertionError("error logging in: " + e.getMessage());
-        }
-
-        return null;
     }
 
     static boolean addAccountAndEnableSync(Context context, Token token, PublicApiUser user) {
