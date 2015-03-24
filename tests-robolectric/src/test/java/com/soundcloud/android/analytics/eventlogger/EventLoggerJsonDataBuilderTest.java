@@ -268,6 +268,41 @@ public class EventLoggerJsonDataBuilderTest {
                 .duration(audioAdTrack.get(PlayableProperty.DURATION))
                 .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
                 .trigger("manual")
+                .action("play")
+                .source("source")
+                .sourceVersion("source-version")
+                .playlistId("123")
+                .playlistPosition("2")
+                .protocol("hls")
+                .playerType("PLAYA")
+                .connectionType("3g")
+                .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
+                .monetizedObject(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString())
+                .monetizationType("audio_ad")
+                .queryUrn("some:search:urn")
+                .queryPosition("5"));
+    }
+
+    @Test
+    public void createStopAudioEventUrlForAudioAdPlaybackEvent() throws ApiMapperException {
+        final PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
+        final PropertySet audioAdTrack = TestPropertySets.expectedTrackForAnalytics(Urn.forTrack(456L));
+        final PlaybackSessionEvent playbackSessionEvent = PlaybackSessionEvent.forPlay(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, 0L, 321L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
+        final PlaybackSessionEvent event = PlaybackSessionEvent.forStop(audioAdTrack, LOGGED_IN_USER, trackSourceInfo, playbackSessionEvent, 0L, 456L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_BUFFERING);
+
+        trackSourceInfo.setSource("source", "source-version");
+        trackSourceInfo.setOriginPlaylist(Urn.forPlaylist(123L), 2, Urn.forUser(321L));
+        trackSourceInfo.setSearchQuerySourceInfo(searchQuerySourceInfo);
+
+        jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
+
+        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", String.valueOf(event.getTimeStamp()))
+                .pageName(event.getTrackSourceInfo().getOriginScreen())
+                .duration(audioAdTrack.get(PlayableProperty.DURATION))
+                .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
+                .action("stop")
+                .reason("buffering")
+                .trigger("manual")
                 .source("source")
                 .sourceVersion("source-version")
                 .playlistId("123")

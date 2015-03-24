@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ACTION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.AD_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.ANONYMOUS_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.BITRATE;
@@ -26,6 +27,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAY
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REASON;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
@@ -204,6 +206,16 @@ final class EventLoggerEventData {
 
     public EventLoggerEventData queryPosition(String queryPosition) {
         addToPayload(QUERY_POSITION, queryPosition);
+        return this;
+    }
+
+    public EventLoggerEventData action(String play) {
+        addToPayload(ACTION, play);
+        return this;
+    }
+
+    public EventLoggerEventData reason(String stopReason) {
+        addToPayload(REASON, stopReason);
         return this;
     }
 

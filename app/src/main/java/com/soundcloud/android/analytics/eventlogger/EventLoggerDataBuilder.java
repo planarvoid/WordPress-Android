@@ -92,6 +92,27 @@ public abstract class EventLoggerDataBuilder {
         }
     }
 
+    protected String getStopReason(PlaybackSessionEvent eventData) {
+        switch (eventData.getStopReason()) {
+            case PlaybackSessionEvent.STOP_REASON_PAUSE:
+                return "pause";
+            case PlaybackSessionEvent.STOP_REASON_BUFFERING:
+                return "buffering";
+            case PlaybackSessionEvent.STOP_REASON_SKIP:
+                return "skip";
+            case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:
+                return "track_finished";
+            case PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE:
+                return "end_of_content";
+            case PlaybackSessionEvent.STOP_REASON_NEW_QUEUE:
+                return "context_change";
+            case PlaybackSessionEvent.STOP_REASON_ERROR:
+                return "playback_error";
+            default:
+                throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
+        }
+    }
+
     // EventLogger v0 requires us to pass URNs in the legacy format
     protected String getLegacyTrackUrn(String urn) {
         return urn.replaceFirst(":tracks:", ":sounds:");

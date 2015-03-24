@@ -184,6 +184,13 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
 
         TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
 
+        if (event.isPlayEvent()) {
+            data.action("play");
+        } else {
+            data.action("stop");
+            data.reason(getStopReason(event));
+        }
+
         if (trackSourceInfo.hasSource()) {
             data.source(trackSourceInfo.getSource());
             data.sourceVersion(trackSourceInfo.getSourceVersion());
