@@ -503,6 +503,7 @@ public class ProfileActivity extends ScActivity implements
                 Content content;
                 Uri contentUri;
                 Screen screen;
+
                 if (isLoggedInUser()) {
                     content = currentTab.youContent;
                     contentUri = content.uri;
@@ -513,7 +514,8 @@ public class ProfileActivity extends ScActivity implements
                     screen = currentTab.userScreen;
                 }
 
-                ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(), screen, searchQuerySourceInfo);
+                ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(),
+                        screen, searchQuerySourceForTab(currentTab));
                 listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, user));
                 return listFragment;
             }
@@ -527,6 +529,13 @@ public class ProfileActivity extends ScActivity implements
         @Override
         public CharSequence getPageTitle(int position) {
             return Tab.getTitle(getResources(), position, isLoggedInUser());
+        }
+
+        private SearchQuerySourceInfo searchQuerySourceForTab(Tab tab) {
+            if (tab == Tab.followers || tab == Tab.followings) {
+                return null;
+            }
+            return searchQuerySourceInfo;
         }
     }
 }
