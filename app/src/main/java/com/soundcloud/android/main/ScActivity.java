@@ -11,6 +11,7 @@ import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.android.lightcycle.LightCycleActionBarActivity;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
@@ -21,6 +22,7 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import javax.inject.Inject;
 
@@ -36,6 +38,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject ImageOperationsController imageOperationsController;
     @Inject AccountPlaybackController accountPlaybackController;
     @Inject ScreenStateProvider screenStateProvider;
+    @Inject ApplicationProperties applicationProperties;
 
     @Inject protected EventBus eventBus;
     @Inject protected AccountOperations accountOperations;
@@ -67,6 +70,10 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if (menu.findItem(R.id.media_route_menu_item) != null){
             castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
+        }
+        final MenuItem feedbackItem = menu.findItem(R.id.action_feedback);
+        if (feedbackItem != null) {
+            feedbackItem.setVisible(applicationProperties.shouldAllowFeedback());
         }
         return true;
     }

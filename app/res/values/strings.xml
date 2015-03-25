@@ -222,6 +222,7 @@
     <string name="side_menu_explore">Explore</string>
     <string name="title_search">Search</string>
     <string name="title_settings">Settings</string>
+    <string name="title_feedback">Feedback</string>
 
     <!-- __NOTIFICATIONS -->
     <string name="dashboard_notifications_activity_message_likes">%1$s likes %2$s</string>
@@ -644,5 +645,16 @@
         <item>November</item>
         <item>December</item>
     </string-array>
+
+    <!-- DEBUG LOGS/FEEDBACK -->
+    <string name="select_feedback_category">What would you like to report?</string>
+    <string-array name="feedback_options">
+        <item>Crash</item>
+        <item>Playback issue</item>
+        <item>Other issue</item>
+    </string-array>
+    <string name="feedback_email_subject">Report: %1$s</string>
+    <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
+
 
 </resources>

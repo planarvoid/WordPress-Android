@@ -28,4 +28,10 @@
           android:title="@string/side_menu_settings"
           android:orderInCategory="100"
           soundcloud:showAsAction="never"/>
+
+    <item android:id="@+id/action_feedback"
+        android:title="@string/title_feedback"
+        android:orderInCategory="200"
+        soundcloud:showAsAction="never"/>
+
 </menu>
