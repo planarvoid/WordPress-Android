@@ -29,6 +29,7 @@ import rx.android.Pager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressFBWarnings(
@@ -129,20 +130,19 @@ class SearchOperations {
 
     class SearchResultPager extends Pager<SearchResult> {
         private final int searchType;
-        private Optional<Urn> maybeQueryUrn;
-        private List<Urn> allUrns;
+        private final List<Urn> allUrns = new ArrayList<>();
+        private Urn queryUrn = Urn.NOT_SET;
 
         SearchResultPager(int searchType) {
             this.searchType = searchType;
         }
 
         public SearchQuerySourceInfo getSearchQuerySourceInfo() {
-            return new SearchQuerySourceInfo(maybeQueryUrn.get());
+            return new SearchQuerySourceInfo(queryUrn);
         }
 
-
         public SearchQuerySourceInfo getSearchQuerySourceInfo(int clickPosition, Urn clickUrn) {
-            SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(maybeQueryUrn.get(), clickPosition, clickUrn);
+            SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(queryUrn, clickPosition, clickUrn);
             searchQuerySourceInfo.setQueryResults(allUrns);
             return searchQuerySourceInfo;
         }
@@ -150,8 +150,12 @@ class SearchOperations {
         @Override
         public Observable<SearchResult> call(SearchResult searchResultsCollection) {
             final Optional<Link> nextHref = searchResultsCollection.nextHref;
-            maybeQueryUrn = searchResultsCollection.queryUrn;
-            allUrns = CollectionUtils.extractUrnsFromEntities(searchResultsCollection.getItems());
+
+            allUrns.addAll(CollectionUtils.extractUrnsFromEntities(searchResultsCollection.getItems()));
+
+            if(searchResultsCollection.queryUrn.isPresent()) {
+                queryUrn = searchResultsCollection.queryUrn.get();
+            }
 
             if (nextHref.isPresent()) {
                 return nextResultPage(nextHref.get(), searchType);
