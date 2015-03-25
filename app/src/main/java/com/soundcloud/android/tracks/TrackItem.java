@@ -5,6 +5,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.presentation.PlayableItem;
+import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
 
@@ -88,7 +89,8 @@ public class TrackItem extends PlayableItem {
     }
 
     String getGenre() {
-        return source.get(TrackProperty.GENRE);
+        final Optional<String> optionalGenre = source.get(TrackProperty.GENRE);
+        return optionalGenre.isPresent() ? optionalGenre.get() : ScTextUtils.EMPTY_STRING;
     }
 
     boolean isDownloading() {

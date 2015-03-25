@@ -1,6 +1,7 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Optional;
 import com.soundcloud.android.api.legacy.model.PlayableStats;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PropertySetSource;
@@ -9,7 +10,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.propeller.PropertySet;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -150,8 +150,7 @@ public class ApiPlaylist extends ScModel implements PropertySetSource {
                 PlaylistProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
                 PlaylistProperty.CREATOR_NAME.bind(getUsername()),
                 PlaylistProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
-                //TODO: Use Optional Property
-                PlaylistProperty.TAGS.bind(tags != null ? tags : Collections.<String>emptyList())
+                PlaylistProperty.TAGS.bind(Optional.fromNullable(tags))
         );
     }
 

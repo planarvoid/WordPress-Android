@@ -73,7 +73,8 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public List<String> getTags() {
-        return source.getOrElse(PlaylistProperty.TAGS, Collections.<String>emptyList());
+        final Optional<List<String>> optionalTags = source.get(PlaylistProperty.TAGS);
+        return optionalTags.isPresent() ? optionalTags.get() : Collections.<String>emptyList();
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.legacy.model.TrackStats;
@@ -9,7 +10,6 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 
 import android.os.Parcel;
@@ -288,8 +288,7 @@ public class ApiTrack extends ScModel implements PropertySetSource {
                 TrackProperty.REPOSTS_COUNT.bind(getStats().getRepostsCount()),
                 TrackProperty.CREATOR_NAME.bind(getUserName()),
                 TrackProperty.CREATOR_URN.bind(getUser() != null ? getUser().getUrn() : Urn.NOT_SET),
-                //TODO: use Optional property
-                TrackProperty.GENRE.bind(genre != null ? genre : ScTextUtils.EMPTY_STRING)
+                TrackProperty.GENRE.bind(Optional.fromNullable(genre))
         );
     }
 
