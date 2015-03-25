@@ -34,6 +34,13 @@ public class SearchQuerySourceInfoTest {
     }
 
     @Test
+    public void shouldUseClickPositionOnTracksWithoutResults() {
+        searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, Urn.forTrack(123L));
+
+        expect(searchQuerySourceInfo.getUpdatedResultPosition(Urn.forTrack(456L))).toEqual(5);
+    }
+
+    @Test
     public void shouldBeParcelable() throws Exception {
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:123"));
         searchQuerySourceInfo.setQueryResults(new ArrayList<>(Arrays.asList(Urn.forTrack(123L), Urn.forTrack(456L), Urn.forUser(789L))));

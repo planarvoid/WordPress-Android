@@ -62,7 +62,7 @@ public class SearchQuerySourceInfo implements Parcelable {
     }
 
     public int getUpdatedResultPosition(Urn currentTrack) {
-        return clickUrn.isTrack() ? queryResults.indexOf(currentTrack) : clickPosition;
+        return clickUrn.isTrack() && queryResults != null ? queryResults.indexOf(currentTrack) : clickPosition;
     }
 
     @VisibleForTesting

@@ -152,7 +152,6 @@ public class SearchActionBarController extends ActionBarController {
         } else {
             final Intent intent = new Intent(Intent.ACTION_VIEW);
 
-            // note: add query_source_info to playlist once we support playlist suggestions
             if (urn.isUser()) {
                 intent.putExtra(ProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
             }
