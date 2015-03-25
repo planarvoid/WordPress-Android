@@ -56,7 +56,8 @@ public class ApiClientTest {
     public void setUp() throws Exception {
         initMocks(this);
         when(deviceHelper.getUserAgent()).thenReturn("");
-        when(deviceHelper.getUDID()).thenReturn("my-udid");
+        when(deviceHelper.hasUdid()).thenReturn(true);
+        when(deviceHelper.getUdid()).thenReturn("my-udid");
         when(adIdHelper.getAdId()).thenReturn("my-adid");
         when(adIdHelper.getAdIdTracking()).thenReturn(true);
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
@@ -168,7 +169,8 @@ public class ApiClientTest {
 
     @Test
     public void shouldOmitUDIDHeaderIfUnavailable() throws IOException {
-        when(deviceHelper.getUDID()).thenReturn(null);
+        when(deviceHelper.hasUdid()).thenReturn(false);
+        when(deviceHelper.getUdid()).thenReturn("");
         ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
         mockSuccessfulResponseFor(request);
 

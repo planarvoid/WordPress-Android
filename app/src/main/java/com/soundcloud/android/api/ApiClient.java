@@ -107,9 +107,8 @@ public class ApiClient {
         builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
 
         // user identifiers
-        final String udid = deviceHelper.getUDID();
-        if (ScTextUtils.isNotBlank(udid)) {
-            builder.header(ApiHeaders.UDID, udid);
+        if (deviceHelper.hasUdid()) {
+            builder.header(ApiHeaders.UDID, deviceHelper.getUdid());
         }
         if (adIdHelper.isAvailable()) {
             builder.header(ApiHeaders.ADID, adIdHelper.getAdId());

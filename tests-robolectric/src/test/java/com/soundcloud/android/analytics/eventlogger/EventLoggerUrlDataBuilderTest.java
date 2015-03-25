@@ -73,7 +73,7 @@ public class EventLoggerUrlDataBuilderTest {
         when(trackSourceInfo.getOriginScreen()).thenReturn("origin");
         when(trackSourceInfo.getIsUserTriggered()).thenReturn(true);
         when(deviceHelper.getUserAgent()).thenReturn("SoundCloud-Android/1.2.3 (Android 4.1.1; Samsung GT-I9082)");
-        when(deviceHelper.getUDID()).thenReturn("9876");
+        when(deviceHelper.getUdid()).thenReturn("9876");
 
         eventLoggerUrlDataBuilder = new EventLoggerUrlDataBuilder(resources, experimentOperations, deviceHelper, accountOperations);
     }

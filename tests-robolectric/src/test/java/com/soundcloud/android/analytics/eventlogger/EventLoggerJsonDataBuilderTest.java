@@ -75,7 +75,7 @@ public class EventLoggerJsonDataBuilderTest {
                 deviceHelper, accountOperations, jsonTransformer, featureFlags);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
-        when(deviceHelper.getUDID()).thenReturn(UDID);
+        when(deviceHelper.getUdid()).thenReturn(UDID);
         when(featureFlags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)).thenReturn(true);
     }
 
