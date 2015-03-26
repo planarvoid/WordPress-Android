@@ -244,7 +244,7 @@ public class EventLoggerUrlDataBuilder extends EventLoggerDataBuilder {
     private Uri.Builder buildUriForPath(String path, long timestamp) {
         return Uri.parse(endpoint).buildUpon().appendPath(path)
                 .appendQueryParameter(EventLoggerParam.CLIENT_ID, appId)
-                .appendQueryParameter(EventLoggerParam.ANONYMOUS_ID, deviceHelper.getUDID())
+                .appendQueryParameter(EventLoggerParam.ANONYMOUS_ID, deviceHelper.getUdid())
                 .appendQueryParameter(EventLoggerParam.TIMESTAMP, String.valueOf(timestamp));
     }
 

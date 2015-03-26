@@ -13,7 +13,9 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class DeviceHelper {
 
     private static final String UNKNOWN_VERSION = "unknown version";
@@ -22,19 +24,32 @@ public class DeviceHelper {
 
     private final Context context;
 
+    private String udid;
+
     @Inject
     public DeviceHelper(Context context) {
         this.context = context;
+        generateUdid();
+    }
+
+    private void generateUdid() {
+        String id = getUniqueDeviceId();
+        if (ScTextUtils.isNotBlank(id)) {
+            // We still use IOUtils here instead of guava because its a different algorithm, and tracking needs the legacy values
+            udid = IOUtils.md5(id);
+        }
+    }
+
+    public boolean hasUdid() {
+        return ScTextUtils.isNotBlank(udid);
     }
 
     /**
      * @return a unique id for this device (MD5 of IMEI / {@link android.provider.Settings.Secure#ANDROID_ID}) or null
      */
     @Nullable
-    public String getUDID() {
-        String id = getUniqueDeviceId();
-        // note, we still use IOUtils here instead of guava because its a different algorithm, and tracking needs the legacy values
-        return ScTextUtils.isBlank(id) ? null : IOUtils.md5(id);
+    public String getUdid() {
+        return udid;
     }
     
     public boolean inSplitTestGroup(){

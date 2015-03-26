@@ -17,7 +17,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,7 +30,6 @@ public class ConfigurationOperationsTest {
 
     @Mock private ApiScheduler apiScheduler;
     @Mock private ExperimentOperations experimentOperations;
-    @Mock private DeviceHelper deviceHelper;
     @Mock private FeatureOperations featureOperations;
     @Mock private FeatureFlags featureFlags;
 
@@ -41,9 +39,8 @@ public class ConfigurationOperationsTest {
     @Before
     public void setUp() throws Exception {
         configuration = ModelFixtures.create(Configuration.class);
-        operations = new ConfigurationOperations(apiScheduler, experimentOperations, featureOperations, deviceHelper, featureFlags);
+        operations = new ConfigurationOperations(apiScheduler, experimentOperations, featureOperations, featureFlags);
 
-        when(deviceHelper.getUDID()).thenReturn("device-id");
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configuration));
@@ -51,23 +48,11 @@ public class ConfigurationOperationsTest {
     }
 
     @Test
-    public void doesNotLoadExperimentsIfDeviceIdIsNull() {
-        when(deviceHelper.getUDID()).thenReturn(null);
-
-        operations.update();
-
-        verify(apiScheduler).mappedResponse(argThat(
-                isMobileApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                        .withoutHeader(ApiRequest.HEADER_UDID)));
-    }
-
-    @Test
     public void loadsExperimentsOnUpdate() {
         operations.update();
 
         verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                .withQueryParam("experiment_layers", "android_listening", "ios")
-                .withHeader(ApiRequest.HEADER_UDID, "device-id")));
+                .withQueryParam("experiment_layers", "android_listening", "ios")));
     }
 
     @Test

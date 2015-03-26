@@ -64,7 +64,7 @@ public abstract class EventLoggerDataBuilder {
     public abstract String buildForAudioEvent(PlaybackSessionEvent eventData);
 
     protected String getAnonymousId() {
-        return deviceHelper.getUDID();
+        return deviceHelper.getUdid();
     }
 
     protected String getUserUrn() {

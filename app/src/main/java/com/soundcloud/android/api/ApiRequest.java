@@ -24,8 +24,6 @@ import java.util.Map;
 
 public class ApiRequest<ResourceType> {
 
-    public static final String HEADER_UDID = "SC-UDID";
-
     private final Uri uri;
     private final String httpMethod;
     private final int endpointVersion;

@@ -21,7 +21,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -33,7 +32,6 @@ import org.mockito.Mockito;
 import rx.Observable;
 
 import java.util.Arrays;
-import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AdsOperationsTest {
@@ -45,14 +43,12 @@ public class AdsOperationsTest {
 
     @Mock private ApiScheduler apiScheduler;
     @Mock private StoreTracksCommand storeTracksCommand;
-    @Mock private DeviceHelper deviceHelper;
     @Mock private PlayQueueManager playQueueManager;
     private PlaySessionSource playSessionSource;
 
-
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, deviceHelper, playQueueManager, apiScheduler);
+        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiScheduler);
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         playSessionSource = new PlaySessionSource("origin");
         playSessionSource.setExploreVersion("1.0");
@@ -74,20 +70,6 @@ public class AdsOperationsTest {
 
         expect(storeTracksCommand.getInput()).toEqual(Arrays.asList(fullAdsForTrack.audioAd().getApiTrack()));
         verify(storeTracksCommand).call();
-    }
-
-    @Test
-    public void audioAdRequestIncludesUniqueDeviceId() {
-        final ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
-        when(apiScheduler.mappedResponse(captor.capture())).thenReturn(Observable.just(fullAdsForTrack));
-        when(deviceHelper.getUDID()).thenReturn("is google watching?");
-
-        adsOperations.ads(TRACK_URN).subscribe();
-
-        final ApiRequest apiRequest = captor.getValue();
-        Map<String, String> headers = apiRequest.getHeaders();
-        expect(headers.containsKey("SC-UDID")).toBeTrue();
-        expect(headers.get("SC-UDID")).toEqual("is google watching?");
     }
 
     @Test

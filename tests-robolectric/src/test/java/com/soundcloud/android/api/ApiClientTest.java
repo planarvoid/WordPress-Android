@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -43,6 +44,7 @@ public class ApiClientTest {
     @Mock private JsonTransformer jsonTransformer;
     @Mock private ApiUrlBuilder apiUrlBuilder;
     @Mock private DeviceHelper deviceHelper;
+    @Mock private AdIdHelper adIdHelper;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private OAuth oAuth;
     @Mock private Call httpCall;
@@ -54,11 +56,15 @@ public class ApiClientTest {
     public void setUp() throws Exception {
         initMocks(this);
         when(deviceHelper.getUserAgent()).thenReturn("");
+        when(deviceHelper.hasUdid()).thenReturn(true);
+        when(deviceHelper.getUdid()).thenReturn("my-udid");
+        when(adIdHelper.getAdId()).thenReturn("my-adid");
+        when(adIdHelper.getAdIdTracking()).thenReturn(true);
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
         apiClient = new ApiClient(httpClient, apiUrlBuilder, jsonTransformer,
-                deviceHelper, oAuth, unauthorisedRequestRegistry);
+                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry);
     }
 
     @Test
@@ -149,6 +155,52 @@ public class ApiClientTest {
         apiClient.fetchResponse(request);
 
         expect(httpRequestCaptor.getValue().headers("Authorization")).toContainExactly("OAuth 12345");
+    }
+
+    @Test
+    public void shouldAddUDIDHeaderIfAvailable() throws IOException {
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
+
+        apiClient.fetchResponse(request);
+
+        expect(httpRequestCaptor.getValue().headers("UDID")).toContainExactly("my-udid");
+    }
+
+    @Test
+    public void shouldOmitUDIDHeaderIfUnavailable() throws IOException {
+        when(deviceHelper.hasUdid()).thenReturn(false);
+        when(deviceHelper.getUdid()).thenReturn("");
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
+
+        apiClient.fetchResponse(request);
+
+        expect(httpRequestCaptor.getValue().headers("UDID")).toBeEmpty();
+    }
+
+    @Test
+    public void shouldAddAdIdHeadersIfAvailable() throws IOException {
+        when(adIdHelper.isAvailable()).thenReturn(true);
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
+
+        apiClient.fetchResponse(request);
+
+        expect(httpRequestCaptor.getValue().headers("ADID")).toContainExactly("my-adid");
+        expect(httpRequestCaptor.getValue().headers("ADID-TRACKING")).toContainExactly("true");
+    }
+
+    @Test
+    public void shouldOmitAdIdHeadersIfUnvailable() throws IOException {
+        when(adIdHelper.isAvailable()).thenReturn(false);
+        ApiRequest request = ApiRequest.Builder.get(URL).forPrivateApi(1).build();
+        mockSuccessfulResponseFor(request);
+
+        apiClient.fetchResponse(request);
+
+        expect(httpRequestCaptor.getValue().headers("ADID")).toBeEmpty();
+        expect(httpRequestCaptor.getValue().headers("ADID-TRACKING")).toBeEmpty();
     }
 
     @Test

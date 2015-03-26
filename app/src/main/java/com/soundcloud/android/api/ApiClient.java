@@ -6,6 +6,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
+import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -35,17 +36,19 @@ public class ApiClient {
     private final ApiUrlBuilder urlBuilder;
     private final JsonTransformer jsonTransformer;
     private final DeviceHelper deviceHelper;
+    private final AdIdHelper adIdHelper;
     private final OAuth oAuth;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
     @Inject
     public ApiClient(OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
-                     JsonTransformer jsonTransformer, DeviceHelper deviceHelper,
+                     JsonTransformer jsonTransformer, DeviceHelper deviceHelper, AdIdHelper adIdHelper,
                      OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
         this.jsonTransformer = jsonTransformer;
         this.deviceHelper = deviceHelper;
+        this.adIdHelper = adIdHelper;
         this.oAuth = oAuth;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
     }
@@ -102,6 +105,15 @@ public class ApiClient {
         builder.header(HttpHeaders.ACCEPT, getContentType(request));
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
         builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
+
+        // user identifiers
+        if (deviceHelper.hasUdid()) {
+            builder.header(ApiHeaders.UDID, deviceHelper.getUdid());
+        }
+        if (adIdHelper.isAvailable()) {
+            builder.header(ApiHeaders.ADID, adIdHelper.getAdId());
+            builder.header(ApiHeaders.ADID_TRACKING, String.valueOf(adIdHelper.getAdIdTracking()));
+        }
 
         // transfer other HTTP headers
         final Map<String, String> headers = request.getHeaders();

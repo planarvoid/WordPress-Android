@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
+import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -257,7 +258,9 @@ public class TestApplicationModule {
     }
 
     @Provides
-    NotificationManager provideNotificationManager() { return mock(NotificationManager.class); }
+    NotificationManager provideNotificationManager() {
+        return mock(NotificationManager.class);
+    }
 
     @Provides
     MyPlaylistsSyncer provideMyPlaylistsSyncer() {
@@ -275,5 +278,11 @@ public class TestApplicationModule {
     PostsSyncer provideMyPlaylistPostsSyncer() {
         return mock(PostsSyncer.class);
     }
+
+    @Provides
+    AdIdHelper provideAdIdHelper() {
+        return mock(AdIdHelper.class);
+    }
+
 }
 
