@@ -19,6 +19,7 @@ import javax.inject.Named;
 public class StorageModule {
 
     private static final String PLAYLIST_TAGS = "playlist_tags";
+    private static final String DEVICE_MANAGEMENT = "device_management";
     private static final String PAYMENTS = "payments";
     private static final String DEVICE_KEYS = "device_keys";
     private static final String OFFLINE_SETTINGS = "offline_settings";
@@ -33,6 +34,12 @@ public class StorageModule {
     @Named("PlaylistTags")
     public SharedPreferences providePlaylistTagPrefs(Context context) {
         return context.getSharedPreferences(PLAYLIST_TAGS, Context.MODE_PRIVATE);
+    }
+
+    @Provides
+    @Named("DeviceManagement")
+    public SharedPreferences provideDeviceManagementPrefs(Context context) {
+        return context.getSharedPreferences(DEVICE_MANAGEMENT, Context.MODE_PRIVATE);
     }
 
     @Provides

@@ -10,6 +10,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.commands.ClearTrackDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadPrioritizedPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
@@ -30,6 +31,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
+import rx.schedulers.Schedulers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +60,8 @@ public class OfflineContentOperationsTest {
     @Mock private OfflinePlaylistStorage playlistStorage;
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private PolicyOperations policyOperations;
+    @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
+    @Mock private SecureFileStorage secureFileStorage;
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
@@ -83,6 +87,7 @@ public class OfflineContentOperationsTest {
                 storePendingDownloadsCommand,
                 storePendingRemovalsCommand,
                 storeDownloadedCommand,
+                clearTrackDownloadsCommand,
                 loadTracksWithStalePolicies,
                 loadPrioritizedPendingDownloadsCommand,
                 settingsStorage,
@@ -90,7 +95,9 @@ public class OfflineContentOperationsTest {
                 playlistStorage,
                 policyOperations,
                 loadTracksWithValidPolicies,
-                offlineTracksStorage);
+                offlineTracksStorage,
+                secureFileStorage,
+                Schedulers.immediate());
     }
 
     @Test
@@ -341,6 +348,25 @@ public class OfflineContentOperationsTest {
         PropertySet eventPropertySet = event.getChangeMap().get(playlistUrn);
         expect(eventPropertySet.get(PlaylistProperty.URN)).toEqual(playlistUrn);
         expect(eventPropertySet.get(PlaylistProperty.IS_MARKED_FOR_OFFLINE)).toEqual(false);
+    }
+
+    @Test
+    public void clearOfflineContentClearsTrackDownloads() {
+        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(WRITE_RESULT_SUCCESS));
+
+        final TestObserver<WriteResult> observer = new TestObserver<>();
+        operations.clearOfflineContent().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(WRITE_RESULT_SUCCESS);
+    }
+
+    @Test
+    public void clearOfflineContentRemovesOfflineTrackFiles() {
+        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(WRITE_RESULT_SUCCESS));
+
+        operations.clearOfflineContent().subscribe(new TestObserver<WriteResult>());
+
+        verify(secureFileStorage).deleteAllTracks();
     }
 
     private void actualPendingRemovals(Urn... tracks) {

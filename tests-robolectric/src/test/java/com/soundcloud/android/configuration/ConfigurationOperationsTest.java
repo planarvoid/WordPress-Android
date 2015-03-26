@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.net.HttpHeaders;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
@@ -18,17 +19,22 @@ import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.configuration.experiments.Layer;
+import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -42,6 +48,9 @@ public class ConfigurationOperationsTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private FeatureFlags featureFlags;
+    @Mock private AccountOperations accountOperations;
+    @Mock private OfflineContentOperations offlineContentOperations;
+    @Mock private DeviceManagementStorage deviceManagementStorage;
 
     private ConfigurationOperations operations;
     private Configuration configuration;
@@ -50,7 +59,8 @@ public class ConfigurationOperationsTest {
     public void setUp() throws Exception {
         configuration = ModelFixtures.create(Configuration.class);
         operations = new ConfigurationOperations(InjectionSupport.lazyOf(apiScheduler), InjectionSupport.lazyOf(apiClient),
-                experimentOperations, featureOperations, featureFlags);
+                experimentOperations, featureOperations, accountOperations, offlineContentOperations,
+                deviceManagementStorage, featureFlags);
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
@@ -107,6 +117,23 @@ public class ConfigurationOperationsTest {
 
         verify(featureOperations).update(eq(getFeaturesAsMap()));
         verify(experimentOperations).update(configuration.assignment);
+    }
+
+    @Test
+    public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() throws Exception {
+        Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(), Collections.<Layer>emptyList(),
+                new DeviceManagement(false, null));
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configurationWithDeviceConflict));
+
+        final PublishSubject<Void> logoutSubject = PublishSubject.create();
+        final PublishSubject<WriteResult> clearOfflineContentSubject = PublishSubject.create();
+        when(accountOperations.logout()).thenReturn(logoutSubject);
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
+
+        operations.update();
+
+        logoutSubject.onNext(null);
+        expect(clearOfflineContentSubject.hasObservers()).toBeTrue();
     }
 
     private HashMap<String, Boolean> getFeaturesAsMap() {

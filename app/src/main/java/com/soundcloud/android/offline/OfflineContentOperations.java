@@ -9,6 +9,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.commands.ClearTrackDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadPrioritizedPendingDownloadsCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
@@ -20,12 +21,14 @@ import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.WriteResult;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.functions.Func4;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,11 +39,14 @@ public class OfflineContentOperations {
     private final StorePendingDownloadsCommand storePendingDownloadsCommand;
     private final StorePendingRemovalsCommand storePendingRemovalsCommand;
     private final StoreDownloadedCommand storeDownloadedCommand;
+    private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
     private final LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies;
     private final LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies;
 
     private final OfflineTracksStorage tracksStorage;
+    private final SecureFileStorage secureFileStorage;
+    private final Scheduler scheduler;
     private final OfflinePlaylistStorage playlistStorage;
     private final OfflineSettingsStorage settingsStorage;
     private final PolicyOperations policyOperations;
@@ -91,17 +97,20 @@ public class OfflineContentOperations {
     public OfflineContentOperations(StorePendingDownloadsCommand storePendingDownloadsCommand,
                                     StorePendingRemovalsCommand storePendingRemovalsCommand,
                                     StoreDownloadedCommand storeDownloadedCommand,
-                                    LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies,
+                                    ClearTrackDownloadsCommand clearTrackDownloadsCommand, LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies,
                                     LoadPrioritizedPendingDownloadsCommand loadPendingCommand,
                                     OfflineSettingsStorage settingsStorage,
                                     EventBus eventBus,
                                     OfflinePlaylistStorage playlistStorage,
                                     PolicyOperations policyOperations,
                                     LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies,
-                                    OfflineTracksStorage tracksStorage) {
+                                    OfflineTracksStorage tracksStorage,
+                                    SecureFileStorage secureFileStorage,
+                                    @Named("Storage") Scheduler scheduler) {
         this.storePendingDownloadsCommand = storePendingDownloadsCommand;
         this.storePendingRemovalsCommand = storePendingRemovalsCommand;
         this.storeDownloadedCommand = storeDownloadedCommand;
+        this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
         this.loadTracksWithStatePolicies = loadTracksWithStatePolicies;
         this.settingsStorage = settingsStorage;
         this.loadPendingDownloadRequests = loadPendingCommand;
@@ -110,6 +119,8 @@ public class OfflineContentOperations {
         this.policyOperations = policyOperations;
         this.loadTracksWithValidPolicies = loadTracksWithValidPolicies;
         this.tracksStorage = tracksStorage;
+        this.secureFileStorage = secureFileStorage;
+        this.scheduler = scheduler;
     }
 
     public void setOfflineLikesEnabled(boolean isEnabled) {
@@ -134,6 +145,15 @@ public class OfflineContentOperations {
 
     public Observable<Boolean> getOfflineLikesSettingsStatus() {
         return settingsStorage.getOfflineLikedTracksStatusChange();
+    }
+
+    public Observable<WriteResult> clearOfflineContent() {
+        return clearTrackDownloadsCommand.toObservable(null).doOnNext(new Action1<WriteResult>() {
+            @Override
+            public void call(WriteResult writeResult) {
+                secureFileStorage.deleteAllTracks();
+            }
+        }).subscribeOn(scheduler);
     }
 
     private Action1<Boolean> publishMarkedForOfflineChange(final Urn playlistUrn, final boolean isMarkedOffline) {

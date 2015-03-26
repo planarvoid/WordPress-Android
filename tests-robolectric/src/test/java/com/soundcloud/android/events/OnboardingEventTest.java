@@ -156,9 +156,16 @@ public class OnboardingEventTest {
 
     @Test
     public void shouldCreateDeviceConflictEvent() {
-        onboardingEvent = OnboardingEvent.deviceConflict();
+        onboardingEvent = OnboardingEvent.deviceConflictOnLogin();
         expect(onboardingEvent.getKind()).toBe(OnboardingEvent.DEVICE_CONFLICT);
         expect(onboardingEvent.getAttributes().get("error_type")).toEqual("device_limit");
+    }
+
+    @Test
+    public void shouldCreateDeviceConflictLoggedOutEvent() {
+        onboardingEvent = OnboardingEvent.deviceConflictLoggedOut();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.DEVICE_CONFLICT);
+        expect(onboardingEvent.getAttributes().get("error_type")).toEqual("logged_out");
     }
 
 }

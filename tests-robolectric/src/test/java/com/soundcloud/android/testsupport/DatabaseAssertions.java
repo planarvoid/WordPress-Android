@@ -254,23 +254,9 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
     }
 
-    public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
-        for (Urn urn : tracksToDownload) {
-            assertThat(select(from(Table.TrackDownloads.name())
-                    .whereEq(TableColumns.TrackDownloads._ID, urn.getNumericId())), counts(1));
-        }
-    }
-
-    public void assertExistingDownloadRequest(long timestamp, Urn trackUrn) {
+    public void assertTrackDownloadNotStored(Urn trackUrn) {
         assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
-                .whereEq(TableColumns.TrackDownloads.REQUESTED_AT, timestamp)), counts(1));
-    }
-
-    public void assertDownloadPendingRemoval(Urn trackUrn) {
-        assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
-                .whereNotNull(TableColumns.TrackDownloads.REMOVED_AT)), counts(1));
+                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())), counts(0));
     }
 
     protected QueryBinding select(Query query) {

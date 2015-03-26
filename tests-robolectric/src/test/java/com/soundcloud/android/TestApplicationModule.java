@@ -184,6 +184,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named("DeviceManagement")
+    public SharedPreferences provideDeviceManagementPrefs(){
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named("DeviceKeys")
     public SharedPreferences provideKeyPrefs(){
         return provideSharedPreferences();

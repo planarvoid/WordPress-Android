@@ -29,6 +29,7 @@ public final class OnboardingEvent {
     private static final String INVALID_EMAIL = "invalid_email";
     private static final String GENERAL_ERROR = "general_error";
     private static final String DEVICE_LIMIT = "device_limit";
+    private static final String LOGGED_OUT = "logged_out";
     private static final String TYPE = "type";
     private static final String ACTION = "action";
     private static final String SIGN_UP = "sign up";
@@ -130,8 +131,12 @@ public final class OnboardingEvent {
         return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, GENERAL_ERROR);
     }
 
-    public static OnboardingEvent deviceConflict() {
+    public static OnboardingEvent deviceConflictOnLogin() {
         return new OnboardingEvent(DEVICE_CONFLICT).put(ERROR_TYPE, DEVICE_LIMIT);
+    }
+
+    public static OnboardingEvent deviceConflictLoggedOut() {
+        return new OnboardingEvent(DEVICE_CONFLICT).put(ERROR_TYPE, LOGGED_OUT);
     }
 
     public int getKind() {

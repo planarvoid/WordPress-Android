@@ -51,6 +51,10 @@ public class SecureFileStorage {
         return new File(OFFLINE_DIR, generateFileName(urn)).delete();
     }
 
+    public void deleteAllTracks() {
+        IOUtils.deleteDir(OFFLINE_DIR);
+    }
+
     public Uri getFileUriForOfflineTrack(Urn urn) {
         try {
             return Uri.fromFile(new File(OFFLINE_DIR, generateFileName(urn)));

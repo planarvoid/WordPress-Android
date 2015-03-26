@@ -2,6 +2,7 @@ package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.onboarding.auth.AddUserInfoTaskFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.onboarding.auth.GooglePlusSignInTaskFragment;
@@ -17,7 +18,8 @@ import dagger.Module;
                 LoginTaskFragment.class,
                 GooglePlusSignInTaskFragment.class,
                 SignupTaskFragment.class,
-                AddUserInfoTaskFragment.class
+                AddUserInfoTaskFragment.class,
+                OnboardActivity.class
         })
-public class AccountsModule {
+public class AuthenticationModule {
 }

@@ -19,6 +19,7 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -78,6 +79,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import javax.inject.Inject;
 import java.io.File;
 
 public class OnboardActivity extends FragmentActivity
@@ -201,6 +203,12 @@ public class OnboardActivity extends FragmentActivity
     };
     private TourPhotoPagerAdapter photosAdapter;
 
+    @Inject ConfigurationOperations configurationOperations;
+
+    public OnboardActivity() {
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -220,6 +228,18 @@ public class OnboardActivity extends FragmentActivity
 
         showPhotos(savedInstanceState == null);
         setButtonListeners();
+
+        if (configurationOperations.shouldDisplayDeviceConflict()) {
+            showDeviceConflictDialog();
+            configurationOperations.clearDeviceConflict();
+        }
+    }
+
+    private void showDeviceConflictDialog() {
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
+                .setMessage(R.string.device_management_conflict_message)
+                .setPositiveButton(R.string.device_management_continue, null);
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflictLoggedOut());
     }
 
     private void showPhotos(boolean isNotConfigChange) {
@@ -890,7 +910,7 @@ public class OnboardActivity extends FragmentActivity
                     }
                 })
                 .setNegativeButton(R.string.cancel, null);
-        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflict());
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflictOnLogin());
     }
 
     private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {

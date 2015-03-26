@@ -70,7 +70,7 @@ public class SecureFileStorageTest {
     
     @Test
     public void storeTrackSavesDataToAFile() throws Exception {
-        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
+        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
 
         storage.storeTrack(TRACK_URN, inputStream);
 
@@ -95,8 +95,18 @@ public class SecureFileStorageTest {
         expect(file.exists()).toBeFalse();
     }
 
+    @Test
+    public void deleteTrackRemovesAllTracksFromStorage() throws Exception {
+        final File file = createOfflineFile();
+
+        storage.deleteAllTracks();
+
+        expect(file.exists()).toBeFalse();
+        expect(storage.OFFLINE_DIR.exists()).toBeFalse();
+    }
+
     private File createOfflineFile() throws IOException {
-        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
+        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
         storage.OFFLINE_DIR.mkdirs();
         file.createNewFile();
         expect(file.exists()).toBeTrue(); // just to ensure we have write permissions
@@ -104,6 +114,6 @@ public class SecureFileStorageTest {
     }
 
     private File getEncryptedFile() {
-        return new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString()+".enc");
+        return new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
     }
 }
