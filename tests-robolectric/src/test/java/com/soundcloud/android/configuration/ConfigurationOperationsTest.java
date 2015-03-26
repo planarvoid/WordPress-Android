@@ -65,7 +65,7 @@ public class ConfigurationOperationsTest {
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
         when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configuration));
-        when(featureFlags.isEnabled(Flag.CONFIGURATION_FEATURES)).thenReturn(true);
+        when(featureFlags.isEnabled(Flag.OFFLINE_SYNC)).thenReturn(true);
     }
 
     @Test

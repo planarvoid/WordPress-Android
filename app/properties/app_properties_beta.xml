@@ -26,7 +26,7 @@
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
-    <bool name="feature_configuration_features">false</bool>
+    <bool name="feature_offline_sync">false</bool>
     <bool name="feature_new_playlist_engagements">false</bool>
     <bool name="feature_eventlogger_batching">false</bool>
     <bool name="feature_eventlogger_search">false</bool>

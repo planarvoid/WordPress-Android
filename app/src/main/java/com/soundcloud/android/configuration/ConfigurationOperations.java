@@ -143,7 +143,7 @@ public class ConfigurationOperations {
 
     public void saveConfiguration(Configuration configuration) {
         experimentOperations.update(configuration.assignment);
-        if (featureFlags.isEnabled(Flag.CONFIGURATION_FEATURES)) {
+        if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
             featureOperations.update(configuration.getFeatureMap());
         }
     }
