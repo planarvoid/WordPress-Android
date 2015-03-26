@@ -22,7 +22,7 @@ public class FeatureOperationsTest {
     public void setUp() throws Exception {
         FeatureStorage storage = new FeatureStorage(new ScTestSharedPreferences());
         when(appProperties.isAlphaBuild()).thenReturn(false);
-        featureOperations = new FeatureOperations(appProperties, storage, featureFlags);
+        featureOperations = new FeatureOperations(appProperties, storage);
     }
 
     @Test

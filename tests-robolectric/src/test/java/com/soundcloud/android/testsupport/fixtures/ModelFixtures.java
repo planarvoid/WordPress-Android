@@ -1,5 +1,6 @@
 package com.soundcloud.android.testsupport.fixtures;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.ApiAudioAdBlueprint;
 import com.soundcloud.android.ads.ApiCompanionAdBlueprint;
 import com.soundcloud.android.ads.ApiDisplayPropertiesBlueprint;
@@ -27,6 +28,8 @@ import com.soundcloud.android.api.model.ApiUserBlueprint;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.configuration.ConfigurationBlueprint;
 import com.soundcloud.android.configuration.experiments.AssignmentBlueprint;
+import com.soundcloud.android.configuration.experiments.Layer;
+import com.soundcloud.android.configuration.features.Feature;
 import com.soundcloud.android.events.PlaybackSessionEventBlueprint;
 import com.soundcloud.android.model.UserUrnBlueprint;
 import com.soundcloud.android.onboarding.suggestions.CategoryBlueprint;
@@ -153,4 +156,5 @@ public class ModelFixtures {
     public static List<TrackItem> trackItems(int count) {
         return TrackItem.fromApiTracks().call(create(ApiTrack.class, count));
     }
+
 }

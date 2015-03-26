@@ -113,10 +113,17 @@ public class ConfigurationOperationsTest {
 
     @Test
     public void updateStoresConfiguration() {
+        final Configuration authorizedConfiguration = getAuthorizedConfiguration();
+        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(authorizedConfiguration));
         operations.update();
 
         verify(featureOperations).update(eq(getFeaturesAsMap()));
-        verify(experimentOperations).update(configuration.assignment);
+        verify(experimentOperations).update(authorizedConfiguration.assignment);
+    }
+
+    private Configuration getAuthorizedConfiguration() {
+        return new Configuration(ConfigurationBlueprint.createFeatures(), ConfigurationBlueprint.createLayers(),
+                new DeviceManagement(true, null));
     }
 
     @Test

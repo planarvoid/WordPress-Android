@@ -10,6 +10,7 @@ import com.facebook.NonCachingTokenCachingStrategy;
 import com.facebook.Session;
 import com.facebook.SessionLoginBehavior;
 import com.google.android.gms.auth.GoogleAuthUtil;
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -207,6 +208,11 @@ public class OnboardActivity extends FragmentActivity
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    OnboardActivity(ConfigurationOperations configurationOperations) {
+        this.configurationOperations = configurationOperations;
     }
 
     @Override

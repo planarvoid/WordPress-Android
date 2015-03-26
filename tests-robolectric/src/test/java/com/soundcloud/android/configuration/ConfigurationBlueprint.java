@@ -18,11 +18,11 @@ public class ConfigurationBlueprint {
         }
     };
 
-    private List<Feature> createFeatures() {
+    public static List<Feature> createFeatures() {
         return TestFeatures.asList();
     }
 
-    private List<Layer> createLayers() {
+    public static List<Layer> createLayers() {
         Layer androidUi = new Layer();
         androidUi.setExperimentId(5);
         androidUi.setExperimentName("experiment 5");
