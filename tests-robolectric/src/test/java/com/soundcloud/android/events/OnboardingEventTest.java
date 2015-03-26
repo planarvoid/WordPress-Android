@@ -154,4 +154,11 @@ public class OnboardingEventTest {
         expect(onboardingEvent.getAttributes().get("error_type")).toEqual("general_error");
     }
 
+    @Test
+    public void shouldCreateDeviceConflictEvent() {
+        onboardingEvent = OnboardingEvent.deviceConflict();
+        expect(onboardingEvent.getKind()).toBe(OnboardingEvent.DEVICE_CONFLICT);
+        expect(onboardingEvent.getAttributes().get("error_type")).toEqual("device_limit");
+    }
+
 }

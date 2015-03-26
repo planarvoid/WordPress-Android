@@ -67,13 +67,15 @@ public class OAuth {
      */
     @Deprecated
     public static Header createOAuthHeader(Token token) {
-        return new BasicHeader(AUTH.WWW_AUTH_RESP, "OAuth " +
-                (token == null || !token.valid() ? "invalidated" : token.getAccessToken()));
+        return new BasicHeader(AUTH.WWW_AUTH_RESP, createOAuthHeaderValue(token));
+    }
+
+    public static String createOAuthHeaderValue(Token token) {
+        return "OAuth " + (token == null || !token.valid() ? "invalidated" : token.getAccessToken());
     }
 
     public String getAuthorizationHeaderValue() {
-        final Token token = accountOperations.getSoundCloudToken();
-        return "OAuth " + (token.valid() ? token.getAccessToken() : "invalidated");
+        return createOAuthHeaderValue(accountOperations.getSoundCloudToken());
     }
 
     public Map<String, String> getTokenRequestParamsFromUserCredentials(String username, String password) {

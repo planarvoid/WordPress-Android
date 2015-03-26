@@ -16,6 +16,7 @@ public final class OnboardingEvent {
     public static final int ONBOARDING_COMPLETE = 5;
     public static final int EMAIL_MARKETING = 6;
     public static final int SIGNUP_ERROR = 7;
+    public static final int DEVICE_CONFLICT = 8;
 
     private static final String OPT_IN = "opt_in";
     private static final String ERROR_TYPE = "error_type";
@@ -27,6 +28,7 @@ public final class OnboardingEvent {
     private static final String EXISTING_EMAIL = "existing_email";
     private static final String INVALID_EMAIL = "invalid_email";
     private static final String GENERAL_ERROR = "general_error";
+    private static final String DEVICE_LIMIT = "device_limit";
     private static final String TYPE = "type";
     private static final String ACTION = "action";
     private static final String SIGN_UP = "sign up";
@@ -126,6 +128,10 @@ public final class OnboardingEvent {
 
     public static OnboardingEvent signupGeneralError() {
         return new OnboardingEvent(SIGNUP_ERROR).put(ERROR_TYPE, GENERAL_ERROR);
+    }
+
+    public static OnboardingEvent deviceConflict() {
+        return new OnboardingEvent(DEVICE_CONFLICT).put(ERROR_TYPE, DEVICE_LIMIT);
     }
 
     public int getKind() {

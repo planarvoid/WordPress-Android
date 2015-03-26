@@ -7,17 +7,31 @@ import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class Configuration {
     public final Assignment assignment;
     public final List<Feature> features;
+    public final DeviceManagement deviceManagement;
 
     @JsonCreator
     public Configuration(
             @JsonProperty("features") List<Feature> features,
-            @JsonProperty("experiments") List<Layer> experimentLayers) {
+            @JsonProperty("experiments") List<Layer> experimentLayers,
+            @JsonProperty("device_management") DeviceManagement deviceManagement) {
         this.features = Collections.unmodifiableList(features);
         this.assignment = experimentLayers == null ? Assignment.empty() : new Assignment(experimentLayers);
+        this.deviceManagement = deviceManagement;
     }
+
+    public Map<String, Boolean> getFeatureMap() {
+        final HashMap<String, Boolean> map = new HashMap<>(features.size());
+        for (Feature feature : features) {
+            map.put(feature.name, feature.enabled);
+        }
+        return map;
+    }
+
 }

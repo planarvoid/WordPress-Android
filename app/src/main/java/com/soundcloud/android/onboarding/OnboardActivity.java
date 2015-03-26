@@ -879,6 +879,20 @@ public class OnboardActivity extends FragmentActivity
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupInvalidEmail());
     }
 
+    @Override
+    public void onDeviceConflict(final Bundle loginBundle) {
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
+                .setMessage(R.string.device_management_login_message)
+                .setPositiveButton(R.string.device_management_continue, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        login(loginBundle);
+                    }
+                })
+                .setNegativeButton(R.string.cancel, null);
+        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflict());
+    }
+
     private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
         if (!isFinishing()) {
             dialogBuilder

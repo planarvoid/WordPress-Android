@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiResponse;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
@@ -33,6 +34,7 @@ public class SubscribeControllerTest {
 
     @Mock private PaymentOperations paymentOperations;
     @Mock private PaymentErrorController paymentErrorController;
+    @Mock private ConfigurationOperations configurationOperations;
     @Mock private ActionBarActivity activity;
 
     private SubscribeController controller;
@@ -40,7 +42,7 @@ public class SubscribeControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new SubscribeController(paymentOperations, paymentErrorController);
+        controller = new SubscribeController(paymentOperations, paymentErrorController, configurationOperations);
         contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.subscribe_activity, null, false);
         when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.findViewById(anyInt())).thenReturn(contentView);
@@ -143,6 +145,16 @@ public class SubscribeControllerTest {
         expect(getText(R.id.subscribe_title)).toEqual(details.getTitle());
         expect(getText(R.id.subscribe_description)).toEqual(details.getDescription());
         expect(getText(R.id.subscribe_price)).toEqual(details.getPrice());
+    }
+
+    @Test
+    public void requestsConfigurationUpdateWhenPurchaseIsSuccess() {
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
+
+        controller.onCreate(activity, null);
+        controller.handleBillingResult(TestBillingResults.success());
+
+        verify(configurationOperations).update();
     }
 
     @Test

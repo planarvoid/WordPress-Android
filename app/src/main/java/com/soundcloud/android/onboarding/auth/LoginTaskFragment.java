@@ -32,7 +32,7 @@ public class LoginTaskFragment extends AuthTaskFragment {
     @NotNull
     @Override
     AuthTask createAuthTask() {
-        return new LoginTask((SoundCloudApplication)getActivity().getApplication());
+        return new LoginTask((SoundCloudApplication)getActivity().getApplication(), configurationOperations, eventBus, accountOperations);
     }
 
     @Override

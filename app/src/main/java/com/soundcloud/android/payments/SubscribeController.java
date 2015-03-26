@@ -6,6 +6,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -27,6 +28,7 @@ class SubscribeController extends DefaultLightCycleActivity<ActionBarActivity> {
 
     private final PaymentOperations paymentOperations;
     private final PaymentErrorController paymentErrorController;
+    private final ConfigurationOperations configurationOperations;
 
     @InjectView(R.id.subscribe_title) TextView title;
     @InjectView(R.id.subscribe_description) TextView description;
@@ -39,9 +41,11 @@ class SubscribeController extends DefaultLightCycleActivity<ActionBarActivity> {
     private ProductDetails details;
 
     @Inject
-    SubscribeController(PaymentOperations paymentOperations, PaymentErrorController paymentErrorController) {
+    SubscribeController(PaymentOperations paymentOperations, PaymentErrorController paymentErrorController,
+                        ConfigurationOperations configurationOperations) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorController = paymentErrorController;
+        this.configurationOperations = configurationOperations;
     }
 
     @Override
@@ -125,6 +129,7 @@ class SubscribeController extends DefaultLightCycleActivity<ActionBarActivity> {
         public void onNext(PurchaseStatus result) {
             switch (result) {
                 case SUCCESS:
+                    configurationOperations.update();
                     showSuccessScreen();
                     break;
                 case VERIFY_FAIL:

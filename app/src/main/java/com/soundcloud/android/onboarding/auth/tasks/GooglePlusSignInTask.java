@@ -6,7 +6,9 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
@@ -27,16 +29,17 @@ public class GooglePlusSignInTask extends LoginTask {
     protected String accountName, scope;
     private AccountOperations accountOperations;
 
-    public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope) {
+    public GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
+                                ConfigurationOperations configurationOperations, EventBus eventBus, AccountOperations accountOperations) {
         this(application, accountName, scope, new TokenInformationGenerator(new PublicApi(application)),
                 new FetchUserTask(new PublicApi(application)),
-                new UserStorage(), application.getAccountOperations());
+                new UserStorage(), accountOperations, configurationOperations, eventBus);
     }
 
     protected GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
                                    TokenInformationGenerator tokenInformationGenerator, FetchUserTask fetchUserTask, UserStorage userStorage,
-                                   AccountOperations accountOperations) {
-        super(application, tokenInformationGenerator, fetchUserTask, userStorage);
+                                   AccountOperations accountOperations, ConfigurationOperations configurationOperations, EventBus eventBus) {
+        super(application, tokenInformationGenerator, fetchUserTask, userStorage, configurationOperations, eventBus, accountOperations);
         this.accountName = accountName;
         this.scope = scope;
         extras = new Bundle();

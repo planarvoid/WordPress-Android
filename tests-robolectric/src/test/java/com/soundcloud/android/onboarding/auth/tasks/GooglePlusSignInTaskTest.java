@@ -6,7 +6,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.stub;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,15 +16,17 @@ import com.google.android.gms.auth.GoogleAuthUtil;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.api.oauth.Token;
+import com.soundcloud.android.configuration.ConfigurationOperations;
+import com.soundcloud.android.configuration.DeviceManagement;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
-import com.soundcloud.android.api.oauth.Token;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,12 +51,14 @@ public class GooglePlusSignInTaskTest {
     @Mock private AccountOperations accountOperations;
     @Mock private PublicApiUser user;
     @Mock private Token token;
+    @Mock private ConfigurationOperations configurationOperations;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         when(app.getAccountOperations()).thenReturn(accountOperations);
-        when(app.getEventBus()).thenReturn(mock(EventBus.class));
-        task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage, accountOperations);
+        when(configurationOperations.registerDevice(token)).thenReturn(new DeviceManagement(true, "device-id"));
+        task = new GooglePlusSignInTask(app, ACCOUNT_NAME, SCOPE, tokenInformationGenerator, fetchUserTask, userStorage,
+                accountOperations, configurationOperations, new TestEventBus());
 
         stub(tokenInformationGenerator.getGrantBundle(anyString(),anyString())).toReturn(bundle);
     }

@@ -622,6 +622,11 @@
     <string name="age_verify_year_hint">Enter year</string>
     <string name="age_verify_button">Verify age</string>
 
+    <!-- DEVICE MANAGEMENT -->
+    <string name="device_management_limit">You\'ve reached the registered device limit.</string>
+    <string name="device_management_login_message">Your subscription is limited to 3 devices. You can register this device and sign out of the device you used last by selecting continue.</string>
+    <string name="device_management_continue">Continue</string>
+
     <!-- MONTH PICKER DIALOG -->
     <string name="select_month">Select month</string>
     <string-array name="select_month_options">

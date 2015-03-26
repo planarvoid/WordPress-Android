@@ -10,6 +10,8 @@ import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.os.Bundle;
+
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -59,6 +61,14 @@ public class AuthTaskResultTest {
     public void shouldCreateEmailInvalidResult() throws CreateModelException {
         AuthTaskResult result = AuthTaskResult.emailInvalid();
         expect(result.wasEmailInvalid()).toBeTrue();
+    }
+
+    @Test
+    public void shouldCreateDeviceConflictFailure() throws CreateModelException {
+        final Bundle loginBundle = new Bundle();
+        AuthTaskResult result = AuthTaskResult.deviceConflict(loginBundle);
+        expect(result.wasDeviceConflict()).toBeTrue();
+        expect(result.getLoginBundle()).toBe(loginBundle);
     }
 
 }

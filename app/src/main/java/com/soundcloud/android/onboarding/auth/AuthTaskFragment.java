@@ -2,10 +2,14 @@ package com.soundcloud.android.onboarding.auth;
 
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
@@ -20,13 +24,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
+import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public abstract class AuthTaskFragment extends DialogFragment {
     private AuthTask task;
     private AuthTaskResult result;
     private WeakReference<OnAuthResultListener> listenerRef;
-    private NetworkConnectionHelper networkConnectionHelper;
+
+    @Inject NetworkConnectionHelper networkConnectionHelper;
+    @Inject ConfigurationOperations configurationOperations;
+    @Inject EventBus eventBus;
+    @Inject AccountOperations accountOperations;
 
     public interface OnAuthResultListener {
         void onAuthTaskComplete(PublicApiUser user, SignupVia signupVia, boolean shouldAddUserInfo, boolean showFacebookSuggestions);
@@ -35,6 +44,11 @@ public abstract class AuthTaskFragment extends DialogFragment {
         void onSpam();
         void onBlocked();
         void onEmailInvalid();
+        void onDeviceConflict(Bundle loginBundle);
+    }
+
+    protected AuthTaskFragment() {
+        SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @NotNull
@@ -149,6 +163,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 listener.onBlocked();
             } else if (result.wasEmailInvalid()) {
                 listener.onEmailInvalid();
+            } else if (result.wasDeviceConflict()) {
+                listener.onDeviceConflict(result.getLoginBundle());
             } else {
                 listener.onError(getErrorFromResult((Activity) listener, result));
             }
