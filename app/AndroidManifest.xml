@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:installLocation="auto" android:versionCode="189" android:versionName="15.03.12" package="com.soundcloud.android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:installLocation="auto"
+    android:versionCode="189"
+    android:versionName="15.03.12"
+    package="com.soundcloud.android">
+
+    <uses-sdk tools:overrideLibrary="com.google.sample.castcompanionlibrary" />
 
     <supports-screens android:anyDensity="true"/>
-    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="21"/>
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET"/>

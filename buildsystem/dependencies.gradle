@@ -12,9 +12,6 @@ allprojects {
 ext {
   //Android
   androidBuildToolsVersion = '21.1.2'
-  androidCompileSdkVersion = 21
-  androidMinSdkVersion = 10
-  androidTargetSdkVersion = 21
 
   //Google Android
   androidSupportLibraryVersion = '21.0.2'
@@ -71,7 +68,7 @@ ext {
   equalsVerifierVersion = '1.4.1'
   jsonVersion = '20080701'
   guavaVersion = '14.0.1'
-  androidNetworkManager = '18'
+  androidNetworkManager = '21'
 
   libraries = [
       daggerCompiler:               "com.squareup.dagger:dagger-compiler:${daggerVersion}",
