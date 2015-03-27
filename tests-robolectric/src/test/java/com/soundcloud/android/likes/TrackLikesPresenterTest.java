@@ -75,6 +75,7 @@ public class TrackLikesPresenterTest {
                 adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
                 eventBus, imageOperations, pullToRefreshWrapper);
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
+        when(listView.getHeaderViewsCount()).thenReturn(1);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
@@ -117,11 +118,12 @@ public class TrackLikesPresenterTest {
         final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
         final List<Urn> likedUrns = Arrays.asList(TRACK_URN);
         final Observable<List<Urn>> likedUrnsObservable = Observable.just(likedUrns);
+
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(playbackOperations.playLikes(eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(likedUrnsObservable);
 
-        presenter.onItemClick(listView, view, 0, 0);
+        presenter.onItemClick(listView, view, 1, 0);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(likedUrns));
     }
