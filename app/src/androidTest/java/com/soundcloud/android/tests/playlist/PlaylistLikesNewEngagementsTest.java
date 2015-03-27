@@ -56,9 +56,11 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     }
 
     private void unlikePlaylistIfLiked(PlaylistDetailsScreen playlistDetailsScreen) {
+        networkManager.switchWifiOff();
         if (playlistDetailsScreen.isLiked()) {
             playlistDetailsScreen.touchToggleLike();
         }
+        networkManager.switchWifiOn();
     }
 
     public void testLikingAndUnlikingPlaylistFromOverflowMenu() {
