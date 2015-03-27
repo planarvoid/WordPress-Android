@@ -75,7 +75,7 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
         }
 
         public NotificationPlaybackRemoteViews create(String packageName) {
-            return create(packageName, R.layout.playback_status_v11);
+            return create(packageName, R.layout.playback_status);
         }
 
         public NotificationPlaybackRemoteViews create(String packageName, int layout){

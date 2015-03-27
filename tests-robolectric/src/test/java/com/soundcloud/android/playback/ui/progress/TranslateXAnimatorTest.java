@@ -2,15 +2,14 @@ package com.soundcloud.android.playback.ui.progress;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.animation.ObjectAnimator;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TranslateXAnimatorTest {
@@ -36,9 +35,4 @@ public class TranslateXAnimatorTest {
         expect(animator.getPropertyName()).toEqual("translationX");
     }
 
-    @Test
-    public void createAnimatorCreatesAnimatorWithLinearInterpolator() {
-        ObjectAnimator animator = translateXAnimator.createAnimator(0f, 100f);
-        expect(animator.getInterpolator()).toBeInstanceOf(LinearInterpolator.class);
-    }
 }

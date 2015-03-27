@@ -73,16 +73,8 @@ public class ApplicationProperties {
         return IS_RUNNING_ON_DEVICE;
     }
 
-    public boolean isRunningOnEmulator(){
-        return IS_RUNNING_ON_EMULATOR;
-    }
-
     public boolean isDevBuildRunningOnDevice(){
         return isDebugBuild() && IS_RUNNING_ON_DEVICE;
-    }
-
-    public boolean shouldUseRichNotifications() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
     public boolean shouldUseBigNotifications() {

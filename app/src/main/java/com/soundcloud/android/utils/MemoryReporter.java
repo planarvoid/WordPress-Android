@@ -1,8 +1,6 @@
 package com.soundcloud.android.utils;
 
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
-import android.os.Build;
 import android.os.Debug;
 
 public class MemoryReporter {
@@ -21,16 +19,13 @@ public class MemoryReporter {
     public void reportSystemMemoryStats() {
         int memoryClass = activityManager.getMemoryClass();
         logClass(memoryClass);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            getAndLogLargeMemoryClass();
-        }
+        getAndLogLargeMemoryClass();
 
         activityManager.getMemoryInfo(MEMORY_INFO);
         long memoryThresholdInMb = bytesToMb(MEMORY_INFO.threshold);
         logThreshold(memoryThresholdInMb);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void getAndLogLargeMemoryClass() {
         int largeMemoryClass = activityManager.getLargeMemoryClass();
         logLargeClass(largeMemoryClass);

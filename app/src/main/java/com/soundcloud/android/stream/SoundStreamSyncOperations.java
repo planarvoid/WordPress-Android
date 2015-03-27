@@ -38,7 +38,7 @@ public class SoundStreamSyncOperations {
 
     @Inject
     SoundStreamSyncOperations(SoundStreamStorage soundStreamStorage,
-                              Context appContext, StreamNotificationBuilder streamNotificationBuilder,
+                              Context appContext, RichStreamNotificationBuilder streamNotificationBuilder,
                               ContentStats contentStats) {
         this.soundStreamStorage = soundStreamStorage;
         this.appContext = appContext;

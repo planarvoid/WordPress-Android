@@ -183,7 +183,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
 
     public void showIdleState() {
         currentState = IDLE;
-        // must happen in order to retain translation values for nine-old-androids on pre-honeycomb
+        // TODO: still necessary since we dropped NineOldAndroids?
         waveformView.showIdleLinesAtWaveformPositions();
         waveformView.showCollapsedWaveform();
         cancelProgressAnimations();

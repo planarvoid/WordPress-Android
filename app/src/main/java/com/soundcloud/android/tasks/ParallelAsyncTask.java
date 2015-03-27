@@ -1,17 +1,12 @@
 package com.soundcloud.android.tasks;
 
-import android.annotation.TargetApi;
 import android.os.AsyncTask;
-import android.os.Build;
 
 public abstract class ParallelAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
 
-    @TargetApi(11)
+    private static final boolean IS_UNIT_TEST_HACK = !"Dalvik".equals(System.getProperty("java.vm.name"));
+
     public final AsyncTask<Params, Progress, Result> executeOnThreadPool(Params... params) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            return execute(params);
-        } else {
-            return executeOnExecutor(THREAD_POOL_EXECUTOR, params);
-        }
+        return IS_UNIT_TEST_HACK ? execute(params) : executeOnExecutor(THREAD_POOL_EXECUTOR, params);
     }
 }

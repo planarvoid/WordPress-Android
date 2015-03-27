@@ -51,14 +51,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
-import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 
@@ -303,22 +301,19 @@ public class SoundCloudApplication extends Application {
         accountOperations = operations;
     }
 
-    @TargetApi(9)
     private static void setupStrictMode() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .build());
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .build());
 
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectAll()
-                    .penaltyLog()
-                    .build());
-        }
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .build());
     }
 
-    @Override @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    @Override
     public void onLowMemory() {
         onTrimMemory(TRIM_MEMORY_COMPLETE);
     }

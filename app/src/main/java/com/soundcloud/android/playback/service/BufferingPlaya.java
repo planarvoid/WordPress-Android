@@ -83,8 +83,4 @@ public class BufferingPlaya implements Playa {
         return false;
     }
 
-    @Override
-    public boolean isNotSeekablePastBuffer() {
-        return false;
-    }
 }

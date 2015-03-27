@@ -1,11 +1,10 @@
 package com.soundcloud.android.utils;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.v4.view.ViewCompat;
 import android.view.View;
@@ -13,6 +12,9 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public final class AnimUtils {
 
@@ -124,14 +126,14 @@ public final class AnimUtils {
         ValueAnimator animator = ValueAnimator.ofInt(startHeight, 0)
                 .setDuration(removeView.getResources().getInteger(android.R.integer.config_shortAnimTime));
         ViewCompat.setHasTransientState(removeView, true);
-        ViewHelper.setAlpha(removeView, 0);
+        removeView.setAlpha(0);
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 callback.onAnimationComplete(position);
                 removeParams.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 removeView.setLayoutParams(removeParams);
-                ViewHelper.setAlpha(removeView, 1);
+                removeView.setAlpha(1);
                 ViewCompat.setHasTransientState(removeView, false);
             }
         });
@@ -147,6 +149,20 @@ public final class AnimUtils {
 
     public static interface ItemRemovalCallback {
         void onAnimationComplete(int position);
+    }
+
+    /*
+     * Really, really do not use this! It's only here to avoid changing behaviour that was added accidentally when
+     * we were using NineOldAndroids. :'(
+     */
+    public static void clearAllAnimations() {
+        try {
+            Class clazz = ValueAnimator.class;
+            Method method = clazz.getMethod("clearAllAnimations");
+            method.invoke(null);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            // Nothing
+        }
     }
 
 }

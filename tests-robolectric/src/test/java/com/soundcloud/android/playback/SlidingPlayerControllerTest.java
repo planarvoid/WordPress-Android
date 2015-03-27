@@ -22,7 +22,6 @@ import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.TestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +29,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -38,7 +36,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SlidingPlayerControllerTest {
@@ -49,8 +46,6 @@ public class SlidingPlayerControllerTest {
     @Mock private ActionBarActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
-    @Mock private Window window;
-    @Mock private View decorView;
     @Mock private FragmentManager fragmentManager;
     @Mock private PlayerFragment playerFragment;
     @Mock private ActionBar actionBar;
@@ -61,11 +56,8 @@ public class SlidingPlayerControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.ICE_CREAM_SANDWICH);
         controller = new SlidingPlayerController(playQueueManager, eventBus);
         when(activity.findViewById(R.id.sliding_layout)).thenReturn(slidingPanel);
-        when(activity.getWindow()).thenReturn(window);
-        when(window.getDecorView()).thenReturn(decorView);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);
         when(activity.getSupportActionBar()).thenReturn(actionBar);
         when(fragmentManager.findFragmentById(R.id.player_root)).thenReturn(playerFragment);
@@ -302,15 +294,6 @@ public class SlidingPlayerControllerTest {
         expandPanel();
 
         verify(actionBar, times(1)).hide();
-    }
-
-    @Test
-    public void doesNotSetSystemUiBeforeICS() {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB_MR2);
-
-        expandPanel();
-
-        verifyZeroInteractions(decorView);
     }
 
     @Test

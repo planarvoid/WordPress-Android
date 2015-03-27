@@ -14,7 +14,6 @@ import com.soundcloud.android.screens.WhoToFollowScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 
-import android.os.Build;
 import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
@@ -40,11 +39,7 @@ public class ActionBarElement extends Element {
     }
 
     public void clickHomeButton() {
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
-            solo.clickOnActionBarHomeButton();
-        } else {
-            solo.findElement(With.id(R.id.up)).click();
-        }
+        solo.clickOnActionBarHomeButton();
     }
 
     public PlaylistTagsScreen clickSearchButton() {

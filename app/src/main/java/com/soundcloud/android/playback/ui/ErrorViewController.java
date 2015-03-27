@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.playback.ui.TrackPagePresenter.TrackPageHolder;
 
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.service.Playa;
 
@@ -78,7 +77,7 @@ class ErrorViewController {
     private void setVisible(Iterable<View> views) {
         for (View v : views) {
             v.setVisibility(View.VISIBLE);
-            ViewHelper.setAlpha(v, 1f);
+            v.setAlpha(1f);
         }
     }
 

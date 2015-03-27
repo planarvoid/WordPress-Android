@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.nineoldandroids.view.ViewHelper;
-
 import android.util.Pair;
 import android.view.View;
 
@@ -36,7 +34,7 @@ class SlideAnimationHelper {
 
     private void setAlpha(float alpha, View view) {
         final float adjustedAlpha = Math.min(1.0f, Math.max(0.0f, alpha));
-        ViewHelper.setAlpha(view, adjustedAlpha);
+        view.setAlpha(adjustedAlpha);
         view.setVisibility(adjustedAlpha > 0 ? View.VISIBLE : View.GONE);
     }
 

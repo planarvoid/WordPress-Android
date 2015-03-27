@@ -9,12 +9,12 @@ import android.content.Context;
 import android.graphics.Bitmap;
 
 @SuppressWarnings("UnusedDeclaration")
-public class FroyoRemoteAudioManager extends FroyoAudioManager implements IRemoteAudioManager {
+public class FallbackRemoteAudioManager extends AudioFocusManager implements IRemoteAudioManager {
 
     protected final Class<? extends BroadcastReceiver> RECEIVER = RemoteControlReceiver.class;
     protected final ComponentName receiverComponent;
 
-    public FroyoRemoteAudioManager(final Context context) {
+    public FallbackRemoteAudioManager(final Context context) {
         super(context);
         receiverComponent = new ComponentName(context, RECEIVER);
     }

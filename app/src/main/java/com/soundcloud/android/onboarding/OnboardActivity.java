@@ -58,13 +58,11 @@ import org.jetbrains.annotations.Nullable;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
@@ -940,16 +938,10 @@ public class OnboardActivity extends FragmentActivity
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private AlertDialog.Builder createDefaultAuthErrorDialogBuilder(int title) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(OnboardActivity.this);
-        builder.setTitle(getString(title));
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
-            builder.setIcon(android.R.drawable.ic_dialog_alert);
-        } else {
-            builder.setIconAttribute(android.R.attr.alertDialogIcon);
-        }
-        return builder;
+        return new AlertDialog.Builder(OnboardActivity.this)
+                .setTitle(getString(title))
+                .setIconAttribute(android.R.attr.alertDialogIcon);
     }
 
     protected void setBundle(Bundle bundle) {

@@ -15,15 +15,11 @@ import rx.android.Pager;
 import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.GridView;
 import android.widget.ListAdapter;
-import android.widget.ListView;
 
 import javax.inject.Inject;
 
@@ -104,27 +100,13 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
         }
 
         absListView.setOnScrollListener(scrollListener);
-
-        compatSetAdapter(adapter);
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void compatSetAdapter(@Nullable ListAdapter adapter) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            absListView.setAdapter(adapter);
-        } else if (absListView instanceof GridView) {
-            final GridView gridView = (GridView) absListView;
-            gridView.setAdapter(adapter);
-        } else if (absListView instanceof ListView) {
-            final ListView listView = (ListView) absListView;
-            listView.setAdapter(adapter);
-        }
+        absListView.setAdapter(adapter);
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         emptyViewController.onDestroyView(fragment);
-        compatSetAdapter(null);
+        absListView.setAdapter(null);
         absListView = null;
     }
 

@@ -19,7 +19,6 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.progress.TranslateXHelper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformData;
@@ -33,9 +32,7 @@ import org.mockito.Mockito;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.util.Pair;
 import android.view.View;
 import android.widget.ImageView;
@@ -67,8 +64,6 @@ public class WaveformViewControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // 9 old Androids
-
         when(waveformView.getLeftWaveform()).thenReturn(leftWaveform);
         when(waveformView.getRightWaveform()).thenReturn(rightWaveform);
         when(waveformView.getLeftLine()).thenReturn(leftLine);
@@ -459,7 +454,6 @@ public class WaveformViewControllerTest {
         verify(waveformView).setVisibility(View.GONE);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionSetsScrubPositionOnWaveforms() {
         waveformViewController.onWaveformViewWidthChanged(500);
@@ -469,7 +463,6 @@ public class WaveformViewControllerTest {
         verify(rightWaveform).setTranslationX(-500f);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionSetsScrubPositionOnWaveformsIfPlaySessionNotActive() {
         waveformViewController.onWaveformViewWidthChanged(500);
@@ -479,7 +472,6 @@ public class WaveformViewControllerTest {
         verify(rightWaveform).setTranslationX(-500f);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionSetsScrubPositionOnLinesIfPlaySessionActive() {
         waveformViewController.onWaveformViewWidthChanged(500);

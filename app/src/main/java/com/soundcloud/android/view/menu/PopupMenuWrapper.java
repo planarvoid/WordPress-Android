@@ -1,29 +1,79 @@
 package com.soundcloud.android.view.menu;
 
-import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
-
 import android.content.Context;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.PopupMenu;
 
-public interface PopupMenuWrapper {
+import javax.inject.Inject;
 
-    void inflate(int menuResourceId);
-    MenuItem findItem(int itemId);
-    void setOnMenuItemClickListener(PopupMenuWrapperListener popupMenuWrapperListener);
-    void setOnDismissListener(PopupMenuWrapperListener popupMenuWrapperListener);
-    void show();
-    void setItemVisible(int itemId, boolean visible);
-    void setItemEnabled(int itemId, boolean enabled);
-    void setItemText(int itemId, String text);
+public class PopupMenuWrapper {
 
-    void dismiss();
+    private final PopupMenu popupMenu;
 
-    interface OnMenuItemClickListener {
+    public interface PopupMenuWrapperListener {
         boolean onMenuItemClick(MenuItem menuItem);
+        void onDismiss();
     }
 
-    interface Factory {
-        PopupMenuWrapper build(Context context, View anchor);
+    public PopupMenuWrapper(PopupMenu popupMenu) {
+        this.popupMenu = popupMenu;
     }
+
+    public void inflate(int menuResourceId) {
+        popupMenu.inflate(menuResourceId);
+    }
+
+    public MenuItem findItem(int itemId) {
+        return popupMenu.getMenu().findItem(itemId);
+    }
+
+    public void setOnMenuItemClickListener(final PopupMenuWrapperListener popupMenuWrapperListener) {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                return popupMenuWrapperListener.onMenuItemClick(item);
+            }
+        });
+    }
+
+    public void setOnDismissListener(final PopupMenuWrapperListener popupMenuWrapperListener) {
+        popupMenu.setOnDismissListener(new PopupMenu.OnDismissListener() {
+            @Override
+            public void onDismiss(PopupMenu menu) {
+                popupMenuWrapperListener.onDismiss();
+            }
+        });
+    }
+
+    public void show() {
+        popupMenu.show();
+    }
+
+    public void setItemVisible(int itemId, boolean visible) {
+        popupMenu.getMenu().findItem(itemId).setVisible(visible);
+    }
+
+    public void setItemEnabled(int itemId, boolean enabled) {
+        popupMenu.getMenu().findItem(itemId).setEnabled(enabled);
+    }
+
+    public void setItemText(int itemId, String text) {
+        popupMenu.getMenu().findItem(itemId).setTitle(text);
+    }
+
+    public void dismiss() {
+        popupMenu.dismiss();
+    }
+
+    public static class Factory {
+        @Inject
+        public Factory() {
+            // for dagger
+        }
+        public PopupMenuWrapper build(Context context, View anchor) {
+            return new PopupMenuWrapper(new PopupMenu(context, anchor));
+        }
+    }
+
 }

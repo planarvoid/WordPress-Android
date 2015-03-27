@@ -43,7 +43,6 @@ ext {
   androidCropVersion = '0.9.10'
   universalImageLoaderVersion = '1.9.2'
   androidStyledDialogsVersion = '1.1.2'
-  nineOldAndroidsVersion = '2.4.0.1-SOUNDCLOUD'
   facebookReboundVersion = '0.3.4'
   facebookAndroidSdkVersion = '3.20.0'
   castCompanionLibraryVersion = '1.14-SOUNDCLOUD'
@@ -99,7 +98,6 @@ ext {
       rxJavaDebug:                  "io.reactivex:rxjava-debug:${rxJavaDebugVersion}",
       universalImageLoader:         "com.nostra13.universalimageloader:universal-image-loader:${universalImageLoaderVersion}",
       androidStyledDialogs:         "eu.inmite.android.lib:android-styled-dialogs:${androidStyledDialogsVersion}@aar",
-      nineOldAndroids:              "com.nineoldandroids:library:${nineOldAndroidsVersion}",
       facebookRebound:              "com.facebook.rebound:rebound:${facebookReboundVersion}",
       facebookAndroidSdk:           "com.facebook.android:facebook-android-sdk:${facebookAndroidSdkVersion}@aar",
       butterKnife:                  "com.jakewharton:butterknife:${butterKnifeVersion}",

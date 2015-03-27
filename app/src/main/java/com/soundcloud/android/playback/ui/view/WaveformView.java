@@ -4,13 +4,12 @@ import com.facebook.rebound.SimpleSpringListener;
 import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.view.FixedWidthView;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import com.soundcloud.android.waveform.WaveformData;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -124,12 +123,12 @@ public class WaveformView extends FrameLayout {
         dragViewHolder = (ListenableHorizontalScrollView) findViewById(R.id.drag_view_holder);
         dragViewHolder.setOverScrollMode(View.OVER_SCROLL_NEVER);
 
-        ViewHelper.setScaleY(leftWaveform, 0);
-        ViewHelper.setScaleY(rightWaveform, 0);
+        leftWaveform.setScaleY(0);
+        rightWaveform.setScaleY(0);
 
         // pivot positions for scaling animations
-        ViewHelper.setPivotY(leftWaveform, baseline);
-        ViewHelper.setPivotY(rightWaveform, baseline);
+        leftWaveform.setPivotY(baseline);
+        rightWaveform.setPivotY(baseline);
 
         leftLine = (ImageView) findViewById(R.id.line_left);
         rightLine = (ImageView) findViewById(R.id.line_right);
@@ -167,10 +166,10 @@ public class WaveformView extends FrameLayout {
     }
 
     void setWaveformTranslations(int leftTranslation, int rightTranslation) {
-        ViewHelper.setTranslationX(leftWaveform, leftTranslation);
-        ViewHelper.setTranslationX(rightWaveform, rightTranslation);
-        ViewHelper.setTranslationX(leftLine, leftTranslation);
-        ViewHelper.setTranslationX(rightLine, rightTranslation);
+        leftWaveform.setTranslationX(leftTranslation);
+        rightWaveform.setTranslationX(rightTranslation);
+        leftLine.setTranslationX(leftTranslation);
+        rightLine.setTranslationX(rightTranslation);
     }
 
     void showExpandedWaveform() {
@@ -181,13 +180,13 @@ public class WaveformView extends FrameLayout {
             @Override
             public void onSpringUpdate(Spring spring) {
                 float value = (float) spring.getCurrentValue();
-                ViewHelper.setScaleY(rightWaveform, value);
-                ViewHelper.setScaleY(leftWaveform, value);
+                rightWaveform.setScaleY(value);
+                leftWaveform.setScaleY(value);
                 invalidate(); // can we do anything cheaper than this?
             }
         });
         springY.setSpringConfig(SpringConfig.fromOrigamiTensionAndFriction(SPRING_TENSION, SPRING_FRICTION));
-        springY.setCurrentValue(ViewHelper.getScaleY(leftWaveform));
+        springY.setCurrentValue(leftWaveform.getScaleY());
         springY.setEndValue(1);
 
         hideIdleLines();
@@ -212,8 +211,9 @@ public class WaveformView extends FrameLayout {
     }
 
     void showIdleLinesAtWaveformPositions() {
-        ViewHelper.setTranslationX(leftLine, ViewHelper.getTranslationX(leftWaveform));
-        ViewHelper.setTranslationX(rightLine, ViewHelper.getTranslationX(rightWaveform));
+        leftLine.setTranslationX(leftWaveform.getTranslationX());
+        rightLine.setTranslationX(rightWaveform.getTranslationX());
+
         leftLine.setVisibility(View.VISIBLE);
         rightLine.setVisibility(View.VISIBLE);
     }
@@ -237,7 +237,7 @@ public class WaveformView extends FrameLayout {
     }
 
     private ObjectAnimator createScaleDownAnimator(View animateView) {
-        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", ViewHelper.getScaleY(animateView), 0f);
+        final ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(animateView, "scaleY", animateView.getScaleY(), 0f);
         objectAnimator.setDuration(SCALE_DOWN_DURATION);
         objectAnimator.setInterpolator(new DecelerateInterpolator());
         return objectAnimator;
@@ -275,12 +275,12 @@ public class WaveformView extends FrameLayout {
         rightWaveform.setImageBitmap(bitmaps.second);
 
         // scale down as they will be scaled up when playback active
-        ViewHelper.setScaleY(leftWaveform, 0);
-        ViewHelper.setScaleY(rightWaveform, 0);
+        leftWaveform.setScaleY(0);
+        rightWaveform.setScaleY(0);
     }
 
     Pair<Bitmap, Bitmap> createWaveforms(WaveformData waveformData, int width) {
-        return new Pair<Bitmap, Bitmap>(
+        return new Pair<>(
                 createWaveform(waveformData, width, progressAbovePaint, progressBelowPaint),
                 createWaveform(waveformData, width, unplayedAbovePaint, unplayedBelowPaint)
         );

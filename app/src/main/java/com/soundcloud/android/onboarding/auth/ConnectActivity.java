@@ -5,7 +5,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.upload.tasks.NewConnectionTask;
 import com.soundcloud.android.main.TrackedActivity;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -13,7 +12,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.net.http.SslError;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -116,23 +114,19 @@ public class ConnectActivity extends TrackedActivity {
         CookieManager.getInstance().removeAllCookie();
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void showConnectionError(final String message) {
         if (!isFinishing()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+            new AlertDialog.Builder(this)
                     .setMessage(message)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             finish();
                         }
-                    });
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.GINGERBREAD_MR1) {
-                builder.setIcon(android.R.drawable.ic_dialog_alert);
-            } else {
-                builder.setIconAttribute(android.R.attr.alertDialogIcon);
-            }
-            builder.create().show();
+                    })
+                    .setIconAttribute(android.R.attr.alertDialogIcon)
+                    .create()
+                    .show();
         }
     }
 

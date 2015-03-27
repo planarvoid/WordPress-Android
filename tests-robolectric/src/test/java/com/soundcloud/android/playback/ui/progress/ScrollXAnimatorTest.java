@@ -2,26 +2,25 @@ package com.soundcloud.android.playback.ui.progress;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.animation.ObjectAnimator;
 import android.view.View;
-import android.view.animation.LinearInterpolator;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ScrollXAnimatorTest {
 
-    private ScrollXAnimator scrollXAnimator;
-
     @Mock private View progressView;
+
+    private ScrollXAnimator scrollXAnimator;
 
     @Before
     public void setUp() throws Exception {
-        scrollXAnimator = new ScrollXAnimator(progressView, 0, 100);
+        scrollXAnimator = new ScrollXAnimator(progressView, 0f, 100f);
     }
 
     @Test
@@ -31,14 +30,9 @@ public class ScrollXAnimatorTest {
     }
 
     @Test
-    public void createAnimatorCreatesAnimatorForScrolLXProperty() {
+    public void createAnimatorCreatesAnimatorForScrollXProperty() {
         ObjectAnimator animator = scrollXAnimator.createAnimator(0f, 100f);
         expect(animator.getPropertyName()).toEqual("scrollX");
     }
 
-    @Test
-    public void createAnimatorCreatesAnimatorWithLinearInterpolator() {
-        ObjectAnimator animator = scrollXAnimator.createAnimator(0f, 100f);
-        expect(animator.getInterpolator()).toBeInstanceOf(LinearInterpolator.class);
-    }
 }

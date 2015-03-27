@@ -1,9 +1,9 @@
 package com.soundcloud.android.playback.ui.progress;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.soundcloud.android.playback.PlaybackProgress;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.view.View;
 
 import javax.inject.Inject;

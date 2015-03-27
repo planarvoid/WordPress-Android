@@ -447,9 +447,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             }
 
             final long currentPos = (mediaPlayer != null && !internalState.isError()) ? mediaPlayer.getCurrentPosition() : 0;
-            // workaround for devices which can't do content-range requests
-            if ((isNotSeekablePastBuffer() && isPastBuffer(ms)) || mediaPlayer == null) {
-                Log.d(TAG, "MediaPlayer bug: cannot seek past buffer");
+            if (mediaPlayer == null) {
                 return currentPos;
             } else {
                 long duration = getDuration();
@@ -558,11 +556,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     @Override
     public boolean isSeekable() {
         return mediaPlayer != null && internalState.isSeekable();
-    }
-
-    @Override
-    public boolean isNotSeekablePastBuffer() {
-        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.FROYO && StreamProxy.isOpenCore();
     }
 
     @Override
