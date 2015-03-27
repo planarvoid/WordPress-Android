@@ -142,15 +142,16 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         // here we assume that the list you are looking at is up to date with the database, which is not necessarily the case
         // a sync may have happened in the background. This is def. an edge case, but worth handling maybe??
-        TrackItem item = adapter.getItem(position);
+        final int realPosition = position - ((ListView) adapterView).getHeaderViewsCount();
+        TrackItem item = adapter.getItem(realPosition);
         if (item == null) {
-            String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + position;
+            String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + realPosition;
             ErrorUtils.handleSilentException(new IllegalStateException(exceptionMessage));
         } else {
             Urn initialTrack = item.getEntityUrn();
             PlaySessionSource playSessionSource = new PlaySessionSource(Screen.SIDE_MENU_LIKES);
             playbackOperations
-                    .playLikes(initialTrack, position, playSessionSource)
+                    .playLikes(initialTrack, realPosition, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
         }
     }
