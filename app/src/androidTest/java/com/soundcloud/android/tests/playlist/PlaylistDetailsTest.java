@@ -63,7 +63,6 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
     }
 
     public void testRemovingAndAddingTrackFromPlaylist() throws Exception {
-        networkManager.switchWifiOff();
         String title = playlistDetailsScreen.getTitle();
         int initialTrackCount = playlistsScreen.getLoadedTrackCount();
 
@@ -82,6 +81,5 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         player.pressBackToCollapse();
 
         assertThat(playlistsScreen.getLoadedTrackCount(), is(initialTrackCount));
-        networkManager.switchWifiOn();
     }
 }
