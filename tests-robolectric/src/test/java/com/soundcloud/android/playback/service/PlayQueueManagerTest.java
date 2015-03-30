@@ -633,6 +633,18 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void shouldNotSetEmptyPlayQueue() {
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), 1, playSessionSource);
+        when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.just(PlayQueue.empty()));
+        when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
+        when(playQueueOperations.getLastStoredSeekPosition()).thenReturn(400L);
+
+        playQueueManager.loadPlayQueueAsync();
+
+        expect(playQueueManager.getCurrentTrackUrn()).toEqual(Urn.forTrack(2L));
+    }
+
+    @Test
     public void shouldSetPlayProgressInfoWhenReloadingPlayQueue() {
         when(playQueueOperations.getLastStoredPlayQueue()).thenReturn(Observable.<PlayQueue>empty());
         when(playQueueOperations.getLastStoredPlayingTrackId()).thenReturn(456L);
