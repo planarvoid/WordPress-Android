@@ -19,6 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +41,9 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public static final String PLAYQUEUE_CHANGED_ACTION = "com.soundcloud.android.playlistchanged";
     public static final String RELATED_LOAD_STATE_CHANGED_ACTION = "com.soundcloud.android.related.changed";
+
     private static final String UI_ASSERTION_MESSAGE = "Play queues must be set from the main thread only.";
+    private static final String TAG = "PlayQueueManager";
 
     private final Context context;
 
@@ -251,18 +254,23 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
+            final long lastStoredPlayingTrackId = playQueueOperations.getLastStoredPlayingTrackId();
             playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
                 @Override
                 public void onNext(PlayQueue savedQueue) {
-                    currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                    setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                    if (showPlayerAfterLoad){
-                        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+                    if (!savedQueue.isEmpty()){
+                        currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                        setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                        if (showPlayerAfterLoad){
+                            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+                        }
+                    } else {
+                        Log.e(TAG, "Not setting empty playqueue on reload, last played id : " + lastStoredPlayingTrackId);
                     }
                 }
             });
             // return so player can have the resume information while load is in progress
-            playbackProgressInfo = new PlaybackProgressInfo(playQueueOperations.getLastStoredPlayingTrackId(), playQueueOperations.getLastStoredSeekPosition());
+            playbackProgressInfo = new PlaybackProgressInfo(lastStoredPlayingTrackId, playQueueOperations.getLastStoredSeekPosition());
         }
     }
 
