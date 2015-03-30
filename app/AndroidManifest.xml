@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto"
-    android:versionCode="191"
+    android:versionCode="192"
     android:versionName="15.03.30"
     package="com.soundcloud.android">
 
