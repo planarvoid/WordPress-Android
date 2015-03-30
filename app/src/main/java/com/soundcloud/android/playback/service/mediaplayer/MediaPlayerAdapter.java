@@ -1,33 +1,30 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
-import com.soundcloud.android.events.PlayerType;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiUrlBuilder;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
-import com.soundcloud.android.playback.streaming.StreamItem;
-import com.soundcloud.android.playback.streaming.StreamProxy;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
@@ -47,7 +44,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     public static final int MAX_CONNECT_RETRIES = 2;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
 
-    private final StreamProxy proxy;
     private final Context context;
     private final MediaPlayerManager mediaPlayerManager;
     private final PlayerHandler playerHandler;
@@ -55,6 +51,8 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private final NetworkConnectionHelper networkConnectionHelper;
     private final AccountOperations accountOperations;
     private final BufferUnderrunListener bufferUnderrunListener;
+    private final ApiUrlBuilder urlBuilder;
+    private final DateProvider dateProvider;
 
     private PlaybackState internalState = PlaybackState.STOPPED;
 
@@ -70,26 +68,23 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private double loadPercent;
     @Nullable
     private PlayaListener playaListener;
-    private Subscription uriSubscription = Subscriptions.empty();
 
     private long prepareStartTimeMs;
 
     @Inject
-    public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager, StreamProxy streamProxy,
+    public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
                               PlayerHandler playerHandler, EventBus eventBus, NetworkConnectionHelper networkConnectionHelper,
-                              AccountOperations accountOperations, BufferUnderrunListener bufferUnderrunListener) {
+                              AccountOperations accountOperations, BufferUnderrunListener bufferUnderrunListener, ApiUrlBuilder urlBuilder, DateProvider dateProvider) {
         this.bufferUnderrunListener = bufferUnderrunListener;
+        this.urlBuilder = urlBuilder;
+        this.dateProvider = dateProvider;
         this.context = context.getApplicationContext();
         this.mediaPlayerManager = mediaPlayerManager;
-        this.proxy = streamProxy;
         this.playerHandler = playerHandler;
         this.eventBus = eventBus;
         this.playerHandler.setMediaPlayerAdapter(this);
         this.networkConnectionHelper = networkConnectionHelper;
         this.accountOperations = accountOperations;
-
-        // perhaps start this lazily?
-        proxy.start();
     }
 
     @Override
@@ -112,17 +107,21 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         seekPos = POS_NOT_SET;
 
         setInternalState(PlaybackState.PREPARING);
+        prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
-        uriSubscription.unsubscribe();
-        uriSubscription = proxy.uriObservable(getStreamUrlAppendedId(this.track), null)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new MediaPlayerDataSourceObserver());
+        try {
+            mediaPlayer.setDataSource(getStreamUrl(track));
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            handleMediaPlayerError(mediaPlayer, resumePos);
+        }
     }
 
-    private String getStreamUrlAppendedId(PropertySet track){
-        final String streamUrl = track.get(TrackProperty.STREAM_URL);
-        final String trackId = String.valueOf(track.get(TrackProperty.URN).getNumericId());
-        return Uri.parse(streamUrl).buildUpon().appendQueryParameter(StreamItem.TRACK_ID_KEY, trackId).build().toString();
+    private String getStreamUrl(PropertySet track) {
+        Token token = accountOperations.getSoundCloudToken();
+        return urlBuilder.from(ApiEndpoints.HTTP_STREAM, track.get(TrackProperty.URN))
+                .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
+                .build();
     }
 
     @Override
@@ -136,27 +135,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         throw new IllegalStateException("MediaPlayer cannot play offline content!!");
     }
 
-    private class MediaPlayerDataSourceObserver extends DefaultSubscriber<Uri> {
-        @Override
-        public void onError(Throwable e) {
-            setInternalState(PlaybackState.ERROR);
-            Log.e(TAG, "Could not retrieve proxy uri ", e);
-        }
-
-        @Override
-        public void onNext(Uri uri) {
-            if (mediaPlayer != null) {
-                try {
-                    mediaPlayer.setDataSource(uri.toString());
-                    mediaPlayer.prepareAsync();
-                    prepareStartTimeMs = System.currentTimeMillis();
-                } catch (IOException e){
-                    handleMediaPlayerError(mediaPlayer, resumePos);
-                }
-            }
-        }
-    }
-
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         if(!accountOperations.isUserLoggedIn()) {
@@ -166,7 +144,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
             if (playaListener != null && playaListener.requestAudioFocus()) {
                 play();
-                publishTimeToPlayEvent(System.currentTimeMillis() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
+                publishTimeToPlayEvent(dateProvider.getCurrentDate().getTime() - prepareStartTimeMs, track.get(TrackProperty.STREAM_URL));
 
                 if (resumePos > 0) {
                     seek(resumePos, true);
@@ -424,10 +402,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         stop();
         // make sure there aren't any other messages coming
         playerHandler.removeCallbacksAndMessages(null);
-
-        if (proxy != null && proxy.isRunning()) {
-            proxy.stop();
-        }
     }
 
     @Override
@@ -583,7 +557,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
             setInternalState(PlaybackState.STOPPED, progress, duration);
         }
-        uriSubscription.unsubscribe();
     }
 
     @Override
