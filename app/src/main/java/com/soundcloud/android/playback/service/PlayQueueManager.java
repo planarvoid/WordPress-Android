@@ -254,10 +254,12 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
             playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
                 @Override
                 public void onNext(PlayQueue savedQueue) {
-                    currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                    setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                    if (showPlayerAfterLoad){
-                        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+                    if (!savedQueue.isEmpty()){
+                        currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                        setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                        if (showPlayerAfterLoad){
+                            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+                        }
                     }
                 }
             });
