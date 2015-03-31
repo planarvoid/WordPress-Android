@@ -42,7 +42,7 @@ class TrackLikesHeaderView {
     }
 
     public void attachToList(ListView listView) {
-        listView.addHeaderView(headerView);
+        listView.addHeaderView(headerView, null, false);
     }
 
     void setOnShuffleButtonClick(View.OnClickListener listener) {
