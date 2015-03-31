@@ -3,6 +3,7 @@ package com.soundcloud.android.analytics;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
+import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.squareup.okhttp.OkHttpClient;
@@ -35,7 +36,7 @@ public class TrackingApiFactoryTest {
 
     @Test
     public void createsSimpleApiForOtherBackends() {
-        TrackingApi trackingApi = apiFactory.create(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        TrackingApi trackingApi = apiFactory.create(PlayCountAnalyticsProvider.BACKEND_NAME);
         expect(trackingApi).toBeInstanceOf(SimpleTrackingApi.class);
     }
 

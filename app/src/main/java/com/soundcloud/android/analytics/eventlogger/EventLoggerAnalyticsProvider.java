@@ -1,7 +1,5 @@
 package com.soundcloud.android.analytics.eventlogger;
 
-import android.content.SharedPreferences;
-
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
@@ -22,33 +20,31 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.DeveloperSettings;
 
+import android.content.SharedPreferences;
+
 import javax.inject.Inject;
 
 @SuppressWarnings("PMD.UncommentedEmptyMethod")
 public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
-    public static final String LEGACY_BACKEND_NAME = "eventlogger";
     public static final String BATCH_BACKEND_NAME = "boogaloo";
 
     private final EventTracker eventTracker;
-    private final EventLoggerDataBuilder dataBuilder;
+    private final EventLoggerJsonDataBuilder dataBuilder;
     private final FeatureFlags flags;
-
-    private final String currentBackend;
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerDataBuilderFactory dataBuilderFactory, FeatureFlags flags, SharedPreferences sharedPreferences) {
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerJsonDataBuilder dataBuilder, FeatureFlags flags, SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
-        currentBackend = flags.isEnabled(Flag.EVENTLOGGER_BATCHING) ? BATCH_BACKEND_NAME : LEGACY_BACKEND_NAME;
-        dataBuilder = dataBuilderFactory.create(currentBackend);
+        this.dataBuilder = dataBuilder;
         this.eventTracker = eventTracker;
         this.flags = flags;
     }
 
     @Override
     public void flush() {
-        eventTracker.flush(currentBackend);
+        eventTracker.flush(BATCH_BACKEND_NAME);
     }
 
     @Override
@@ -70,7 +66,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleVisualAdImpression((VisualAdImpressionEvent) event);
         } else if (event instanceof AdOverlayTrackingEvent) {
             handleLeaveBehindTracking((AdOverlayTrackingEvent) event);
-        } else if (event instanceof ScreenEvent && flags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)) {
+        } else if (event instanceof ScreenEvent) {
             handleScreenEvent((ScreenEvent) event);
         } else if (event instanceof SearchEvent) {
             handleSearchEvent((SearchEvent) event);
@@ -150,9 +146,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void trackEvent(long timeStamp, String data) {
-        eventTracker.trackEvent(new TrackingRecord(timeStamp, currentBackend, data));
+        eventTracker.trackEvent(new TrackingRecord(timeStamp, BATCH_BACKEND_NAME, data));
         if (sharedPreferences.getBoolean(DeveloperSettings.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)){
-            eventTracker.flush(currentBackend);
+            eventTracker.flush(BATCH_BACKEND_NAME);
         }
     }
 

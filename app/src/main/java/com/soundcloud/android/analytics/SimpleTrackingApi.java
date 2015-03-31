@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics;
 
 import com.google.common.net.HttpHeaders;
-import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.utils.DeviceHelper;
@@ -73,9 +72,7 @@ class SimpleTrackingApi implements TrackingApi {
         request.url(event.getData());
         request.addHeader(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
 
-        if (EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME.equals(event.getBackend())) {
-            request.head();
-        } else if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
+        if (PlayCountAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {
             request.post(null);
             request.addHeader("Content-Length", "0");
         } else if (PromotedAnalyticsProvider.BACKEND_NAME.equals(event.getBackend())) {

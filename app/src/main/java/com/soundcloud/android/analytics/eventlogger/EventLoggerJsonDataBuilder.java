@@ -1,5 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiMapperException;
@@ -25,9 +26,21 @@ import android.content.res.Resources;
 
 import javax.inject.Inject;
 
-public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
+public class EventLoggerJsonDataBuilder {
 
+    private static final String MONETIZATION_TYPE_AUDIO_AD = "audio_ad";
+    // event types
+    private static final String PAGEVIEW_EVENT = "pageview";
+    private static final String CLICK_EVENT = "click";
+    private static final String IMPRESSION_EVENT = "impression";
+    private static final String AUDIO_EVENT = "audio";
+    private static final String AUDIO_PERFORMANCE_EVENT = "audio_performance";
+    private static final String AUDIO_ERROR_EVENT = "audio_error";
     private static final String BOOGALOO_VERSION = "v0.0.0";
+    protected final String appId;
+    protected final DeviceHelper deviceHelper;
+    protected final ExperimentOperations experimentOperations;
+    protected final AccountOperations accountOperations;
 
     private final JsonTransformer jsonTransformer;
     private final FeatureFlags flags;
@@ -36,12 +49,14 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
     public EventLoggerJsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
                                       DeviceHelper deviceHelper, AccountOperations accountOperations,
                                       JsonTransformer jsonTransformer, FeatureFlags flags) {
-        super(resources, experimentOperations, deviceHelper, accountOperations);
+        this.accountOperations = accountOperations;
+        this.appId = resources.getString(R.string.app_id);
+        this.experimentOperations = experimentOperations;
+        this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
         this.flags = flags;
     }
 
-    @Override
     public String build(ScreenEvent event) {
         try {
             return jsonTransformer.toJson(buildBaseEvent(PAGEVIEW_EVENT, event).pageName(event.getScreenTag()));
@@ -50,7 +65,6 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
         }
     }
 
-    @Override
     public String build(UIEvent event) {
         switch (event.getKind()) {
             case UIEvent.KIND_AUDIO_AD_CLICK:
@@ -85,7 +99,6 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
                 .externalMedia(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
-    @Override
     public String build(AdOverlayTrackingEvent event) {
         if (event.getKind().equals(AdOverlayTrackingEvent.KIND_CLICK)) {
             return transform(getAudioAdClickThroughEvent(event));
@@ -117,7 +130,6 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
                 .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE));
     }
 
-    @Override
     public String build(VisualAdImpressionEvent event) {
         return transform(getVisualAdImpressionData(event));
     }
@@ -133,7 +145,6 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
                 .externalMedia(event.get(AdTrackingKeys.KEY_AD_ARTWORK_URL));
     }
 
-    @Override
     public String buildForAdFinished(PlaybackSessionEvent event) {
         return transform(buildAudioAdFinishedEvent(event));
     }
@@ -148,7 +159,6 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
     }
 
-    @Override
     public String buildForAudioAdImpression(PlaybackSessionEvent event) {
         return transform(buildAudioAdImpressionEvent(event));
     }
@@ -163,7 +173,6 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
     }
 
-    @Override
     public String buildForAudioEvent(PlaybackSessionEvent event) {
         return transform(buildAudioEvent(event));
     }
@@ -210,7 +219,6 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
         return data;
     }
 
-    @Override
     public String build(PlaybackPerformanceEvent event) {
         return transform(buildPlaybackPerformanceEvent(event));
     }
@@ -225,12 +233,10 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
                 .connectionType(event.getConnectionType().getValue());
     }
 
-    @Override
     public String build(PlaybackErrorEvent event) {
         return transform(buildPlaybackErrorEvent(event));
     }
 
-    @Override
     public String build(SearchEvent event) {
         switch (event.getKind()) {
             case SearchEvent.KIND_RESULTS:
@@ -277,4 +283,60 @@ public class EventLoggerJsonDataBuilder extends EventLoggerDataBuilder {
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {
         return new EventLoggerEventData(eventName, BOOGALOO_VERSION, appId, getAnonymousId(), getUserUrn(), String.valueOf(timestamp));
     }
+
+    private String getAnonymousId() {
+        return deviceHelper.getUdid();
+    }
+
+    private String getUserUrn() {
+        return accountOperations.getLoggedInUserUrn().toString();
+    }
+
+    private String getTrigger(TrackSourceInfo trackSourceInfo) {
+        return trackSourceInfo.getIsUserTriggered() ? "manual" : "auto";
+    }
+
+    private String getPerformanceEventType(int type) {
+        switch (type) {
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
+                return "play";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
+                return "buffer";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAYLIST:
+                return "playlist";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_SEEK:
+                return "seek";
+            case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
+                return "fragmentRate";
+            default:
+                throw new IllegalArgumentException("Unexpected metric type " + type);
+        }
+    }
+
+    private String getStopReason(PlaybackSessionEvent eventData) {
+        switch (eventData.getStopReason()) {
+            case PlaybackSessionEvent.STOP_REASON_PAUSE:
+                return "pause";
+            case PlaybackSessionEvent.STOP_REASON_BUFFERING:
+                return "buffering";
+            case PlaybackSessionEvent.STOP_REASON_SKIP:
+                return "skip";
+            case PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED:
+                return "track_finished";
+            case PlaybackSessionEvent.STOP_REASON_END_OF_QUEUE:
+                return "end_of_content";
+            case PlaybackSessionEvent.STOP_REASON_NEW_QUEUE:
+                return "context_change";
+            case PlaybackSessionEvent.STOP_REASON_ERROR:
+                return "playback_error";
+            default:
+                throw new IllegalArgumentException("Unexpected stop reason : " + eventData.getStopReason());
+        }
+    }
+
+    // EventLogger v0 requires us to pass URNs in the legacy format
+    private String getLegacyTrackUrn(String urn) {
+        return urn.replaceFirst(":tracks:", ":sounds:");
+    }
+
 }

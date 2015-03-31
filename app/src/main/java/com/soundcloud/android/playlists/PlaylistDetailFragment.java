@@ -28,7 +28,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -290,11 +289,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
             details = createDetailsHeader();
         }
         setupPlaylistDetails(details);
-
-        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
-            addInfoHeader();
-        }
-
     }
 
     private View createDetailsHeader() {
@@ -321,12 +315,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
         headerUsernameText = detailsView.findViewById(R.id.username);
         headerUsernameText.setOnClickListener(onHeaderTextClick);
-    }
-
-    private void addInfoHeader() {
-        View infoHeader = View.inflate(getActivity(), R.layout.playlist_header, null);
-        infoHeaderText = (TextView) infoHeader.findViewById(android.R.id.text1);
-        listView.addHeaderView(infoHeader, null, false);
     }
 
     private void showContent(boolean show) {
@@ -378,10 +366,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         playlistPresenter.setPlaylist(playlistInfo);
         engagementsPresenter.setPlaylistInfo(playlistInfo, getPlaySessionSource());
 
-        if (featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
-            infoHeaderText.setText(createHeaderText(playlistInfo));
-        }
-
         // don't register clicks before we have a valid playlist
         final List<TrackItem> tracks = playlistInfo.getTracks();
         if (!tracks.isEmpty()) {
@@ -393,12 +377,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
         playlistPresenter.setTextVisibility(View.VISIBLE);
         headerUsernameText.setEnabled(true);
-    }
-
-    private String createHeaderText(PlaylistInfo playlist) {
-        final String trackCount = getResources().getQuantityString(
-                R.plurals.number_of_sounds, playlist.getTrackCount(), playlist.getTrackCount());
-        return getString(R.string.playlist_info_header_text, trackCount, playlist.getDuration());
     }
 
     private void updateTracksAdapter(PlaylistInfo playlist) {

@@ -30,7 +30,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -105,8 +104,6 @@ public class PlaylistDetailFragmentTest {
         Robolectric.shadowOf(fragment).setAttached(true);
 
         playlistInfo = createPlaylist();
-
-        when(featureFlags.isDisabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)).thenReturn(true);
 
         when(controllerProvider.create()).thenReturn(controller);
         when(controller.getAdapter()).thenReturn(adapter);

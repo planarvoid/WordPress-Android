@@ -1,7 +1,6 @@
 package com.soundcloud.android.analytics.eventlogger;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -10,8 +9,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.EventTracker;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.ConnectionType;
@@ -48,8 +47,7 @@ public class EventLoggerAnalyticsProviderTest {
     private EventLoggerAnalyticsProvider eventLoggerAnalyticsProvider;
 
     @Mock private EventTracker eventTracker;
-    @Mock private EventLoggerDataBuilderFactory dataBuilderFactory;
-    @Mock private EventLoggerDataBuilder dataBuilder;
+    @Mock private EventLoggerJsonDataBuilder dataBuilder;
     @Mock private FeatureFlags featureFlags;
     @Mock private SharedPreferences sharedPreferences;
 
@@ -59,8 +57,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        when(dataBuilderFactory.create(anyString())).thenReturn(dataBuilder);
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilderFactory, featureFlags, sharedPreferences);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilder, featureFlags, sharedPreferences);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
     }
@@ -83,7 +80,7 @@ public class EventLoggerAnalyticsProviderTest {
         expect(allValues.size()).toEqual(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(12345L);
         expect(adEvent.getData()).toEqual("adUrl");
     }
@@ -104,7 +101,7 @@ public class EventLoggerAnalyticsProviderTest {
         expect(allValues.size()).toEqual(2);
 
         TrackingRecord adEvent = allValues.get(0);
-        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
         expect(adEvent.getData()).toEqual("clickUrl");
     }
@@ -118,7 +115,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
         expect(captor.getValue().getData()).toEqual("url");
     }
@@ -133,7 +130,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
         expect(captor.getValue().getData()).toEqual("url");
     }
@@ -147,7 +144,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
-        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
         expect(captor.getValue().getData()).toEqual("url");
     }
@@ -165,10 +162,10 @@ public class EventLoggerAnalyticsProviderTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker, times(2)).trackEvent(captor.capture());
         expect(captor.getAllValues()).toNumber(2);
-        expect(captor.getAllValues().get(0).getBackend()).toEqual(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        expect(captor.getAllValues().get(0).getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         expect(captor.getAllValues().get(0).getTimeStamp()).toEqual(event1.getTimeStamp());
         expect(captor.getAllValues().get(0).getData()).toEqual("url1");
-        expect(captor.getAllValues().get(1).getBackend()).toEqual(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        expect(captor.getAllValues().get(1).getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
         expect(captor.getAllValues().get(1).getTimeStamp()).toEqual(event2.getTimeStamp());
         expect(captor.getAllValues().get(1).getData()).toEqual("url2");
     }
@@ -208,7 +205,6 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Test
     public void shouldTrackScreenEvent() {
-        when(featureFlags.isEnabled(Flag.EVENTLOGGER_PAGE_VIEW_EVENTS)).thenReturn(true);
         ScreenEvent event = ScreenEvent.create(Screen.ACTIVITIES);
         when(dataBuilder.build(event)).thenReturn("ForScreenEvent");
 
@@ -246,7 +242,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldForwardFlushCallToEventTracker() {
         eventLoggerAnalyticsProvider.flush();
-        verify(eventTracker).flush(EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME);
+        verify(eventTracker).flush(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
     }
 
     private String searchEventUrlCaptor(String name, SearchEvent event) {

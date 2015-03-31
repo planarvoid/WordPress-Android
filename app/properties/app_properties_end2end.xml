@@ -21,9 +21,6 @@
     <!-- Feature flags (enabled) -->
     <bool name="feature_payments">true</bool>
     <bool name="feature_payments_test">true</bool>
-    <bool name="feature_eventlogger_page_view">true</bool>
-    <bool name="feature_eventlogger_batching">true</bool>
-    <bool name="feature_new_playlist_engagements">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_google_cast">false</bool>

@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -14,7 +13,6 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -47,7 +45,6 @@ public class PlaylistItemPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        when(featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)).thenReturn(true);
         propertySet = PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forPlaylist(123)),
                 PlayableProperty.TITLE.bind("title"),

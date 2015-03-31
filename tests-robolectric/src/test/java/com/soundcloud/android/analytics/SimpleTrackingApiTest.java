@@ -3,7 +3,6 @@ package com.soundcloud.android.analytics;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.analytics.eventlogger.EventLoggerAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -67,16 +66,6 @@ public class SimpleTrackingApiTest {
         simpleTrackingApi.pushToRemote(Arrays.asList(event));
 
         expect(requestCaptor.getValue().headers("User-Agent").get(0)).toEqual("SoundCloud-Android");
-    }
-
-    @Test
-    public void shouldBuildHEADRequestForEventLogger() throws Exception {
-        when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());
-        TrackingRecord event = new TrackingRecord(1L, EventLoggerAnalyticsProvider.LEGACY_BACKEND_NAME, fakeUrl);
-
-        simpleTrackingApi.pushToRemote(Arrays.asList(event));
-
-        expect(requestCaptor.getValue().method()).toEqual("HEAD");
     }
 
     @Test

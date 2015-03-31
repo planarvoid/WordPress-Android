@@ -4,14 +4,10 @@ import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -65,16 +61,12 @@ public class PlaylistItemPresenter implements CellPresenter<PlaylistItem> {
     }
 
     private void setupOverFlow(final View button, final PlaylistItem playlist) {
-        if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    playlistItemMenuPresenter.show(button, playlist, allowOfflineOptions);
-                }
-            });
-        } else {
-            button.setVisibility(View.GONE);
-        }
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playlistItemMenuPresenter.show(button, playlist, allowOfflineOptions);
+            }
+        });
     }
 
     private void showTrackCount(View itemView, PlaylistItem playlist) {
