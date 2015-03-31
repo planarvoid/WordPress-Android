@@ -386,35 +386,6 @@ public class ApiWrapper implements CloudAPI {
     }
 
     @Override
-    public Stream resolveStreamUrl(final String url, boolean skipLogging) throws IOException {
-        HttpResponse resp = safeExecute(null, addHeaders(Request.to(url).with("skip_logging", "true").buildRequest(HttpHead.class)));
-        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-            Header location = resp.getFirstHeader("Location");
-            if (location != null && location.getValue() != null) {
-                final String headRedirect = location.getValue();
-                // Need ETag and other headers from CDN for Stream constructor
-                resp = safeExecute(null, new HttpHead(headRedirect));
-                if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    Stream stream = new Stream(url, headRedirect, resp);
-                    // need to do another GET request to have a URL ready for client usage
-                    resp = safeExecute(null, addHeaders(Request.to(url).with("skip_logging", "true").buildRequest(HttpGet.class)));
-                    if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
-                        return stream.withNewStreamUrl(resp.getFirstHeader("Location").getValue());
-                    } else {
-                        throw new ResolverException("Unexpected response code", resp);
-                    }
-                } else {
-                    throw new ResolverException("Unexpected response code", resp);
-                }
-            } else {
-                throw new ResolverException("Location header not set", resp);
-            }
-        } else {
-            throw new ResolverException("Unexpected response code", resp);
-        }
-    }
-
-    @Override
     public HttpResponse get(Request request) throws IOException {
         return execute(request, HttpGet.class);
     }

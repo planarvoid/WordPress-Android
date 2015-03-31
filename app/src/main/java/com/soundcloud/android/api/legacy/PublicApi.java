@@ -4,10 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
-import com.soundcloud.api.Stream;
-import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -17,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import android.content.Context;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 public class PublicApi implements PublicCloudAPI {
@@ -117,10 +115,6 @@ public class PublicApi implements PublicCloudAPI {
 
     public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
         return apiWrapper.safeExecute(target, request);
-    }
-
-    public Stream resolveStreamUrl(String uri, boolean skipLogging) throws IOException {
-        return apiWrapper.resolveStreamUrl(uri, skipLogging);
     }
 
     @Override

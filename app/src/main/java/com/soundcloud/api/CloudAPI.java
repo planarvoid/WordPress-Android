@@ -138,18 +138,6 @@ public interface CloudAPI {
     long resolve(String uri) throws IOException;
 
     /**
-     * Resolve the given SoundCloud stream URI
-     *
-     * @param uri         SoundCloud stream URI, e.g. https://api.soundcloud.com/tracks/25272620/stream
-     * @param skipLogging skip logging the play of this track (client needs
-     *                    {@link com.soundcloud.android.api.oauth.Token#SCOPE_PLAYCOUNT})
-     * @return the resolved stream
-     * @throws IOException                                   network errors
-     * @throws com.soundcloud.api.CloudAPI.ResolverException resolver error (invalid status etc)
-     */
-    Stream resolveStreamUrl(String uri, boolean skipLogging) throws IOException;
-
-    /**
      * @return the current token
      */
     Token getToken();
