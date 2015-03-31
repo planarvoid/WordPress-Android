@@ -8,14 +8,11 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.view.GridViewCompat;
 import rx.Observable;
 import rx.android.RxFragmentObserver;
 import rx.subscriptions.CompositeSubscription;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -23,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.GridView;
 
 import javax.inject.Inject;
 import java.util.Set;
@@ -32,7 +30,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
 
     private SuggestedUsersAdapter adapter;
     private Category category;
-    private GridViewCompat adapterView;
+    private GridView adapterView;
     private final CompositeSubscription subscription = new CompositeSubscription();
 
     @Inject ImageOperations imageOperations;
@@ -74,12 +72,11 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         return inflater.inflate(R.layout.suggested_user_grid, container, false);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridviewcompat setChoiceMode and setItemChecked
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        adapterView = (GridViewCompat) view.findViewById(R.id.suggested_users_grid);
+        adapterView = (GridView) view.findViewById(R.id.suggested_users_grid);
         adapterView.setChoiceMode(AbsListView.CHOICE_MODE_MULTIPLE);
         adapterView.setOnItemClickListener(this);
         adapterView.setAdapter(adapter);
@@ -95,7 +92,6 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
                 .subscribe(new ToggleFollowingObserver(this)));
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridview setItemChecked
     public void toggleFollowings(final boolean shouldFollow) {
         for (int i = 0; i < adapter.getCount(); i++) {
             adapterView.setItemChecked(i, shouldFollow);

@@ -38,7 +38,7 @@ public class SoundStreamSyncOperationsTest {
     @Mock private SoundStreamStorage soundStreamStorage;
     @Mock private Context appContext;
     @Mock private ContentStats contentStats;
-    @Mock private StreamNotificationBuilder streamNotificationBuilder;
+    @Mock private RichStreamNotificationBuilder streamNotificationBuilder;
     @Mock private NotificationManager notificationManager;
     @Mock private Notification notification;
 

@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.nineoldandroids.animation.ObjectAnimator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
@@ -14,6 +13,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.view.PlayerTrackPager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.AnimUtils;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -187,7 +187,7 @@ class PlayerPagerController {
         adapter.unsubscribe();
         playerPagerScrollListener.unsubscribe();
         changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
-        ObjectAnimator.clearAllAnimations();
+        AnimUtils.clearAllAnimations();
     }
 
     private void setPager(final PlayerTrackPager trackPager) {

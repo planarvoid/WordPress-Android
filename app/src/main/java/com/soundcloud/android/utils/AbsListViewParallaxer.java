@@ -7,8 +7,6 @@ import com.google.common.collect.Iterables;
 import com.soundcloud.android.view.ParallaxImageView;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -45,9 +43,7 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
             onScrollListenerDelegate.onScroll(view, firstVisibleItem,
                     visibleItemCount, totalItemCount);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-            scrollChanged(view);
-        }
+        scrollChanged(view);
     }
 
     private void scrollChanged(AbsListView listView) {
@@ -61,19 +57,16 @@ public class AbsListViewParallaxer implements AbsListView.OnScrollListener {
         }
     }
 
-    @TargetApi(11)
     private void applyParallaxToItemView(int halfHeight, float parallaxStepScaled, View itemView) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            if (itemView instanceof ViewGroup) {
-                populateItemToParallaxViewsMaps((ViewGroup) itemView);
+        if (itemView instanceof ViewGroup) {
+            populateItemToParallaxViewsMaps((ViewGroup) itemView);
 
-                for (View view : parallaxViewMap.get(itemView)) {
-                    view.setTranslationY((int) (getParallaxRatio(halfHeight, itemView, view) * parallaxStepScaled));
-                }
+            for (View view : parallaxViewMap.get(itemView)) {
+                view.setTranslationY((int) (getParallaxRatio(halfHeight, itemView, view) * parallaxStepScaled));
+            }
 
-                for (ParallaxImageView view : parallaxBgImageViewMap.get(itemView)) {
-                    view.setParallaxOffset(getParallaxRatio(halfHeight, itemView, view));
-                }
+            for (ParallaxImageView view : parallaxBgImageViewMap.get(itemView)) {
+                view.setParallaxOffset(getParallaxRatio(halfHeight, itemView, view));
             }
         }
     }

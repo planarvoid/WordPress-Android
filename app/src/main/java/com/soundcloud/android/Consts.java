@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 
-import android.os.Build;
 import android.os.Environment;
 
 import java.io.File;
@@ -38,15 +37,6 @@ public final class Consts {
         public static final int RECOVER_PASSWORD_CODE = 8002;
         public static final int SIGNUP_VIA_GOOGLE = 8003;
         public static final int RECOVER_FROM_PLAY_SERVICES_ERROR = 8004;
-    }
-
-    public static final class SdkSwitches {
-        public static final boolean USE_CUSTOM_NOTIFICATION_LAYOUTS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD;
-        public static final boolean USE_RICH_NOTIFICATIONS = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-        public static final boolean CAN_DETERMINE_ACTIVITY_BACKGROUND = Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
-        public static final boolean USE_CUSTOM_FONTS = Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD ||
-                Build.VERSION.SDK_INT == Build.VERSION_CODES.GINGERBREAD_MR1 ||
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH;
     }
 
     public static final class Dialogs {

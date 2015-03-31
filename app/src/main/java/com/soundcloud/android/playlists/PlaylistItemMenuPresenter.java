@@ -13,7 +13,6 @@ import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
-import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -28,7 +27,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
+public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     private final Context context;
     private final EventBus eventBus;

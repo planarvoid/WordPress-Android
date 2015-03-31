@@ -20,7 +20,6 @@ import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.playback.ui.view.WaveformView;
 import com.soundcloud.android.playback.ui.view.WaveformViewController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.waveform.WaveformOperations;
@@ -33,7 +32,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.res.Resources;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -70,7 +68,6 @@ public class TrackPagePresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // Required by nineoldandroids
         presenter = new TrackPagePresenter(waveformOperations, listener, waveformFactory,
                 artworkFactory, playerOverlayControllerFactory, trackMenuControllerFactory, leaveBehindControllerFactory,
                 errorControllerFactory, castConnectionHelper);

@@ -14,7 +14,6 @@ import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.view.GridViewCompat;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -26,6 +25,7 @@ import rx.Observable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
+import android.widget.GridView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -34,12 +34,10 @@ import java.util.List;
 public class SuggestedUsersCategoryFragmentTest {
 
     private SuggestedUsersCategoryFragment fragment;
-    @Mock
-    private FollowingOperations followingOperations;
-    @Mock
-    private View fragmentView;
-    @Mock
-    private GridViewCompat gridView;
+
+    @Mock private FollowingOperations followingOperations;
+    @Mock private View fragmentView;
+    @Mock private GridView gridView;
 
     private List<SuggestedUser> suggestedUsers;
 

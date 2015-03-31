@@ -8,7 +8,6 @@ import com.soundcloud.android.image.OneShotTransitionDrawable;
 import com.soundcloud.android.utils.AndroidUtils;
 import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -260,7 +259,6 @@ public final class ImageUtils {
         }
     }
 
-    @TargetApi(9)
     public static boolean isScreenXL(Resources resources) {
         return ((resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
     }

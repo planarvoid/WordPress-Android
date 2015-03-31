@@ -15,9 +15,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.observers.TestSubscriber;
 
-import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.view.View;
 
 import java.util.Collections;
@@ -34,7 +32,6 @@ public class FallbackBitmapLoadingAdapterTest {
     private @Mock Bitmap fallbackImage;
 
     @Test
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     public void onLoadingFailedFallBackToDrawable() throws Exception {
         adapter = new FallbackBitmapLoadingAdapter(subscriber, fallbackImage);
         adapter.onLoadingFailed("uri", view, "failure reason");

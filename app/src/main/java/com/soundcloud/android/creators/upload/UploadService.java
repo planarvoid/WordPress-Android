@@ -4,7 +4,6 @@ import static com.soundcloud.android.NotificationConstants.UPLOADING_NOTIFY_ID;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
@@ -189,7 +188,7 @@ public class UploadService extends Service {
             }
         }
     };
-    private final Map<Long, Upload> uploads = new HashMap<Long, Upload>();
+    private final Map<Long, Upload> uploads = new HashMap<>();
     private final IBinder binder = new LocalBinder<UploadService>() {
         public UploadService getService() {
             return UploadService.this;
@@ -347,13 +346,9 @@ public class UploadService extends Service {
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 r.getMonitorIntentWithProgress(UPLOAD_STAGE_PROCESSING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (Consts.SdkSwitches.USE_CUSTOM_NOTIFICATION_LAYOUTS) {
-            n.contentIntent = pendingIntent;
-            n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
-            n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
-        } else {
-            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
-        }
+        n.contentIntent = pendingIntent;
+        n.contentView.setTextViewText(R.id.txt_processing, getString(stringId, positiveProgress));
+        n.contentView.setProgressBar(R.id.progress_bar_processing, 100, positiveProgress, progress == -1); // just show indeterminate for 0 progress, looks better for quick uploads
         return n;
     }
 
@@ -363,13 +358,9 @@ public class UploadService extends Service {
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 r.getMonitorIntentWithProgress(UPLOAD_STAGE_TRANSFERRING, positiveProgress), PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (Consts.SdkSwitches.USE_CUSTOM_NOTIFICATION_LAYOUTS) {
-            n.contentIntent = pendingIntent;
-            n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
-            n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
-        } else {
-            n.setLatestEventInfo(this, r.getTitle(getResources()), getString(stringId, positiveProgress), pendingIntent);
-        }
+        n.contentIntent = pendingIntent;
+        n.contentView.setTextViewText(R.id.txt_uploading, getString(stringId, positiveProgress));
+        n.contentView.setProgressBar(R.id.progress_bar_uploading, 100, positiveProgress, progress == -1);
         return n;
     }
 
@@ -399,39 +390,29 @@ public class UploadService extends Service {
     private void showUploadingNotification(Recording recording, String action) {
         Notification n = getOngoingNotification(recording);
 
-        if (Consts.SdkSwitches.USE_CUSTOM_NOTIFICATION_LAYOUTS) {
-            n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
-            n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
+        n.contentView.setTextViewText(R.id.time, getFormattedNotificationTimestamp(this, System.currentTimeMillis()));
+        n.contentView.setTextViewText(R.id.message, TextUtils.isEmpty(recording.title) ? recording.sharingNote(getResources()) : recording.title);
 
-            if (Consts.SdkSwitches.USE_RICH_NOTIFICATIONS && recording.hasArtwork()) {
-                Bitmap b = ImageUtils.getConfiguredBitmap(recording.getArtwork(),
-                        (int) getResources().getDimension(R.dimen.notification_image_width),
-                        (int) getResources().getDimension(R.dimen.notification_image_height));
-                if (b != null) {
-                    n.contentView.setImageViewBitmap(R.id.icon, b);
-                }
-            }
-            if (PROCESSING_STARTED.equals(action)) {
-                updateProcessingProgress(recording, R.string.uploader_event_processing_percent, -1);
-                updateUploadingProgress(recording, R.string.uploader_event_not_yet_uploading, 0);
-            } else if (TRANSFER_STARTED.equals(action)) {
-                updateProcessingProgress(recording, R.string.uploader_event_processing_finished, 100);
-                updateUploadingProgress(recording, R.string.uploader_event_uploading_percent, -1);
-            }
-        } else {
-            if (PROCESSING_STARTED.equals(action)) {
-                updateProcessingProgress(recording, R.string.uploader_event_processing_percent, -1);
-            } else if (TRANSFER_STARTED.equals(action)) {
-                updateUploadingProgress(recording, R.string.uploader_event_uploading_percent, -1);
+        if (recording.hasArtwork()) {
+            Bitmap b = ImageUtils.getConfiguredBitmap(recording.getArtwork(),
+                    (int) getResources().getDimension(R.dimen.notification_image_width),
+                    (int) getResources().getDimension(R.dimen.notification_image_height));
+            if (b != null) {
+                n.contentView.setImageViewBitmap(R.id.icon, b);
             }
         }
-
+        if (PROCESSING_STARTED.equals(action)) {
+            updateProcessingProgress(recording, R.string.uploader_event_processing_percent, -1);
+            updateUploadingProgress(recording, R.string.uploader_event_not_yet_uploading, 0);
+        } else if (TRANSFER_STARTED.equals(action)) {
+            updateProcessingProgress(recording, R.string.uploader_event_processing_finished, 100);
+            updateUploadingProgress(recording, R.string.uploader_event_uploading_percent, -1);
+        }
         sendNotification(recording, n);
     }
 
-    private
     @Nullable
-    Notification notifyUploadCurrentUploadFinished(Recording recording) {
+    private Notification notifyUploadCurrentUploadFinished(Recording recording) {
         final CharSequence title;
         final CharSequence message;
         final CharSequence tickerText;
@@ -552,24 +533,28 @@ public class UploadService extends Service {
         }
     }
 
-    /* package, for testing*/ Handler getServiceHandler() {
+    @VisibleForTesting
+    /* package */ Handler getServiceHandler() {
         return intentHandler;
     }
 
-    /* package, for testing*/ Handler getUploadHandler() {
+    @VisibleForTesting
+    /* package */ Handler getUploadHandler() {
         return uploadHandler;
     }
 
-    /* package, for testing*/ Handler getProcessingHandler() {
+    @VisibleForTesting
+    /* package */ Handler getProcessingHandler() {
         return processingHandler;
     }
 
-
-    /* package, for testing */ WifiManager.WifiLock getWifiLock() {
+    @VisibleForTesting
+    /* package */ WifiManager.WifiLock getWifiLock() {
         return wifiLock;
     }
 
-    /* package, for testing */ PowerManager.WakeLock getWakeLock() {
+    @VisibleForTesting
+    /* package */ PowerManager.WakeLock getWakeLock() {
         return wakeLock;
     }
 
@@ -605,7 +590,7 @@ public class UploadService extends Service {
             super(looper);
             this.publicCloudAPI = publicCloudAPI;
             this.storePostsCommand = storePostsCommand;
-            serviceRef = new WeakReference<UploadService>(service);
+            serviceRef = new WeakReference<>(service);
         }
 
         @Override
@@ -637,7 +622,7 @@ public class UploadService extends Service {
 
         public IntentHandler(UploadService service, Looper looper) {
             super(looper);
-            serviceRef = new WeakReference<UploadService>(service);
+            serviceRef = new WeakReference<>(service);
         }
 
         @Override

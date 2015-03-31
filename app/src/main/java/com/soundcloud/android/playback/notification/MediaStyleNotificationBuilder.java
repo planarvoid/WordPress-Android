@@ -68,16 +68,10 @@ public class MediaStyleNotificationBuilder implements NotificationBuilder {
         return PendingIntent.getBroadcast(context, PENDING_INTENT_REQUEST_CODE, createIntent(playbackAction), 0);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     private Intent createIntent(String playbackAction) {
-        final Intent intent = new Intent(playbackAction)
-                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION);
-
-        // add this or it will not trigger a process start (as of 3.1)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1) {
-            intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
-        }
-        return intent;
+        return new Intent(playbackAction)
+                .putExtra(PlayControlEvent.EXTRA_EVENT_SOURCE, PlayControlEvent.SOURCE_NOTIFICATION)
+                .addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
     }
 
     @Override

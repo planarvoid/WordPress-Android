@@ -1,9 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 
+import android.animation.ObjectAnimator;
 import android.content.res.Resources;
 import android.view.View;
 
@@ -21,19 +20,19 @@ public class OverlayAnimator {
 
     public void setAlpha(View artworkIdleOverlay, float alpha){
         stopOverlayAnimation();
-        ViewHelper.setAlpha(artworkIdleOverlay, alpha);
+        artworkIdleOverlay.setAlpha(alpha);
     }
 
     public void showOverlay(View artworkIdleOverlay) {
         stopOverlayAnimation();
-        objectAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 1f);
+        objectAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", artworkIdleOverlay.getAlpha(), 1f);
         objectAnimator.setDuration(fadeDuration);
         objectAnimator.start();
     }
 
     public void hideOverlay(View artworkIdleOverlay) {
         stopOverlayAnimation();
-        objectAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", ViewHelper.getAlpha(artworkIdleOverlay), 0f);
+        objectAnimator = ObjectAnimator.ofFloat(artworkIdleOverlay, "alpha", artworkIdleOverlay.getAlpha(), 0f);
         objectAnimator.setDuration(fadeDuration);
         objectAnimator.start();
     }

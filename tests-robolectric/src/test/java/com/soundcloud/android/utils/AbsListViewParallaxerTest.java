@@ -1,6 +1,5 @@
 package com.soundcloud.android.utils;
 
-import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -8,7 +7,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.view.ParallaxImageView;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import android.content.res.Resources;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,21 +23,16 @@ import android.widget.AbsListView;
 @RunWith(SoundCloudTestRunner.class)
 public class AbsListViewParallaxerTest {
 
-    AbsListViewParallaxer absListViewParallaxer;
-    @Mock
-    AbsListView.OnScrollListener onScrollListener;
-    @Mock
-    AbsListView absListView;
-    @Mock
-    private View view;
-    @Mock
-    private ViewGroup viewGroup;
-    @Mock
-    private Resources resources;
+    private AbsListViewParallaxer absListViewParallaxer;
+
+    @Mock private AbsListView.OnScrollListener onScrollListener;
+    @Mock private AbsListView absListView;
+    @Mock private View view;
+    @Mock private ViewGroup viewGroup;
+    @Mock private Resources resources;
 
     @Before
     public void setUp() throws Exception {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB);
         absListViewParallaxer = new AbsListViewParallaxer(onScrollListener);
         when(absListView.getHeight()).thenReturn(100);
         when(absListView.getChildCount()).thenReturn(1);
@@ -95,20 +87,4 @@ public class AbsListViewParallaxerTest {
         verify(view).setTranslationY(6.0f);
     }
 
-    @Test
-    public void shouldNotApplyImageParallaxPreHoneycomb() throws Exception {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.GINGERBREAD);
-        ParallaxImageView parallaxImageView = Mockito.mock(ParallaxImageView.class);
-        when(viewGroup.getChildAt(0)).thenReturn(parallaxImageView);
-        absListViewParallaxer.onScroll(absListView, 0, 0, 0);
-        verify(parallaxImageView, never()).setParallaxOffset(anyDouble());
-    }
-
-    @Test
-    public void shouldNotApplyForegroundParallaxPreHoneycomb() throws Exception {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.GINGERBREAD);
-        when(view.getTag()).thenReturn(AbsListViewParallaxer.VIEW_FOREGROUND_TAG);
-        absListViewParallaxer.onScroll(absListView, 0, 0, 0);
-        verify(view, never()).setTranslationY(anyFloat());
-    }
 }

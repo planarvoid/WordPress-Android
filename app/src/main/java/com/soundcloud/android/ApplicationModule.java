@@ -18,25 +18,21 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.CastPlaybackStrategy;
 import com.soundcloud.android.playback.DefaultPlaybackStrategy;
 import com.soundcloud.android.playback.PlaybackStrategy;
-import com.soundcloud.android.playback.notification.BasicNotificationBuilder;
 import com.soundcloud.android.playback.notification.BigNotificationBuilder;
 import com.soundcloud.android.playback.notification.MediaStyleNotificationBuilder;
 import com.soundcloud.android.playback.notification.NotificationBuilder;
 import com.soundcloud.android.playback.notification.RichNotificationBuilder;
-import com.soundcloud.android.playback.service.managers.FroyoRemoteAudioManager;
-import com.soundcloud.android.playback.service.managers.ICSRemoteAudioManager;
+import com.soundcloud.android.playback.service.managers.FallbackRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
+import com.soundcloud.android.playback.service.managers.RemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.android.view.menu.PopupMenuWrapperCompat;
-import com.soundcloud.android.view.menu.PopupMenuWrapperICS;
 import com.soundcloud.android.waveform.WaveformData;
 import dagger.Lazy;
 import dagger.Module;
@@ -164,10 +160,8 @@ public class ApplicationModule {
             return new MediaStyleNotificationBuilder(context);
         } else if (applicationProperties.shouldUseBigNotifications()) {
             return new BigNotificationBuilder(context, remoteViewsFactory);
-        } else if (applicationProperties.shouldUseRichNotifications()) {
-            return new RichNotificationBuilder(context, remoteViewsFactory);
         } else {
-            return new BasicNotificationBuilder(context);
+            return new RichNotificationBuilder(context, remoteViewsFactory);
         }
     }
 
@@ -175,14 +169,12 @@ public class ApplicationModule {
     @Provides
     @Singleton
     public IRemoteAudioManager provideRemoteAudioManager(Context context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            try {
-                return new ICSRemoteAudioManager(context);
-            } catch (Exception e) {
-                ErrorUtils.handleSilentException("Could not create remote audio manager", e);
-            }
+        try {
+            return new RemoteAudioManager(context);
+        } catch (Exception e) {
+            ErrorUtils.handleSilentException("Could not create remote audio manager", e);
         }
-        return new FroyoRemoteAudioManager(context);
+        return new FallbackRemoteAudioManager(context);
     }
 
     @Singleton
@@ -197,15 +189,6 @@ public class ApplicationModule {
             return new ImageProcessorJB(context);
         } else {
             return new ImageProcessorCompat();
-        }
-    }
-
-    @Provides
-    public PopupMenuWrapper.Factory providePopupMenuWrapperFactory() {
-        if (Build.VERSION_CODES.ICE_CREAM_SANDWICH <= Build.VERSION.SDK_INT) {
-            return new PopupMenuWrapperICS.Factory();
-        } else {
-            return new PopupMenuWrapperCompat.Factory();
         }
     }
 

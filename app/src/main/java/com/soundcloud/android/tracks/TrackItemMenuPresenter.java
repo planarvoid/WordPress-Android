@@ -9,7 +9,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.likes.LikeToggleSubscriber;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.playlists.AddToPlaylistDialogFragment;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -28,7 +27,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
+public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final TrackRepository trackRepository;
     private final Context context;

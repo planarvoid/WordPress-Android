@@ -532,7 +532,7 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void onSeekCompleteShouldPauseAndPlayMediaPlayerIfInPlayStateOnKitKat() {
-        TestHelper.setSdkVersion(Build.VERSION_CODES.JELLY_BEAN + 1);
+        TestHelper.setSdkVersion(Build.VERSION_CODES.KITKAT);
         playUrlAndSetPrepared();
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 

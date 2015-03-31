@@ -3,7 +3,6 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.commands.PagedQueryCommand;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -48,10 +47,9 @@ public class PlaylistsModule {
                                                                   Resources resources,
                                                                   PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                                                   FeatureFlags featureFlags,
-                                                                  FeatureOperations featureOperations,
                                                                   DownloadableHeaderView downloadableHeaderView) {
         if (featureFlags.isEnabled(Flag.NEW_PLAYLIST_ENGAGEMENTS)) {
-            return new NewPlaylistEngagementsView(context, resources, popupMenuWrapperFactory, featureOperations, downloadableHeaderView);
+            return new NewPlaylistEngagementsView(context, resources, popupMenuWrapperFactory, downloadableHeaderView);
         } else {
             return new LegacyPlaylistEngagementsView(context, resources);
         }

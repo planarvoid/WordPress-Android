@@ -1,6 +1,5 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -136,7 +135,7 @@ class NotificationMessage {
                                           final int id,
                                           final String artworkUri) {
         final String largeIconUri = ApiImageSize.formatUriForNotificationLargeIcon(context, artworkUri);
-        if (!Consts.SdkSwitches.USE_RICH_NOTIFICATIONS || !ImageUtils.checkIconShouldLoad(largeIconUri)) {
+        if (!ImageUtils.checkIconShouldLoad(largeIconUri)) {
             showDashboardNotification(context, ticker, intent, title, message, id, null);
         } else {
             // cannot use imageloader here as the weak reference to the fake image will get dropped and the image won't load (sometimes)

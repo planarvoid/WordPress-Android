@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.soundcloud.android.view.GridViewCompat
+<GridView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/suggested_users_grid"
         style="@style/GridView"

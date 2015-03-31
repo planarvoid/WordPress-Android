@@ -150,11 +150,6 @@ public class StreamPlaya implements PlayaListener {
         return currentPlaya.isSeekable();
     }
 
-    public boolean isNotSeekablePastBuffer() {
-        return currentPlaya.isNotSeekablePastBuffer();
-    }
-
-
     public void destroy() {
         // call stop first as it will save the queue/position
         mediaPlayaDelegate.destroy();

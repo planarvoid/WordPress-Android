@@ -4,9 +4,7 @@ import static com.soundcloud.android.utils.ViewUtils.allChildViewsOf;
 
 import com.soundcloud.android.view.SafeViewPager;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.support.v4.view.PagerAdapter;
 import android.util.AttributeSet;
 import android.view.View;
@@ -19,7 +17,7 @@ import java.util.Set;
 
 public class ParallaxPager extends SafeViewPager {
 
-    private final List<ParallaxInfo> parallaxViews = new ArrayList<ParallaxInfo>();
+    private final List<ParallaxInfo> parallaxViews = new ArrayList<>();
 
     public ParallaxPager(Context context) {
         super(context);
@@ -61,7 +59,7 @@ public class ParallaxPager extends SafeViewPager {
             public void destroyItem(ViewGroup container, int position, Object object) {
                 adapter.destroyItem(container, position, object);
 
-                Set<ParallaxInfo> toRemove = new HashSet<ParallaxInfo>();
+                Set<ParallaxInfo> toRemove = new HashSet<>();
 
                 for (ParallaxInfo info : parallaxViews) {
                     if (info.page == position) {
@@ -77,17 +75,14 @@ public class ParallaxPager extends SafeViewPager {
     }
 
     @Override
-    @TargetApi(11)
     protected void onPageScrolled(int position, float offset, int offsetPixels) {
         super.onPageScrolled(position, offset, offsetPixels);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            for (ParallaxInfo info : parallaxViews) {
-                float targetX = info.page * getWidth();
-                float actualX = position * getWidth() + offsetPixels;
+        for (ParallaxInfo info : parallaxViews) {
+            float targetX = info.page * getWidth();
+            float actualX = position * getWidth() + offsetPixels;
 
-                info.view.setTranslationX(targetX - actualX);
-            }
+            info.view.setTranslationX(targetX - actualX);
         }
     }
 

@@ -3,11 +3,8 @@ package com.soundcloud.android.onboarding.suggestions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.view.GridViewCompat;
 
-import android.annotation.TargetApi;
 import android.content.res.Resources;
-import android.os.Build;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +41,6 @@ class SuggestedUsersAdapter extends BaseAdapter {
         return suggestedUsers.get(position).getId();
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB) // for gridviewcompat getCheckedItemPositions
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         final ItemViewHolder viewHolder;
@@ -53,14 +49,9 @@ class SuggestedUsersAdapter extends BaseAdapter {
             view = View.inflate(parent.getContext(), R.layout.suggested_user_grid_item,null);
             viewHolder = getItemViewHolder(view);
             view.setTag(viewHolder);
-        }else {
+        } else {
             view = convertView;
             viewHolder = (ItemViewHolder) view.getTag();
-        }
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            final boolean checked = ((GridViewCompat) parent).getCheckedItemPositions().get(position);
-            ((SuggestedUserItemLayout) view).setChecked(checked);
         }
 
         configureViewHolder(getItem(position), viewHolder);

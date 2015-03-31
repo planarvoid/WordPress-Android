@@ -262,7 +262,6 @@ public class PlaybackServiceTest {
 
     @Test
     public void callingStopSuppressesIdleNotifications() throws Exception {
-        when(applicationProperties.shouldUseRichNotifications()).thenReturn(true);
         playbackService.onCreate();
 
         when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, getTrackUrn()));
@@ -278,7 +277,6 @@ public class PlaybackServiceTest {
 
     @Test
     public void nonPauseStateCreatesNotificationAfterStoppingAndOpeningNewTrack() throws Exception {
-        when(applicationProperties.shouldUseRichNotifications()).thenReturn(true);
         playbackService.onCreate();
 
         when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, getTrackUrn()));

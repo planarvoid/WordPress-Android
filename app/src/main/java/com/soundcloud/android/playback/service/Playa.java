@@ -31,7 +31,6 @@ public interface Playa {
     void setListener(PlayaListener playaListener);
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     boolean isSeekable();
-    boolean isNotSeekablePastBuffer();
 
     static class StateTransition {
         public static final int EXTRA_PLAYBACK_PROTOCOL = 0;

@@ -3,13 +3,13 @@ package com.soundcloud.android.playback.service.managers;
 import android.content.Context;
 import android.media.AudioManager;
 
-public class FroyoAudioManager implements IAudioManager {
+public class AudioFocusManager implements IAudioManager {
     private boolean audioFocusLost;
     private AudioManager.OnAudioFocusChangeListener listener;
 
     private final Context context;
 
-    public FroyoAudioManager(final Context context) {
+    public AudioFocusManager(final Context context) {
         this.context = context;
     }
 

@@ -4,9 +4,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.DownloadableHeaderView;
-import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
 import android.content.Context;
@@ -16,21 +14,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ToggleButton;
 
-public class NewPlaylistEngagementsView extends PlaylistEngagementsView implements PopupMenuWrapperListener {
+public class NewPlaylistEngagementsView extends PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrapperListener {
 
     @InjectView(R.id.toggle_like) ToggleButton likeToggle;
     @InjectView(R.id.playlist_details_overflow_button) View overflowButton;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final FeatureOperations featureOperations;
     private final DownloadableHeaderView downloadableHeaderView;
     private PopupMenuWrapper popupMenuWrapper;
 
     public NewPlaylistEngagementsView(Context context, Resources resources,
-                                      PopupMenuWrapper.Factory popupMenuWrapperFactory, FeatureOperations featureOperations, DownloadableHeaderView downloadableHeaderView) {
+                                      PopupMenuWrapper.Factory popupMenuWrapperFactory, DownloadableHeaderView downloadableHeaderView) {
         super(context, resources);
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.featureOperations = featureOperations;
         this.downloadableHeaderView = downloadableHeaderView;
     }
 

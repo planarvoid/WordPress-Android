@@ -9,7 +9,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
@@ -17,15 +16,12 @@ import com.soundcloud.android.playback.ui.progress.ProgressController;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
 import com.soundcloud.android.playback.ui.view.PlayerTrackArtworkView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -53,7 +49,6 @@ public class PlayerArtworkControllerTest {
     public void setUp() throws Exception {
         artworkHolder = new FrameLayout(Robolectric.application);
 
-        TestHelper.setSdkVersion(Build.VERSION_CODES.HONEYCOMB); // 9 old Androids
         when(playerTrackArtworkView.findViewById(R.id.artwork_image_view)).thenReturn(wrappedImageView);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay)).thenReturn(artworkIdleOverlay);
         when(playerTrackArtworkView.findViewById(R.id.artwork_overlay_image)).thenReturn(artworkOverlayImage);
@@ -153,14 +148,13 @@ public class PlayerArtworkControllerTest {
         verify(artworkOverlayImage).setImageDrawable(null);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Test
     public void displayScrubPositionUsesHelperToSetImageViewPosition() {
         when(wrappedImageView.getMeasuredWidth()).thenReturn(20);
         when(playerTrackArtworkView.getWidth()).thenReturn(10);
         playerArtworkController.onArtworkSizeChanged();
         playerArtworkController.displayScrubPosition(.5f);
-        expect(ViewHelper.getTranslationX(artworkHolder)).toEqual(-5F);
+        expect(artworkHolder.getTranslationX()).toEqual(-5F);
     }
 
     @Test

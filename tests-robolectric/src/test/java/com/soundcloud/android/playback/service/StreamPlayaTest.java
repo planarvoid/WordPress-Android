@@ -108,7 +108,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOnMediaPlayerOnGingerbreadEvenIfPreferenceSet() throws Exception {
+    public void playCallsPlayOnMediaPlayerIfForcedEvenIfPreferenceSet() throws Exception {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         when(sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false)).thenReturn(true);
@@ -132,7 +132,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playUninterruptedCallsPlayOnMediaPlayerIfOnGingerbreadEvenIfSkippyPreferenceSet() throws Exception {
+    public void playUninterruptedCallsPlayOnMediaPlayerIfForcedEvenIfSkippyPreferenceSet() throws Exception {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         when(sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false)).thenReturn(true);
@@ -427,14 +427,6 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void isNotSeekablePastBufferReturnsMediaPlayerIsNotSeekablePastBuffer() throws Exception {
-        instantiateStreamPlaya();
-        startPlaybackOnMediaPlayer();
-        when(mediaPlayerAdapter.isNotSeekablePastBuffer()).thenReturn(true);
-        expect(streamPlayerWrapper.isNotSeekablePastBuffer()).toBeTrue();
-    }
-
-    @Test
     public void resumeCallsResumeOnSkippyPlayer() throws Exception {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
@@ -488,14 +480,6 @@ public class StreamPlayaTest {
         startPlaybackOnSkippy();
         when(skippyAdapter.isSeekable()).thenReturn(true);
         expect(streamPlayerWrapper.isSeekable()).toBeTrue();
-    }
-
-    @Test
-    public void isNotSeekablePastBufferReturnsSkippyIsNotSeekablePastBuffer() throws Exception {
-        instantiateStreamPlaya();
-        startPlaybackOnSkippy();
-        when(skippyAdapter.isNotSeekablePastBuffer()).thenReturn(true);
-        expect(streamPlayerWrapper.isNotSeekablePastBuffer()).toBeTrue();
     }
 
     @Test

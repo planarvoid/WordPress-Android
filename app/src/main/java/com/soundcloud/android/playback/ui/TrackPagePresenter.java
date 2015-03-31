@@ -5,8 +5,6 @@ import static com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdOverlayController;
 import com.soundcloud.android.cast.CastConnectionHelper;
@@ -27,6 +25,7 @@ import com.soundcloud.android.waveform.WaveformOperations;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.support.v7.app.MediaRouteButton;
 import android.view.LayoutInflater;
@@ -418,7 +417,7 @@ class TrackPagePresenter implements PlayerPagePresenter, View.OnClickListener {
             public void scrubStateChanged(int newScrubState) {
                 listener.onScrub(newScrubState);
                 for (View v : holder.hideOnScrubViews) {
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", ViewHelper.getAlpha(v),
+                    ObjectAnimator animator = ObjectAnimator.ofFloat(v, "alpha", v.getAlpha(),
                             newScrubState == ScrubController.SCRUB_STATE_SCRUBBING ? 0 : 1);
                     animator.setDuration(SCRUB_TRANSITION_ALPHA_DURATION);
                     animator.start();

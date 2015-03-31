@@ -4,7 +4,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
-import com.soundcloud.android.playback.service.managers.FroyoAudioManager;
+import com.soundcloud.android.playback.service.managers.AudioFocusManager;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.settings.DeveloperSettings;
 import com.soundcloud.android.storage.RecordingStorage;
@@ -140,8 +140,7 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
         playBufferReadSize = playbackBufferSize < MAX_PLAYBACK_READ_SIZE ? playbackBufferSize : MAX_PLAYBACK_READ_SIZE;
         playBuffer = BufferUtils.allocateAudioBuffer(playBufferReadSize);
 
-        // we just need focus, which is provided by going directly to the FroyoAudioManager
-        audioFocusManager = new FroyoAudioManager(context);
+        audioFocusManager = new AudioFocusManager(context);
 
         recordStream = new RecordStream(this.audioConfig);
         reset();

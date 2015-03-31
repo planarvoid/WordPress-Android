@@ -11,9 +11,6 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Shader;
-import android.graphics.drawable.Drawable;
-import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -58,29 +55,6 @@ public class OptimisedImageView extends ImageView {
         gradientPaint = new Paint();
         gradientRect = new Rect();
         gradientColors = new int[] {Color.TRANSPARENT, gradientStartColor, gradientEndColor};
-    }
-
-    @Override
-    public void setImageDrawable(final Drawable newDrawable) {
-        if (newDrawable != null && VERSION.SDK_INT < VERSION_CODES.ICE_CREAM_SANDWICH) {
-
-            // The currently set Drawable
-            final Drawable oldDrawable = getDrawable();
-
-            if (null != oldDrawable && oldDrawable != newDrawable) {
-                final int oldWidth = oldDrawable.getIntrinsicWidth();
-                final int oldHeight = oldDrawable.getIntrinsicHeight();
-
-                /*
-                 * Ignore the next requestLayout call if the new Drawable is the
-                 * same size as the currently displayed one.
-                 */
-                shouldIgnoreNextRequestLayout = oldHeight == newDrawable.getIntrinsicHeight()
-                        && oldWidth == newDrawable.getIntrinsicWidth();
-            }
-        }
-
-        super.setImageDrawable(newDrawable);
     }
 
     @SuppressLint("DrawAllocation")

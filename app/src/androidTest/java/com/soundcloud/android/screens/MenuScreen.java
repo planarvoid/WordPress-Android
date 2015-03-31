@@ -1,7 +1,5 @@
 package com.soundcloud.android.screens;
 
-import android.os.Build;
-
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
@@ -71,11 +69,7 @@ public class MenuScreen {
 
     //TODO: move this to ActionBarScreen
     public MenuScreen open() {
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
-            actionBar.clickHomeButton();
-        } else {
-            testDriver.findElement(With.id(R.id.up)).click();
-        }
+        actionBar.clickHomeButton();
 
         waiter.waitForDrawerToOpen();
         return new MenuScreen(testDriver);

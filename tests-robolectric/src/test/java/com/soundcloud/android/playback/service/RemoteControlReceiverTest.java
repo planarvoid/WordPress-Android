@@ -17,10 +17,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.view.KeyEvent;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -85,28 +83,24 @@ public class RemoteControlReceiverTest {
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void shouldSendPlaybackPauseEventToThePlaybackServiceOnReceivingMediaPauseEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PAUSE);
         verifyBroadcastedAction(PlaybackAction.PAUSE);
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void shouldPutExtraEventSourceWhenMediaPauseEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PAUSE);
         verifySourceRemoteBroadcasted();
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void shouldSendPlaybackPlayEventToThePlaybackServiceOnReceivingMediaPlayEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PLAY);
         verifyBroadcastedAction(PlaybackAction.PLAY);
     }
 
     @Test
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public void shouldPutExtraEventSourceWhenMediaPlayEvent() throws Exception {
         receiveMediaIntent(KeyEvent.KEYCODE_MEDIA_PLAY);
         verifySourceRemoteBroadcasted();

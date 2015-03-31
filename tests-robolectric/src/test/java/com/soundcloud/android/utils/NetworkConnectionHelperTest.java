@@ -1,22 +1,19 @@
 package com.soundcloud.android.utils;
 
 import static com.soundcloud.android.Expect.expect;
-
-import com.soundcloud.android.events.ConnectionType;
 import static junit.framework.Assert.fail;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.annotation.TargetApi;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.telephony.TelephonyManager;
 
 import java.lang.reflect.Field;
@@ -136,7 +133,6 @@ public class NetworkConnectionHelperTest {
         expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsHspap() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
@@ -144,7 +140,6 @@ public class NetworkConnectionHelperTest {
         expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     @Test
     public void returnsThreeGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsEhrpd() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);
@@ -152,7 +147,6 @@ public class NetworkConnectionHelperTest {
         expect(networkConnectionHelper.getCurrentConnectionType()).toBe(ConnectionType.THREE_G);
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     @Test
     public void returnsFourGWhenNetworkInfoTypeIsMobileAndTelephonyNetworkTypeIsLTE() throws Exception {
         when(networkInfo.getType()).thenReturn(ConnectivityManager.TYPE_MOBILE);

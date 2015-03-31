@@ -14,7 +14,6 @@ import com.soundcloud.android.robolectric.shadows.ShadowSCAccountManager;
 import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
 import com.soundcloud.android.storage.DatabaseManager;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
 import com.xtremelabs.robolectric.RobolectricTestRunner;
@@ -77,7 +76,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         }
         ShadowVorbisEncoder.reset();
         ShadowNativeAmplitudeAnalyzer.reset();
-        TestHelper.setSdkVersion(0);
     }
 
     @Override

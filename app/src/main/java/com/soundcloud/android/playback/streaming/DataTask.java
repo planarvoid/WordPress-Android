@@ -2,15 +2,10 @@ package com.soundcloud.android.playback.streaming;
 
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 
 import java.io.BufferedInputStream;
@@ -90,36 +85,7 @@ abstract class DataTask extends StreamItemTask {
     }
 
     public static DataTask create(StreamItem item, Range chunkRange, Range range, Context context) {
-        // google recommends using HttpURLConnection from Gingerbread on:
-        // http://android-developers.blogspot.com/2011/09/androids-http-clients.html
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
-            return new HttpURLConnectionDataTask(item, chunkRange, range, new PublicApi(context));
-        } else {
-            return new HttpClientDataTask(item, chunkRange, range, new PublicApi(context));
-        }
-    }
-
-    static class HttpClientDataTask extends DataTask {
-        public HttpClientDataTask(StreamItem item, Range chunkRange, Range byteRange, PublicCloudAPI api) {
-            super(item, chunkRange, byteRange, api);
-        }
-
-        @Override
-        protected int getData(URL url, int start, int end, ByteBuffer dst) throws IOException {
-            HttpGet get = new HttpGet(url.toString());
-            get.setHeader("Range", Request.formatRange(start, end));
-            HttpResponse resp = api.safeExecute(null, get);
-
-            final int status = resp.getStatusLine().getStatusCode();
-            switch (status) {
-                case HttpStatus.SC_OK:
-                case HttpStatus.SC_PARTIAL_CONTENT:
-                    if (!BufferUtils.readBody(resp, buffer)) {
-                        throw new IOException("error reading buffer");
-                    }
-            }
-            return status;
-        }
+        return new HttpURLConnectionDataTask(item, chunkRange, range, new PublicApi(context));
     }
 
     static class HttpURLConnectionDataTask extends DataTask {

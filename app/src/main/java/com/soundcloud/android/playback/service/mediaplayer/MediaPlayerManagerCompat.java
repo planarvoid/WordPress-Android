@@ -23,7 +23,7 @@ public class MediaPlayerManagerCompat implements MediaPlayerManager {
         stopAndReleaseInternal(mediaPlayer);
     }
 
-    // because of gingerbread's locking when calling reset, always release in a thread
+    // TODO: still necessary to release in thread since we dropped Gingerbread?
     @Override
     public void stopAndRelease(MediaPlayer mediaPlayer) {
         stopAndReleaseInternal(mediaPlayer);

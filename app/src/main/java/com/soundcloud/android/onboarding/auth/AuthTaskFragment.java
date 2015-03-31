@@ -14,13 +14,11 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 
@@ -67,15 +65,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     @Override
-    @TargetApi(11)
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        ProgressDialog dialog;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            dialog = new ProgressDialog(getActivity(), AlertDialog.THEME_HOLO_DARK);
-        } else {
-            dialog = new ProgressDialog(getActivity());
-        }
-
+        ProgressDialog dialog = new ProgressDialog(getActivity(), AlertDialog.THEME_HOLO_DARK);
         dialog.setMessage(getString(R.string.authentication_login_progress_message));
         dialog.setIndeterminate(true);
         dialog.setCanceledOnTouchOutside(false);

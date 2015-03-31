@@ -1,10 +1,9 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.view.GridViewCompat;
 
 import android.view.ViewGroup;
 import android.widget.GridView;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class SuggestedUsersCategoryScreen extends Screen {
+
     private static final Class ACTIVITY = SuggestedUsersCategoryActivity.class;
 
     public SuggestedUsersCategoryScreen(Han solo) {
@@ -20,11 +20,11 @@ public class SuggestedUsersCategoryScreen extends Screen {
 
     public String followUser(int index) {
         waitForUsers();
-        GridViewCompat gridViewCompat = (GridViewCompat) testDriver.getCurrentGridView();
-        if (gridViewCompat == null) {
+        GridView gridView = testDriver.getCurrentGridView();
+        if (gridView == null) {
             throw new RuntimeException("No Gridview present when trying to follow random user");
         }
-        ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt(index);
+        ViewGroup viewGroup = (ViewGroup) gridView.getChildAt(index);
         TextView textView = (TextView) viewGroup.findViewById(R.id.username);
         testDriver.wrap(textView).click();
         return textView.getText().toString();
@@ -33,11 +33,11 @@ public class SuggestedUsersCategoryScreen extends Screen {
 
     public String followRandomUser(){
         waitForUsers();
-        GridViewCompat gridViewCompat = (GridViewCompat) testDriver.getCurrentGridView();
-        if (gridViewCompat == null) {
+        GridView gridView = testDriver.getCurrentGridView();
+        if (gridView == null) {
             throw new RuntimeException("No Gridview present when trying to follow random user");
         }
-        ViewGroup viewGroup = (ViewGroup) gridViewCompat.getChildAt((int) (Math.random() * gridViewCompat.getChildCount() -1));
+        ViewGroup viewGroup = (ViewGroup) gridView.getChildAt((int) (Math.random() * gridView.getChildCount() -1));
         TextView textView = (TextView) viewGroup.findViewById(R.id.username);
         testDriver.wrap(textView).click();
         return textView.getText().toString();

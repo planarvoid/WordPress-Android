@@ -10,7 +10,6 @@ import org.apache.http.HttpHost;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -19,7 +18,6 @@ import android.net.NetworkInfo;
 import android.net.Proxy;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.provider.MediaStore;
@@ -495,14 +493,9 @@ public final class IOUtils {
      *
      * @see <a href="http://code.google.com/p/android/issues/detail?id=9781">http://code.google.com/p/android/issues/detail?id=9781</a>
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR1)
     public static WifiManager.WifiLock createHiPerfWifiLock(Context context, String tag) {
         return ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
-                .createWifiLock(
-                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1 ?
-                                WifiManager.WIFI_MODE_FULL_HIGH_PERF : WifiManager.WIFI_MODE_FULL,
-                        tag
-                );
+                .createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, tag);
     }
 
     public static List<String> parseError(ObjectReader reader, InputStream is) throws IOException {

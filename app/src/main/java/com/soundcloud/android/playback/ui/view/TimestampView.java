@@ -9,20 +9,17 @@ import com.facebook.rebound.Spring;
 import com.facebook.rebound.SpringConfig;
 import com.facebook.rebound.SpringSystem;
 import com.google.common.annotations.VisibleForTesting;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.AnimatorSet;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.ValueAnimator;
-import com.nineoldandroids.view.ViewHelper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
 import com.soundcloud.android.utils.ScTextUtils;
 
-import android.annotation.TargetApi;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,9 +60,9 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         @Override
         public void onSpringUpdate(Spring spring) {
             float value = (float) spring.getCurrentValue();
-            ViewHelper.setTranslationY(timestampLayout, value * getTimestampScrubY());
-            ViewHelper.setScaleX(timestampLayout, value * SCRUB_SCALE);
-            ViewHelper.setScaleY(timestampLayout, value * SCRUB_SCALE);
+            timestampLayout.setTranslationY(value * getTimestampScrubY());
+            timestampLayout.setScaleX(value * SCRUB_SCALE);
+            timestampLayout.setScaleY(value * SCRUB_SCALE);
             selectiveInvalidate(true);
         }
     };
@@ -148,7 +145,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     }
 
     private void resetBufferingStates(View view){
-        ValueAnimator toOpaque = ObjectAnimator.ofFloat(view, "alpha", ViewHelper.getAlpha(view), 1);
+        ValueAnimator toOpaque = ObjectAnimator.ofFloat(view, "alpha", view.getAlpha(), 1);
         toOpaque.setDuration(BUFFERING_RESET_ANIMATION_DURATION);
         toOpaque.start();
     }
@@ -199,7 +196,7 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
 
         if (isScrubbing) {
             animateToScrubMode();
-        } else if (ViewHelper.getTranslationY(timestampLayout) != 0 || newScrubState == SCRUB_STATE_CANCELLED) {
+        } else if (timestampLayout.getTranslationY() != 0 || newScrubState == SCRUB_STATE_CANCELLED) {
             animateFromScrubMode();
         }
     }
@@ -218,9 +215,9 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
         springY = springSystem.createSpring();
         springY.addListener(springListener);
         springY.setSpringConfig(SpringConfig.fromOrigamiTensionAndFriction(SPRING_TENSION, SPRING_FRICTION));
-        springY.setCurrentValue(ViewHelper.getTranslationY(timestampLayout) / getTimestampScrubY());
+        springY.setCurrentValue(timestampLayout.getTranslationY() / getTimestampScrubY());
         springY.setEndValue(1);
-        ViewHelper.setAlpha(background, 0);
+        background.setAlpha(0);
     }
 
     private int getTimestampScrubY() {
@@ -231,22 +228,19 @@ public class TimestampView extends LinearLayout implements ProgressAware, OnScru
     private void animateFromScrubMode() {
         timestampAnimator = new AnimatorSet();
 
-        final ObjectAnimator translationY = ObjectAnimator.ofFloat(timestampLayout, "translationY", ViewHelper.getTranslationY(timestampLayout), 0);
+        final ObjectAnimator translationY = ObjectAnimator.ofFloat(timestampLayout, "translationY", timestampLayout.getTranslationY(), 0);
         timestampAnimator.playTogether(
                 translationY,
-                ObjectAnimator.ofFloat(timestampLayout, "scaleX", ViewHelper.getScaleX(timestampLayout), 1),
-                ObjectAnimator.ofFloat(timestampLayout, "scaleY", ViewHelper.getScaleY(timestampLayout), 1),
-                ObjectAnimator.ofFloat(background, "alpha", ViewHelper.getAlpha(background), 1)
+                ObjectAnimator.ofFloat(timestampLayout, "scaleX", timestampLayout.getScaleX(), 1),
+                ObjectAnimator.ofFloat(timestampLayout, "scaleY", timestampLayout.getScaleY(), 1),
+                ObjectAnimator.ofFloat(background, "alpha", background.getAlpha(), 1)
         );
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            configureHardwareAnimation(timestampAnimator);
-        }
+        configureHardwareAnimation(timestampAnimator);
         timestampAnimator.setDuration(SCRUB_TRANSITION_DURATION);
         timestampAnimator.start();
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void configureHardwareAnimation(AnimatorSet set) {
         timestampLayout.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         set.addListener(new AnimatorListenerAdapter() {

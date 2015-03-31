@@ -4,20 +4,16 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.GridView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
@@ -112,7 +108,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         if (headerPresenter != null) {
             headerPresenter.onViewCreated(view, (ListView) listView);
         }
-        compatSetAdapter(getListBinding().getAdapter());
+        listView.setAdapter(getListBinding().getAdapter());
 
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
         refreshWrapper.attach(refreshLayout, new PullToRefreshListener());
@@ -125,7 +121,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         viewLifeCycle.unsubscribe();
         listBinding.clearViewObservers();
         refreshWrapper.detach();
-        compatSetAdapter(null);
+        listView.setAdapter(null);
         listView = null;
         super.onDestroyView(fragment);
     }
@@ -159,19 +155,6 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
                 retryWith(listBinding.resetFromCurrentPage());
             }
         });
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private void compatSetAdapter(@Nullable ListAdapter adapter) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            listView.setAdapter(adapter);
-        } else if (listView instanceof GridView) {
-            final GridView gridView = (GridView) listView;
-            gridView.setAdapter(adapter);
-        } else if (listView instanceof ListView) {
-            final ListView listView = (ListView) this.listView;
-            listView.setAdapter(adapter);
-        }
     }
 
     private final class ListRefreshSubscriber extends DefaultSubscriber<Iterable<ItemT>> {
