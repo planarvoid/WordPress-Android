@@ -43,7 +43,7 @@ public final class DebugUtils {
         // save logcat in file
         File outputFile = new File(Environment.getExternalStorageDirectory(), "logcat.txt");
         try {
-            Runtime.getRuntime().exec("logcat -f " + outputFile.getAbsolutePath());
+            Runtime.getRuntime().exec("logcat -df " + outputFile.getAbsolutePath());
         } catch (IOException e) {
             ErrorUtils.handleSilentException(e);
         }
