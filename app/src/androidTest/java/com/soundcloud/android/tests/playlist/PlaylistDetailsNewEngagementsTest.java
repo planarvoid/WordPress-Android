@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
@@ -31,7 +30,6 @@ public class PlaylistDetailsNewEngagementsTest extends ActivityTest<LauncherActi
 
     @Override
     public void setUp() throws Exception {
-        setDependsOn(Flag.NEW_PLAYLIST_ENGAGEMENTS);
         super.setUp();
 
         menuScreen = new MenuScreen(solo);

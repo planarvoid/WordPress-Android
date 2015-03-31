@@ -1,13 +1,11 @@
 package com.soundcloud.android.tests.playlist;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.elements.PlaylistItemOverflowMenu;
@@ -22,12 +20,6 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     @Override
     protected void logInHelper() {
         TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        setDependsOn(Flag.NEW_PLAYLIST_ENGAGEMENTS);
-        super.setUp();
     }
 
     // Given I liked a playlist
