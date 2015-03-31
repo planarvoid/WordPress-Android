@@ -270,7 +270,7 @@ public final class ImageUtils {
     }
 
     public static File createTempAvatarFile() {
-        try {is
+        try {
             return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp");
         } catch (IOException e) {
             Log.w(TAG, "error creating avatar temp file", e);
