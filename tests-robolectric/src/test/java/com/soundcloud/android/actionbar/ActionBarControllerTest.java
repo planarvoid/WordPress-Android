@@ -8,8 +8,10 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +24,8 @@ import android.view.MenuItem;
 public class ActionBarControllerTest {
     @Mock private ScActivity activity;
     @Mock private ActionBar actionBar;
+    @Mock private ApplicationProperties applicationProperties;
+    @Mock private DeviceHelper deviceHelper;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -29,7 +33,7 @@ public class ActionBarControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        actionBarController = new ActionBarController(eventBus);
+        actionBarController = new ActionBarController(eventBus, applicationProperties, deviceHelper);
     }
 
     @Test

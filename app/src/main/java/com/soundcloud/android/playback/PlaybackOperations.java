@@ -118,7 +118,7 @@ public class PlaybackOperations {
     public Observable<List<Urn>> playTracksShuffled(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
         List<Urn> shuffled = Lists.newArrayList(trackUrns);
         Collections.shuffle(shuffled);
-        return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, true);
+        return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, false);
     }
 
     public Observable<List<Urn>> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
@@ -127,7 +127,7 @@ public class PlaybackOperations {
                 .filter(FILTER_EMPTY_TRACK_LIST)
                 .map(SHUFFLE_TRACKS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(playNewQueueAction(0, playSessionSource, Urn.NOT_SET, true));
+                .doOnNext(playNewQueueAction(0, playSessionSource, Urn.NOT_SET, false));
     }
 
     private Observable<List<Urn>> playTracksList(Observable<List<Urn>> trackUrns, final Urn initialTrack,

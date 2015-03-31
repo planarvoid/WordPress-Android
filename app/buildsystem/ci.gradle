@@ -94,7 +94,7 @@ task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVe
 
 task uploadStore(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
-  commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', project.buildType, '-d'
+  commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', project.buildType
 }
 
 // *********************************************************************************************************************

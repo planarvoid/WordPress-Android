@@ -2,11 +2,14 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/upsell_offline_content"
-        android:title="@string/make_offline_available" />
+        android:title="@string/make_offline_available"
+        android:visible="false" />
     <item android:id="@+id/make_offline_available"
-        android:title="@string/make_offline_available" />
+        android:title="@string/make_offline_available"
+        android:visible="false" />
     <item android:id="@+id/make_offline_unavailable"
-        android:title="@string/make_offline_unavailable" />
+        android:title="@string/make_offline_unavailable"
+        android:visible="false" />
     <item android:id="@+id/add_to_likes"
-          android:title="@string/like"/>
+        android:title="@string/like" />
 </menu>

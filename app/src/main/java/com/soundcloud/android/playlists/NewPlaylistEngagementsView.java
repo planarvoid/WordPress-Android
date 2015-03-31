@@ -44,12 +44,12 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @OnClick(R.id.toggle_like)
-    void onToggleLikeClicked(View view) {
+    void onToggleLikeClicked() {
         getListener().onToggleLike(likeToggle.isChecked());
     }
 
     @OnClick(R.id.playlist_details_overflow_button)
-    void onOverflowButtonClicked(View view) {
+    void onOverflowButtonClicked() {
         popupMenuWrapper.show();
     }
 

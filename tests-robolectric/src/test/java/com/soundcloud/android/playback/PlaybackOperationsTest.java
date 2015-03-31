@@ -574,6 +574,14 @@ public class PlaybackOperationsTest {
     }
 
     @Test
+    public void playTracksShuffledDoesNotLoadRecommendations() {
+        final List<Urn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        playbackOperations.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES)).subscribe();
+
+        verify(playQueueManager, never()).fetchTracksRelatedToCurrentTrack();
+    }
+
+    @Test
     public void playTracksWithTrackListContainsTracksOpensCurrentTrack() {
         final Observable<Urn> tracks = Observable.just(Urn.forTrack(123L));
         playbackOperations

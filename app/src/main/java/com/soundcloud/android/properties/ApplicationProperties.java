@@ -18,6 +18,10 @@ import java.util.Locale;
 @Singleton
 public class ApplicationProperties {
 
+    private static final String ALPHA_LOGS_EMAIL = "android-alpha-logs@soundcloud.com";
+    private static final String BETA_LOGS_EMAIL = "android-beta-logs@soundcloud.com";
+    private static final String DEV_LOGS_EMAIL = "android-dev@soundcloud.com";
+
     private static BuildType BUILD_TYPE;
     private static boolean VERBOSE_LOGGING;
     private final String castReceiverAppId;
@@ -27,6 +31,19 @@ public class ApplicationProperties {
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_EMULATOR = "google_sdk".equals(Build.PRODUCT) || "sdk".equals(Build.PRODUCT) ||
             "full_x86".equals(Build.PRODUCT)   || "sdk_x86".equals(Build.PRODUCT);
+
+    public String getFeedbackEmail() {
+        switch (BUILD_TYPE){
+            case ALPHA:
+                return ALPHA_LOGS_EMAIL;
+            case BETA:
+                return BETA_LOGS_EMAIL;
+            case DEBUG:
+                return DEV_LOGS_EMAIL;
+            default:
+                return null;
+        }
+    }
 
     public enum BuildType {
         DEBUG,
@@ -59,6 +76,10 @@ public class ApplicationProperties {
 
     public boolean isAlphaBuild() {
         return BuildType.ALPHA.equals(BUILD_TYPE);
+    }
+
+    public boolean shouldAllowFeedback() {
+        return BuildType.ALPHA.equals(BUILD_TYPE) || BuildType.BETA.equals(BUILD_TYPE) || BuildType.DEBUG.equals(BUILD_TYPE);
     }
 
     public String getBuildType() {
