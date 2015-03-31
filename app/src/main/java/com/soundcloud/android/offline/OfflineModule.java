@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.settings.OfflineUsage;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
@@ -12,6 +13,7 @@ import javax.inject.Named;
         injects = {
                 OfflineContentService.class,
                 OfflineSettingsStorage.class,
+                OfflineUsage.class,
                 OfflineLikesDialog.class,
                 OfflineContentStartReceiver.class
         })

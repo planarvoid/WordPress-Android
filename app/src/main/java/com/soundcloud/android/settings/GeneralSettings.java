@@ -7,6 +7,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
@@ -19,6 +20,7 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 
 import javax.inject.Inject;
@@ -32,6 +34,8 @@ public class GeneralSettings {
     public static final String ANALYTICS_ENABLED = "analytics_enabled";
     public static final String CLEAR_CACHE = "clearCache";
     public static final String WIRELESS = "wireless";
+    public static final String GENERAL_SETTINGS = "generalSettings";
+    public static final String OFFLINE_SYNC_SETTINGS = "offlineSyncSettings";
     public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
     public static final String NOTIFICATION_SETTINGS = "notificationSettings";
     public static final String LEGAL = "legal";
@@ -47,19 +51,29 @@ public class GeneralSettings {
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final Context appContext;
+    private final ApplicationProperties applicationProperties;
 
     @Inject
-    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper, ImageOperations imageOperations) {
+    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper, ImageOperations imageOperations, ApplicationProperties applicationProperties) {
         this.appContext = appContext;
         this.resources = resources;
         this.deviceHelper = deviceHelper;
         this.imageOperations = imageOperations;
+        this.applicationProperties = applicationProperties;
     }
 
     public void setup(final SettingsActivity activity) {
         activity.addPreferencesFromResource(R.xml.settings_general);
+        removeOfflineSync(activity);
         setupListeners(activity);
         setupVersion(activity);
+    }
+
+    private void removeOfflineSync(final SettingsActivity activity) {
+        if (!applicationProperties.isAlphaBuild() && !applicationProperties.isDebugBuild()) {
+            final PreferenceCategory category = (PreferenceCategory) activity.findPreference(GENERAL_SETTINGS);
+            category.removePreference(activity.findPreference(OFFLINE_SYNC_SETTINGS));
+        }
     }
 
     private void setupVersion(SettingsActivity activity) {
@@ -80,6 +94,17 @@ public class GeneralSettings {
 
     @SuppressWarnings({"PMD.ExcessiveMethodLength", "PMD.ModifiedCyclomaticComplexity"})
     private void setupListeners(final SettingsActivity activity) {
+        activity.findPreference(OFFLINE_SYNC_SETTINGS).setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent intent = new Intent(activity, OfflineSettingsActivity.class);
+                        activity.startActivity(intent);
+                        return true;
+                    }
+                }
+        );
+
         activity.findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override

@@ -3,6 +3,8 @@
            tools:ignore="MissingTranslation">
 
     <!-- General settings -->
+    <string name="key_general">generalSettings</string>
+    <string name="key_offline_sync">offlineSyncSettings</string>
     <string name="key_account_sync">accountSyncSettings</string>
     <string name="key_notifications">notificationSettings</string>
     <string name="key_logout">logout</string>
@@ -38,6 +40,8 @@
 
     <!-- Offline sync settings -->
     <string name="key_offline_wifi_only">offline.wifiOnlySync</string>
+    <string name="key_offline_storage_limit">offline.storageLimit</string>
+    <string name="key_offline_remove_all_offline_content">offline.removeAllOfflineContent</string>
 
     <!-- Dev settings -->
     <string name="key_dev_recording_type">dev.defaultRecordingType</string>

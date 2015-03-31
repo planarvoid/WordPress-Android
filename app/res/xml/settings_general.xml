@@ -2,7 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
+            android:key="@string/key_general"
             android:title="@string/pref_basic_settings">
+
+        <Preference
+            android:key="@string/key_offline_sync"
+            android:title="@string/pref_offline_settings"
+            android:summary="@string/pref_offline_settings_summary"/>
 
         <Preference
                 android:key="@string/key_account_sync"

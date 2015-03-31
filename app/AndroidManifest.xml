@@ -317,12 +317,15 @@
         <!-- settings -->
         <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity"/>
 
+        <activity android:label="@string/title_offline_settings" android:name=".settings.OfflineSettingsActivity" />
+
         <activity android:label="@string/title_account_settings" android:name=".settings.AccountSettingsActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.ACCOUNT_PREF"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
+
         <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity"/>
         <activity android:enabled="@bool/debug_feature_screen" android:label="@string/dev_configuration_features" android:name=".settings.ConfigurationFeaturesActivity"/>
         <activity android:label="@string/title_about" android:name=".settings.LicensesActivity"/>

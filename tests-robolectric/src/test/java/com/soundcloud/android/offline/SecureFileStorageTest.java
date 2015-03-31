@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import android.net.Uri;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -103,6 +104,19 @@ public class SecureFileStorageTest {
 
         expect(file.exists()).toBeFalse();
         expect(storage.OFFLINE_DIR.exists()).toBeFalse();
+    }
+
+    @Test
+    public void returnsUsedStorage() throws Exception {
+        expect(storage.getStorageUsed()).toEqual(0l);
+
+        final File file = createOfflineFile();
+        OutputStream os = new FileOutputStream(file);
+        os.write(new byte[8192]);
+        os.close();
+
+        expect(storage.getStorageUsed()).toEqual(8192l);
+        storage.deleteTrack(TRACK_URN);
     }
 
     private File createOfflineFile() throws IOException {
