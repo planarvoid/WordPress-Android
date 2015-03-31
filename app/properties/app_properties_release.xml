@@ -22,12 +22,12 @@
     <bool name="feature_eventlogger_page_view">true</bool>
     <bool name="feature_reload_last_playqueue">true</bool>
     <bool name="feature_new_playlist_engagements">true</bool>
+    <bool name="feature_eventlogger_batching">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_offline_sync">false</bool>
-    <bool name="feature_eventlogger_batching">false</bool>
     <bool name="feature_eventlogger_search">false</bool>
 </resources>
