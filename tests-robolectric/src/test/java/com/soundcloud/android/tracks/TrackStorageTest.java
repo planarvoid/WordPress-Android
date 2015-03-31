@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -17,20 +18,20 @@ import org.junit.runner.RunWith;
 import java.util.Date;
 
 @RunWith(SoundCloudTestRunner.class)
-public class LoadTrackCommandTest extends StorageIntegrationTest {
+public class TrackStorageTest extends StorageIntegrationTest {
 
-    private LoadTrackCommand command;
+    private TrackStorage storage;
 
     @Before
     public void setup() {
-        command = new LoadTrackCommand(testScheduler());
+        storage = new TrackStorage(propellerRx());
     }
 
     @Test
     public void loadsTrack() throws Exception {
         ApiTrack apiTrack = testFixtures().insertTrack();
 
-        PropertySet track = command.with(apiTrack.getUrn()).call();
+        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         expect(track).toEqual(TestPropertySets.fromApiTrack(apiTrack));
     }
@@ -40,7 +41,7 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 1000L);
 
-        PropertySet track = command.with(apiTrack.getUrn()).call();
+        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
         expected.put(OfflineProperty.DOWNLOADED_AT, new Date(1000L));
@@ -52,7 +53,7 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 2000L);
 
-        PropertySet track = command.with(apiTrack.getUrn()).call();
+        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
         expected.put(OfflineProperty.REMOVED_AT, new Date(2000L));
@@ -65,14 +66,14 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
         apiTrack.setWaveformUrl(null);
         testFixtures().insertTrack(apiTrack);
 
-        command.with(apiTrack.getUrn()).call();
+        storage.loadTrack(apiTrack.getUrn());
     }
 
     @Test
     public void loadLikedTrack() throws Exception {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date());
 
-        PropertySet track = command.with(apiTrack.getUrn()).call();
+        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         expect(track.get(PlayableProperty.IS_LIKED)).toBeTrue();
     }
@@ -81,8 +82,25 @@ public class LoadTrackCommandTest extends StorageIntegrationTest {
     public void loadUnlikedTrack() throws Exception {
         ApiTrack apiTrack = testFixtures().insertTrack();
 
-        PropertySet track = command.with(apiTrack.getUrn()).call();
+        PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         expect(track.get(PlayableProperty.IS_LIKED)).toBeFalse();
+    }
+
+    @Test
+    public void shouldReturnEmptyPropertySetIfTrackNotFound() throws Exception {
+        PropertySet track = storage.loadTrack(Urn.forTrack(123)).toBlocking().single();
+
+        expect(track).toEqual(PropertySet.create());
+    }
+
+    @Test
+    public void descriptionByUrnEmitsInsertedDescription() throws Exception {
+        final Urn trackUrn = Urn.forTrack(123);
+        testFixtures().insertDescription(trackUrn, "description123");
+
+        PropertySet description = storage.loadTrackDescription(trackUrn).toBlocking().single();
+
+        expect(description).toEqual(PropertySet.from(TrackProperty.DESCRIPTION.bind("description123")));
     }
 }

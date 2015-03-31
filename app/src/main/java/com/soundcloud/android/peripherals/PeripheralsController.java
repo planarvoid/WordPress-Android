@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -25,13 +25,13 @@ public class PeripheralsController {
 
     private final Context context;
     private final EventBus eventBus;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
 
     @Inject
-    public PeripheralsController(Context context, EventBus eventBus, TrackOperations trackOperations) {
+    public PeripheralsController(Context context, EventBus eventBus, TrackRepository trackRepository) {
         this.context = context;
         this.eventBus = eventBus;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
     }
 
     public void subscribe() {
@@ -90,7 +90,7 @@ public class PeripheralsController {
     private class PlayQueueChangedSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
-            trackOperations.track(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
+            trackRepository.track(event.getCurrentTrackUrn()).subscribe(new CurrentTrackSubscriber());
         }
     }
 

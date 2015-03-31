@@ -17,7 +17,7 @@ import com.soundcloud.android.playback.service.managers.IAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
@@ -48,7 +48,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private final Handler delayedStopHandler = new DelayedStopHandler(this);
     @Inject EventBus eventBus;
     @Inject PlayQueueManager playQueueManager;
-    @Inject TrackOperations trackOperations;
+    @Inject TrackRepository trackRepository;
     @Inject AccountOperations accountOperations;
     @Inject StreamPlaya streamPlayer;
     @Inject PlaybackReceiver.Factory playbackReceiverFactory;
@@ -73,7 +73,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     @VisibleForTesting
     PlaybackService(PlayQueueManager playQueueManager,
                     EventBus eventBus,
-                    TrackOperations trackOperations,
+                    TrackRepository trackRepository,
                     AccountOperations accountOperations,
                     StreamPlaya streamPlaya,
                     PlaybackReceiver.Factory playbackReceiverFactory, Lazy<IRemoteAudioManager> remoteAudioManagerProvider,
@@ -81,7 +81,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
                     PlaybackSessionAnalyticsController analyticsController, AdsOperations adsOperations) {
         this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.accountOperations = accountOperations;
         this.streamPlayer = streamPlaya;
         this.playbackReceiverFactory = playbackReceiverFactory;
@@ -298,7 +298,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             streamPlayer.startBufferingMode(playQueueManager.getCurrentTrackUrn());
 
             loadTrackSubscription.unsubscribe();
-            loadTrackSubscription = trackOperations.track(playQueueManager.getCurrentTrackUrn())
+            loadTrackSubscription = trackRepository.track(playQueueManager.getCurrentTrackUrn())
                     .subscribe(new TrackInformationSubscriber(adsOperations.isCurrentTrackAudioAd()));
         }
     }

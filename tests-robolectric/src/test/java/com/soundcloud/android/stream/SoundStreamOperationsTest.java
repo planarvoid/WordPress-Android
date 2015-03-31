@@ -19,6 +19,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.schedulers.Schedulers;
 
 import android.content.Context;
 
@@ -41,7 +42,7 @@ public class SoundStreamOperationsTest {
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, context);
+        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, context, Schedulers.immediate());
     }
 
     @Test

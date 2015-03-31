@@ -58,4 +58,11 @@ public class PlaybackToastHelperTest {
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_resume_playing_to_continue);
     }
+
+    @Test
+    public void returnsTrueIfExceptionWasHandledFalseOtherwise() throws Exception {
+        expect(toastHelper.showToastOnPlaybackError(new TrackNotAvailableOffline())).toBeTrue();
+        expect(toastHelper.showToastOnPlaybackError(new UnskippablePeriodException())).toBeTrue();
+        expect(toastHelper.showToastOnPlaybackError(new RuntimeException())).toBeFalse();
+    }
 }

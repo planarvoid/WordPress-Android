@@ -11,6 +11,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
@@ -18,6 +19,7 @@ import rx.subscriptions.Subscriptions;
 import android.content.Context;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Singleton
@@ -26,6 +28,7 @@ public class OfflineContentController {
     private final Context context;
     private final OfflineSettingsStorage settingStorage;
     private final OfflinePlaylistStorage playlistStorage;
+    private final Scheduler scheduler;
     private final EventBus eventBus;
 
     private final Observable<Boolean> offlineLikedTracksToggle;
@@ -48,7 +51,7 @@ public class OfflineContentController {
     private final Func1<EntityStateChangedEvent, Observable<Boolean>> isOfflinePlaylist = new Func1<EntityStateChangedEvent, Observable<Boolean>>() {
         @Override
         public Observable<Boolean> call(EntityStateChangedEvent event) {
-            return playlistStorage.isOfflinePlaylist(event.getNextUrn());
+            return playlistStorage.isOfflinePlaylist(event.getNextUrn()).subscribeOn(scheduler);
         }
     };
 
@@ -57,11 +60,13 @@ public class OfflineContentController {
     @Inject
     public OfflineContentController(Context context, EventBus eventBus,
                                     OfflineSettingsStorage settingsStorage,
-                                    OfflinePlaylistStorage playlistStorage) {
+                                    OfflinePlaylistStorage playlistStorage,
+                                    @Named("Storage") Scheduler scheduler) {
         this.context = context;
         this.eventBus = eventBus;
         this.settingStorage = settingsStorage;
         this.playlistStorage = playlistStorage;
+        this.scheduler = scheduler;
 
         this.offlineLikedTracksToggle = settingsStorage.getOfflineLikedTracksStatusChange();
     }

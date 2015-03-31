@@ -28,7 +28,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -58,7 +58,7 @@ public class CastPlayerTest {
     @Mock private GoogleApiClient googleApiClient;
     @Mock private ProgressReporter progressReporter;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
-    @Mock private TrackOperations trackOperations;
+    @Mock private TrackRepository trackRepository;
     @Mock private PlayQueueManager playQueueManager;
 
     @Captor private ArgumentCaptor<Playa.StateTransition> transitionArgumentCaptor;
@@ -66,7 +66,7 @@ public class CastPlayerTest {
 
     @Before
     public void setUp() throws Exception {
-        castPlayer = new CastPlayer(castManager, progressReporter, imageOperations, resources, eventBus, trackOperations, playQueueManager);
+        castPlayer = new CastPlayer(castManager, progressReporter, imageOperations, resources, eventBus, trackRepository, playQueueManager);
     }
 
     @Test
@@ -290,14 +290,14 @@ public class CastPlayerTest {
     private PropertySet setupSuccesfulTrackInfoLoad() {
         final PropertySet track = TestPropertySets.expectedTrackForPlayer();
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
-        when(trackOperations.track(URN)).thenReturn(Observable.just(track));
+        when(trackRepository.track(URN)).thenReturn(Observable.just(track));
         return track;
     }
 
     @Test
     public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() throws Exception {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
-        when(trackOperations.track(URN)).thenReturn(Observable.<PropertySet>error(new Throwable("loading error")));
+        when(trackRepository.track(URN)).thenReturn(Observable.<PropertySet>error(new Throwable("loading error")));
 
         castPlayer.playCurrent();
 

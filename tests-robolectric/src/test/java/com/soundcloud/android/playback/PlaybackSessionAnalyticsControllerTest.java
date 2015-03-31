@@ -17,7 +17,7 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     private PlaybackSessionAnalyticsController analyticsController;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private TrackOperations trackOperations;
+    @Mock private TrackRepository trackRepository;
     @Mock private AccountOperations accountOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private TrackSourceInfo trackSourceInfo;
@@ -47,13 +47,13 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Before
     public void setUp() throws Exception {
         PropertySet track = TestPropertySets.expectedTrackForAnalytics(TRACK_URN, "allow", DURATION);
-        when(trackOperations.track(TRACK_URN)).thenReturn(Observable.just(track));
+        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
-                eventBus, trackOperations, accountOperations, playQueueManager, adsOperations);
+                eventBus, trackRepository, accountOperations, playQueueManager, adsOperations);
     }
 
     @Test
@@ -174,7 +174,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     @Test
     public void shouldPublishStopEventWhenUserSkipsBetweenTracksManually() {
         final Urn nextTrack = Urn.forTrack(456L);
-        when(trackOperations.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
+        when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
 
         publishPlayingEventForTrack(TRACK_URN);
         publishPlayingEventForTrack(nextTrack);
@@ -190,7 +190,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     public void shouldPublishStopEventWithAdDataWhenUserSkipsBetweenTracksManually() {
         PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
         final Urn nextTrack = Urn.forTrack(456L);
-        when(trackOperations.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
+        when(trackRepository.track(nextTrack)).thenReturn(Observable.just(TestPropertySets.expectedTrackForAnalytics(nextTrack)));
 
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAd);

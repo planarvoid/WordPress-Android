@@ -13,7 +13,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
@@ -34,7 +34,7 @@ public class PlaySessionController {
     private final Resources resources;
     private final EventBus eventBus;
     private final PlaybackOperations playbackOperations;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
     private final IRemoteAudioManager audioManager;
     private final ImageOperations imageOperations;
@@ -51,13 +51,13 @@ public class PlaySessionController {
 
     @Inject
     public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
-                                 PlayQueueManager playQueueManager, TrackOperations trackOperations, Lazy<IRemoteAudioManager> audioManager,
+                                 PlayQueueManager playQueueManager, TrackRepository trackRepository, Lazy<IRemoteAudioManager> audioManager,
                                  ImageOperations imageOperations, PlaySessionStateProvider playSessionStateProvider) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
         this.playSessionStateProvider = playSessionStateProvider;
@@ -90,7 +90,7 @@ public class PlaySessionController {
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
             currentTrackSubscription.unsubscribe();
-            currentTrackSubscription = trackOperations
+            currentTrackSubscription = trackRepository
                     .track(event.getCurrentTrackUrn())
                     .map(PropertySetFunctions.mergeInto(event.getCurrentMetaData()))
                     .subscribe(new CurrentTrackSubscriber());

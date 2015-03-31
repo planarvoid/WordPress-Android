@@ -30,7 +30,7 @@ import javax.inject.Inject;
 
 public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final LoadTrackCommand loadTrackCommand;
+    private final TrackRepository trackRepository;
     private final Context context;
     private final EventBus eventBus;
     private final LikeOperations likeOperations;
@@ -51,11 +51,11 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
 
     @Inject
     TrackItemMenuPresenter(PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                           LoadTrackCommand loadTrackCommand,
+                           TrackRepository trackRepository,
                            EventBus eventBus, Context context,
                            LikeOperations likeOperations, PlaylistOperations playlistOperations, ScreenProvider screenProvider) {
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.loadTrackCommand = loadTrackCommand;
+        this.trackRepository = trackRepository;
         this.eventBus = eventBus;
         this.context = context;
         this.likeOperations = likeOperations;
@@ -90,9 +90,8 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapperListener {
 
     private void loadTrack(PopupMenuWrapper menu) {
         trackSubscription.unsubscribe();
-        trackSubscription = loadTrackCommand
-                .with(track.getEntityUrn())
-                .toObservable()
+        trackSubscription = trackRepository
+                .track(track.getEntityUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackSubscriber(track, menu));
     }

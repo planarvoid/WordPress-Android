@@ -20,7 +20,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -52,7 +52,7 @@ public class PlaybackServiceTest {
 
     @Mock private ApplicationProperties applicationProperties;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private TrackOperations trackOperations;
+    @Mock private TrackRepository trackRepository;
     @Mock private AccountOperations accountOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private StreamPlaya streamPlayer;
@@ -68,7 +68,7 @@ public class PlaybackServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        playbackService = new PlaybackService(playQueueManager, eventBus, trackOperations,
+        playbackService = new PlaybackService(playQueueManager, eventBus, trackRepository,
                 accountOperations, streamPlayer,
                 playbackReceiverFactory, audioManagerProvider, playbackNotificationController, analyticsController, adsOperations);
 
@@ -165,7 +165,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onPlaystateChangedPublishesStateTransition() throws Exception {
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
@@ -191,7 +191,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void shouldForwardPlayerStateTransitionToAnalyticsController() {
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(stateTransition.getNewState()).thenReturn(Playa.PlayaState.BUFFERING);
         when(stateTransition.trackEnded()).thenReturn(false);
@@ -216,7 +216,7 @@ public class PlaybackServiceTest {
 
     @Test
     public void onProgressPublishesAProgressEvent() throws Exception {
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         playbackService.onCreate();
         playbackService.openCurrent(track, false);
@@ -233,8 +233,8 @@ public class PlaybackServiceTest {
     public void openCurrentWithStreamableTrackCallsPlayOnStreamPlayer() throws Exception {
         playbackService.onCreate();
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
 
         playbackService.openCurrent(track, false);
 
@@ -247,7 +247,7 @@ public class PlaybackServiceTest {
         when(streamPlayer.getLastStateTransition()).thenReturn(Playa.StateTransition.DEFAULT);
         when(adsOperations.isCurrentTrackAudioAd()).thenReturn(true);
         when(playQueueManager.isQueueEmpty()).thenReturn(false);
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(track));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(track));
 
         playbackService.openCurrent();
 

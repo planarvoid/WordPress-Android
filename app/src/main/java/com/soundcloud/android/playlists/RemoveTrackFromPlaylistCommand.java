@@ -1,6 +1,5 @@
 package com.soundcloud.android.playlists;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
@@ -16,7 +15,6 @@ import com.soundcloud.propeller.rx.RxResultMapper;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.util.List;
 
 class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams, WriteResult, Integer> {
@@ -26,11 +24,6 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
     @Inject
     RemoveTrackFromPlaylistCommand(PropellerDatabase propeller) {
         super(propeller);
-    }
-
-    @VisibleForTesting
-    RemoveTrackFromPlaylistCommand(PropellerDatabase propeller, Provider<Thread> currentThreadProvider) {
-        super(propeller, currentThreadProvider);
     }
 
     @Override

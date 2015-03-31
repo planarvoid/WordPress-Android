@@ -17,7 +17,7 @@ import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
@@ -26,12 +26,12 @@ import java.util.List;
 
 class SoundStreamStorage {
 
-    private final DatabaseScheduler scheduler;
+    private final PropellerRx propellerRx;
     private final PropellerDatabase database;
 
     @Inject
-    public SoundStreamStorage(DatabaseScheduler scheduler, PropellerDatabase database) {
-        this.scheduler = scheduler;
+    public SoundStreamStorage(PropellerRx propellerRx, PropellerDatabase database) {
+        this.propellerRx = propellerRx;
         this.database = database;
     }
 
@@ -42,7 +42,7 @@ class SoundStreamStorage {
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
-        return scheduler.scheduleQuery(query).map(new StreamItemMapper());
+        return propellerRx.query(query).map(new StreamItemMapper());
     }
 
     public List<PropertySet> loadStreamItemsSince(final long timestamp, final int limit) {
@@ -74,7 +74,7 @@ class SoundStreamStorage {
         Query query = Query.from(Table.SoundStreamView.name())
                 .select(SoundStreamView.SOUND_ID)
                 .whereEq(SoundStreamView.SOUND_TYPE, Sounds.TYPE_TRACK);
-        return scheduler.scheduleQuery(query).map(new TrackUrnMapper());
+        return propellerRx.query(query).map(new TrackUrnMapper());
     }
 
     private Query likeQuery() {

@@ -23,7 +23,7 @@ import com.soundcloud.android.playback.service.Playa.Reason;
 import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
@@ -50,7 +50,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private final ImageOperations imageOperations;
     private final Resources resources;
     private final EventBus eventBus;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
     private final PlayQueueManager playQueueManager;
 
     private Urn currentTrackUrn;
@@ -58,13 +58,13 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
     @Inject
     public CastPlayer(VideoCastManager castManager, ProgressReporter progressReporter,
-                      ImageOperations imageOperations, Resources resources, EventBus eventBus, TrackOperations trackOperations, PlayQueueManager playQueueManager) {
+                      ImageOperations imageOperations, Resources resources, EventBus eventBus, TrackRepository trackRepository, PlayQueueManager playQueueManager) {
         this.castManager = castManager;
         this.progressReporter = progressReporter;
         this.imageOperations = imageOperations;
         this.resources = resources;
         this.eventBus = eventBus;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.playQueueManager = playQueueManager;
 
         castManager.addVideoCastConsumer(this);
@@ -164,7 +164,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         currentTrackUrn = playQueueManager.getCurrentTrackUrn();
 
         trackInfoSubscription.unsubscribe();
-        trackInfoSubscription = trackOperations.track(currentTrackUrn).subscribe(new TrackInformationSubscriber(time));
+        trackInfoSubscription = trackRepository.track(currentTrackUrn).subscribe(new TrackInformationSubscriber(time));
     }
 
     private void play(PropertySet track, long fromPos) {

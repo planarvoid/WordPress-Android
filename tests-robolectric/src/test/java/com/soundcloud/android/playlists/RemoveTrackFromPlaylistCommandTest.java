@@ -2,7 +2,6 @@ package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -11,20 +10,17 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class RemoveTrackFromPlaylistCommandTest extends StorageIntegrationTest {
 
-    RemoveTrackFromPlaylistCommand command;
-
-    @Mock private Thread backgroundThread;
+    private RemoveTrackFromPlaylistCommand command;
 
     @Before
     public void setUp() throws Exception {
-        command = new RemoveTrackFromPlaylistCommand(propeller(), providerOf(backgroundThread));
+        command = new RemoveTrackFromPlaylistCommand(propeller());
     }
 
     @Test

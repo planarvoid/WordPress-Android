@@ -27,7 +27,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -57,7 +57,7 @@ public class PlayerWidgetControllerTest {
     @Mock private PlayerWidgetPresenter playerWidgetPresenter;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private PlayQueueManager playQueueManager;
-    @Mock private TrackOperations trackOperations;
+    @Mock private TrackRepository trackRepository;
     @Mock private AdsOperations adsOperations;
     @Mock private FeatureFlags featureFlags;
     @Mock private LikeOperations likeOperations;
@@ -69,7 +69,7 @@ public class PlayerWidgetControllerTest {
                 playerWidgetPresenter,
                 playSessionStateProvider,
                 playQueueManager,
-                trackOperations,
+                trackRepository,
                 eventBus,
                 likeOperations);
         when(context.getResources()).thenReturn(Robolectric.application.getResources());
@@ -98,7 +98,7 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForNewQueueIfCurrentTrackIsNotAudioAd() throws CreateModelException {
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN));
@@ -111,7 +111,7 @@ public class PlayerWidgetControllerTest {
         final PropertySet audioAdProperties = audioAdProperties(Urn.forTrack(123L));
 
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties);
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(WIDGET_TRACK_URN, audioAdProperties));
@@ -121,7 +121,7 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void shouldUpdatePresenterPlayableInformationOnCurrentPlayQueueTrackEventForPositionChange() throws CreateModelException {
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         controller.subscribe();
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(WIDGET_TRACK_URN));
@@ -134,7 +134,7 @@ public class PlayerWidgetControllerTest {
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(WIDGET_TRACK_URN);
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
-        when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
         EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
@@ -150,7 +150,7 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterPlayStateInformationWhenChangedPlayableIsCurrentlyPlayingTrackAd() {
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
         when(playQueueManager.isCurrentTrack(WIDGET_TRACK_URN)).thenReturn(true);
-        when(trackOperations.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(WIDGET_TRACK_URN)).thenReturn(Observable.just(widgetTrack));
         EntityStateChangedEvent event = EntityStateChangedEvent.fromLike(WIDGET_TRACK_URN, true, 1);
         controller.subscribe();
 
@@ -206,7 +206,7 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterTrackInformationWhenCurrentTrackIsNotAudioAd() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playQueueManager.getCurrentMetaData()).thenReturn(PropertySet.create());
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
 
         controller.update();
 
@@ -216,7 +216,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void shouldUpdatePresenterTrackWithAdInformationWhenCurrentTrackIsAudioAd() {
         when(playQueueManager.getCurrentMetaData()).thenReturn(audioAdProperties(Urn.forTrack(123L)));
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
 
         controller.update();
 
@@ -227,7 +227,7 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterWithCurrentPlayStateIfIsPlayingOnUpdate() {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
 
         controller.update();
 
@@ -238,7 +238,7 @@ public class PlayerWidgetControllerTest {
     public void shouldUpdatePresenterWithCurrentPlayStateIfIsNotPlayingOnUpdate() {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(false);
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.<PropertySet>empty());
 
         controller.update();
 
@@ -248,7 +248,7 @@ public class PlayerWidgetControllerTest {
     @Test
     public void toggleLikeActionTriggersToggleLikeOperations() throws CreateModelException {
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);
@@ -260,7 +260,7 @@ public class PlayerWidgetControllerTest {
     public void toggleLikeActionShouldEmitLikeUIEvent() {
         when(playQueueManager.getScreenTag()).thenReturn("context_screen");
         when(playQueueManager.isCurrentTrack(any(Urn.class))).thenReturn(true);
-        when(trackOperations.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
+        when(trackRepository.track(any(Urn.class))).thenReturn(Observable.just(widgetTrack));
         when(likeOperations.toggleLike(any(Urn.class), anyBoolean())).thenReturn(Observable.<PropertySet>empty());
 
         controller.handleToggleLikeAction(true);

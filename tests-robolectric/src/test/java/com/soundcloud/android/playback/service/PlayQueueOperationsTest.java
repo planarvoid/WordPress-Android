@@ -13,9 +13,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -34,6 +34,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.schedulers.Schedulers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -54,7 +55,7 @@ public class PlayQueueOperationsTest {
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor sharedPreferencesEditor;
     @Mock private PlayQueue playQueue;
-    @Mock private ApiScheduler apiScheduler;
+    @Mock private ApiClientRx apiClientRx;
     @Mock private Observer observer;
 
     private PlaySessionSource playSessionSource;
@@ -64,7 +65,7 @@ public class PlayQueueOperationsTest {
     public void before() throws CreateModelException {
         when(context.getSharedPreferences(PlayQueueOperations.SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)).thenReturn(sharedPreferences);
 
-        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, storeTracksCommand, apiScheduler);
+        playQueueOperations = new PlayQueueOperations(context, playQueueStorage, storeTracksCommand, apiClientRx, Schedulers.immediate());
 
         when(sharedPreferences.edit()).thenReturn(sharedPreferencesEditor);
         when(sharedPreferencesEditor.putString(anyString(), anyString())).thenReturn(sharedPreferencesEditor);
@@ -155,11 +156,11 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(observer);
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiScheduler).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
         expect(argumentCaptor.getValue().getEncodedPath()).toEqual(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
     }
@@ -172,7 +173,7 @@ public class PlayQueueOperationsTest {
         ApiTrack suggestion2 = ModelFixtures.create(ApiTrack.class);
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(relatedObserver);
 
@@ -189,7 +190,7 @@ public class PlayQueueOperationsTest {
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
         RecommendedTracksCollection collection = createCollection(
                 ModelFixtures.create(ApiTrack.class));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
 

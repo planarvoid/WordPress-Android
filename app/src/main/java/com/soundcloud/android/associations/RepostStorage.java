@@ -2,10 +2,8 @@ package com.soundcloud.android.associations;
 
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.commands.DefaultWriteStorageCommand;
-import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -18,30 +16,20 @@ import com.soundcloud.propeller.query.Where;
 import android.content.ContentValues;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 
 class RepostStorage {
 
     private final PropellerDatabase propeller;
     private final DateProvider dateProvider;
-    private final Provider<Thread> currentThreadProvider;
 
     @Inject
     RepostStorage(PropellerDatabase propeller, DateProvider dateProvider) {
         this.propeller = propeller;
         this.dateProvider = dateProvider;
-        this.currentThreadProvider = WriteStorageCommand.CURRENT_THREAD_PROVIDER;
-    }
-
-    @VisibleForTesting
-    RepostStorage(PropellerDatabase propeller, DateProvider dateProvider, Provider<Thread> currentThreadProvider) {
-        this.propeller = propeller;
-        this.dateProvider = dateProvider;
-        this.currentThreadProvider = currentThreadProvider;
     }
 
     Command<Urn, InsertResult> addRepost() {
-        return new DefaultWriteStorageCommand<Urn, InsertResult>(propeller, currentThreadProvider) {
+        return new DefaultWriteStorageCommand<Urn, InsertResult>(propeller) {
             @Override
             public InsertResult write(PropellerDatabase propeller, Urn urn) {
                 final ContentValues values = new ContentValues();
@@ -56,7 +44,7 @@ class RepostStorage {
     }
 
     Command<Urn, ChangeResult> removeRepost() {
-        return new DefaultWriteStorageCommand<Urn, ChangeResult>(propeller, currentThreadProvider) {
+        return new DefaultWriteStorageCommand<Urn, ChangeResult>(propeller) {
             @Override
             public ChangeResult write(PropellerDatabase propeller, Urn urn) {
                 final Where whereClause = filter()

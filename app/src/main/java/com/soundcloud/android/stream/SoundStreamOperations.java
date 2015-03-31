@@ -12,12 +12,14 @@ import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.Pager;
 import rx.functions.Func1;
 
 import android.content.Context;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,6 +36,7 @@ class SoundStreamOperations {
     private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
     private final Context appContext;
+    private final Scheduler scheduler;
 
     private final Pager<List<PropertySet>> pager = new Pager<List<PropertySet>>() {
         @Override
@@ -55,10 +58,11 @@ class SoundStreamOperations {
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          Context appContext) {
+                          Context appContext, @Named("Storage") Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.appContext = appContext;
+        this.scheduler = scheduler;
     }
 
     Pager<List<PropertySet>> pager() {
@@ -78,7 +82,10 @@ class SoundStreamOperations {
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback() {
-        return soundStreamStorage.trackUrns().toList();
+        return soundStreamStorage
+                .trackUrns()
+                .subscribeOn(scheduler)
+                .toList();
     }
 
     public void updateLastSeen() {
@@ -89,6 +96,7 @@ class SoundStreamOperations {
         Log.d(TAG, "Preparing page; timestamp=" + timestamp);
         return soundStreamStorage
                 .streamItemsBefore(timestamp, PAGE_SIZE).toList()
+                .subscribeOn(scheduler)
                 .flatMap(handleLocalResult(timestamp, syncCompleted));
     }
 

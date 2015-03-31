@@ -1,7 +1,6 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -23,14 +22,13 @@ public class AddTrackToPlaylistCommandTest extends StorageIntegrationTest {
     private static final Date ADDED_AT = new Date();
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
-    AddTrackToPlaylistCommand command;
+    private AddTrackToPlaylistCommand command;
 
-    @Mock private Thread backgroundThread;
     @Mock private DateProvider dateProvider;
 
     @Before
     public void setUp() throws Exception {
-        command = new AddTrackToPlaylistCommand(propeller(), providerOf(backgroundThread), dateProvider);
+        command = new AddTrackToPlaylistCommand(propeller(), dateProvider);
         when(dateProvider.getCurrentDate()).thenReturn(ADDED_AT);
     }
 

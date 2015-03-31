@@ -7,8 +7,10 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import rx.Observable;
+import rx.Scheduler;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.List;
 
@@ -19,6 +21,7 @@ class DownloadOperations {
     private final PlayQueueManager playQueueManager;
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
+    private final Scheduler scheduler;
 
     @Inject
     public DownloadOperations(StrictSSLHttpClient httpClient,
@@ -26,13 +29,15 @@ class DownloadOperations {
                               DeletePendingRemovalCommand deleteOfflineContent,
                               PlayQueueManager playQueueManager,
                               NetworkConnectionHelper connectionHelper,
-                              OfflineSettingsStorage offlineSettings) {
+                              OfflineSettingsStorage offlineSettings,
+                              @Named("Storage") Scheduler scheduler) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;
         this.playQueueManager = playQueueManager;
         this.connectionHelper = connectionHelper;
         this.offlineSettings = offlineSettings;
+        this.scheduler = scheduler;
     }
 
     boolean isValidNetwork() {
@@ -40,7 +45,9 @@ class DownloadOperations {
     }
 
     Observable<List<Urn>> deletePendingRemovals() {
-        return deleteOfflineContent.with(playQueueManager.getCurrentTrackUrn()).toObservable();
+        return deleteOfflineContent
+                .toObservable(playQueueManager.getCurrentTrackUrn())
+                .subscribeOn(scheduler);
     }
 
     void deleteTrack(Urn urn) {

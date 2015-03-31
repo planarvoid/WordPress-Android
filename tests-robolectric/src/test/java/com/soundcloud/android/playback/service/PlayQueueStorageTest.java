@@ -33,7 +33,7 @@ public class PlayQueueStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlayQueueStorage(testScheduler());
+        storage = new PlayQueueStorage(propellerRx());
     }
 
     @Test

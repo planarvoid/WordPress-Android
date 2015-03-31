@@ -13,7 +13,7 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackOperations;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -46,7 +46,7 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     private final PlayQueueManager playQueueManager;
     private final PlaySessionStateProvider playSessionStateProvider;
-    private final TrackOperations trackOperations;
+    private final TrackRepository trackRepository;
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
     private final EventBus eventBus;
@@ -83,10 +83,10 @@ public class TrackPagerAdapter extends PagerAdapter {
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider,
-                      TrackOperations trackOperations, TrackPagePresenter trackPagePresenter, AdPagePresenter adPagePresenter,
+                      TrackRepository trackRepository, TrackPagePresenter trackPagePresenter, AdPagePresenter adPagePresenter,
                       EventBus eventBus) {
         this.playQueueManager = playQueueManager;
-        this.trackOperations = trackOperations;
+        this.trackRepository = trackRepository;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionStateProvider = playSessionStateProvider;
         this.adPagePresenter = adPagePresenter;
@@ -331,7 +331,7 @@ public class TrackPagerAdapter extends PagerAdapter {
         ReplaySubject<PropertySet> trackSubject = trackObservableCache.get(urn);
         if (trackSubject == null) {
             trackSubject = ReplaySubject.create();
-            trackOperations
+            trackRepository
                     .track(urn)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(trackSubject);

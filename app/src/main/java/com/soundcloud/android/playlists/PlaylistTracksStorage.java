@@ -20,7 +20,7 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -31,13 +31,13 @@ import java.util.List;
 
 class PlaylistTracksStorage {
     private static final String TRACK_EXISTS_COL_ALIAS = "track_exists_in_playlist";
-    private final DatabaseScheduler scheduler;
+    private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
     private final AccountOperations accountOperations;
 
     @Inject
-    PlaylistTracksStorage(DatabaseScheduler scheduler, DateProvider dateProvider, AccountOperations accountOperations) {
-        this.scheduler = scheduler;
+    PlaylistTracksStorage(PropellerRx propellerRx, DateProvider dateProvider, AccountOperations accountOperations) {
+        this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
         this.accountOperations = accountOperations;
     }
@@ -46,7 +46,7 @@ class PlaylistTracksStorage {
         final long createdAt = System.currentTimeMillis();
         final long localId = -createdAt;
 
-        return scheduler.scheduleTransaction(new PropellerDatabase.Transaction() {
+        return propellerRx.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.insert(Table.Sounds, getContentValuesForPlaylistsTable(localId, createdAt, title, isPrivate)));
@@ -57,7 +57,7 @@ class PlaylistTracksStorage {
     }
 
     Observable<List<PropertySet>> playlistsForAddingTrack(Urn trackUrn) {
-        return scheduler.scheduleQuery(queryPlaylistWithTrackExistStatus(trackUrn))
+        return propellerRx.query(queryPlaylistWithTrackExistStatus(trackUrn))
                 .map(new PlaylistWithTrackMapper()).toList();
     }
 

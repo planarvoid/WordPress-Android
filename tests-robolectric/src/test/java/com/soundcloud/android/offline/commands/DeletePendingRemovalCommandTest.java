@@ -37,7 +37,7 @@ public class DeletePendingRemovalCommandTest extends StorageIntegrationTest {
     public void deletePendingRemovalTrackFromTheDatabase() throws Exception {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
 
-        command.call();
+        command.call(Urn.NOT_SET);
 
         assertDownloadPendingRemovalCount(TRACK_URN, counts(0));
         verify(fileStorage).deleteTrack(TRACK_URN);
@@ -48,7 +48,8 @@ public class DeletePendingRemovalCommandTest extends StorageIntegrationTest {
         final long removedAtTimestamp = System.currentTimeMillis() - 5 * 60000;
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, removedAtTimestamp);
 
-        List<Urn> removals = command.call();
+        List<Urn> removals = command.call(Urn.NOT_SET);
+
         expect(removals).toContainExactly(TRACK_URN);
     }
 
@@ -56,16 +57,16 @@ public class DeletePendingRemovalCommandTest extends StorageIntegrationTest {
     public void doesNotDeleteNotPendingRemoval() throws Exception {
         testFixtures().insertCompletedTrackDownload(TRACK_URN, System.currentTimeMillis());
 
-        expect(command.call()).toBeEmpty();
+        expect(command.call(Urn.NOT_SET)).toBeEmpty();
         assertDownloadedTrackCount(TRACK_URN, counts(1));
         verify(fileStorage, never()).deleteTrack(TRACK_URN);
     }
 
     @Test
-    public void doesNotDeleteTrackInInput() throws Exception {
+    public void doesNotDeleteTrackIfCurrentlyPlaying() throws Exception {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
 
-        command.with(TRACK_URN).call();
+        command.call(TRACK_URN);
 
         assertDownloadPendingRemovalCount(TRACK_URN, counts(1));
         verify(fileStorage, never()).deleteTrack(TRACK_URN);
