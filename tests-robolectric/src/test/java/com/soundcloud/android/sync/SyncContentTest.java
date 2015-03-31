@@ -26,8 +26,6 @@ public class SyncContentTest {
     public void before() {
         resolver = Robolectric.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
-
-        SyncContent.setAllSyncEnabledPrefs(Robolectric.application,true);
     }
 
     @Test
@@ -128,7 +126,7 @@ public class SyncContentTest {
 
     @Test
     public void shouldSyncAll() throws Exception {
-        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
+        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT);
     }
 
@@ -144,7 +142,7 @@ public class SyncContentTest {
                 );
         new LocalCollectionDAO(resolver).create(c);
 
-        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
+        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT - 1);
     }
 
@@ -160,7 +158,7 @@ public class SyncContentTest {
                 );
         new LocalCollectionDAO(resolver).create(c);
 
-        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
+        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT -1);
     }
 
@@ -176,7 +174,7 @@ public class SyncContentTest {
                 );
         new LocalCollectionDAO(resolver).create(c);
 
-        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
+        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT);
     }
 
@@ -192,7 +190,7 @@ public class SyncContentTest {
                 );
         new LocalCollectionDAO(resolver).create(c);
 
-        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
+        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT -1);
         expect(urisToSync).not.toContain(SyncContent.MySounds.content.uri);
     }
@@ -209,14 +207,14 @@ public class SyncContentTest {
                 );
         new LocalCollectionDAO(resolver).create(c);
 
-        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
+        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT);
 
         android.os.Bundle syncResult = new android.os.Bundle();
         syncResult.putBoolean(SyncContent.MySounds.content.uri.toString(),false);
         SyncContent.updateCollections(syncStateManager, syncResult);
 
-        urisToSync = syncStateManager.getCollectionsDueForSync(Robolectric.application, SyncContent.NON_ACTIVITIES, false);
+        urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
         expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT -1);
     }
 }

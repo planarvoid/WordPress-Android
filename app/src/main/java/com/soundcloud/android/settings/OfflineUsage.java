@@ -5,7 +5,8 @@ import com.soundcloud.android.offline.SecureFileStorage;
 
 import javax.inject.Inject;
 
-public class OfflineUsage {
+class OfflineUsage {
+
     private final SecureFileStorage fileStorage;
     private final OfflineSettingsStorage offlineSettings;
 
@@ -70,4 +71,5 @@ public class OfflineUsage {
     private long getAvailableBeforeOffline() {
         return deviceAvailable + offlineUsed;
     }
+
 }

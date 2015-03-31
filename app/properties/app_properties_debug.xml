@@ -25,6 +25,5 @@
     <bool name="feature_eventlogger_search">true</bool>
 
     <!-- Feature flags (disabled) -->
-    <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
 </resources>

@@ -17,21 +17,21 @@
             android:title="@string/pref_revoke_access"
             android:order="3" />
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/key_analytics_enabled"
             android:summary="@string/pref_analytics_desc"
             android:title="@string/pref_analytics"
             android:order="4" />
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:defaultValue="true"
             android:key="@string/key_report_crashes"
             android:summary="@string/pref_crashlogs_desc"
             android:title="@string/pref_crashlogs"
             android:order="5" />
 
-        <CheckBoxPreference
+        <SwitchPreference
             android:key="@string/key_sync_wifi_only"
             android:title="@string/pref_sync_wifi_only"
             android:summary="@string/pref_sync_wifi_only_description"

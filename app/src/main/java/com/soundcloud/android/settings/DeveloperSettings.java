@@ -1,5 +1,15 @@
 package com.soundcloud.android.settings;
 
+import static android.preference.Preference.OnPreferenceClickListener;
+import static com.soundcloud.android.settings.SettingKey.DEV_CLEAR_NOTIFICATIONS;
+import static com.soundcloud.android.settings.SettingKey.DEV_CLEAR_RECORDINGS;
+import static com.soundcloud.android.settings.SettingKey.DEV_CONFIG_FEATURES;
+import static com.soundcloud.android.settings.SettingKey.DEV_CRASH;
+import static com.soundcloud.android.settings.SettingKey.DEV_HTTP_PROXY;
+import static com.soundcloud.android.settings.SettingKey.DEV_RECORDING_TYPE;
+import static com.soundcloud.android.settings.SettingKey.DEV_REWIND_NOTIFICATIONS;
+import static com.soundcloud.android.settings.SettingKey.DEV_SYNC_NOW;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -10,14 +20,15 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Handler;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -25,128 +36,105 @@ import javax.inject.Inject;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class DeveloperSettings {
-
-    // TODO: Currently these constants must match the values in settings_keys.xml - refactor!
-    public static final String DEV_CLEAR_NOTIFICATIONS = "dev.clearNotifications";
-    public static final String DEV_REWIND_NOTIFICATIONS = "dev.rewindNotifications";
-    public static final String DEV_SYNC_NOW = "dev.syncNow";
-    public static final String DEV_CRASH = "dev.crash";
-    public static final String DEV_CLEAR_RECORDINGS = "dev.clearRecordings";
-    public static final String DEV_HTTP_PROXY = "dev.http.proxy";
-    public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
-    public static final String DEV_RECORDING_TYPE_RAW = "raw";
-    public static final String DEV_CONFIG_FEATURES = "dev.configFeatures";
-    public static final String DEV_FLUSH_EVENTLOGGER_INSTANTLY = "dev.flushEventloggerInstantly";
+class DeveloperSettings implements OnPreferenceClickListener {
 
     private final SoundCloudApplication application;
+
+    private PreferenceFragment settings;
 
     @Inject
     public DeveloperSettings(SoundCloudApplication application) {
         this.application = application;
     }
 
-    public void setup(final PreferenceActivity activity) {
-        activity.addPreferencesFromResource(R.xml.settings_dev);
-        setupPreferenceListeners(activity);
+    public void addTo(final PreferenceFragment settings) {
+        this.settings = settings;
+        settings.addPreferencesFromResource(R.xml.settings_dev);
+        setupPreferenceListeners(settings);
     }
 
-    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    private void setupPreferenceListeners(final PreferenceActivity activity) {
-        activity.findPreference(DEV_CLEAR_NOTIFICATIONS).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(application, SyncAdapterService.CLEAR_ALL);
-                        return true;
-                    }
-                });
+    private void setupPreferenceListeners(final PreferenceFragment settings) {
 
-        activity.findPreference(DEV_REWIND_NOTIFICATIONS).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(application, SyncAdapterService.REWIND_LAST_DAY);
-                        return true;
-                    }
-                });
+        settings.findPreference(DEV_CLEAR_NOTIFICATIONS).setOnPreferenceClickListener(this);
+        settings.findPreference(DEV_REWIND_NOTIFICATIONS).setOnPreferenceClickListener(this);
+        settings.findPreference(DEV_SYNC_NOW).setOnPreferenceClickListener(this);
+        settings.findPreference(DEV_CRASH).setOnPreferenceClickListener(this);
+        settings.findPreference(DEV_CONFIG_FEATURES).setOnPreferenceClickListener(this);
+        settings.findPreference(DEV_CLEAR_RECORDINGS).setOnPreferenceClickListener(this);
+        settings.findPreference(DEV_CLEAR_RECORDINGS).setOnPreferenceClickListener(this);
 
-
-        activity.findPreference(DEV_SYNC_NOW).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        SyncAdapterService.requestNewSync(application, -1);
-                        return true;
-                    }
-                });
-
-
-        activity.findPreference(DEV_CRASH).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (!AndroidUtils.isUserAMonkey()) {
-                            throw new RuntimeException("developer requested crash");
-                        } else {
-                            return true;
-                        }
-                    }
-                });
-
-        activity.findPreference(DEV_HTTP_PROXY).setOnPreferenceChangeListener(
+        settings.findPreference(DEV_HTTP_PROXY).setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
                     @Override
-                    public boolean onPreferenceChange(Preference preference, Object s) {
-                        if (!TextUtils.isEmpty(s.toString())) {
-                            try {
-                                URL proxy = new URL(s.toString());
-                                if (!"https".equals(proxy.getProtocol()) &&
-                                        !"http".equals(proxy.getProtocol())) {
-                                    throw new MalformedURLException("Need http/https url");
-                                }
-                            } catch (MalformedURLException e) {
-                                Toast.makeText(activity, R.string.pref_dev_http_proxy_invalid_url, Toast.LENGTH_SHORT).show();
-                                return false;
-                            }
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        if (!TextUtils.isEmpty(newValue.toString())) {
+                            changeProxy(newValue.toString());
                         }
-                        final Intent intent = new Intent(Actions.CHANGE_PROXY_ACTION);
-                        if (!TextUtils.isEmpty(s.toString())) {
-                            intent.putExtra("proxy", s.toString());
-                        }
-                        activity.sendBroadcast(intent);
                         return true;
                     }
                 }
         );
 
-        activity.findPreference(DEV_CONFIG_FEATURES).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                activity.startActivity(new Intent(activity, ConfigurationFeaturesActivity.class));
-                return true;
-            }
-        });
-
-        activity.findPreference(DEV_CLEAR_RECORDINGS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                new AlertDialogWrapper.Builder(activity).setMessage(R.string.dev_clear_recordings)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                new Thread(new DeleteRecordings(activity.getApplicationContext())).start();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create()
-                        .show();
-                return false;
-            }
-        });
-
-        SharedPreferencesUtils.listWithLabel((ListPreference) activity.findPreference(DEV_RECORDING_TYPE),
+        SharedPreferencesUtils.listWithLabel((ListPreference) settings.findPreference(DEV_RECORDING_TYPE),
                 R.string.pref_dev_record_type);
+    }
+
+    private boolean changeProxy(String address) {
+        try {
+            URL proxy = new URL(address);
+            if (!"https".equals(proxy.getProtocol()) && !"http".equals(proxy.getProtocol())) {
+                throw new MalformedURLException("Need http/https url");
+            }
+        } catch (MalformedURLException e) {
+            Toast.makeText(application, R.string.pref_dev_http_proxy_invalid_url, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        final Intent intent = new Intent(Actions.CHANGE_PROXY_ACTION);
+        intent.putExtra("proxy", address);
+        settings.getActivity().sendBroadcast(intent);
+        return false;
+    }
+
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        final Activity parent = settings.getActivity();
+        switch (preference.getKey()) {
+            case DEV_CLEAR_NOTIFICATIONS:
+                SyncAdapterService.requestNewSync(application, SyncAdapterService.CLEAR_ALL);
+                return true;
+            case DEV_REWIND_NOTIFICATIONS:
+                SyncAdapterService.requestNewSync(application, SyncAdapterService.REWIND_LAST_DAY);
+                return true;
+            case DEV_SYNC_NOW:
+                SyncAdapterService.requestNewSync(application, -1);
+                return true;
+            case DEV_CRASH:
+                if (!AndroidUtils.isUserAMonkey()) {
+                    throw new RuntimeException("Developer requested crash");
+                }
+                return true;
+            case DEV_CONFIG_FEATURES:
+                parent.startActivity(new Intent(parent, ConfigurationFeaturesActivity.class));
+                return true;
+            case DEV_CLEAR_RECORDINGS:
+                showClearRecordingsDialog(parent);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void showClearRecordingsDialog(final Activity parent) {
+        new AlertDialog.Builder(parent).setMessage(R.string.dev_clear_recordings)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new Thread(new DeleteRecordings(application)).start();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .create()
+                .show();
     }
 
     private static class DeleteRecordings implements Runnable {
@@ -172,4 +160,5 @@ public class DeveloperSettings {
             }
         }
     }
+
 }

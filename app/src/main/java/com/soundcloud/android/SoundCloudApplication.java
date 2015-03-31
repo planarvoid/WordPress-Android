@@ -33,7 +33,7 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
-import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.startup.migrations.MigrationEngine;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -325,7 +325,7 @@ public class SoundCloudApplication extends Application {
 
     private boolean isReportingCrashes() {
         return applicationProperties.shouldReportCrashes() &&
-                sharedPreferences.getBoolean(GeneralSettings.CRASH_REPORTING_ENABLED, true);
+                sharedPreferences.getBoolean(SettingKey.CRASH_REPORTING_ENABLED, true);
     }
 
 }

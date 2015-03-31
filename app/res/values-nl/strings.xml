@@ -434,17 +434,6 @@
     <string name="pref_help_desc">Toegang tot de SoundCloud helpdesksite</string>
     <string name="pref_revoke_access">Afmelden</string>
     <string name="pref_revoke_desc">Huidige gebruiker afmelden</string>
-    <string name="pref_sync_my_likes">Mijn Likes</string>
-    <string name="pref_sync_my_likes_description">Houd mijn likes lokaal geüpdatet</string>
-    <string name="pref_sync_my_followers">Mijn Volgers</string>
-    <string name="pref_sync_my_followers_description">Houd de mensen die mij volgen lokaal geüpdatet</string>
-    <string name="pref_sync_my_following">Mensen die ik volg</string>
-    <string name="pref_sync_my_following_description">Houd de mensen die ik volg lokaal geüpdatet</string>
-    <string name="pref_sync_my_sounds">Mijn Geluiden</string>
-    <string name="pref_sync_my_sounds_description">Hou mijn geluiden lokaal geüpdatet</string>
-    <string name="pref_sync_settings">Accountsynchronisatie Instellingen</string>
-    <string name="pref_sync_settings_summary">Beheer uw gesynchroniseerde middelen</string>
-    <string name="pref_sync_toggles">Gesynchroniseerde Middelen</string>
     <string name="pref_sync_wifi_only">Alleen synchroniseren via WiFi</string>
     <string name="pref_sync_wifi_only_description">Synchroniseer mijn gegevens alleen wanneer ik verbonden ben via Wifi</string>
     <string name="pref_analytics">Analytics</string>

@@ -6,7 +6,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.filter.FadeFilter;
 import com.soundcloud.android.playback.service.managers.AudioFocusManager;
 import com.soundcloud.android.playback.service.managers.IAudioManager;
-import com.soundcloud.android.settings.DeveloperSettings;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.utils.BufferUtils;
 import com.soundcloud.android.utils.IOUtils;
@@ -487,8 +487,8 @@ public class SoundRecorder implements IAudioManager.MusicFocusable, RecordStream
 
     public boolean shouldEncodeWhileRecording() {
         return hasFPUSupport() &&
-                !DeveloperSettings.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(context)
-                        .getString(DeveloperSettings.DEV_RECORDING_TYPE, null));
+                !SettingKey.DEV_RECORDING_TYPE_RAW.equals(PreferenceManager.getDefaultSharedPreferences(context)
+                        .getString(SettingKey.DEV_RECORDING_TYPE, null));
     }
 
     public static boolean hasFPUSupport() {
