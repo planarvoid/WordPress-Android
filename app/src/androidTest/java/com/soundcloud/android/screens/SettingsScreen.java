@@ -29,6 +29,11 @@ public class SettingsScreen extends Screen {
         return testDriver.findElement(With.text(testDriver.getString(R.string.pref_revoke_access)));
     }
 
+    public OfflineSettingsScreen clickOfflineSettings() {
+        testDriver.clickOnText(R.string.pref_offline_settings);
+        return new OfflineSettingsScreen(testDriver);
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
