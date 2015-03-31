@@ -4,7 +4,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.playback.ui.PopupMenuWrapperListener;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
@@ -22,15 +21,13 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     @InjectView(R.id.playlist_details_overflow_button) View overflowButton;
 
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final FeatureOperations featureOperations;
     private final DownloadableHeaderView downloadableHeaderView;
     private PopupMenuWrapper popupMenuWrapper;
 
     public NewPlaylistEngagementsView(Context context, Resources resources,
-                                      PopupMenuWrapper.Factory popupMenuWrapperFactory, FeatureOperations featureOperations, DownloadableHeaderView downloadableHeaderView) {
+                                      PopupMenuWrapper.Factory popupMenuWrapperFactory, DownloadableHeaderView downloadableHeaderView) {
         super(context, resources);
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.featureOperations = featureOperations;
         this.downloadableHeaderView = downloadableHeaderView;
     }
 
@@ -48,12 +45,12 @@ public class NewPlaylistEngagementsView extends PlaylistEngagementsView implemen
     }
 
     @OnClick(R.id.toggle_like)
-    void onToggleLikeClicked(View view) {
+    void onToggleLikeClicked() {
         getListener().onToggleLike(likeToggle.isChecked());
     }
 
     @OnClick(R.id.playlist_details_overflow_button)
-    void onOverflowButtonClicked(View view) {
+    void onOverflowButtonClicked() {
         popupMenuWrapper.show();
     }
 
