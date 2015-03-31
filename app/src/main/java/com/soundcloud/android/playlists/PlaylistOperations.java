@@ -151,7 +151,9 @@ public class PlaylistOperations {
     }
 
     Observable<PlaylistInfo> updatedPlaylistInfo(final Urn playlistUrn) {
-        return syncInitiator.syncPlaylist(playlistUrn)
+        return syncInitiator
+                .syncPlaylist(playlistUrn)
+                .observeOn(scheduler)
                 .flatMap(new Func1<SyncResult, Observable<PlaylistInfo>>() {
                     @Override
                     public Observable<PlaylistInfo> call(SyncResult playlistWasUpdated) {

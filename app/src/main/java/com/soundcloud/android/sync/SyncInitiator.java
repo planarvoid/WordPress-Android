@@ -9,7 +9,6 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
-import rx.functions.Func1;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -33,13 +32,6 @@ public class SyncInitiator {
 
     private final Context context;
     private final AccountOperations accountOperations;
-
-    private final Func1<SyncResult, Boolean> convertToLegacyResult = new Func1<SyncResult, Boolean>() {
-        @Override
-        public Boolean call(SyncResult syncResult) {
-            return syncResult.wasChanged();
-        }
-    };
 
     @Inject
     public SyncInitiator(Context context, AccountOperations accountOperations) {
@@ -138,25 +130,23 @@ public class SyncInitiator {
     }
 
     private Observable<SyncResult> requestSyncObservable(final String syncAction) {
-        return Observable.create(new Observable.OnSubscribe<SyncResult>() {
-            @Override
-            public void call(Subscriber<? super SyncResult> subscriber) {
-                Looper.prepare();
-                requestSync(syncAction, new ResultReceiverAdapter(subscriber, Looper.myLooper()));
-                Looper.loop();
-            }
-        });
+        return Observable
+                .create(new Observable.OnSubscribe<SyncResult>() {
+                    @Override
+                    public void call(Subscriber<? super SyncResult> subscriber) {
+                        requestSync(syncAction, new ResultReceiverAdapter(subscriber, Looper.getMainLooper()));
+                    }
+                });
     }
 
     private Observable<SyncResult> requestSyncObservable(final String syncAction, final Urn urn) {
-        return Observable.create(new Observable.OnSubscribe<SyncResult>() {
-            @Override
-            public void call(Subscriber<? super SyncResult> subscriber) {
-                Looper.prepare();
-                requestSync(syncAction, urn, new ResultReceiverAdapter(subscriber, Looper.myLooper()));
-                Looper.loop();
-            }
-        });
+        return Observable
+                .create(new Observable.OnSubscribe<SyncResult>() {
+                    @Override
+                    public void call(Subscriber<? super SyncResult> subscriber) {
+                        requestSync(syncAction, urn, new ResultReceiverAdapter(subscriber, Looper.getMainLooper()));
+                    }
+                });
     }
 
     private void requestSync(String action, ResultReceiverAdapter resultReceiver) {

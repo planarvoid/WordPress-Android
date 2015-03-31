@@ -98,7 +98,9 @@ public class PlaylistLikeOperations {
     }
 
     public Observable<List<PropertySet>> updatedLikedPlaylists() {
-        return syncInitiator.syncPlaylistLikes()
+        return syncInitiator
+                .syncPlaylistLikes()
+                .observeOn(scheduler)
                 .flatMap(toLoadLikedPlaylists);
     }
 
