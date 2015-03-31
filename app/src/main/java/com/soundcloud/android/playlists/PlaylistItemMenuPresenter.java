@@ -33,7 +33,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     private final Context context;
     private final EventBus eventBus;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
-    private final LoadPlaylistCommand loadPlaylistCommand;
+    private final PlaylistOperations playlistOperations;
     private final LikeOperations likeOperations;
     private final ScreenProvider screenProvider;
     private final FeatureOperations featureOperations;
@@ -44,12 +44,16 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
     private boolean allowOfflineOptions;
 
     @Inject
-    public PlaylistItemMenuPresenter(Context context, EventBus eventBus, PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                     LoadPlaylistCommand loadPlaylistCommand, LikeOperations likeOperations, ScreenProvider screenProvider, FeatureOperations featureOperations, OfflineContentOperations offlineContentOperations) {
+    public PlaylistItemMenuPresenter(Context context, EventBus eventBus,
+                                     PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                                     PlaylistOperations playlistOperations,
+                                     LikeOperations likeOperations, ScreenProvider screenProvider,
+                                     FeatureOperations featureOperations,
+                                     OfflineContentOperations offlineContentOperations) {
         this.context = context;
         this.eventBus = eventBus;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
-        this.loadPlaylistCommand = loadPlaylistCommand;
+        this.playlistOperations = playlistOperations;
         this.likeOperations = likeOperations;
         this.screenProvider = screenProvider;
         this.featureOperations = featureOperations;
@@ -177,9 +181,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapperListener {
 
     private void loadPlaylist(PopupMenuWrapper menu) {
         playlistSubscription.unsubscribe();
-        playlistSubscription = loadPlaylistCommand
-                .with(playlist.getEntityUrn())
-                .toObservable()
+        playlistSubscription = playlistOperations.loadPlaylist(playlist.getEntityUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaylistSubscriber(playlist, menu));
     }

@@ -161,6 +161,10 @@ public class PlaylistOperations {
                 });
     }
 
+    Observable<PropertySet> loadPlaylist(final Urn playlistUrn){
+        return loadPlaylistCommand.with(playlistUrn).toObservable().subscribeOn(scheduler);
+    }
+
     private Observable<PlaylistInfo> createPlaylistInfoLoadObservable(Urn playlistUrn) {
         final Observable<PropertySet> loadPlaylist = loadPlaylistCommand.with(playlistUrn).toObservable();
         final Observable<List<TrackItem>> loadPlaylistTracks =
