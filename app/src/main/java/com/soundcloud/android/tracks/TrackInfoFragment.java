@@ -15,6 +15,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -33,7 +34,7 @@ import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
 public class TrackInfoFragment extends DialogFragment implements View.OnClickListener {
-
+    private static final String TAG = TrackInfoFragment.class.getSimpleName();
     private static final String EXTRA_URN = "Urn";
     private static final int COLLAPSE_DELAY_MILLIS = 300;
 
@@ -123,6 +124,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
         @Override
         public void onError(Throwable e) {
+            Log.e(TAG, "Error when loading track", e);
             presenter.bindNoDescription(getView());
         }
     }
