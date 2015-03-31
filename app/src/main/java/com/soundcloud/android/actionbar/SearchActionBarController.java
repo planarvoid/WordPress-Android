@@ -15,9 +15,11 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -76,8 +78,10 @@ public class SearchActionBarController extends ActionBarController {
     SearchActionBarController(PublicCloudAPI publicCloudAPI,
                               PlaybackOperations playbackOperations,
                               EventBus eventBus,
-                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
-        super(eventBus);
+                              Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
+                              ApplicationProperties applicationProperties,
+                              DeviceHelper deviceHelper) {
+        super(eventBus, applicationProperties, deviceHelper);
         this.publicApi = publicCloudAPI;
         this.playbackOperations = playbackOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
