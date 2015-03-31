@@ -8,16 +8,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.tests.AvailabilityTest;
-
 
 public class PlayerTest extends ActivityTest<MainActivity> {
-    private VisualPlayerElement player;
     private StreamScreen streamScreen;
 
     public PlayerTest() {
@@ -36,8 +33,9 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testVisualPlayerIsAccessible() {
-        player = streamScreen.clickFirstTrack();
+        final VisualPlayerElement player = streamScreen.clickFirstTrack();
         assertThat(player, is(expanded()));
+
         player.pressBackToCollapse();
 
         openActivities(streamScreen);
