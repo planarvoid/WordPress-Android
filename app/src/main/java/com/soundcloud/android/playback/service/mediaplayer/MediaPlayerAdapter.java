@@ -591,10 +591,6 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         stop();
     }
 
-    private boolean isPastBuffer(long pos) {
-        return mediaPlayer == null || (pos / (double) mediaPlayer.getDuration()) * 100 > loadPercent;
-    }
-
     @VisibleForTesting
     static class PlayerHandler extends Handler {
 

@@ -260,7 +260,7 @@ public final class ImageUtils {
     }
 
     public static boolean isScreenXL(Resources resources) {
-        return ((resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE);
+        return (resources.getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) == Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 
     public static boolean checkIconShouldLoad(String url) {
@@ -270,7 +270,7 @@ public final class ImageUtils {
     }
 
     public static File createTempAvatarFile() {
-        try {
+        try {is
             return File.createTempFile(Long.toString(System.currentTimeMillis()), ".bmp");
         } catch (IOException e) {
             Log.w(TAG, "error creating avatar temp file", e);
