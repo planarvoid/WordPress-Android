@@ -100,7 +100,11 @@ public class TrackLikeOperations {
     }
 
     public Observable<List<PropertySet>> updatedLikedTracks() {
-        return syncInitiator.syncTrackLikes().map(toInitalPageParams).flatMap(loadLikedTracksCommand);
+        return syncInitiator
+                .syncTrackLikes()
+                .map(toInitalPageParams)
+                .flatMap(loadLikedTracksCommand)
+                .subscribeOn(scheduler);
     }
 
     public Pager<List<PropertySet>> likedTracksPager() {

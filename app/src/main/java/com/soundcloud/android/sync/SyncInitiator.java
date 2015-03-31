@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -140,7 +141,9 @@ public class SyncInitiator {
         return Observable.create(new Observable.OnSubscribe<SyncResult>() {
             @Override
             public void call(Subscriber<? super SyncResult> subscriber) {
-                requestSync(syncAction, new ResultReceiverAdapter(subscriber));
+                Looper.prepare();
+                requestSync(syncAction, new ResultReceiverAdapter(subscriber, Looper.myLooper()));
+                Looper.loop();
             }
         });
     }
@@ -149,7 +152,9 @@ public class SyncInitiator {
         return Observable.create(new Observable.OnSubscribe<SyncResult>() {
             @Override
             public void call(Subscriber<? super SyncResult> subscriber) {
-                requestSync(syncAction, urn, new ResultReceiverAdapter(subscriber));
+                Looper.prepare();
+                requestSync(syncAction, urn, new ResultReceiverAdapter(subscriber, Looper.myLooper()));
+                Looper.loop();
             }
         });
     }

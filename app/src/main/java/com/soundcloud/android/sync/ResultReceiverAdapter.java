@@ -15,8 +15,8 @@ public class ResultReceiverAdapter extends ResultReceiver {
 
     private final Observer<? super SyncResult> observer;
 
-    public ResultReceiverAdapter(Observer<? super SyncResult> observer) {
-        super(new Handler(Looper.getMainLooper()));
+    public ResultReceiverAdapter(Observer<? super SyncResult> observer, Looper looper) {
+        super(new Handler(looper));
         this.observer = observer;
     }
 

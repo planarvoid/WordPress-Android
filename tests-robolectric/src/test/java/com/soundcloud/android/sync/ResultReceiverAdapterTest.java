@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import rx.Observer;
 
 import android.os.Bundle;
+import android.os.Looper;
 
 import java.io.IOException;
 
@@ -23,7 +24,7 @@ public class ResultReceiverAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = new ResultReceiverAdapter(observer);
+        adapter = new ResultReceiverAdapter(observer, Looper.getMainLooper());
     }
 
     @Test
