@@ -49,7 +49,7 @@ public class TrackRepository {
         return Observable.concat(
                 fullTrackFromStorage(trackUrn),
                 syncThenLoadTrack(trackUrn, fullTrackFromStorage(trackUrn)).doOnNext(publishTrackChanged)
-        ).subscribeOn(scheduler);
+        );
     }
 
     private Func1<PropertySet, Observable<PropertySet>> syncIfEmpty(final Urn trackUrn) {
@@ -68,7 +68,8 @@ public class TrackRepository {
 
     private Observable<PropertySet> fullTrackFromStorage(Urn trackUrn) {
         return trackFromStorage(trackUrn)
-                .zipWith(trackStorage.loadTrackDescription(trackUrn), PropertySetFunctions.mergeLeft());
+                .zipWith(trackStorage.loadTrackDescription(trackUrn), PropertySetFunctions.mergeLeft())
+                .subscribeOn(scheduler);
     }
 
     private Observable<PropertySet> syncThenLoadTrack(final Urn trackUrn, final Observable<PropertySet> loadObservable) {
