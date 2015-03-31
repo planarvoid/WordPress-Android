@@ -44,7 +44,7 @@ class LoadLocalPlaylistsCommand extends LegacyCommand<Object, List<PropertySet>,
             return PropertySet.from(
                     PlaylistProperty.URN.bind(Urn.forPlaylist(reader.getLong(TableColumns.Sounds._ID))),
                     PlaylistProperty.TITLE.bind(reader.getString(TableColumns.Sounds.TITLE)),
-                    PlaylistProperty.IS_PRIVATE.bind(Sharing.PRIVATE.name().equalsIgnoreCase(
+                    PlaylistProperty.IS_PRIVATE.bind(Sharing.PRIVATE.value().equals(
                             reader.getString(TableColumns.SoundView.SHARING)))
             );
         }

@@ -86,7 +86,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
                 if (TextUtils.isEmpty(playlistTitle)) {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
                 } else {
-                    createPlaylist(playlistTitle, properties.isDevBuildRunningOnDevice() && privacy.isChecked(), offline.isChecked());
+                    createPlaylist(playlistTitle, privacy.isChecked(), offline.isChecked());
                     Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
                     getDialog().dismiss();
                 }
