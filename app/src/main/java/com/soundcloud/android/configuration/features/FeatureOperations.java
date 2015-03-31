@@ -16,7 +16,7 @@ public class FeatureOperations {
     @Inject
     public FeatureOperations(ApplicationProperties appProperties, FeatureStorage featureStorage) {
         this.featureStorage = featureStorage;
-        if (appProperties.isDebugBuild() || appProperties.isAlphaBuild()) {
+        if (appProperties.isAlphaBuild()) {
             update(OFFLINE_CONTENT, true);
         }
     }
