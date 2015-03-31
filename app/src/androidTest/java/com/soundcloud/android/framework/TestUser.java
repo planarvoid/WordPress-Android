@@ -48,13 +48,13 @@ public class TestUser {
                 result = AccountAssistant.addAccountAndEnableSync(context, getToken(context, apiWrapper), getUser(apiWrapper));
             } catch (IOException e) {
 
-                if (!shouldRetry) {
+                if (tryCount > maxRetries) {
                     throw new AssertionError("error logging in: " + e.getMessage());
                 }
             }
             try {
-                shouldRetry = (result == false) && (tryCount < maxRetries);
-                if(shouldRetry) {
+                shouldRetry = (result == false);
+                if(!result) {
                     Thread.sleep(5000);
                 }
             } catch (InterruptedException e) {
