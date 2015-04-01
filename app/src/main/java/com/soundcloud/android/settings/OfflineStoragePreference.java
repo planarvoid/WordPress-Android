@@ -100,7 +100,7 @@ public final class OfflineStoragePreference extends Preference {
         storageFreeTextView.setText(formatFreeGigabytes());
         storageLimitTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
         storageOtherLabelTextView.setText(formatGigabytes(offlineUsage.getUsedOthers()));
-        storageUsedLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
+        storageUsedLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineUsed()));
         storageLimitLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
     }
 
