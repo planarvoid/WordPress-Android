@@ -4,7 +4,6 @@
 
     <!-- General settings -->
     <string name="key_general">generalSettings</string>
-    <string name="key_offline_sync">offlineSyncSettings</string>
     <string name="key_account_sync">accountSyncSettings</string>
     <string name="key_notifications">notificationSettings</string>
     <string name="key_logout">logout</string>
