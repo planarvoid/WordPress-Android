@@ -45,7 +45,7 @@ class PlaylistPresenter {
         return this;
     }
 
-    public void setPlaylist(PlaylistInfo item) {
+    public void setPlaylist(PlaylistWithTracks item) {
         titleView.setText(item.getTitle());
         usernameView.setText(item.getCreatorName());
         imageOperations.displayWithPlaceholder(item.getUrn(), artworkSize, artworkView);

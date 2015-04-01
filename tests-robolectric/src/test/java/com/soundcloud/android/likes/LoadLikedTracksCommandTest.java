@@ -70,19 +70,20 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
     }
 
     private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.REQUESTED_AT, requestedAt);
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.Track.REQUESTED_AT, requestedAt);
     }
 
     private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date downloadedAt) {
         return expectedLikedTrackFor(track, likedAt)
-                .put(OfflineProperty.REQUESTED_AT, requestedAt)
-                .put(OfflineProperty.DOWNLOADED_AT, downloadedAt);
+                .put(OfflineProperty.Track.REQUESTED_AT, requestedAt)
+                .put(OfflineProperty.Track.DOWNLOADED_AT, downloadedAt);
     }
 
     private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date removedAt) {
         return expectedLikedTrackFor(track, likedAt)
-                .put(OfflineProperty.REQUESTED_AT, requestedAt)
-                .put(OfflineProperty.REMOVED_AT, removedAt);
+                .put(OfflineProperty.Track.REQUESTED_AT, requestedAt)
+                .put(OfflineProperty.Track.DOWNLOADED_AT, requestedAt)
+                .put(OfflineProperty.Track.REMOVED_AT, removedAt);
     }
 
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {

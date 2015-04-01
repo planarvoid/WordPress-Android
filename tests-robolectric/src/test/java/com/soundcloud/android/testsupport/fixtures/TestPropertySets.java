@@ -11,6 +11,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -234,7 +235,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing())),
                 PlayableProperty.IS_LIKED.bind(isLiked),
                 PlayableProperty.IS_REPOSTED.bind(isReposted),
-                PlaylistProperty.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
+                OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
                 PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));
     }
 }

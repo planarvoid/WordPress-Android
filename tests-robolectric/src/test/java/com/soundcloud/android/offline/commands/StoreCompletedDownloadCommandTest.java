@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline.commands;
 
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.DownloadResult;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -22,7 +23,7 @@ public class StoreCompletedDownloadCommandTest extends StorageIntegrationTest {
     @Test
     public void updatesDownloadTracksWithDownloadResults() throws PropellerWriteException {
         final Urn trackUrn = Urn.forTrack(123L);
-        final DownloadResult downloadResult = DownloadResult.success(trackUrn);
+        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(trackUrn, "http://url"));
         testFixtures().insertTrackPendingDownload(trackUrn, 100L);
 
         command.with(downloadResult).call();
@@ -35,7 +36,7 @@ public class StoreCompletedDownloadCommandTest extends StorageIntegrationTest {
         final Urn trackUrn = Urn.forTrack(123L);
         testFixtures().insertUnavailableTrackDownload(trackUrn, 100L);
 
-        final DownloadResult downloadResult = DownloadResult.success(trackUrn);
+        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(trackUrn, "http://url"));
         command.with(downloadResult).call();
 
         databaseAssertions().assertDownloadIsAvailable(trackUrn);

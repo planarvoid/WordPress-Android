@@ -3,6 +3,7 @@ package com.soundcloud.android.tracks;
 import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -10,12 +11,9 @@ import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TrackItem extends PlayableItem {
-
-    private static final Date MIN_DATE = new Date(0L);
 
     public static TrackItem from(PropertySet trackState) {
         return new TrackItem(trackState);
@@ -68,33 +66,17 @@ public class TrackItem extends PlayableItem {
         return source.get(TrackProperty.DURATION);
     }
 
+    public DownloadState getDownloadedState() {
+        return source.getOrElse(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
+    }
+
     int getPlayCount() {
         return source.getOrElse(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
-    }
-
-    Date getDownloadRemovedAt() {
-        return source.getOrElse(OfflineProperty.REMOVED_AT, MIN_DATE);
-    }
-
-    Date getDownloadUnavailableAt() {
-        return source.getOrElse(OfflineProperty.UNAVAILABLE_AT, MIN_DATE);
-    }
-
-    Optional<Date> getDownloadRequestedAt() {
-        return Optional.fromNullable(source.getOrElseNull(OfflineProperty.REQUESTED_AT));
-    }
-
-    Optional<Date> getDownloadedAt() {
-        return Optional.fromNullable(source.getOrElseNull(OfflineProperty.DOWNLOADED_AT));
     }
 
     String getGenre() {
         final Optional<String> optionalGenre = source.get(TrackProperty.GENRE);
         return optionalGenre.isPresent() ? optionalGenre.get() : ScTextUtils.EMPTY_STRING;
-    }
-
-    boolean isDownloading() {
-        return source.getOrElse(OfflineProperty.DOWNLOADING, false);
     }
 
     @Override

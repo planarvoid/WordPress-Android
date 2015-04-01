@@ -44,7 +44,7 @@ public class TrackStorageTest extends StorageIntegrationTest {
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.put(OfflineProperty.DOWNLOADED_AT, new Date(1000L));
+        expected.put(OfflineProperty.Track.DOWNLOADED_AT, new Date(1000L));
         expect(track).toEqual(expected);
     }
 
@@ -56,7 +56,8 @@ public class TrackStorageTest extends StorageIntegrationTest {
         PropertySet track = storage.loadTrack(apiTrack.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets.fromApiTrack(apiTrack);
-        expected.put(OfflineProperty.REMOVED_AT, new Date(2000L));
+        expected.put(OfflineProperty.Track.DOWNLOADED_AT, new Date(2000L));
+        expected.put(OfflineProperty.Track.REMOVED_AT, new Date(2000L));
         expect(track).toEqual(expected);
     }
 

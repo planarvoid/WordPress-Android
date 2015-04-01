@@ -2,7 +2,7 @@ package com.soundcloud.android.settings;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -28,12 +28,10 @@ public class OfflineSettingsActivity extends ScSettingsActivity {
     @Inject OfflineSettingsStorage offlineSettings;
     @Inject OfflineUsage offlineUsage;
 
-    private final class EntityChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+    private final class CurrentDownloadSubscriber extends DefaultSubscriber<CurrentDownloadEvent> {
         @Override
-        public void onNext(final EntityStateChangedEvent event) {
-            if (event.getKind() == EntityStateChangedEvent.DOWNLOAD) {
+        public void onNext(final CurrentDownloadEvent event) {
                 ((OfflineStoragePreference) findPreference(OFFLINE_STORAGE_LIMIT)).updateAndRefresh();
-            }
         }
     }
 
@@ -41,7 +39,7 @@ public class OfflineSettingsActivity extends ScSettingsActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings_offline);
-        subscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new EntityChangedSubscriber());
+        subscription = eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new CurrentDownloadSubscriber());
         setup();
     }
 

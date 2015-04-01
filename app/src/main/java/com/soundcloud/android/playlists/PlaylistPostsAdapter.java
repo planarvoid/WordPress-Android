@@ -4,8 +4,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
+import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
@@ -22,10 +22,12 @@ public class PlaylistPostsAdapter extends PagingItemAdapter<PlaylistItem>
         implements ReactiveAdapter<Iterable<PlaylistItem>> {
 
     private final DefaultSupportFragmentLightCycle lifeCycleHandler;
+
     private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
-    public PlaylistPostsAdapter(PlaylistItemPresenter playlistPresenter, final EventBus eventBus) {
+    public PlaylistPostsAdapter(DownloadablePlaylistItemPresenter playlistPresenter,
+                                final EventBus eventBus) {
         super(playlistPresenter);
         this.lifeCycleHandler = createLifeCycleHandler(eventBus);
         playlistPresenter.allowOfflineOptions();
@@ -36,7 +38,8 @@ public class PlaylistPostsAdapter extends PagingItemAdapter<PlaylistItem>
             @Override
             public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
                 eventSubscriptions = new CompositeSubscription(
-                        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(PlaylistPostsAdapter.this))
+                        eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(PlaylistPostsAdapter.this)),
+                        eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(PlaylistPostsAdapter.this))
                 );
             }
 

@@ -1,11 +1,14 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playlists.PlaylistWithTracks;
+import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncActions;
@@ -24,8 +27,12 @@ import android.content.Intent;
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineContentControllerTest {
 
+    private static final Urn TRACK = Urn.forTrack(123L);
+    private static final Urn PLAYLIST = Urn.forPlaylist(123L);
     @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private OfflinePlaylistStorage playlistStorage;
+    @Mock private PlaylistOperations playlistOperations;
+    @Mock private PlaylistWithTracks playlistWithTracks;
 
     private OfflineContentController controller;
     private TestEventBus eventBus;
@@ -38,9 +45,9 @@ public class OfflineContentControllerTest {
 
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(settingsStorage.getOfflineLikedTracksStatusChange()).thenReturn(offlineLikeToggleSetting);
+        when(playlistOperations.playlist(PLAYLIST)).thenReturn(Observable.just(playlistWithTracks));
 
-        controller = new OfflineContentController(Robolectric.application, eventBus, settingsStorage,
-                playlistStorage, Schedulers.immediate());
+        controller = new OfflineContentController(Robolectric.application, eventBus, settingsStorage, playlistStorage, playlistOperations, Schedulers.immediate());
     }
 
     @Test
@@ -65,7 +72,7 @@ public class OfflineContentControllerTest {
     public void startsOfflineSyncWhenPlaylistMarkedAsAvailableOffline() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(Urn.forPlaylist(123L), true));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(PLAYLIST, true));
 
         expect(wasServiceStarted()).toBeTrue();
     }
@@ -74,7 +81,7 @@ public class OfflineContentControllerTest {
     public void startsOfflineSyncWhenPlaylistMarkedAsUnavailableOffline() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(Urn.forPlaylist(123L), false));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromMarkedForOffline(PLAYLIST, false));
 
         expect(wasServiceStarted()).toBeTrue();
     }
@@ -93,7 +100,7 @@ public class OfflineContentControllerTest {
     public void startsOfflineSyncWhenATrackIsLiked() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), true, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK, true, 1));
 
         expect(wasServiceStarted()).toBeTrue();
     }
@@ -102,7 +109,7 @@ public class OfflineContentControllerTest {
     public void startsOfflineSyncWhenATrackIsUnliked() {
         controller.subscribe();
 
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(Urn.forTrack(123L), false, 1));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(TRACK, false, 1));
 
         expect(wasServiceStarted()).toBeTrue();
     }
@@ -137,26 +144,34 @@ public class OfflineContentControllerTest {
 
     @Test
     public void startsOfflineSyncWhenTrackAddedToPlaylistMarkedAsAvailableOffline() {
-        final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(true));
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(true));
         controller.subscribe();
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                EntityStateChangedEvent.fromTrackAddedToPlaylist(playlistUrn, 1));
+                EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST, 1));
 
         expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
     public void doesNotStartOfflineSyncWhenTrackAddedToNonOfflinePlaylist() {
-        final Urn playlistUrn = Urn.forPlaylist(123L);
-        when(playlistStorage.isOfflinePlaylist(playlistUrn)).thenReturn(Observable.just(false));
+        when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
         controller.subscribe();
 
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
-                EntityStateChangedEvent.fromTrackAddedToPlaylist(playlistUrn, 1));
+                EntityStateChangedEvent.fromTrackAddedToPlaylist(PLAYLIST, 1));
 
         expect(wasServiceStarted()).toBeFalse();
+    }
+
+    @Test
+    public void syncAndLoadPlaylistOnPlaylistIsMarkedForOfflineEvent() {
+        controller.subscribe();
+
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED,
+                EntityStateChangedEvent.fromMarkedForOffline(PLAYLIST, true));
+
+        verify(playlistOperations).playlist(PLAYLIST);
     }
 
     private void expectNoInteractionWithService() {

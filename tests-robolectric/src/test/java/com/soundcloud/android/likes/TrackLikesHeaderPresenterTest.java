@@ -12,7 +12,6 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -65,42 +64,6 @@ public class TrackLikesHeaderPresenterTest {
                 eventBus);
 
         likedTrackUrns = Lists.newArrayList(TRACK1, TRACK2);
-    }
-
-    @Test
-    public void showHeaderDefaultStateOnRequestedState() {
-        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.REQUESTED));
-
-        presenter.onResume(fragment);
-
-        verify(headerView).showDefaultState();
-    }
-
-    @Test
-    public void showHeaderDownloadingOnDownloadingState() {
-        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.DOWNLOADING));
-
-        presenter.onResume(fragment);
-
-        verify(headerView).showDownloadingState();
-    }
-
-    @Test
-    public void showHeaderDownloadedStateOnDownloadedState() {
-        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.DOWNLOADED));
-
-        presenter.onResume(fragment);
-
-        verify(headerView).showDownloadedState();
-    }
-
-    @Test
-    public void showHeaderDefaultStateOnNoOffline() {
-        when(offlineContentOperations.getLikedTracksDownloadState()).thenReturn(Observable.just(DownloadState.NO_OFFLINE));
-
-        presenter.onResume(fragment);
-
-        verify(headerView).showDefaultState();
     }
 
     @Test

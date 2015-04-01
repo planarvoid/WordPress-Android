@@ -3,6 +3,8 @@ package com.soundcloud.android.playlists;
 import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.propeller.PropertySet;
 import rx.functions.Func1;
@@ -69,7 +71,15 @@ public class PlaylistItem extends PlayableItem {
     }
 
     public Optional<Boolean> isMarkedForOffline() {
-        return Optional.fromNullable(source.getOrElseNull(PlaylistProperty.IS_MARKED_FOR_OFFLINE));
+        return Optional.fromNullable(source.getOrElseNull(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE));
+    }
+
+    public DownloadState getDownloadState() {
+        if (source.contains(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)
+                && !source.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE)) {
+            return DownloadState.NO_OFFLINE;
+        }
+        return source.getOrElse(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
     }
 
     public List<String> getTags() {

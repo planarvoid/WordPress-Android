@@ -4,9 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -19,57 +20,47 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunWith(SoundCloudTestRunner.class)
-public class DeletePendingRemovalCommandTest extends StorageIntegrationTest {
+public class DeleteOfflineTrackCommandTest extends StorageIntegrationTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
 
     @Mock private SecureFileStorage fileStorage;
-    private DeletePendingRemovalCommand command;
+    private DeleteOfflineTrackCommand command;
 
     @Before
     public void setUp() {
-        command = new DeletePendingRemovalCommand(fileStorage, propeller());
+        command = new DeleteOfflineTrackCommand(fileStorage, propeller());
     }
 
     @Test
-    public void deletePendingRemovalTrackFromTheDatabase() throws Exception {
-        testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
+    public void deleteTrackFromTheFileSystem() throws Exception {
+        command.call(Arrays.asList(TRACK_URN));
 
-        command.call(Urn.NOT_SET);
-
-        assertDownloadPendingRemovalCount(TRACK_URN, counts(0));
         verify(fileStorage).deleteTrack(TRACK_URN);
     }
 
     @Test
-    public void returningRemovedTracks() throws Exception {
-        final long removedAtTimestamp = System.currentTimeMillis() - 5 * 60000;
-        testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, removedAtTimestamp);
-
-        List<Urn> removals = command.call(Urn.NOT_SET);
-
-        expect(removals).toContainExactly(TRACK_URN);
-    }
-
-    @Test
-    public void doesNotDeleteNotPendingRemoval() throws Exception {
-        testFixtures().insertCompletedTrackDownload(TRACK_URN, System.currentTimeMillis());
-
-        expect(command.call(Urn.NOT_SET)).toBeEmpty();
-        assertDownloadedTrackCount(TRACK_URN, counts(1));
-        verify(fileStorage, never()).deleteTrack(TRACK_URN);
-    }
-
-    @Test
-    public void doesNotDeleteTrackIfCurrentlyPlaying() throws Exception {
+    public void deleteTrackFromTheDatabase() throws Exception {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
 
-        command.call(TRACK_URN);
+        final Collection<Urn> deleted = command.call(Arrays.asList(TRACK_URN));
+
+        assertDownloadPendingRemovalCount(TRACK_URN, counts(0));
+        expect(deleted).toContainExactly(TRACK_URN);
+    }
+
+    @Test
+    public void doesNotDeleteTrackFromTheDataBaseWhenFailedToDeleteFromTheFileSystem() throws Exception {
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
+        when(fileStorage.deleteTrack(TRACK_URN)).thenThrow(new EncryptionException("Test exception", new RuntimeException()));
+
+        final Collection<Urn> deleted = command.call(Arrays.asList(TRACK_URN));
 
         assertDownloadPendingRemovalCount(TRACK_URN, counts(1));
-        verify(fileStorage, never()).deleteTrack(TRACK_URN);
+        expect(deleted).toBeEmpty();
     }
 
     public void assertDownloadPendingRemovalCount(Urn trackUrn, RowCountMatcher count) {

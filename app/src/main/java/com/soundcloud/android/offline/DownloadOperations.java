@@ -1,8 +1,10 @@
 package com.soundcloud.android.offline;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.Collections2;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.DeletePendingRemovalCommand;
+import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -12,21 +14,27 @@ import rx.Scheduler;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 class DownloadOperations {
     private final StrictSSLHttpClient strictSSLHttpClient;
     private final SecureFileStorage fileStorage;
-    private final DeletePendingRemovalCommand deleteOfflineContent;
+    private final DeleteOfflineTrackCommand deleteOfflineContent;
     private final PlayQueueManager playQueueManager;
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
+    private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
+        @Override
+        public boolean apply(Urn urn) {
+            return !playQueueManager.isCurrentTrack(urn);
+        }
+    };
     private final Scheduler scheduler;
 
     @Inject
     public DownloadOperations(StrictSSLHttpClient httpClient,
                               SecureFileStorage fileStorage,
-                              DeletePendingRemovalCommand deleteOfflineContent,
+                              DeleteOfflineTrackCommand deleteOfflineContent,
                               PlayQueueManager playQueueManager,
                               NetworkConnectionHelper connectionHelper,
                               OfflineSettingsStorage offlineSettings,
@@ -44,9 +52,9 @@ class DownloadOperations {
         return connectionHelper.isWifiConnected() || (!offlineSettings.isWifiOnlyEnabled() && connectionHelper.isNetworkConnected());
     }
 
-    Observable<List<Urn>> deletePendingRemovals() {
+    Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
         return deleteOfflineContent
-                .toObservable(playQueueManager.getCurrentTrackUrn())
+                .toObservable(Collections2.filter(requests, isNotCurrentTrackFilter))
                 .subscribeOn(scheduler);
     }
 
@@ -59,21 +67,21 @@ class DownloadOperations {
         }
     }
 
-    public DownloadResult download(DownloadRequest track) {
+    public DownloadResult download(DownloadRequest request) {
         StrictSSLHttpClient.DownloadResponse response = null;
 
         try {
-            response = strictSSLHttpClient.downloadFile(track.fileUrl);
+            response = strictSSLHttpClient.downloadFile(request.fileUrl);
             if (response.isUnavailable()) {
-                return DownloadResult.unavailable(track.urn);
+                return DownloadResult.unavailable(request);
             } else if (response.isFailure()) {
-                return DownloadResult.failed(track.urn);
+                return DownloadResult.failed(request);
             }
-            saveFile(track, response);
-            return DownloadResult.success(track.urn);
+            saveFile(request, response);
+            return DownloadResult.success(request);
         } catch (EncryptionException | IOException e) {
-            deleteTrack(track.urn);
-            return DownloadResult.failed(track.urn);
+            deleteTrack(request.track);
+            return DownloadResult.failed(request);
         } finally {
             if (response != null) {
                 response.close();
@@ -82,8 +90,8 @@ class DownloadOperations {
     }
 
     private void saveFile(DownloadRequest track, StrictSSLHttpClient.DownloadResponse response) throws IOException, EncryptionException {
-        fileStorage.storeTrack(track.urn, response.getInputStream());
-        Log.d(OfflineContentService.TAG, "Track stored on device: " + track.urn);
+        fileStorage.storeTrack(track.track, response.getInputStream());
+        Log.d(OfflineContentService.TAG, "Track stored on device: " + track.track);
     }
 
 }

@@ -1,15 +1,19 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER;
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_CONTENT_CHANGED_FILTER;
+import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER;
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER;
 
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.playlists.PlaylistOperations;
+import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistWithTracks;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncActions;
 import com.soundcloud.android.sync.SyncResult;
+import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
@@ -29,6 +33,7 @@ public class OfflineContentController {
     private final OfflineSettingsStorage settingStorage;
     private final OfflinePlaylistStorage playlistStorage;
     private final Scheduler scheduler;
+    private final PlaylistOperations playlistOperations;
     private final EventBus eventBus;
 
     private final Observable<Boolean> offlineLikedTracksToggle;
@@ -55,19 +60,27 @@ public class OfflineContentController {
         }
     };
 
+    private final Func1<PropertySet, Observable<PlaylistWithTracks>> syncPlaylistIfNecessary = new Func1<PropertySet, Observable<PlaylistWithTracks>>() {
+        @Override
+        public Observable<PlaylistWithTracks> call(PropertySet playlist) {
+            return playlistOperations.playlist(playlist.get(PlaylistProperty.URN)).subscribeOn(scheduler);
+        }
+    };
+
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
     public OfflineContentController(Context context, EventBus eventBus,
                                     OfflineSettingsStorage settingsStorage,
                                     OfflinePlaylistStorage playlistStorage,
+                                    PlaylistOperations playlistOperations,
                                     @Named("HighPriority") Scheduler scheduler) {
         this.context = context;
         this.eventBus = eventBus;
         this.settingStorage = settingsStorage;
         this.playlistStorage = playlistStorage;
         this.scheduler = scheduler;
-
+        this.playlistOperations = playlistOperations;
         this.offlineLikedTracksToggle = settingsStorage.getOfflineLikedTracksStatusChange();
     }
 
@@ -83,18 +96,30 @@ public class OfflineContentController {
     private Observable<Object> startOfflineContent() {
         return Observable
                 .merge(getOfflinePlaylistChangedEvents(),
-                       getOfflineLikesChangedEvents(),
-                       offlineLikedTracksToggle
+                        getOfflineLikesChangedEvents(),
+                        offlineLikedTracksToggle
                 );
     }
 
     private Observable<Object> getOfflinePlaylistChangedEvents() {
         return Observable.merge(
-                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED).filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER),
-                eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                        .filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER)
-                        .flatMap(isOfflinePlaylist).filter(RxUtils.IS_TRUE)
+                offlinePlaylistStatusChanged(),
+                offlinePlaylistContentChanged()
         );
+    }
+
+    private Observable<PlaylistWithTracks> offlinePlaylistStatusChanged() {
+        return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                .filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER)
+                .map(EntityStateChangedEvent.TO_SINGULAR_CHANGE)
+                .flatMap(syncPlaylistIfNecessary);
+    }
+
+    private Observable<Boolean> offlinePlaylistContentChanged() {
+        return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                .filter(IS_PLAYLIST_CONTENT_CHANGED_FILTER)
+                .flatMap(isOfflinePlaylist)
+                .filter(RxUtils.IS_TRUE);
     }
 
     private Observable<Object> getOfflineLikesChangedEvents() {

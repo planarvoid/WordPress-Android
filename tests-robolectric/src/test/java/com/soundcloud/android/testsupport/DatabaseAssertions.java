@@ -248,15 +248,37 @@ public class DatabaseAssertions {
         ), counts(1));
     }
 
+    public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {
+        for (Urn urn : tracksToDownload) {
+            assertThat(select(from(Table.TrackDownloads.name())
+                    .whereEq(TableColumns.TrackDownloads._ID, urn.getNumericId())), counts(1));
+        }
+    }
+
+    public void assertDownloadPendingRemoval(Urn trackUrn) {
+        assertThat(select(from(Table.TrackDownloads.name())
+                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
+                .whereNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)
+                .whereNotNull(TableColumns.TrackDownloads.REMOVED_AT)), counts(1));
+    }
+
     public void assertDownloadResultsInserted(DownloadResult result) {
         assertThat(select(from(Table.TrackDownloads.name())
-                .whereEq(TableColumns.TrackDownloads._ID, result.getUrn().getNumericId())
+                .whereEq(TableColumns.TrackDownloads._ID, result.getTrack().getNumericId())
                 .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
     }
 
     public void assertTrackDownloadNotStored(Urn trackUrn) {
         assertThat(select(from(Table.TrackDownloads.name())
                 .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())), counts(0));
+    }
+
+
+    public void assertDownloadedAndNotMarkedForRemoval(Urn trackUrn) {
+        assertThat(select(from(Table.TrackDownloads.name())
+                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
+                .whereNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)
+                .whereNull(TableColumns.TrackDownloads.REMOVED_AT)), counts(1));
     }
 
     protected QueryBinding select(Query query) {

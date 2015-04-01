@@ -87,14 +87,14 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private ListView listView;
     private View progressView;
 
-    private Observable<PlaylistInfo> loadPlaylist;
+    private Observable<PlaylistWithTracks> loadPlaylist;
     private Subscription playlistSubscription = Subscriptions.empty();
     private final CompositeSubscription eventSubscription = new CompositeSubscription();
 
     private View headerUsernameText;
     private TextView infoHeaderText;
     private ToggleButton playToggle;
-    private PlaylistInfo playlistInfo;
+    private PlaylistWithTracks playlistWithTracks;
 
     private boolean listShown;
     private boolean playOnLoad;
@@ -106,7 +106,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                 playToggle.setChecked(false);
             }
 
-            if (playQueueManager.isCurrentPlaylist(playlistInfo.getUrn())) {
+            if (playQueueManager.isCurrentPlaylist(playlistWithTracks.getUrn())) {
                 playbackOperations.togglePlayback();
             } else {
                 playFromBeginning();
@@ -117,7 +117,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ProfileActivity.start(getActivity(), playlistInfo.getCreatorUrn());
+            ProfileActivity.start(getActivity(), playlistWithTracks.getCreatorUrn());
         }
     };
 
@@ -132,7 +132,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final DefaultSubscriber<EntityStateChangedEvent> trackAddedToPlaylist = new DefaultSubscriber<EntityStateChangedEvent>() {
         @Override
         public void onNext(EntityStateChangedEvent event) {
-            if (event.getNextUrn().equals(playlistInfo.getUrn())) {
+            if (event.getNextUrn().equals(playlistWithTracks.getUrn())) {
                 onPlaylistContentChanged();
             }
         }
@@ -231,7 +231,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void createLoadPlaylistObservable() {
-        loadPlaylist = bindFragment(this, playlistOperations.playlistInfo(getPlaylistUrn()));
+        loadPlaylist = bindFragment(this, playlistOperations.playlist(getPlaylistUrn()));
     }
 
     private void subscribeToLoadObservable() {
@@ -273,8 +273,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private Urn getPlaylistUrn() {
         // if possible, use the instance to get the ID as it can change during syncing
-        if (playlistInfo != null) {
-            return playlistInfo.getUrn();
+        if (playlistWithTracks != null) {
+            return playlistWithTracks.getUrn();
         }
         return getArguments().getParcelable(EXTRA_URN);
     }
@@ -339,13 +339,13 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
         
         offlinePlaybackOperations
-                .playPlaylist(playlistInfo.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
+                .playPlaylist(playlistWithTracks.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
     }
 
     private PlaySessionSource getPlaySessionSource() {
         final PlaySessionSource playSessionSource = new PlaySessionSource(Screen.fromBundle(getArguments()).get());
-        playSessionSource.setPlaylist(playlistInfo.getUrn(), playlistInfo.getCreatorUrn());
+        playSessionSource.setPlaylist(playlistWithTracks.getUrn(), playlistWithTracks.getCreatorUrn());
         return playSessionSource;
     }
 
@@ -357,17 +357,17 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     }
 
-    protected void refreshMetaData(PlaylistInfo playlistInfo) {
-        if (playlistInfo.isOwnedBy(accountOperations.getLoggedInUserUrn())) {
-            controller.showTrackRemovalOptions(playlistInfo.getUrn(), this);
+    protected void refreshMetaData(PlaylistWithTracks playlistWithTracks) {
+        if (playlistWithTracks.isOwnedBy(accountOperations.getLoggedInUserUrn())) {
+            controller.showTrackRemovalOptions(playlistWithTracks.getUrn(), this);
         }
 
-        this.playlistInfo = playlistInfo;
-        playlistPresenter.setPlaylist(playlistInfo);
-        engagementsPresenter.setPlaylistInfo(playlistInfo, getPlaySessionSource());
+        this.playlistWithTracks = playlistWithTracks;
+        playlistPresenter.setPlaylist(playlistWithTracks);
+        engagementsPresenter.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         // don't register clicks before we have a valid playlist
-        final List<TrackItem> tracks = playlistInfo.getTracks();
+        final List<TrackItem> tracks = playlistWithTracks.getTracks();
         if (!tracks.isEmpty()) {
             playToggle.setVisibility(View.VISIBLE);
             AnimUtils.runFadeInAnimationOn(getActivity(), playToggle);
@@ -379,7 +379,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         headerUsernameText.setEnabled(true);
     }
 
-    private void updateTracksAdapter(PlaylistInfo playlist) {
+    private void updateTracksAdapter(PlaylistWithTracks playlist) {
         final ItemAdapter<TrackItem> adapter = controller.getAdapter();
         adapter.clear();
         for (TrackItem track : playlist.getTracks()) {
@@ -388,9 +388,9 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         adapter.notifyDataSetChanged();
     }
 
-    private class PlaylistSubscriber extends DefaultSubscriber<PlaylistInfo> {
+    private class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
         @Override
-        public void onNext(PlaylistInfo playlist) {
+        public void onNext(PlaylistWithTracks playlist) {
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
             updateTracksAdapter(playlist);

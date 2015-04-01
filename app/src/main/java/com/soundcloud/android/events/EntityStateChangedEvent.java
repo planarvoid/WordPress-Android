@@ -1,7 +1,5 @@
 package com.soundcloud.android.events;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Collections2;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -15,13 +13,11 @@ import android.support.v4.util.ArrayMap;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 
 public final class EntityStateChangedEvent {
 
     public static final int ENTITY_SYNCED = 0;
-    public static final int DOWNLOAD = 1;
     public static final int LIKE = 2;
     public static final int REPOST = 3;
     public static final int MARKED_FOR_OFFLINE = 4;
@@ -97,65 +93,15 @@ public final class EntityStateChangedEvent {
             return entityStateChangedEvent.getNextUrn();
         }
     };
+    public static final Func1<EntityStateChangedEvent, PropertySet> TO_SINGULAR_CHANGE = new Func1<EntityStateChangedEvent, PropertySet>() {
+        @Override
+        public PropertySet call(EntityStateChangedEvent event) {
+            return event.getNextChangeSet();
+        }
+    };
 
     private final int kind;
     private final Map<Urn, PropertySet> changeMap;
-
-    public static EntityStateChangedEvent downloadRequested(Collection<Urn> tracks) {
-        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
-            @Override
-            public PropertySet apply(Urn urn) {
-                return PropertySet.from(
-                        TrackProperty.URN.bind(urn),
-                        OfflineProperty.REQUESTED_AT.bind(new Date()));
-            }
-        });
-
-        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
-    }
-
-    public static EntityStateChangedEvent downloadFinished(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD,
-                PropertySet.from(
-                        TrackProperty.URN.bind(track),
-                        OfflineProperty.DOWNLOADED_AT.bind(new Date()))
-        );
-    }
-
-    public static EntityStateChangedEvent downloadFinished(Collection<Urn> tracks) {
-        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
-            @Override
-            public PropertySet apply(Urn urn) {
-                return PropertySet.from(
-                        TrackProperty.URN.bind(urn),
-                        OfflineProperty.DOWNLOADED_AT.bind(new Date()));
-            }
-        });
-
-        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
-    }
-
-    public static EntityStateChangedEvent downloadFailed(Urn track) {
-        return new EntityStateChangedEvent(DOWNLOAD,
-                PropertySet.from(
-                        TrackProperty.URN.bind(track),
-                        OfflineProperty.UNAVAILABLE_AT.bind(new Date())
-                )
-        );
-    }
-
-    public static EntityStateChangedEvent downloadRemoved(Collection<Urn> tracks) {
-        Collection<PropertySet> changeSet = Collections2.transform(tracks, new Function<Urn, PropertySet>() {
-            @Override
-            public PropertySet apply(Urn urn) {
-                return PropertySet.from(
-                        TrackProperty.URN.bind(urn),
-                        OfflineProperty.REMOVED_AT.bind(new Date()));
-            }
-        });
-
-        return new EntityStateChangedEvent(DOWNLOAD, changeSet);
-    }
 
     public static EntityStateChangedEvent fromSync(Collection<PropertySet> changedEntities) {
         return new EntityStateChangedEvent(ENTITY_SYNCED, changedEntities);
@@ -189,7 +135,7 @@ public final class EntityStateChangedEvent {
     public static EntityStateChangedEvent fromMarkedForOffline(Urn urn, boolean isMarkedForOffline) {
         return new EntityStateChangedEvent(MARKED_FOR_OFFLINE, PropertySet.from(
                 PlayableProperty.URN.bind(urn),
-                PlaylistProperty.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
+                OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(isMarkedForOffline)));
     }
 
     public static EntityStateChangedEvent fromTrackAddedToPlaylist(Urn playlistUrn, int trackCount) {

@@ -47,7 +47,7 @@ public class PlaylistOperationsTest {
 
     private PlaylistOperations operations;
 
-    @Mock private Observer<PlaylistInfo> playlistInfoObserver;
+    @Mock private Observer<PlaylistWithTracks> playlistInfoObserver;
     @Mock private SyncInitiator syncInitiator;
     @Mock private PlaylistTracksStorage tracksStorage;
     @Mock private PlaylistStorage playlistStorage;
@@ -93,9 +93,9 @@ public class PlaylistOperationsTest {
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
 
-        operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
+        operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
-        verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), trackItems()));
+        verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlist.toPropertySet(), trackItems()));
         verify(playlistInfoObserver).onCompleted();
     }
 
@@ -109,7 +109,7 @@ public class PlaylistOperationsTest {
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), trackItems()));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlist.toPropertySet(), trackItems()));
         inOrder.verify(playlistInfoObserver).onCompleted();
     }
 
@@ -119,11 +119,11 @@ public class PlaylistOperationsTest {
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(playlist.toPropertySet()));
 
-        operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
+        operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), trackItems()));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlist.toPropertySet(), trackItems()));
         inOrder.verify(playlistInfoObserver).onCompleted();
     }
 
@@ -133,7 +133,7 @@ public class PlaylistOperationsTest {
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.<List<PropertySet>>just(Lists.newArrayList(track1, track2)));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(PropertySet.<PropertySet>create()), Observable.just(PropertySet.create()));
 
-        operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
+        operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
@@ -148,12 +148,12 @@ public class PlaylistOperationsTest {
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.just(emptyTrackList), Observable.just(trackList));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlist.toPropertySet()));
 
-        operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
+        operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncPlaylist(playlist.getUrn());
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), TrackItem.fromPropertySets().call(emptyTrackList)));
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlist.toPropertySet(), TrackItem.fromPropertySets().call(trackList)));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlist.toPropertySet(), TrackItem.fromPropertySets().call(emptyTrackList)));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlist.toPropertySet(), TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();
     }
 
@@ -166,10 +166,10 @@ public class PlaylistOperationsTest {
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.just(emptyTrackList));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlistProperties));
 
-        operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
+        operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
         verify(syncInitiator, never()).syncPlaylist(playlist.getUrn());
-        verify(playlistInfoObserver).onNext(new PlaylistInfo(playlistProperties, TrackItem.fromPropertySets().call(emptyTrackList)));
+        verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlistProperties, TrackItem.fromPropertySets().call(emptyTrackList)));
         verify(playlistInfoObserver).onCompleted();
     }
 
@@ -182,11 +182,11 @@ public class PlaylistOperationsTest {
         when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.just(trackList));
         when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlistProperties));
 
-        operations.playlistInfo(playlist.getUrn()).subscribe(playlistInfoObserver);
+        operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
 
         InOrder inOrder = Mockito.inOrder(syncInitiator, playlistInfoObserver);
         inOrder.verify(syncInitiator).syncLocalPlaylists();
-        inOrder.verify(playlistInfoObserver).onNext(new PlaylistInfo(playlistProperties, TrackItem.fromPropertySets().call(trackList)));
+        inOrder.verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlistProperties, TrackItem.fromPropertySets().call(trackList)));
         inOrder.verify(playlistInfoObserver).onCompleted();
         verify(syncInitiator, never()).syncPlaylist(playlistProperties.get(PlaylistProperty.URN));
     }

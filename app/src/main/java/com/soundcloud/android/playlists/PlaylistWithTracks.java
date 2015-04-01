@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
@@ -10,12 +11,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-class PlaylistInfo {
+public class PlaylistWithTracks {
 
     @NotNull private final PropertySet sourceSet;
     @NotNull private final List<TrackItem> tracks;
 
-    PlaylistInfo(@NotNull PropertySet sourceSet, @NotNull List<TrackItem> tracks) {
+    PlaylistWithTracks(@NotNull PropertySet sourceSet, @NotNull List<TrackItem> tracks) {
         this.sourceSet = sourceSet;
         this.tracks = tracks;
     }
@@ -106,7 +107,11 @@ class PlaylistInfo {
     }
 
     public boolean isOfflineAvailable() {
-        return sourceSet.get(PlaylistProperty.IS_MARKED_FOR_OFFLINE);
+        return sourceSet.get(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE);
+    }
+
+    public void update(PropertySet source) {
+        this.sourceSet.update(source);
     }
 
     @Deprecated // we should avoid this, but apparently we need it to like something currently
@@ -114,20 +119,16 @@ class PlaylistInfo {
         return sourceSet;
     }
 
-    public void update(PropertySet source) {
-        this.sourceSet.update(source);
-    }
-
     @Override
     public final boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof PlaylistInfo)) {
+        if (!(o instanceof PlaylistWithTracks)) {
             return false;
         }
 
-        PlaylistInfo that = (PlaylistInfo) o;
+        PlaylistWithTracks that = (PlaylistWithTracks) o;
         return sourceSet.equals(that.sourceSet) && tracks.equals(that.tracks);
     }
 
