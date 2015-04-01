@@ -29,7 +29,6 @@ public class SettingsActivity extends ScSettingsActivity {
     @Inject ApplicationProperties applicationProperties;
     @Inject GeneralSettings generalSettings;
     @Inject DeveloperSettings developerSettings;
-    @Inject OfflineSettings offlineSettings;
 
     @Inject FeatureFlags featureFlags;
 
@@ -47,10 +46,6 @@ public class SettingsActivity extends ScSettingsActivity {
 
         if (!applicationProperties.isReleaseBuild()) {
             addPreferencesFromResource(R.xml.settings_extras);
-        }
-
-        if (applicationProperties.isAlphaBuild() || applicationProperties.isDebugBuild()) {
-            offlineSettings.setup(this);
         }
 
         if (applicationProperties.isDebugBuild()) {

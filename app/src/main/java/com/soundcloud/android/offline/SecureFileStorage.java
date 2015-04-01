@@ -64,6 +64,18 @@ public class SecureFileStorage {
         return Uri.EMPTY;
     }
 
+    public long getStorageUsed() {
+        return IOUtils.getDirSize(OFFLINE_DIR);
+    }
+
+    public long getStorageAvailable() {
+        return IOUtils.getSpaceLeft(Consts.FILES_PATH);
+    }
+
+    public long getStorageCapacity() {
+        return IOUtils.getSpaceCapacity(Consts.FILES_PATH);
+    }
+
     private String generateFileName(Urn urn) throws EncryptionException {
         return cryptoOperations.generateHashForUrn(urn) + ENC_FILE_EXTENSION;
     }

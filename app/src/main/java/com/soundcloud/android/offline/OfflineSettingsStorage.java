@@ -10,9 +10,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class OfflineSettingsStorage {
-
+    private static final long DEFAULT_OFFLINE_STORAGE_LIMIT_BYTES = 1024 * 1024 * 1024;
     private static final String OFFLINE_LIKES_ENABLED = "offline_likes";
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
+    private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
+
 
     private final SharedPreferences sharedPreferences;
 
@@ -51,6 +53,14 @@ public class OfflineSettingsStorage {
         sharedPreferences.edit().putBoolean(OFFLINE_WIFI_ONLY, wifiOnly).apply();
     }
 
+    public long getStorageLimit() {
+        return sharedPreferences.getLong(OFFLINE_STORAGE_LIMIT, DEFAULT_OFFLINE_STORAGE_LIMIT_BYTES);
+    }
+
+    public void setStorageLimit(long limitBytes) {
+        sharedPreferences.edit().putLong(OFFLINE_STORAGE_LIMIT, limitBytes).apply();
+    }
+
     public Observable<Boolean> getOfflineLikedTracksStatusChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                 .filter(FILTER_OFFLINE_LIKES_KEY)
@@ -64,5 +74,4 @@ public class OfflineSettingsStorage {
     public void clear() {
         sharedPreferences.edit().clear().apply();
     }
-
 }

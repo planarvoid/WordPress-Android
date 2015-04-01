@@ -125,6 +125,11 @@
     <color name="tab_bar_divider">#dddddd</color>
     <color name="darker_gray">#aaaaaa</color>
     <color name="gray_background">#f3f3f3</color>
+    <color name="usage_bar_border">#878787</color>
+    <color name="usage_bar_other">#dfdfdf</color>
+    <color name="usage_bar_used">#fe3c06</color>
+    <color name="usage_bar_limit">#ffae87</color>
+    <color name="usage_bar_free">#ffffff</color>
 
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>

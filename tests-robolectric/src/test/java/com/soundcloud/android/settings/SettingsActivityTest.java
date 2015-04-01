@@ -24,7 +24,6 @@ public class SettingsActivityTest {
     @Mock private GeneralSettings generalSettings;
     @Mock private DeveloperSettings developerSettings;
     @Mock private FeatureFlags featureFlags;
-    @Mock private OfflineSettings offlineSettings;
 
     @InjectMocks private SettingsActivity activity;
 

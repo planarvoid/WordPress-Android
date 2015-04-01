@@ -515,6 +515,7 @@
     <string name="title_legal">Legal</string>
     <string name="pref_extras">Extras</string>
     <string name="title_account_settings">Account Settings</string>
+    <string name="title_offline_settings">Offline Sync Settings</string>
     <string name="title_notification_settings">Notification Settings</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -555,9 +556,21 @@
     <string name="subscribe_buy">Buy</string>
 
     <!-- __SETTINGS OFFLINE -->
+    <string name="pref_offline_settings">Offline Sync Settings</string>
     <string name="pref_offline_header">Offline sync settings</string>
     <string name="pref_offline_wifi_only_sync">Only offline sync over Wi-Fi</string>
     <string name="pref_offline_wifi_only_description">Sync your likes and playlists only using Wi-Fi connection</string>
+    <string name="pref_offline_settings_summary">Manage your Offline Sync settings</string>
+    <string name="pref_offline_storage_limit">Storage Limit</string>
+    <string name="pref_offline_storage_limit_description">How much of your storage we can\nuse to sync your tracks</string>
+    <string name="pref_offline_storage_free_gb" formatted="false">%.1f GB free of %.1f GB</string>
+    <string name="pref_offline_storage_limit_gb" formatted="false">%.1f GB</string>
+    <string name="pref_offline_storage_usage">Storage Usage</string>
+    <string name="pref_offline_used_by_other_apps">Used by other apps</string>
+    <string name="pref_offline_used">Used</string>
+    <string name="pref_offline_limit">Limit</string>
+    <string name="pref_offline_remove_all_offline_content">Remove all offline content</string>
+    <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>

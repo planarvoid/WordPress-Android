@@ -85,6 +85,7 @@ public enum Screen {
     SETTINGS_MAIN("settings:main"),
     SETTINGS_NOTIFICATIONS("settings:notification_settings"),
     SETTINGS_ACCOUNT("settings:account_sync_settings"),
+    SETTINGS_OFFLINE("settings:offline_sync_settings"),
 
     WIDGET("widget"),
     SUBSCRIBE("subscribe"),
