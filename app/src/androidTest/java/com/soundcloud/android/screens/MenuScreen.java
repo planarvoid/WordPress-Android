@@ -24,15 +24,6 @@ public class MenuScreen {
         this.waiter = new Waiter(solo);
     }
 
-    public HomeScreen logout() {
-        testDriver.openSystemMenu();
-        clickSystemSettings();
-        testDriver.findElement(With.text(testDriver.getString(R.string.pref_revoke_access))).click();
-        testDriver.assertText(R.string.menu_clear_user_title);
-        testDriver.clickOnText(android.R.string.ok);
-        return new HomeScreen(testDriver);
-    }
-
     //TODO: Move this to systemSettingsScreen
     public SettingsScreen clickSystemSettings() {
         testDriver.findElement(With.text("Settings")).click();

@@ -8,11 +8,13 @@ import static com.soundcloud.android.framework.TestUser.scAccount;
 import static com.soundcloud.android.framework.TestUser.scTestAccount;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
@@ -35,8 +37,8 @@ public class LoginFlowTest extends LoginTest {
         super.setUp();
         homeScreen = new HomeScreen(solo);
 
-        menuScreen      = new MenuScreen(solo);
-        waiter          = new Waiter(solo);
+        menuScreen = new MenuScreen(solo);
+        waiter = new Waiter(solo);
     }
 
     /*
@@ -44,7 +46,7 @@ public class LoginFlowTest extends LoginTest {
      * I want to sign in with my SC account
      * So that I can listen to my favourite tracks
      */
-    public void testSCUserLoginFlow()  {
+    public void testSCUserLoginFlow() {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.loginAs(scTestAccount.getPermalink(), scTestAccount.getPassword());
         assertThat(new StreamScreen(solo), visible());
@@ -55,7 +57,7 @@ public class LoginFlowTest extends LoginTest {
     * I want to sign in with my G+ credentials
     * So that I don't need to create another SC account
     */
-    public void testGPlusLoginFlow()  {
+    public void testGPlusLoginFlow() {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
 
@@ -75,7 +77,7 @@ public class LoginFlowTest extends LoginTest {
     * As a Google account User
     * I want to sign in even if I don't have g+ profile
     */
-    public void testNoGooglePlusAccountLogin()  {
+    public void testNoGooglePlusAccountLogin() {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickSignInWithGoogleButton();
         loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
@@ -118,7 +120,7 @@ public class LoginFlowTest extends LoginTest {
     * I want to sign in with my FB credentials
     * So that I don't need to create another account
     */
-    public void ignore_testLoginWithFBApplication () {
+    public void ignore_testLoginWithFBApplication() {
         //TODO Implement this
         // QUESTION How can we control what's installed on device and what's not.
     }
@@ -142,13 +144,13 @@ public class LoginFlowTest extends LoginTest {
      * I want to log out from the app
      * So that I am sure no one can modify my account
      */
-    public void testLoginAndLogout()  {
+    public void testLoginAndLogout() {
         loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
-        menuScreen.logout();
+        MainScreen mainScreen = loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
 
-        assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
-
+        assertThat(mainScreen.actionBar()
+                .clickSettingsOverflowButton()
+                .clickLogoutAndConfirm(), is(visible()));
     }
 
     /*
@@ -171,7 +173,7 @@ public class LoginFlowTest extends LoginTest {
     * I want to be notified if I accidentally tap OK button while recovering my password
     * So that I know what went wrong
     */
-    public void testRecoverPasswordNoInput()  {
+    public void testRecoverPasswordNoInput() {
         loginScreen = homeScreen.clickLogInButton();
         loginScreen.clickForgotPassword();
         loginScreen.clickOkButton();
