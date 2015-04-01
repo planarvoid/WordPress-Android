@@ -173,17 +173,6 @@ public class Connection extends PublicApiResource implements Comparable<Connecti
         return all;
     }
 
-    public static boolean checkConnectionListForService(Set<Connection> haystack, Service needle) {
-        if (haystack != null) {
-            for (Connection c : haystack) {
-                if (c.service() == needle) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public boolean equals(Object o) {
         if (this == o) {

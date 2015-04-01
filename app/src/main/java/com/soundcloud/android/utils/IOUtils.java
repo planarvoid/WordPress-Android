@@ -30,7 +30,6 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -324,23 +323,6 @@ public final class IOUtils {
 
     public static String md5(String s) {
         return md5(new ByteArrayInputStream(s.getBytes()));
-    }
-
-    public static String md5(File f) {
-        InputStream is = null;
-        try {
-            is = new BufferedInputStream(new FileInputStream(f));
-            return md5(is);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException ignored) {
-                }
-            }
-        }
     }
 
     public static String md5(InputStream f) {

@@ -157,10 +157,6 @@ public class PublicApiComment extends PublicApiResource implements RelatesToUser
         return cv;
     }
 
-    public boolean shouldLoadIcon() {
-        return user != null && user.shouldLoadIcon();
-    }
-
     @Override @JsonIgnore
     public PublicApiUser getUser() {
         return user;

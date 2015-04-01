@@ -28,7 +28,6 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -72,10 +71,6 @@ public class PublicApiPlaylist extends Playable {
         }
     }
 
-    public static boolean isLocal(long playlistId) {
-        return playlistId < 0;
-    }
-
     /**
      * Helper to instantiate a playlist the given user created locally. This playlist will have a negative timestamp
      * to indicate that it hasn't been synced to the API yet.
@@ -108,7 +103,7 @@ public class PublicApiPlaylist extends Playable {
         track_count = b.getInt("track_count");
         tracks = b.getParcelableArrayList("tracks");
         if (tracks == null) {
-            tracks = new LinkedList<PublicApiTrack>();
+            tracks = new LinkedList<>();
         }
     }
 
@@ -242,13 +237,4 @@ public class PublicApiPlaylist extends Playable {
                 .put(PlayableProperty.IS_LIKED, user_like);
     }
 
-    public Collection<Urn> getTracksWithoutTitles() {
-        List<Urn> urns = new ArrayList<>(getTracks().size());
-        for (PublicApiTrack t : tracks) {
-            if (t.title == null) {
-                urns.add(t.getUrn());
-            }
-        }
-        return urns;
-    }
 }

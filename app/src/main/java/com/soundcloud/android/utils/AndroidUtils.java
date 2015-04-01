@@ -77,10 +77,6 @@ public final class AndroidUtils {
 
     }
 
-    public static boolean isTaskPending(AsyncTask lt) {
-        return lt != null && lt.getStatus() == AsyncTask.Status.PENDING;
-    }
-
     @SuppressWarnings("UnusedDeclaration")
     public static int getScreenOrientation(Activity a) {
         Display getOrient = a.getWindowManager().getDefaultDisplay();
