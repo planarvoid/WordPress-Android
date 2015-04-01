@@ -185,7 +185,10 @@ dependencies {
   provided libraries.httpClientAndroid
   compile (libraries.httpmime) { exclude group: 'org.apache.httpcomponents', module: 'httpclient' }
   compile libraries.localytics
-  compile libraries.slidingUpPanel
+  compile (libraries.slidingUpPanel) {
+    // TODO: fork lib and remove NineOldAndroids
+    transitive = true;
+  }
   compile libraries.androidCrop
   compile libraries.rxAndroid
   compile libraries.rxJava
