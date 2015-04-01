@@ -1,6 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import com.crashlytics.android.Crashlytics;
 import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.analytics.adjust.AdjustAnalyticsProvider;
 import com.soundcloud.android.analytics.comscore.ComScoreAnalyticsProvider;
@@ -12,6 +11,7 @@ import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.settings.GeneralSettings;
 import com.soundcloud.android.utils.Log;
+import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -72,7 +72,7 @@ public class AnalyticsProviderFactory {
             addOptInProviders(providers);
         }
 
-        if (Crashlytics.getInstance().isInitialized()) {
+        if (Fabric.isInitialized()) {
             providers.add(crashlyticsAnalyticsProvider);
         }
 
