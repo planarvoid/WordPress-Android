@@ -34,7 +34,7 @@ public class TrackRepository {
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
-                           EventBus eventBus, SyncInitiator syncInitiator, @Named("Storage") Scheduler scheduler) {
+                           EventBus eventBus, SyncInitiator syncInitiator, @Named("HighPriority") Scheduler scheduler) {
         this.trackStorage = trackStorage;
         this.eventBus = eventBus;
         this.syncInitiator = syncInitiator;

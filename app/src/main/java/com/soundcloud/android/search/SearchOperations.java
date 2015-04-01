@@ -6,9 +6,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -25,10 +25,12 @@ import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.Pager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,12 +52,13 @@ class SearchOperations {
         }
     };
 
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
     private final StorePlaylistsCommand storePlaylistsCommand;
     private final StoreTracksCommand storeTracksCommand;
     private final StoreUsersCommand storeUsersCommand;
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
+    private final Scheduler scheduler;
 
     private final Func1<SearchResult, SearchResult> mergeLikeStatusForPlaylists = new Func1<SearchResult, SearchResult>() {
         @Override
@@ -89,16 +92,18 @@ class SearchOperations {
     };
 
     @Inject
-    public SearchOperations(ApiScheduler apiScheduler, StoreTracksCommand storeTracksCommand,
+    public SearchOperations(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand,
                             StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
                             CacheUniversalSearchCommand cacheUniversalSearchCommand,
-                            LoadPlaylistLikedStatuses loadPlaylistLikedStatuses) {
-        this.apiScheduler = apiScheduler;
+                            LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
+                            @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;
         this.storeUsersCommand = storeUsersCommand;
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
+        this.scheduler = scheduler;
     }
 
     SearchResultPager pager(int searchType) {
@@ -202,7 +207,8 @@ class SearchOperations {
 
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiTrack>> builder) {
-            return apiScheduler.mappedResponse(builder.build())
+            return apiClientRx.mappedResponse(builder.build())
+                    .subscribeOn(scheduler)
                     .doOnNext(storeTracksCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
@@ -217,7 +223,8 @@ class SearchOperations {
 
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiPlaylist>> builder) {
-            return apiScheduler.mappedResponse(builder.build())
+            return apiClientRx.mappedResponse(builder.build())
+                    .subscribeOn(scheduler)
                     .doOnNext(storePlaylistsCommand.toAction())
                     .map(TO_SEARCH_RESULT)
                     .map(mergeLikeStatusForPlaylists);
@@ -233,7 +240,8 @@ class SearchOperations {
 
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiUser>> builder) {
-            return apiScheduler.mappedResponse(builder.build())
+            return apiClientRx.mappedResponse(builder.build())
+                    .subscribeOn(scheduler)
                     .doOnNext(storeUsersCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
@@ -248,7 +256,8 @@ class SearchOperations {
 
         @Override
         protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiUniversalSearchItem>> builder) {
-            return apiScheduler.mappedResponse(builder.build())
+            return apiClientRx.mappedResponse(builder.build())
+                    .subscribeOn(scheduler)
                     .doOnNext(cacheUniversalSearchCommand.toAction())
                     .map(TO_SEARCH_RESULT)
                     .map(mergeLikeStatusForPlaylists);

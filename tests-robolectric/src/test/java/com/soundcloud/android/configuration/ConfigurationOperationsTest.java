@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ import java.util.HashMap;
 @RunWith(SoundCloudTestRunner.class)
 public class ConfigurationOperationsTest {
 
-    @Mock private ApiScheduler apiScheduler;
+    @Mock private ApiClientRx apiClientRx;
     @Mock private ApiClient apiClient;
     @Mock private ExperimentOperations experimentOperations;
     @Mock private FeatureOperations featureOperations;
@@ -58,13 +59,13 @@ public class ConfigurationOperationsTest {
     @Before
     public void setUp() throws Exception {
         configuration = ModelFixtures.create(Configuration.class);
-        operations = new ConfigurationOperations(InjectionSupport.lazyOf(apiScheduler), InjectionSupport.lazyOf(apiClient),
+        operations = new ConfigurationOperations(InjectionSupport.lazyOf(apiClientRx), InjectionSupport.lazyOf(apiClient),
                 experimentOperations, featureOperations, accountOperations, offlineContentOperations,
-                deviceManagementStorage, featureFlags);
+                deviceManagementStorage, featureFlags, Schedulers.immediate());
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configuration));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configuration));
         when(featureFlags.isEnabled(Flag.OFFLINE_SYNC)).thenReturn(true);
     }
 
@@ -72,7 +73,7 @@ public class ConfigurationOperationsTest {
     public void loadsExperimentsOnUpdate() {
         operations.update();
 
-        verify(apiScheduler).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
+        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
                 .withQueryParam("experiment_layers", "android_listening", "ios")));
     }
 
@@ -114,7 +115,7 @@ public class ConfigurationOperationsTest {
     @Test
     public void updateStoresConfiguration() {
         final Configuration authorizedConfiguration = getAuthorizedConfiguration();
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(authorizedConfiguration));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(authorizedConfiguration));
         operations.update();
 
         verify(featureOperations).update(eq(getFeaturesAsMap()));
@@ -130,7 +131,7 @@ public class ConfigurationOperationsTest {
     public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() throws Exception {
         Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(), Collections.<Layer>emptyList(),
                 new DeviceManagement(false, null));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configurationWithDeviceConflict));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configurationWithDeviceConflict));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         final PublishSubject<WriteResult> clearOfflineContentSubject = PublishSubject.create();

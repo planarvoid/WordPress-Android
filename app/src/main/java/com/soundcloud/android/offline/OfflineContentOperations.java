@@ -35,7 +35,7 @@ import java.util.List;
 public class OfflineContentOperations {
 
     private final LoadPrioritizedPendingDownloadsCommand loadPendingDownloadRequests;
-    
+
     private final StorePendingDownloadsCommand storePendingDownloadsCommand;
     private final StorePendingRemovalsCommand storePendingRemovalsCommand;
     private final StoreDownloadedCommand storeDownloadedCommand;
@@ -106,7 +106,7 @@ public class OfflineContentOperations {
                                     LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies,
                                     OfflineTracksStorage tracksStorage,
                                     SecureFileStorage secureFileStorage,
-                                    @Named("Storage") Scheduler scheduler) {
+                                    @Named("HighPriority") Scheduler scheduler) {
         this.storePendingDownloadsCommand = storePendingDownloadsCommand;
         this.storePendingRemovalsCommand = storePendingRemovalsCommand;
         this.storeDownloadedCommand = storeDownloadedCommand;
@@ -194,16 +194,16 @@ public class OfflineContentOperations {
 
     public Observable<DownloadState> getPlaylistDownloadState(final Urn playlist) {
         return getDownloadState(
-                tracksStorage.pendingPlaylistTracksUrns(playlist),
-                getOfflinePlaylistStatus(playlist)
-        ).subscribeOn(scheduler);
+                tracksStorage.pendingPlaylistTracksUrns(playlist).subscribeOn(scheduler),
+                getOfflinePlaylistStatus(playlist).subscribeOn(scheduler)
+        );
     }
 
     public Observable<DownloadState> getLikedTracksDownloadState() {
         return getDownloadState(
-                tracksStorage.pendingLikedTracksUrns(),
-                settingsStorage.getOfflineLikedTracksStatus()
-        ).subscribeOn(scheduler);
+                tracksStorage.pendingLikedTracksUrns().subscribeOn(scheduler),
+                settingsStorage.getOfflineLikedTracksStatus().subscribeOn(scheduler)
+        );
     }
 
     private Observable<DownloadState> getDownloadState(final Observable<List<Urn>> pendingDownloads, Observable<Boolean> offlineContentStatus) {

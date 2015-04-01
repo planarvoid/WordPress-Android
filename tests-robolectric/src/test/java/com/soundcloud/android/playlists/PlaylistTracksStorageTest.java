@@ -11,10 +11,12 @@ import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -104,6 +106,60 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         long playlistId = testObserver.getOnNextEvents().get(0).getNumericId();
         databaseAssertions().assertPlaylistTracklist(playlistId, Arrays.asList(Urn.forTrack(123)));
+    }
+
+    @Test
+    public void returnsPlaylistTracks() throws Exception {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        final ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
+
+        testFixtures().insertPlaylistTrack(testFixtures().insertPlaylist(), 2);
+
+        final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
+
+        expect(tracks).toContainExactly(
+                fromApiTrack(apiTrack1),
+                fromApiTrack(apiTrack2)
+        );
+    }
+
+    @Test
+    public void returnsPlaylistTracksWithOfflineInfo() throws Exception {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        final ApiTrack apiTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
+        final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
+
+        testFixtures().insertCompletedTrackDownload(apiTrack1.getUrn(), 100L);
+        testFixtures().insertTrackPendingDownload(apiTrack2.getUrn(), 200L);
+        testFixtures().insertTrackDownloadPendingRemoval(apiTrack3.getUrn(), 300L);
+
+        final List<PropertySet> tracks = playlistTracksStorage.playlistTracks(apiPlaylist.getUrn()).toBlocking().single();
+
+        expect(tracks).toContain(
+                fromApiTrack(apiTrack1)
+                        .put(OfflineProperty.DOWNLOADED_AT, new Date(100L))
+                        .put(OfflineProperty.REQUESTED_AT, new Date(100L)),
+                fromApiTrack(apiTrack2)
+                        .put(OfflineProperty.REQUESTED_AT, new Date(200L)),
+                fromApiTrack(apiTrack3)
+                        .put(OfflineProperty.REMOVED_AT, new Date(300L))
+                        .put(OfflineProperty.REQUESTED_AT, new Date(300L))
+        );
+    }
+
+    private PropertySet fromApiTrack(ApiTrack apiTrack){
+        return PropertySet.from(
+                TrackProperty.URN.bind(apiTrack.getUrn()),
+                TrackProperty.TITLE.bind(apiTrack.getTitle()),
+                TrackProperty.DURATION.bind(apiTrack.getDuration()),
+                TrackProperty.PLAY_COUNT.bind(apiTrack.getStats().getPlaybackCount()),
+                TrackProperty.LIKES_COUNT.bind(apiTrack.getStats().getLikesCount()),
+                TrackProperty.IS_PRIVATE.bind(apiTrack.isPrivate()),
+                TrackProperty.CREATOR_NAME.bind(apiTrack.getUserName()),
+                TrackProperty.CREATOR_URN.bind(apiTrack.getUser().getUrn())
+        );
     }
 
     private void assertPlaylistInserted(long playlistId, String title, boolean isPrivate) {

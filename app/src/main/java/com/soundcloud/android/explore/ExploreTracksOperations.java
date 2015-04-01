@@ -3,20 +3,23 @@ package com.soundcloud.android.explore;
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.Pager;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 class ExploreTracksOperations {
 
     private final StoreTracksCommand storeTracksCommand;
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
+    private final Scheduler scheduler;
 
     private final Pager<SuggestedTracksCollection> pager = new Pager<SuggestedTracksCollection>() {
         @Override
@@ -31,16 +34,18 @@ class ExploreTracksOperations {
     };
 
     @Inject
-    ExploreTracksOperations(StoreTracksCommand storeTracksCommand, ApiScheduler apiScheduler) {
+    ExploreTracksOperations(StoreTracksCommand storeTracksCommand, ApiClientRx apiClientRx,
+                            @Named("HighPriority") Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
-        this.apiScheduler = apiScheduler;
+        this.apiClientRx = apiClientRx;
+        this.scheduler = scheduler;
     }
 
     public Observable<ExploreGenresSections> getCategories() {
         ApiRequest<ExploreGenresSections> request = ApiRequest.Builder.<ExploreGenresSections>get(ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(ExploreGenresSections.class)).build();
-        return apiScheduler.mappedResponse(request);
+        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
     }
 
     public Observable<SuggestedTracksCollection> getSuggestedTracks(ExploreGenre category) {
@@ -63,6 +68,8 @@ class ExploreTracksOperations {
                 .forPrivateApi(1)
                 .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
 
-        return apiScheduler.mappedResponse(request).doOnNext(storeTracksCommand.toAction());
+        return apiClientRx.mappedResponse(request)
+                .doOnNext(storeTracksCommand.toAction())
+                .subscribeOn(scheduler);
     }
 }

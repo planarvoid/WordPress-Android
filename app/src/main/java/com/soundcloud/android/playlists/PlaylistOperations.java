@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.storage.PlaylistStorage;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
 import com.soundcloud.android.tracks.TrackItem;
@@ -39,9 +40,8 @@ public class PlaylistOperations {
     };
 
     private final Scheduler scheduler;
-    private final LoadPlaylistCommand loadPlaylistCommand;
+    private final PlaylistStorage playlistStorage;
     private final LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns;
-    private final LoadPlaylistTracksCommand loadPlaylistTracksCommand;
     private final PlaylistTracksStorage playlistTracksStorage;
     private final AddTrackToPlaylistCommand addTrackToPlaylistCommand;
     private final RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand;
@@ -67,12 +67,11 @@ public class PlaylistOperations {
     };
 
     @Inject
-    PlaylistOperations(@Named("Storage") Scheduler scheduler,
+    PlaylistOperations(@Named("HighPriority") Scheduler scheduler,
                        SyncInitiator syncInitiator,
                        PlaylistTracksStorage playlistTracksStorage,
-                       LoadPlaylistCommand loadPlaylistCommand,
+                       PlaylistStorage playlistStorage,
                        LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrns,
-                       LoadPlaylistTracksCommand loadPlaylistTracksCommand,
                        OfflineContentOperations offlineOperations,
                        AddTrackToPlaylistCommand addTrackToPlaylistCommand,
                        RemoveTrackFromPlaylistCommand removeTrackFromPlaylistCommand,
@@ -80,9 +79,8 @@ public class PlaylistOperations {
         this.scheduler = scheduler;
         this.syncInitiator = syncInitiator;
         this.playlistTracksStorage = playlistTracksStorage;
-        this.loadPlaylistCommand = loadPlaylistCommand;
+        this.playlistStorage = playlistStorage;
         this.loadPlaylistTrackUrns = loadPlaylistTrackUrns;
-        this.loadPlaylistTracksCommand = loadPlaylistTracksCommand;
         this.addTrackToPlaylistCommand = addTrackToPlaylistCommand;
         this.removeTrackFromPlaylistCommand = removeTrackFromPlaylistCommand;
         this.eventBus = eventBus;
@@ -163,14 +161,10 @@ public class PlaylistOperations {
                 });
     }
 
-    Observable<PropertySet> loadPlaylist(final Urn playlistUrn){
-        return loadPlaylistCommand.with(playlistUrn).toObservable().subscribeOn(scheduler);
-    }
-
     private Observable<PlaylistInfo> createPlaylistInfoLoadObservable(Urn playlistUrn) {
-        final Observable<PropertySet> loadPlaylist = loadPlaylistCommand.with(playlistUrn).toObservable();
+        final Observable<PropertySet> loadPlaylist = playlistStorage.loadPlaylist(playlistUrn);
         final Observable<List<TrackItem>> loadPlaylistTracks =
-                loadPlaylistTracksCommand.with(playlistUrn).toObservable().map(TrackItem.fromPropertySets());
+                playlistTracksStorage.playlistTracks(playlistUrn).map(TrackItem.fromPropertySets());
         return Observable.zip(loadPlaylist, loadPlaylistTracks, mergePlaylistWithTracks).subscribeOn(scheduler);
     }
 

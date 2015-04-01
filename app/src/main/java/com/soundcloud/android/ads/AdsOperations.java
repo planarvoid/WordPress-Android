@@ -5,9 +5,9 @@ import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.events.PlayQueueEvent;
@@ -16,18 +16,21 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Action1;
 
 import android.util.Log;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Arrays;
 
 public class AdsOperations {
 
     private final StoreTracksCommand storeTracksCommand;
     private final PlayQueueManager playQueueManager;
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
+    private final Scheduler scheduler;
     private final Predicate<PropertySet> hasAdUrn = new Predicate<PropertySet>() {
         @Override
         public boolean apply(PropertySet input) {
@@ -45,10 +48,12 @@ public class AdsOperations {
     };
 
     @Inject
-    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager, ApiScheduler apiScheduler) {
+    AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager, ApiClientRx apiClientRx,
+                  @Named("HighPriority") Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
-        this.apiScheduler = apiScheduler;
+        this.apiClientRx = apiClientRx;
+        this.scheduler = scheduler;
     }
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
@@ -58,7 +63,8 @@ public class AdsOperations {
                 .forResource(TypeToken.of(ApiAdsForTrack.class))
                 .build();
 
-        return apiScheduler.mappedResponse(request)
+        return apiClientRx.mappedResponse(request)
+                .subscribeOn(scheduler)
                 .doOnError(logFailedAds(sourceUrn))
                 .doOnNext(logAds(sourceUrn))
                 .doOnNext(cacheAudioAdTrack);

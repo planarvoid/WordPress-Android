@@ -30,7 +30,7 @@ class DownloadOperations {
                               PlayQueueManager playQueueManager,
                               NetworkConnectionHelper connectionHelper,
                               OfflineSettingsStorage offlineSettings,
-                              @Named("Storage") Scheduler scheduler) {
+                              @Named("HighPriority") Scheduler scheduler) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;

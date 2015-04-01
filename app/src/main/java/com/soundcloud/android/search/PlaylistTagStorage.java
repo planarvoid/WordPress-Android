@@ -27,7 +27,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
 
     @Inject
     public PlaylistTagStorage(@Named("PlaylistTags") SharedPreferences sharedPreferences) {
-        this(sharedPreferences, ScSchedulers.STORAGE_SCHEDULER);
+        this(sharedPreferences, ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     @VisibleForTesting

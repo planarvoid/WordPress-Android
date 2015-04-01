@@ -8,7 +8,6 @@ import com.soundcloud.android.playback.ui.BlurringPlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerArtworkLoader;
 import com.soundcloud.android.playback.ui.PlayerFragment;
 import com.soundcloud.android.playback.ui.view.WaveformView;
-import com.soundcloud.android.rx.ScSchedulers;
 import dagger.Module;
 import dagger.Provides;
 import rx.Scheduler;
@@ -29,14 +28,8 @@ import javax.inject.Named;
 public class PlayerModule {
 
     @Provides
-    @Named("GraphicsScheduler")
-    public Scheduler provideGraphicsScheduler() {
-        return ScSchedulers.GRAPHICS_SCHEDULER;
-    }
-
-    @Provides
     public PlayerArtworkLoader providePlayerArtworkLoader(ImageOperations imageOperations, Resources resources,
-                                                          @Named("GraphicsScheduler") Scheduler graphicsScheduler) {
+                                                          @Named("LowPriority") Scheduler graphicsScheduler) {
         // ScriptIntrinsicBlur is available in JB_MR1 but is very buggy
         if (Build.VERSION_CODES.JELLY_BEAN_MR1 < Build.VERSION.SDK_INT) {
             return new BlurringPlayerArtworkLoader(imageOperations, resources, graphicsScheduler);

@@ -27,6 +27,6 @@ public abstract class StoreCommand<I> extends LegacyCommand<I, WriteResult, Stor
 
     @Override
     public Observable<WriteResult> toObservable() {
-        return super.toObservable().subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
+        return super.toObservable().subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 }

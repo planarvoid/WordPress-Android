@@ -28,6 +28,7 @@ import com.soundcloud.android.playback.service.managers.RemoteAudioManager;
 import com.soundcloud.android.playback.views.NotificationPlaybackRemoteViews;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.eventbus.DefaultEventBus;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -37,6 +38,7 @@ import com.soundcloud.android.waveform.WaveformData;
 import dagger.Lazy;
 import dagger.Module;
 import dagger.Provides;
+import rx.Scheduler;
 
 import android.accounts.AccountManager;
 import android.app.AlarmManager;
@@ -231,5 +233,17 @@ public class ApplicationModule {
     @Provides
     public PowerManager providePowerManager() {
         return (PowerManager) application.getSystemService(Context.POWER_SERVICE);
+    }
+
+    @Provides
+    @Named("HighPriority")
+    public Scheduler provideHighPriorityScheduler() {
+        return ScSchedulers.HIGH_PRIO_SCHEDULER;
+    }
+
+    @Provides
+    @Named("LowPriority")
+    public Scheduler provideLowPriorityScheduler() {
+        return ScSchedulers.LOW_PRIO_SCHEDULER;
     }
 }

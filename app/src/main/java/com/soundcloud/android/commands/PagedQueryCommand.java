@@ -32,7 +32,7 @@ public abstract class PagedQueryCommand<I extends PagedQueryCommand.PageParams> 
 
     @Override
     public Observable<List<PropertySet>> toObservable() {
-        return super.toObservable().subscribeOn(ScSchedulers.STORAGE_SCHEDULER);
+        return super.toObservable().subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     @Override

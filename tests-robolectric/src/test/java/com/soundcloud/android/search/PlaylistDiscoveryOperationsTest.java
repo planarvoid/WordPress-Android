@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.argThat;
@@ -14,14 +14,14 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.tobedevoured.modelcitizen.CreateModelException;
@@ -29,10 +29,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,16 +41,17 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistDiscoveryOperationsTest {
 
-    @InjectMocks PlaylistDiscoveryOperations operations;
+    private PlaylistDiscoveryOperations operations;
 
     @Mock PlaylistTagStorage tagStorage;
-    @Mock ApiScheduler apiScheduler;
+    @Mock ApiClientRx apiClientRx;
     @Mock Observer observer;
     @Mock StorePlaylistsCommand storePlaylistsCommand;
 
     @Before
     public void setup() {
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        operations = new PlaylistDiscoveryOperations(apiClientRx, tagStorage, storePlaylistsCommand, Schedulers.immediate());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
     }
 
     @Test
@@ -58,14 +59,14 @@ public class PlaylistDiscoveryOperationsTest {
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
         operations.popularPlaylistTags().subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())));
+        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())));
     }
 
     @Test
     public void storesPopularTagsWhenRequestIsSuccessful() {
         ModelCollection<String> tags = new ModelCollection<>(Lists.newArrayList("tag"));
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(tags));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(tags));
 
         operations.popularPlaylistTags().subscribe(observer);
 
@@ -75,7 +76,7 @@ public class PlaylistDiscoveryOperationsTest {
     @Test
     public void doesNotStorePopularTagsWhenRequestFails() {
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.error(new Exception()));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.error(new Exception()));
 
         operations.popularPlaylistTags().subscribe(observer);
 
@@ -90,14 +91,14 @@ public class PlaylistDiscoveryOperationsTest {
         operations.popularPlaylistTags().subscribe(observer);
 
         verify(tagStorage).getPopularTagsAsync();
-        verifyZeroInteractions(apiScheduler);
+        verifyZeroInteractions(apiClientRx);
     }
 
     @Test
     public void shouldMakeGETRequestToPlaylistDiscoveryEndpoint() {
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        verify(apiScheduler).mappedResponse(argThat(isMobileApiRequestTo("GET",
+        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET",
                 ApiEndpoints.PLAYLIST_DISCOVERY.path())));
     }
 
@@ -110,7 +111,7 @@ public class PlaylistDiscoveryOperationsTest {
         parameters.put("limit", String.valueOf(20));
 
         ArgumentCaptor<ApiRequest> resultCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiScheduler).mappedResponse(resultCaptor.capture());
+        verify(apiClientRx).mappedResponse(resultCaptor.capture());
         expect(resultCaptor.getValue().getQueryParameters()).toEqual(parameters);
     }
 
@@ -137,7 +138,7 @@ public class PlaylistDiscoveryOperationsTest {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         ApiPlaylistCollection collection = new ApiPlaylistCollection();
         collection.setCollection(Arrays.asList(playlist));
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
         return collection;
     }
 
@@ -199,7 +200,7 @@ public class PlaylistDiscoveryOperationsTest {
 
     @Test
     public void addsSearchedTagToRecentTagsStorageWhenRequestFails() {
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.error(new Exception()));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.error(new Exception()));
 
         operations.playlistsForTag("electronic").subscribe(observer);
 

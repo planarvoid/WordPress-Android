@@ -8,9 +8,9 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
@@ -30,6 +30,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 
@@ -41,14 +42,14 @@ public class AdsOperationsTest {
     private AdsOperations adsOperations;
     private ApiAdsForTrack fullAdsForTrack;
 
-    @Mock private ApiScheduler apiScheduler;
+    @Mock private ApiClientRx apiClientRx;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private PlayQueueManager playQueueManager;
     private PlaySessionSource playSessionSource;
 
     @Before
     public void setUp() throws Exception {
-        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiScheduler);
+        adsOperations = new AdsOperations(storeTracksCommand, playQueueManager, apiClientRx, Schedulers.immediate());
         fullAdsForTrack = AdFixtures.fullAdsForTrack();
         playSessionSource = new PlaySessionSource("origin");
         playSessionSource.setExploreVersion("1.0");
@@ -57,14 +58,14 @@ public class AdsOperationsTest {
     @Test
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), TRACK_URN.toEncodedString());
-        when(apiScheduler.mappedResponse(argThat(isApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(fullAdsForTrack));
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(fullAdsForTrack));
 
         expect(adsOperations.ads(TRACK_URN).toBlocking().first()).toBe(fullAdsForTrack);
     }
 
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
-        when(apiScheduler.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(fullAdsForTrack));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(fullAdsForTrack));
 
         adsOperations.ads(TRACK_URN).subscribe();
 

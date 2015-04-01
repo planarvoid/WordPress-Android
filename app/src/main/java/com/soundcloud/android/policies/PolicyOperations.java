@@ -17,7 +17,7 @@ public class PolicyOperations {
 
     @Inject
     public PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand, StorePoliciesCommand storePoliciesCommand,
-                            @Named("API") Scheduler scheduler) {
+                            @Named("HighPriority") Scheduler scheduler) {
         this.fetchPoliciesCommand = fetchPoliciesCommand;
         this.storePoliciesCommand = storePoliciesCommand;
         this.scheduler = scheduler;

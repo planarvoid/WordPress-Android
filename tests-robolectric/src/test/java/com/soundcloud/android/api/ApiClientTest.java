@@ -350,6 +350,12 @@ public class ApiClientTest {
         apiClient.fetchMappedResponse(request);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void shouldThrowWhenAssertingBackgroundThreadButExecutingOnMainThread() throws Exception {
+        apiClient.setAssertBackgroundThread(true);
+        apiClient.fetchResponse(ApiRequest.Builder.get(URL).forPrivateApi(1).build());
+    }
+
     private void mockSuccessfulResponseFor(ApiRequest request) throws IOException {
         mockRequestBuilderFor(request);
         when(httpCall.execute()).thenReturn(TestHttpResponses.response(200).build());

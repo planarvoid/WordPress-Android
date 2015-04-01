@@ -296,7 +296,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         @Inject
         Factory(ScrubController.Factory scrubControllerFactory,
                 ProgressController.Factory animationControllerFactory,
-                @Named("GraphicsScheduler") Scheduler scheduler) {
+                @Named("LowPriority") Scheduler scheduler) {
             this.scrubControllerFactory = scrubControllerFactory;
             this.animationControllerFactory = animationControllerFactory;
             this.scheduler = scheduler;

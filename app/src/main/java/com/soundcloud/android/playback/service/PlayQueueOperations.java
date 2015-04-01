@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 
 import android.content.Context;
@@ -36,7 +35,7 @@ public class PlayQueueOperations {
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
                                StoreTracksCommand storeTracksCommand, ApiClientRx apiClientRx,
-                               @Named("Storage") Scheduler scheduler) {
+                               @Named("HighPriority") Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
         this.scheduler = scheduler;
         this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);
@@ -71,8 +70,7 @@ public class PlayQueueOperations {
                             return new PlayQueue(playQueueItems);
                         }
                     })
-                    .subscribeOn(scheduler)
-                    .observeOn(AndroidSchedulers.mainThread());
+                    .subscribeOn(scheduler);
         }
         return null;
     }

@@ -5,30 +5,33 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
-import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.Pager;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
 class PlaylistDiscoveryOperations {
 
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
     private final PlaylistTagStorage tagStorage;
     private final StorePlaylistsCommand storePlaylistsCommand;
+    private final Scheduler scheduler;
 
     private final Func1<ModelCollection<String>, List<String>> collectionToList = new Func1<ModelCollection<String>, List<String>>() {
         @Override
@@ -45,11 +48,13 @@ class PlaylistDiscoveryOperations {
     };
 
     @Inject
-    PlaylistDiscoveryOperations(ApiScheduler apiScheduler, PlaylistTagStorage tagStorage,
-                                StorePlaylistsCommand storePlaylistsCommand) {
-        this.apiScheduler = apiScheduler;
+    PlaylistDiscoveryOperations(ApiClientRx apiClientRx, PlaylistTagStorage tagStorage,
+                                StorePlaylistsCommand storePlaylistsCommand,
+                                @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
         this.tagStorage = tagStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;
+        this.scheduler = scheduler;
     }
 
     Observable<List<String>> recentPlaylistTags() {
@@ -78,7 +83,10 @@ class PlaylistDiscoveryOperations {
                 .forResource(new TypeToken<ModelCollection<String>>() {
                 })
                 .build();
-        return apiScheduler.mappedResponse(request).doOnNext(cachePopularTags).map(collectionToList);
+        return apiClientRx.mappedResponse(request)
+                .subscribeOn(scheduler)
+                .doOnNext(cachePopularTags)
+                .map(collectionToList);
     }
 
     Observable<ApiPlaylistCollection> playlistsForTag(final String tag) {
@@ -112,7 +120,8 @@ class PlaylistDiscoveryOperations {
 
     private Observable<ApiPlaylistCollection> getPlaylistResultsPage(
             String query, ApiRequest<ApiPlaylistCollection> request) {
-        return apiScheduler.mappedResponse(request)
+        return apiClientRx.mappedResponse(request)
+                .subscribeOn(scheduler)
                 .doOnNext(storePlaylistsCommand.toAction())
                 .map(withSearchTag(query));
     }

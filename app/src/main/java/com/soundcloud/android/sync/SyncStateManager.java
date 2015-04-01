@@ -46,7 +46,7 @@ public class SyncStateManager extends ScheduledOperations {
 
     @Inject
     public SyncStateManager(ContentResolver resolver, LocalCollectionDAO dao) {
-        super(ScSchedulers.STORAGE_SCHEDULER);
+        super(ScSchedulers.HIGH_PRIO_SCHEDULER);
         this.resolver = resolver;
         localCollectionDao = dao;
         contentObservers = new HashMap<Long, ContentObserver>();

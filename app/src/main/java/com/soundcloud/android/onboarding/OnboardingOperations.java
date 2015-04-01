@@ -3,19 +3,23 @@ package com.soundcloud.android.onboarding;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
+import rx.Scheduler;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 public class OnboardingOperations {
 
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
+    private final Scheduler scheduler;
 
     @Inject
-    public OnboardingOperations(ApiScheduler apiScheduler) {
-        this.apiScheduler = apiScheduler;
+    public OnboardingOperations(ApiClientRx apiClientRx, @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
+        this.scheduler = scheduler;
     }
 
     public void sendEmailOptIn() {
@@ -23,7 +27,7 @@ public class OnboardingOperations {
                 .forPrivateApi(1)
                 .withContent(new EmailOptIn())
                 .build();
-        fireAndForget(apiScheduler.response(request));
+        fireAndForget(apiClientRx.response(request).subscribeOn(scheduler));
     }
 
     public static class EmailOptIn {

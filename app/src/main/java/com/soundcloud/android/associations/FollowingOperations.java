@@ -8,10 +8,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -31,6 +31,7 @@ import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.functions.Func1;
 
@@ -39,6 +40,7 @@ import android.os.SystemClock;
 import android.util.Log;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -52,31 +54,34 @@ public class FollowingOperations {
     private final SyncStateManager syncStateManager;
     private final ScModelManager modelManager;
     private final UserAssociationStorage userAssociationStorage;
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
     private final SyncInitiator syncInitiator;
+    private final Scheduler scheduler;
 
     @Inject
-    public FollowingOperations(ApiScheduler apiScheduler, UserAssociationStorage userAssociationStorage,
+    public FollowingOperations(ApiClientRx apiClientRx, UserAssociationStorage userAssociationStorage,
                                SyncStateManager syncStateManager,
-                               ScModelManager modelManager, SyncInitiator syncInitiator) {
-        this.apiScheduler = apiScheduler;
+                               ScModelManager modelManager, SyncInitiator syncInitiator, @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
         this.userAssociationStorage = userAssociationStorage;
         this.syncStateManager = syncStateManager;
+        this.scheduler = scheduler;
         this.followStatus = FollowStatus.get();
         this.modelManager = modelManager;
         this.syncInitiator = syncInitiator;
     }
 
     @VisibleForTesting
-    FollowingOperations(ApiScheduler apiScheduler, UserAssociationStorage userAssociationStorage,
-                               SyncStateManager syncStateManager, FollowStatus followStatus,
-                               ScModelManager modelManager, SyncInitiator syncInitiator) {
-        this.apiScheduler = apiScheduler;
+    FollowingOperations(ApiClientRx apiClientRx, UserAssociationStorage userAssociationStorage,
+                        SyncStateManager syncStateManager, FollowStatus followStatus,
+                        ScModelManager modelManager, SyncInitiator syncInitiator, Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
         this.userAssociationStorage = userAssociationStorage;
         this.syncStateManager = syncStateManager;
         this.followStatus = followStatus;
         this.modelManager = modelManager;
         this.syncInitiator = syncInitiator;
+        this.scheduler = scheduler;
     }
 
     public Observable<Boolean> addFollowing(@NotNull final PublicApiUser user) {
@@ -131,7 +136,7 @@ public class FollowingOperations {
             return Observable.empty();
         } else {
             Log.d(LOG_TAG, "Executing bulk follow request: " + apiRequest);
-            return apiScheduler.response(apiRequest).flatMap(new Func1<ApiResponse, Observable<Collection<UserAssociation>>>() {
+            return apiClientRx.response(apiRequest).subscribeOn(scheduler).flatMap(new Func1<ApiResponse, Observable<Collection<UserAssociation>>>() {
                 @Override
                 public Observable<Collection<UserAssociation>> call(ApiResponse apiResponse) {
                     Log.d(LOG_TAG, "Bulk follow request returned with response: " + apiResponse);
@@ -242,7 +247,7 @@ public class FollowingOperations {
                     subscriber.onError(e);
                 }
             }
-        }).subscribeOn(ScSchedulers.API_SCHEDULER);
+        }).subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     private Observable<UserAssociation> getFollowingsNeedingSync() {

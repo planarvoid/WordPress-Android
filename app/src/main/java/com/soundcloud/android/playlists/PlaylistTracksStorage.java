@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.rx.RxUtils.returning;
 import static com.soundcloud.android.storage.TableColumns.PlaylistTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
@@ -18,13 +19,12 @@ import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
-import rx.functions.Func1;
 
 import android.content.ContentValues;
+import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -53,12 +53,41 @@ class PlaylistTracksStorage {
                 step(propeller.insert(Table.Posts, getContentValuesForPostsTable(localId, createdAt)));
                 step(propeller.insert(Table.PlaylistTracks, getContentValuesForPlaylistTrack(localId, firstTrackUrn)));
             }
-        }).map(toPlaylistUrn(localId));
+        }).map(returning(Urn.forPlaylist(localId)));
     }
 
     Observable<List<PropertySet>> playlistsForAddingTrack(Urn trackUrn) {
         return propellerRx.query(queryPlaylistWithTrackExistStatus(trackUrn))
                 .map(new PlaylistWithTrackMapper()).toList();
+    }
+
+    Observable<List<PropertySet>> playlistTracks(Urn playlistUrn) {
+        return propellerRx.query(getPlaylistTracksQuery(playlistUrn)).map(new PlaylistTrackItemMapper()).toList();
+    }
+
+    private Query getPlaylistTracksQuery(Urn playlistUrn) {
+        final String fullSoundIdColumn = Table.Sounds + "." + TableColumns.Sounds._ID;
+        return Query.from(Table.PlaylistTracks.name())
+                .select(
+                        field(fullSoundIdColumn).as(BaseColumns._ID),
+                        TableColumns.Sounds.TITLE,
+                        TableColumns.Sounds.USER_ID,
+                        TableColumns.Users.USERNAME,
+                        TableColumns.Sounds.DURATION,
+                        TableColumns.Sounds.PLAYBACK_COUNT,
+                        TableColumns.Sounds.LIKES_COUNT,
+                        TableColumns.Sounds.SHARING,
+                        TableColumns.TrackDownloads.REQUESTED_AT,
+                        TableColumns.TrackDownloads.DOWNLOADED_AT,
+                        TableColumns.TrackDownloads.UNAVAILABLE_AT,
+                        field(Table.TrackDownloads + "." + TableColumns.TrackDownloads.REMOVED_AT).as(TableColumns.TrackDownloads.REMOVED_AT))
+                .innerJoin(Table.Sounds.name(), PlaylistTracks.TRACK_ID, fullSoundIdColumn)
+                .innerJoin(Table.Users.name(), Table.Sounds + "." + TableColumns.Sounds.USER_ID, Table.Users + "." + TableColumns.Users._ID)
+                .leftJoin(Table.TrackDownloads.name(), fullSoundIdColumn, Table.TrackDownloads + "." + TableColumns.TrackDownloads._ID)
+                .whereEq(Table.Sounds + "." + TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .whereEq(PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
+                .order(Table.PlaylistTracks + "." + PlaylistTracks.POSITION, Query.ORDER_ASC)
+                .whereNull(Table.PlaylistTracks + "." + PlaylistTracks.REMOVED_AT);
     }
 
     private Query queryPlaylistWithTrackExistStatus(Urn trackUrn) {
@@ -86,15 +115,6 @@ class PlaylistTracksStorage {
                         .whereEq(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
                         .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST));
 
-    }
-
-    private Func1<TxnResult, Urn> toPlaylistUrn(final long localId) {
-        return new Func1<TxnResult, Urn>() {
-            @Override
-            public Urn call(TxnResult txnResult) {
-                return Urn.forPlaylist(localId);
-            }
-        };
     }
 
     private ContentValues getContentValuesForPlaylistTrack(long playlistNumericId, Urn trackUrn, int position) {

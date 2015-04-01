@@ -23,7 +23,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new OfflineTracksStorage(testScheduler());
+        storage = new OfflineTracksStorage(propellerRx());
         observer = new TestObserver<>();
     }
 

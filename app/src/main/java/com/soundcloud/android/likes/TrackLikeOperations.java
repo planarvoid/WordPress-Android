@@ -58,7 +58,7 @@ public class TrackLikeOperations {
                                LoadLikedTrackCommand loadLikedTrackCommand,
                                SyncInitiator syncInitiator,
                                EventBus eventBus,
-                               @Named("Storage") Scheduler scheduler,
+                               @Named("HighPriority") Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;

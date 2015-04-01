@@ -33,7 +33,7 @@ public class ActivitiesStorage extends ScheduledOperations {
     @Inject
     public ActivitiesStorage(ContentResolver contentResolver, SyncStateManager syncStateManager,
                              ActivityDAO activitiesDAO) {
-        super(ScSchedulers.STORAGE_SCHEDULER);
+        super(ScSchedulers.HIGH_PRIO_SCHEDULER);
         this.resolver = contentResolver;
         this.syncStateManager = syncStateManager;
         this.activitiesDAO = activitiesDAO;

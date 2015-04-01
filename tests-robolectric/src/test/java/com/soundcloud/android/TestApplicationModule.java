@@ -1,7 +1,5 @@
 package com.soundcloud.android;
 
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -10,9 +8,6 @@ import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
 import com.soundcloud.android.analytics.localytics.LocalyticsPushReceiver;
-import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
@@ -37,11 +32,9 @@ import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
-import rx.Observable;
 import rx.Scheduler;
 import rx.schedulers.Schedulers;
 
@@ -144,11 +137,6 @@ public class TestApplicationModule {
     }
 
     @Provides
-    public DatabaseScheduler databaseScheduler() {
-        return mock(DatabaseScheduler.class);
-    }
-
-    @Provides
     public SkippyFactory skippyFactory() {
         final SkippyFactory skippyFactory = mock(SkippyFactory.class);
         when(skippyFactory.create()).thenReturn(mock(Skippy.class));
@@ -158,14 +146,6 @@ public class TestApplicationModule {
     @Provides
     public AnalyticsProviderFactory provideAnalyticsProviderFactory() {
         return mock(AnalyticsProviderFactory.class);
-    }
-
-    @Provides
-    public ApiScheduler provideApiScheduler() {
-        final ApiScheduler apiScheduler = mock(ApiScheduler.class);
-        final ApiRequest configurationEndPoint = argThat(isMobileApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path()));
-        when(apiScheduler.mappedResponse(configurationEndPoint)).thenReturn(Observable.never());
-        return apiScheduler;
     }
 
     @Provides
@@ -208,14 +188,14 @@ public class TestApplicationModule {
     }
 
     @Provides
-    @Named("Storage")
-    public Scheduler provideStorageRxScheduler() {
+    @Named("HighPriority")
+    public Scheduler provideHighPrioScheduler() {
         return Schedulers.immediate();
     }
 
     @Provides
-    @Named("API")
-    public Scheduler provideApiRxScheduler() {
+    @Named("LowPriority")
+    public Scheduler provideLowPrioScheduler() {
         return Schedulers.immediate();
     }
 

@@ -5,7 +5,7 @@ import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.UserOperations;
+import com.soundcloud.android.accounts.UserRepository;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
@@ -60,7 +60,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private boolean refreshStream;
 
     @Inject ScreenPresenter presenter;
-    @Inject UserOperations userOperations;
+    @Inject UserRepository userRepository;
     @Inject FeatureFlags featureFlags;
     @Inject PlayQueueManager playQueueManager;
     @Inject CastConnectionHelper castConnectionHelper;
@@ -133,7 +133,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void handleLoggedInUser() {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         if (!justAuthenticated) {
-            subscription.add(bindActivity(this, userOperations.refreshCurrentUser()).subscribe(new UserSubscriber()));
+            subscription.add(bindActivity(this, userRepository.refreshCurrentUser()).subscribe(new UserSubscriber()));
         }
     }
 

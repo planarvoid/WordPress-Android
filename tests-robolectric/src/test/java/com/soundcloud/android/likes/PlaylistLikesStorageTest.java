@@ -32,7 +32,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
-        playlistLikesStorage = new PlaylistLikesStorage(testScheduler());
+        playlistLikesStorage = new PlaylistLikesStorage(propellerRx());
         playlist1 = testFixtures().insertLikedPlaylist(LIKED_DATE_1).toPropertySet();
         playlist2 = testFixtures().insertLikedPlaylist(LIKED_DATE_2).toPropertySet();
     }

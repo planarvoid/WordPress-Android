@@ -10,9 +10,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.Association;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -35,6 +35,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.schedulers.Schedulers;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -55,7 +56,7 @@ public class FollowingOperationsTest {
     @Mock
     private ScModelManager scModelManager;
     @Mock
-    private ApiScheduler apiScheduler;
+    private ApiClientRx apiClientRx;
     @Mock
     private SyncInitiator syncInitiator;
     @Mock
@@ -78,7 +79,7 @@ public class FollowingOperationsTest {
         when(userAssociationStorage.follow(any(PublicApiUser.class))).thenReturn(observable);
         when(userAssociationStorage.unfollow(any(PublicApiUser.class))).thenReturn(observable);
 
-        ops = new FollowingOperations(apiScheduler, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator);
+        ops = new FollowingOperations(apiClientRx, userAssociationStorage, syncStateManager, followStatus, scModelManager, syncInitiator, Schedulers.immediate());
 
         user = ModelFixtures.create(PublicApiUser.class);
 
@@ -170,49 +171,49 @@ public class FollowingOperationsTest {
     public void shouldReturnTrueIfNoAssociationHasToken(){
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         verify(observer).onCompleted();
-        verifyZeroInteractions(apiScheduler);
+        verifyZeroInteractions(apiClientRx);
         verifyZeroInteractions(userAssociationStorage);
     }
 
     @Test
     public void shouldMakeAPostRequestWhenBulkFollowing() {
-        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiScheduler).response(argumentCaptor.capture());
+        verify(apiClientRx).response(argumentCaptor.capture());
         expect(argumentCaptor.getValue().getMethod()).toEqual("POST");
     }
 
     @Test
     public void shouldMakeRequestToPublicAPIWhenBulkFollowing() {
-        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiScheduler).response(argumentCaptor.capture());
+        verify(apiClientRx).response(argumentCaptor.capture());
         expect(argumentCaptor.getValue().isPrivate()).toBeFalse();
     }
 
     @Test
     public void shouldAddTokensAsQueryParametersWhenBulkFollowing() {
-        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationTwo.getToken()).thenReturn("token2");
         when(userAssociationOne.hasToken()).thenReturn(true);
         when(userAssociationTwo.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiScheduler).response(argumentCaptor.capture());
+        verify(apiClientRx).response(argumentCaptor.capture());
         Object jsonContent = argumentCaptor.getValue().getContent();
         expect(((FollowingOperations.BulkFollowingsHolder) jsonContent).tokens).toContainExactly("token1", "token2");
     }
 
     @Test
     public void shouldReturnTrueIfBulkFollowingRequestSucceeds(){
-        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
+        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(Observable.<ApiResponse>empty());
         when(userAssociationOne.getToken()).thenReturn("token1");
         when(userAssociationOne.hasToken()).thenReturn(true);
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
@@ -234,7 +235,7 @@ public class FollowingOperationsTest {
         final Set<UserAssociation> associations = Collections.singleton(association);
 
         ApiResponse successResponse = mock(ApiResponse.class);
-        when(apiScheduler.response(any(ApiRequest.class))).thenReturn(Observable.just(successResponse));
+        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(Observable.just(successResponse));
 
         ops.bulkFollowAssociations(associations).subscribe(observer);
         verify(userAssociationStorage).setFollowingsAsSynced(associations);

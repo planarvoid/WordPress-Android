@@ -23,7 +23,7 @@ public class UserStorage extends ScheduledOperations implements Storage<PublicAp
 
     @Inject
     public UserStorage(UserDAO userDAO) {
-        this(userDAO, ScSchedulers.STORAGE_SCHEDULER);
+        this(userDAO, ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     @VisibleForTesting
@@ -51,16 +51,6 @@ public class UserStorage extends ScheduledOperations implements Storage<PublicAp
     public PublicApiUser createOrUpdate(PublicApiUser user) {
         userDAO.createOrUpdate(user.getId(), user.buildContentValues());
         return user;
-    }
-
-    public Observable<PublicApiUser> createOrUpdateAsync(final PublicApiUser user) {
-        return schedule(Observable.create(new Observable.OnSubscribe<PublicApiUser>() {
-            @Override
-            public void call(Subscriber<? super PublicApiUser> observer) {
-                observer.onNext(createOrUpdate(user));
-                observer.onCompleted();
-            }
-        }));
     }
 
     public Observable<PublicApiUser> getUserAsync(final long id) {

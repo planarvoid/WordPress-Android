@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
+import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
@@ -15,11 +16,10 @@ import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
-import com.soundcloud.android.sync.likes.RemoveAllLikesCommand;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
-import com.soundcloud.android.sync.posts.RemoveAllPostsCommand;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,18 +46,16 @@ public class AccountCleanupActionTest {
     @Mock private UserAssociationStorage userAssociationStorage;
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private AccountOperations accountOperations;
-    @Mock private ClearSoundStreamCommand clearSoundStreamCommand;
     @Mock private OfflineSettingsStorage offlineSettingsStorage;
     @Mock private FeatureStorage featureStorage;
-    @Mock private RemoveAllLikesCommand removeAllLikes;
-    @Mock private RemoveAllPostsCommand removeAllPostsCommand;
     @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
+    @Mock private ClearTableCommand clearTableCommand;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(syncStateManager,
                 activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
-                featureStorage, unauthorisedRequestRegistry, clearSoundStreamCommand, offlineSettingsStorage, removeAllLikes, removeAllPostsCommand, removeLocalPlaylistsCommand);
+                featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, removeLocalPlaylistsCommand, clearTableCommand);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -122,19 +120,19 @@ public class AccountCleanupActionTest {
     @Test
     public void shouldClearSoundStreamStorage() throws PropellerWriteException {
         action.call();
-        verify(clearSoundStreamCommand).call();
+        verify(clearTableCommand).call(Table.SoundStream);
     }
 
     @Test
     public void shouldClearLikes() throws PropellerWriteException {
         action.call();
-        verify(removeAllLikes).call();
+        verify(clearTableCommand).call(Table.Likes);
     }
 
     @Test
     public void shouldClearPosts() throws PropellerWriteException {
         action.call();
-        verify(removeAllPostsCommand).call(null);
+        verify(clearTableCommand).call(Table.Posts);
     }
 
     @Test

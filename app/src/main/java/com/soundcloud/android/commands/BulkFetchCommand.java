@@ -45,7 +45,7 @@ public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>
 
     @Override
     public Observable<List<ApiModel>> toObservable() {
-        return super.toObservable().subscribeOn(ScSchedulers.API_SCHEDULER);
+        return super.toObservable().subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     protected abstract ApiRequest<ModelCollection<ApiModel>> buildRequest(List<Urn> urnPage);

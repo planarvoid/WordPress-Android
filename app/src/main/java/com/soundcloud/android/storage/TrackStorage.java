@@ -43,7 +43,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
 
     @Inject
     public TrackStorage(ContentResolver contentResolver, TrackDAO trackDAO, ScModelManager modelManager){
-        this(contentResolver, trackDAO, modelManager, ScSchedulers.STORAGE_SCHEDULER);
+        this(contentResolver, trackDAO, modelManager, ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     @VisibleForTesting

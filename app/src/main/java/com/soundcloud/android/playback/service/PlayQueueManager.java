@@ -232,8 +232,8 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private int getPositionToBeSaved() {
         int adjustedPosition = currentPosition;
-        for (int i = 0; i < currentPosition; i++){
-            if (!playQueue.shouldPersistTrackAt(i)){
+        for (int i = 0; i < currentPosition; i++) {
+            if (!playQueue.shouldPersistTrackAt(i)) {
                 adjustedPosition--;
             }
         }
@@ -251,24 +251,26 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public void loadPlayQueueAsync(final boolean showPlayerAfterLoad) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-        
+
         Observable<PlayQueue> playQueueObservable = playQueueOperations.getLastStoredPlayQueue();
         if (playQueueObservable != null) {
             final long lastStoredPlayingTrackId = playQueueOperations.getLastStoredPlayingTrackId();
-            playQueueSubscription = playQueueObservable.subscribe(new DefaultSubscriber<PlayQueue>() {
-                @Override
-                public void onNext(PlayQueue savedQueue) {
-                    if (!savedQueue.isEmpty()){
-                        currentPosition = playQueueOperations.getLastStoredPlayPosition();
-                        setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
-                        if (showPlayerAfterLoad){
-                            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+            playQueueSubscription = playQueueObservable
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DefaultSubscriber<PlayQueue>() {
+                        @Override
+                        public void onNext(PlayQueue savedQueue) {
+                            if (!savedQueue.isEmpty()) {
+                                currentPosition = playQueueOperations.getLastStoredPlayPosition();
+                                setNewPlayQueueInternal(savedQueue, playQueueOperations.getLastStoredPlaySessionSource());
+                                if (showPlayerAfterLoad) {
+                                    eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+                                }
+                            } else {
+                                Log.e(TAG, "Not setting empty playqueue on reload, last played id : " + lastStoredPlayingTrackId);
+                            }
                         }
-                    } else {
-                        Log.e(TAG, "Not setting empty playqueue on reload, last played id : " + lastStoredPlayingTrackId);
-                    }
-                }
-            });
+                    });
             // return so player can have the resume information while load is in progress
             playbackProgressInfo = new PlaybackProgressInfo(lastStoredPlayingTrackId, playQueueOperations.getLastStoredSeekPosition());
         }
@@ -337,7 +339,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     public void clearAll() {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-        
+
         playQueueOperations.clear();
         playQueue = PlayQueue.empty();
         playSessionSource = PlaySessionSource.EMPTY;
@@ -347,28 +349,28 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return getViewWithAppendState(fetchState);
     }
 
-    public void performPlayQueueUpdateOperations(QueueUpdateOperation... operations){
+    public void performPlayQueueUpdateOperations(QueueUpdateOperation... operations) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
-        for (QueueUpdateOperation operation : operations){
+        for (QueueUpdateOperation operation : operations) {
             operation.execute(playQueue);
         }
         publishQueueUpdate();
     }
 
     @VisibleForTesting
-    public void removeTracksWithMetaData(Predicate<PropertySet> predicate){
+    public void removeTracksWithMetaData(Predicate<PropertySet> predicate) {
         removeTracksWithMetaData(predicate, PlayQueueEvent.fromQueueUpdate());
     }
 
-    public void removeTracksWithMetaData(Predicate<PropertySet> predicate, PlayQueueEvent updateEvent){
+    public void removeTracksWithMetaData(Predicate<PropertySet> predicate, PlayQueueEvent updateEvent) {
         boolean queueUpdated = false;
         int i = 0;
-        for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext();) {
+        for (final Iterator<PlayQueueItem> iterator = playQueue.iterator(); iterator.hasNext(); ) {
             final PlayQueueItem item = iterator.next();
             if (predicate.apply(item.getMetaData())) {
                 iterator.remove();
                 queueUpdated = true;
-                if (i <= currentPosition){
+                if (i <= currentPosition) {
                     currentPosition--;
                 }
             } else {
@@ -400,7 +402,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     @Override
     public void onCompleted() {
-        if (gotRecommendedTracks){
+        if (gotRecommendedTracks) {
             setNewRelatedLoadingState(FetchRecommendedState.IDLE);
             publishQueueUpdate();
             saveQueue();
@@ -441,7 +443,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         context.sendBroadcast(intent);
 
         final Urn currentTrackUrn = getCurrentTrackUrn();
-        if (!Urn.NOT_SET.equals(currentTrackUrn)){
+        if (!Urn.NOT_SET.equals(currentTrackUrn)) {
             eventBus.publish(EventQueue.PLAY_QUEUE, PlayQueueEvent.fromNewQueue());
             eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(currentTrackUrn, getCurrentMetaData()));
         }
@@ -451,7 +453,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         fetchRecommendedSubscription.unsubscribe();
         fetchRecommendedSubscription = Subscriptions.empty();
 
-        if (playQueueSubscription != null){
+        if (playQueueSubscription != null) {
             playQueueSubscription.unsubscribe();
         }
 

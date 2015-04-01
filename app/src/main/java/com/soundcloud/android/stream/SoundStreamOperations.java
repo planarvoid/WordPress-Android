@@ -58,7 +58,7 @@ class SoundStreamOperations {
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          Context appContext, @Named("Storage") Scheduler scheduler) {
+                          Context appContext, @Named("HighPriority") Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.appContext = appContext;

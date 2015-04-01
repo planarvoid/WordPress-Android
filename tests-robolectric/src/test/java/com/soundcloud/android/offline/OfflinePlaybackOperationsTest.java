@@ -3,6 +3,7 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.offline.OfflinePlaybackOperations.TrackNotAvailableOffline;
+import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,9 +20,12 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
+import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -36,6 +40,7 @@ public class OfflinePlaybackOperationsTest {
     @Mock private PlaybackOperations playbackOperations;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineTracksStorage offlineTracksStorage;
+    @Captor private ArgumentCaptor<Observable<List<Urn>>> playedTracksCaptor;
 
     private final List<Urn> trackUrns = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(234L));
     private final Observable<List<Urn>> tracksObservable = Observable.just(trackUrns);
@@ -47,8 +52,8 @@ public class OfflinePlaybackOperationsTest {
     @Before
     public void setUp() throws Exception {
         operations = new OfflinePlaybackOperations(featureOperations, connectionHelper,
-                playbackOperations, likeOperations, playlistOperations, offlineTracksStorage
-        );
+                playbackOperations, likeOperations, playlistOperations, offlineTracksStorage,
+                Schedulers.immediate());
     }
 
     @Test
@@ -136,24 +141,24 @@ public class OfflinePlaybackOperationsTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(offlineTracksStorage.likesUrns()).thenReturn(tracksObservable);
-        when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
+        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<List<Urn>>empty());
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
+        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
     }
 
     @Test
     public void shouldPlayAllLikedTracksShuffledWhenNoOfflinePlayQueueCreated() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(likeOperations.likedTrackUrns()).thenReturn(tracksObservable);
-        when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
+        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<List<Urn>>empty());
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
+        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
     }
 
     @Test
@@ -161,24 +166,24 @@ public class OfflinePlaybackOperationsTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(offlineTracksStorage.playlistTrackUrns(playlistUrn)).thenReturn(tracksObservable);
-        when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
+        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<List<Urn>>empty());
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
+        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
     }
 
     @Test
     public void shouldPlayAllPlaylistTracksShuffledWhenNoOfflinePlayQueueCreated() {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(tracksObservable);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(playbackOperations.playTracksShuffled(tracksObservable, playSessionSource))
+        when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
                 .thenReturn(Observable.<List<Urn>>empty());
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
 
-        verify(playbackOperations).playTracksShuffled(tracksObservable, playSessionSource);
+        expect(playedTracksCaptor.getValue().toBlocking().single()).toEqual(tracksObservable.toBlocking().single());
     }
 
     @Test

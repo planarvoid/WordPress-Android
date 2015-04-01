@@ -61,7 +61,7 @@ class PlaylistPostOperations {
     @Inject
     PlaylistPostOperations(@Named("LoadPostedPlaylistsCommand") PagedQueryCommand<ChronologicalQueryParams> loadPostedPlaylistsCommand,
                            SyncInitiator syncInitiator,
-                           @Named("Storage") Scheduler scheduler,
+                           @Named("HighPriority") Scheduler scheduler,
                            NetworkConnectionHelper networkConnectionHelper) {
         this.loadPostedPlaylistsCommand = loadPostedPlaylistsCommand;
         this.syncInitiator = syncInitiator;

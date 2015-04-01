@@ -8,7 +8,7 @@ import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequ
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.ApiScheduler;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -20,13 +20,14 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.observers.TestSubscriber;
+import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CommentsOperationsTest {
 
-    @Mock ApiScheduler apiScheduler;
+    @Mock private ApiClientRx apiClientRx;
 
     private CommentsOperations operations;
     private TestObserver<CommentsCollection> observer = new TestObserver<>();
@@ -36,9 +37,9 @@ public class CommentsOperationsTest {
 
     @Before
     public void setup() {
-        operations = new CommentsOperations(apiScheduler);
+        operations = new CommentsOperations(apiClientRx, Schedulers.immediate());
         apiComments = Observable.just(new CommentsCollection(Arrays.asList(comment), nextPageUrl));
-        when(apiScheduler.mappedResponse(argThat(
+        when(apiClientRx.mappedResponse(argThat(
                 isPublicApiRequestTo("GET", "/tracks/123/comments")
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(COMMENTS_PAGE_SIZE))
@@ -55,7 +56,7 @@ public class CommentsOperationsTest {
 
     @Test
     public void shouldPageCommentsIfMorePagesAvailable() {
-        when(apiScheduler.mappedResponse(argThat(isApiRequestTo(nextPageUrl)))).thenReturn(apiComments);
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo(nextPageUrl)))).thenReturn(apiComments);
         operations.pager().page(apiComments).subscribe(observer);
 
         operations.pager().next();
@@ -76,7 +77,7 @@ public class CommentsOperationsTest {
 
     @Test
     public void addsComment() throws Exception {
-        when(apiScheduler.mappedResponse(argThat(
+        when(apiClientRx.mappedResponse(argThat(
                 isPublicApiRequestTo("POST", "/tracks/123/comments")
                         .withContent(new CommentsOperations.CommentHolder("some comment text", 2001L))
         ))).thenReturn(Observable.just(comment));

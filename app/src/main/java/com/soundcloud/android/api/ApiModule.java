@@ -1,22 +1,36 @@
 package com.soundcloud.android.api;
 
+import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JacksonJsonTransformer;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
-import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.squareup.okhttp.OkHttpClient;
 import dagger.Module;
 import dagger.Provides;
-import rx.Scheduler;
 
 import android.content.Context;
 
-import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Module(complete = false, library = true)
 public class ApiModule {
+
+    @Provides
+    public ApiClient provideApiClient(OkHttpClient httpClient,
+                                      ApiUrlBuilder urlBuilder,
+                                      JsonTransformer jsonTransformer,
+                                      DeviceHelper deviceHelper,
+                                      AdIdHelper adIdHelper,
+                                      OAuth oAuth,
+                                      UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+        ApiClient apiClient = new ApiClient(httpClient, urlBuilder, jsonTransformer, deviceHelper, adIdHelper,
+                oAuth, unauthorisedRequestRegistry);
+        apiClient.setAssertBackgroundThread(true);
+        return apiClient;
+    }
 
     @Provides
     @Singleton
@@ -39,11 +53,5 @@ public class ApiModule {
     @Singleton
     public OkHttpClient provideOkHttpClient() {
         return new OkHttpClient();
-    }
-
-    @Provides
-    @Named("API")
-    public Scheduler provideApiScheduler() {
-        return ScSchedulers.API_SCHEDULER;
     }
 }

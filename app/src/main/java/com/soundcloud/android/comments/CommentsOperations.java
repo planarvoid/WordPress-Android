@@ -5,17 +5,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
+import rx.Scheduler;
 import rx.android.Pager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,12 +38,14 @@ class CommentsOperations {
         }
     };
 
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
+    private final Scheduler scheduler;
     private final CommentsPager pager = new CommentsPager();
 
     @Inject
-    public CommentsOperations(ApiScheduler apiScheduler) {
-        this.apiScheduler = apiScheduler;
+    public CommentsOperations(ApiClientRx apiClientRx, @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
+        this.scheduler = scheduler;
     }
 
     CommentsPager pager() {
@@ -56,7 +60,7 @@ class CommentsOperations {
                 .withContent(new CommentHolder(commentText, timestamp))
                 .build();
 
-        return apiScheduler.mappedResponse(request);
+        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
@@ -64,7 +68,7 @@ class CommentsOperations {
                 .addQueryParam("linked_partitioning", "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
                 .build();
-        return apiScheduler.mappedResponse(request);
+        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
     }
 
     private ApiRequest.Builder<CommentsCollection> apiRequest(String url) {
@@ -90,7 +94,7 @@ class CommentsOperations {
         @Override
         public Observable<CommentsCollection> call(CommentsCollection apiComments) {
             if (apiComments.getNextHref() != null) {
-                return apiScheduler.mappedResponse(apiRequest(apiComments.getNextHref()).build());
+                return apiClientRx.mappedResponse(apiRequest(apiComments.getNextHref()).build());
             } else {
                 return Pager.finish();
             }

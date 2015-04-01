@@ -27,7 +27,7 @@ class ExperimentStorage {
     private final File file;
 
     @Inject
-    ExperimentStorage(@Named("Storage") Scheduler scheduler, Context context, JsonTransformer jsonTransformer) {
+    ExperimentStorage(@Named("HighPriority") Scheduler scheduler, Context context, JsonTransformer jsonTransformer) {
         this.scheduler = scheduler;
         this.jsonTransformer = jsonTransformer;
         this.file = new File(context.getFilesDir(), ASSIGNMENT_FILE_NAME);

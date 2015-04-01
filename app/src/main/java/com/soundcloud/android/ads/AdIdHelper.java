@@ -29,7 +29,7 @@ public class AdIdHelper {
     private volatile boolean adIdTracking;
 
     @Inject
-    public AdIdHelper(AdIdWrapper adIdWrapper, @Named("API") Scheduler scheduler) {
+    public AdIdHelper(AdIdWrapper adIdWrapper, @Named("HighPriority") Scheduler scheduler) {
         this.adIdWrapper = adIdWrapper;
         this.scheduler = scheduler;
     }

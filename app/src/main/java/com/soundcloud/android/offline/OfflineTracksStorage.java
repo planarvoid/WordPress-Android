@@ -19,7 +19,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -27,10 +27,10 @@ import java.util.List;
 
 class OfflineTracksStorage {
 
-    private final DatabaseScheduler scheduler;
+    private final PropellerRx scheduler;
 
     @Inject
-    OfflineTracksStorage(DatabaseScheduler scheduler) {
+    OfflineTracksStorage(PropellerRx scheduler) {
         this.scheduler = scheduler;
     }
 
@@ -49,7 +49,7 @@ class OfflineTracksStorage {
                 .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
                 .whereNull(TrackDownloads.field(REMOVED_AT))
                 .order(PlaylistTracks.field(POSITION), Query.ORDER_ASC);
-        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+        return scheduler.query(query).map(new UrnMapper()).toList();
     }
 
     /**
@@ -65,7 +65,7 @@ class OfflineTracksStorage {
                 .whereNull(TrackDownloads.field(REMOVED_AT))
                 .order(Likes.field(CREATED_AT), Query.ORDER_DESC);
 
-        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+        return scheduler.query(query).map(new UrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingLikedTracksUrns() {
@@ -78,7 +78,7 @@ class OfflineTracksStorage {
                 .whereNotNull(TrackDownloads.field(REQUESTED_AT))
                 .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
 
-        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+        return scheduler.query(query).map(new UrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingPlaylistTracksUrns(Urn playlist) {
@@ -91,7 +91,7 @@ class OfflineTracksStorage {
                 .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
                 .whereNotNull(TrackDownloads.field(REQUESTED_AT));
 
-        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+        return scheduler.query(query).map(new UrnMapper()).toList();
     }
 
     /**
@@ -103,7 +103,7 @@ class OfflineTracksStorage {
                 .whereNull(DOWNLOADED_AT)
                 .whereNotNull(REQUESTED_AT);
 
-        return scheduler.scheduleQuery(Query.from(TrackDownloads.name())
+        return scheduler.query(Query.from(TrackDownloads.name())
                 .where(isPendingDownloads))
                 .map(new UrnMapper()).toList();
     }
@@ -113,7 +113,7 @@ class OfflineTracksStorage {
      */
     public Observable<List<Urn>> pendingRemovals() {
         final Query query = Query.from(TrackDownloads.name()).whereNotNull(REMOVED_AT);
-        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+        return scheduler.query(query).map(new UrnMapper()).toList();
     }
 
     /**
@@ -121,6 +121,6 @@ class OfflineTracksStorage {
      */
     public Observable<List<Urn>> downloaded() {
         final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT);
-        return scheduler.scheduleQuery(query).map(new UrnMapper()).toList();
+        return scheduler.query(query).map(new UrnMapper()).toList();
     }
 }

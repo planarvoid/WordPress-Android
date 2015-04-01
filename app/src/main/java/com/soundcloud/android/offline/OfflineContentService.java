@@ -45,7 +45,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject EventBus eventBus;
     @Inject OfflineContentScheduler offlineContentScheduler;
     @Inject DownloadHandler.Builder builder;
-    @Inject @Named("Storage") Scheduler scheduler;
+    @Inject @Named("HighPriority") Scheduler scheduler;
 
     private final Queue<DownloadRequest> requestsQueue = new LinkedList<>();
     private DownloadHandler downloadHandler;

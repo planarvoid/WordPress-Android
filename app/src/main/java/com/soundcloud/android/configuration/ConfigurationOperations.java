@@ -3,11 +3,11 @@ package com.soundcloud.android.configuration;
 import com.google.common.net.HttpHeaders;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
@@ -19,6 +19,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.WriteResult;
 import dagger.Lazy;
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.functions.Func1;
 import rx.functions.Func2;
@@ -27,6 +28,7 @@ import rx.subscriptions.Subscriptions;
 import android.util.Log;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -36,7 +38,7 @@ public class ConfigurationOperations {
     private static final String TAG = "Configuration";
     private static final String PARAM_EXPERIMENT_LAYERS = "experiment_layers";
 
-    private final Lazy<ApiScheduler> apiScheduler;
+    private final Lazy<ApiClientRx> apiClientRx;
     private final Lazy<ApiClient> apiClient;
     private final ExperimentOperations experimentOperations;
     private final FeatureOperations featureOperations;
@@ -44,6 +46,7 @@ public class ConfigurationOperations {
     private final OfflineContentOperations offlineContentOperations;
     private final DeviceManagementStorage deviceManagementStorage;
     private final FeatureFlags featureFlags;
+    private final Scheduler scheduler;
 
     private Subscription subscription = Subscriptions.empty();
 
@@ -62,11 +65,11 @@ public class ConfigurationOperations {
     };
 
     @Inject
-    public ConfigurationOperations(Lazy<ApiScheduler> apiScheduler, Lazy<ApiClient> apiClient, ExperimentOperations experimentOperations,
+    public ConfigurationOperations(Lazy<ApiClientRx> apiClientRx, Lazy<ApiClient> apiClient, ExperimentOperations experimentOperations,
                                    FeatureOperations featureOperations, AccountOperations accountOperations,
                                    OfflineContentOperations offlineContentOperations, DeviceManagementStorage deviceManagementStorage,
-                                   FeatureFlags featureFlags) {
-        this.apiScheduler = apiScheduler;
+                                   FeatureFlags featureFlags, @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
         this.experimentOperations = experimentOperations;
         this.featureOperations = featureOperations;
@@ -74,6 +77,7 @@ public class ConfigurationOperations {
         this.offlineContentOperations = offlineContentOperations;
         this.deviceManagementStorage = deviceManagementStorage;
         this.featureFlags = featureFlags;
+        this.scheduler = scheduler;
     }
 
     public void update() {
@@ -115,7 +119,7 @@ public class ConfigurationOperations {
     private Observable<Configuration> loadAndUpdateConfiguration() {
         final ApiRequest<Configuration> request = getConfigurationRequestBuilderForGet().build();
         return Observable.zip(experimentOperations.loadAssignment(),
-                apiScheduler.get().mappedResponse(request),
+                apiClientRx.get().mappedResponse(request).subscribeOn(scheduler),
                 toUpdatedConfiguration
         );
     }

@@ -10,47 +10,39 @@ import com.soundcloud.android.playlists.PlaylistMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropertySet;
-import com.soundcloud.propeller.QueryResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
+import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
-import rx.functions.Func1;
 
 import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistLikesStorage {
+class PlaylistLikesStorage {
 
-    private final DatabaseScheduler scheduler;
+    private static final LikedPlaylistMapper PLAYLIST_MAPPER = new LikedPlaylistMapper();
 
-    private final Func1<QueryResult, PropertySet> toPropertySet = new Func1<QueryResult, PropertySet>() {
-        @Override
-        public PropertySet call(QueryResult queryResult) {
-            return queryResult.firstOrDefault(new LikedPlaylistMapper(), PropertySet.create());
-        }
-    };
+    private final PropellerRx propellerRx;
 
     @Inject
-    public PlaylistLikesStorage(DatabaseScheduler scheduler) {
-        this.scheduler = scheduler;
+    public PlaylistLikesStorage(PropellerRx propellerRx) {
+        this.propellerRx = propellerRx;
     }
 
-    public Observable<List<PropertySet>> loadLikedPlaylists(int limit, long fromTimestamp) {
+    Observable<List<PropertySet>> loadLikedPlaylists(int limit, long fromTimestamp) {
         final Query query = playlistLikeQuery()
                 .whereLt(Table.Likes.field(TableColumns.Likes.CREATED_AT), fromTimestamp)
                 .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), Query.ORDER_DESC)
                 .limit(limit);
 
-        return scheduler.scheduleQuery(query).map(new LikedPlaylistMapper()).toList();
+        return propellerRx.query(query).map(PLAYLIST_MAPPER).toList();
     }
 
-    public Observable<PropertySet> loadLikedPlaylist(Urn urn) {
+    Observable<PropertySet> loadLikedPlaylist(Urn urn) {
         final Query query = playlistLikeQuery().whereEq(Table.Likes + "." + TableColumns.Likes._ID, urn.getNumericId());
-        return scheduler.scheduleQueryForResult(query)
-                .map(toPropertySet);
+        return propellerRx.query(query).map(PLAYLIST_MAPPER).defaultIfEmpty(PropertySet.create());
     }
 
     static Query playlistLikeQuery() {

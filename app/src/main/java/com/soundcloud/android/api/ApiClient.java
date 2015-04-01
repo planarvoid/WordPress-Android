@@ -1,5 +1,7 @@
 package com.soundcloud.android.api;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
@@ -18,6 +20,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import org.apache.http.HttpStatus;
+
+import android.os.Looper;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -40,6 +44,8 @@ public class ApiClient {
     private final OAuth oAuth;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
 
+    private boolean assertBackgroundThread;
+
     @Inject
     public ApiClient(OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
                      JsonTransformer jsonTransformer, DeviceHelper deviceHelper, AdIdHelper adIdHelper,
@@ -53,7 +59,15 @@ public class ApiClient {
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
     }
 
+    public void setAssertBackgroundThread(boolean assertBackgroundThread) {
+        this.assertBackgroundThread = assertBackgroundThread;
+    }
+
     public ApiResponse fetchResponse(ApiRequest request) {
+        if (assertBackgroundThread) {
+            checkState(Thread.currentThread() != Looper.getMainLooper().getThread(),
+                    "Detected execution of API request on main thread");
+        }
         try {
             final com.squareup.okhttp.Request.Builder builder = new com.squareup.okhttp.Request.Builder();
 
@@ -93,7 +107,8 @@ public class ApiClient {
     }
 
     private void logRequest(com.squareup.okhttp.Request request) {
-        Log.d(TAG, "[OkHttp] " + request.method() + " " + request.urlString() + "; headers = " + request.headers());
+        Log.d(TAG, "[OkHttp][" + Thread.currentThread().getName() + "] " + request.method() + " "
+                + request.urlString() + "; headers = " + request.headers());
     }
 
     private void logResponse(Response response) {

@@ -1,7 +1,7 @@
 package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.matchers.SoundCloudMatchers.isMobileApiRequestTo;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
@@ -10,10 +10,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 @RunWith(SoundCloudTestRunner.class)
 public class PaymentOperationsTest {
 
-    @Mock private ApiScheduler api;
+    @Mock private ApiClientRx api;
     @Mock private BillingService billingService;
     @Mock private TokenStorage tokenStorage;
     @Mock private Activity activity;
@@ -42,12 +42,12 @@ public class PaymentOperationsTest {
     @Before
     public void setUp() throws Exception {
         paymentOperations = new PaymentOperations(Schedulers.immediate(), api, billingService, tokenStorage);
-        when(api.mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
                 .thenReturn(availableProductsObservable());
-        when(api.mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
+        when(api.mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
                 .withContent(new StartCheckout("product_id")))))
                 .thenReturn(checkoutResultObservable());
-        when(api.response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
+        when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromFailure("user cancelled")))))
                 .thenReturn(Observable.<ApiResponse>empty());
     }
@@ -80,7 +80,7 @@ public class PaymentOperationsTest {
 
         paymentOperations.queryProduct().subscribe();
 
-        verify(api).mappedResponse(argThat(isMobileApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())));
+        verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())));
     }
 
     @Test
@@ -120,7 +120,7 @@ public class PaymentOperationsTest {
     public void purchasePostsCheckoutStart() {
         paymentOperations.purchase("product_id").subscribe();
 
-        verify(api).mappedResponse(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
+        verify(api).mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
                 .withContent(new StartCheckout("product_id"))));
     }
 
@@ -144,7 +144,7 @@ public class PaymentOperationsTest {
 
         paymentOperations.cancel("user cancelled").subscribe();
 
-        verify(api).response(argThat(isMobileApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
+        verify(api).response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromFailure("user cancelled"))));
     }
 

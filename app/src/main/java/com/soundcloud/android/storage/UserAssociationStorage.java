@@ -44,7 +44,7 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     @Inject
     public UserAssociationStorage(Context context) {
-        this(ScSchedulers.STORAGE_SCHEDULER, context.getContentResolver());
+        this(ScSchedulers.HIGH_PRIO_SCHEDULER, context.getContentResolver());
     }
 
     public UserAssociationStorage(Scheduler scheduler, ContentResolver resolver) {

@@ -61,7 +61,7 @@ public class OfflineContentController {
     public OfflineContentController(Context context, EventBus eventBus,
                                     OfflineSettingsStorage settingsStorage,
                                     OfflinePlaylistStorage playlistStorage,
-                                    @Named("Storage") Scheduler scheduler) {
+                                    @Named("HighPriority") Scheduler scheduler) {
         this.context = context;
         this.eventBus = eventBus;
         this.settingStorage = settingsStorage;

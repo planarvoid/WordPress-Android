@@ -30,7 +30,7 @@ class WaveformFetcher extends ScheduledOperations {
 
     @Inject
     WaveformFetcher(Context context, WaveformConnectionFactory waveformConnectionFactory) {
-        this(ScSchedulers.API_SCHEDULER, context, waveformConnectionFactory);
+        this(ScSchedulers.HIGH_PRIO_SCHEDULER, context, waveformConnectionFactory);
     }
 
     WaveformFetcher(Scheduler subscribeOn, Context context,

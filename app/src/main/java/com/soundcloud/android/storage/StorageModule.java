@@ -1,13 +1,10 @@
 package com.soundcloud.android.storage;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.propeller.PropellerDatabase;
-import com.soundcloud.propeller.rx.DatabaseScheduler;
 import com.soundcloud.propeller.rx.PropellerRx;
 import dagger.Module;
 import dagger.Provides;
-import rx.Scheduler;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -73,11 +70,6 @@ public class StorageModule {
     }
 
     @Provides
-    public DatabaseScheduler provideDatabaseScheduler(PropellerDatabase database) {
-        return new DatabaseScheduler(database, ScSchedulers.STORAGE_SCHEDULER);
-    }
-
-    @Provides
     public PropellerDatabase providePropeller(SQLiteDatabase database) {
         final PropellerDatabase propeller = new PropellerDatabase(database);
         propeller.setAssertBackgroundThread();
@@ -87,11 +79,5 @@ public class StorageModule {
     @Provides
     public PropellerRx providePropellerRxWrapper(PropellerDatabase propeller) {
         return new PropellerRx(propeller);
-    }
-
-    @Provides
-    @Named("Storage")
-    public Scheduler provideStorageScheduler() {
-        return ScSchedulers.STORAGE_SCHEDULER;
     }
 }

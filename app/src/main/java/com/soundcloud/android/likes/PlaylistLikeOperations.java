@@ -46,21 +46,21 @@ public class PlaylistLikeOperations {
     private final Func1<Urn, Observable<PropertySet>> toLoadLikedPlaylist = new Func1<Urn, Observable<PropertySet>>() {
         @Override
         public Observable<PropertySet> call(Urn urn) {
-            return storage.loadLikedPlaylist(urn);
+            return storage.loadLikedPlaylist(urn).subscribeOn(scheduler);
         }
     };
 
     private final Func1<SyncResult, Observable<List<PropertySet>>> toLoadLikedPlaylists = new Func1<SyncResult, Observable<List<PropertySet>>>() {
         @Override
         public Observable<List<PropertySet>> call(SyncResult syncResult) {
-            return storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE);
+            return storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE).subscribeOn(scheduler);
         }
     };
 
     @Inject
     public PlaylistLikeOperations(PlaylistLikesStorage storage, SyncInitiator syncInitiator,
                                   EventBus eventBus,
-                                  @Named("Storage") Scheduler scheduler,
+                                  @Named("HighPriority") Scheduler scheduler,
                                   NetworkConnectionHelper networkConnectionHelper) {
         this.storage = storage;
         this.eventBus = eventBus;
@@ -86,7 +86,11 @@ public class PlaylistLikeOperations {
         return likedPlaylists(Long.MAX_VALUE);
     }
 
-    public Observable<List<PropertySet>> likedPlaylists(long beforeTime) {
+    public Observable<List<PropertySet>> updatedLikedPlaylists() {
+        return syncInitiator.syncPlaylistLikes().flatMap(toLoadLikedPlaylists);
+    }
+
+    private Observable<List<PropertySet>> likedPlaylists(long beforeTime) {
         return loadLikedPlaylistsInternal(beforeTime)
                 .lift(new OperatorSwitchOnEmptyList<>(updatedLikedPlaylists()));
     }
@@ -95,13 +99,6 @@ public class PlaylistLikeOperations {
         return storage.loadLikedPlaylists(PAGE_SIZE, beforeTime)
                 .doOnNext(requestPlaylistsSyncAction)
                 .subscribeOn(scheduler);
-    }
-
-    public Observable<List<PropertySet>> updatedLikedPlaylists() {
-        return syncInitiator
-                .syncPlaylistLikes()
-                .observeOn(scheduler)
-                .flatMap(toLoadLikedPlaylists);
     }
 
     public Pager<List<PropertySet>> likedPlaylistsPager() {

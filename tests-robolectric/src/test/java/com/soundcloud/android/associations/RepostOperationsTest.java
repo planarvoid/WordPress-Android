@@ -4,14 +4,16 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulChange;
 import static com.soundcloud.android.testsupport.fixtures.TestStorageResults.successfulInsert;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.ApiScheduler;
+import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.commands.Command;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -19,7 +21,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.InsertResult;
@@ -33,6 +34,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import java.io.IOException;
 
@@ -49,12 +51,12 @@ public class RepostOperationsTest {
     @Mock private RepostStorage repostStorage;
     @Mock private Command<Urn, InsertResult> addRepost;
     @Mock private Command<Urn, ChangeResult> removeRepost;
-    @Mock private ApiScheduler apiScheduler;
+    @Mock private ApiClientRx apiClientRx;
     @Mock private WriteResult writeResult;
 
     @Before
     public void setUp() throws Exception {
-        operations = new RepostOperations(repostStorage, apiScheduler, Schedulers.immediate(), eventBus);
+        operations = new RepostOperations(repostStorage, apiClientRx, Schedulers.immediate(), eventBus);
         when(repostStorage.addRepost()).thenReturn(addRepost);
         when(repostStorage.removeRepost()).thenReturn(removeRepost);
     }
@@ -62,7 +64,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldStoreTrackRepostAndPushToApi() throws Exception {
         when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
@@ -76,7 +78,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldStorePlaylistRepostAndPushToApi() throws Exception {
         when(addRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(successfulInsert()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/playlist_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(PLAYLIST_URN, true).subscribe(testObserver);
@@ -90,7 +92,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldPublishEntityChangedEventAfterSuccesfulPushToApi() throws Exception {
         when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
@@ -111,9 +113,13 @@ public class RepostOperationsTest {
         when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.<InsertResult>error(mock(PropellerWriteException.class)));
         when(removeRepost.call(TRACK_URN)).thenReturn(successfulChange());
 
-        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+        PublishSubject<ApiResponse> subject = PublishSubject.create();
+        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(subject);
 
-        verifyZeroInteractions(apiScheduler);
+        operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
+        subject.onNext(TestApiResponses.ok()); // this must not propagate
+
+        expect(testObserver.getOnNextEvents()).toBeEmpty();
     }
 
     @Test
@@ -137,7 +143,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldRollbackStoredRepostAfterFailedApiCall() throws Exception {
         when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.<ApiResponse>error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
@@ -148,7 +154,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldPublishNotRepostedEventAfterFailedApiCall() throws Exception {
         when(addRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulInsert()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("PUT", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.<ApiResponse>error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, true).subscribe(testObserver);
@@ -167,7 +173,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldStoreTrackUnpostAndPushToApi() throws Exception {
         when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
@@ -181,7 +187,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldStorePlaylistUnpostAndPushToApi() throws Exception {
         when(removeRepost.toObservable(PLAYLIST_URN)).thenReturn(Observable.just(successfulChange()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/playlist_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(PLAYLIST_URN, false).subscribe(testObserver);
@@ -196,7 +202,7 @@ public class RepostOperationsTest {
     public void shouldPublishEntityChangedEventForUnpostAfterSuccesfulPushToApi() throws Exception {
         when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
 
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.just(TestApiResponses.status(200)));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
@@ -216,9 +222,13 @@ public class RepostOperationsTest {
     public void shouldNotDeleteRepostFromApiIfStorageCallFailed() throws Exception {
         when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.<ChangeResult>error(mock(PropellerWriteException.class)));
 
-        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+        PublishSubject<ApiResponse> subject = PublishSubject.create();
+        when(apiClientRx.response(any(ApiRequest.class))).thenReturn(subject);
 
-        verifyZeroInteractions(apiScheduler);
+        operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
+        subject.onNext(TestApiResponses.ok()); // this must not propagate
+
+        expect(testObserver.getOnNextEvents()).toBeEmpty();
     }
 
     @Test
@@ -241,7 +251,7 @@ public class RepostOperationsTest {
     @Test
     public void shouldRollbackRepostRemovalAfterFailedRemoteRemoval() throws Exception {
         when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.<ApiResponse>error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);
@@ -253,7 +263,7 @@ public class RepostOperationsTest {
     public void shouldPublishRepostedEventAfterFailedRemoteRemoval() throws Exception {
         when(removeRepost.toObservable(TRACK_URN)).thenReturn(Observable.just(successfulChange()));
         when(removeRepost.call(TRACK_URN)).thenReturn(successfulChange());
-        when(apiScheduler.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
+        when(apiClientRx.response(argThat(isPublicApiRequestTo("DELETE", "/e1/me/track_reposts/123"))))
                 .thenReturn(Observable.<ApiResponse>error(new IOException()));
 
         operations.toggleRepost(TRACK_URN, false).subscribe(testObserver);

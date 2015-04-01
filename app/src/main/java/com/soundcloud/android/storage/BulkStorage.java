@@ -19,7 +19,7 @@ public class BulkStorage extends ScheduledOperations {
 
     @Inject
     public BulkStorage(ContentResolver contentResolver) {
-        this(ScSchedulers.STORAGE_SCHEDULER, contentResolver);
+        this(ScSchedulers.HIGH_PRIO_SCHEDULER, contentResolver);
     }
 
     BulkStorage(Scheduler scheduler, ContentResolver contentResolver) {

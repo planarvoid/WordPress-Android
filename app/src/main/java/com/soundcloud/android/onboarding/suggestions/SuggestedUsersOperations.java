@@ -2,18 +2,19 @@ package com.soundcloud.android.onboarding.suggestions;
 
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiScheduler;
-import com.soundcloud.android.rx.ScheduledOperations;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 
-public class SuggestedUsersOperations extends ScheduledOperations {
+public class SuggestedUsersOperations {
 
     private static final Func1<Throwable, CategoryGroup> EMPTY_FACEBOOK_GROUP = new Func1<Throwable, CategoryGroup>() {
         @Override
@@ -28,11 +29,13 @@ public class SuggestedUsersOperations extends ScheduledOperations {
         }
     };
 
-    private final ApiScheduler apiScheduler;
+    private final ApiClientRx apiClientRx;
+    private final Scheduler scheduler;
 
     @Inject
-    public SuggestedUsersOperations(ApiScheduler apiScheduler) {
-        this.apiScheduler = apiScheduler;
+    public SuggestedUsersOperations(ApiClientRx apiClientRx, @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
+        this.scheduler = scheduler;
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
@@ -40,8 +43,9 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateApi(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
-        return schedule(apiScheduler.mappedResponse(request)
-                .flatMap(flattenGroupList));
+        return apiClientRx.mappedResponse(request)
+                .subscribeOn(scheduler)
+                .flatMap(flattenGroupList);
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
@@ -49,13 +53,14 @@ public class SuggestedUsersOperations extends ScheduledOperations {
                 .forPrivateApi(1)
                 .forResource(new CategoryGroupListToken())
                 .build();
-        return schedule(apiScheduler.mappedResponse(request)
+        return apiClientRx.mappedResponse(request)
+                .subscribeOn(scheduler)
                 .flatMap(flattenGroupList)
-                .onErrorReturn(EMPTY_FACEBOOK_GROUP));
+                .onErrorReturn(EMPTY_FACEBOOK_GROUP);
     }
 
     public Observable<CategoryGroup> getCategoryGroups() {
-        return schedule(Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions()));
+        return Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions());
     }
 
     private static class CategoryGroupListToken extends TypeToken<List<CategoryGroup>> {

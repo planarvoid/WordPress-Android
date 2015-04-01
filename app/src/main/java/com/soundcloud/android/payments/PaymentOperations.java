@@ -2,10 +2,10 @@ package com.soundcloud.android.payments;
 
 import static com.soundcloud.android.payments.AvailableProducts.Product;
 
+import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
-import com.soundcloud.android.api.ApiScheduler;
 import com.soundcloud.android.payments.googleplay.BillingService;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.SubscriptionStatus;
@@ -30,7 +30,7 @@ class PaymentOperations {
     private static final int VERIFY_THROTTLE_SECONDS = 2;
 
     private final Scheduler scheduler;
-    private final ApiScheduler api;
+    private final ApiClientRx api;
     private final BillingService playBilling;
     private final TokenStorage tokenStorage;
 
@@ -85,11 +85,11 @@ class PaymentOperations {
     };
 
     @Inject
-    PaymentOperations(ApiScheduler api, BillingService playBilling, TokenStorage tokenStorage) {
-        this(ScSchedulers.API_SCHEDULER, api, playBilling, tokenStorage);
+    PaymentOperations(ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
+        this(ScSchedulers.HIGH_PRIO_SCHEDULER, api, playBilling, tokenStorage);
     }
 
-    PaymentOperations(Scheduler scheduler, ApiScheduler api, BillingService playBilling, TokenStorage tokenStorage) {
+    PaymentOperations(Scheduler scheduler, ApiClientRx api, BillingService playBilling, TokenStorage tokenStorage) {
         this.scheduler = scheduler;
         this.api = api;
         this.playBilling = playBilling;
@@ -124,6 +124,7 @@ class PaymentOperations {
                         .forResource(CheckoutStarted.class)
                         .build();
         return api.mappedResponse(request)
+                .subscribeOn(scheduler)
                 .map(CheckoutStarted.TOKEN)
                 .doOnNext(saveToken)
                 .doOnNext(launchPaymentFlow(id))
@@ -156,6 +157,7 @@ class PaymentOperations {
 
     private Observable<PurchaseStatus> update(final Payload payload) {
         return api.response(buildUpdateRequest(UpdateCheckout.fromSuccess(payload)))
+                .subscribeOn(scheduler)
                 .map(TO_STATUS);
     }
 
@@ -193,11 +195,13 @@ class PaymentOperations {
                 .forResource(CheckoutUpdated.class)
                 .build();
         return api.mappedResponse(request)
+                .subscribeOn(scheduler)
                 .map(CheckoutUpdated.TO_STATUS);
     }
 
     public Observable<ApiResponse> cancel(final String reason) {
         return api.response(buildUpdateRequest(UpdateCheckout.fromFailure(reason)))
+                .subscribeOn(scheduler)
                 .doOnCompleted(clearToken);
     }
 
@@ -224,7 +228,7 @@ class PaymentOperations {
                         .forPrivateApi(API_VERSION)
                         .forResource(AvailableProducts.class)
                         .build();
-        return api.mappedResponse(request);
+        return api.mappedResponse(request).subscribeOn(scheduler);
     }
 
     private static class PollingState {

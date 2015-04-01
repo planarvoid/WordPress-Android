@@ -82,7 +82,7 @@ public class AccountOperations extends ScheduledOperations {
                       ScModelManager modelManager, UserStorage userStorage, EventBus eventBus,
                       Lazy<AccountCleanupAction> accountCleanupAction) {
         this(context, accountManager, tokenOperations, modelManager, userStorage, eventBus, accountCleanupAction,
-                ScSchedulers.STORAGE_SCHEDULER);
+                ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     @VisibleForTesting

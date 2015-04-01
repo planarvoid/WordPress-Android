@@ -41,7 +41,7 @@ public class LikeOperations {
     public LikeOperations(UpdateLikeCommand storeLikeCommand,
                           SyncInitiator syncInitiator,
                           EventBus eventBus,
-                          @Named("Storage") Scheduler scheduler) {
+                          @Named("HighPriority") Scheduler scheduler) {
         this.storeLikeCommand = storeLikeCommand;
         this.eventBus = eventBus;
         this.scheduler = scheduler;

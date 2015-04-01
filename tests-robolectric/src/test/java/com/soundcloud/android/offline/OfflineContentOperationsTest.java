@@ -131,6 +131,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void getNoOfflineLikedTracksWhenOfflineLikedTracksDisabled() {
         final TestObserver<DownloadState> observer = new TestObserver<>();
+        when(offlineTracksStorage.pendingLikedTracksUrns()).thenReturn(Observable.<List<Urn>>empty());
         when(settingsStorage.getOfflineLikedTracksStatus()).thenReturn(Observable.just(false));
 
         operations.getLikedTracksDownloadState().subscribe(observer);
@@ -179,6 +180,7 @@ public class OfflineContentOperationsTest {
     public void getNoOfflinePlaylistWhenIsNotOfflinePlaylist() {
         final TestObserver<DownloadState> observer = new TestObserver<>();
         when(playlistStorage.isOfflinePlaylist(PLAYLIST)).thenReturn(Observable.just(false));
+        when(offlineTracksStorage.pendingPlaylistTracksUrns(PLAYLIST)).thenReturn(Observable.<List<Urn>>empty());
 
         operations.getPlaylistDownloadState(PLAYLIST).subscribe(observer);
 

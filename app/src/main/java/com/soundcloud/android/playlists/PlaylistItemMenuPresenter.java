@@ -16,7 +16,6 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
-import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -43,11 +42,9 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private boolean allowOfflineOptions;
 
     @Inject
-    public PlaylistItemMenuPresenter(Context context, EventBus eventBus,
-                                     PopupMenuWrapper.Factory popupMenuWrapperFactory,
-                                     PlaylistOperations playlistOperations,
-                                     LikeOperations likeOperations, ScreenProvider screenProvider,
-                                     FeatureOperations featureOperations,
+    public PlaylistItemMenuPresenter(Context context, EventBus eventBus, PopupMenuWrapper.Factory popupMenuWrapperFactory,
+                                     PlaylistOperations playlistOperations, LikeOperations likeOperations,
+                                     ScreenProvider screenProvider, FeatureOperations featureOperations,
                                      OfflineContentOperations offlineContentOperations) {
         this.context = context;
         this.eventBus = eventBus;
@@ -178,14 +175,17 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         menu.setItemVisible(R.id.upsell_offline_content, false);
     }
 
+    // this is really ugly. We should introduce a PlaylistRepository.
+    // https://github.com/soundcloud/SoundCloud-Android/issues/2942
     private void loadPlaylist(PopupMenuWrapper menu) {
         playlistSubscription.unsubscribe();
-        playlistSubscription = playlistOperations.loadPlaylist(playlist.getEntityUrn())
+        playlistSubscription = playlistOperations
+                .playlistInfo(playlist.getEntityUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaylistSubscriber(playlist, menu));
     }
 
-    private class PlaylistSubscriber extends DefaultSubscriber<PropertySet> {
+    private final class PlaylistSubscriber extends DefaultSubscriber<PlaylistInfo> {
         private final PlaylistItem playlist;
         private final PopupMenuWrapper menu;
 
@@ -195,8 +195,8 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         }
 
         @Override
-        public void onNext(PropertySet details) {
-            playlist.update(details);
+        public void onNext(PlaylistInfo details) {
+            playlist.update(details.getSourceSet());
             updateLikeActionTitle(menu, playlist.isLiked());
             configureOfflineOptions(menu, playlist.isMarkedForOffline());
         }

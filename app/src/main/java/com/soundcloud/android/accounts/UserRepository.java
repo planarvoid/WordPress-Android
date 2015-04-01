@@ -1,0 +1,43 @@
+package com.soundcloud.android.accounts;
+
+import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.storage.UserStorage;
+import rx.Observable;
+import rx.Scheduler;
+import rx.functions.Action1;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+public class UserRepository {
+
+    private final ApiClientRx apiClientRx;
+    private final UserStorage userStorage;
+    private final Scheduler scheduler;
+    private final Action1<? super PublicApiUser> cacheUser = new Action1<PublicApiUser>() {
+        @Override
+        public void call(PublicApiUser publicApiUser) {
+            userStorage.createOrUpdate(publicApiUser);
+        }
+    };
+
+    @Inject
+    public UserRepository(ApiClientRx apiClientRx, UserStorage userStorage, @Named("HighPriority") Scheduler scheduler) {
+        this.apiClientRx = apiClientRx;
+        this.userStorage = userStorage;
+        this.scheduler = scheduler;
+    }
+
+
+    public Observable<PublicApiUser> refreshCurrentUser() {
+        final ApiRequest<PublicApiUser> request = ApiRequest.Builder.<PublicApiUser>get(ApiEndpoints.CURRENT_USER.path())
+                .forPublicApi()
+                .forResource(PublicApiUser.class)
+                .build();
+        return apiClientRx.mappedResponse(request).subscribeOn(scheduler).doOnNext(cacheUser);
+    }
+
+}
