@@ -8,6 +8,7 @@ import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscription;
+import rx.subscriptions.Subscriptions;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -22,7 +23,7 @@ public class OfflineSettingsActivity extends ScSettingsActivity {
     private static final String OFFLINE_STORAGE_LIMIT = "offline.storageLimit";
     private static final String OFFLINE_REMOVE_ALL_OFFLINE_CONTENT = "offline.removeAllOfflineContent";
 
-    private Subscription subscription;
+    private Subscription subscription = Subscriptions.empty();
 
     @Inject OfflineSettingsStorage offlineSettings;
     @Inject OfflineUsage offlineUsage;
@@ -36,14 +37,11 @@ public class OfflineSettingsActivity extends ScSettingsActivity {
         }
     }
 
-    public OfflineSettingsActivity() {
-        subscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new EntityChangedSubscriber());
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings_offline);
+        subscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new EntityChangedSubscriber());
         setup();
     }
 

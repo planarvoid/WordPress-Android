@@ -11,7 +11,7 @@ public class SeekBarElement {
     protected final SeekBar view;
 
     public SeekBarElement(ViewElement element) {
-        this.view = ((SeekBar) element.getView());
+        this.view = (SeekBar) element.getView();
     }
 
     public int getProgress() {

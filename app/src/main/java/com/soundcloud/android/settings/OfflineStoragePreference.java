@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.content.res.Resources;
 import android.preference.Preference;
+import android.support.annotation.StringRes;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -90,27 +91,40 @@ public final class OfflineStoragePreference extends Preference {
     }
 
     private void updateView() {
-        Resources resources = getContext().getResources();
-        int limitPercentage = offlineUsage.getOfflineTotalPercentage();
-        double otherInGigabytes = offlineUsage.getUsedOthers() / ONE_GIGABYTE;
-        double usedInGigabytes = offlineUsage.getOfflineUsed() / ONE_GIGABYTE;
-        double limitInGigabytes = offlineUsage.getOfflineTotal() / ONE_GIGABYTE;
-        double freeInGigabytes = offlineUsage.getDeviceAvailable() / ONE_GIGABYTE;
-        double totalInGigabytes = offlineUsage.getDeviceTotal() / ONE_GIGABYTE;
-        String gbFormat = resources.getString(R.string.pref_offline_storage_limit_gb);
+        updateUsageBarView();
+        updateLabels();
+    }
 
+    private void updateLabels() {
+        storageLimitSeekBar.setProgress(offlineUsage.getOfflineTotalPercentage());
+        storageFreeTextView.setText(formatFreeGigabytes());
+        storageLimitTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
+        storageOtherLabelTextView.setText(formatGigabytes(offlineUsage.getUsedOthers()));
+        storageUsedLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
+        storageLimitLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
+    }
+
+    private String formatGigabytes(long bytes) {
+        Resources resources = getContext().getResources();
+        return String.format(resources.getString(R.string.pref_offline_storage_limit_gb), bytesToGB(bytes));
+    }
+
+    private String formatFreeGigabytes() {
+        Resources resources = getContext().getResources();
+        return String.format(resources.getString(R.string.pref_offline_storage_free_gb),
+                bytesToGB(offlineUsage.getDeviceAvailable()),
+                bytesToGB(offlineUsage.getDeviceTotal()));
+    }
+
+    private double bytesToGB(long bytes) {
+        return bytes / ONE_GIGABYTE;
+    }
+
+    private void updateUsageBarView() {
         usageBarView.reset()
                 .addBar(R.color.usage_bar_other, offlineUsage.getUsedOthers())
                 .addBar(R.color.usage_bar_used, offlineUsage.getOfflineUsed())
                 .addBar(R.color.usage_bar_limit, offlineUsage.getOfflineAvailable())
                 .addBar(R.color.usage_bar_free, offlineUsage.getAvailableWithoutOfflineLimit());
-
-        storageLimitSeekBar.setProgress(limitPercentage);
-        storageLimitTextView.setText(String.format(gbFormat, limitInGigabytes));
-        storageFreeTextView.setText(String.format(resources.getString(R.string.pref_offline_storage_free_gb), freeInGigabytes, totalInGigabytes));
-
-        storageOtherLabelTextView.setText(String.format(gbFormat, otherInGigabytes));
-        storageUsedLabelTextView.setText(String.format(gbFormat, usedInGigabytes));
-        storageLimitLabelTextView.setText(String.format(gbFormat, limitInGigabytes));
     }
 }

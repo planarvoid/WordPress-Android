@@ -56,7 +56,7 @@ public class OfflineUsage {
     }
 
     public int getOfflineTotalPercentage() {
-        if(getAvailableBeforeOffline() == 0) {
+        if (getAvailableBeforeOffline() == 0) {
             return 0;
         }
 
