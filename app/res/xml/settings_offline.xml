@@ -1,18 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/pref_offline_header">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="@string/key_offline_wifi_only"
-            android:summary="@string/pref_offline_wifi_only_description"
-            android:title="@string/pref_offline_wifi_only_sync" />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/key_offline_wifi_only"
+        android:summary="@string/pref_offline_wifi_only_description"
+        android:title="@string/pref_offline_wifi_only_sync" />
 
-        <com.soundcloud.android.settings.OfflineStoragePreference
-            android:key="@string/key_offline_storage_limit" />
+    <com.soundcloud.android.settings.OfflineStoragePreference android:key="@string/key_offline_storage_limit" />
 
-        <Preference
-            android:key="@string/key_offline_remove_all_offline_content"
-            android:summary="@string/pref_offline_remove_all_offline_content_description"
-            android:title="@string/pref_offline_remove_all_offline_content" />
-    </PreferenceCategory>
+    <Preference
+        android:key="@string/key_offline_remove_all_offline_content"
+        android:summary="@string/pref_offline_remove_all_offline_content_description"
+        android:title="@string/pref_offline_remove_all_offline_content" />
 </PreferenceScreen>
