@@ -64,16 +64,35 @@ public class GeneralSettings {
 
     public void setup(final SettingsActivity activity) {
         activity.addPreferencesFromResource(R.xml.settings_general);
-        removeOfflineSync(activity);
+        setupOfflineSync(activity);
         setupListeners(activity);
         setupVersion(activity);
     }
 
-    private void removeOfflineSync(final SettingsActivity activity) {
-        if (!applicationProperties.isAlphaBuild() && !applicationProperties.isDebugBuild()) {
+    private void setupOfflineSync(final SettingsActivity activity) {
+        if (applicationProperties.isAlphaBuild() || applicationProperties.isDebugBuild()) {
             final PreferenceCategory category = (PreferenceCategory) activity.findPreference(GENERAL_SETTINGS);
-            category.removePreference(activity.findPreference(OFFLINE_SYNC_SETTINGS));
+            category.addPreference(createOfflineSyncPref(activity));
         }
+    }
+
+    private Preference createOfflineSyncPref(final SettingsActivity activity) {
+        Preference offlineSettings = new Preference(activity);
+        offlineSettings.setKey(OFFLINE_SYNC_SETTINGS);
+        offlineSettings.setTitle(R.string.pref_offline_settings);
+        offlineSettings.setSummary(R.string.pref_offline_settings_summary);
+        offlineSettings.setOrder(1);
+        offlineSettings.setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent intent = new Intent(activity, OfflineSettingsActivity.class);
+                        activity.startActivity(intent);
+                        return true;
+                    }
+                }
+        );
+        return offlineSettings;
     }
 
     private void setupVersion(SettingsActivity activity) {
@@ -94,17 +113,6 @@ public class GeneralSettings {
 
     @SuppressWarnings({"PMD.ExcessiveMethodLength", "PMD.ModifiedCyclomaticComplexity"})
     private void setupListeners(final SettingsActivity activity) {
-        activity.findPreference(OFFLINE_SYNC_SETTINGS).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(activity, OfflineSettingsActivity.class);
-                        activity.startActivity(intent);
-                        return true;
-                    }
-                }
-        );
-
         activity.findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override

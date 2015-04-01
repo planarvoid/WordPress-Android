@@ -51,8 +51,8 @@
             android:layout_below="@id/summary"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:paddingLeft="0dp"
-            android:paddingRight="10dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
             android:progress="50" />
 
         <TextView

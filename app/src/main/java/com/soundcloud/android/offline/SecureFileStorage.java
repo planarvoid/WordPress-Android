@@ -69,11 +69,11 @@ public class SecureFileStorage {
     }
 
     public long getStorageAvailable() {
-        return IOUtils.getSpaceLeft(OFFLINE_DIR);
+        return IOUtils.getSpaceLeft(Consts.FILES_PATH);
     }
 
     public long getStorageCapacity() {
-        return IOUtils.getSpaceCapacity(OFFLINE_DIR);
+        return IOUtils.getSpaceCapacity(Consts.FILES_PATH);
     }
 
     private String generateFileName(Urn urn) throws EncryptionException {
