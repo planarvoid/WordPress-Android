@@ -13,10 +13,10 @@ ext {
 
 buildscript {
   repositories {
-    maven { url 'https://maven.fabric.io/public' }
+    maven { url 'http://download.crashlytics.com/maven' }
   }
   dependencies {
-    classpath 'io.fabric.tools:gradle:1.+'
+    classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
   }
 }
 
@@ -31,7 +31,7 @@ apply from: "${buildSrcDir}/github.gradle"
 apply plugin: 'com.android.application'
 apply plugin: 'maven'
 apply plugin: 'android-apt'
-apply plugin: 'io.fabric'
+apply plugin: 'crashlytics'
 
 def globalConfiguration = rootProject.extensions.getByName('ext')
 
@@ -177,9 +177,7 @@ dependencies {
   compile libraries.adjustAndroid
   compile libraries.dagger
   compile libraries.guavaRepack
-  compile (libraries.crashlytics) {
-    transitive = true
-  }
+  compile libraries.crashlytics
   compile libraries.jacksonRespack
   compile libraries.okHttp
   provided libraries.httpClientAndroid

@@ -9,7 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;
-import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.exceptions.OnErrorFailedException;
@@ -57,7 +56,7 @@ public final class ErrorUtils {
     public static synchronized void handleThrowable(Throwable t, String context) {
         Log.e(ERROR_CONTEXT_TAG, context);
 
-        if (Fabric.isInitialized()) {
+        if (Crashlytics.getInstance().isInitialized()) {
             Crashlytics.setString(ERROR_CONTEXT_TAG, context);
         }
         if (t instanceof RuntimeException) {
@@ -122,7 +121,7 @@ public final class ErrorUtils {
     }
 
     public static void handleSilentException(Throwable e, @NotNull Map<String, String> customLogs) {
-        if (Fabric.isInitialized()) {
+        if (Crashlytics.getInstance().isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             for (Map.Entry<String, String> entry : customLogs.entrySet()) {
                 Crashlytics.setString(entry.getKey(), entry.getValue());
@@ -134,7 +133,7 @@ public final class ErrorUtils {
     private static synchronized void handleSilentException(
             Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
         e.printStackTrace();
-        if (Fabric.isInitialized()) {
+        if (Crashlytics.getInstance().isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {
                 Crashlytics.setString(contextKey, contextValue);
