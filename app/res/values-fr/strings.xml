@@ -58,9 +58,7 @@
   <!--__ACCESSIBILITY-->
   <string name="accessibility_search">Rechercher dans SoundCloud</string>
   <string name="accessibility_stats_user_liked">Aimé par vous</string>
-  <string name="accessibility_stats_user_reposted">Republié par vous</string>
   <string name="accessibility_like_action">J\'aime</string>
-  <string name="accessibility_repost_action">Reposter</string>
   <!--__ACCESSIBILITY OFFLINE SYNC-->
   <string name="accessibility_start_offline_update">Démarrer la synchronisation</string>
   <string name="accessibility_remove_offline_likes">Retirer de la synchronisation hors connexion</string>
@@ -337,7 +335,6 @@
   <string name="activity_title_playlist">Liste de lecture</string>
   <string name="your_playlists_tab">Vos listes de lecture</string>
   <string name="liked_playlists_tab">Liste de lecture « Aimées »</string>
-  <string name="playlist_info_header_text">Cette liste de lecture contient %1$s, durée totale : %2$s</string>
   <string name="playlist_removed">Cette liste de lecture n\'a pas pu être trouvée sur SoundCloud</string>
   <string name="playlist_load_error">Impossible de charger cette playlist</string>
   <!--__PLAYLIST CREATION-->

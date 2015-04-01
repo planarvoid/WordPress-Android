@@ -56,9 +56,7 @@
   <!--__ACCESSIBILITY-->
   <string name="accessibility_search">Поиск по SoundCloud</string>
   <string name="accessibility_stats_user_liked">Нравится вам</string>
-  <string name="accessibility_stats_user_reposted">Переопубликовано вами</string>
   <string name="accessibility_like_action">Нравится</string>
-  <string name="accessibility_repost_action">Переопубликовать</string>
   <!--__ACCESSIBILITY OFFLINE SYNC-->
   <string name="accessibility_start_offline_update">Начать Синхронизацию</string>
   <string name="accessibility_remove_offline_likes">Удалить вашу Оффлайн Синхронизацию</string>
@@ -330,7 +328,6 @@
   <string name="activity_title_playlist">Плейлист</string>
   <string name="your_playlists_tab">Ваши Плейлисты</string>
   <string name="liked_playlists_tab">Понравившиеся плейлисты</string>
-  <string name="playlist_info_header_text">Этот плейлист содержит %1$s, общее время: %2$s</string>
   <string name="playlist_removed">Такой плейлист отсутствует на SoundCloud</string>
   <string name="playlist_load_error">Не удалось загрузить этот плейлист</string>
   <!--__PLAYLIST CREATION-->

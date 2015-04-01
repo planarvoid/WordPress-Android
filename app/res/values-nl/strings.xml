@@ -57,9 +57,7 @@
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Zoek SoundCloud</string>
     <string name="accessibility_stats_user_liked">Door u geliked</string>
-    <string name="accessibility_stats_user_reposted">Door u gedeeld</string>
     <string name="accessibility_like_action">Like</string>
-    <string name="accessibility_repost_action">Delen</string>
 
     <!-- __ACTIVITIES -->
     <string name="liked">vond %s leuk</string>
@@ -316,7 +314,6 @@
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Afspeellijsten</string>
     <string name="activity_title_playlist">Afspeellijst</string>
-    <string name="playlist_info_header_text">Deze afspeellijst bevat %1$s, totale tijd: %2$s</string>
     <string name="playlist_removed">Deze afspeellijst kon niet op SoundCloud worden gevonden</string>
     <string name="playlist_load_error">Kon deze afspeellijst niet laden</string>
 

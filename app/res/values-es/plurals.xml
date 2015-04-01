@@ -122,10 +122,6 @@
         <item quantity="one">1 me gusta</item>
         <item quantity="other">%d me gusta</item>
     </plurals>
-    <plurals name="accessibility_stats_reposts">
-        <item quantity="one">1 republicaciónt</item>
-        <item quantity="other">%d republicaciones</item>
-    </plurals>
 
     <!-- __PLAYER -->
     <plurals name="trackinfo_comments">

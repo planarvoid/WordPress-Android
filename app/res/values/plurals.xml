@@ -73,10 +73,6 @@
         <item quantity="one">1 Like</item>
         <item quantity="other">%d Likes</item>
     </plurals>
-    <plurals name="accessibility_stats_reposts">
-        <item quantity="one">1 Repost</item>
-        <item quantity="other">%d Reposts</item>
-    </plurals>
 
     <!-- __PLAYER -->
     <plurals name="trackinfo_comments">

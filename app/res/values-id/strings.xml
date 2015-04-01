@@ -56,9 +56,7 @@
   <!--__ACCESSIBILITY-->
   <string name="accessibility_search">Telusuri SoundCloud</string>
   <string name="accessibility_stats_user_liked">Disukai oleh Anda</string>
-  <string name="accessibility_stats_user_reposted">Diposkan ulang oleh Anda</string>
   <string name="accessibility_like_action">Suka</string>
-  <string name="accessibility_repost_action">Kirim ulang</string>
   <!--__ACCESSIBILITY OFFLINE SYNC-->
   <string name="accessibility_start_offline_update">Mulai Menyelaraskan</string>
   <string name="accessibility_remove_offline_likes">Hapus dari Penyelarasan Luring</string>
@@ -329,7 +327,6 @@
   <string name="activity_title_playlist">Daftar putar</string>
   <string name="your_playlists_tab">Daftar putarmu</string>
   <string name="liked_playlists_tab">Daftar Putar yang Disukai</string>
-  <string name="playlist_info_header_text">Daftar putar ini memiliki %1$s, total waktu: %2$s</string>
   <string name="playlist_removed">Daftar putar ini tidak ditemukan di SoundCloud</string>
   <string name="playlist_load_error">Tidak bisa memuat daftar putar ini</string>
   <!--__PLAYLIST CREATION-->
