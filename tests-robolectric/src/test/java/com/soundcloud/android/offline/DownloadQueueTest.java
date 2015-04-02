@@ -103,16 +103,47 @@ public class DownloadQueueTest {
         expect(downloadQueue.getDownloaded(DownloadResult.success(request2))).toContainExactlyInAnyOrder(TRACK2);
     }
 
-    private DownloadRequest createDownloadRequest(Urn track1, Urn... playlists) {
-        final DownloadRequest.Builder builder = new DownloadRequest.Builder(track1, "http://");
-        for (Urn playlist : playlists) {
-            builder.addToPlaylist(playlist);
-        }
-        return builder.build();
+    @Test
+    public void isAllLikedTracksDownloadedReturnsTrueWhenRequestDownloadedALikeAndNoneLikedTrackIsRequested() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, true);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, false);
+        downloadQueue.set(Collections.<DownloadRequest>emptyList());
+
+        expect(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).toBeTrue();
+
     }
 
-    private DownloadRequest createDownloadRequest(Urn track1) {
-        return new DownloadRequest.Builder(track1, "http://").build();
+    @Test
+    public void isAllLikedTracksDownloadedReturnsFalseRequestIsNotRelatedToLikedTrack() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, false);
+        downloadQueue.set(Collections.<DownloadRequest>emptyList());
+
+        expect(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).toBeFalse();
+    }
+
+    @Test
+    public void isAllLikedTracksDownloadedReturnsFalseWhenLikedTrackRequested() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, true);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, true);
+        downloadQueue.set(Arrays.asList(request2));
+
+        expect(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).toBeFalse();
+    }
+    
+    private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
+        return new DownloadRequest.Builder(track, "http://")
+                .addToLikes(isLikedTrack)
+                .build();
+    }
+
+    private DownloadRequest createDownloadRequest(Urn track, Urn playlist) {
+        return new DownloadRequest.Builder(track, "http://")
+                .addToPlaylist(playlist)
+                .build();
+    }
+
+    private DownloadRequest createDownloadRequest(Urn track) {
+        return new DownloadRequest.Builder(track, "http://").build();
     }
 
 }

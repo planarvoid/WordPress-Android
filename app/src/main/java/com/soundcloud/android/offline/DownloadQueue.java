@@ -66,7 +66,7 @@ class DownloadQueue {
     }
 
     boolean isAllLikedTracksDownloaded(DownloadResult result) {
-        return result.getRequest().inLikedTracks && isLikedTrackRequested();
+        return result.getRequest().inLikedTracks && !isLikedTrackRequested();
     }
 
     List<Urn> getRequestedEntities() {
