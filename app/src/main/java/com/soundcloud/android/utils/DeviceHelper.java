@@ -23,12 +23,14 @@ public class DeviceHelper {
     private static final int UNKNOWN_VERSION_CODE = 0;
 
     private final Context context;
+    private final BuildHelper buildHelper;
 
     private String udid;
 
     @Inject
-    public DeviceHelper(Context context) {
+    public DeviceHelper(Context context, BuildHelper buildHelper) {
         this.context = context;
+        this.buildHelper = buildHelper;
         generateUdid();
     }
 
@@ -68,8 +70,8 @@ public class DeviceHelper {
     }
 
     public String getDeviceName(){
-        final String manufacturer = Build.MANUFACTURER;
-        final String model = Build.MODEL;
+        final String manufacturer = buildHelper.getManufacturer();
+        final String model = buildHelper.getModel();
         if (ScTextUtils.isNotBlank(model)) {
             if (ScTextUtils.isNotBlank(manufacturer)) {
                 return model.startsWith(manufacturer) ? model : manufacturer + " " + model;
@@ -105,7 +107,7 @@ public class DeviceHelper {
     public String getUserAgent() {
         return String.format("SoundCloud-Android/%s (Android %s; %s)",
                 getAppVersion(),
-                String.valueOf(Build.VERSION.RELEASE),
+                String.valueOf(buildHelper.getAndroidReleaseVersion()),
                 getDeviceName());
     }
 

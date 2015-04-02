@@ -16,6 +16,7 @@ import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.utils.BuildHelper;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
@@ -94,16 +95,16 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     public PublicApiWrapper(Context context) {
         this(context,
                 SoundCloudApplication.fromContext(context).getAccountOperations(),
-                new ApplicationProperties(context.getResources()));
+                new ApplicationProperties(context.getResources()), new BuildHelper());
 
     }
 
     @Deprecated
     public PublicApiWrapper(Context context, AccountOperations accountOperations,
-                            ApplicationProperties applicationProperties) {
+                            ApplicationProperties applicationProperties, BuildHelper buildHelper) {
         this(context, buildObjectMapper(), new OAuth(accountOperations),
                 accountOperations, applicationProperties,
-                UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context));
+                UnauthorisedRequestRegistry.getInstance(context), new DeviceHelper(context, buildHelper));
     }
 
     private PublicApiWrapper(Context context, ObjectMapper mapper, OAuth oAuth,
