@@ -61,6 +61,19 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
     }
 
     @Test
+    public void playlistForAddingTrackLoadsPlaylistWithCorrectIsAddedStatusForLocallyRemovedTracks() {
+        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+        final ApiPlaylist apiPlaylist = insertPostedPlaylist();
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrackPendingRemoval(apiPlaylist, 0, new Date());
+
+        playlistTracksStorage.playlistsForAddingTrack(apiTrack.getUrn())
+                .subscribe(testObserver);
+
+        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        expect(result).toContainExactly(playlistForTrackPropertySet(apiPlaylist, false));
+    }
+
+    @Test
     public void playlistForAddingTracksDoNoIncludeRepostedPlaylists() {
         final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
