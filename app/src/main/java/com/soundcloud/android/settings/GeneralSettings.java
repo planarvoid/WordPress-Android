@@ -13,6 +13,7 @@ import static com.soundcloud.android.settings.SettingKey.OFFLINE_SYNC_SETTINGS;
 import static com.soundcloud.android.settings.SettingKey.VERSION;
 import static com.soundcloud.android.settings.SettingKey.WIRELESS;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
@@ -23,7 +24,6 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -150,7 +150,7 @@ class GeneralSettings implements OnPreferenceClickListener {
     }
 
     private void showLogoutDialog(final Activity parent) {
-        new AlertDialog.Builder(parent)
+        new AlertDialogWrapper.Builder(parent)
                 .setTitle(R.string.menu_clear_user_title)
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
