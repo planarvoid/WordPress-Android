@@ -2,10 +2,12 @@ package com.soundcloud.android.offline.commands;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.propeller.query.Filter.filter;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -13,6 +15,7 @@ import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import java.util.Collection;
 import java.util.Date;
@@ -20,88 +23,97 @@ import java.util.Date;
 @RunWith(SoundCloudTestRunner.class)
 public class LoadTracksWithStalePoliciesCommandTest extends StorageIntegrationTest {
 
+    @Mock private OfflineSettingsStorage settingsStorage;
     private LoadTracksWithStalePoliciesCommand command;
 
     @Before
     public void setup() {
-        command = new LoadTracksWithStalePoliciesCommand(propeller());
+        command = new LoadTracksWithStalePoliciesCommand(propeller(), settingsStorage);
     }
 
     @Test
     public void loadsLikeWithStalePolicyWhenFeatureEnabled() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         ApiTrack apiTrack = insertTrackAndUpdatePolicies();
 
-        Collection<Urn> trackLikes = command.with(true).call();
+        Collection<Urn> trackLikes = command.call();
 
         expect(trackLikes).toContainExactly(apiTrack.getUrn());
     }
 
     @Test
     public void loadsLikeWithMissingPolicyWhenFeatureEnabled() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         propeller().delete(Table.TrackPolicies, filter().whereEq(TableColumns.TrackPolicies.TRACK_ID, apiTrack.getId()));
 
-        Collection<Urn> trackLikes = command.with(true).call();
+        Collection<Urn> trackLikes = command.call();
 
         expect(trackLikes).toContainExactly(apiTrack.getUrn());
     }
 
     @Test
     public void ignoresLikeWithUpToDatePolicy() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(100));
         updatePolicyTimestamp(apiTrack, new Date());
 
-        Collection<Urn> trackLikes = command.with(true).call();
+        Collection<Urn> trackLikes = command.call();
 
         expect(trackLikes).toBeEmpty();
     }
 
     @Test
     public void ignoresLikeWithRemovedAt() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         testFixtures().insertLikedTrackPendingRemoval(new Date(100));
 
-        Collection<Urn> trackLikes = command.with(true).call();
+        Collection<Urn> trackLikes = command.call();
 
         expect(trackLikes).toBeEmpty();
     }
 
     @Test
     public void doesNotLoadOfflineLikesWhenFeatureDisabled() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
         insertTrackAndUpdatePolicies();
 
-        Collection<Urn> trackLikes = command.with(false).call();
+        Collection<Urn> trackLikes = command.call();
 
         expect(trackLikes).toBeEmpty();
     }
 
     @Test
     public void doesNotLoadLikedPlaylistWhenNotMarkedAsAvailableOffline() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         testFixtures().insertLikedPlaylist(new Date(100));
 
-        Collection<Urn> trackLikes = command.with(true).call();
+        Collection<Urn> trackLikes = command.call();
 
         expect(trackLikes).toBeEmpty();
     }
 
     @Test
     public void loadOfflinePlaylistTracksWithStalePolicies() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
         final ApiTrack track1 = insertPlaylistTrackAndUpdatePolicies(playlist, 1);
 
-        Collection<Urn> tracksToStore = command.with(false).call();
+        Collection<Urn> tracksToStore = command.call();
 
         expect(tracksToStore).toContainExactly(track0.getUrn(), track1.getUrn());
     }
 
     @Test
     public void loadOfflinePlaylistTracksAndLikedTracksWithStalePolicies() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         final ApiTrack like = insertTrackAndUpdatePolicies();
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack track0 = insertPlaylistTrackAndUpdatePolicies(playlist, 0);
         final ApiTrack track1 = insertPlaylistTrackAndUpdatePolicies(playlist, 1);
 
-        Collection<Urn> tracksToStore = command.with(true).call();
+        Collection<Urn> tracksToStore = command.call();
 
         expect(tracksToStore).toContainExactlyInAnyOrder(like.getUrn(), track0.getUrn(), track1.getUrn());
     }

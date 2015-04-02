@@ -10,6 +10,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -23,13 +24,15 @@ import java.util.Collection;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
-public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Boolean, Collection<Urn>, LoadTracksWithStalePoliciesCommand> {
+public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Void, Collection<Urn>, LoadTracksWithStalePoliciesCommand> {
 
     private final PropellerDatabase database;
+    private final OfflineSettingsStorage settingsStorage;
 
     @Inject
-    public LoadTracksWithStalePoliciesCommand(PropellerDatabase database) {
+    public LoadTracksWithStalePoliciesCommand(PropellerDatabase database, OfflineSettingsStorage settingsStorage) {
         this.database = database;
+        this.settingsStorage = settingsStorage;
     }
 
     @Override
@@ -39,7 +42,7 @@ public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Boolean, C
         final Where stalePolicyCondition = filter()
                 .whereLt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), stalePolicyTimestamp)
                 .orWhereNull(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED));
-        if (input) {
+        if (settingsStorage.isOfflineLikedTracksEnabled()) {
             set.addAll(database.query(buildOfflineLikedTracksQuery()
                     .where(stalePolicyCondition)).toList(new UrnMapper()));
         }

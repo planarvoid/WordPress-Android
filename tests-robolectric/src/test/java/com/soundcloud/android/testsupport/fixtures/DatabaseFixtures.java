@@ -439,6 +439,27 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
+
+    public void insertPolicyAllow(Urn urn) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackPolicies.TRACK_ID, urn.getNumericId());
+        cv.put(TableColumns.TrackPolicies.POLICY, "ALLOW");
+        cv.put(TableColumns.TrackPolicies.MONETIZABLE, true);
+        cv.put(TableColumns.TrackPolicies.SYNCABLE, true);
+
+        insertInto(Table.TrackPolicies, cv);
+    }
+
+    public void insertPolicyBlock(Urn urn) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.TrackPolicies.TRACK_ID, urn.getNumericId());
+        cv.put(TableColumns.TrackPolicies.POLICY, "BLOCK");
+        cv.put(TableColumns.TrackPolicies.MONETIZABLE, false);
+        cv.put(TableColumns.TrackPolicies.SYNCABLE, false);
+
+        insertInto(Table.TrackPolicies, cv);
+    }
+
     public ApiTrack insertLikedTrackPendingDownload(Date likeDate) {
         ApiTrack apiTrack = insertLikedTrack(likeDate);
         insertTrackPendingDownload(apiTrack.getUrn(), System.currentTimeMillis());
@@ -480,6 +501,7 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackDownloads._ID, trackUrn.getNumericId());
         cv.put(TableColumns.TrackDownloads.REQUESTED_AT, requestedAtTimestamp);
+        cv.put(TableColumns.TrackDownloads.DOWNLOADED_AT, requestedAtTimestamp);
         cv.put(TableColumns.TrackDownloads.REMOVED_AT, removedAtTimestamp);
         return insertInto(Table.TrackDownloads, cv);
     }

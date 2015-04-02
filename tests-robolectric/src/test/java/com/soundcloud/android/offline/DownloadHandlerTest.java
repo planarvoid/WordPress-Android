@@ -39,9 +39,9 @@ public class DownloadHandlerTest {
     @Before
     public void setUp() throws Exception {
         downloadRequest = new DownloadRequest(Urn.forTrack(123), "http://");
-        downloadResultSuccess = DownloadResult.success(Urn.forTrack(123));
-        downloadResultFailed = DownloadResult.failed(downloadRequest.urn);
-        downloadResultUnavailable = DownloadResult.unavailable(downloadRequest.urn);
+        downloadResultSuccess = DownloadResult.success(downloadRequest);
+        downloadResultFailed = DownloadResult.failed(downloadRequest);
+        downloadResultUnavailable = DownloadResult.unavailable(downloadRequest);
 
         successMessage = createMessage(downloadRequest);
         failureMessage = createMessage(downloadRequest);
@@ -95,7 +95,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(successMessage);
 
-        verify(downloadOperations).deleteTrack(downloadRequest.urn);
+        verify(downloadOperations).deleteTrack(downloadRequest.track);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(successMessage);
 
-        expect(updateContentAsUnavailable.getInput()).toEqual(downloadResultUnavailable.getUrn());
+        expect(updateContentAsUnavailable.getInput()).toEqual(downloadResultUnavailable.getTrack());
     }
 
     private Message createMessage(DownloadRequest downloadRequest) {

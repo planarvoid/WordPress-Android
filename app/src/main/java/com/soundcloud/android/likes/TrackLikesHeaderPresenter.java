@@ -1,12 +1,12 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -38,7 +38,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     private final TrackLikesHeaderView headerView;
     private final TrackLikeOperations likeOperations;
-    private final OfflineContentOperations offlineContentOperations;
     private final OfflinePlaybackOperations playbackOperations;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
@@ -69,7 +68,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      EventBus eventBus) {
         this.headerView = headerView;
         this.likeOperations = likeOperations;
-        this.offlineContentOperations = offlineContentOperations;
         this.playbackOperations = playbackOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.eventBus = eventBus;
@@ -91,8 +89,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onResume(Fragment fragment) {
-        foregroundSubscription = offlineContentOperations.getLikedTracksDownloadState()
-                .observeOn(AndroidSchedulers.mainThread())
+        foregroundSubscription = eventBus
+                .queue(EventQueue.CURRENT_DOWNLOAD)
+                .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
                 .subscribe(new DownloadStateSubscriber());
     }
 
@@ -132,10 +131,10 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     }
 
-    private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
+    private class DownloadStateSubscriber extends DefaultSubscriber<CurrentDownloadEvent> {
         @Override
-        public void onNext(DownloadState downloadState) {
-            switch (downloadState) {
+        public void onNext(CurrentDownloadEvent event) {
+            switch (event.kind) {
                 case DOWNLOADED:
                     headerView.showDownloadedState();
                     break;
@@ -149,7 +148,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                     headerView.showDefaultState();
                     break;
                 default:
-                    throw new IllegalArgumentException("Unknown state:" + downloadState);
+                    throw new IllegalArgumentException("Unknown state:" + event.kind);
             }
         }
     }

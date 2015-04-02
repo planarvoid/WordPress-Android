@@ -29,7 +29,7 @@ public class StoreCompletedDownloadCommand extends StoreCommand<DownloadResult> 
 
     private ContentValues buildContentValues(DownloadResult downloadResult) {
         return ContentValuesBuilder.values(2)
-                .put(_ID, downloadResult.getUrn().getNumericId())
+                .put(_ID, downloadResult.getTrack().getNumericId())
                 .put(UNAVAILABLE_AT, null)
                 .put(DOWNLOADED_AT, downloadResult.getTimestamp())
                 .get();

@@ -5,25 +5,21 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.events.CurrentDownloadEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 import android.content.Intent;
@@ -31,6 +27,7 @@ import android.os.Message;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -43,12 +40,13 @@ public class OfflineContentServiceTest {
     @Mock private DownloadHandler.Builder handlerFactory;
     @Mock private DownloadHandler downloadHandler;
 
-    private final DownloadRequest downloadRequest1 = createDownloadRequest(123L);
-    private final DownloadRequest downloadRequest2 = createDownloadRequest(456L);
-    private final DownloadRequest downloadRequest3 = createDownloadRequest(789L);
-    private final DownloadResult downloadResult1 = DownloadResult.success(Urn.forTrack(123L));
-    private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(Urn.forTrack(123L));
-    private final DownloadResult failedResult1 = DownloadResult.failed(Urn.forTrack(123L));
+    private static final Urn TRACK_1 = Urn.forTrack(123L);
+    private static final Urn TRACK_2 = Urn.forTrack(456L);
+    private final DownloadRequest downloadRequest1 = createDownloadRequest(TRACK_1);
+    private final DownloadRequest downloadRequest2 = createDownloadRequest(TRACK_2);
+    private final DownloadResult downloadResult1 = DownloadResult.success(downloadRequest1);
+    private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(downloadRequest1);
+    private final DownloadResult failedResult1 = DownloadResult.failed(downloadRequest1);
 
     private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
@@ -59,22 +57,73 @@ public class OfflineContentServiceTest {
     public void setUp() {
         deletePendingRemoval = TestObservables.emptyObservable();
         eventBus = new TestEventBus();
-
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
-                eventBus, offlineContentScheduler, handlerFactory, Schedulers.immediate());
+                eventBus, offlineContentScheduler, handlerFactory, new DownloadQueue());
 
-        when(downloadOperations.deletePendingRemovals()).thenReturn(deletePendingRemoval);
+        when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
         downloadMessage = new Message();
         when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
         when(downloadOperations.isValidNetwork()).thenReturn(true);
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.<OfflineContentRequests>never());
 
         service.onCreate();
     }
 
     @Test
+    public void emitsNewDownlaodRequests() {
+        final OfflineContentRequests updates = new OfflineContentRequests(
+                Arrays.asList(downloadRequest1, downloadRequest2),
+                Arrays.asList(downloadRequest1),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<Urn>emptyList()
+        );
+
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
+        startService();
+
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
+                CurrentDownloadEvent.downloading(downloadRequest1)
+        );
+    }
+
+    @Test
+    public void emitsNewTrackDownloadedWhenTrackIsRestoredFromPendingRemovals() {
+        final OfflineContentRequests updates = new OfflineContentRequests(
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Arrays.asList(downloadRequest1),
+                Collections.<Urn>emptyList()
+        );
+
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
+        startService();
+
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1))
+        );
+    }
+
+    @Test
+    public void emitsRemovedTrack() {
+        final OfflineContentRequests updates = new OfflineContentRequests(
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Arrays.asList(TRACK_1));
+
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
+        startService();
+
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest1))
+        );
+    }
+
+    @Test
     public void deletePendingRemovalsWhenStarting() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
 
         startService();
 
@@ -82,17 +131,16 @@ public class OfflineContentServiceTest {
     }
 
     @Test
-    public void startsSyncingWhenALikedTrackIsNotSynced() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
-
+    public void startsDownloadingDownloadRequests() {
+        setUpSingleDownload();
         startService();
 
         verify(downloadHandler).sendMessage(downloadMessage);
     }
 
     @Test
-    public void doesNotStartSyncingWhenAllLikedTracksAreSynced() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
+    public void doesNotStartSyncingWhenNoDownloadRequest() {
+        setupNoDownloadRequest();
 
         startService();
 
@@ -101,112 +149,64 @@ public class OfflineContentServiceTest {
 
     @Test
     public void sendsDownloadPendingWhenCreatingRequestsQueue() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
-
+        final OfflineContentRequests updates = new OfflineContentRequests(
+                Arrays.asList(downloadRequest1, downloadRequest2),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<Urn>emptyList()
+        );
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        expectDownloadsPending(eventBus.firstEventOn(EventQueue.ENTITY_STATE_CHANGED), downloadRequest1.urn, downloadRequest2.urn);
-    }
-
-    @Test
-    public void sendsDownloadPendingWhenUpdatingRequestsQueue() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
-        startService();
-
-        when(downloadHandler.isDownloading()).thenReturn(true);
-        when(downloadHandler.getCurrent()).thenReturn(downloadRequest1);
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2, downloadRequest3));
-        startService();
-        service.onSuccess(downloadResult1);
-
-        final List<EntityStateChangedEvent> events = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expectDownloadsPending(events.get(0),  downloadRequest1.urn, downloadRequest2.urn);
-        expectDownloadsPending(events.get(1), downloadRequest3.urn);
-        expectDownloadFinished(events.get(2), downloadRequest1.urn);
-    }
-
-    @Test
-    public void doesNotSendDownloadRemovedWhenCreatingRequestsQueue() throws Exception {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
-
-        startService();
-
-        final List<EntityStateChangedEvent> events = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expectDownloadsPending(events.get(0), downloadRequest1.urn);
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
+                CurrentDownloadEvent.downloading(downloadRequest1)
+        );
     }
 
     @Test
     public void sendsDownloadRemovedWhenUpdatingRequestsQueue() throws Exception {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        final OfflineContentRequests updates = new OfflineContentRequests(
+                Arrays.asList(downloadRequest1, downloadRequest2),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<Urn>emptyList()
+        );
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
+        when(downloadHandler.isCurrentRequest(downloadRequest1)).thenReturn(true);
         when(downloadHandler.isDownloading()).thenReturn(true);
-        when(downloadHandler.getCurrent()).thenReturn(downloadRequest1);
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
         startService();
 
-        final List<EntityStateChangedEvent> events = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expectDownloadsPending(events.get(0), downloadRequest1.urn, downloadRequest2.urn);
-        expectDownloadsRemoved(events.get(1), downloadRequest2.urn);
-    }
-
-    @Test
-    public void sendsDownloadStartedEventWhenTrackDownloadStarted() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
-
-        startService();
-
-        expectDownloadStarted(eventBus.lastEventOn(EventQueue.CURRENT_DOWNLOAD), downloadRequest1.urn);
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
+                CurrentDownloadEvent.downloading(downloadRequest1),
+                CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest2)),
+                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest2))
+        );
     }
 
     @Test
     public void sendsDownloadStoppedEventWhenTrackDownloadSucceeded() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
-
         startService();
         service.onSuccess(downloadResult1);
 
-        expectDownloadStopped(eventBus.lastEventOn(EventQueue.CURRENT_DOWNLOAD), downloadRequest1.urn);
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)));
     }
 
     @Test
     public void sendsDownloadStoppedEventWhenTrackDownloadFailed() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
-
         startService();
         service.onError(downloadResult1);
 
-        expectDownloadStopped(eventBus.lastEventOn(EventQueue.CURRENT_DOWNLOAD), downloadRequest1.urn);
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1)));
     }
 
-    @Test
-    public void sendsDownloadSucceededEventWhenLikedTrackDownloaded() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
-
-        startService();
-        service.onSuccess(downloadResult1);
-
-        List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expectDownloadsPending(entityStateChangedEvents.get(0), downloadRequest1.urn);
-        expectDownloadFinished(entityStateChangedEvents.get(1), downloadRequest1.urn);
-        expect(entityStateChangedEvents.get(1).getChangeMap().keySet()).toContainExactly(downloadRequest1.urn);
-    }
-
-    @Test
-    public void sendsDownloadFailedEventWhenLikedTrackDownloadFailed() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
-
-        startService();
-        service.onError(downloadResult1);
-
-        List<EntityStateChangedEvent> entityStateChangedEvents = eventBus.eventsOn(EventQueue.ENTITY_STATE_CHANGED);
-        expectDownloadsPending(entityStateChangedEvents.get(0), downloadRequest1.urn);
-        expectDownloadFailed(entityStateChangedEvents.get(1), downloadRequest1.urn);
-    }
 
     @Test
     public void stopAndScheduleRetryWhenTrackDownloadFailed() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        setUpSingleDownload();
 
         startService();
         service.onError(failedResult1);
@@ -217,7 +217,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void connectionErrorNotificationWhenTrackDownloadFailed() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1));
+        setUpSingleDownload();
 
         startService();
         service.onError(failedResult1);
@@ -227,18 +227,19 @@ public class OfflineContentServiceTest {
 
     @Test
     public void continueDownloadNextTrackWhenTrackUnavailableForDownload() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        setUpSingleDownload();
 
         startService();
         service.onError(unavailableTrackResult1);
 
         verify(notificationController).onDownloadError();
-        verify(downloadHandler, times(2)).sendMessage(downloadMessage);
+        verify(downloadHandler).sendMessage(downloadMessage);
     }
+
 
     @Test
     public void stopAndScheduleRetryWhenNoValidNetworkOnNewDownload() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+        setUpsDownloads(downloadRequest1, downloadRequest2);
 
         startService();
         when(downloadOperations.isValidNetwork()).thenReturn(false);
@@ -249,8 +250,8 @@ public class OfflineContentServiceTest {
     }
 
     @Test
-    public void showsNotificationWhenDownloadingLikedTrack() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest1, downloadRequest2));
+    public void showsNotificationWhenDownloading() {
+        setUpsDownloads(downloadRequest1, downloadRequest2);
 
         startService();
 
@@ -258,9 +259,9 @@ public class OfflineContentServiceTest {
     }
 
     @Test
-    public void updatesNotificationWhenAnotherTrackLikedDuringDownload() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(buildDownloadRequestObservable(downloadRequest2, createDownloadRequest(678)));
+    public void updatesNotificationWhenAlreadyDownloading() {
         when(downloadHandler.isDownloading()).thenReturn(true);
+        setUpsDownloads(downloadRequest1, downloadRequest2);
 
         startService();
 
@@ -268,14 +269,14 @@ public class OfflineContentServiceTest {
     }
 
     @Test
-    public void updatesNotificationWhenLikedTrackDownloaded() {
+    public void updatesNotificationWhenTrackDownloaded() {
         service.onSuccess(downloadResult1);
 
         verify(notificationController).onDownloadSuccess();
     }
 
     @Test
-    public void showsNotificationWhenAllLikedTrackDownloaded() {
+    public void showsNotificationWhenAllTrackDownloaded() {
         service.onSuccess(downloadResult1);
 
         verify(notificationController).onDownloadsFinished();
@@ -283,7 +284,7 @@ public class OfflineContentServiceTest {
 
     @Test
     public void startServiceWithDownloadActionDoesNotCreateNotificationWhenNoPendingDownloadsExists() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
+        setupNoDownloadRequest();
 
         startService();
 
@@ -292,20 +293,21 @@ public class OfflineContentServiceTest {
 
     @Test
     public void startServiceWithCancelDownloadActionStopRequestProcessing() {
-        PublishSubject<List<DownloadRequest>> pendingRequestsSubject = PublishSubject.create();
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(pendingRequestsSubject);
+        final PublishSubject<OfflineContentRequests> observable = PublishSubject.create();
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(observable);
 
         startService();
         stopService();
 
-        pendingRequestsSubject.onNext(Arrays.asList(downloadRequest1, downloadRequest2));
+        observable.onNext(createSingleDownloadRequestUpdate());
+
         verify(notificationController, never()).onPendingRequests(anyInt());
         verify(downloadHandler).quit();
     }
 
     @Test
     public void startServiceWithDownloadActionCancelsAnyExistingRetryScheduling() {
-        when(offlineContentOperations.loadDownloadRequests()).thenReturn(Observable.<List<DownloadRequest>>empty());
+        setUpSingleDownload();
 
         startService();
 
@@ -324,8 +326,8 @@ public class OfflineContentServiceTest {
         return service.onStartCommand(intent, 0, 0);
     }
 
-    private DownloadRequest createDownloadRequest(long id) {
-        return new DownloadRequest(Urn.forTrack(id), "http://" + id);
+    private DownloadRequest createDownloadRequest(Urn track) {
+        return new DownloadRequest(track, "http://" + track.getNumericId());
     }
 
     private Observable<List<DownloadRequest>> buildDownloadRequestObservable(DownloadRequest... downloadRequests) {
@@ -333,45 +335,33 @@ public class OfflineContentServiceTest {
         return Observable.just(requestsList);
     }
 
-    private void expectDownloadStarted(CurrentDownloadEvent event, Urn urn) {
-        expect(event.getKind()).toBe(CurrentDownloadEvent.START);
-        expect(event.getTrackUrn()).toEqual(urn);
+    private void setupNoDownloadRequest() {
+        final OfflineContentRequests updates = new OfflineContentRequests(
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<Urn>emptyList()
+        );
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
     }
 
-    private void expectDownloadStopped(CurrentDownloadEvent event, Urn urn) {
-        expect(event.getKind()).toBe(CurrentDownloadEvent.STOP);
-        expect(event.getTrackUrn()).toEqual(urn);
+    private void setUpSingleDownload() {
+        final OfflineContentRequests updates = createSingleDownloadRequestUpdate(downloadRequest1);
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
     }
 
-    private void expectDownloadFinished(EntityStateChangedEvent event, Urn urn) {
-        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
-        expect(event.getNextChangeSet().contains(OfflineProperty.DOWNLOADED_AT)).toBeTrue();
-        expect(event.getChangeMap().keySet()).toContainExactly(urn);
+    private void setUpsDownloads(DownloadRequest... requests) {
+        final OfflineContentRequests updates = createSingleDownloadRequestUpdate(requests);
+        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
     }
 
-    private void expectDownloadFailed(EntityStateChangedEvent event, Urn urn) {
-        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
-        expect(event.getNextChangeSet().contains(OfflineProperty.UNAVAILABLE_AT)).toBeTrue();
-        expect(event.getChangeMap().keySet()).toContainExactly(urn);
-    }
-
-    private void expectDownloadsPending(EntityStateChangedEvent event, Urn... urns) {
-        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
-
-        expect(event.getChangeMap().keySet()).toContainExactly(urns);
-        for (Urn urn : urns) {
-            final PropertySet changeSet = event.getChangeMap().get(urn);
-            expect(changeSet.contains(OfflineProperty.REQUESTED_AT)).toBeTrue();
-        }
-    }
-
-    private void expectDownloadsRemoved(EntityStateChangedEvent event, Urn... urns) {
-        expect(event.getKind()).toBe(EntityStateChangedEvent.DOWNLOAD);
-        expect(event.getChangeMap().keySet()).toContainExactly(urns);
-        for (Urn urn : urns) {
-            final PropertySet changeSet = event.getChangeMap().get(urn);
-            expect(changeSet.contains(OfflineProperty.REMOVED_AT)).toBeTrue();
-        }
+    private OfflineContentRequests createSingleDownloadRequestUpdate(DownloadRequest... requests) {
+        return new OfflineContentRequests(
+                Arrays.asList(requests),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<DownloadRequest>emptyList(),
+                Collections.<Urn>emptyList()
+        );
     }
 
 }

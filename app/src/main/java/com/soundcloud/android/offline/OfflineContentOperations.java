@@ -1,22 +1,14 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.utils.CollectionUtils.add;
-import static com.soundcloud.android.utils.CollectionUtils.intersect;
-import static com.soundcloud.android.utils.CollectionUtils.subtract;
-
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.ClearTrackDownloadsCommand;
-import com.soundcloud.android.offline.commands.LoadPrioritizedPendingDownloadsCommand;
+import com.soundcloud.android.offline.commands.LoadExpectedContentCommand;
+import com.soundcloud.android.offline.commands.LoadOfflineContentUpdatesCommand;
 import com.soundcloud.android.offline.commands.LoadTracksWithStalePoliciesCommand;
-import com.soundcloud.android.offline.commands.LoadTracksWithValidPoliciesCommand;
-import com.soundcloud.android.offline.commands.StoreDownloadedCommand;
-import com.soundcloud.android.offline.commands.StorePendingDownloadsCommand;
-import com.soundcloud.android.offline.commands.StorePendingRemovalsCommand;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.offline.commands.StoreDownloadUpdatesCommand;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.WriteResult;
@@ -24,8 +16,6 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.functions.Action1;
 import rx.functions.Func1;
-import rx.functions.Func2;
-import rx.functions.Func4;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -34,15 +24,12 @@ import java.util.List;
 
 public class OfflineContentOperations {
 
-    private final LoadPrioritizedPendingDownloadsCommand loadPendingDownloadRequests;
+    private final StoreDownloadUpdatesCommand storeDownloadUpdatesCommand;
 
-    private final StorePendingDownloadsCommand storePendingDownloadsCommand;
-    private final StorePendingRemovalsCommand storePendingRemovalsCommand;
-    private final StoreDownloadedCommand storeDownloadedCommand;
+    private final LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
+    private final LoadExpectedContentCommand loadExpectedContentCommand;
+    private final LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
-
-    private final LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies;
-    private final LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies;
 
     private final OfflineTracksStorage tracksStorage;
     private final SecureFileStorage secureFileStorage;
@@ -51,13 +38,6 @@ public class OfflineContentOperations {
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
     private final Scheduler scheduler;
-
-    private static final Func2<CurrentDownloadEvent, Boolean, State> TO_AGGREGATED_STATES = new Func2<CurrentDownloadEvent, Boolean, State>() {
-        @Override
-        public State call(CurrentDownloadEvent event, Boolean isOfflineContentEnabled) {
-            return new State(event, isOfflineContentEnabled);
-        }
-    };
 
     private final Func1<Collection<Urn>, Observable<Void>> UPDATE_POLICIES = new Func1<Collection<Urn>, Observable<Void>>() {
         @Override
@@ -76,48 +56,28 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Func1<Void, Observable<Void>> updateOfflineQueue = new Func1<Void, Observable<Void>>() {
-        @Override
-        public Observable<Void> call(Void aVoid) {
-            return updateOfflineQueue();
-        }
-    };
-
-    private final Func4<Collection<Urn>, List<Urn>, List<Urn>, List<Urn>, Void> offlineContentQueueDifferentialUpdate = new Func4<Collection<Urn>, List<Urn>, List<Urn>, List<Urn>, Void>() {
-        @Override
-        public Void call(Collection<Urn> expectedContent, List<Urn> pendingDownloads, List<Urn> pendingRemovals, List<Urn> downloadedTracks) {
-            storeNewPendingDownloads(expectedContent, pendingDownloads, downloadedTracks);
-            storeAndNotifyNewDownloadedTracks(expectedContent, pendingRemovals, downloadedTracks);
-            storeAndNotifyNewPendingRemovals(expectedContent, pendingDownloads, downloadedTracks);
-            return null;
-        }
-    };
-
     @Inject
-    public OfflineContentOperations(StorePendingDownloadsCommand storePendingDownloadsCommand,
-                                    StorePendingRemovalsCommand storePendingRemovalsCommand,
-                                    StoreDownloadedCommand storeDownloadedCommand,
-                                    ClearTrackDownloadsCommand clearTrackDownloadsCommand, LoadTracksWithStalePoliciesCommand loadTracksWithStatePolicies,
-                                    LoadPrioritizedPendingDownloadsCommand loadPendingCommand,
+    public OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
+                                    LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
+                                    ClearTrackDownloadsCommand clearTrackDownloadsCommand,
                                     OfflineSettingsStorage settingsStorage,
                                     EventBus eventBus,
                                     OfflinePlaylistStorage playlistStorage,
                                     PolicyOperations policyOperations,
-                                    LoadTracksWithValidPoliciesCommand loadTracksWithValidPolicies,
+                                    LoadExpectedContentCommand loadExpectedContentCommand,
+                                    LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
                                     OfflineTracksStorage tracksStorage,
                                     SecureFileStorage secureFileStorage,
                                     @Named("HighPriority") Scheduler scheduler) {
-        this.storePendingDownloadsCommand = storePendingDownloadsCommand;
-        this.storePendingRemovalsCommand = storePendingRemovalsCommand;
-        this.storeDownloadedCommand = storeDownloadedCommand;
+        this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
+        this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;
-        this.loadTracksWithStatePolicies = loadTracksWithStatePolicies;
         this.settingsStorage = settingsStorage;
-        this.loadPendingDownloadRequests = loadPendingCommand;
         this.eventBus = eventBus;
         this.playlistStorage = playlistStorage;
         this.policyOperations = policyOperations;
-        this.loadTracksWithValidPolicies = loadTracksWithValidPolicies;
+        this.loadExpectedContentCommand = loadExpectedContentCommand;
+        this.loadOfflineContentUpdatesCommand = loadOfflineContentUpdatesCommand;
         this.tracksStorage = tracksStorage;
         this.secureFileStorage = secureFileStorage;
         this.scheduler = scheduler;
@@ -167,134 +127,21 @@ public class OfflineContentOperations {
         };
     }
 
-    private Observable<Boolean> getOfflinePlaylistStatus(final Urn playlist) {
-        return eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
-                .filter(isOfflinePlaylistStatusChange(playlist))
-                .map(toOfflinePlaylistStatus(playlist))
-                .startWith(playlistStorage.isOfflinePlaylist(playlist));
-    }
-
-    private Func1<EntityStateChangedEvent, Boolean> toOfflinePlaylistStatus(final Urn playlist) {
-        return new Func1<EntityStateChangedEvent, Boolean>() {
-            @Override
-            public Boolean call(EntityStateChangedEvent event) {
-                return event.getChangeMap().get(playlist).get(PlaylistProperty.IS_MARKED_FOR_OFFLINE);
-            }
-        };
-    }
-
-    private Func1<EntityStateChangedEvent, Boolean> isOfflinePlaylistStatusChange(final Urn playlist) {
-        return new Func1<EntityStateChangedEvent, Boolean>() {
-            @Override
-            public Boolean call(EntityStateChangedEvent event) {
-                return event.isSingularChange() && event.getNextUrn().equals(playlist) && event.getKind() == EntityStateChangedEvent.MARKED_FOR_OFFLINE;
-            }
-        };
-    }
-
-    public Observable<DownloadState> getPlaylistDownloadState(final Urn playlist) {
-        return getDownloadState(
-                tracksStorage.pendingPlaylistTracksUrns(playlist).subscribeOn(scheduler),
-                getOfflinePlaylistStatus(playlist).subscribeOn(scheduler)
-        );
-    }
-
-    public Observable<DownloadState> getLikedTracksDownloadState() {
-        return getDownloadState(
-                tracksStorage.pendingLikedTracksUrns().subscribeOn(scheduler),
-                settingsStorage.getOfflineLikedTracksStatus().subscribeOn(scheduler)
-        );
-    }
-
-    private Observable<DownloadState> getDownloadState(final Observable<List<Urn>> pendingDownloads, Observable<Boolean> offlineContentStatus) {
-        return Observable.combineLatest(
-                eventBus.queue(EventQueue.CURRENT_DOWNLOAD),
-                offlineContentStatus,
-                TO_AGGREGATED_STATES)
-                .flatMap(toDownloadState(pendingDownloads))
-                .distinctUntilChanged();
-    }
-
-    private Func1<State, Observable<DownloadState>> toDownloadState(final Observable<List<Urn>> pendingDownloads) {
-        return new Func1<State, Observable<DownloadState>>() {
-            @Override
-            public Observable<DownloadState> call(final State state) {
-                if (state.isOfflineContentEnabled) {
-                    return pendingDownloads
-                            .map(new Func1<List<Urn>, DownloadState>() {
-                                @Override
-                                public DownloadState call(List<Urn> pendingDownloads) {
-                                    if (pendingDownloads.isEmpty()) {
-                                        return DownloadState.DOWNLOADED;
-                                    } else if (state.currentDownloadEvent.wasStarted() && pendingDownloads.contains(state.currentDownloadEvent.getTrackUrn())) {
-                                        return DownloadState.DOWNLOADING;
-                                    } else {
-                                        return DownloadState.REQUESTED;
-                                    }
-                                }
-                            });
-                }
-                return Observable.just(DownloadState.NO_OFFLINE);
-            }
-        };
-    }
-
-    Observable<List<DownloadRequest>> loadDownloadRequests() {
+    Observable<OfflineContentRequests> loadOfflineContentUpdates() {
         return updateStalePolicies()
-                .flatMap(updateOfflineQueue)
-                .flatMap(loadPendingDownloadRequests)
+                .flatMap(loadExpectedContentCommand.toContinuation())
+                .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
+                .doOnNext(storeDownloadUpdatesCommand.toAction())
                 .subscribeOn(scheduler);
     }
 
-    private Observable<Void> updateOfflineQueue() {
-        return Observable
-                .zip(
-                        loadTracksWithValidPolicies.call(isOfflineLikedTracksEnabled()),
-                        tracksStorage.pendingDownloads(),
-                        tracksStorage.pendingRemovals(),
-                        tracksStorage.downloaded(),
-                        offlineContentQueueDifferentialUpdate
-                );
-    }
-
-    private void storeAndNotifyNewPendingRemovals(Collection<Urn> expectedContent, List<Urn> pendingDownloads, List<Urn> downloadedTracks) {
-        final Collection<Urn> newPendingRemovals = subtract(add(downloadedTracks, pendingDownloads), expectedContent);
-        if (!newPendingRemovals.isEmpty()) {
-            if (storePendingRemovalsCommand.with(newPendingRemovals).call().success()) {
-                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadRemoved(newPendingRemovals));
-            }
-        }
-    }
-
-    private void storeAndNotifyNewDownloadedTracks(Collection<Urn> expectedContent, List<Urn> pendingRemovals, List<Urn> downloadedTracks) {
-        final Collection<Urn> newDownloadedTracks = intersect(intersect(pendingRemovals, downloadedTracks), expectedContent);
-        if (!newDownloadedTracks.isEmpty()) {
-            if (storeDownloadedCommand.with(newDownloadedTracks).call().success()) {
-                eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFinished(newDownloadedTracks));
-            }
-        }
-    }
-
-    private void storeNewPendingDownloads(Collection<Urn> expectedContent, List<Urn> pendingDownloads, List<Urn> downloadedTracks) {
-        final Collection<Urn> newPendingDownloads = subtract(expectedContent, pendingDownloads, downloadedTracks);
-        if (!newPendingDownloads.isEmpty()) {
-            storePendingDownloadsCommand.with(newPendingDownloads).call();
-        }
+    Observable<List<Urn>> loadContentToDelete() {
+        return tracksStorage.getTracksToRemove();
     }
 
     @VisibleForTesting
     Observable<Void> updateStalePolicies() {
-        return loadTracksWithStatePolicies.call(isOfflineLikedTracksEnabled())
+        return loadTracksWithStalePolicies.toObservable()
                 .flatMap(UPDATE_POLICIES);
-    }
-
-    private static class State {
-        public final CurrentDownloadEvent currentDownloadEvent;
-        public final Boolean isOfflineContentEnabled;
-
-        public State(CurrentDownloadEvent event, Boolean isOfflineContentEnabled) {
-            this.currentDownloadEvent = event;
-            this.isOfflineContentEnabled = isOfflineContentEnabled;
-        }
     }
 }

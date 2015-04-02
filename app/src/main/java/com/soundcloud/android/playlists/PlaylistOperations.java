@@ -49,20 +49,20 @@ public class PlaylistOperations {
     private final EventBus eventBus;
     private final OfflineContentOperations offlineOperations;
 
-    private final Func2<PropertySet, List<TrackItem>, PlaylistInfo> mergePlaylistWithTracks =
-            new Func2<PropertySet, List<TrackItem>, PlaylistInfo>() {
+    private final Func2<PropertySet, List<TrackItem>, PlaylistWithTracks> mergePlaylistWithTracks =
+            new Func2<PropertySet, List<TrackItem>, PlaylistWithTracks>() {
         @Override
-        public PlaylistInfo call(PropertySet playlist, List<TrackItem> tracks) {
-            return new PlaylistInfo(playlist, tracks);
+        public PlaylistWithTracks call(PropertySet playlist, List<TrackItem> tracks) {
+            return new PlaylistWithTracks(playlist, tracks);
         }
     };
 
-    private final Func1<PlaylistInfo, Observable<PlaylistInfo>> validateLoadedPlaylist = new Func1<PlaylistInfo, Observable<PlaylistInfo>>() {
+    private final Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>> validateLoadedPlaylist = new Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>>() {
         @Override
-        public Observable<PlaylistInfo> call(PlaylistInfo playlistInfo) {
-            return playlistInfo.isMissingMetaData()
-                    ? Observable.<PlaylistInfo>error(new PlaylistOperations.PlaylistMissingException())
-                    : Observable.just(playlistInfo);
+        public Observable<PlaylistWithTracks> call(PlaylistWithTracks playlistWithTracks) {
+            return playlistWithTracks.isMissingMetaData()
+                    ? Observable.<PlaylistWithTracks>error(new PlaylistOperations.PlaylistMissingException())
+                    : Observable.just(playlistWithTracks);
         }
     };
 
@@ -143,48 +143,48 @@ public class PlaylistOperations {
                 .subscribeOn(scheduler);
     }
 
-    Observable<PlaylistInfo> playlistInfo(final Urn playlistUrn) {
-        final Observable<PlaylistInfo> loadObservable = createPlaylistInfoLoadObservable(playlistUrn);
+    public Observable<PlaylistWithTracks> playlist(final Urn playlistUrn) {
+        final Observable<PlaylistWithTracks> loadObservable = createPlaylistInfoLoadObservable(playlistUrn);
         return loadObservable.flatMap(syncIfNecessary(playlistUrn));
     }
 
-    Observable<PlaylistInfo> updatedPlaylistInfo(final Urn playlistUrn) {
+    Observable<PlaylistWithTracks> updatedPlaylistInfo(final Urn playlistUrn) {
         return syncInitiator
                 .syncPlaylist(playlistUrn)
                 .observeOn(scheduler)
-                .flatMap(new Func1<SyncResult, Observable<PlaylistInfo>>() {
+                .flatMap(new Func1<SyncResult, Observable<PlaylistWithTracks>>() {
                     @Override
-                    public Observable<PlaylistInfo> call(SyncResult playlistWasUpdated) {
+                    public Observable<PlaylistWithTracks> call(SyncResult playlistWasUpdated) {
                         return createPlaylistInfoLoadObservable(playlistUrn)
                                 .flatMap(validateLoadedPlaylist);
                     }
                 });
     }
 
-    private Observable<PlaylistInfo> createPlaylistInfoLoadObservable(Urn playlistUrn) {
+    private Observable<PlaylistWithTracks> createPlaylistInfoLoadObservable(Urn playlistUrn) {
         final Observable<PropertySet> loadPlaylist = playlistStorage.loadPlaylist(playlistUrn);
         final Observable<List<TrackItem>> loadPlaylistTracks =
                 playlistTracksStorage.playlistTracks(playlistUrn).map(TrackItem.fromPropertySets());
         return Observable.zip(loadPlaylist, loadPlaylistTracks, mergePlaylistWithTracks).subscribeOn(scheduler);
     }
 
-    private Func1<PlaylistInfo, Observable<PlaylistInfo>> syncIfNecessary(final Urn playlistUrn) {
-        return new Func1<PlaylistInfo, Observable<PlaylistInfo>>() {
+    private Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>> syncIfNecessary(final Urn playlistUrn) {
+        return new Func1<PlaylistWithTracks, Observable<PlaylistWithTracks>>() {
             @Override
-            public Observable<PlaylistInfo> call(PlaylistInfo playlistInfo) {
+            public Observable<PlaylistWithTracks> call(PlaylistWithTracks playlistWithTracks) {
 
-                if (playlistInfo.isLocalPlaylist()) {
+                if (playlistWithTracks.isLocalPlaylist()) {
                     syncInitiator.syncLocalPlaylists();
-                    return Observable.just(playlistInfo);
+                    return Observable.just(playlistWithTracks);
 
-                } else if (playlistInfo.isMissingMetaData()) {
+                } else if (playlistWithTracks.isMissingMetaData()) {
                     return updatedPlaylistInfo(playlistUrn);
 
-                } else if (playlistInfo.needsTracks()) {
-                    return Observable.concat(Observable.just(playlistInfo), updatedPlaylistInfo(playlistUrn));
+                } else if (playlistWithTracks.needsTracks()) {
+                    return Observable.concat(Observable.just(playlistWithTracks), updatedPlaylistInfo(playlistUrn));
 
                 } else {
-                    return Observable.just(playlistInfo);
+                    return Observable.just(playlistWithTracks);
                 }
             }
         };

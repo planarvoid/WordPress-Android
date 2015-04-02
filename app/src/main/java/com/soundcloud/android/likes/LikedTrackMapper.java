@@ -34,16 +34,16 @@ public class LikedTrackMapper extends RxResultMapper<PropertySet> {
 
     private void addOptionalOfflineSyncDates(CursorReader cursorReader, PropertySet propertySet) {
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)){
-            propertySet.put(OfflineProperty.DOWNLOADED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.DOWNLOADED_AT));
+            propertySet.put(OfflineProperty.Track.DOWNLOADED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.DOWNLOADED_AT));
         }
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.REMOVED_AT)){
-            propertySet.put(OfflineProperty.REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REMOVED_AT));
+            propertySet.put(OfflineProperty.Track.REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REMOVED_AT));
         }
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)){
-            propertySet.put(OfflineProperty.UNAVAILABLE_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.UNAVAILABLE_AT));
+            propertySet.put(OfflineProperty.Track.UNAVAILABLE_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.UNAVAILABLE_AT));
         }
         if (cursorReader.isNotNull(TableColumns.TrackDownloads.REQUESTED_AT)) {
-            propertySet.put(OfflineProperty.REQUESTED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REQUESTED_AT));
+            propertySet.put(OfflineProperty.Track.REQUESTED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REQUESTED_AT));
         }
     }
 

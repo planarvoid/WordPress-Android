@@ -1,29 +1,37 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.DateProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import rx.observers.TestObserver;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineTracksStorageTest extends StorageIntegrationTest {
+
+    private static final Urn TRACK_1 = Urn.forTrack(123L);
+    private static final Urn TRACK_2 = Urn.forTrack(456L);
+    @Mock private DateProvider dateProvider;
 
     private OfflineTracksStorage storage;
     private TestObserver<List<Urn>> observer;
 
     @Before
     public void setup() {
-        storage = new OfflineTracksStorage(propellerRx());
+        storage = new OfflineTracksStorage(propellerRx(), dateProvider);
         observer = new TestObserver<>();
     }
 
@@ -39,7 +47,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     @Test
     public void doesNotLoadOfflineLikesPendingRemoval() {
-        testFixtures().insertTrackDownloadPendingRemoval(Urn.forTrack(234L), new Date(200).getTime());
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, new Date(200).getTime());
 
         storage.likesUrns().subscribe(observer);
 
@@ -126,6 +134,21 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0)).toContainExactly(trackUrn1, trackUrn2);
+    }
+
+    @Test
+    public void getTracksToRemoveReturnsTrackPendingRemovalSinceAtLeast3Minutes() {
+        final Date now = new Date();
+        final Date fourMinutesAgo = new Date(now.getTime() - TimeUnit.MINUTES.toMillis(4));
+        when(dateProvider.getCurrentDate()).thenReturn(now);
+
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_1, now.getTime());
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK_2, fourMinutesAgo.getTime());
+
+        storage.getTracksToRemove().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0)).toContainExactly(TRACK_2);
     }
 
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {

@@ -1,9 +1,7 @@
 package com.soundcloud.android.tracks;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.features.FeatureOperations;
-import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.AnimUtils;
 
@@ -11,7 +9,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import javax.inject.Inject;
-import java.util.Date;
 import java.util.List;
 
 public class DownloadableTrackItemPresenter extends TrackItemPresenter {
@@ -39,41 +36,28 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
         downloadProgressIcon.clearAnimation();
 
         if (featureOperations.isOfflineContentEnabled()) {
-            if (isDownloaded(track)) {
-                setDownloadedState(downloadProgressIcon);
-            } else if (isPendingDownload(track)) {
-                setPendingDownloadState(downloadProgressIcon);
-            } else if (isDownloading(track)) {
-                setDownloadingState(itemView, downloadProgressIcon);
-            } else {
-                setNoOfflineState(downloadProgressIcon);
+            switch (track.getDownloadedState()) {
+                case NO_OFFLINE:
+                    setNoOfflineState(downloadProgressIcon);
+                    break;
+                case REQUESTED:
+                    setPendingDownloadState(downloadProgressIcon);
+                    break;
+                case DOWNLOADING:
+                    setDownloadingState(itemView, downloadProgressIcon);
+                    break;
+                case DOWNLOADED:
+                    setDownloadedState(downloadProgressIcon);
+                    break;
+                case UNAVAILABLE:
+                    setNoOfflineState(downloadProgressIcon);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Unknown state: " + track.getDownloadedState());
             }
         } else {
             setNoOfflineState(downloadProgressIcon);
         }
-    }
-
-    @VisibleForTesting
-    Boolean isDownloading(TrackItem track) {
-        return track.isDownloading();
-    }
-
-    @VisibleForTesting
-    boolean isPendingDownload(TrackItem track) {
-        final Date removedAt = track.getDownloadRemovedAt();
-        final Date unavailableAt = track.getDownloadUnavailableAt();
-        final Optional<Date> downloadRequestedAt = track.getDownloadRequestedAt();
-        return !track.isDownloading()
-                && downloadRequestedAt.isPresent()
-                && downloadRequestedAt.get().after(removedAt)
-                && downloadRequestedAt.get().after(unavailableAt);
-    }
-
-    @VisibleForTesting
-    boolean isDownloaded(TrackItem track) {
-        final Date removedAt = track.getDownloadRemovedAt();
-        final Optional<Date> maybeDownloadedAt = track.getDownloadedAt();
-        return maybeDownloadedAt.isPresent() && maybeDownloadedAt.get().after(removedAt);
     }
 
     private void setNoOfflineState(ImageView downloadProgressIcon) {
@@ -81,18 +65,18 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
     }
 
     private void setPendingDownloadState(ImageView downloadProgressIcon) {
-        downloadProgressIcon.setImageResource(R.drawable.track_downloadable);
+        downloadProgressIcon.setImageResource(R.drawable.entity_downloadable);
         downloadProgressIcon.setVisibility(View.VISIBLE);
     }
 
     private void setDownloadingState(View itemView, ImageView downloadProgressIcon) {
-        downloadProgressIcon.setImageResource(R.drawable.track_downloading);
+        downloadProgressIcon.setImageResource(R.drawable.entity_downloading);
         downloadProgressIcon.setVisibility(View.VISIBLE);
         AnimUtils.runSpinClockwiseAnimationOn(itemView.getContext(), downloadProgressIcon);
     }
 
     private void setDownloadedState(ImageView downloadProgressIcon) {
-        downloadProgressIcon.setImageResource(R.drawable.track_downloaded);
+        downloadProgressIcon.setImageResource(R.drawable.entity_downloaded);
         downloadProgressIcon.setVisibility(View.VISIBLE);
     }
 }

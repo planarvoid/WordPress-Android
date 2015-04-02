@@ -50,11 +50,11 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
         }
 
         if (cursorReader.isNotNull(SoundView.OFFLINE_DOWNLOADED_AT)) {
-            propertySet.put(OfflineProperty.DOWNLOADED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_DOWNLOADED_AT));
+            propertySet.put(OfflineProperty.Track.DOWNLOADED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_DOWNLOADED_AT));
         }
 
         if (cursorReader.isNotNull(SoundView.OFFLINE_REMOVED_AT)) {
-            propertySet.put(OfflineProperty.REMOVED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_REMOVED_AT));
+            propertySet.put(OfflineProperty.Track.REMOVED_AT, cursorReader.getDateFromTimestamp(SoundView.OFFLINE_REMOVED_AT));
         }
 
         // synced tracks that might not have a user if they haven't been lazily updated yet

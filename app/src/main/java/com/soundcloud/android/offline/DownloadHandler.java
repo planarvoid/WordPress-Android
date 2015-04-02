@@ -6,7 +6,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
 import com.soundcloud.android.offline.commands.UpdateContentAsUnavailableCommand;
 import com.soundcloud.propeller.PropellerWriteException;
-import org.jetbrains.annotations.Nullable;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -30,9 +29,8 @@ public class DownloadHandler extends Handler {
         return current != null;
     }
 
-    @Nullable
-    public DownloadRequest getCurrent() {
-        return current;
+    public boolean isCurrentRequest(DownloadRequest request) {
+        return current != null && request.equals(current);
     }
 
     interface Listener {
@@ -67,7 +65,7 @@ public class DownloadHandler extends Handler {
             tryToStoreDownloadSuccess(result);
         } else {
             if (result.isUnavailable()) {
-                fireAndForget(updateContentAsUnavailable.call(result.getUrn()));
+                fireAndForget(updateContentAsUnavailable.call(result.getTrack()));
             }
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
@@ -78,7 +76,7 @@ public class DownloadHandler extends Handler {
             storeCompletedDownload.with(result).call();
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
         } catch (PropellerWriteException e) {
-            downloadOperations.deleteTrack(result.getUrn());
+            downloadOperations.deleteTrack(result.getTrack());
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
     }

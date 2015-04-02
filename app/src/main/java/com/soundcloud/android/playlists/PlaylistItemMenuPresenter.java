@@ -180,12 +180,12 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void loadPlaylist(PopupMenuWrapper menu) {
         playlistSubscription.unsubscribe();
         playlistSubscription = playlistOperations
-                .playlistInfo(playlist.getEntityUrn())
+                .playlist(playlist.getEntityUrn())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaylistSubscriber(playlist, menu));
     }
 
-    private final class PlaylistSubscriber extends DefaultSubscriber<PlaylistInfo> {
+    private final class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
         private final PlaylistItem playlist;
         private final PopupMenuWrapper menu;
 
@@ -195,7 +195,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         }
 
         @Override
-        public void onNext(PlaylistInfo details) {
+        public void onNext(PlaylistWithTracks details) {
             playlist.update(details.getSourceSet());
             updateLikeActionTitle(menu, playlist.isLiked());
             configureOfflineOptions(menu, playlist.isMarkedForOffline());

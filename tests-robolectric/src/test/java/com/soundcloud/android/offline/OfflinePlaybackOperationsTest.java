@@ -224,13 +224,13 @@ public class OfflinePlaybackOperationsTest {
     }
 
     private PropertySet downloadedTrack() {
-        return PropertySet.from(OfflineProperty.DOWNLOADED_AT.bind(new Date()));
+        return PropertySet.from(OfflineProperty.Track.DOWNLOADED_AT.bind(new Date()));
     }
 
     private PropertySet removedTrack() {
         return PropertySet.from(
-                OfflineProperty.DOWNLOADED_AT.bind(new Date()),
-                OfflineProperty.REMOVED_AT.bind(new Date()));
+                OfflineProperty.Track.DOWNLOADED_AT.bind(new Date()),
+                OfflineProperty.Track.REMOVED_AT.bind(new Date()));
     }
 
     private PropertySet notDownloadedTrack() {

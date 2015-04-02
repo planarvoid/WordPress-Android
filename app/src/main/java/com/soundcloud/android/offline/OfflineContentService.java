@@ -2,22 +2,21 @@ package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.NotificationConstants.OFFLINE_NOTIFY_ID;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-import static com.soundcloud.android.utils.CollectionUtils.subtract;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.CurrentDownloadEvent;
-import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
-import rx.Scheduler;
+import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Service;
@@ -27,11 +26,8 @@ import android.os.IBinder;
 import android.os.Message;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
 public class OfflineContentService extends Service implements DownloadHandler.Listener {
 
@@ -45,12 +41,25 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject EventBus eventBus;
     @Inject OfflineContentScheduler offlineContentScheduler;
     @Inject DownloadHandler.Builder builder;
-    @Inject @Named("HighPriority") Scheduler scheduler;
-
-    private final Queue<DownloadRequest> requestsQueue = new LinkedList<>();
+    @Inject DownloadQueue queue;
     private DownloadHandler downloadHandler;
 
-    private Subscription loadRequestsSubscription = Subscriptions.empty();
+    private Subscription subscription = Subscriptions.empty();
+
+    private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
+        @Override
+        public Observable<Collection<Urn>> call(List<Urn> urns) {
+            // TODO : offline content operation responsibility (?)
+            return downloadOperations.removeOfflineTracks(urns);
+        }
+    };
+
+    private final Predicate<DownloadRequest> isNotCurrentDownloadFilter = new Predicate<DownloadRequest>() {
+        @Override
+        public boolean apply(DownloadRequest request) {
+            return !downloadHandler.isCurrentRequest(request);
+        }
+    };
 
     public static void start(Context context) {
         context.startService(createIntent(context, ACTION_START_DOWNLOAD));
@@ -77,14 +86,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                           EventBus eventBus,
                           OfflineContentScheduler offlineContentScheduler,
                           DownloadHandler.Builder builder,
-                          Scheduler scheduler) {
+                          DownloadQueue queue) {
         this.downloadOperations = downloadOps;
         this.offlineContentOperations = offlineContentOperations;
         this.notificationController = notificationController;
         this.eventBus = eventBus;
         this.offlineContentScheduler = offlineContentScheduler;
         this.builder = builder;
-        this.scheduler = scheduler;
+        this.queue = queue;
     }
 
     @Override
@@ -99,18 +108,15 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "Starting offlineContentService for action: " + action);
 
         offlineContentScheduler.cancelPendingRetries();
+
         if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
-            loadRequestsSubscription.unsubscribe();
+            fireAndForget(offlineContentOperations.loadContentToDelete().flatMap(removeTracks));
 
-            fireAndForget(downloadOperations
-                    .deletePendingRemovals()
-                    .subscribeOn(scheduler));
-
-            loadRequestsSubscription = offlineContentOperations
-                    .loadDownloadRequests()
+            subscription.unsubscribe();
+            subscription = offlineContentOperations
+                    .loadOfflineContentUpdates()
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DownloadSubscriber());
-
+                    .subscribe(new OfflineContentRequestsSubscriber());
         } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
             stop();
         }
@@ -122,8 +128,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "Download finished " + result);
 
         notificationController.onDownloadSuccess();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFinished(result.getUrn()));
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.stop(result.getUrn()));
+        notifyDownloaded(result);
+        notifyRequestedPlaylists(result);
 
         downloadNextOrFinish();
     }
@@ -133,8 +139,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "Download failed " + result);
 
         notificationController.onDownloadError();
-        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadFailed(result.getUrn()));
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.stop(result.getUrn()));
+        notifyUnavailable(result);
+        notifyRequestedPlaylists(result);
 
         if (result.isFailure()) {
             stopAndRetryLater();
@@ -143,12 +149,43 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
+    private void notifyRequestedPlaylists(DownloadResult result) {
+        final List<Urn> requested = queue.getRequested(result);
+        final boolean likedTrackRequested = queue.isLikedTrackRequested();
+
+        if (hasChanges(requested, likedTrackRequested)) {
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(likedTrackRequested, requested));
+        }
+    }
+
+    private void notifyDownloaded(DownloadResult result) {
+        final List<Urn> completed = queue.getDownloaded(result);
+        final boolean isLikedTrackCompleted = queue.isAllLikedTracksDownloaded(result);
+
+        if (hasChanges(completed, isLikedTrackCompleted)) {
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(isLikedTrackCompleted, completed));
+        }
+    }
+
+    private void notifyUnavailable(DownloadResult result) {
+        final List<Urn> unavailable = queue.getUnavailable(result);
+        final boolean isLikedTrackUnavailable = queue.isAllLikedTracksDownloaded(result);
+
+        if (hasChanges(unavailable, isLikedTrackUnavailable)) {
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.unavailable(isLikedTrackUnavailable, unavailable));
+        }
+    }
+
+    private boolean hasChanges(List<Urn> entitiesChangeList, boolean likedTracksChanged) {
+        return !entitiesChangeList.isEmpty() || likedTracksChanged;
+    }
+
     private void downloadNextOrFinish() {
-        if (requestsQueue.isEmpty()) {
+        if (queue.isEmpty()) {
             stopAndFinish();
         } else {
             if (downloadOperations.isValidNetwork()) {
-                download(requestsQueue.poll());
+                download(queue.poll());
             } else {
                 stopAndRetryLater();
             }
@@ -171,7 +208,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
         downloadHandler.sendMessage(message);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.start(request.urn));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
     }
 
     @Override
@@ -181,69 +218,52 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     @Override
     public void onDestroy() {
-        loadRequestsSubscription.unsubscribe();
+        subscription.unsubscribe();
         super.onDestroy();
-    }
-
-    private final class DownloadSubscriber extends DefaultSubscriber<List<DownloadRequest>> {
-        @Override
-        public void onNext(List<DownloadRequest> requests) {
-            if (downloadHandler.isDownloading()) {
-                requests.remove(downloadHandler.getCurrent());
-            }
-            updateRequestQueue(requests);
-
-            if (!downloadHandler.isDownloading()) {
-                downloadNextOrFinish();
-            }
-        }
-    }
-
-    private void updateRequestQueue(List<DownloadRequest> pendingRequests) {
-        Log.d(TAG, "Updating download queue with " + pendingRequests.size() + " pendingRequests.");
-
-        publishEntityChangedEventForNewRequests(pendingRequests);
-        publishEntityChangedEventForRemovedRequests(pendingRequests);
-
-        requestsQueue.clear();
-        requestsQueue.addAll(pendingRequests);
-
-        if (!requestsQueue.isEmpty()) {
-            final int size = downloadHandler.isDownloading() ? requestsQueue.size() + 1 : requestsQueue.size();
-            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size));
-        }
-    }
-
-    private void publishEntityChangedEventForRemovedRequests(List<DownloadRequest> pendingRequests) {
-        final Collection<DownloadRequest> removedRequests = subtract(requestsQueue, pendingRequests);
-        if (!removedRequests.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadRemoved(toUrns(removedRequests)));
-        }
-    }
-
-    private void publishEntityChangedEventForNewRequests(List<DownloadRequest> pendingRequests) {
-        final Collection<DownloadRequest> newRequests = subtract(pendingRequests, requestsQueue);
-        if (!newRequests.isEmpty()) {
-            eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.downloadRequested(toUrns(newRequests)));
-        }
-    }
-
-    private Collection<Urn> toUrns(Collection<DownloadRequest> requests) {
-        return Collections2.transform(requests, new Function<DownloadRequest, Urn>() {
-            @Override
-            public Urn apply(DownloadRequest downloadRequest) {
-                return downloadRequest.urn;
-            }
-        });
     }
 
     private void stop() {
         Log.d(TAG, "Stopping the service");
-        loadRequestsSubscription.unsubscribe();
+        subscription.unsubscribe();
         downloadHandler.quit();
 
         stopForeground(false);
         stopSelf();
     }
 
+    private class OfflineContentRequestsSubscriber extends DefaultSubscriber<OfflineContentRequests> {
+        @Override
+        public void onNext(OfflineContentRequests requests) {
+            if (!requests.newRemovedTracks.isEmpty()) {
+                // TODO : Cancel request if downloading a removed track.
+                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRemoved(requests.newRemovedTracks));
+            }
+            if (!requests.newRestoredRequests.isEmpty()) {
+                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(requests.newRestoredRequests));
+            }
+
+            if (!queue.getRequests().isEmpty()) {
+                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequestRemoved(queue.getRequests()));
+            }
+            queue.set(Collections2.filter(requests.allDownloadRequests, isNotCurrentDownloadFilter));
+            if (!queue.getRequests().isEmpty()) {
+                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(queue.getRequests()));
+            }
+            updateNotification();
+            startDownloadIfNecessary();
+        }
+
+        private void startDownloadIfNecessary() {
+            if (!downloadHandler.isDownloading()) {
+                downloadNextOrFinish();
+            }
+        }
+
+        private void updateNotification() {
+            if (!queue.isEmpty()) {
+                final int size = downloadHandler.isDownloading() ? queue.size() + 1 : queue.size();
+                startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size));
+            }
+        }
+    }
 }

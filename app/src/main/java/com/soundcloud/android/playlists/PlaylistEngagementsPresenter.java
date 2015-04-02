@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.offline.OfflineProperty.Collection;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.R;
@@ -8,13 +9,13 @@ import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.RepostOperations;
 import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -28,8 +29,8 @@ import org.jetbrains.annotations.NotNull;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.subscriptions.Subscriptions;
 import rx.functions.Action0;
+import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
 import android.content.Intent;
@@ -43,7 +44,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private static final String SHARE_TYPE = "text/plain";
 
     private Context context;
-    private PlaylistInfo playlistInfo;
+    private PlaylistWithTracks playlistWithTracks;
     private OriginProvider originProvider;
     private PlaySessionSource playSessionSourceInfo = PlaySessionSource.EMPTY;
 
@@ -105,7 +106,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onResume(Fragment fragment) {
-        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateLikeOrRepost());
+        foregroundSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlaylistChangedSubscriber());
     }
 
     @Override
@@ -118,21 +119,21 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.originProvider = originProvider;
     }
 
-    void setPlaylistInfo(@NotNull PlaylistInfo playlistInfo, PlaySessionSource playSessionSource) {
-        this.playlistInfo = playlistInfo;
+    void setPlaylistInfo(@NotNull PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
+        this.playlistWithTracks = playlistWithTracks;
         this.playSessionSourceInfo = playSessionSource;
 
         final String trackCount = context.getResources().getQuantityString(
-                R.plurals.number_of_sounds, playlistInfo.getTrackCount(), playlistInfo.getTrackCount());
+                R.plurals.number_of_sounds, playlistWithTracks.getTrackCount(), playlistWithTracks.getTrackCount());
         playlistEngagementsView.setInfoText(context.getString(R.string.playlist_new_info_header_text,
-                trackCount, playlistInfo.getDuration()));
+                trackCount, playlistWithTracks.getDuration()));
 
-        playlistEngagementsView.updateLikeItem(this.playlistInfo.getLikesCount(), this.playlistInfo.isLikedByUser());
+        playlistEngagementsView.updateLikeItem(this.playlistWithTracks.getLikesCount(), this.playlistWithTracks.isLikedByUser());
 
-        if (playlistInfo.isPublic()) {
-            boolean showRepost = !accountOperations.isLoggedInUser(playlistInfo.getCreatorUrn());
+        if (playlistWithTracks.isPublic()) {
+            boolean showRepost = !accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn());
             if (showRepost) {
-                playlistEngagementsView.showPublicOptions(this.playlistInfo.isRepostedByUser());
+                playlistEngagementsView.showPublicOptions(this.playlistWithTracks.isRepostedByUser());
             } else {
                 playlistEngagementsView.showPublicOptionsForYourTrack();
             }
@@ -140,7 +141,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             playlistEngagementsView.hidePublicOptions();
         }
 
-        if (playlistInfo.getTrackCount() > 1){
+        if (playlistWithTracks.getTrackCount() > 1){
             playlistEngagementsView.enableShuffle();
         } else {
             playlistEngagementsView.disableShuffle();
@@ -148,15 +149,14 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
         updateOfflineAvailability();
         offlineStateSubscription.unsubscribe();
-        offlineStateSubscription = offlineOperations
-                .getPlaylistDownloadState(playlistInfo.getUrn())
-                .observeOn(AndroidSchedulers.mainThread())
+        offlineStateSubscription = eventBus
+                .queue(EventQueue.CURRENT_DOWNLOAD)
                 .subscribe(new DownloadStateSubscriber());
     }
 
     private void updateOfflineAvailability() {
         if (featureOperations.isOfflineContentEnabled()) {
-            playlistEngagementsView.setOfflineOptionsMenu(playlistInfo.isOfflineAvailable());
+            playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
         } else if (featureOperations.isOfflineContentUpsellEnabled()) {
             playlistEngagementsView.showUpsell();
         } else {
@@ -167,8 +167,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onMakeOfflineAvailable(boolean isMarkedForOffline) {
         Observable<Boolean> observable = isMarkedForOffline
-                ? offlineOperations.makePlaylistAvailableOffline(playlistInfo.getUrn())
-                : offlineOperations.makePlaylistUnavailableOffline(playlistInfo.getUrn());
+                ? offlineOperations.makePlaylistAvailableOffline(playlistWithTracks.getUrn())
+                : offlineOperations.makePlaylistUnavailableOffline(playlistWithTracks.getUrn());
         fireAndForget(observable);
     }
 
@@ -180,7 +180,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     @Override
     public void onPlayShuffled() {
         offlinePlaybackOperations
-                .playPlaylistShuffled(playlistInfo.getUrn(), playSessionSourceInfo)
+                .playPlaylistShuffled(playlistWithTracks.getUrn(), playSessionSourceInfo)
                 .doOnCompleted(publishAnalyticsEventForShuffle())
                 .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
     }
@@ -189,7 +189,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         return new Action0() {
             @Override
             public void call() {
-                final UIEvent fromShufflePlaylist = UIEvent.fromShufflePlaylist(originProvider.getScreenTag(), playlistInfo.getUrn());
+                final UIEvent fromShufflePlaylist = UIEvent.fromShufflePlaylist(originProvider.getScreenTag(), playlistWithTracks.getUrn());
                 eventBus.publish(EventQueue.TRACKING, fromShufflePlaylist);
             }
         };
@@ -197,42 +197,42 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onToggleLike(boolean addLike) {
-        if (playlistInfo != null) {
+        if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleLike(addLike,
                     Screen.PLAYLIST_DETAILS.get(),
                     PlaylistEngagementsPresenter.this.originProvider.getScreenTag(),
-                    playlistInfo.getUrn()));
+                    playlistWithTracks.getUrn()));
 
-            fireAndForget(likeOperations.toggleLike(playlistInfo.getUrn(), addLike));
+            fireAndForget(likeOperations.toggleLike(playlistWithTracks.getUrn(), addLike));
         }
     }
 
     @Override
     public void onToggleRepost(boolean isReposted, boolean showResultToast) {
-        if (playlistInfo != null) {
+        if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING, UIEvent.fromToggleRepost(isReposted,
-                    PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
+                    PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistWithTracks.getUrn()));
             if (showResultToast) {
-                repostOperations.toggleRepost(playlistInfo.getUrn(), isReposted)
+                repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted)
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RepostResultSubscriber(context, isReposted));
             } else {
-                fireAndForget(repostOperations.toggleRepost(playlistInfo.getUrn(), isReposted));
+                fireAndForget(repostOperations.toggleRepost(playlistWithTracks.getUrn(), isReposted));
             }
         }
     }
 
     @Override
     public void onShare() {
-        if (playlistInfo != null) {
+        if (playlistWithTracks != null) {
             eventBus.publish(EventQueue.TRACKING,
-                    UIEvent.fromShare(PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistInfo.getUrn()));
+                    UIEvent.fromShare(PlaylistEngagementsPresenter.this.originProvider.getScreenTag(), playlistWithTracks.getUrn()));
             sendShareIntent();
         }
     }
 
     private void sendShareIntent() {
-        if (playlistInfo.isPrivate()) {
+        if (playlistWithTracks.isPrivate()) {
             return;
         }
         context.startActivity(buildShareIntent());
@@ -242,25 +242,25 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setType(SHARE_TYPE);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playlistInfo.getTitle()));
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.share_subject, playlistWithTracks.getTitle()));
         shareIntent.putExtra(Intent.EXTRA_TEXT, buildShareIntentText());
         return shareIntent;
     }
 
     private String buildShareIntentText() {
-        if (ScTextUtils.isNotBlank(playlistInfo.getCreatorName())) {
+        if (ScTextUtils.isNotBlank(playlistWithTracks.getCreatorName())) {
             return context.getString(R.string.share_track_by_artist_on_soundcloud,
-                    playlistInfo.getTitle(), playlistInfo.getCreatorName(), playlistInfo.getPermalinkUrl());
+                    playlistWithTracks.getTitle(), playlistWithTracks.getCreatorName(), playlistWithTracks.getPermalinkUrl());
         }
-        return context.getString(R.string.share_track_on_soundcloud, playlistInfo.getTitle(), playlistInfo.getPermalinkUrl());
+        return context.getString(R.string.share_track_on_soundcloud, playlistWithTracks.getTitle(), playlistWithTracks.getPermalinkUrl());
     }
 
-    private class UpdateLikeOrRepost extends DefaultSubscriber<EntityStateChangedEvent> {
+    private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(EntityStateChangedEvent event) {
-            if (playlistInfo != null && playlistInfo.getUrn().equals(event.getNextUrn())) {
+            if (playlistWithTracks != null && playlistWithTracks.getUrn().equals(event.getNextUrn())) {
                 final PropertySet changeSet = event.getNextChangeSet();
-                playlistInfo.update(changeSet);
+                playlistWithTracks.update(changeSet);
 
                 if (changeSet.contains(PlaylistProperty.IS_LIKED)) {
                     playlistEngagementsView.updateLikeItem(
@@ -271,31 +271,33 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                     playlistEngagementsView.showPublicOptions(
                             changeSet.get(PlayableProperty.IS_REPOSTED));
                 }
-                if (changeSet.contains(PlaylistProperty.IS_MARKED_FOR_OFFLINE)) {
+                if (changeSet.contains(Collection.IS_MARKED_FOR_OFFLINE)) {
                     updateOfflineAvailability();
                 }
             }
         }
     }
 
-    private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
+    private class DownloadStateSubscriber extends DefaultSubscriber<CurrentDownloadEvent> {
         @Override
-        public void onNext(DownloadState downloadState) {
-            switch (downloadState) {
-                case DOWNLOADED:
-                    playlistEngagementsView.showDownloadedState();
-                    break;
-                case DOWNLOADING:
-                    playlistEngagementsView.showDownloadingState();
-                    break;
-                case REQUESTED:
-                    playlistEngagementsView.showDefaultState();
-                    break;
-                case NO_OFFLINE:
-                    playlistEngagementsView.showDefaultState();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown state:" + downloadState);
+        public void onNext(CurrentDownloadEvent event) {
+            if (playlistWithTracks != null && event.entities.contains(playlistWithTracks.getUrn())) {
+                switch (event.kind) {
+                    case DOWNLOADED:
+                        playlistEngagementsView.showDownloadedState();
+                        break;
+                    case DOWNLOADING:
+                        playlistEngagementsView.showDownloadingState();
+                        break;
+                    case REQUESTED:
+                        playlistEngagementsView.showDefaultState();
+                        break;
+                    case NO_OFFLINE:
+                        playlistEngagementsView.showDefaultState();
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown state:" + event.kind);
+                }
             }
         }
     }

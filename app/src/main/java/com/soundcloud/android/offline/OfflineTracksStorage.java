@@ -16,7 +16,9 @@ import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
@@ -24,14 +26,18 @@ import rx.Observable;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 class OfflineTracksStorage {
+    private static final long DELAY_BEFORE_REMOVAL = TimeUnit.MINUTES.toMillis(3);
 
     private final PropellerRx scheduler;
+    private final DateProvider dateProvider;
 
     @Inject
-    OfflineTracksStorage(PropellerRx scheduler) {
+    OfflineTracksStorage(PropellerRx scheduler, DateProvider dateProvider) {
         this.scheduler = scheduler;
+        this.dateProvider = dateProvider;
     }
 
     /**
@@ -122,5 +128,14 @@ class OfflineTracksStorage {
     public Observable<List<Urn>> downloaded() {
         final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT);
         return scheduler.query(query).map(new UrnMapper()).toList();
+    }
+
+    public Observable<List<Urn>> getTracksToRemove() {
+        long removalDelayedTimestamp = dateProvider.getCurrentDate().getTime() - DELAY_BEFORE_REMOVAL;
+        return scheduler.query(Query.from(Table.TrackDownloads.name())
+                .select(_ID)
+                .whereLe(REMOVED_AT, removalDelayedTimestamp))
+                .map(new UrnMapper())
+                .toList();
     }
 }

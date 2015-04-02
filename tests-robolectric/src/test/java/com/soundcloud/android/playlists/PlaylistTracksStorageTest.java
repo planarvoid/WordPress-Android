@@ -139,13 +139,14 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         expect(tracks).toContain(
                 fromApiTrack(apiTrack1)
-                        .put(OfflineProperty.DOWNLOADED_AT, new Date(100L))
-                        .put(OfflineProperty.REQUESTED_AT, new Date(100L)),
+                        .put(OfflineProperty.Track.DOWNLOADED_AT, new Date(100L))
+                        .put(OfflineProperty.Track.REQUESTED_AT, new Date(100L)),
                 fromApiTrack(apiTrack2)
-                        .put(OfflineProperty.REQUESTED_AT, new Date(200L)),
+                        .put(OfflineProperty.Track.REQUESTED_AT, new Date(200L)),
                 fromApiTrack(apiTrack3)
-                        .put(OfflineProperty.REMOVED_AT, new Date(300L))
-                        .put(OfflineProperty.REQUESTED_AT, new Date(300L))
+                        .put(OfflineProperty.Track.DOWNLOADED_AT, new Date(300L))
+                        .put(OfflineProperty.Track.REMOVED_AT, new Date(300L))
+                        .put(OfflineProperty.Track.REQUESTED_AT, new Date(300L))
         );
     }
 
