@@ -562,8 +562,8 @@
     <string name="pref_offline_settings_summary">Manage your Offline Sync settings</string>
     <string name="pref_offline_storage_limit">Storage Limit</string>
     <string name="pref_offline_storage_limit_description">How much of your storage we can\nuse to sync your tracks</string>
-    <string name="pref_offline_storage_free_gb" formatted="false">%1$.1f GB free of %2$.1f GB</string>
-    <string name="pref_offline_storage_limit_gb" formatted="false">%1$.1f GB</string>
+    <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
+    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
     <string name="pref_offline_storage_usage">Storage Usage</string>
     <string name="pref_offline_used_by_other_apps">Used by other apps</string>
     <string name="pref_offline_used">Used</string>
