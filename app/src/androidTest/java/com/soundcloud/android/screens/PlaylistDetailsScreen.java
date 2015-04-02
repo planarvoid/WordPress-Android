@@ -1,16 +1,15 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.screens.elements.ListElement;
-import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
-import com.soundcloud.android.screens.elements.PopupMenuElement;
-import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class PlaylistDetailsScreen extends Screen {
 
@@ -105,9 +104,10 @@ public class PlaylistDetailsScreen extends Screen {
     //TODO: This should operate on TrackListItem POM
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver
-                .findElements(With.id(R.id.overflow_button))
-                .get(0).click();
+        scrollToFirstTrackItem()
+                .tracksListElement()
+                .getItemAt(0)
+                .findElement(With.id(R.id.overflow_button)).click();
         return new TrackItemMenuElement(testDriver);
     }
 
