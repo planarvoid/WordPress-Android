@@ -1,7 +1,6 @@
 package com.soundcloud.android.main;
 
-import static android.view.View.OnClickListener;
-
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -9,24 +8,38 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.onboarding.OnboardingOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
-import android.view.View;
 
 import javax.inject.Inject;
 
 @SuppressLint("ValidFragment")
-public class EmailOptInDialogFragment extends SimpleDialogFragment {
+public class EmailOptInDialogFragment extends DialogFragment {
 
     private static final String TAG = "email_opt_in";
 
     @Inject OnboardingOperations onboardingOperations;
-
     @Inject EventBus eventBus;
+
+    private final MaterialDialog.ButtonCallback buttonCallback = new MaterialDialog.ButtonCallback() {
+        @Override
+        public void onPositive(MaterialDialog dialog) {
+            eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.acceptEmailOptIn());
+            onboardingOperations.sendEmailOptIn();
+            dismiss();
+        }
+
+        @Override
+        public void onNegative(MaterialDialog dialog) {
+            eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.rejectEmailOptIn());
+            dismiss();
+        }
+    };
 
     public EmailOptInDialogFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -39,33 +52,18 @@ public class EmailOptInDialogFragment extends SimpleDialogFragment {
     }
 
     public static void show(FragmentActivity activity) {
-        new EmailOptInDialogFragment().show(activity.getSupportFragmentManager(), TAG);
+        new EmailOptInDialogFragment().show(activity.getFragmentManager(), TAG);
     }
 
     @Override
-    protected Builder build(Builder builder) {
-        builder.setTitle(R.string.optin_title);
-        builder.setView(LayoutInflater.from(getActivity()).inflate(R.layout.email_optin_fragment, null));
-        setupButtons(builder);
-        return builder;
-    }
-
-    private void setupButtons(Builder builder) {
-        builder.setPositiveButton(R.string.optin_yes, new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.acceptEmailOptIn());
-                onboardingOperations.sendEmailOptIn();
-                dismiss();
-            }
-        });
-        builder.setNegativeButton(R.string.optin_no, new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.rejectEmailOptIn());
-                dismiss();
-            }
-        });
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        return new MaterialDialog.Builder(getActivity())
+                .title(R.string.optin_title)
+                .customView(R.layout.email_optin_fragment, false)
+                .positiveText(R.string.optin_yes)
+                .negativeText(R.string.optin_no)
+                .callback(buttonCallback)
+                .build();
     }
 
     @Override

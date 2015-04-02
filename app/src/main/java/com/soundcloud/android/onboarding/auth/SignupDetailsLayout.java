@@ -5,7 +5,6 @@ import static com.soundcloud.android.SoundCloudApplication.TAG;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
-import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import org.jetbrains.annotations.Nullable;
@@ -182,8 +181,7 @@ public class SignupDetailsLayout extends RelativeLayout {
             @Override
             public void onClick(View v) {
                 final FragmentActivity activity = userDetailsHandler.getFragmentActivity();
-                ImageUtils.showImagePickerDialog(activity, activity.getSupportFragmentManager(),
-                        OnboardActivity.DIALOG_PICK_IMAGE);
+                ImageUtils.showImagePickerDialog(activity, generateTempAvatarFile());
 
             }
         });

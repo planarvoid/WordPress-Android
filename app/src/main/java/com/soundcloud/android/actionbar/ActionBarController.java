@@ -1,5 +1,6 @@
 package com.soundcloud.android.actionbar;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
@@ -14,7 +15,6 @@ import com.soundcloud.android.settings.SettingsActivity;
 import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
@@ -65,7 +65,7 @@ public class ActionBarController extends DefaultLightCycleActivity<ActionBarActi
 
     private void showFeedbackDialog(final ActionBarActivity activity) {
         final String[] feedbackOptions = activity.getResources().getStringArray(R.array.feedback_options);
-        new AlertDialog.Builder(activity).setTitle(R.string.select_feedback_category)
+        new AlertDialogWrapper.Builder(activity).setTitle(R.string.select_feedback_category)
                 .setItems(feedbackOptions, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

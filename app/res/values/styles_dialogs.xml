@@ -42,27 +42,6 @@
         <item name="android:windowAnimationStyle">@style/Animation.Popup</item>
     </style>
 
-    <!-- styles for android-styled-dialogs library -->
-    <style name="DialogStyleLight.SoundCloud">
-        <item name="titleTextColor">@color/dialog_title</item>
-        <item name="titleSeparatorColor">@color/dialog_separator</item>
-        <item name="buttonBackgroundColorPressed">@color/dialog_button_pressed</item>
-        <item name="buttonBackgroundColorFocused">@color/dialog_button_focused</item>
-        <item name="buttonTextColor">@color/dialog_text</item>
-    </style>
-
-    <style name="DialogListView" parent="SDL.ListView">
-        <item name="android:divider">@drawable/divider_list_grey</item>
-        <item name="android:dividerHeight">1px</item>
-        <item name="android:listSelector">@drawable/list_selector_gray</item>
-    </style>
-
-    <style name="DialogTitleText" parent="SDL.TextView.Title">
-        <item name="android:textSize">16sp</item>
-        <item name="android:maxLines">2</item>
-        <item name="android:ellipsize">end</item>
-    </style>
-
     <style name="DialogText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

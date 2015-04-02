@@ -4,6 +4,7 @@ import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForge
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.features.FeatureOperations;
@@ -12,11 +13,12 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 import rx.Observable;
 
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CheckBox;
@@ -25,7 +27,7 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public class CreatePlaylistDialogFragment extends BaseDialogFragment {
+public class CreatePlaylistDialogFragment extends DialogFragment {
 
     private static final String CREATE_PLAYLIST_DIALOG_TAG = "create_new_set_dialog";
 
@@ -65,23 +67,24 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
     }
 
     @Override
-    protected Builder build(Builder initialBuilder) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
         final View dialogView = View.inflate(getActivity(), R.layout.dialog_create_new_playlist, null);
         ButterKnife.inject(this, dialogView);
-
-        initialBuilder.setTitle(R.string.create_new_playlist);
-        initialBuilder.setView(dialogView);
-
         setChecksVisibility();
-        initialBuilder.setNegativeButton(R.string.cancel, new View.OnClickListener() {
+
+        return new MaterialDialog.Builder(getActivity())
+                .title(R.string.create_new_playlist)
+                .customView(dialogView, false)
+                .positiveText(R.string.done)
+                .negativeText(R.string.cancel)
+                .callback(getCallback())
+                .build();
+    }
+
+    private MaterialDialog.ButtonCallback getCallback() {
+        return new MaterialDialog.ButtonCallback() {
             @Override
-            public void onClick(View v) {
-                getDialog().dismiss();
-            }
-        });
-        initialBuilder.setPositiveButton(R.string.done, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+            public void onPositive(MaterialDialog dialog) {
                 final String playlistTitle = input.getText().toString().trim();
                 if (TextUtils.isEmpty(playlistTitle)) {
                     Toast.makeText(getActivity(), R.string.error_new_playlist_blank_title, Toast.LENGTH_SHORT).show();
@@ -91,8 +94,7 @@ public class CreatePlaylistDialogFragment extends BaseDialogFragment {
                     getDialog().dismiss();
                 }
             }
-        });
-        return initialBuilder;
+        };
     }
 
     private void setChecksVisibility() {

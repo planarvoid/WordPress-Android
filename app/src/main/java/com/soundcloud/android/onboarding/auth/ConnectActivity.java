@@ -5,7 +5,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.creators.upload.tasks.NewConnectionTask;
 import com.soundcloud.android.main.TrackedActivity;
 
-import android.app.AlertDialog;
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -116,7 +116,7 @@ public class ConnectActivity extends TrackedActivity {
 
     private void showConnectionError(final String message) {
         if (!isFinishing()) {
-            new AlertDialog.Builder(this)
+            new AlertDialogWrapper.Builder(this)
                     .setMessage(message)
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override

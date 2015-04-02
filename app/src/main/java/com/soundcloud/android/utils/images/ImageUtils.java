@@ -1,16 +1,16 @@
 package com.soundcloud.android.utils.images;
 
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.image.ImageListener;
 import com.soundcloud.android.image.OneShotTransitionDrawable;
 import com.soundcloud.android.utils.AndroidUtils;
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -26,7 +26,6 @@ import android.graphics.drawable.TransitionDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -278,13 +277,22 @@ public final class ImageUtils {
         }
     }
 
-    public static void showImagePickerDialog(Context context, FragmentManager fragmentManager, int requestCode) {
-        SimpleDialogFragment.createBuilder(context, fragmentManager)
-                .setRequestCode(requestCode)
-                .setMessage(R.string.image_where)
-                .setPositiveButtonText(R.string.take_new_picture)
-                .setNegativeButtonText(R.string.use_existing_image)
-                .show();
+    public static void showImagePickerDialog(final Activity activity, final File newImageLocation) {
+        new MaterialDialog.Builder(activity)
+                .content(R.string.image_where)
+                .positiveText(R.string.take_new_picture)
+                .negativeText(R.string.use_existing_image)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        ImageUtils.startTakeNewPictureIntent(activity, newImageLocation, Consts.RequestCodes.GALLERY_IMAGE_TAKE);
+                    }
+
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        ImageUtils.startPickImageIntent(activity, Consts.RequestCodes.GALLERY_IMAGE_PICK);
+                    }
+                }).show();
     }
 
     public static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {

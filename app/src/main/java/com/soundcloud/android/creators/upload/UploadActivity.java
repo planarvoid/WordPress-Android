@@ -23,7 +23,6 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -41,10 +40,9 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-public class UploadActivity extends ScActivity implements ISimpleDialogListener {
+public class UploadActivity extends ScActivity {
 
     private static final int REC_ANOTHER = 0, POST = 1;
-    public static final int DIALOG_PICK_IMAGE = 1;
 
     private RadioGroup rdoPrivacy;
     private RadioButton rdoPrivate, rdoPublic;
@@ -238,29 +236,6 @@ public class UploadActivity extends ScActivity implements ISimpleDialogListener 
     private void recordingNotFound() {
         AndroidUtils.showToast(this, R.string.recording_not_found);
         finish();
-    }
-
-    @Override
-    public void onPositiveButtonClicked(int requestCode) {
-        switch (requestCode) {
-            case DIALOG_PICK_IMAGE:
-                ImageUtils.startTakeNewPictureIntent(this, recording.generateImageFile(Recording.IMAGE_DIR),
-                        Consts.RequestCodes.GALLERY_IMAGE_TAKE);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
-        }
-    }
-
-    @Override
-    public void onNegativeButtonClicked(int requestCode) {
-        switch (requestCode) {
-            case DIALOG_PICK_IMAGE:
-                ImageUtils.startPickImageIntent(this, Consts.RequestCodes.GALLERY_IMAGE_PICK);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
-        }
     }
 
     @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")

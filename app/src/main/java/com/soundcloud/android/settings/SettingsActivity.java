@@ -10,6 +10,8 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -87,7 +89,7 @@ public class SettingsActivity extends ScSettingsActivity {
     }
 
     private AlertDialog createLogoutDialog() {
-        return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
+        return new AlertDialogWrapper.Builder(this).setTitle(R.string.menu_clear_user_title)
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override

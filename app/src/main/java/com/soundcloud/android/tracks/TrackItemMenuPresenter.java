@@ -132,7 +132,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
                 track.getEntityUrn(), track.getTitle(), ScreenElement.LIST.get(),
                 screenProvider.getLastScreenTag());
-        from.show(activity.getSupportFragmentManager());
+        from.show(activity.getFragmentManager());
     }
 
     private void handleLike() {

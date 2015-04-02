@@ -31,7 +31,7 @@ public class MenuScreen {
     }
 
     private ListElement menuContainer() {
-        return testDriver.findElement(With.id(R.id.nav_listview)).toListView();
+        return testDriver.findElement(With.id(R.id.navigation_fragment_id)).toListView();
     }
 
     protected ViewElement userProfileMenuItem() {

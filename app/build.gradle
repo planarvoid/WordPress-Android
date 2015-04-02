@@ -144,6 +144,7 @@ android {
     incremental true
     jumboMode true
     preDexLibraries false
+    javaMaxHeapSize "4g"
   }
 }
 
@@ -194,7 +195,9 @@ dependencies {
   compile libraries.rxJavaAsyncUtil
   compile libraries.rxJavaDebug
   compile libraries.universalImageLoader
-  compile libraries.androidStyledDialogs
+  compile (libraries.materialDialogs) {
+    transitive = true
+  }
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {
       // see https://github.com/mente/facebook-api-android-aar/issues/11

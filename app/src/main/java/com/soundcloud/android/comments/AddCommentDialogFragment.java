@@ -2,6 +2,7 @@ package com.soundcloud.android.comments;
 
 import static rx.android.observables.AndroidObservable.bindActivity;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.cocosw.undobar.UndoBarController;
 import com.cocosw.undobar.UndoBarController.UndoBar;
 import com.cocosw.undobar.UndoBarStyle;
@@ -19,9 +20,10 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
-import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,7 +38,7 @@ import android.widget.Toast;
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class AddCommentDialogFragment extends BaseDialogFragment {
+public class AddCommentDialogFragment extends DialogFragment {
 
     private static final String EXTRA_TRACK = "track";
     private static final String EXTRA_POSITION = "position";
@@ -60,32 +62,34 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
     }
 
     @Override
-    protected Builder build(Builder builder) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+
         final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
         final View dialogView = View.inflate(getActivity(), R.layout.dialog_comment_at, null);
         final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
         final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION), TimeUnit.MILLISECONDS);
         configureCommentInputField(input, timeFormatted);
 
-        builder.setView(dialogView);
-        builder.setTitle(getString(R.string.comment_on, track.get(TrackProperty.TITLE)));
-        builder.setNegativeButton(android.R.string.cancel, new View.OnClickListener() {
+        return new MaterialDialog.Builder(getActivity())
+                .title(getString(R.string.comment_on, track.get(TrackProperty.TITLE)))
+                .customView(dialogView, false)
+                .positiveText(R.string.post)
+                .negativeText(R.string.cancel)
+                .callback(getCallback(input))
+                .build();
+    }
+
+    private MaterialDialog.ButtonCallback getCallback(final EditText input) {
+        return new MaterialDialog.ButtonCallback() {
             @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
-        builder.setPositiveButton(R.string.post, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            public void onPositive(MaterialDialog dialog) {
                 final String commentText = input.getText().toString();
                 if (ScTextUtils.isNotBlank(commentText)) {
                     onAddComment(commentText);
                     dismiss();
                 }
             }
-        });
-        return builder;
+        };
     }
 
     private void configureCommentInputField(EditText input, String timeFormatted) {
@@ -105,7 +109,7 @@ public class AddCommentDialogFragment extends BaseDialogFragment {
         final Urn trackUrn = track.get(TrackProperty.URN);
         final long position = getArguments().getLong(EXTRA_POSITION);
 
-        final FragmentActivity activity = getActivity();
+        final FragmentActivity activity = (FragmentActivity) getActivity();
         bindActivity(
                 activity,
                 commentsOperations.addComment(trackUrn, commentText, position)

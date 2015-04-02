@@ -119,7 +119,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
 
     private void handleComment() {
         final AddCommentDialogFragment fragment = AddCommentDialogFragment.create(track.getSource(), commentPosition, playQueueManager.getScreenTag());
-        fragment.show(activity.getSupportFragmentManager(), ADD_COMMENT_DIALOG_TAG);
+        fragment.show(activity.getFragmentManager(), ADD_COMMENT_DIALOG_TAG);
     }
 
     private void handleShare(PlayerTrack track) {
@@ -142,7 +142,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     private void showAddToPlaylistDialog(PlayerTrack track) {
         AddToPlaylistDialogFragment from = AddToPlaylistDialogFragment.from(
                 track.getUrn(), track.getTitle(), ScreenElement.PLAYER.get(), playQueueManager.getScreenTag());
-        from.show(activity.getSupportFragmentManager());
+        from.show(activity.getFragmentManager());
     }
 
     public void setTrack(PlayerTrack track) {

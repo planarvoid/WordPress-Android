@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static rx.android.observables.AndroidObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -15,20 +16,18 @@ import com.soundcloud.android.storage.NotFoundException;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
-import eu.inmite.android.lib.dialogs.BaseDialogFragment;
 import rx.Observable;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Dialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +35,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class AddToPlaylistDialogFragment extends BaseDialogFragment {
+public class AddToPlaylistDialogFragment extends DialogFragment {
 
     private static final String PLAYLIST_DIALOG_TAG = "create_playlist_dialog";
 
@@ -91,18 +90,22 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        adapter = new MyPlaylistsAdapter(getActivity());
         loadPlaylistSubscription = loadPlaylists.subscribe(new PlaylistLoadedSubscriber());
+
+        return new MaterialDialog.Builder(getActivity())
+                .title(R.string.add_track_to_playlist)
+                .adapter(adapter, getPlaylistCallback())
+                .positiveText(R.string.cancel)
+                .itemsCallback(getPlaylistCallback())
+                .build();
     }
 
-    @Override
-    protected Builder build(Builder builder) {
-        builder.setTitle(getString(R.string.add_track_to_playlist));
-        adapter = new MyPlaylistsAdapter(getActivity());
-        builder.setItems(adapter, 0, new AdapterView.OnItemClickListener() {
+    private MaterialDialog.ListCallback getPlaylistCallback() {
+        return new MaterialDialog.ListCallback() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence) {
                 final long rowId = adapter.getItemId(position);
                 if (rowId == Urn.NOT_SET.getNumericId()) {
                     showPlaylistCreationScreen();
@@ -111,14 +114,7 @@ public class AddToPlaylistDialogFragment extends BaseDialogFragment {
                     onAddTrackToSet(rowId, view);
                 }
             }
-        });
-        builder.setPositiveButton(android.R.string.cancel, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
-        return builder;
+        };
     }
 
     private void showPlaylistCreationScreen() {

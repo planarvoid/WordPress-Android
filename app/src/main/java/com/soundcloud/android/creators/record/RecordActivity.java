@@ -1,5 +1,7 @@
 package com.soundcloud.android.creators.record;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -17,10 +19,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.view.ButtonBar;
-import eu.inmite.android.lib.dialogs.ISimpleDialogListener;
-import eu.inmite.android.lib.dialogs.SimpleDialogFragment;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -49,7 +48,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-public class RecordActivity extends ScActivity implements CreateWaveDisplay.Listener, ISimpleDialogListener {
+public class RecordActivity extends ScActivity implements CreateWaveDisplay.Listener {
 
     public static final int REQUEST_UPLOAD_SOUND = 1;
 
@@ -249,31 +248,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         } else {
             throw new IllegalArgumentException("Unexpected dialog request code " + which);
         }
-    }
-
-    @Override
-    public void onPositiveButtonClicked(int requestCode) {
-        switch (Dialogs.values()[requestCode]) {
-            case DISCARD_RECORDING:
-            case DELETE_RECORDING:
-                reset(true);
-                break;
-
-            case REVERT_RECORDING:
-                recorder.revertFile();
-                updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
-                break;
-
-            case UNSAVED_RECORDING:
-                break;
-
-            default:
-                throw new IllegalArgumentException("Unknown requestCode: " + requestCode);
-        }
-    }
-
-    @Override
-    public void onNegativeButtonClicked(int requestCode) {
     }
 
     @Override
@@ -912,32 +886,41 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     }
 
     private void showDeleteRecordingDialog() {
-        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setRequestCode(Dialogs.DELETE_RECORDING.ordinal())
-                .setTitle(null)
-                .setMessage(R.string.dialog_confirm_delete_recording_message)
-                .setPositiveButtonText(android.R.string.yes)
-                .setNegativeButtonText(android.R.string.no)
+        showRemoveRecordingDialog(R.string.dialog_confirm_delete_recording_message);
+    }
+
+    private void showDiscardRecordingDialog() {
+        showRemoveRecordingDialog(R.string.dialog_reset_recording_message);
+    }
+
+    private void showRemoveRecordingDialog(int message) {
+        new MaterialDialog.Builder(this)
+                .content(message)
+                .positiveText(R.string.yes)
+                .negativeText(R.string.no)
+                .callback(new MaterialDialog.ButtonCallback(){
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        reset(true);
+                    }
+                })
+                .build()
                 .show();
     }
 
     private void showRevertRecordingDialog() {
-        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setRequestCode(Dialogs.REVERT_RECORDING.ordinal())
-                .setTitle(null)
-                .setMessage(R.string.dialog_revert_recording_message)
-                .setPositiveButtonText(android.R.string.yes)
-                .setNegativeButtonText(android.R.string.no)
-                .show();
-    }
-
-    private void showDiscardRecordingDialog() {
-        SimpleDialogFragment.createBuilder(this, getSupportFragmentManager())
-                .setRequestCode(Dialogs.DISCARD_RECORDING.ordinal())
-                .setTitle(null)
-                .setMessage(R.string.dialog_reset_recording_message)
-                .setPositiveButtonText(android.R.string.yes)
-                .setNegativeButtonText(android.R.string.no)
+        new MaterialDialog.Builder(this)
+                .content(R.string.dialog_revert_recording_message)
+                .positiveText(R.string.yes)
+                .negativeText(R.string.no)
+                .callback(new MaterialDialog.ButtonCallback(){
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        recorder.revertFile();
+                        updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
+                    }
+                })
+                .build()
                 .show();
     }
 
@@ -947,14 +930,14 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         if (recordings == null || recordings.isEmpty()) {
             return null;
         }
-        final CharSequence[] fileIds = new CharSequence[recordings.size()];
+        final String[] fileIds = new String[recordings.size()];
         final boolean[] checked = new boolean[recordings.size()];
         for (int i = 0; i < recordings.size(); i++) {
             fileIds[i] = new Date(recordings.get(i).lastModified()).toLocaleString() + ", " + recordings.get(i).formattedDuration();
             checked[i] = true;
         }
 
-        return new AlertDialog.Builder(this)
+        return new AlertDialogWrapper.Builder(this)
                 .setTitle(R.string.dialog_unsaved_recordings_message)
                 .setMultiChoiceItems(fileIds, checked,
                         new DialogInterface.OnMultiChoiceClickListener() {
@@ -1001,8 +984,9 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         return currentState;
     }
 
+    @Deprecated
     private static enum Dialogs {
-        DISCARD_RECORDING, UNSAVED_RECORDING, DELETE_RECORDING, REVERT_RECORDING
+        UNSAVED_RECORDING // will be removed with local storage removal
     }
 
     public enum CreateState {

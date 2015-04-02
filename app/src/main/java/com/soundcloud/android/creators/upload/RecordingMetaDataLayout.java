@@ -70,7 +70,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
                 new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ImageUtils.showImagePickerDialog(activity, activity.getSupportFragmentManager(), UploadActivity.DIALOG_PICK_IMAGE);
+                        ImageUtils.showImagePickerDialog(activity, recording.generateImageFile(Recording.IMAGE_DIR));
                     }
                 });
 

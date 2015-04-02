@@ -1,6 +1,6 @@
 package com.soundcloud.android.profile;
 
-import android.app.AlertDialog;
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -23,7 +23,7 @@ public class MonthPickerDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialog.Builder(getActivity())
+        return new AlertDialogWrapper.Builder(getActivity())
                 .setTitle(R.string.select_month)
                 .setSingleChoiceItems(R.array.select_month_options, currentMonthIndex(), new OnMonthSelected())
                 .create();

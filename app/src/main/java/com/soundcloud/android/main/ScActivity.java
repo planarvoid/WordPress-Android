@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -15,7 +16,6 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -129,7 +129,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     protected Dialog onCreateDialog(int which) {
         switch (which) {
             case Consts.Dialogs.DIALOG_LOGOUT:
-                return new AlertDialog.Builder(this).setTitle(R.string.menu_clear_user_title)
+                return new AlertDialogWrapper.Builder(this).setTitle(R.string.menu_clear_user_title)
                         .setMessage(R.string.menu_clear_user_desc)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
