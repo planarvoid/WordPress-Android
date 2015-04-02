@@ -1,14 +1,14 @@
 package com.soundcloud.android.tests.likes;
 
-import android.content.Context;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearLikes;
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.ActivityTest;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearLikes;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
+import android.content.Context;
 
 public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivity> {
 
@@ -28,7 +28,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         clearOfflineContent(context);
         clearLikes(context);
         super.setUp();
-        enableOfflineContent(getActivity());
+        enableOfflineContent(context);
     }
 
     public void testDownloadsTrackWhenLiked() {

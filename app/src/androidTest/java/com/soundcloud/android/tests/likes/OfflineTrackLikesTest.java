@@ -1,9 +1,10 @@
 package com.soundcloud.android.tests.likes;
 
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSync;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
@@ -16,6 +17,8 @@ import android.content.Context;
 
 public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
+    private Context context;
+
     public OfflineTrackLikesTest() {
         super(MainActivity.class);
     }
@@ -27,14 +30,14 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
-        final Context context = getInstrumentation().getTargetContext();
-
-        resetOfflineSyncState(context);
         super.setUp();
+
+        context = getInstrumentation().getTargetContext();
+        resetOfflineSyncState(context);
     }
 
     public void testDownloadActionAvailableWhenUserSubscribed() {
-        enableOfflineContent(getActivity());
+        enableOfflineContent(context);
 
         final TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
 
@@ -43,7 +46,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
-        enableOfflineContent(getActivity());
+        enableOfflineContent(context);
 
         final TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
         final SyncYourLikesScreen syncLikesDialog = likesScreen.actionBar().clickSyncLikesButton();
@@ -58,7 +61,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     private void resetOfflineSyncState(Context context) {
-        ConfigurationHelper.disableOfflineSync(context);
-        OfflineContentHelper.clearOfflineContent(context);
+        disableOfflineSync(context);
+        clearOfflineContent(context);
     }
 }

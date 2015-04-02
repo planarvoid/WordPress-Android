@@ -1,19 +1,17 @@
 package com.soundcloud.android.tests.stream;
 
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.CreatePlaylistScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
-
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSync;
-import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class TrackItemOverflowMenuTest extends ActivityTest<LauncherActivity> {
     private StreamScreen streamScreen;
