@@ -2,28 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    style="@style/DialogContainer">
 
     <EditText
         android:id="@android:id/edit"
-        android:layout_margin="5dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
-        android:textSize="16sp"
+        style="@style/DialogInput"
         android:hint="@string/create_new_playlist_hint"
         android:singleLine="true" />
 
     <CheckBox
         android:id="@+id/chk_private"
-        android:layout_margin="10dp"
+        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_playlist_private" />
 
     <CheckBox
         android:id="@+id/chk_offline"
-        android:layout_margin="10dp"
+        android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/make_offline_available"/>
