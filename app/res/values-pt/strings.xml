@@ -461,7 +461,6 @@
   <string name="title_about">Sobre</string>
   <string name="title_legal">Legal</string>
   <string name="pref_extras">Extras</string>
-  <string name="title_account_settings">Configurações de Conta</string>
   <string name="title_notification_settings">Configurações de notificação</string>
   <!--__SETTINGS NOTIFICATIONS-->
   <string name="pref_notifications">Notificações</string>

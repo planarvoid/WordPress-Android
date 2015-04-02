@@ -461,7 +461,6 @@
   <string name="title_about">Информация</string>
   <string name="title_legal">Условия</string>
   <string name="pref_extras">Дополнительно</string>
-  <string name="title_account_settings">Настройки Учетной Записи</string>
   <string name="title_notification_settings">Настройки уведомлений</string>
   <!--__SETTINGS NOTIFICATIONS-->
   <string name="pref_notifications">Оповещения</string>
