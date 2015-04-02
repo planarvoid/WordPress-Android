@@ -11,6 +11,10 @@ import dagger.Module;
                 NotificationSettingsFragment.class,
                 ConfigurationFeaturesFragment.class,
                 OfflineSettingsFragment.class,
-                ClearCacheDialog.class
+                ClearCacheDialog.class,
+                ConfigurationFeaturesActivity.class,
+                NotificationSettingsActivity.class,
+                LegalActivity.class,
+                LicensesActivity.class
         })
 public class SettingsModule {}

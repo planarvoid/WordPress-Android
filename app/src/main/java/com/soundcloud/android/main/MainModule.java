@@ -14,10 +14,6 @@ import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.search.SearchActivity;
-import com.soundcloud.android.settings.ConfigurationFeaturesActivity;
-import com.soundcloud.android.settings.LegalActivity;
-import com.soundcloud.android.settings.LicensesActivity;
-import com.soundcloud.android.settings.NotificationSettingsActivity;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
@@ -32,10 +28,6 @@ import dagger.Module;
                 NavigationFragment.class,
                 NavigationDrawerFragment.class,
                 EmailOptInDialogFragment.class,
-                ConfigurationFeaturesActivity.class,
-                NotificationSettingsActivity.class,
-                LegalActivity.class,
-                LicensesActivity.class,
                 WhoToFollowActivity.class,
                 SearchActivity.class,
                 SuggestedUsersCategoryActivity.class,
