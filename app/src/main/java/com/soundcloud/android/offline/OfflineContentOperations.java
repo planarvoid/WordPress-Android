@@ -136,7 +136,7 @@ public class OfflineContentOperations {
     }
 
     Observable<List<Urn>> loadContentToDelete() {
-        return tracksStorage.getTracksToRemove();
+        return tracksStorage.getTracksToRemove().subscribeOn(scheduler);
     }
 
     @VisibleForTesting
