@@ -38,7 +38,6 @@ public class OfflineSettingsScreen extends Screen {
         return new TextElement(testDriver.findElement(With.id(LEGEND_LIMIT_TEXT)));
     }
 
-
     private SeekBarElement sliderLimitSeekBar() {
         return new SeekBarElement(testDriver.findElement(With.id(SLIDER_LIMIT_SEEK_BAR)));
     }

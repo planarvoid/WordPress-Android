@@ -13,11 +13,11 @@ import org.mockito.Mock;
 
 @RunWith(SoundCloudTestRunner.class)
 public class OfflineUsageTest {
-    private static final long GB = 1024 * 1024 * 1024;
-    private static final long TOTAL = 64 * GB;
-    private static final long AVAILABLE = 30 * GB;
-    private static final long USED = 7 * GB;
-    private static final long LIMIT = 16 * GB;
+    private static final long GB = 1024l * 1024l * 1024l;
+    private static final long TOTAL = 64l * GB;
+    private static final long AVAILABLE = 30l * GB;
+    private static final long USED = 7l * GB;
+    private static final long LIMIT = 16l * GB;
 
     private OfflineUsage offlineUsage;
 
@@ -57,17 +57,17 @@ public class OfflineUsageTest {
 
     @Test
     public void shouldReturnUsageByOtherApps() {
-        expect(offlineUsage.getUsedOthers()).toEqual(27 * GB);
+        expect(offlineUsage.getUsedOthers()).toEqual(27l * GB);
     }
 
     @Test
     public void shouldReturnOfflineAvailable() {
-        expect(offlineUsage.getOfflineAvailable()).toEqual(9 * GB);
+        expect(offlineUsage.getOfflineAvailable()).toEqual(9l * GB);
     }
 
     @Test
     public void shouldReturnAvailableAfterLimit() {
-        expect(offlineUsage.getAvailableWithoutOfflineLimit()).toEqual(21 * GB);
+        expect(offlineUsage.getAvailableWithoutOfflineLimit()).toEqual(21l * GB);
     }
 
     @Test
@@ -91,14 +91,27 @@ public class OfflineUsageTest {
     public void shouldChangeOnUpdate() {
         when(fileStorage.getStorageAvailable()).thenReturn(1000l);
         when(fileStorage.getStorageUsed()).thenReturn(2000l);
-        when(fileStorage.getStorageCapacity()).thenReturn(3000l);
-        when(offlineSettings.getStorageLimit()).thenReturn(4000l);
-
+        when(offlineSettings.getStorageLimit()).thenReturn(3000l);
+        when(fileStorage.getStorageCapacity()).thenReturn(4000l);
         offlineUsage.update();
 
         expect(offlineUsage.getDeviceAvailable()).toEqual(1000l);
         expect(offlineUsage.getOfflineUsed()).toEqual(2000l);
-        expect(offlineUsage.getDeviceTotal()).toEqual(3000l);
-        expect(offlineUsage.getOfflineTotal()).toEqual(4000l);
+        expect(offlineUsage.getOfflineTotal()).toEqual(3000l);
+        expect(offlineUsage.getDeviceTotal()).toEqual(4000l);
+    }
+
+    @Test
+    public void shouldSetOfflineTotalToMaxAvailable() {
+        when(fileStorage.getStorageAvailable()).thenReturn(500l);
+        when(fileStorage.getStorageUsed()).thenReturn(2000l);
+        when(offlineSettings.getStorageLimit()).thenReturn(4000l);
+        when(fileStorage.getStorageCapacity()).thenReturn(3500l);
+        offlineUsage.update();
+
+        expect(offlineUsage.getDeviceAvailable()).toEqual(500l);
+        expect(offlineUsage.getOfflineUsed()).toEqual(2000l);
+        expect(offlineUsage.getDeviceTotal()).toEqual(3500l);
+        expect(offlineUsage.getOfflineTotal()).toEqual(2500l);
     }
 }

@@ -28,8 +28,10 @@ public final class OfflineStoragePreference extends Preference {
     private final SeekBar.OnSeekBarChangeListener onSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            offlineUsage.setOfflineTotalPercentage(progress);
-            if(fromUser) updateView();
+            if(fromUser) {
+                offlineUsage.setOfflineTotalPercentage(progress);
+                updateView();
+            }
         }
 
         @Override

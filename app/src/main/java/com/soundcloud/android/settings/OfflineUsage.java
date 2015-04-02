@@ -28,7 +28,7 @@ public class OfflineUsage {
     }
 
     public long getOfflineTotal() {
-        return offlineTotal;
+        return Math.min(offlineTotal, deviceAvailable + offlineUsed);
     }
 
     public long getOfflineUsed() {
@@ -48,7 +48,7 @@ public class OfflineUsage {
     }
 
     public long getOfflineAvailable() {
-        return Math.max(0, offlineTotal - offlineUsed);
+        return Math.max(0, getOfflineTotal() - offlineUsed);
     }
 
     public long getAvailableWithoutOfflineLimit() {
