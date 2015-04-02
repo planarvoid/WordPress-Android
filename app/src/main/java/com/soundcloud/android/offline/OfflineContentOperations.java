@@ -56,6 +56,13 @@ public class OfflineContentOperations {
         }
     };
 
+    private final Func1<List<Urn>, Observable<DownloadState>> toDownloadState = new Func1<List<Urn>, Observable<DownloadState>>() {
+        @Override
+        public Observable<DownloadState> call(List<Urn> urns) {
+            return getDownloadState(urns);
+        }
+    };
+
     @Inject
     public OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
                                     LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
@@ -87,6 +94,10 @@ public class OfflineContentOperations {
         settingsStorage.setOfflineLikedTracksEnabled(isEnabled);
     }
 
+    public boolean isOfflineLikedTracksEnabled() {
+        return settingsStorage.isOfflineLikedTracksEnabled();
+    }
+
     public Observable<Boolean> makePlaylistAvailableOffline(final Urn playlistUrn) {
         return playlistStorage.storeAsOfflinePlaylist(playlistUrn)
                 .map(WRITE_RESULT_TO_SUCCESS)
@@ -99,10 +110,6 @@ public class OfflineContentOperations {
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, false))
                 .subscribeOn(scheduler);
-    }
-
-    public boolean isOfflineLikedTracksEnabled() {
-        return settingsStorage.isOfflineLikedTracksEnabled();
     }
 
     public Observable<Boolean> getOfflineLikesSettingsStatus() {
@@ -143,5 +150,24 @@ public class OfflineContentOperations {
     Observable<Void> updateStalePolicies() {
         return loadTracksWithStalePolicies.toObservable()
                 .flatMap(UPDATE_POLICIES);
+    }
+
+    public Observable<DownloadState> getLikedTracksDownloadStateFromStorage() {
+        if (!settingsStorage.isOfflineLikedTracksEnabled()) {
+            return Observable.just(DownloadState.NO_OFFLINE);
+        }
+
+        return getRequestedOrDownloaded(tracksStorage.pendingLikedTracksUrns()).subscribeOn(scheduler);
+    }
+
+    private Observable<DownloadState> getRequestedOrDownloaded(Observable<List<Urn>> requestedTracks) {
+        return requestedTracks.flatMap(toDownloadState);
+    }
+
+    private Observable<DownloadState> getDownloadState(List<Urn> urns) {
+        if (urns.isEmpty()) {
+            return Observable.just(DownloadState.DOWNLOADED);
+        }
+        return Observable.just(DownloadState.REQUESTED);
     }
 }

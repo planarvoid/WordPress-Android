@@ -1,5 +1,14 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.playlists;
 
+import static android.provider.BaseColumns._ID;
+import static com.soundcloud.android.storage.Table.PlaylistTracks;
+import static com.soundcloud.android.storage.Table.SoundView;
+import static com.soundcloud.android.storage.Table.TrackDownloads;
+import static com.soundcloud.android.storage.TableColumns.PlaylistTracks.TRACK_ID;
+import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOADED_AT;
+import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
+import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
+import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.Filter.filter;
@@ -7,8 +16,8 @@ import static com.soundcloud.propeller.query.Query.apply;
 import static com.soundcloud.propeller.query.Query.from;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistInfoMapper;
-import com.soundcloud.android.playlists.PlaylistMapper;
+import com.soundcloud.android.storage.Table;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
@@ -82,12 +91,28 @@ public class PlaylistStorage {
                         count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
                         exists(likeQuery(playlistUrn)).as(TableColumns.SoundView.USER_LIKE),
                         exists(repostQuery(playlistUrn)).as(TableColumns.SoundView.USER_REPOST),
-                        exists(isMarkedForOfflineQuery()).as(PlaylistMapper.IS_MARKED_FOR_OFFLINE)
+                        exists(pendingPlaylistTracksUrns(playlistUrn)).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
+                        exists(isMarkedForOfflineQuery()).as(OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE)
                 )
                 .whereEq(TableColumns.SoundView._ID, playlistUrn.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
                 .groupBy(Table.SoundView.field(TableColumns.SoundView._ID));
+    }
+
+    private Query pendingPlaylistTracksUrns(Urn playlistUrn) {
+        final Where joinConditions = filter()
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID), Table.PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_PLAYLIST);
+        return Query.from(TrackDownloads.name())
+                .select(TrackDownloads.field(_ID))
+                .innerJoin(PlaylistTracks.name(), PlaylistTracks.field(TRACK_ID), TrackDownloads.field(_ID))
+                .innerJoin(SoundView.name(), joinConditions)
+                .whereEq(Table.SoundView.field(TableColumns.Sounds._ID), playlistUrn.getNumericId())
+                .whereNull(TrackDownloads.field(REMOVED_AT))
+                .whereNull(TrackDownloads.field(DOWNLOADED_AT))
+                .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
+                .whereNotNull(TrackDownloads.field(REQUESTED_AT));
     }
 
     private Query likeQuery(Urn playlistUrn) {

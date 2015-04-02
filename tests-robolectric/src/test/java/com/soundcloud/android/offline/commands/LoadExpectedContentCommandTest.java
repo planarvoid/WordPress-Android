@@ -62,7 +62,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     @Test
     public void returnsEmptyListWhenAllDownloadsCompleted() throws Exception {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
-        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 100);
+        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 100);
 
         Collection<DownloadRequest> pending = command.call(null);
 

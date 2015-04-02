@@ -1,5 +1,6 @@
 package com.soundcloud.android.playlists;
 
+import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER;
 import static com.soundcloud.android.offline.OfflineProperty.Collection;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
@@ -15,7 +16,9 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.likes.LikeOperations;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
@@ -30,6 +33,8 @@ import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
+import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
 import android.content.Context;
@@ -59,7 +64,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final PlaybackToastHelper playbackToastHelper;
 
     private Subscription foregroundSubscription = Subscriptions.empty();
-    private Subscription offlineStateSubscription = Subscriptions.empty();
+    private CompositeSubscription offlineStateSubscription = new CompositeSubscription();
 
     @Inject
     public PlaylistEngagementsPresenter(EventBus eventBus,
@@ -119,7 +124,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.originProvider = originProvider;
     }
 
-    void setPlaylistInfo(@NotNull PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
+    void setPlaylistInfo(@NotNull final PlaylistWithTracks playlistWithTracks, PlaySessionSource playSessionSource) {
         this.playlistWithTracks = playlistWithTracks;
         this.playSessionSourceInfo = playSessionSource;
 
@@ -130,6 +135,37 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
         playlistEngagementsView.updateLikeItem(this.playlistWithTracks.getLikesCount(), this.playlistWithTracks.isLikedByUser());
 
+        showPublicOptions(playlistWithTracks);
+        showShuffleOption(playlistWithTracks);
+        updateOfflineAvailability();
+
+        offlineStateSubscription.unsubscribe();
+        offlineStateSubscription = new CompositeSubscription();
+        if (featureOperations.isOfflineContentEnabled()) {
+            offlineStateSubscription.add(eventBus
+                    .queue(EventQueue.CURRENT_DOWNLOAD)
+                    .filter(isPlaylist(playlistWithTracks))
+                    .map(CurrentDownloadEvent.TO_DOWNLOAD_STATE)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DownloadStateSubscriber()));
+        }
+        offlineStateSubscription.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                .filter(IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER)
+                .map(EntityStateChangedEvent.TO_SINGULAR_CHANGE)
+                .filter(isCurrentPlaylist(playlistWithTracks))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new OfflineStatusSubscriber()));
+    }
+
+    private void showShuffleOption(PlaylistWithTracks playlistWithTracks) {
+        if (playlistWithTracks.getTrackCount() > 1) {
+            playlistEngagementsView.enableShuffle();
+        } else {
+            playlistEngagementsView.disableShuffle();
+        }
+    }
+
+    private void showPublicOptions(PlaylistWithTracks playlistWithTracks) {
         if (playlistWithTracks.isPublic()) {
             boolean showRepost = !accountOperations.isLoggedInUser(playlistWithTracks.getCreatorUrn());
             if (showRepost) {
@@ -140,23 +176,30 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         } else {
             playlistEngagementsView.hidePublicOptions();
         }
+    }
 
-        if (playlistWithTracks.getTrackCount() > 1){
-            playlistEngagementsView.enableShuffle();
-        } else {
-            playlistEngagementsView.disableShuffle();
-        }
+    private Func1<? super PropertySet, Boolean> isCurrentPlaylist(final PlaylistWithTracks playlistWithTracks) {
+        return new Func1<PropertySet, Boolean>() {
+            @Override
+            public Boolean call(PropertySet entityChange) {
+                return entityChange.get(EntityProperty.URN).equals(playlistWithTracks.getUrn());
+            }
+        };
+    }
 
-        updateOfflineAvailability();
-        offlineStateSubscription.unsubscribe();
-        offlineStateSubscription = eventBus
-                .queue(EventQueue.CURRENT_DOWNLOAD)
-                .subscribe(new DownloadStateSubscriber());
+    private Func1<CurrentDownloadEvent, Boolean> isPlaylist(final PlaylistWithTracks playlistWithTracks) {
+        return new Func1<CurrentDownloadEvent, Boolean>() {
+            @Override
+            public Boolean call(CurrentDownloadEvent event) {
+                return event.entities.contains(playlistWithTracks.getUrn());
+            }
+        };
     }
 
     private void updateOfflineAvailability() {
         if (featureOperations.isOfflineContentEnabled()) {
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
+            bindDownloadState(playlistWithTracks.getDownloadState());
         } else if (featureOperations.isOfflineContentUpsellEnabled()) {
             playlistEngagementsView.showUpsell();
         } else {
@@ -255,6 +298,25 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         return context.getString(R.string.share_track_on_soundcloud, playlistWithTracks.getTitle(), playlistWithTracks.getPermalinkUrl());
     }
 
+    private void bindDownloadState(DownloadState state) {
+        switch (state) {
+            case DOWNLOADED:
+                playlistEngagementsView.showDownloadedState();
+                break;
+            case DOWNLOADING:
+                playlistEngagementsView.showDownloadingState();
+                break;
+            case REQUESTED:
+                playlistEngagementsView.showRequestedState();
+                break;
+            case NO_OFFLINE:
+                playlistEngagementsView.showDefaultState();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown state:" + state);
+        }
+    }
+
     private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(EntityStateChangedEvent event) {
@@ -278,26 +340,18 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         }
     }
 
-    private class DownloadStateSubscriber extends DefaultSubscriber<CurrentDownloadEvent> {
+    private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
         @Override
-        public void onNext(CurrentDownloadEvent event) {
-            if (playlistWithTracks != null && event.entities.contains(playlistWithTracks.getUrn())) {
-                switch (event.kind) {
-                    case DOWNLOADED:
-                        playlistEngagementsView.showDownloadedState();
-                        break;
-                    case DOWNLOADING:
-                        playlistEngagementsView.showDownloadingState();
-                        break;
-                    case REQUESTED:
-                        playlistEngagementsView.showDefaultState();
-                        break;
-                    case NO_OFFLINE:
-                        playlistEngagementsView.showDefaultState();
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unknown state:" + event.kind);
-                }
+        public void onNext(DownloadState state) {
+            bindDownloadState(state);
+        }
+    }
+
+    private class OfflineStatusSubscriber extends DefaultSubscriber<PropertySet> {
+        @Override
+        public void onNext(PropertySet entityChanges) {
+            if (!entityChanges.get(Collection.IS_MARKED_FOR_OFFLINE)) {
+                playlistEngagementsView.showDefaultState();
             }
         }
     }

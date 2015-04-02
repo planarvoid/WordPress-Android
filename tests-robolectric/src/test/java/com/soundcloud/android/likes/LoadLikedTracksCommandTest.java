@@ -2,6 +2,7 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -21,10 +22,6 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
     private static final Date LIKED_DATE_2 = new Date(200);
     private static final Date LIKED_DATE_3 = new Date(300);
 
-    private static final Date DOWNLOADED_DATE = new Date(1000);
-    private static final Date REMOVED_DATE = new Date(2000);
-    private static final Date REQUESTED_DATE = new Date(3000);
-
     private LoadLikedTracksCommand command;
     private PropertySet track1;
     private PropertySet track2;
@@ -38,9 +35,9 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
         track2 = testFixtures().insertLikedTrack(LIKED_DATE_2).toPropertySet();
         track3 = testFixtures().insertLikedTrack(LIKED_DATE_3).toPropertySet();
 
-        testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), REQUESTED_DATE.getTime(), DOWNLOADED_DATE.getTime());
-        testFixtures().insertTrackDownloadPendingRemoval(track2.get(TrackProperty.URN), REQUESTED_DATE.getTime(), REMOVED_DATE.getTime());
-        testFixtures().insertTrackPendingDownload(track3.get(TrackProperty.URN), REQUESTED_DATE.getTime());
+        testFixtures().insertCompletedTrackDownload(track1.get(TrackProperty.URN), 100L, 300L);
+        testFixtures().insertTrackDownloadPendingRemoval(track2.get(TrackProperty.URN), 100L, 300L);
+        testFixtures().insertTrackPendingDownload(track3.get(TrackProperty.URN), 200L);
     }
 
     @Test
@@ -48,16 +45,16 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(3, Long.MAX_VALUE)).call();
 
         expect(result).toContainExactly(
-                expectedRequestedLikedTrackFor(track3, LIKED_DATE_3, REQUESTED_DATE),
-                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2, REQUESTED_DATE, REMOVED_DATE),
-                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1, REQUESTED_DATE, DOWNLOADED_DATE));
+                expectedRequestedLikedTrackFor(track3, LIKED_DATE_3),
+                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2),
+                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
     @Test
     public void shouldAdhereToLimit() throws Exception {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(1, Long.MAX_VALUE)).call();
 
-        expect(result).toContainExactly(expectedRequestedLikedTrackFor(track3, LIKED_DATE_3, REQUESTED_DATE));
+        expect(result).toContainExactly(expectedRequestedLikedTrackFor(track3, LIKED_DATE_3));
     }
 
     @Test
@@ -65,25 +62,20 @@ public class LoadLikedTracksCommandTest extends StorageIntegrationTest {
         List<PropertySet> result = command.with(new ChronologicalQueryParams(3, LIKED_DATE_3.getTime())).call();
 
         expect(result).toContainExactly(
-                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2, REQUESTED_DATE, REMOVED_DATE),
-                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1, REQUESTED_DATE, DOWNLOADED_DATE));
+                expectedRemovedLikedTrackFor(track2, LIKED_DATE_2),
+                expectedDownloadedLikedTrackFor(track1, LIKED_DATE_1));
     }
 
-    private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt) {
-        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.Track.REQUESTED_AT, requestedAt);
+    private PropertySet expectedRequestedLikedTrackFor(PropertySet track, Date likedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
     }
 
-    private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date downloadedAt) {
-        return expectedLikedTrackFor(track, likedAt)
-                .put(OfflineProperty.Track.REQUESTED_AT, requestedAt)
-                .put(OfflineProperty.Track.DOWNLOADED_AT, downloadedAt);
+    private PropertySet expectedDownloadedLikedTrackFor(PropertySet track, Date likedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
     }
 
-    private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt, Date requestedAt, Date removedAt) {
-        return expectedLikedTrackFor(track, likedAt)
-                .put(OfflineProperty.Track.REQUESTED_AT, requestedAt)
-                .put(OfflineProperty.Track.DOWNLOADED_AT, requestedAt)
-                .put(OfflineProperty.Track.REMOVED_AT, removedAt);
+    private PropertySet expectedRemovedLikedTrackFor(PropertySet track, Date likedAt) {
+        return expectedLikedTrackFor(track, likedAt).put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
     }
 
     private PropertySet expectedLikedTrackFor(PropertySet track, Date likedAt) {

@@ -112,7 +112,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     private void actualDownloadedTracks(Urn... tracks) {
         final long now = System.currentTimeMillis();
         for (Urn track : tracks) {
-            testFixtures().insertCompletedTrackDownload(track, now);
+            testFixtures().insertCompletedTrackDownload(track, 0, now);
         }
     }
 }

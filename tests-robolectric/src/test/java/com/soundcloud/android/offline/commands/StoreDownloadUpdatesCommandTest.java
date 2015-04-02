@@ -31,7 +31,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void storeRemovedTracksAsPendingRemoval() {
-        testFixtures().insertCompletedTrackDownload(TRACK, NOW);
+        testFixtures().insertCompletedTrackDownload(TRACK, 0, NOW);
 
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),

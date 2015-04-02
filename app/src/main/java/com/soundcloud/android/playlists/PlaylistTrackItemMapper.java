@@ -2,15 +2,20 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.offline.DownloadStateMapper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.RxResultMapper;
 
-public class PlaylistTrackItemMapper extends RxResultMapper<PropertySet> {
+class PlaylistTrackItemMapper extends RxResultMapper<PropertySet> {
     private static final String SHARING_PRIVATE = "private";
+    private final DownloadStateMapper downloadStateMapper;
+
+    PlaylistTrackItemMapper() {
+        downloadStateMapper = new DownloadStateMapper();
+    }
 
     @Override
     public PropertySet map(CursorReader cursorReader) {
@@ -24,24 +29,7 @@ public class PlaylistTrackItemMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(TableColumns.Sounds.SHARING)));
         propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(TableColumns.Users.USERNAME));
         propertySet.put(PlayableProperty.CREATOR_URN, Urn.forUser(cursorReader.getLong(TableColumns.Sounds.USER_ID)));
-
-        addOptionalOfflineSyncDates(cursorReader, propertySet);
-        return propertySet;
-    }
-
-    private void addOptionalOfflineSyncDates(CursorReader cursorReader, PropertySet propertySet) {
-        if (cursorReader.isNotNull(TableColumns.TrackDownloads.DOWNLOADED_AT)){
-            propertySet.put(OfflineProperty.Track.DOWNLOADED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.DOWNLOADED_AT));
-        }
-        if (cursorReader.isNotNull(TableColumns.TrackDownloads.REMOVED_AT)){
-            propertySet.put(OfflineProperty.Track.REMOVED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REMOVED_AT));
-        }
-        if (cursorReader.isNotNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)){
-            propertySet.put(OfflineProperty.Track.UNAVAILABLE_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.UNAVAILABLE_AT));
-        }
-        if (cursorReader.isNotNull(TableColumns.TrackDownloads.REQUESTED_AT)) {
-            propertySet.put(OfflineProperty.Track.REQUESTED_AT, cursorReader.getDateFromTimestamp(TableColumns.TrackDownloads.REQUESTED_AT));
-        }
+        return propertySet.merge(downloadStateMapper.map(cursorReader));
     }
 
     private Urn readTrackUrn(CursorReader cursorReader) {

@@ -11,6 +11,7 @@ import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
@@ -131,7 +132,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         final ApiTrack apiTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist, 1);
         final ApiTrack apiTrack3 = testFixtures().insertPlaylistTrack(apiPlaylist, 2);
 
-        testFixtures().insertCompletedTrackDownload(apiTrack1.getUrn(), 100L);
+        testFixtures().insertCompletedTrackDownload(apiTrack1.getUrn(), 0, 100L);
         testFixtures().insertTrackPendingDownload(apiTrack2.getUrn(), 200L);
         testFixtures().insertTrackDownloadPendingRemoval(apiTrack3.getUrn(), 300L);
 
@@ -139,14 +140,11 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
         expect(tracks).toContain(
                 fromApiTrack(apiTrack1)
-                        .put(OfflineProperty.Track.DOWNLOADED_AT, new Date(100L))
-                        .put(OfflineProperty.Track.REQUESTED_AT, new Date(100L)),
+                        .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED),
                 fromApiTrack(apiTrack2)
-                        .put(OfflineProperty.Track.REQUESTED_AT, new Date(200L)),
+                        .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED),
                 fromApiTrack(apiTrack3)
-                        .put(OfflineProperty.Track.DOWNLOADED_AT, new Date(300L))
-                        .put(OfflineProperty.Track.REMOVED_AT, new Date(300L))
-                        .put(OfflineProperty.Track.REQUESTED_AT, new Date(300L))
+                        .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE)
         );
     }
 

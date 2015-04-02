@@ -48,8 +48,7 @@ public class OfflinePlaybackOperations {
 
     public boolean shouldPlayOffline(PropertySet track) {
         return featureOperations.isOfflineContentEnabled()
-                && track.getOrElseNull(OfflineProperty.Track.DOWNLOADED_AT) != null
-                && track.getOrElseNull(OfflineProperty.Track.REMOVED_AT) == null;
+                && track.getOrElse(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE) == DownloadState.DOWNLOADED;
     }
 
     public Observable<List<Urn>> playLikes(final Urn trackUrn, final int position, final PlaySessionSource playSessionSource) {

@@ -9,6 +9,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -27,6 +28,7 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineProperty;
@@ -372,25 +374,29 @@ public class PlaylistEngagementsPresenterTest {
     }
 
     @Test
-    public void showDefaultDownloadStateWhedownloadRemoved() {
+    public void showDefaultDownloadStateWhenCurrentDownloadEmitsDownloadRemoved() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-
+        reset(engagementsView);
+        
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRemoved(Arrays.asList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).showDefaultState();
     }
 
     @Test
-    public void showDefaultDownloadStateWhenRequested() {
+    public void showDefaultDownloadStateWhenCurrentDownloadEmitsRequested() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(false, Arrays.asList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).showDefaultState();
+        verify(engagementsView).showRequestedState();
     }
 
     @Test
-    public void setDownloadingStateWhenDownloading() {
+    public void setDownloadingStateWhenCurrentDownloadEmitsDownloading() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), "http://sctream", 12345L).addToPlaylist(playlistWithTracks.getUrn()).build();
@@ -400,10 +406,55 @@ public class PlaylistEngagementsPresenterTest {
     }
 
     @Test
-    public void setDownloadedStateWhenDownloaded() {
+    public void setDownloadedStateWhenCurrentDownloadEmitsDownloaded() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(false, Arrays.asList(playlistWithTracks.getUrn())));
+
+        verify(engagementsView).showDownloadedState();
+    }
+
+    @Test
+    public void ignoreDownloadStateWhenCurrentDownloadEmitsAnUnrelatedEvent() {
+        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(false, Arrays.asList(Urn.forPlaylist(999999L))));
+
+        verify(engagementsView, never()).showDownloadedState();
+    }
+
+    @Test
+    public void showDefaultDownloadStateWhenPlaylistDownloadStateIsDownloadNoOffline() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
+        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+
+        verify(engagementsView).showDefaultState();
+    }
+
+    @Test
+    public void showDefaultDownloadStateWhenPlaylistDownloadStateRequested() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+
+        verify(engagementsView).showRequestedState();
+    }
+
+    @Test
+    public void setDownloadingStateWhenPlaylistDownloadStateDownloading() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADING);
+        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
+
+        verify(engagementsView).showDownloadingState();
+    }
+
+    @Test
+    public void setDownloadedStateWhenPlaylistDownloadStateDownloaded() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+        controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         verify(engagementsView).showDownloadedState();
     }
@@ -428,6 +479,8 @@ public class PlaylistEngagementsPresenterTest {
 
         verify(engagementsView).enableShuffle();
     }
+
+
 
     private PlaylistWithTracks createPublicPlaylistInfo() {
         return createPlaylistInfoWithSharing(Sharing.PUBLIC);

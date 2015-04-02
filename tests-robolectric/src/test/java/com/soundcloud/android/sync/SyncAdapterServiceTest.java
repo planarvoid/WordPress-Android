@@ -8,7 +8,7 @@ import static org.mockito.Mockito.mock;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
-import com.soundcloud.android.storage.PlaylistStorage;
+import com.soundcloud.android.playlists.PlaylistStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.sync.likes.MyLikesStateProvider;

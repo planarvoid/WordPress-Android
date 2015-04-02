@@ -1,6 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -16,12 +17,16 @@ import java.util.List;
 
 public class DownloadablePlaylistItemPresenter extends PlaylistItemPresenter {
 
+    private final FeatureOperations featureOperations;
+
     @Inject
     public DownloadablePlaylistItemPresenter(Resources resources,
                                              ImageOperations imageOperations,
                                              PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                             FeatureFlags featureFlags) {
+                                             FeatureFlags featureFlags,
+                                             FeatureOperations featureOperations) {
         super(resources, imageOperations, playlistItemMenuPresenter, featureFlags);
+        this.featureOperations = featureOperations;
     }
 
     @Override
@@ -32,27 +37,30 @@ public class DownloadablePlaylistItemPresenter extends PlaylistItemPresenter {
         setDownloadProgressIndicator(itemView, playlistItem);
     }
 
-
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
         final ImageView downloadProgressIcon = (ImageView) itemView.findViewById(R.id.download_progress_icon);
         downloadProgressIcon.clearAnimation();
 
-        final DownloadState downloadState = playlistItem.getDownloadState();
-        switch (downloadState) {
-            case NO_OFFLINE:
-                setNoOfflineState(downloadProgressIcon);
-                break;
-            case REQUESTED:
-                setRequestedDownloadState(downloadProgressIcon);
-                break;
-            case DOWNLOADING:
-                setDownloadingState(itemView, downloadProgressIcon);
-                break;
-            case DOWNLOADED:
-                setDownloadedState(downloadProgressIcon);
-                break;
-            default:
-                throw new IllegalStateException("Playlist download state not expected: " + downloadState);
+        if (featureOperations.isOfflineContentEnabled()) {
+            final DownloadState downloadState = playlistItem.getDownloadState();
+            switch (downloadState) {
+                case NO_OFFLINE:
+                    setNoOfflineState(downloadProgressIcon);
+                    break;
+                case REQUESTED:
+                    setRequestedDownloadState(downloadProgressIcon);
+                    break;
+                case DOWNLOADING:
+                    setDownloadingState(itemView, downloadProgressIcon);
+                    break;
+                case DOWNLOADED:
+                    setDownloadedState(downloadProgressIcon);
+                    break;
+                default:
+                    throw new IllegalStateException("Playlist download state not expected: " + downloadState);
+            }
+        } else {
+            setNoOfflineState(downloadProgressIcon);
         }
     }
 

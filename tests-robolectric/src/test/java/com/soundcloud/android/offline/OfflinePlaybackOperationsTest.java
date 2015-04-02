@@ -28,7 +28,6 @@ import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -224,13 +223,11 @@ public class OfflinePlaybackOperationsTest {
     }
 
     private PropertySet downloadedTrack() {
-        return PropertySet.from(OfflineProperty.Track.DOWNLOADED_AT.bind(new Date()));
+        return PropertySet.from(OfflineProperty.DOWNLOAD_STATE.bind(DownloadState.DOWNLOADED));
     }
 
     private PropertySet removedTrack() {
-        return PropertySet.from(
-                OfflineProperty.Track.DOWNLOADED_AT.bind(new Date()),
-                OfflineProperty.Track.REMOVED_AT.bind(new Date()));
+        return PropertySet.from(OfflineProperty.DOWNLOAD_STATE.bind(DownloadState.NO_OFFLINE));
     }
 
     private PropertySet notDownloadedTrack() {

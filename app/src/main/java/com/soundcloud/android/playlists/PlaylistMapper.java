@@ -11,7 +11,6 @@ import android.provider.BaseColumns;
 
 public abstract class PlaylistMapper extends RxResultMapper<PropertySet> {
 
-    public static final String IS_MARKED_FOR_OFFLINE = "is_marked_for_offline";
     public static final String LOCAL_TRACK_COUNT = "local_track_count";
 
     @Override
