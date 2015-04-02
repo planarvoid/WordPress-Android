@@ -84,10 +84,6 @@
     <color name="tag_text">#666666</color>
 
     <!-- Dialogs -->
-    <color name="dialog_title">@color/sc_orange</color>
-    <color name="dialog_separator">@color/sc_orange</color>
-    <color name="dialog_button_focused">@color/white</color>
-    <color name="dialog_button_pressed">#dbdbdb</color>
     <color name="dialog_text">#666666</color>
     <color name="dialog_subtext">#999999</color>
 
