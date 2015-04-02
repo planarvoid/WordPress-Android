@@ -39,7 +39,7 @@ ext {
   httpClientAndroidVersion = '4.3.5'
   httpmimeVersion = '4.0.3'
   localyticsVersion = '2.71'
-  slidingUpPanelVersion = '2.0.1'
+  slidingUpPanelVersion = '2.0.2-SC'
   androidCropVersion = '0.9.10'
   universalImageLoaderVersion = '1.9.2'
   androidStyledDialogsVersion = '1.1.2'
