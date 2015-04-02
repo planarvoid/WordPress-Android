@@ -56,7 +56,8 @@ public final class OfflineStoragePreference extends Preference {
         setLayoutResource(R.layout.offline_storage_limit);
     }
 
-    public void setOnStorageLimitChangeListener(OnPreferenceChangeListener onPreferenceChangeListener) {
+    @Override
+    public void setOnPreferenceChangeListener(OnPreferenceChangeListener onPreferenceChangeListener) {
         onStorageLimitChangeListener = onPreferenceChangeListener;
     }
 
