@@ -437,17 +437,6 @@
   <string name="pref_help_desc">Acesse o site de suporte do SoundCloud</string>
   <string name="pref_revoke_access">Sair</string>
   <string name="pref_revoke_desc">Desconectar usuário atual</string>
-  <string name="pref_sync_my_likes">Minhas curtidas</string>
-  <string name="pref_sync_my_likes_description">Mantenha minhas curtidas atualizadas localmente</string>
-  <string name="pref_sync_my_followers">Meus seguidores</string>
-  <string name="pref_sync_my_followers_description">Manter as pessoas que me seguem atualizadas localmente</string>
-  <string name="pref_sync_my_following">Pessoas que sigo</string>
-  <string name="pref_sync_my_following_description">Manter as pessoas que sigo atualizadas localmente</string>
-  <string name="pref_sync_my_sounds">Meus sons</string>
-  <string name="pref_sync_my_sounds_description">Manter meus sons atualizados localmente</string>
-  <string name="pref_sync_settings">Configurações da sincronização de conta</string>
-  <string name="pref_sync_settings_summary">Gerencie seus recursos sincronizados</string>
-  <string name="pref_sync_toggles">Recursos sincronizados</string>
   <string name="pref_sync_wifi_only">Sincronizar apenas WiFi</string>
   <string name="pref_sync_wifi_only_description">Sincronizar os meus dados somente quando conectado via WiFi</string>
   <string name="pref_analytics">Analítica</string>

@@ -23,7 +23,6 @@
     <bool name="feature_offline_sync">true</bool>
 
     <!-- Feature flags (disabled) -->
-    <bool name="feature_payments">false</bool>
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_eventlogger_search">false</bool>
 </resources>

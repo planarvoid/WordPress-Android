@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UsageBarView extends View {
+
     private final List<UsageBar> bars = new ArrayList<>();
     private double totalAmount = 0d;
     private final Paint borderPaint = new Paint();
@@ -84,4 +85,5 @@ public class UsageBarView extends View {
             return amount;
         }
     }
+
 }

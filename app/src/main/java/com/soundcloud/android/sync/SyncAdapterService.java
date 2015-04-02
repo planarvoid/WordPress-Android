@@ -195,7 +195,7 @@ public class SyncAdapterService extends Service {
         }
 
         if (manual || SyncConfig.shouldSyncCollections(app)) {
-            final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(app, SyncContent.NON_ACTIVITIES, manual);
+            final List<Uri> dueForSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, manual);
             Log.d(TAG, "collection due for sync:" + dueForSync);
             urisToSync.addAll(dueForSync);
         } else {

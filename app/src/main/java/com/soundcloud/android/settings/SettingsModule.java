@@ -1,0 +1,16 @@
+package com.soundcloud.android.settings;
+
+import com.soundcloud.android.ApplicationModule;
+import dagger.Module;
+
+@Module(addsTo = ApplicationModule.class,
+        injects = {
+                SettingsActivity.class,
+                SettingsFragment.class,
+                OfflineSettingsActivity.class,
+                NotificationSettingsFragment.class,
+                ConfigurationFeaturesFragment.class,
+                OfflineSettingsFragment.class,
+                ClearCacheDialog.class
+        })
+public class SettingsModule {}

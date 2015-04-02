@@ -1,14 +1,17 @@
 package com.soundcloud.android.settings;
 
-import com.soundcloud.android.R;
+import com.soundcloud.android.main.ScActivity;
 
 import android.os.Bundle;
 
-public class LicensesActivity extends ScSettingsActivity {
+public class LicensesActivity extends ScActivity {
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.licenses);
+        getFragmentManager()
+                .beginTransaction()
+                .replace(android.R.id.content, LicensesFragment.create())
+                .commit();
     }
 
     @Override
@@ -16,4 +19,5 @@ public class LicensesActivity extends ScSettingsActivity {
         finish();
         return true;
     }
+
 }

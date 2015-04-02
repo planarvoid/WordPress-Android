@@ -1,93 +1,89 @@
 package com.soundcloud.android.settings;
 
+import static android.preference.Preference.OnPreferenceClickListener;
 import static android.provider.Settings.ACTION_WIRELESS_SETTINGS;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static com.soundcloud.android.settings.SettingKey.CLEAR_CACHE;
+import static com.soundcloud.android.settings.SettingKey.GENERAL_SETTINGS;
+import static com.soundcloud.android.settings.SettingKey.HELP;
+import static com.soundcloud.android.settings.SettingKey.LEGAL;
+import static com.soundcloud.android.settings.SettingKey.LOGOUT;
+import static com.soundcloud.android.settings.SettingKey.NOTIFICATION_SETTINGS;
+import static com.soundcloud.android.settings.SettingKey.OFFLINE_SYNC_SETTINGS;
+import static com.soundcloud.android.settings.SettingKey.VERSION;
+import static com.soundcloud.android.settings.SettingKey.WIRELESS;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.preference.Preference;
 import android.preference.PreferenceCategory;
+import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
 
-public class GeneralSettings {
-
-    // TODO: Currently these constants must match the values in keys_settings.xml - refactor!
-    public static final String LOGOUT = "logout";
-    public static final String HELP = "help";
-    public static final String ANALYTICS_ENABLED = "analytics_enabled";
-    public static final String CLEAR_CACHE = "clearCache";
-    public static final String WIRELESS = "wireless";
-    public static final String GENERAL_SETTINGS = "generalSettings";
-    public static final String OFFLINE_SYNC_SETTINGS = "offlineSyncSettings";
-    public static final String ACCOUNT_SYNC_SETTINGS = "accountSyncSettings";
-    public static final String NOTIFICATION_SETTINGS = "notificationSettings";
-    public static final String LEGAL = "legal";
-    public static final String VERSION = "version";
-    public static final String FORCE_SKIPPY = "forceSkippy";
-    public static final String CRASH_REPORTING_ENABLED = "acra.enable";
+class GeneralSettings implements OnPreferenceClickListener {
 
     public static final int CLICKS_TO_DEBUG_MODE = 5;
-
     private int clicksToDebug = CLICKS_TO_DEBUG_MODE;
 
-    private final DeviceHelper deviceHelper;
-    private final ImageOperations imageOperations;
-    private final Resources resources;
     private final Context appContext;
-    private final ApplicationProperties applicationProperties;
+    private final DeviceHelper deviceHelper;
+    private final ApplicationProperties appProperties;
+
+    private PreferenceFragment settings;
 
     @Inject
-    public GeneralSettings(Context appContext, Resources resources, DeviceHelper deviceHelper, ImageOperations imageOperations, ApplicationProperties applicationProperties) {
+    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, ApplicationProperties appProperties) {
         this.appContext = appContext;
-        this.resources = resources;
         this.deviceHelper = deviceHelper;
-        this.imageOperations = imageOperations;
-        this.applicationProperties = applicationProperties;
+        this.appProperties = appProperties;
     }
 
-    public void setup(final SettingsActivity activity) {
-        activity.addPreferencesFromResource(R.xml.settings_general);
-        setupOfflineSync(activity);
-        setupListeners(activity);
-        setupVersion(activity);
+    public void addTo(final PreferenceFragment settings) {
+        this.settings = settings;
+        settings.addPreferencesFromResource(R.xml.settings_general);
+        setupOfflineSync(settings);
+        setupListeners(settings);
+        setupVersion(settings);
     }
 
-    private void setupOfflineSync(final SettingsActivity activity) {
-        if (applicationProperties.isAlphaBuild() || applicationProperties.isDebugBuild()) {
-            final PreferenceCategory category = (PreferenceCategory) activity.findPreference(GENERAL_SETTINGS);
-            category.addPreference(createOfflineSyncPref(activity));
+    private void setupOfflineSync(PreferenceFragment settings) {
+        if (appProperties.isAlphaBuild() || appProperties.isDebugBuild()) {
+            final PreferenceCategory category = (PreferenceCategory) settings.findPreference(GENERAL_SETTINGS);
+            category.addPreference(createOfflineSyncPref(settings));
         }
     }
 
-    private Preference createOfflineSyncPref(final SettingsActivity activity) {
-        Preference offlineSettings = new Preference(activity);
+    private Preference createOfflineSyncPref(final PreferenceFragment settings) {
+        final Activity parent = settings.getActivity();
+        Preference offlineSettings = new Preference(parent);
         offlineSettings.setKey(OFFLINE_SYNC_SETTINGS);
         offlineSettings.setTitle(R.string.pref_offline_settings);
         offlineSettings.setSummary(R.string.pref_offline_settings_summary);
         offlineSettings.setOrder(1);
         offlineSettings.setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
+                new OnPreferenceClickListener() {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(activity, OfflineSettingsActivity.class);
-                        activity.startActivity(intent);
+                        Intent intent = new Intent(parent, OfflineSettingsActivity.class);
+                        parent.startActivity(intent);
                         return true;
                     }
                 }
@@ -95,11 +91,11 @@ public class GeneralSettings {
         return offlineSettings;
     }
 
-    private void setupVersion(SettingsActivity activity) {
-        final Preference versionPref = activity.findPreference(VERSION);
+    private void setupVersion(PreferenceFragment settings) {
+        final Preference versionPref = settings.findPreference(VERSION);
         versionPref.setSummary(deviceHelper.getUserVisibleVersion());
         versionPref.setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
+                new OnPreferenceClickListener() {
                     public boolean onPreferenceClick(Preference preference) {
                         clicksToDebug--;
                         if (clicksToDebug == 0) {
@@ -111,101 +107,58 @@ public class GeneralSettings {
                 });
     }
 
-    @SuppressWarnings({"PMD.ExcessiveMethodLength", "PMD.ModifiedCyclomaticComplexity"})
-    private void setupListeners(final SettingsActivity activity) {
-        activity.findPreference(ACCOUNT_SYNC_SETTINGS).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
+    private void setupListeners(final PreferenceFragment settings) {
+        settings.findPreference(NOTIFICATION_SETTINGS).setOnPreferenceClickListener(this);
+        settings.findPreference(LEGAL).setOnPreferenceClickListener(this);
+        settings.findPreference(LOGOUT).setOnPreferenceClickListener(this);
+        settings.findPreference(HELP).setOnPreferenceClickListener(this);
+        settings.findPreference(CLEAR_CACHE).setOnPreferenceClickListener(this);
+        settings.findPreference(WIRELESS).setOnPreferenceClickListener(this);
+    }
+
+    @Override
+    public boolean onPreferenceClick(Preference preference) {
+        final Activity parent = settings.getActivity();
+        switch (preference.getKey()) {
+            case NOTIFICATION_SETTINGS:
+                parent.startActivity(new Intent(parent, NotificationSettingsActivity.class));
+                return true;
+            case LEGAL:
+                parent.startActivity(new Intent(parent, LegalActivity.class));
+                return true;
+            case LOGOUT:
+                if (!AndroidUtils.isUserAMonkey()) {  // Don't let the monkey log out
+                    showLogoutDialog(parent);
+                }
+                return true;
+            case HELP:
+                parent.startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse(appContext.getString(R.string.url_support))));
+                return true;
+            case CLEAR_CACHE:
+                ClearCacheDialog.show(parent.getFragmentManager());
+                return true;
+            case WIRELESS:
+                try {
+                    parent.startActivity(new Intent(ACTION_WIRELESS_SETTINGS));
+                } catch (ActivityNotFoundException e) {
+                    Log.e(TAG, "Device does not have WiFi settings", e);
+                }
+            default:
+                return false;
+        }
+    }
+
+    private void showLogoutDialog(final Activity parent) {
+        new AlertDialog.Builder(parent)
+                .setTitle(R.string.menu_clear_user_title)
+                .setMessage(R.string.menu_clear_user_desc)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(activity, AccountSettingsActivity.class);
-                        activity.startActivity(intent);
-                        return true;
+                    public void onClick(DialogInterface dialog, int which) {
+                        LogoutActivity.start(parent);
                     }
-                }
-        );
-
-        activity.findPreference(NOTIFICATION_SETTINGS).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(activity, NotificationSettingsActivity.class);
-                        activity.startActivity(intent);
-                        return true;
-                    }
-                }
-        );
-
-        activity.findPreference(LEGAL).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(activity, LegalActivity.class);
-                        activity.startActivity(intent);
-                        return true;
-                    }
-                }
-        );
-
-        activity.findPreference(LOGOUT).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        if (!AndroidUtils.isUserAMonkey()) {
-                            // don't let the monkey log out
-                            activity.safeShowDialog(SettingsActivity.DIALOG_USER_LOGOUT_CONFIRM);
-                        }
-                        return true;
-                    }
-                }
-        );
-
-        activity.findPreference(HELP).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent supportIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(appContext.getString(R.string.url_support)));
-                        activity.startActivity(supportIntent);
-                        return true;
-                    }
-                }
-        );
-
-        activity.findPreference(CLEAR_CACHE).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        activity.safeShowDialog(SettingsActivity.DIALOG_CACHE_DELETING);
-
-                        final WeakReference<SettingsActivity> weakReference = new WeakReference<>(activity);
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                imageOperations.clearDiskCache();
-                                IOUtils.cleanDirs(Consts.EXTERNAL_MEDIAPLAYER_STREAM_DIRECTORY, Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY);
-                                updateActivityIfNeeded(weakReference);
-                            }
-                        }).start();
-                        return true;
-                    }
-
-                    private void updateActivityIfNeeded(WeakReference<SettingsActivity> weakReference) {
-                        final SettingsActivity settingsActivity = weakReference.get();
-                        if (settingsActivity != null && !settingsActivity.isFinishing()) {
-                            settingsActivity.dismissDialog(SettingsActivity.DIALOG_CACHE_DELETING);
-                        }
-                    }
-                }
-        );
-
-        activity.findPreference(WIRELESS).setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    public boolean onPreferenceClick(Preference preference) {
-                        try { // rare phones have no wifi settings
-                            activity.startActivity(new Intent(ACTION_WIRELESS_SETTINGS));
-                        } catch (ActivityNotFoundException e) {
-                            Log.e(TAG, "error", e);
-                        }
-                        return true;
-                    }
-                }
-        );
+                }).show();
     }
 
     private void togglePlaybackDebugMode() {
@@ -214,6 +167,7 @@ public class GeneralSettings {
         preferences.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled).apply();
 
         Log.d(PlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
+        Resources resources = appContext.getResources();
         AndroidUtils.showToast(appContext, resources.getString(R.string.playback_error_logging, resources.getText(enabled ? R.string.enabled : R.string.disabled)));
     }
 

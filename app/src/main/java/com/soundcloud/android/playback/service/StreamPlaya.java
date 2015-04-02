@@ -11,7 +11,7 @@ import com.soundcloud.android.playback.service.Playa.Reason;
 import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
-import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 
@@ -265,7 +265,7 @@ public class StreamPlaya implements PlayaListener {
     }
 
     private boolean isInForceSkippyMode() {
-        return sharedPreferences.getBoolean(GeneralSettings.FORCE_SKIPPY, false) ||
+        return sharedPreferences.getBoolean(SettingKey.FORCE_SKIPPY, false) ||
                 playerSwitcherInfo.getMaxConsecutiveMpPlays() <= 0;
     }
 

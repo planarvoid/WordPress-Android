@@ -3,10 +3,7 @@ package com.soundcloud.android.sync;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.Log;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 
 import java.util.EnumSet;
 
@@ -25,7 +22,6 @@ enum SyncContent {
     SyncContent(Content content, long syncDelay, int[] backoffMultipliers) {
         this.content = content;
         this.syncDelay = syncDelay;
-        this.prefSyncEnabledKey = "sync"+name();
         this.backoffMultipliers = backoffMultipliers;
     }
 
@@ -33,29 +29,15 @@ enum SyncContent {
 
     public final Content content;
     public final long syncDelay;
-    public final String prefSyncEnabledKey;
     public final int[] backoffMultipliers;
 
-    public boolean isEnabled(SharedPreferences prefs) {
-        return (this != MyFollowers) /* handled by push */
-                && prefs.getBoolean(prefSyncEnabledKey, true);
-    }
-
-    public boolean setEnabled(Context context, boolean enabled) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.edit().putBoolean(prefSyncEnabledKey, enabled).commit();
+    public boolean isEnabled() {
+        return (this != MyFollowers); // Handled by push
     }
 
     public boolean shouldSync(int misses, long lastSync) {
         return backoffMultipliers == null || (misses < backoffMultipliers.length
             && System.currentTimeMillis() - lastSync >= syncDelay * backoffMultipliers[misses]);
-    }
-
-
-    public static void setAllSyncEnabledPrefs(Context c, boolean enabled) {
-        for (SyncContent sc : SyncContent.values()) {
-            sc.setEnabled(c, enabled);
-        }
     }
 
     public static void updateCollections(SyncStateManager stateManager, Bundle resultData) {

@@ -10,7 +10,7 @@ import com.soundcloud.android.analytics.localytics.LocalyticsAnalyticsProvider;
 import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
-import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 
@@ -68,7 +68,7 @@ public class AnalyticsProviderFactory {
         }
 
         List<AnalyticsProvider> providers = getBaseProviders();
-        if (sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)) {
+        if (sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)) {
             addOptInProviders(providers);
         }
 

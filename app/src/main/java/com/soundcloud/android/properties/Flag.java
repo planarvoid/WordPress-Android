@@ -5,7 +5,6 @@ import com.soundcloud.android.R;
 public enum Flag {
 
     TEST_FEATURE(-1),
-    PAYMENTS(R.bool.feature_payments),
     PAYMENTS_TEST(R.bool.feature_payments_test),
     GOOGLE_CAST(R.bool.feature_google_cast),
     OFFLINE_SYNC(R.bool.feature_offline_sync),

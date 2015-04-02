@@ -18,7 +18,7 @@ import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.settings.DeveloperSettings;
+import com.soundcloud.android.settings.SettingKey;
 
 import android.content.SharedPreferences;
 
@@ -147,7 +147,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void trackEvent(long timeStamp, String data) {
         eventTracker.trackEvent(new TrackingRecord(timeStamp, BATCH_BACKEND_NAME, data));
-        if (sharedPreferences.getBoolean(DeveloperSettings.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)){
+        if (sharedPreferences.getBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)){
             eventTracker.flush(BATCH_BACKEND_NAME);
         }
     }

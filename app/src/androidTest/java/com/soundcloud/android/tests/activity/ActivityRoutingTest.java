@@ -11,7 +11,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.SearchActivity;
-import com.soundcloud.android.settings.AccountSettingsActivity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -72,10 +71,6 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud://users:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud://tracks:1234"));
         assertActivityStarted(ResolveActivity.class, Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
-    }
-
-    public void ignore_testAccountSettings() {
-        assertActivityStarted(AccountSettingsActivity.class, Actions.ACCOUNT_PREF);
     }
 
     public void ignore_testUploadMonitor() {

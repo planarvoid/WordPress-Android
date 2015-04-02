@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Common SyncAdapter test code infrastructure.
  */
@@ -48,9 +47,6 @@ import java.util.List;
 public abstract class SyncAdapterServiceTestBase {
     @Before
     public void before() {
-        // don't want default syncing for tests
-        SyncContent.setAllSyncEnabledPrefs(Robolectric.application, false);
-
         TestHelper.setBackgrounData(true);
         TestHelper.connectedViaWifi(true);
 
@@ -66,7 +62,6 @@ public abstract class SyncAdapterServiceTestBase {
                 .edit()
                 .putString(Consts.PrefKeys.NOTIFICATIONS_FREQUENCY, 0 + "")
                 .apply();
-
     }
 
     @After
@@ -96,17 +91,6 @@ public abstract class SyncAdapterServiceTestBase {
         Intent getIntent() {
             expect(notifications.size()).toEqual(1);
             return notifications.get(0).getIntent();
-        }
-
-        ShadowNotification.LatestEventInfo getInfo() {
-            expect(notifications.size()).toEqual(1);
-            return notifications.get(0).info;
-
-        }
-
-        String getTicker() {
-            expect(notifications.size()).toEqual(1);
-            return notifications.get(0).n.tickerText.toString();
         }
     }
 
@@ -166,7 +150,4 @@ public abstract class SyncAdapterServiceTestBase {
         TestHelper.addPendingHttpResponse(SyncAdapterServiceTest.class, resources);
     }
 
-    protected void addResourceResponse(String url, String resource) throws IOException {
-        TestHelper.addCannedResponse(getClass(), url, resource);
-    }
 }

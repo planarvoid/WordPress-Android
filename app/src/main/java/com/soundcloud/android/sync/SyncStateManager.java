@@ -16,13 +16,11 @@ import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -49,7 +47,7 @@ public class SyncStateManager extends ScheduledOperations {
         super(ScSchedulers.HIGH_PRIO_SCHEDULER);
         this.resolver = resolver;
         localCollectionDao = dao;
-        contentObservers = new HashMap<Long, ContentObserver>();
+        contentObservers = new HashMap<>();
     }
 
     @NotNull
@@ -167,15 +165,13 @@ public class SyncStateManager extends ScheduledOperations {
     /**
      * Returns a list of uris to be synced, based on recent changes. The idea is that collections which don't change
      * very often don't get synced as frequently as collections which do.
-     *
-     * @param syncContentEnumSet
+     *  @param syncContentEnumSet
      * @param force              force sync {@link android.content.ContentResolver#SYNC_EXTRAS_MANUAL}
      */
-    public List<Uri> getCollectionsDueForSync(Context c, EnumSet<SyncContent> syncContentEnumSet, boolean force) {
-        List<Uri> urisToSync = new ArrayList<Uri>();
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(c);
+    public List<Uri> getCollectionsDueForSync(EnumSet<SyncContent> syncContentEnumSet, boolean force) {
+        List<Uri> urisToSync = new ArrayList<>();
         for (SyncContent sc : syncContentEnumSet) {
-            if (sc.isEnabled(prefs) && (force || isContentDueForSync(sc))) {
+            if (sc.isEnabled() && (force || isContentDueForSync(sc))) {
                 urisToSync.add(sc.content.uri);
             }
         }

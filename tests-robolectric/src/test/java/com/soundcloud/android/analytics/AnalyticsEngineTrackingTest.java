@@ -20,7 +20,7 @@ import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -103,7 +103,7 @@ public class AnalyticsEngineTrackingTest {
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 
         when(providersFactory.getProviders()).thenReturn(Arrays.asList(analyticsProviderThree));
-        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, GeneralSettings.ANALYTICS_ENABLED);
+        analyticsEngine.onSharedPreferenceChanged(sharedPreferences, SettingKey.ANALYTICS_ENABLED);
 
         eventBus.publish(EventQueue.TRACKING, TestEvents.unspecifiedTrackingEvent());
 

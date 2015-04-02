@@ -13,7 +13,7 @@ import com.soundcloud.android.analytics.playcounts.PlayCountAnalyticsProvider;
 import com.soundcloud.android.analytics.promoted.PromotedAnalyticsProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.settings.GeneralSettings;
+import com.soundcloud.android.settings.SettingKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +55,7 @@ public class AnalyticsProviderFactoryTest {
 
     @Test
     public void getProvidersReturnsBaseProvidersWhenDoNotTrackIsSet() {
-        when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(false);
+        when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(false);
 
         List<AnalyticsProvider> providers = factory.getProviders();
         expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider);
@@ -63,7 +63,7 @@ public class AnalyticsProviderFactoryTest {
 
     @Test
     public void getProvidersReturnsAllProvidersWhenDoNotTrackIsNotSet() {
-        when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
+        when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
         expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, adjustAnalyticsProvider, comScoreProvider);
@@ -74,7 +74,7 @@ public class AnalyticsProviderFactoryTest {
         factory = new AnalyticsProviderFactory(analyticsProperties, applicationProperties, sharedPreferences,
                 eventLoggerProvider, playCountProvider, localyticsProvider, promotedProvider, adjustAnalyticsProvider,
                 null, crashlyticsAnalyticsProvider);
-        when(sharedPreferences.getBoolean(GeneralSettings.ANALYTICS_ENABLED, true)).thenReturn(true);
+        when(sharedPreferences.getBoolean(SettingKey.ANALYTICS_ENABLED, true)).thenReturn(true);
 
         List<AnalyticsProvider> providers = factory.getProviders();
         expect(providers).toContainExactly(eventLoggerProvider, playCountProvider, promotedProvider, localyticsProvider, adjustAnalyticsProvider);

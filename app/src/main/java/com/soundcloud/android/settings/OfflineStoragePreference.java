@@ -1,11 +1,12 @@
 package com.soundcloud.android.settings;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import com.soundcloud.android.R;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.preference.Preference;
-import android.support.annotation.StringRes;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,22 +14,24 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 public final class OfflineStoragePreference extends Preference {
-    private static final double ONE_GIGABYTE = 1024*1024*1024;
 
-    private UsageBarView usageBarView;
-    private SeekBar storageLimitSeekBar;
-    private TextView storageLimitTextView;
-    private TextView storageFreeTextView;
-    private TextView storageOtherLabelTextView;
-    private TextView storageUsedLabelTextView;
-    private TextView storageLimitLabelTextView;
+    private static final double ONE_GIGABYTE = 1024 * 1024 * 1024;
+
+    @InjectView(R.id.offline_storage_usage_bars) UsageBarView usageBarView;
+    @InjectView(R.id.offline_storage_limit_seek_bar) SeekBar storageLimitSeekBar;
+    @InjectView(R.id.offline_storage_limit) TextView storageLimitTextView;
+    @InjectView(R.id.offline_storage_free ) TextView storageFreeTextView;
+    @InjectView(R.id.offline_storage_legend_other) TextView storageOtherLabelTextView;
+    @InjectView(R.id.offline_storage_legend_used) TextView storageUsedLabelTextView;
+    @InjectView(R.id.offline_storage_legend_limit) TextView storageLimitLabelTextView;
+
     private OnPreferenceChangeListener onStorageLimitChangeListener;
     private OfflineUsage offlineUsage;
 
     private final SeekBar.OnSeekBarChangeListener onSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if(fromUser) {
+            if (fromUser) {
                 offlineUsage.setOfflineTotalPercentage(progress);
                 updateView();
             }
@@ -64,17 +67,8 @@ public final class OfflineStoragePreference extends Preference {
     @Override
     protected View onCreateView(ViewGroup parent) {
         View view = super.onCreateView(parent);
-
-        storageLimitSeekBar = (SeekBar) view.findViewById(R.id.offline_storage_limit_seek_bar);
+        ButterKnife.inject(this, view);
         storageLimitSeekBar.setOnSeekBarChangeListener(onSeekBarChangeListener);
-
-        usageBarView = (UsageBarView) view.findViewById(R.id.offline_storage_usage_bars);
-        storageLimitTextView = (TextView) view.findViewById(R.id.offline_storage_limit);
-        storageFreeTextView = (TextView) view.findViewById(R.id.offline_storage_free);
-        storageOtherLabelTextView = (TextView) view.findViewById(R.id.offline_storage_legend_other);
-        storageUsedLabelTextView = (TextView) view.findViewById(R.id.offline_storage_legend_used);
-        storageLimitLabelTextView = (TextView) view.findViewById(R.id.offline_storage_legend_limit);
-
         updateAndRefresh();
         return view;
     }
@@ -129,4 +123,5 @@ public final class OfflineStoragePreference extends Preference {
                 .addBar(R.color.usage_bar_limit, offlineUsage.getOfflineAvailable())
                 .addBar(R.color.usage_bar_free, offlineUsage.getAvailableWithoutOfflineLimit());
     }
+
 }

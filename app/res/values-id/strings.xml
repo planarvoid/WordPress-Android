@@ -436,17 +436,6 @@
   <string name="pref_help_desc">Akses ke situs dukungan SoundCloud</string>
   <string name="pref_revoke_access">Keluar</string>
   <string name="pref_revoke_desc">Keluar dari akun saat ini</string>
-  <string name="pref_sync_my_likes">Suka Saya</string>
-  <string name="pref_sync_my_likes_description">Perbarui audio yang saya sukai secara lokal</string>
-  <string name="pref_sync_my_followers">Pengikut Saya</string>
-  <string name="pref_sync_my_followers_description">Kirimkan pembaruan kepada orang-orang yang mengikuti saya secara lokal</string>
-  <string name="pref_sync_my_following">Yang Saya Ikuti</string>
-  <string name="pref_sync_my_following_description">Perbarui orang-orang yang saya ikuti secara lokal</string>
-  <string name="pref_sync_my_sounds">Suara Saya</string>
-  <string name="pref_sync_my_sounds_description">Perbarui audio saya secara lokal</string>
-  <string name="pref_sync_settings">Pengaturan Penyelarasan Akun</string>
-  <string name="pref_sync_settings_summary">Kelola sumber kamu yang terselaraskan</string>
-  <string name="pref_sync_toggles">Sumber Terselaraskan</string>
   <string name="pref_sync_wifi_only">Penyelarasan lewat wifi saja</string>
   <string name="pref_sync_wifi_only_description">Selaraskan data saya hanya ketika terkoneksi melalui wifi</string>
   <string name="pref_analytics">Analitik</string>
