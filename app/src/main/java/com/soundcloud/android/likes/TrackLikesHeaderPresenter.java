@@ -7,7 +7,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -62,7 +61,6 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Inject
     public TrackLikesHeaderPresenter(TrackLikesHeaderView headerView,
                                      TrackLikeOperations likeOperations,
-                                     OfflineContentOperations offlineContentOperations,
                                      OfflinePlaybackOperations playbackOperations,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      EventBus eventBus) {

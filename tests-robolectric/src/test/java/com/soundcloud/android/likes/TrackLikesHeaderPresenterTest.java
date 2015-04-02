@@ -58,7 +58,6 @@ public class TrackLikesHeaderPresenterTest {
         eventBus = new TestEventBus();
         presenter = new TrackLikesHeaderPresenter(headerView,
                 likeOperations,
-                offlineContentOperations,
                 playbackOperations,
                 TestSubscribers.expandPlayerSubscriber(),
                 eventBus);

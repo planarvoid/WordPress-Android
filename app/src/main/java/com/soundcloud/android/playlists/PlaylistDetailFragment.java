@@ -92,7 +92,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final CompositeSubscription eventSubscription = new CompositeSubscription();
 
     private View headerUsernameText;
-    private TextView infoHeaderText;
     private ToggleButton playToggle;
     private PlaylistWithTracks playlistWithTracks;
 
