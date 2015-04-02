@@ -21,8 +21,9 @@ public class OfflineSettingsScreen extends Screen {
         return sliderLimitText().getText();
     }
 
-    public void tapOnSlider(int percentage) {
+    public OfflineSettingsScreen tapOnSlider(int percentage) {
         sliderLimitSeekBar().tapAt(percentage);
+        return this;
     }
 
     public String getLegendLimitText() {
