@@ -40,7 +40,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     @Inject FeatureOperations featureOperations;
     @Inject EventBus eventBus;
 
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private CompositeSubscription subscription;
 
     public static OfflineSettingsFragment create() {
         return new OfflineSettingsFragment();
@@ -53,6 +53,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        subscription = new CompositeSubscription();
         if (featureOperations.isOfflineContentEnabled()) {
             addPreferencesFromResource(R.xml.settings_offline);
             subscription.add(eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new CurrentDownloadSubscriber()));

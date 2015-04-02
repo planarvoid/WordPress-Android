@@ -32,7 +32,7 @@ enum SyncContent {
     public final int[] backoffMultipliers;
 
     public boolean isEnabled() {
-        return (this != MyFollowers); // Handled by push
+        return this != MyFollowers; // Handled by push
     }
 
     public boolean shouldSync(int misses, long lastSync) {

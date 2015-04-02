@@ -14,8 +14,8 @@ import java.util.List;
 public class UsageBarView extends View {
 
     private final List<UsageBar> bars = new ArrayList<>();
-    private double totalAmount = 0d;
     private final Paint borderPaint = new Paint();
+    private double totalAmount;
 
     public UsageBarView(Context context) {
         super(context);
