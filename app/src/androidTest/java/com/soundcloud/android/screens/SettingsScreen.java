@@ -7,15 +7,16 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.R;
 
 public class SettingsScreen extends Screen {
+
     private static final Class ACTIVITY = SettingsActivity.class;
 
     public SettingsScreen(Han solo) {
         super(solo);
     }
 
-    public SubscribeScreen clickSubscribe() {
-        testDriver.clickOnText(R.string.pref_subscription_buy_title);
-        return new SubscribeScreen(testDriver);
+    public OfflineSettingsScreen clickOfflineSettings() {
+        testDriver.clickOnText(R.string.pref_offline_settings);
+        return new OfflineSettingsScreen(testDriver);
     }
 
     public HomeScreen clickLogoutAndConfirm() {
@@ -29,16 +30,9 @@ public class SettingsScreen extends Screen {
         return testDriver.findElement(With.text(testDriver.getString(R.string.pref_revoke_access)));
     }
 
-    public OfflineSettingsScreen clickOfflineSettings() {
-        testDriver.clickOnText(R.string.pref_offline_settings);
-        return new OfflineSettingsScreen(testDriver);
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;
     }
-
-
 
 }

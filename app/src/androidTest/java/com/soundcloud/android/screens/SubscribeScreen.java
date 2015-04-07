@@ -27,9 +27,10 @@ public class SubscribeScreen extends Screen {
         return new PaymentErrorScreen(testDriver);
     }
 
-    public void clickBuy() {
+    public SubscribeScreen clickBuy() {
         waiter.waitForElement(R.id.subscribe_buy);
         testDriver.clickOnButtonWithText(R.string.subscribe_buy);
+        return this;
     }
 
 }

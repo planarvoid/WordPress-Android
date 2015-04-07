@@ -1,5 +1,6 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.with.With;
@@ -21,11 +22,7 @@ public class PaymentErrorScreen extends Screen {
     }
 
     public String getMessage() {
-        return new TextElement(testDriver.findElement(With.id(android.R.id.message))).getText();
-    }
-
-    public void clickOnButton(int textId) {
-        testDriver.clickOnButtonWithText(textId);
+        return new TextElement(testDriver.findElement(With.id(R.id.content))).getText();
     }
 
 }
