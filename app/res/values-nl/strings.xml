@@ -61,6 +61,10 @@
     <string name="accessibility_like_action">Like</string>
     <string name="accessibility_repost_action">Delen</string>
 
+    <!-- __ACCESSIBILITY OFFLINE SYNC -->
+    <string name="accessibility_start_offline_update">Synchronisatie starten</string>
+    <string name="accessibility_remove_offline_likes">Uit Offline Sync verwijderen</string>
+
     <!-- __ACTIVITIES -->
     <string name="liked">vond %s leuk</string>
     <string name="reposted">gedeeld %s</string>
@@ -85,10 +89,11 @@
     <string name="authentication_add_info_add_image_msg">Lach! Deze afbeelding zal op uw profiel verschijnen.</string>
     <string name="authentication_add_info_msg">Bijna klaar. Kies nu een gebruikersnaam en voeg een foto aan uw profiel toe om het te personaliseren.</string>
     <string name="authentication_add_info_username_hint">Uw gebruikersnaam</string>
-    <string name="onboarding_agreement_statement">Door mij aan te melden, ga ik akkoord met de Gebruiksvoorwaarden en het Privacybeleid van SoundCloud.</string>
+    <string name="onboarding_agreement_statement">Door een profiel aan te maken ga ik akkoord met de gebruiksvoorwaarden en het privacybeleid van SoundCloud.</string>
     <string name="authentication_choose_a_password">Minstens 6 tekens</string>
     <string name="authentication_error_incomplete_fields">Vul a.u.b. alle velden in.</string>
     <string name="authentication_error_invalid_email">Voer a.u.b. een geldig e-mailadres in.</string>
+    <string name="authentication_error_generic">Oeps! Er is een onverwachte fout opgetreden. Probeer het opnieuw a.u.b.</string>
     <string name="authentication_error_no_connection_message">Er is een probleem met uw dataverbinding. Controleer uw netwerkinstellingen a.u.b.</string>
     <string name="authentication_error_password_too_short">Uw wachtwoord moet 6 of meer tekens bevatten.</string>
     <string name="authentication_error_title">Fout</string>
@@ -120,7 +125,7 @@
     <string name="authentication_recover_password_msg">Vul uw e-mailadres in en dan sturen wij u een link die u uw wachtwoord laat veranderen. Problemen? Neem contact op met de helpdesk.</string>
     <string name="authentication_blocked_title">Het is ons niet gelukt u aan te melden</string>
     <string name="authentication_blocked_message">Onze robots vinden deze aanmelding te veel op spam lijken. Als dit volgens u een fout is, neem dan <a href="http://help.soundcloud.com/customer/portal/emails/new">contact op met onze helpdesk</a>
-    </string>
+  </string>
     <string name="authentication_captcha_message">We hebben wat problemen met uw aanmelding. Meldt u zich alstublieft via onze mobiele website aan, voordat u zich weer aanmeldt.</string>
     <string name="authentication_email_taken_message">Dit e-mailadres staat al geregistreerd met een account. Voer een ander e-mailadres in of probeer nogmaals aan te melden</string>
     <string name="authentication_email_invalid_message">Het domein dat u heeft ingevoerd lijkt niet geschikt te zijn voor het ontvangen van e-mails. Heeft u het correct gespeld?</string>
@@ -154,6 +159,7 @@
     <string name="empty_playlist_description">Deze afspeellijst heeft nog geen nummers</string>
     <string name="list_empty_user_playlists_message">%1$s heeft momenteel geen afspeellijst.</string>
     <string name="list_empty_you_playlists_message">Creëer Afspeellijsten om mixes van je favoriete geluiden te maken</string>
+    <string name="list_empty_liked_playlists_message">Like uw favoriete afspeellijsten om ze opnieuw te beluisteren</string>
     <string name="empty_user_likes_text">%1$s heeft nog\ngeen likes gekozen.</string>
     <string name="empty_user_followers_text">%1$s wordt nog\ndoor niemand gevolgd.</string>
     <string name="empty_user_followings_text">%1$s is nog\nniemand aan het volgen.</string>
@@ -174,6 +180,16 @@
     <string name="connect_failure">Niet gelukt om met %1$s te verbinden</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oeps! Het is niet gelukt u aan te melden.\nProbeer de app te updaten of meld u aan op SoundCloud.com</string>
+
+    <string name="follow_blocked_title">Volg geblokkeerde accounts</string>
+    <string name="follow_blocked_content">%s heeft u geblokkeerd.</string>
+    <string name="follow_blocked_content_long">%s heeft ons gevraagd om uw account te blokkeren zodat u hem/haar niet meer kunt volgen.</string>
+    <string name="follow_age_restricted_title">Volg geblokkeerde accounts</string>
+    <string name="follow_age_restricted_content">Gebruikers %1$s + kan %2$s volgen.</string>
+    <string name="follow_age_restricted_content_long">Sorry, alleen gebruikers van %1$s jaar en ouder mogen %2$s volgen.</string>
+    <string name="follow_age_unknown_title">Geef uw leeftijd aan a.u.b.</string>
+    <string name="follow_age_unknown_content">Voer uw leeftijd in om %s te volgen.</string>
+    <string name="follow_age_unknown_content_long">bevestig dat u de vereiste leeftijd hebt om %s te volgen.</string>
 
     <!-- __EXPLORE -->
     <string name="explore_genres">Genres</string>
@@ -206,6 +222,7 @@
     <string name="side_menu_explore">Ontdekken</string>
     <string name="title_search">Zoeken</string>
     <string name="title_settings">Instellingen</string>
+    <string name="title_feedback">Feedback</string>
 
     <!-- __NOTIFICATIONS -->
     <string name="dashboard_notifications_activity_message_likes">%1$s vindt %2$s leuk</string>
@@ -233,6 +250,16 @@
     <string name="try_again">Probeer het nog eens</string>
     <string name="finish">Voltooien</string>
     <string name="error_onboarding_fail">We zijn nog steeds bezig met het vullen van uw stream. We zullen blijven proberen totdat het werkt! In de tussentijd kunt u andere soorten muziek en audio opzoeken en ontdekken.</string>
+    <string name="birthday">Verjaardag</string>
+    <string name="gender">Geslacht</string>
+    <string name="onboarding_create_account">Een account aanmaken</string>
+    <string name="onboarding_enter_year">Voer jaar in</string>
+    <string name="onboarding_indicate_gender">Geef uw geslacht aan</string>
+    <string name="onboarding_custom_gender_hint">Geef geslacht aan</string>
+    <string name="onboarding_gender_option_female">Vrouwelijk</string>
+    <string name="onboarding_gender_option_male">Mannelijk</string>
+    <string name="onboarding_gender_option_custom">Standaard</string>
+    <string name="onboarding_gender_option_nopref">Zeg ik liever niet</string>
 
     <!-- __ONBOARDING CATEGORIES -->
     <string name="category_facebook_friends" tools:ignore="UnusedResources">Facebookvrienden</string>
@@ -275,9 +302,11 @@
     <string name="like_toast_overflow_action">Opgeslagen bij uw vind-ik-leuks</string>
     <string name="unlike_toast_overflow_action">Verwijderd uit uw vind-ik-leuks</string>
     <string name="like_error_toast_overflow_action">Vind-ik-leuk-status is niet veranderd</string>
+    <string name="reposted_to_followers">Delen met uw volgers</string>
+    <string name="unposted_to_followers">Bericht verwijderd</string>
+    <string name="repost_error_toast_overflow_action">Repost-status kon niet veranderd worden</string>
 
     <!-- __PLAYER -->
-    <string name="add_to_playlist">Voeg toe aan afspeellijst</string>
     <string name="share">Delen</string>
     <string name="repost">Delen</string>
     <string name="unpost">Bericht verwijderen</string>
@@ -285,16 +314,15 @@
     <string name="comment_on">Reageren op %s</string>
     <string name="your_comment_has_been_posted">Je reactie is geplaatst</string>
     <string name="comment_could_not_be_created_at_this_time">Je reactie kan momenteel niet worden geplaatst</string>
-    <string name="reposted_to_followers">Delen met uw volgers</string>
-    <string name="unposted_to_followers">Bericht verwijderd</string>
     <string name="share_track_by_artist_on_soundcloud">Luister naar %1$s van %2$s #np op #SoundCloud %3$s</string>
     <string name="share_track_on_soundcloud">Luister naar %1$s #np op #SoundCloud %2$s</string>
     <string name="share_subject"> %s - SoundCoud</string>
     <string name="info">Informatie</string>
     <string name="uploaded_at">%s geüpload</string>
     <string name="track_info_no_description">Geen beschrijving beschikbaar</string>
-    <string name="playback_error_connection">Controleer uw internetverbinding</string>
-    <string name="playback_error_unable_to_play">Niet in staat om nummer terug te spelen</string>
+    <string name="playback_error">Niet afspeelbaar</string>
+    <string name="playback_error_connection">Controleer uw verbinding. Klik om het opnieuw te proberen.</string>
+    <string name="playback_error_unable_to_play">Nummer kan niet worden gestreamd</string>
     <string name="play">Afspelen</string>
     <string name="pause">Pauze</string>
     <string name="previous">Vorig</string>
@@ -304,6 +332,7 @@
     <string name="user_commented_at">%1$s op %2$s</string>
 
     <!-- __PAYMENTS -->
+    <string name="payments_unknown_error">Onbekende fout</string>
     <string name="payments_connection_error">Verbindingsfout</string>
     <string name="payments_connection_unavailable">Google Play betaling is niet beschikbaar</string>
     <string name="payments_user_cancelled">Gebruiker geannuleerd</string>
@@ -312,13 +341,25 @@
     <string name="payments_verify_fail">Verificatie mislukt</string>
     <string name="payments_verify_timeout">Kan aankoop niet verifiëren</string>
     <string name="payments_success">Succes</string>
+    <string name="payments_error_title">Betalingsfout</string>
+    <string name="payments_error_already_subscribed">Er is al een abonnement aan uw account gekoppeld. Nog steeds problemen? Neem contact op met de helpdesk.</string>
+    <string name="payments_error_unconfirmed_email">Volg de link in uw bevestigingsmail en probeer het opnieuw.</string>
+    <string name="payments_error_stale_checkout">Het was niet mogelijk om uw abonnement te herstellen.</string>
+    <string name="payments_error_wrong_user">U hebt een actief abonnement maar het is gekoppeld aan een andere gebruiker.</string>
+    <string name="payments_error_contact_support">Neem contact op met de helpdesk</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Afspeellijsten</string>
     <string name="activity_title_playlist">Afspeellijst</string>
+    <string name="your_playlists_tab">Uw afspeellijsten</string>
+    <string name="liked_playlists_tab">Gelikte afspeellijsten</string>
     <string name="playlist_info_header_text">Deze afspeellijst bevat %1$s, totale tijd: %2$s</string>
     <string name="playlist_removed">Deze afspeellijst kon niet op SoundCloud worden gevonden</string>
     <string name="playlist_load_error">Kon deze afspeellijst niet laden</string>
+    <string name="playlist_new_info_header_text">%1$s, %2$s</string>
+    <string name="shuffle_playlist">Afspeellijst shufflen</string>
+    <string name="add_to_playlist">Voeg toe aan afspeellijst</string>
+    <string name="remove_from_playlist">Verwijderen uit playlist</string>
 
     <!-- __PLAYLIST CREATION -->
     <string name="add_track_to_playlist">Toevoegen aan afspeellijst...</string>
@@ -372,46 +413,39 @@
 
     <!-- __RECORD TIPS -->
     <string-array name="record_suggestions">
-        <item>Waarom neemt u niet de geluiden van uw straat op?</item>
-
-        <item>Neem stemnotities op als handige herinneringen.</item>
-        <item>Gebruik de REC-knop om een stemblog aan te maken - wat ga je vandaag delen?</item>
+        <item>Waarom neemt u het geluid van uw straat niet op?</item>
+        <item>Spraakberichten opnemen als handige reminders.</item>
+        <item>Gebruik de REC-knop om een voice blog te maken - wat gaat u vandaag delen?</item>
         <item>Wat bent u nu aan het doen?</item>
         <item>Leg het moment vast: de eerste woorden van een kind</item>
-        <item>Leg het moment vast: de geluiden die uw huisdier maakt</item>
+        <item>Leg het moment vast: het geluid dat uw huisdier maakt</item>
         <item>Leg het moment vast: de stem van iemand om wie u geeft</item>
-        <item>Gaat u winkelen? Leg herinneringen vast, zodat u niet vergeet wat u wilt kopen.</item>
-        <item>Heeft u een geweldig idee? Leg het vast met de REC-knop.</item>
-
-        <item>Heeft u de laatste tijd een goede grap gehoord? Deel hem!</item>
-        <item>Bent u aan het genieten van een goed gesprek? Waarom neemt u het niet op?</item>
+        <item>Gaat u shoppen? Neem reminders op zodat u niet vergeet wat u wil kopen.</item>
+        <item>Had u een geweldig idee? Leg het met de REC-knop vast.</item>
+        <item>Onlangs een geweldige grap gehoord? Deel hem!</item>
+        <item>Voert u een geweldig gesprek? Waarom niet opnemen voor later?</item>
         <item>Leg een hilarisch moment in geluid vast</item>
-
-        <item>Wist u dat u privé-opnames kunt opslaan als u ze niet wilt delen?</item>
-        <item>Soms is het beste opnameapparaat degene die u bij u heeft.</item>
-        <item>Geluid van uzelf aanzetten!</item>
-        <item>Zet het geluid van het internet aan.</item>
-        <item>Zet het geluid van de wereld aan.</item>
-        <item>Druk jezelf uit!</item>
-
-        <item>Waarom neemt u niet de notulen van uw volgende vergadering op?</item>
-        <item>Gebruik de REC-knop om ideeën voor later vast te leggen.</item>
+        <item>Wist u dat u uw privé-opnamen kunt opslaan als u ze niet wilt delen?</item>
+        <item>Soms is het beste opname-apparaat hetgene u bij u hebt.</item>
+        <item>Laat uzelf horen!</item>
+        <item>Laat het internet horen.</item>
+        <item>Laat de wereld horen.</item>
+        <item>Druk uzelf uit!</item>
+        <item>Waarom niet de notulen van uw volgende vergadering opnemen?</item>
+        <item>Gebruik de knop REC-knop om ideeën vast te leggen voor later.</item>
         <item>Gebruik de REC-knop als een ezelsbruggetje: bewaar uw notities onderweg.</item>
-        <item>U kunt de REC-knop gebruiken om interviews en vergaderingen op te nemen.</item>
-
-        <item>Neem het geluid van de oceaan golven bij het strand op</item>
-        <item>Leg de geluiden van een bruisende stad tijdens de spits vast</item>
-        <item>Heeft u een gek geluid gehoord? Leg het vast met de REC-knop!</item>
-
-        <item>Voelt u zich geïnspireerd? Leg uw idee vast met de REC-knop.</item>
-        <item>Heeft u een idee voor een nieuwe track? Sla het op met de REC-knop.</item>
-        <item>Heeft u een deuntje in uw hoofd? Leg het vast met de REC-knop.</item>
+        <item>U kunt de REC-knop gebruiken om gesprekken en vergaderingen op te nemen.</item>
+        <item>Neem het geluid van de golven op het strand op</item>
+        <item>Leg de geluiden van een bruisende stad in de spits vast</item>
+        <item>Een gek geluid gehoord? Leg het vast met de REC-knop</item>
+        <item>Heeft u inspiratie? Leg uw idee vast met de REC-knop.</item>
+        <item>Hebt u een idee voor een nieuw nummer? Sla het op met de REC-knop.</item>
+        <item>Melodietje in uw hoofd? Leg het vast met de REC-knop.</item>
         <item>Ideeën voor songteksten? Leg ze direct vast met de REC-knop.</item>
-
-        <item>Wat is er gaande op het moment?</item>
-        <item>Neem actuele gebeurtenissen op terwijl ze gebeuren en deel ze met de wereld.</item>
-        <item>Is er is interessants aan de hand? Leg het moment in audio vast.</item>
-        <item>Burger als Verslaggever? Vertel de wereld wat er gebeurt op de plek waar u bent.</item>
+        <item>Wat is er gaande op dit moment?</item>
+        <item>Neem actuele gebeurtenissen live op en deel ze met de wereld.</item>
+        <item>Gebeurt er iets interessants? Leg het moment in audio vast.</item>
+        <item>Stadsreporter? Laat de wereld weten wat er op uw locatie gebeurt.</item>
     </string-array>
 
     <!-- __SEARCH -->
@@ -432,6 +466,8 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">Details van de App</string>
     <string name="pref_basic_settings">Basisinstellingen</string>
+    <string name="pref_clear_cache">Verwijder applicatie cache</string>
+    <string name="pref_clear_cache_desc">Wis de applicatie cache om geheugen vrij te maken op uw toestel</string>
     <string name="pref_connection_and_data">Verbinding en data</string>
     <string name="pref_help">Help</string>
     <string name="pref_help_desc">Toegang tot de SoundCloud helpdesksite</string>
@@ -460,10 +496,10 @@
     <string name="wifi_settings">Draadloos &amp; netwerkinstellingen</string>
     <string name="wifi_settings_summary">Bewerk uw instellingen. Gebruik WiFi voor de beste prestaties.</string>
     <string name="cache_clearing">Cache ontruimen</string>
-    <string name="cache_clearing_message">Cachebestanden aan het wissen ...</string>
+    <string name="cache_clearing_message">In Cache opgeslagen bestanden verwijderen ...</string>
     <string-array name="pref_dev_record_type_entries">
         <item>Gecomprimeerd</item>
-        <item>Ruw</item>
+        <item>Onbewerkt</item>
     </string-array>
 
     <!-- __SETTINGS LOG OUT -->
@@ -496,17 +532,28 @@
     <string name="pref_notifications_wifi_only_description">Vraag alleen notificaties aan wanneer u via WiFi bent verbonden</string>
     <string name="pref_notifications_reposts">Gedeelde berichten</string>
     <string name="pref_notifications_reposts_description">Ontvang updates als uw geluiden worden gedeeld</string>
+    <string-array name="pref_notifications_frequency">
+        <item>Om het uur</item>
+        <item>Om de 4 uur</item>
+        <item>Om de 12 uur</item>
+        <item>Om de 24 uur</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Forceer Experimentele Speler</string>
     <string name="pref_extras_skippy_desc">Speel alle nummers door middel van de experimentele speler. Dit zal van kracht worden bij het afspelen van de volgende track.</string>
 
-    <!-- __SUBSCRIPTIONS -->
+    <!-- __SETTINGS SUBSCRIPTIONS -->
     <string name="pref_subscriptions_header">Abonnementen</string>
     <string name="pref_subscription_buy_title">Abonneren</string>
     <string name="pref_subscription_buy_summary">Upgrade je account</string>
     <string name="title_subscribe">Abonneren</string>
     <string name="subscribe_buy">Kopen</string>
+
+    <!-- __SETTINGS OFFLINE -->
+    <string name="pref_offline_header">Offlinesynchronisatie-instellingen</string>
+    <string name="pref_offline_wifi_only_sync">Alleen offlinesynchronisatie via wifi</string>
+    <string name="pref_offline_wifi_only_description">Synchroniseer uw favorieten en afspeellijsten alleen via een wifi-verbinding</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
@@ -519,6 +566,7 @@
     <string name="tour_text_2">Vele soorten nieuwe en\nunieke muziek en audio</string>
     <string name="tour_title_3">Verbind &amp; Deel</string>
     <string name="tour_text_3">Vind muziek &amp; audio makers\nom te horen en volgen,\ndeel de geluiden waar u van houd</string>
+    <string name="tour_signup_button">Meld u aan met uw e-mailadres</string>
     <string name="tour_login_header">Of log in met uw account</string>
 
     <!-- __UPLOAD -->
@@ -547,4 +595,59 @@
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Raak aan om SoundCloud te openen</string>
+
+    <!-- __OFFLINE_SYNC -->
+    <string name="offline_track_not_available">Nummer is niet offline beschikbaar</string>
+    <string name="offline_update_completed_title">Alle nummers zijn gesynchroniseerd!</string>
+    <string name="offline_update_completed_message">Klaar voor offline luisteren!</string>
+    <string name="offline_update_in_progress">Uw tracks zijn aan het synchroniseren</string>
+    <string name="offline_likes_dialog_title">Maak offline beschikbaar</string>
+    <string name="offline_likes_dialog_message">Dit maakt al je likes beschikbaar voor offline luisteren, ook alle tracks die u in de toekomst liket.</string>
+    <string name="offline_likes_dialog_accept">Houd offline beschikbaar</string>
+    <string name="make_offline_available">Maak offline beschikbaar</string>
+    <string name="make_offline_unavailable">Verwijderen uit offline luisteren</string>
+
+    <!-- AGE VERFICATION -->
+    <string name="age_verify_label">Geef leeftijd aan</string>
+    <string name="age_verify_title">Geef a.u.b. uw leeftijd aan</string>
+    <string name="age_verify_warning">De inhoud van dit profiel is mogelijk ongeschikt voor personen onder een bepaalde leeftijd.</string>
+    <string name="age_verify_info">Deze informatie wordt op uw profiel opgeslagen.</string>
+    <string name="age_verify_birthday">Uw verjaardag</string>
+    <string name="age_verify_year_hint">Voer jaar in</string>
+    <string name="age_verify_button">Geef uw leeftijd aan</string>
+
+    <!-- DEVICE MANAGEMENT -->
+    <string name="device_management_limit">U hebt de limiet voor geregistreerde apparaten bereikt.</string>
+    <string name="device_management_login_message">Uw abonnement is beperkt tot 3 apparaten. U kunt dit apparaat registreren en u afmelden op het laatste gebruikte apparaat door \"doorgaan\" te selecteren.</string>
+    <string name="device_management_conflict_message">Uw abonnement heeft de apparaatlimiet bereikt. Dit apparaat is afgemeld en eventuele offline-inhoud is verwijderd. U kunt opnieuw inloggen om dit apparaat opnieuw te registreren.</string>
+    <string name="device_management_continue">Doorgaan</string>
+
+    <!-- MONTH PICKER DIALOG -->
+    <string name="select_month">Kies een maand</string>
+    <string-array name="select_month_options">
+        <item>Januari</item>
+        <item>Februari</item>
+        <item>Maart</item>
+        <item>April</item>
+        <item>Mei</item>
+        <item>Juni</item>
+        <item>Juli</item>
+        <item>Augustus</item>
+        <item>September</item>
+        <item>Oktober</item>
+        <item>November</item>
+        <item>December</item>
+    </string-array>
+
+    <!-- DEBUG LOGS/FEEDBACK -->
+    <string name="select_feedback_category">Wat zou u graag willen rapporteren?</string>
+    <string-array name="feedback_options">
+        <item>Crash</item>
+        <item>Afspeelprobleem</item>
+        <item>Ander probleem</item>
+    </string-array>
+    <string name="feedback_email_subject">Rapporteer: %1$s</string>
+    <string name="feedback_action_chooser">Zend feedback via e-mail...</string>
+
+
 </resources>
