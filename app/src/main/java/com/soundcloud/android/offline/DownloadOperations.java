@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
@@ -38,7 +39,7 @@ class DownloadOperations {
                               PlayQueueManager playQueueManager,
                               NetworkConnectionHelper connectionHelper,
                               OfflineSettingsStorage offlineSettings,
-                              @Named("HighPriority") Scheduler scheduler) {
+                              @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
         this.deleteOfflineContent = deleteOfflineContent;

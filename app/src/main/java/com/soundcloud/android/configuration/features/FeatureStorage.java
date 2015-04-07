@@ -1,6 +1,7 @@
 package com.soundcloud.android.configuration.features;
 
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
+import com.soundcloud.android.storage.StorageModule;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -22,7 +23,7 @@ public class FeatureStorage {
     };
 
     @Inject
-    public FeatureStorage(@Named("Features") SharedPreferences sharedPreferences) {
+    public FeatureStorage(@Named(StorageModule.FEATURES) SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 

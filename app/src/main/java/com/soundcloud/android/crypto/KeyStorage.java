@@ -1,5 +1,7 @@
 package com.soundcloud.android.crypto;
 
+import com.soundcloud.android.storage.StorageModule;
+
 import android.content.SharedPreferences;
 import android.util.Base64;
 
@@ -12,7 +14,7 @@ class KeyStorage {
     private final String ENCODED_EMPTY_VALUE = encodeForPrefs(DeviceSecret.EMPTY.getKey());
 
     @Inject
-    public KeyStorage(@Named("DeviceKeys") SharedPreferences preferences) {
+    public KeyStorage(@Named(StorageModule.DEVICE_KEYS) SharedPreferences preferences) {
         this.preferences = preferences;
     }
 

@@ -22,6 +22,8 @@ import javax.inject.Provider;
 )
 public class PlaylistsModule {
 
+    public static final String LOAD_POSTED_PLAYLISTS = "LoadPostedPlaylists";
+
     @Provides
     public PlaylistDetailsController providePlaylistViewController(Resources resources,
                                                                    Provider<SplitScreenController> splitScreenController,
@@ -32,4 +34,5 @@ public class PlaylistsModule {
             return defaultController.get();
         }
     }
+
 }

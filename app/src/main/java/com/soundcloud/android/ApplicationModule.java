@@ -64,6 +64,10 @@ import javax.inject.Singleton;
 @Module(library = true, includes = {ApiModule.class, StorageModule.class})
 public class ApplicationModule {
 
+    public static final String HIGH_PRIORITY = "HighPriority";
+    public static final String LOW_PRIORITY = "LowPriority";
+    public static final String MAIN_LOOPER = "MainLooper";
+
     private final SoundCloudApplication application;
 
     public ApplicationModule(SoundCloudApplication application) {
@@ -133,7 +137,7 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Named("MainLooper")
+    @Named(MAIN_LOOPER)
     public Looper providesMainLooper() {
         return Looper.getMainLooper();
     }
@@ -236,13 +240,13 @@ public class ApplicationModule {
     }
 
     @Provides
-    @Named("HighPriority")
+    @Named(HIGH_PRIORITY)
     public Scheduler provideHighPriorityScheduler() {
         return ScSchedulers.HIGH_PRIO_SCHEDULER;
     }
 
     @Provides
-    @Named("LowPriority")
+    @Named(LOW_PRIORITY)
     public Scheduler provideLowPriorityScheduler() {
         return ScSchedulers.LOW_PRIO_SCHEDULER;
     }

@@ -1,5 +1,6 @@
 package com.soundcloud.android.policies;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
 import rx.Observable;
@@ -17,7 +18,7 @@ public class PolicyOperations {
 
     @Inject
     public PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand, StorePoliciesCommand storePoliciesCommand,
-                            @Named("HighPriority") Scheduler scheduler) {
+                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.fetchPoliciesCommand = fetchPoliciesCommand;
         this.storePoliciesCommand = storePoliciesCommand;
         this.scheduler = scheduler;

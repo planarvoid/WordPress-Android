@@ -1,6 +1,7 @@
 package com.soundcloud.android.configuration;
 
 import com.google.common.net.HttpHeaders;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiClientRx;
@@ -68,7 +69,7 @@ public class ConfigurationOperations {
     public ConfigurationOperations(Lazy<ApiClientRx> apiClientRx, Lazy<ApiClient> apiClient, ExperimentOperations experimentOperations,
                                    FeatureOperations featureOperations, AccountOperations accountOperations,
                                    OfflineContentOperations offlineContentOperations, DeviceManagementStorage deviceManagementStorage,
-                                   FeatureFlags featureFlags, @Named("HighPriority") Scheduler scheduler) {
+                                   FeatureFlags featureFlags, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.apiClient = apiClient;
         this.experimentOperations = experimentOperations;

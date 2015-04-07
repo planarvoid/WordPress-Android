@@ -1,5 +1,6 @@
 package com.soundcloud.android.payments;
 
+import com.soundcloud.android.storage.StorageModule;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
@@ -14,7 +15,7 @@ class TokenStorage {
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public TokenStorage(@Named("Payments") SharedPreferences sharedPreferences) {
+    public TokenStorage(@Named(StorageModule.PAYMENTS) SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 

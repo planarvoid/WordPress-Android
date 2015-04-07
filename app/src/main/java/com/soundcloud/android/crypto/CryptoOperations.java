@@ -2,6 +2,7 @@ package com.soundcloud.android.crypto;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
@@ -30,7 +31,7 @@ public class CryptoOperations {
     private final Scheduler storageScheduler;
 
     @Inject
-    public CryptoOperations(KeyStorage storage, Encryptor encryptor, @Named("HighPriority") Scheduler scheduler) {
+    public CryptoOperations(KeyStorage storage, Encryptor encryptor, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.secureRandom = new SecureRandom();
         this.encryptor = encryptor;
         this.storage = storage;

@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.playlists.AddTrackToPlaylistCommand.AddTrackToPlaylistParams;
 import static com.soundcloud.android.playlists.RemoveTrackFromPlaylistCommand.RemoveTrackFromPlaylistParams;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -66,7 +67,7 @@ public class PlaylistOperations {
     };
 
     @Inject
-    PlaylistOperations(@Named("HighPriority") Scheduler scheduler,
+    PlaylistOperations(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                        SyncInitiator syncInitiator,
                        PlaylistTracksStorage playlistTracksStorage,
                        PlaylistStorage playlistStorage,

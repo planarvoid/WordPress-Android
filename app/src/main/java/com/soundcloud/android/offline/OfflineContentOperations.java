@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -75,7 +76,7 @@ public class OfflineContentOperations {
                                     LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
                                     OfflineTracksStorage tracksStorage,
                                     SecureFileStorage secureFileStorage,
-                                    @Named("HighPriority") Scheduler scheduler) {
+                                    @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;

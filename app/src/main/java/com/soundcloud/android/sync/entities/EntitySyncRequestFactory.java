@@ -15,8 +15,8 @@ public class EntitySyncRequestFactory {
     private final EventBus eventBus;
 
     @Inject
-    public EntitySyncRequestFactory(@Named("TracksSyncJob") Lazy<EntitySyncJob> trackSyncJob,
-                                    @Named("PlaylistsSyncJob") Lazy<EntitySyncJob> playlistSyncJob, EventBus eventBus) {
+    public EntitySyncRequestFactory(@Named(EntitySyncModule.TRACKS_SYNC) Lazy<EntitySyncJob> trackSyncJob,
+                                    @Named(EntitySyncModule.PLAYLISTS_SYNC) Lazy<EntitySyncJob> playlistSyncJob, EventBus eventBus) {
         this.tracksSyncJob = trackSyncJob;
         this.playlistSyncJob = playlistSyncJob;
         this.eventBus = eventBus;

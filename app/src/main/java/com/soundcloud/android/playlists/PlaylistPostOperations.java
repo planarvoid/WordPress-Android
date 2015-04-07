@@ -4,6 +4,7 @@ package com.soundcloud.android.playlists;
 import static com.google.common.collect.Iterables.getLast;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.commands.PagedQueryCommand;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
@@ -61,7 +62,7 @@ class PlaylistPostOperations {
     @Inject
     PlaylistPostOperations(LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
                            SyncInitiator syncInitiator,
-                           @Named("HighPriority") Scheduler scheduler,
+                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                            NetworkConnectionHelper networkConnectionHelper) {
         this.loadPostedPlaylistsCommand = loadPostedPlaylistsCommand;
         this.syncInitiator = syncInitiator;

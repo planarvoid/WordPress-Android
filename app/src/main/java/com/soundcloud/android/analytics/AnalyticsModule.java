@@ -20,6 +20,8 @@ import java.net.ProxySelector;
 @Module(addsTo = ApplicationModule.class, injects = {SoundCloudApplication.class, LocalyticsPushReceiver.class})
 public class AnalyticsModule {
 
+    public static final String TRACKING_DB = "TrackingDB";
+
     @Provides
     @Nullable
     ComScoreAnalyticsProvider provideComScoreProvider(Context context) {
@@ -33,7 +35,7 @@ public class AnalyticsModule {
     }
 
     @Provides
-    @Named("tracking_db")
+    @Named(TRACKING_DB)
     PropellerDatabase provideTrackingDatabase(TrackingDbHelper dbHelper) {
         return new PropellerDatabase(dbHelper.getWritableDatabase());
     }

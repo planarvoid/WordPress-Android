@@ -4,6 +4,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_OFFLINE_CONTENT_EVENT_FILTER;
 import static com.soundcloud.android.events.EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.playlists.PlaylistOperations;
@@ -74,7 +75,7 @@ public class OfflineContentController {
                                     OfflineSettingsStorage settingsStorage,
                                     OfflinePlaylistStorage playlistStorage,
                                     PlaylistOperations playlistOperations,
-                                    @Named("HighPriority") Scheduler scheduler) {
+                                    @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.context = context;
         this.eventBus = eventBus;
         this.settingStorage = settingsStorage;

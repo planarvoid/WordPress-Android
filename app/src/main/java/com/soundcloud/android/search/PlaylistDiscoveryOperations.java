@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -50,7 +51,7 @@ class PlaylistDiscoveryOperations {
     @Inject
     PlaylistDiscoveryOperations(ApiClientRx apiClientRx, PlaylistTagStorage tagStorage,
                                 StorePlaylistsCommand storePlaylistsCommand,
-                                @Named("HighPriority") Scheduler scheduler) {
+                                @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.tagStorage = tagStorage;
         this.storePlaylistsCommand = storePlaylistsCommand;

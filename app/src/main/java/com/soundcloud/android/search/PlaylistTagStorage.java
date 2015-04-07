@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.utils.ScTextUtils;
 import rx.Observable;
 import rx.Scheduler;
@@ -26,7 +27,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public PlaylistTagStorage(@Named("PlaylistTags") SharedPreferences sharedPreferences) {
+    public PlaylistTagStorage(@Named(StorageModule.PLAYLIST_TAGS) SharedPreferences sharedPreferences) {
         this(sharedPreferences, ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 

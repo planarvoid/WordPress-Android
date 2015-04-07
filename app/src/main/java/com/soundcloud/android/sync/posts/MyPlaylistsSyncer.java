@@ -32,7 +32,7 @@ public class MyPlaylistsSyncer implements SyncStrategy {
     private final ApiClient apiClient;
 
     @Inject
-    public MyPlaylistsSyncer(@Named("MyPlaylistPostsSyncer") PostsSyncer postsSyncer,
+    public MyPlaylistsSyncer(@Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) PostsSyncer postsSyncer,
                              LoadLocalPlaylistsCommand loadLocalPlaylists,
                              LoadPlaylistTrackUrnsCommand loadPlaylistTrackUrnsCommand,
                              ReplacePlaylistPostCommand replacePlaylist, ApiClient apiClient) {

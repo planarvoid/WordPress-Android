@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -36,7 +37,7 @@ public class OfflinePlaybackOperations {
                                      TrackLikeOperations likeOperations,
                                      PlaylistOperations playlistOperations,
                                      OfflineTracksStorage offlineTracksStorage,
-                                     @Named("HighPriority") Scheduler scheduler) {
+                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.featureOperations = featureOperations;
         this.connectionHelper = connectionHelper;
         this.playbackOperations = playbackOperations;

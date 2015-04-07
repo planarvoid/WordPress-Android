@@ -3,6 +3,7 @@ package com.soundcloud.android.likes;
 import static com.soundcloud.android.likes.UpdateLikeCommand.UpdateLikeParams;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -41,7 +42,7 @@ public class LikeOperations {
     public LikeOperations(UpdateLikeCommand storeLikeCommand,
                           SyncInitiator syncInitiator,
                           EventBus eventBus,
-                          @Named("HighPriority") Scheduler scheduler) {
+                          @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeLikeCommand = storeLikeCommand;
         this.eventBus = eventBus;
         this.scheduler = scheduler;

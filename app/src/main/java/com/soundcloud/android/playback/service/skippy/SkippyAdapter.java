@@ -7,6 +7,7 @@ import static com.soundcloud.android.skippy.Skippy.Reason.COMPLETE;
 import static com.soundcloud.android.skippy.Skippy.Reason.ERROR;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -450,7 +451,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         @Nullable private BufferUnderrunListener bufferUnderrunListener;
 
         @Inject
-        StateChangeHandler(@Named("MainLooper") Looper looper) {
+        StateChangeHandler(@Named(ApplicationModule.MAIN_LOOPER) Looper looper) {
             super(looper);
         }
 

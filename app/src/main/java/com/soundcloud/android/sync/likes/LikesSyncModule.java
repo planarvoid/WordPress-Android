@@ -19,66 +19,75 @@ import javax.inject.Named;
 @Module(complete = false, library = true)
 public class LikesSyncModule {
 
+    public static final String TRACK_LIKES_SYNCER = "TrackLikesSyncer";
+    public static final String PLAYLIST_LIKES_SYNCER = "PlaylistLikesSyncer";
+    public static final String TRACK_LIKE_ADDITIONS = "TrackLikeAdditions";
+    public static final String TRACK_LIKE_DELETIONS = "TrackLikeDeletions";
+    public static final String PLAYLIST_LIKE_ADDITIONS = "PlaylistLikeAdditions";
+    public static final String PLAYLIST_LIKE_DELETIONS = "PlaylistLikeDeletions";
+    public static final String REMOVE_TRACK_LIKES = "RemoveTrackLikes";
+    public static final String REMOVE_PLAYLIST_LIKES = "RemovePlaylistLikes";
+
     @Provides
-    @Named("TrackLikesSyncer")
+    @Named(TRACK_LIKES_SYNCER)
     LikesSyncer<ApiTrack> provideTrackLikesSyncer(
             FetchLikesCommand fetchLikesCommand, FetchTracksCommand fetchTracks, LoadLikesCommand loadLikes,
-            @Named("TrackLikeAdditions") PushLikeAdditionsCommand pushLikeAdditions,
-            @Named("TrackLikeDeletions") PushLikeDeletionsCommand pushLikeDeletions,
+            @Named(TRACK_LIKE_ADDITIONS) PushLikeAdditionsCommand pushLikeAdditions,
+            @Named(TRACK_LIKE_DELETIONS) PushLikeDeletionsCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StoreTracksCommand storeTracks, StoreLikesCommand storeLikes,
-            @Named("RemoveTrackLikes") RemoveLikesCommand removeLikes) {
+            @Named(REMOVE_TRACK_LIKES) RemoveLikesCommand removeLikes) {
         return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS), fetchTracks, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_TRACK),
                 loadLikesPendingAddition.with(Sounds.TYPE_TRACK), loadLikesPendingRemoval.with(Sounds.TYPE_TRACK), storeTracks, storeLikes,
                 removeLikes);
     }
 
     @Provides
-    @Named("PlaylistLikesSyncer")
+    @Named(PLAYLIST_LIKES_SYNCER)
     LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer(
             FetchLikesCommand fetchLikesCommand, FetchPlaylistsCommand fetchPlaylists, LoadLikesCommand loadLikes,
-            @Named("PlaylistLikeAdditions") PushLikeAdditionsCommand pushLikeAdditions,
-            @Named("PlaylistLikeDeletions") PushLikeDeletionsCommand pushLikeDeletions,
+            @Named(PLAYLIST_LIKE_ADDITIONS) PushLikeAdditionsCommand pushLikeAdditions,
+            @Named(PLAYLIST_LIKE_DELETIONS) PushLikeDeletionsCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes,
-            @Named("RemovePlaylistLikes") RemoveLikesCommand removeLikes) {
+            @Named(REMOVE_PLAYLIST_LIKES) RemoveLikesCommand removeLikes) {
         return new LikesSyncer<>(fetchLikesCommand.with(ApiEndpoints.LIKED_PLAYLISTS), fetchPlaylists, pushLikeAdditions, pushLikeDeletions, loadLikes.with(Sounds.TYPE_PLAYLIST),
                 loadLikesPendingAddition.with(Sounds.TYPE_PLAYLIST), loadLikesPendingRemoval.with(Sounds.TYPE_PLAYLIST), storePlaylists, storeLikes,
                 removeLikes);
     }
 
     @Provides
-    @Named("TrackLikeAdditions")
+    @Named(TRACK_LIKE_ADDITIONS)
     PushLikeAdditionsCommand provideTrackLikeAdditionsPushCommand(ApiClient apiClient) {
         return new PushLikeAdditionsCommand(apiClient, ApiEndpoints.CREATE_TRACK_LIKES);
     }
 
     @Provides
-    @Named("TrackLikeDeletions")
+    @Named(TRACK_LIKE_DELETIONS)
     PushLikeDeletionsCommand provideTrackLikeDeletionsPushCommand(ApiClient apiClient) {
         return new PushLikeDeletionsCommand(apiClient, ApiEndpoints.DELETE_TRACK_LIKES);
     }
 
     @Provides
-    @Named("PlaylistLikeAdditions")
+    @Named(PLAYLIST_LIKE_ADDITIONS)
     PushLikeAdditionsCommand providePlaylistLikeAdditionsPushCommand(ApiClient apiClient) {
         return new PushLikeAdditionsCommand(apiClient, ApiEndpoints.CREATE_PLAYLIST_LIKES);
     }
 
     @Provides
-    @Named("PlaylistLikeDeletions")
+    @Named(PLAYLIST_LIKE_DELETIONS)
     PushLikeDeletionsCommand providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
         return new PushLikeDeletionsCommand(apiClient, ApiEndpoints.DELETE_PLAYLIST_LIKES);
     }
 
     @Provides
-    @Named("RemoveTrackLikes")
+    @Named(REMOVE_TRACK_LIKES)
     RemoveLikesCommand provideRemoveTrackLikesCommand(PropellerDatabase database) {
         return new RemoveLikesCommand(database, Sounds.TYPE_TRACK);
     }
 
     @Provides
-    @Named("RemovePlaylistLikes")
+    @Named(REMOVE_PLAYLIST_LIKES)
     RemoveLikesCommand provideRemovePlaylistLikesCommand(PropellerDatabase database) {
         return new RemoveLikesCommand(database, Sounds.TYPE_PLAYLIST);
     }

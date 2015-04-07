@@ -4,6 +4,7 @@ import static com.google.common.collect.Iterables.getLast;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
@@ -58,7 +59,7 @@ public class TrackLikeOperations {
                                LoadLikedTrackCommand loadLikedTrackCommand,
                                SyncInitiator syncInitiator,
                                EventBus eventBus,
-                               @Named("HighPriority") Scheduler scheduler,
+                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
                                NetworkConnectionHelper networkConnectionHelper) {
         this.loadLikedTrackUrnsCommand = loadLikedTrackUrnsCommand;
         this.loadLikedTracksCommand = loadLikedTracksCommand;

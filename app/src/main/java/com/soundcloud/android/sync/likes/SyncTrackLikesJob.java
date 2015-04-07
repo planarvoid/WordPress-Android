@@ -11,7 +11,7 @@ import javax.inject.Named;
 public class SyncTrackLikesJob extends DefaultSyncJob {
 
     @Inject
-    public SyncTrackLikesJob(@Named("TrackLikesSyncer") Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer) {
+    public SyncTrackLikesJob(@Named(LikesSyncModule.TRACK_LIKES_SYNCER) Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer) {
         super(trackLikesSyncer.get());
     }
 

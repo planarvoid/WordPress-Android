@@ -28,7 +28,7 @@ public class TrackLikesActionMenuController extends DefaultSupportFragmentLightC
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
-    public TrackLikesActionMenuController(@Named("LikedTracks") Provider<ActionMenuController> actionMenuControllerProvider,
+    public TrackLikesActionMenuController(@Named(LikesModule.LIKED_TRACKS_MENU) Provider<ActionMenuController> actionMenuControllerProvider,
                                           OfflineContentOperations offlineOperations) {
         this.actionMenuControllerProvider = actionMenuControllerProvider;
         this.offlineOperations = offlineOperations;
