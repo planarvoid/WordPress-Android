@@ -9,14 +9,14 @@ public class ConfigurationHelper {
     private final static String OFFLINE_UPSELL = "offline_sync_upsell";
 
     public static void enableOfflineContent(Context context) {
-        enableConfigurationFeature(context, OFFLINE_CONTENT);
+        enableFeature(context, OFFLINE_CONTENT);
     }
 
     public static void enableUpsell(Context context) {
-        enableConfigurationFeature(context, OFFLINE_UPSELL);
+        enableFeature(context, OFFLINE_UPSELL);
     }
 
-    private static void enableConfigurationFeature(Context context, final String feature) {
+    private static void enableFeature(Context context, final String feature) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
         sharedPreferences.edit().putBoolean(feature, true).apply();
 
