@@ -127,7 +127,7 @@ class GeneralSettings implements OnPreferenceClickListener {
                 parent.startActivity(new Intent(parent, LegalActivity.class));
                 return true;
             case LOGOUT:
-                if (!AndroidUtils.isUserAMonkey()) {  // Don't let the monkey log out
+                if (!AndroidUtils.isUserAMonkey()) { // Don't let the monkey log out
                     showLogoutDialog(parent);
                 }
                 return true;
@@ -166,7 +166,7 @@ class GeneralSettings implements OnPreferenceClickListener {
         final boolean enabled = !preferences.getBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, false);
         preferences.edit().putBoolean(Consts.PrefKeys.PLAYBACK_ERROR_REPORTING_ENABLED, enabled).apply();
 
-        Log.d(PlaybackService.TAG, "toggling error reporting (enabled=" + enabled + ")");
+        Log.d(PlaybackService.TAG, "Toggling error reporting (enabled=" + enabled + ")");
         Resources resources = appContext.getResources();
         AndroidUtils.showToast(appContext, resources.getString(R.string.playback_error_logging, resources.getText(enabled ? R.string.enabled : R.string.disabled)));
     }

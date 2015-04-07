@@ -39,10 +39,6 @@ public final class Consts {
         public static final int RECOVER_FROM_PLAY_SERVICES_ERROR = 8004;
     }
 
-    public static final class Dialogs {
-        public static final int DIALOG_LOGOUT = 9;
-    }
-
     public static final class GeneralIntents {
         public static final String ACTIVITIES_UNSEEN_CHANGED = Activities.class.getSimpleName() + ".unseen_changed";
         public static final String UNAUTHORIZED = SoundCloudApplication.class.getSimpleName() + ".unauthorized";

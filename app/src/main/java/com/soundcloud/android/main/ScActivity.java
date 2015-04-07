@@ -1,13 +1,10 @@
 package com.soundcloud.android.main;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.Actions;
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.accounts.AccountPlaybackController;
-import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
@@ -16,9 +13,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
-import android.app.Dialog;
 import android.app.Fragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.view.KeyEvent;
@@ -130,23 +125,6 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     protected boolean shouldTrackScreen() {
         // What does it mean ? Is there a bug here ? #2664
         return !screenStateProvider.isConfigurationChange() || screenStateProvider.isReallyResuming();
-    }
-
-    @Override
-    protected Dialog onCreateDialog(int which) {
-        switch (which) {
-            case Consts.Dialogs.DIALOG_LOGOUT:
-                return new AlertDialogWrapper.Builder(this).setTitle(R.string.menu_clear_user_title)
-                        .setMessage(R.string.menu_clear_user_desc)
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                LogoutActivity.start(ScActivity.this);
-                            }
-                        }).create();
-            default:
-                return super.onCreateDialog(which);
-        }
     }
 
 }

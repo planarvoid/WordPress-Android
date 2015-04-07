@@ -1,15 +1,17 @@
 package com.soundcloud.android.creators.upload;
 
-import com.soundcloud.android.Consts;
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
+import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.dialog.DialogHelper;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -26,7 +28,9 @@ public class ShareUserHeaderLayout extends RelativeLayout {
                 new ScTextUtils.ClickSpan.OnClickListener() {
                     @Override
                     public void onClick() {
-                        DialogHelper.safeShowDialog(activity, Consts.Dialogs.DIALOG_LOGOUT);
+                        if (!activity.isFinishing()) {
+                            showLogoutDialog(activity);
+                        }
                     }
                 }, true, false);
 
@@ -36,6 +40,18 @@ public class ShareUserHeaderLayout extends RelativeLayout {
             final ImageView icon = (ImageView) findViewById(R.id.icon);
             imageOperations.displayWithPlaceholder(user.getUrn(), ApiImageSize.LARGE, icon);
         }
+    }
+
+    private void showLogoutDialog(final Activity activity) {
+        new AlertDialogWrapper.Builder(activity)
+                .setTitle(R.string.menu_clear_user_title)
+                .setMessage(R.string.menu_clear_user_desc)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        LogoutActivity.start(activity);
+                    }
+                }).show();
     }
 
     /** @noinspection UnusedDeclaration*/
