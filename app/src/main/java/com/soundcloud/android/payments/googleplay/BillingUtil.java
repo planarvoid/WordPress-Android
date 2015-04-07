@@ -59,10 +59,15 @@ final class BillingUtil {
     }
 
     private static int responseCodeFromObject(Object code) {
-        if (code == null) { return RESULT_OK; }
-        else if (code instanceof Integer) { return (Integer) code; }
-        else if (code instanceof Long) { return ((Long) code).intValue(); }
-        else { throw new IllegalArgumentException("Invalid type for Google Play billing RESPONSE_CODE"); }
+        if (code == null) {
+            return RESULT_OK;
+        } else if (code instanceof Integer) {
+            return (Integer) code;
+        } else if (code instanceof Long) {
+            return ((Long) code).intValue();
+        } else {
+            throw new IllegalArgumentException("Invalid type for Google Play billing RESPONSE_CODE");
+        }
     }
 
     public static String removeAppName(String productTitle) {

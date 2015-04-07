@@ -1,9 +1,10 @@
 package com.soundcloud.android.payments.error;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
+import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +32,7 @@ public class StaleCheckoutDialog extends UnrecoverableErrorDialog {
         new StaleCheckoutDialog().show(fragmentManager, TAG);
     }
 
+    @NotNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new AlertDialogWrapper.Builder(getActivity())

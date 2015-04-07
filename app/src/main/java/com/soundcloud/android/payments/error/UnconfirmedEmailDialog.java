@@ -3,6 +3,8 @@ package com.soundcloud.android.payments.error;
 import com.soundcloud.android.R;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
+import org.jetbrains.annotations.NotNull;
+
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -24,6 +26,7 @@ public class UnconfirmedEmailDialog extends DialogFragment {
         new UnconfirmedEmailDialog().show(fragmentManager, TAG);
     }
 
+    @NotNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new AlertDialogWrapper.Builder(getActivity())
