@@ -38,7 +38,10 @@ public class TrackOperations {
     }
 
     public Observable<PropertySet> track(final Urn trackUrn) {
-        return trackFromStorage(trackUrn).toList().flatMap(syncIfEmpty(trackUrn));
+        return trackFromStorage(trackUrn)
+                .onErrorResumeNext(syncThenLoadTrack(trackUrn, trackFromStorage(trackUrn)))
+                .toList()
+                .flatMap(syncIfEmpty(trackUrn));
     }
 
     Observable<PropertySet> fullTrackWithUpdate(final Urn trackUrn) {
