@@ -12,10 +12,7 @@ public class OfflineSettingsActivity extends ScActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getFragmentManager()
-                .beginTransaction()
-                .replace(android.R.id.content, OfflineSettingsFragment.create())
-                .commit();
+        setContentFragment(OfflineSettingsFragment.create());
     }
 
     @Override

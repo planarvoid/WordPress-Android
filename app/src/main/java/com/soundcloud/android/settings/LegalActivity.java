@@ -9,10 +9,7 @@ public class LegalActivity extends ScActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getFragmentManager()
-                .beginTransaction()
-                .replace(android.R.id.content, LegalFragment.create())
-                .commit();
+        setContentFragment(LegalFragment.create());
     }
 
     @Override

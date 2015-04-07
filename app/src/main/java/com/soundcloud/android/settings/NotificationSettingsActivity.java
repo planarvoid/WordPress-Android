@@ -12,10 +12,7 @@ public class NotificationSettingsActivity extends ScActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getFragmentManager()
-                .beginTransaction()
-                .replace(android.R.id.content, NotificationSettingsFragment.create())
-                .commit();
+        setContentFragment(NotificationSettingsFragment.create());
     }
 
     @Override

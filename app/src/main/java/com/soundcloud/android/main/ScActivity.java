@@ -17,6 +17,7 @@ import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
 import android.app.Dialog;
+import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -103,13 +104,19 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     @Override
     protected void setActivityContentView() {
         setContentView();
-
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     // Override this in activities with custom content views
     protected void setContentView() {
         setContentView(R.layout.container_layout);
+    }
+
+    protected void setContentFragment(final Fragment f) {
+        getFragmentManager()
+                .beginTransaction()
+                .replace(getContentHolderViewId(), f)
+                .commit();
     }
 
     @Override

@@ -9,10 +9,7 @@ public class ConfigurationFeaturesActivity extends ScActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getFragmentManager()
-                .beginTransaction()
-                .replace(android.R.id.content, ConfigurationFeaturesFragment.create())
-                .commit();
+        setContentFragment(ConfigurationFeaturesFragment.create());
     }
 
 }

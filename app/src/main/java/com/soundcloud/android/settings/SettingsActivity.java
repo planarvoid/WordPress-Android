@@ -14,10 +14,7 @@ public class SettingsActivity extends ScActivity {
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        getFragmentManager()
-                .beginTransaction()
-                .replace(android.R.id.content, SettingsFragment.create())
-                .commit();
+        setContentFragment(SettingsFragment.create());
     }
 
     @Override
