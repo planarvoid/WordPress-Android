@@ -89,11 +89,10 @@ public class ProgressController {
         }
         progressAnimator = helper.createAnimator(progressView, playbackProgress.getProgressProportion());
         if (progressAnimator != null) {
-            progressAnimator.setCurrentPlayTime(playbackProgress.getTimeSinceCreation());
             progressAnimator.setDuration(playbackProgress.getTimeLeft());
+            progressAnimator.setCurrentPlayTime(playbackProgress.getTimeSinceCreation());
             progressAnimator.start();
         }
-
     }
 
     public static class Factory {

@@ -4,6 +4,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyFloat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -16,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.AdditionalMatchers;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -66,22 +68,19 @@ public class ProgressControllerTest {
     }
 
     @Test
-    public void startAnimationSetsDurationToProgressTimeRemaining() {
+    public void startAnimationSetsDurationToTimeLeftThenSetsCurrentPlayTimeToTimeSinceCreation() {
         when(progress.getTimeLeft()).thenReturn(10L);
-        controller.startProgressAnimation(progress);
-        verify(progressAnimator).setDuration(10L);
-    }
-
-    @Test
-    public void startAnimationSetsCurrentPlayTimeToTimeSinceCreation() {
         when(progress.getTimeSinceCreation()).thenReturn(20L);
+
         controller.startProgressAnimation(progress);
-        verify(progressAnimator).setCurrentPlayTime(20L);
+
+        InOrder inOrder = inOrder(progressAnimator);
+        inOrder.verify(progressAnimator).setDuration(10L);
+        inOrder.verify(progressAnimator).setCurrentPlayTime(20L);
     }
 
     @Test
     public void cancelProgressAnimationDoesNothingWhenAnimatorIsNull() {
-
         controller.cancelProgressAnimation();
         verifyZeroInteractions(progressAnimator);
     }
