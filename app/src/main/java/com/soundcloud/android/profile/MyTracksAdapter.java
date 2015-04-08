@@ -125,7 +125,8 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
             pendingRecordingItemPresenter.bindItemView(position, rowView, recordingData);
         } else {
-            getCellPresenter(position).bindItemView(position - getPendingRecordingsCount(), rowView, (List) listItems);
+            final int adjustedPosition = position - getPendingRecordingsCount();
+            getCellPresenter(adjustedPosition).bindItemView(adjustedPosition, rowView, (List) listItems);
         }
     }
 
