@@ -18,13 +18,11 @@
     </style>
 
     <style name="TrackInfo.Text.Main.Creator">
-        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">16sp</item>
     </style>
 
     <style name="TrackInfo.Text.Main.Title">
-        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textColor">@color/list_primary</item>
         <item name="android:textSize">18sp</item>
         <item name="android:maxLines">2</item>
@@ -61,7 +59,6 @@
     </style>
 
     <style name="TrackInfo.Text.Stats">
-        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
         <item name="android:textColor">@color/list_secondary</item>
         <item name="android:textSize">12sp</item>
         <item name="android:gravity">left|center_vertical</item>

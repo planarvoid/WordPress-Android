@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -13,7 +12,7 @@
 
         <include layout="@layout/downloadable_header" />
 
-        <com.soundcloud.android.view.CustomButton
+        <Button
                 android:id="@+id/shuffle_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -25,8 +24,7 @@
                 android:drawablePadding="8dp"
                 android:paddingLeft="@dimen/default_list_item_padding"
                 android:paddingRight="@dimen/default_list_item_padding"
-                android:background="@drawable/btn_default_states"
-                app:custom_font="fonts/Roboto-Regular.ttf" />
+                android:background="@drawable/btn_default_states" />
     </LinearLayout>
 
     <View android:layout_width="match_parent"

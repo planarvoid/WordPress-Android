@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/NewPlaylistActionContainer"
     android:orientation="horizontal"
     android:gravity="center_vertical">
@@ -11,13 +10,12 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/collection_download_state_margin_right"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <TextView
         android:id="@+id/header_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textColor="@color/white"
-        app:custom_font="fonts/Roboto-Regular.ttf" />
+        android:textColor="@color/white" />
 
     <ToggleButton
         android:id="@+id/toggle_like"

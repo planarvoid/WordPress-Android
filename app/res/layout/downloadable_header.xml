@@ -9,11 +9,10 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/collection_download_state_margin_right"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <TextView
         android:id="@+id/header_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        app:custom_font="fonts/Roboto-Regular.ttf" />
+        android:layout_weight="1" />
 
 </merge>

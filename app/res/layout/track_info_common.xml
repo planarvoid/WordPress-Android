@@ -8,11 +8,11 @@
               android:layout_marginBottom="@dimen/track_info_interior_padding_bottom"
               android:animateLayoutChanges="true">
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <TextView
             android:id="@+id/creator"
             style="@style/TrackInfo.Text.Main.Creator"/>
 
-    <com.soundcloud.android.view.CustomFontTextView
+    <TextView
             android:id="@id/title"
             style="@style/TrackInfo.Text.Main.Title"/>
 
@@ -35,7 +35,7 @@
                   android:layout_marginBottom="18dp"
                   android:animateLayoutChanges="true">
 
-        <com.soundcloud.android.view.CustomFontTextView
+        <TextView
                 android:id="@+id/plays"
                 style="@style/TrackInfo.Text.Stats"
                 android:drawableLeft="@drawable/stats_play"/>
@@ -44,7 +44,7 @@
                 android:id="@+id/divider1"
                 style="@style/TrackInfoDivider"/>
 
-        <com.soundcloud.android.view.CustomFontTextView
+        <TextView
                 android:id="@+id/likes"
                 style="@style/TrackInfo.Text.Stats"
                 android:drawableLeft="@drawable/list_item_like"/>
@@ -53,7 +53,7 @@
                 android:id="@+id/divider2"
                 style="@style/TrackInfoDivider"/>
 
-        <com.soundcloud.android.view.CustomFontTextView
+        <TextView
                 android:id="@+id/reposts"
                 style="@style/TrackInfo.Text.Stats"
                 android:drawableLeft="@drawable/stats_repost"/>
