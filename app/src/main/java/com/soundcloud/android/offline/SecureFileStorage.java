@@ -27,6 +27,8 @@ public class SecureFileStorage {
     private static final String ENC_FILE_EXTENSION = ".enc";
     protected final File OFFLINE_DIR;
 
+    public static final int MP3_128_KBPS = 128;
+
     private final CryptoOperations cryptoOperations;
     private final OfflineSettingsStorage settingsStorage;
 
@@ -77,10 +79,8 @@ public class SecureFileStorage {
 
     @VisibleForTesting
     protected long calculateFileSizeInBytes(long trackDurationMillis) {
-        //We assume 128 Kbps stereo MP3
-        //File size in KB = (sec * bit) / 8 (Note kb is kilobytes, not kilobits, hence the 8).
         long trackSeconds = TimeUnit.MILLISECONDS.toSeconds(trackDurationMillis);
-        long fileSizeKB = trackSeconds * 128 / 8L;
+        long fileSizeKB = trackSeconds * MP3_128_KBPS / 8L; //(KB is kilobytes, not kilobits, hence the 8).
         return fileSizeKB * 1024;
     }
 
