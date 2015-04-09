@@ -3,6 +3,7 @@ package com.soundcloud.android.ads;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -29,7 +30,7 @@ public class AdIdHelper {
     private volatile boolean adIdTracking;
 
     @Inject
-    public AdIdHelper(AdIdWrapper adIdWrapper, @Named("HighPriority") Scheduler scheduler) {
+    public AdIdHelper(AdIdWrapper adIdWrapper, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.adIdWrapper = adIdWrapper;
         this.scheduler = scheduler;
     }

@@ -5,6 +5,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -43,7 +44,7 @@ class CommentsOperations {
     private final CommentsPager pager = new CommentsPager();
 
     @Inject
-    public CommentsOperations(ApiClientRx apiClientRx, @Named("HighPriority") Scheduler scheduler) {
+    public CommentsOperations(ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
     }

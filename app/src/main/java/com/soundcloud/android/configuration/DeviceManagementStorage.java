@@ -1,6 +1,7 @@
 package com.soundcloud.android.configuration;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.storage.StorageModule;
 
 import android.content.SharedPreferences;
 
@@ -15,7 +16,7 @@ public class DeviceManagementStorage {
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public DeviceManagementStorage(@Named("DeviceManagement") SharedPreferences sharedPreferences) {
+    public DeviceManagementStorage(@Named(StorageModule.DEVICE_MANAGEMENT) SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 

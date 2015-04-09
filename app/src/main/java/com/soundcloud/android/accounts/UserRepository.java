@@ -1,5 +1,6 @@
 package com.soundcloud.android.accounts;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -25,7 +26,7 @@ public class UserRepository {
     };
 
     @Inject
-    public UserRepository(ApiClientRx apiClientRx, UserStorage userStorage, @Named("HighPriority") Scheduler scheduler) {
+    public UserRepository(ApiClientRx apiClientRx, UserStorage userStorage, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.userStorage = userStorage;
         this.scheduler = scheduler;

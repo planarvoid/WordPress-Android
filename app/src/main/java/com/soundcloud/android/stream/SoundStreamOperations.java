@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 import static com.google.common.collect.Iterables.getLast;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
@@ -58,7 +59,7 @@ class SoundStreamOperations {
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          Context appContext, @Named("HighPriority") Scheduler scheduler) {
+                          Context appContext, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.appContext = appContext;

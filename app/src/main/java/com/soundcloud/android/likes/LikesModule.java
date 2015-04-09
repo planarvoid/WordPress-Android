@@ -14,8 +14,10 @@ import javax.inject.Named;
 @Module(addsTo = ApplicationModule.class, injects = {TrackLikesFragment.class})
 public class LikesModule {
 
+    public static final String LIKED_TRACKS_MENU = "LikedTracksMenu";
+
     @Provides
-    @Named("LikedTracks")
+    @Named(LIKED_TRACKS_MENU)
     ActionMenuController provideTrackLikesActionMenuController(
             Lazy<SyncActionMenuController> syncActionMenuController,
             Lazy<DefaultActionMenuController> defaultActionMenuControllerProvider,

@@ -16,8 +16,8 @@ public class MyPostsSyncer implements SyncStrategy {
     private final PostsSyncer playlistPostsSyncer;
 
     @Inject
-    public MyPostsSyncer(@Named("MyTrackPostsSyncer") PostsSyncer trackPostsSyncer,
-                         @Named("MyPlaylistPostsSyncer") PostsSyncer playlistPostsSyncer) {
+    public MyPostsSyncer(@Named(PostsSyncModule.MY_TRACK_POSTS_SYNCER) PostsSyncer trackPostsSyncer,
+                         @Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER) PostsSyncer playlistPostsSyncer) {
         this.trackPostsSyncer = trackPostsSyncer;
         this.playlistPostsSyncer = playlistPostsSyncer;
     }

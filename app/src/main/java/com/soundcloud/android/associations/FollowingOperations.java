@@ -8,6 +8,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -61,7 +62,7 @@ public class FollowingOperations {
     @Inject
     public FollowingOperations(ApiClientRx apiClientRx, UserAssociationStorage userAssociationStorage,
                                SyncStateManager syncStateManager,
-                               ScModelManager modelManager, SyncInitiator syncInitiator, @Named("HighPriority") Scheduler scheduler) {
+                               ScModelManager modelManager, SyncInitiator syncInitiator, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.userAssociationStorage = userAssociationStorage;
         this.syncStateManager = syncStateManager;

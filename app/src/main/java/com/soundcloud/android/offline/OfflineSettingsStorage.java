@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
+import com.soundcloud.android.storage.StorageModule;
 import rx.Observable;
 import rx.functions.Func1;
 
@@ -33,7 +34,7 @@ public class OfflineSettingsStorage {
     };
 
     @Inject
-    public OfflineSettingsStorage(@Named("OfflineSettings") SharedPreferences sharedPreferences) {
+    public OfflineSettingsStorage(@Named(StorageModule.OFFLINE_SETTINGS) SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
     }
 

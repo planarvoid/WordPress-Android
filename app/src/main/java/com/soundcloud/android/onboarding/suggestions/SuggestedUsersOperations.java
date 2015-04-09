@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.suggestions;
 
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -33,7 +34,7 @@ public class SuggestedUsersOperations {
     private final Scheduler scheduler;
 
     @Inject
-    public SuggestedUsersOperations(ApiClientRx apiClientRx, @Named("HighPriority") Scheduler scheduler) {
+    public SuggestedUsersOperations(ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
     }

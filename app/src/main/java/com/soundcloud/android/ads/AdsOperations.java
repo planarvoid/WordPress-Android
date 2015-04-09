@@ -5,6 +5,7 @@ import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.google.common.base.Predicate;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -49,7 +50,7 @@ public class AdsOperations {
 
     @Inject
     AdsOperations(StoreTracksCommand storeTracksCommand, PlayQueueManager playQueueManager, ApiClientRx apiClientRx,
-                  @Named("HighPriority") Scheduler scheduler) {
+                  @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
         this.playQueueManager = playQueueManager;
         this.apiClientRx = apiClientRx;

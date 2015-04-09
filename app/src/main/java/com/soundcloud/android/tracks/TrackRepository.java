@@ -2,6 +2,7 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -34,7 +35,7 @@ public class TrackRepository {
 
     @Inject
     public TrackRepository(TrackStorage trackStorage,
-                           EventBus eventBus, SyncInitiator syncInitiator, @Named("HighPriority") Scheduler scheduler) {
+                           EventBus eventBus, SyncInitiator syncInitiator, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.trackStorage = trackStorage;
         this.eventBus = eventBus;
         this.syncInitiator = syncInitiator;

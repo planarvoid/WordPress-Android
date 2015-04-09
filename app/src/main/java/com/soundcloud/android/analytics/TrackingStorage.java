@@ -36,7 +36,7 @@ class TrackingStorage {
     private final NetworkConnectionHelper networkConnectionHelper;
 
     @Inject
-    TrackingStorage(@Named("tracking_db") PropellerDatabase propeller, NetworkConnectionHelper networkConnectionHelper) {
+    TrackingStorage(@Named(AnalyticsModule.TRACKING_DB) PropellerDatabase propeller, NetworkConnectionHelper networkConnectionHelper) {
         this.propeller = propeller;
         this.networkConnectionHelper = networkConnectionHelper;
     }

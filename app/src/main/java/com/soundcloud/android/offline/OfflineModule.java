@@ -17,8 +17,10 @@ import javax.inject.Named;
         })
 public class OfflineModule {
 
+    public static final String STRICT_SSL_CLIENT = "StrictSSLHttpClient";
+
     @Provides
-    @Named("StrictSSLHttpClient")
+    @Named(STRICT_SSL_CLIENT)
     public OkHttpClient provideOkHttpClient(ApplicationProperties applicationProperties) {
         final OkHttpClient client = new OkHttpClient();
         if (!applicationProperties.isDebugBuild()) {

@@ -6,6 +6,7 @@ import static com.soundcloud.android.playback.service.Playa.PlayaState.PLAYING;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_CANCELLED;
 import static com.soundcloud.android.playback.ui.progress.ScrubController.SCRUB_STATE_SCRUBBING;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.progress.ProgressAware;
@@ -296,7 +297,7 @@ public class WaveformViewController implements ScrubController.OnScrubListener, 
         @Inject
         Factory(ScrubController.Factory scrubControllerFactory,
                 ProgressController.Factory animationControllerFactory,
-                @Named("LowPriority") Scheduler scheduler) {
+                @Named(ApplicationModule.LOW_PRIORITY) Scheduler scheduler) {
             this.scrubControllerFactory = scrubControllerFactory;
             this.animationControllerFactory = animationControllerFactory;
             this.scheduler = scheduler;

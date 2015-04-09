@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -35,7 +36,7 @@ public class PlayQueueOperations {
     @Inject
     public PlayQueueOperations(Context context, PlayQueueStorage playQueueStorage,
                                StoreTracksCommand storeTracksCommand, ApiClientRx apiClientRx,
-                               @Named("HighPriority") Scheduler scheduler) {
+                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
         this.scheduler = scheduler;
         this.sharedPreferences = context.getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE);

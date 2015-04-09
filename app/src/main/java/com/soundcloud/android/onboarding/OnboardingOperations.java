@@ -3,6 +3,7 @@ package com.soundcloud.android.onboarding;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -17,7 +18,7 @@ public class OnboardingOperations {
     private final Scheduler scheduler;
 
     @Inject
-    public OnboardingOperations(ApiClientRx apiClientRx, @Named("HighPriority") Scheduler scheduler) {
+    public OnboardingOperations(ApiClientRx apiClientRx, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
     }

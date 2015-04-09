@@ -2,6 +2,7 @@ package com.soundcloud.android.explore;
 
 import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -35,7 +36,7 @@ class ExploreTracksOperations {
 
     @Inject
     ExploreTracksOperations(StoreTracksCommand storeTracksCommand, ApiClientRx apiClientRx,
-                            @Named("HighPriority") Scheduler scheduler) {
+                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeTracksCommand = storeTracksCommand;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;

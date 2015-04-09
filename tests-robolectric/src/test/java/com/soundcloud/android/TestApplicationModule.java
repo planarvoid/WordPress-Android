@@ -25,11 +25,15 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.storage.StorageModule;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
+import com.soundcloud.android.sync.entities.EntitySyncModule;
+import com.soundcloud.android.sync.likes.LikesSyncModule;
 import com.soundcloud.android.sync.likes.LikesSyncer;
 import com.soundcloud.android.sync.posts.MyPlaylistsSyncer;
+import com.soundcloud.android.sync.posts.PostsSyncModule;
 import com.soundcloud.android.sync.posts.PostsSyncer;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.squareup.okhttp.OkHttpClient;
@@ -164,37 +168,37 @@ public class TestApplicationModule {
     }
 
     @Provides
-    @Named("DeviceManagement")
+    @Named(StorageModule.DEVICE_MANAGEMENT)
     public SharedPreferences provideDeviceManagementPrefs(){
         return provideSharedPreferences();
     }
 
     @Provides
-    @Named("DeviceKeys")
+    @Named(StorageModule.DEVICE_KEYS)
     public SharedPreferences provideKeyPrefs(){
         return provideSharedPreferences();
     }
 
     @Provides
-    @Named("OfflineSettings")
+    @Named(StorageModule.OFFLINE_SETTINGS)
     public SharedPreferences provideOfflinePrefs() {
         return provideSharedPreferences();
     }
 
     @Provides
-    @Named("Features")
+    @Named(StorageModule.FEATURES)
     public SharedPreferences provideFeatures() {
         return provideSharedPreferences();
     }
 
     @Provides
-    @Named("HighPriority")
+    @Named(ApplicationModule.HIGH_PRIORITY)
     public Scheduler provideHighPrioScheduler() {
         return Schedulers.immediate();
     }
 
     @Provides
-    @Named("LowPriority")
+    @Named(ApplicationModule.LOW_PRIORITY)
     public Scheduler provideLowPrioScheduler() {
         return Schedulers.immediate();
     }
@@ -215,25 +219,25 @@ public class TestApplicationModule {
     }
 
     @Provides
-    @Named("TrackLikesSyncer")
+    @Named(LikesSyncModule.TRACK_LIKES_SYNCER)
     LikesSyncer<ApiTrack> provideTrackLikesSyncer() {
         return mock(LikesSyncer.class);
     }
 
     @Provides
-    @Named("PlaylistLikesSyncer")
+    @Named(LikesSyncModule.PLAYLIST_LIKES_SYNCER)
     LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer() {
         return mock(LikesSyncer.class);
     }
 
     @Provides
-    @Named("TracksSyncJob")
+    @Named(EntitySyncModule.TRACKS_SYNC)
     EntitySyncJob provideTracksSyncJob() {
         return mock(EntitySyncJob.class);
     }
 
     @Provides
-    @Named("PlaylistsSyncJob")
+    @Named(EntitySyncModule.PLAYLISTS_SYNC)
     EntitySyncJob providePlaylistsSyncJob() {
         return mock(EntitySyncJob.class);
     }
@@ -254,13 +258,13 @@ public class TestApplicationModule {
     }
 
     @Provides
-    @Named("MyTrackPostsSyncer")
+    @Named(PostsSyncModule.MY_TRACK_POSTS_SYNCER)
     PostsSyncer provideMyTrackPostsSyncer() {
         return mock(PostsSyncer.class);
     }
 
     @Provides
-    @Named("MyPlaylistPostsSyncer")
+    @Named(PostsSyncModule.MY_PLAYLIST_POSTS_SYNCER)
     PostsSyncer provideMyPlaylistPostsSyncer() {
         return mock(PostsSyncer.class);
     }

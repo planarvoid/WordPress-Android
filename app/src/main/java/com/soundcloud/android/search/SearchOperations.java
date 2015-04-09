@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.ApiClientRx;
@@ -96,7 +97,7 @@ class SearchOperations {
                             StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
                             CacheUniversalSearchCommand cacheUniversalSearchCommand,
                             LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
-                            @Named("HighPriority") Scheduler scheduler) {
+                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;

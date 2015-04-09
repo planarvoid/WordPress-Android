@@ -1,6 +1,7 @@
 package com.soundcloud.android.configuration.experiments;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -27,7 +28,7 @@ class ExperimentStorage {
     private final File file;
 
     @Inject
-    ExperimentStorage(@Named("HighPriority") Scheduler scheduler, Context context, JsonTransformer jsonTransformer) {
+    ExperimentStorage(@Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler, Context context, JsonTransformer jsonTransformer) {
         this.scheduler = scheduler;
         this.jsonTransformer = jsonTransformer;
         this.file = new File(context.getFilesDir(), ASSIGNMENT_FILE_NAME);

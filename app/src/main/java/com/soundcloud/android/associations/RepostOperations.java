@@ -3,6 +3,7 @@ package com.soundcloud.android.associations;
 import static com.soundcloud.android.rx.RxUtils.continueWith;
 import static com.soundcloud.android.rx.RxUtils.returning;
 
+import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -36,7 +37,7 @@ public class RepostOperations {
 
     @Inject
     public RepostOperations(RepostStorage repostStorage, ApiClientRx apiClientRx,
-                            @Named("HighPriority") Scheduler scheduler, EventBus eventBus) {
+                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler, EventBus eventBus) {
         this.repostStorage = repostStorage;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;

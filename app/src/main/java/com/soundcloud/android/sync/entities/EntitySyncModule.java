@@ -12,14 +12,17 @@ import javax.inject.Named;
 @Module(complete = false, library = true)
 public class EntitySyncModule {
 
+    public static final String TRACKS_SYNC = "TracksSync";
+    public static final String PLAYLISTS_SYNC = "PlaylistsSync";
+
     @Provides
-    @Named("TracksSyncJob")
+    @Named(TRACKS_SYNC)
     EntitySyncJob provideTrackSyncJob(FetchTracksCommand fetchTracks, StoreTracksCommand storeTracks) {
         return new EntitySyncJob(fetchTracks, storeTracks);
     }
 
     @Provides
-    @Named("PlaylistsSyncJob")
+    @Named(PLAYLISTS_SYNC)
     EntitySyncJob providePlaylistSyncJob(FetchPlaylistsCommand fetchPlaylists, StorePlaylistsCommand storePlaylists) {
         return new EntitySyncJob(fetchPlaylists, storePlaylists);
     }

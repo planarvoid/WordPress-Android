@@ -19,8 +19,8 @@ public class MyLikesSyncer implements SyncStrategy {
     private final Lazy<LikesSyncer<ApiPlaylist>> playlistLikesSyncer;
 
     @Inject
-    public MyLikesSyncer(@Named("TrackLikesSyncer") Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer,
-                         @Named("PlaylistLikesSyncer") Lazy<LikesSyncer<ApiPlaylist>> playlistLikesSyncer) {
+    public MyLikesSyncer(@Named(LikesSyncModule.TRACK_LIKES_SYNCER) Lazy<LikesSyncer<ApiTrack>> trackLikesSyncer,
+                         @Named(LikesSyncModule.PLAYLIST_LIKES_SYNCER) Lazy<LikesSyncer<ApiPlaylist>> playlistLikesSyncer) {
         this.trackLikesSyncer = trackLikesSyncer;
         this.playlistLikesSyncer = playlistLikesSyncer;
     }

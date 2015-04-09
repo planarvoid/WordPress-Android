@@ -23,7 +23,7 @@ class StrictSSLHttpClient {
     private final DeviceHelper deviceHelper;
 
     @Inject
-    public StrictSSLHttpClient(@Named("StrictSSLHttpClient") OkHttpClient client, DeviceHelper helper, OAuth oAuth) {
+    public StrictSSLHttpClient(@Named(OfflineModule.STRICT_SSL_CLIENT) OkHttpClient client, DeviceHelper helper, OAuth oAuth) {
         this.httpClient = client;
         this.deviceHelper = helper;
         this.oAuth = oAuth;

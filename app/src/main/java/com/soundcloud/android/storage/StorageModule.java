@@ -16,12 +16,19 @@ import javax.inject.Named;
 @Module(complete = false, library = true)
 public class StorageModule {
 
-    private static final String PLAYLIST_TAGS = "playlist_tags";
-    private static final String DEVICE_MANAGEMENT = "device_management";
-    private static final String PAYMENTS = "payments";
-    private static final String DEVICE_KEYS = "device_keys";
-    private static final String OFFLINE_SETTINGS = "offline_settings";
-    private static final String FEATURE_SETTINGS = "features_settings";
+    public static final String PLAYLIST_TAGS = "PlaylistTags";
+    public static final String DEVICE_MANAGEMENT = "DeviceManagement";
+    public static final String PAYMENTS = "Payments";
+    public static final String DEVICE_KEYS = "DeviceKeys";
+    public static final String OFFLINE_SETTINGS = "OfflineSettings";
+    public static final String FEATURES = "Features";
+
+    private static final String PREFS_PLAYLIST_TAGS = "playlist_tags";
+    private static final String PREFS_DEVICE_MANAGEMENT = "device_management";
+    private static final String PREFS_PAYMENTS = "payments";
+    private static final String PREFS_DEVICE_KEYS = "device_keys";
+    private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
+    private static final String PREFS_FEATURES = "features_settings";
 
     @Provides
     public ContentResolver provideContentResolver(SoundCloudApplication application) {
@@ -29,39 +36,39 @@ public class StorageModule {
     }
 
     @Provides
-    @Named("PlaylistTags")
+    @Named(PLAYLIST_TAGS)
     public SharedPreferences providePlaylistTagPrefs(Context context) {
-        return context.getSharedPreferences(PLAYLIST_TAGS, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_PLAYLIST_TAGS, Context.MODE_PRIVATE);
     }
 
     @Provides
-    @Named("DeviceManagement")
+    @Named(DEVICE_MANAGEMENT)
     public SharedPreferences provideDeviceManagementPrefs(Context context) {
-        return context.getSharedPreferences(DEVICE_MANAGEMENT, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_DEVICE_MANAGEMENT, Context.MODE_PRIVATE);
     }
 
     @Provides
-    @Named("Payments")
+    @Named(PAYMENTS)
     public SharedPreferences providePaymentsPrefs(Context context) {
-        return context.getSharedPreferences(PAYMENTS, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_PAYMENTS, Context.MODE_PRIVATE);
     }
 
     @Provides
-    @Named("DeviceKeys")
+    @Named(DEVICE_KEYS)
     public SharedPreferences provideKeysPrefs(Context context) {
-        return context.getSharedPreferences(DEVICE_KEYS, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_DEVICE_KEYS, Context.MODE_PRIVATE);
     }
 
     @Provides
-    @Named("OfflineSettings")
+    @Named(OFFLINE_SETTINGS)
     public SharedPreferences provideOfflinePrefs(Context context) {
-        return context.getSharedPreferences(OFFLINE_SETTINGS, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
     }
 
     @Provides
-    @Named("Features")
+    @Named(FEATURES)
     public SharedPreferences provideFeaturePrefs(Context context) {
-        return context.getSharedPreferences(FEATURE_SETTINGS, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFS_FEATURES, Context.MODE_PRIVATE);
     }
 
     @Provides
