@@ -140,7 +140,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "Download failed " + result);
 
         notificationController.onDownloadError();
-        notifyUnavailable(result);
+        notifyTrackUnavailable(result);
         notifyRequestedPlaylists(result);
         notifyRelatedPlaylistsAsRequested(result);
 
@@ -176,13 +176,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void notifyUnavailable(DownloadResult result) {
-        final List<Urn> unavailable = Arrays.asList(result.getTrack());
-        final boolean isLikedTrackUnavailable = queue.isAllLikedTracksDownloaded(result);
-
-        if (hasChanges(unavailable, isLikedTrackUnavailable)) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.unavailable(isLikedTrackUnavailable, unavailable));
-        }
+    private void notifyTrackUnavailable(DownloadResult result) {
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.unavailable(false, Arrays.asList(result.getTrack())));
     }
 
     private boolean hasChanges(List<Urn> entitiesChangeList, boolean likedTracksChanged) {
