@@ -222,6 +222,7 @@ public class OfflineContentServiceTest {
         service.onError(createFailedDownloadResult(TRACK_1, relatedPlaylists));
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.unavailable(false, Lists.newArrayList(TRACK_1)),
                 CurrentDownloadEvent.downloadRequested(false, relatedPlaylists));
     }
