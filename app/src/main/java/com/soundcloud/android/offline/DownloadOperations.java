@@ -24,12 +24,14 @@ class DownloadOperations {
     private final PlayQueueManager playQueueManager;
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
+
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
         public boolean apply(Urn urn) {
             return !playQueueManager.isCurrentTrack(urn);
         }
     };
+
     private final Scheduler scheduler;
 
     @Inject
@@ -68,7 +70,7 @@ class DownloadOperations {
         }
     }
 
-    public DownloadResult download(DownloadRequest request) {
+    DownloadResult download(DownloadRequest request) {
         if (!fileStorage.isEnoughSpaceForTrack(request.duration)) {
             return DownloadResult.notEnoughSpace(request);
         }

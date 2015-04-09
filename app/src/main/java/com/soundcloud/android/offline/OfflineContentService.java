@@ -144,7 +144,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         notifyRequestedPlaylists(result);
         notifyRelatedPlaylistsAsRequested(result);
 
-        if (result.isFailure()) {
+        if (result.isConnectionError()) {
             stopAndRetryLater();
         } else {
             downloadNextOrFinish();

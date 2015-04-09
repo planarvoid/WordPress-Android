@@ -43,7 +43,6 @@ public class OfflineContentOperationsTest {
     private static final Urn TRACK_URN_1 = Urn.forTrack(123L);
     private static final Collection<Urn> LIKED_TRACKS = Arrays.asList(TRACK_URN_1);
     private static final WriteResult WRITE_RESULT_SUCCESS = new WriteResultStub(true);
-    private static final Urn PLAYLIST = Urn.forPlaylist(123L);
 
     @Mock private StoreDownloadUpdatesCommand storeDownloadUpdatesCommand;
     @Mock private LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
@@ -68,9 +67,6 @@ public class OfflineContentOperationsTest {
 
         when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.just(LIKED_TRACKS));
         when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
-        when(offlineTracksStorage.pendingDownloads()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
-        when(offlineTracksStorage.pendingRemovals()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
-        when(offlineTracksStorage.downloaded()).thenReturn(Observable.just(Collections.<Urn>emptyList()));
         when(changeResult.success()).thenReturn(true);
 
         operations = new OfflineContentOperations(

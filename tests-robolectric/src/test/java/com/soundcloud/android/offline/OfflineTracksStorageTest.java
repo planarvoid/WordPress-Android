@@ -7,7 +7,6 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.utils.DateProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,28 +98,6 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0)).toBeEmpty();
-    }
-
-    @Test
-    public void returnsTracksPendingRemoval() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        testFixtures().insertTrackDownloadPendingRemoval(apiTrack.getUrn(), 100);
-
-        storage.pendingRemovals().subscribe(observer);
-
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(apiTrack.getUrn());
-    }
-
-    @Test
-    public void returnsDownloadedTracks() throws Exception {
-        final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 100);
-
-        storage.downloaded().subscribe(observer);
-
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(apiTrack.getUrn());
     }
 
     @Test

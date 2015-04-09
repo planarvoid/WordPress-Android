@@ -12,7 +12,6 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOA
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
-import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
@@ -20,7 +19,6 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.query.Where;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
 
@@ -100,37 +98,7 @@ class OfflineTracksStorage {
         return scheduler.query(query).map(new UrnMapper()).toList();
     }
 
-    /**
-     * @return list of track urns to be downloaded
-     */
-    Observable<List<Urn>> pendingDownloads() {
-        final Where isPendingDownloads = filter()
-                .whereNull(REMOVED_AT)
-                .whereNull(DOWNLOADED_AT)
-                .whereNotNull(REQUESTED_AT);
-
-        return scheduler.query(Query.from(TrackDownloads.name())
-                .where(isPendingDownloads))
-                .map(new UrnMapper()).toList();
-    }
-
-    /**
-     * @return list of offline tracks pending removal
-     */
-    public Observable<List<Urn>> pendingRemovals() {
-        final Query query = Query.from(TrackDownloads.name()).whereNotNull(REMOVED_AT);
-        return scheduler.query(query).map(new UrnMapper()).toList();
-    }
-
-    /**
-     * @return list of tracks that are already downloaded
-     */
-    public Observable<List<Urn>> downloaded() {
-        final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT);
-        return scheduler.query(query).map(new UrnMapper()).toList();
-    }
-
-    public Observable<List<Urn>> getTracksToRemove() {
+    Observable<List<Urn>> getTracksToRemove() {
         long removalDelayedTimestamp = dateProvider.getCurrentDate().getTime() - DELAY_BEFORE_REMOVAL;
         return scheduler.query(Query.from(Table.TrackDownloads.name())
                 .select(_ID)

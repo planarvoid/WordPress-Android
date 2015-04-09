@@ -90,7 +90,7 @@ public class DownloadOperationsTest {
         when(response.isFailure()).thenReturn(true);
         when(response.isUnavailable()).thenReturn(false);
 
-        expect(operations.download(downloadRequest).isFailure()).toBeTrue();
+        expect(operations.download(downloadRequest).isConnectionError()).toBeTrue();
     }
 
     @Test

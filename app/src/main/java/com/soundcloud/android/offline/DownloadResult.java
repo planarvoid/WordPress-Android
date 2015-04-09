@@ -6,7 +6,7 @@ import com.soundcloud.android.model.Urn;
 
 public final class DownloadResult {
 
-    private enum Status {SUCCESS, UNAVAILABLE, NOT_ENOUGH_SPACE, FAILURE}
+    private enum Status {SUCCESS, UNAVAILABLE, NOT_ENOUGH_SPACE, CONNECTION_ERROR}
 
     private final Status status;
     private final DownloadRequest request;
@@ -19,7 +19,7 @@ public final class DownloadResult {
     }
 
     public static DownloadResult failed(DownloadRequest request) {
-        return new DownloadResult(Status.FAILURE, request);
+        return new DownloadResult(Status.CONNECTION_ERROR, request);
     }
 
     public static DownloadResult unavailable(DownloadRequest request) {
@@ -38,8 +38,8 @@ public final class DownloadResult {
         return status == Status.SUCCESS;
     }
 
-    public boolean isFailure() {
-        return status == Status.FAILURE;
+    public boolean isConnectionError() {
+        return status == Status.CONNECTION_ERROR;
     }
 
     public boolean isUnavailable() {
