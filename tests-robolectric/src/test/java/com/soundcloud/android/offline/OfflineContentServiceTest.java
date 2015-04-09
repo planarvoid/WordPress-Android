@@ -83,6 +83,7 @@ public class OfflineContentServiceTest {
         startService();
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
                 CurrentDownloadEvent.downloading(downloadRequest1)
         );
@@ -101,6 +102,7 @@ public class OfflineContentServiceTest {
         startService();
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1))
         );
     }
@@ -117,6 +119,7 @@ public class OfflineContentServiceTest {
         startService();
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest1))
         );
     }
@@ -159,6 +162,7 @@ public class OfflineContentServiceTest {
         startService();
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
                 CurrentDownloadEvent.downloading(downloadRequest1)
         );
@@ -180,6 +184,7 @@ public class OfflineContentServiceTest {
         startService();
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
                 CurrentDownloadEvent.downloading(downloadRequest1),
                 CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest2)),
@@ -192,7 +197,10 @@ public class OfflineContentServiceTest {
         startService();
         service.onSuccess(downloadResult1);
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)));
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
+                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1))
+        );
     }
 
     @Test
@@ -200,7 +208,10 @@ public class OfflineContentServiceTest {
         startService();
         service.onError(downloadResult1);
 
-        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1)));
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.idle(),
+                CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1))
+        );
     }
 
     @Test

@@ -87,6 +87,10 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         downloadableHeaderView.showDownloadedState();
     }
 
+    void showRequestedState() {
+        downloadableHeaderView.showRequestedState();
+    }
+
     void showUpsell() {
         popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, true);
         popupMenuWrapper.setItemVisible(R.id.make_offline_available, false);

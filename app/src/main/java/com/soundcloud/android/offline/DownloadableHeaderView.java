@@ -64,4 +64,13 @@ public class DownloadableHeaderView {
         downloadState.setImageResource(R.drawable.header_downloaded);
         headerView.setText(headerText);
     }
+
+    public void showRequestedState() {
+        isDownloading = false;
+
+        downloadState.clearAnimation();
+        downloadState.setVisibility(View.VISIBLE);
+        downloadState.setImageResource(R.drawable.entity_downloadable);
+        headerView.setText(headerText);
+    }
 }

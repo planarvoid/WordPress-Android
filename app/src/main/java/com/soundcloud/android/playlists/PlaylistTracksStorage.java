@@ -58,7 +58,7 @@ class PlaylistTracksStorage {
 
     Observable<List<PropertySet>> playlistsForAddingTrack(Urn trackUrn) {
         return propellerRx.query(queryPlaylistWithTrackExistStatus(trackUrn))
-                .map(new PlaylistWithTrackMapper()).toList();
+                .map(new AddTrackToPlaylistMapper()).toList();
     }
 
     Observable<List<PropertySet>> playlistTracks(Urn playlistUrn) {
@@ -150,7 +150,7 @@ class PlaylistTracksStorage {
                 .get();
     }
 
-    private static final class PlaylistWithTrackMapper extends PlaylistMapper {
+    private static final class AddTrackToPlaylistMapper extends PlaylistMapper {
         @Override
         public PropertySet map(CursorReader cursorReader) {
             final PropertySet propertySet = PropertySet.create(4);

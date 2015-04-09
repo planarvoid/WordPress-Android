@@ -115,7 +115,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
     @Test
     public void returnsDownloadedTracks() throws Exception {
         final ApiTrack apiTrack = ModelFixtures.create(ApiTrack.class);
-        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 100);
+        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), 0, 100);
 
         storage.downloaded().subscribe(observer);
 
@@ -153,7 +153,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {
         final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
-        testFixtures().insertCompletedTrackDownload(track.getUrn(), 100);
+        testFixtures().insertCompletedTrackDownload(track.getUrn(), 0, 100);
         return track.getUrn();
     }
 

@@ -12,6 +12,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public final class CurrentDownloadEvent {
+    public static final Func1<CurrentDownloadEvent, DownloadState> TO_DOWNLOAD_STATE = new Func1<CurrentDownloadEvent, DownloadState>() {
+        @Override
+        public DownloadState call(CurrentDownloadEvent event) {
+            return event.kind;
+        }
+    };
+
     public final DownloadState kind;
     public final Collection<Urn> entities;
     public final boolean isLikedTracks;
@@ -26,6 +33,10 @@ public final class CurrentDownloadEvent {
         this.kind = kind;
         this.entities = Collections.unmodifiableList(entities);
         this.isLikedTracks = isLikedTracks;
+    }
+
+    public static CurrentDownloadEvent idle() {
+        return new CurrentDownloadEvent(DownloadState.NO_OFFLINE, false, Collections.<Urn>emptyList());
     }
 
     public static CurrentDownloadEvent downloaded(boolean isLikedTrack, List<Urn> urns) {

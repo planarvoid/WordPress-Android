@@ -1,10 +1,14 @@
-package com.soundcloud.android.storage;
+package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -18,11 +22,11 @@ import java.util.Date;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
-    private PlaylistStorage storage;
+    private com.soundcloud.android.playlists.PlaylistStorage storage;
 
     @Before
     public void setUp() throws Exception {
-        storage = new PlaylistStorage(propeller(), propellerRx());
+        storage = new com.soundcloud.android.playlists.PlaylistStorage(propeller(), propellerRx());
     }
 
     @Test
@@ -108,6 +112,73 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true));
+        expect(playlist.slice(
+                        EntityProperty.URN,
+                        PlayableProperty.TITLE,
+                        PlayableProperty.DURATION,
+                        PlayableProperty.CREATOR_NAME,
+                        PlayableProperty.CREATOR_URN,
+                        PlayableProperty.LIKES_COUNT,
+                        PlayableProperty.REPOSTS_COUNT,
+                        PlayableProperty.PERMALINK_URL,
+                        PlayableProperty.CREATED_AT,
+                        PlayableProperty.IS_PRIVATE,
+                        PlayableProperty.IS_LIKED,
+                        PlayableProperty.IS_REPOSTED,
+                        OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE,
+                        PlaylistProperty.TRACK_COUNT
+                )
+        ).toEqual(
+                TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true)
+        );
+    }
+
+    @Test
+    public void loadRequestedDownloadStateWhenPlaylistIsMarkedForOfflineAndHasDownloadRequests() throws Exception {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        testFixtures().insertTrackPendingDownload(track.getUrn(), System.currentTimeMillis());
+
+        PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
+
+        final PropertySet expected = TestPropertySets
+                .fromApiPlaylist(apiPlaylist, false, false, true)
+                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+
+        expect(playlist).toEqual(expected);
+    }
+
+    @Test
+    public void loadDownloadedStateWhenPlaylistIsMarkedForOfflineAndNoDownloadRequest() throws Exception {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track = testFixtures().insertPlaylistTrack(apiPlaylist, 0);
+        testFixtures().insertCompletedTrackDownload(track.getUrn(), 123L, System.currentTimeMillis());
+
+        PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
+
+        final PropertySet expected = TestPropertySets
+                .fromApiPlaylist(apiPlaylist, false, false, true)
+                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+
+        expect(playlist).toEqual(expected);
+    }
+
+    @Test
+    public void loadDownloadedStateOfTwoDifferentPlaylistsDoesNotInfluenceEachOther() throws Exception {
+        final ApiPlaylist downloadedPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack downloadedTrack = testFixtures().insertPlaylistTrack(downloadedPlaylist, 0);
+        testFixtures().insertCompletedTrackDownload(downloadedTrack.getUrn(), 123L, System.currentTimeMillis());
+
+        final ApiPlaylist requestedPlaylist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack requestedTrack = testFixtures().insertPlaylistTrack(requestedPlaylist, 0);
+        testFixtures().insertTrackPendingDownload(requestedTrack.getUrn(), 123L);
+
+        PropertySet result = storage.loadPlaylist(downloadedPlaylist.getUrn()).toBlocking().single();
+
+        final PropertySet expected = TestPropertySets
+                .fromApiPlaylist(downloadedPlaylist, false, false, true)
+                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+
+        expect(result).toEqual(expected);
     }
 }

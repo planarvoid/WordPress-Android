@@ -59,7 +59,7 @@ class PlaylistPostOperations {
     };
 
     @Inject
-    PlaylistPostOperations(@Named("LoadPostedPlaylistsCommand") PagedQueryCommand<ChronologicalQueryParams> loadPostedPlaylistsCommand,
+    PlaylistPostOperations(LoadPostedPlaylistsCommand loadPostedPlaylistsCommand,
                            SyncInitiator syncInitiator,
                            @Named("HighPriority") Scheduler scheduler,
                            NetworkConnectionHelper networkConnectionHelper) {

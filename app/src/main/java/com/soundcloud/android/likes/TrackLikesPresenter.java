@@ -123,7 +123,8 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new PrependItemToListSubscriber<>(adapter)),
                 likeOperations.onTrackUnliked()
-                        .observeOn(AndroidSchedulers.mainThread()).subscribe(new RemoveEntityListSubscriber(adapter))
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new RemoveEntityListSubscriber(adapter))
         );
     }
 
