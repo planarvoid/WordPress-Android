@@ -1,10 +1,12 @@
 package com.soundcloud.android.offline;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 
 public final class DownloadResult {
-    private enum Status {SUCCESS, UNAVAILABLE, FAILURE}
+
+    private enum Status {SUCCESS, UNAVAILABLE, NOT_ENOUGH_SPACE, FAILURE}
 
     private final Status status;
     private final DownloadRequest request;
@@ -28,6 +30,10 @@ public final class DownloadResult {
         return new DownloadResult(Status.SUCCESS, request);
     }
 
+    public static DownloadResult notEnoughSpace(DownloadRequest request) {
+        return new DownloadResult(Status.NOT_ENOUGH_SPACE, request);
+    }
+
     public boolean isSuccess() {
         return status == Status.SUCCESS;
     }
@@ -38,6 +44,11 @@ public final class DownloadResult {
 
     public boolean isUnavailable() {
         return status == Status.UNAVAILABLE;
+    }
+
+    @VisibleForTesting
+    boolean isNotEnoughSpace() {
+        return status ==  Status.NOT_ENOUGH_SPACE;
     }
 
     public long getTimestamp() {

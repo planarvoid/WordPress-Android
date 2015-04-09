@@ -42,7 +42,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         final Collection<DownloadRequest> pending = command.call(null);
 
-        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), true, Collections.<Urn>emptyList()));
+        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), apiTrack.getDuration(), true, Collections.<Urn>emptyList()));
     }
 
     @Test
@@ -56,7 +56,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> pending = command.call(null);
 
-        expect(pending).toContainExactly(new DownloadRequest(track1.getUrn(), track1.getStreamUrl(), false, Arrays.asList(playlist.getUrn())));
+        expect(pending).toContainExactly(new DownloadRequest(track1.getUrn(), track1.getStreamUrl(), track1.getDuration(), false, Arrays.asList(playlist.getUrn())));
     }
 
     @Test
@@ -105,9 +105,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(apiTrack3.getUrn(), apiTrack1.getStreamUrl(), true, Collections.<Urn>emptyList()),
-                new DownloadRequest(apiTrack2.getUrn(), apiTrack2.getStreamUrl(), true, Collections.<Urn>emptyList()),
-                new DownloadRequest(apiTrack1.getUrn(), apiTrack3.getStreamUrl(), true, Collections.<Urn>emptyList())
+                new DownloadRequest(apiTrack3.getUrn(), apiTrack1.getStreamUrl(), apiTrack1.getDuration(), true, Collections.<Urn>emptyList()),
+                new DownloadRequest(apiTrack2.getUrn(), apiTrack2.getStreamUrl(), apiTrack2.getDuration(), true, Collections.<Urn>emptyList()),
+                new DownloadRequest(apiTrack1.getUrn(), apiTrack3.getStreamUrl(), apiTrack3.getDuration(), true, Collections.<Urn>emptyList())
         );
     }
 
@@ -128,8 +128,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(playlistTrack0.getUrn(), playlistTrack0.getStreamUrl(), false, Arrays.asList(playlist.getUrn())),
-                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getStreamUrl(), false, Arrays.asList(playlist.getUrn()))
+                new DownloadRequest(playlistTrack0.getUrn(), playlistTrack0.getStreamUrl(), playlistTrack0.getDuration(), false, Arrays.asList(playlist.getUrn())),
+                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getStreamUrl(), playlistTrack1.getDuration(), false, Arrays.asList(playlist.getUrn()))
         );
     }
 
@@ -154,8 +154,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getStreamUrl(), false, Arrays.asList(apiPlaylist1.getUrn())),
-                new DownloadRequest(playlistTrack2.getUrn(), playlistTrack2.getStreamUrl(), false, Arrays.asList(apiPlaylist2.getUrn()))
+                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getStreamUrl(), playlistTrack1.getDuration(), false, Arrays.asList(apiPlaylist1.getUrn())),
+                new DownloadRequest(playlistTrack2.getUrn(), playlistTrack2.getStreamUrl(), playlistTrack2.getDuration(), false, Arrays.asList(apiPlaylist2.getUrn()))
         );
     }
 
@@ -173,8 +173,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(playlistTrack.getUrn(), playlistTrack.getStreamUrl(), false, Arrays.asList(playlist.getUrn())),
-                new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), true, Collections.<Urn>emptyList())
+                new DownloadRequest(playlistTrack.getUrn(), playlistTrack.getStreamUrl(), playlistTrack.getDuration(), false, Arrays.asList(playlist.getUrn())),
+                new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), apiTrack.getDuration(), true, Collections.<Urn>emptyList())
         );
     }
 
@@ -188,7 +188,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> pending = command.call(null);
 
-        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), true, Arrays.asList(playlist.getUrn())));
+        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), apiTrack.getDuration(), true, Arrays.asList(playlist.getUrn())));
     }
 
     @Test

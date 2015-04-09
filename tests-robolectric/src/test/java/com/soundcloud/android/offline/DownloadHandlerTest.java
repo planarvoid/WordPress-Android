@@ -31,24 +31,29 @@ public class DownloadHandlerTest {
     private DownloadHandler handler;
     private Message successMessage;
     private Message failureMessage;
+    private Message notEnoughSpaceMessage;
     private DownloadRequest downloadRequest;
     private DownloadResult downloadResultSuccess;
     private DownloadResult downloadResultFailed;
     private DownloadResult downloadResultUnavailable;
+    private DownloadResult downloadResultNotEnoughSpace;
 
     @Before
     public void setUp() throws Exception {
-        downloadRequest = new DownloadRequest(Urn.forTrack(123), "http://");
+        downloadRequest = new DownloadRequest(Urn.forTrack(123), "http://", 12345);
         downloadResultSuccess = DownloadResult.success(downloadRequest);
         downloadResultFailed = DownloadResult.failed(downloadRequest);
         downloadResultUnavailable = DownloadResult.unavailable(downloadRequest);
+        downloadResultNotEnoughSpace = DownloadResult.notEnoughSpace(downloadRequest);
 
         successMessage = createMessage(downloadRequest);
         failureMessage = createMessage(downloadRequest);
+        notEnoughSpaceMessage = createMessage(downloadRequest);
 
         handler = new DownloadHandler(mainHandler, downloadOperations, completedDownloadCommand, updateContentAsUnavailable);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, downloadResultSuccess)).thenReturn(successMessage);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultFailed)).thenReturn(failureMessage);
+        when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultNotEnoughSpace)).thenReturn(notEnoughSpaceMessage);
         when(updateContentAsUnavailable.toObservable()).thenReturn(Observable.<WriteResult>empty());
     }
 
@@ -77,6 +82,15 @@ public class DownloadHandlerTest {
         handler.handleMessage(successMessage);
 
         verify(mainHandler).sendMessage(successMessage);
+    }
+
+    @Test
+    public void sendsNotEnoughSpaceMessageWhenThereIsNotEnoughSpaceForTrack() {
+        when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultNotEnoughSpace);
+
+        handler.handleMessage(notEnoughSpaceMessage);
+
+        verify(mainHandler).sendMessage(notEnoughSpaceMessage);
     }
 
     @Test

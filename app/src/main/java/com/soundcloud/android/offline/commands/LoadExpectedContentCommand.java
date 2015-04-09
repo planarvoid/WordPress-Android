@@ -62,7 +62,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
         final LinkedHashMap<Urn, DownloadRequest.Builder> trackToRequestsDataMap = new LinkedHashMap<>();
         for (OfflineRequestData data : requestsData) {
             if (!trackToRequestsDataMap.containsKey(data.track)) {
-                trackToRequestsDataMap.put(data.track, new DownloadRequest.Builder(data.track, data.url));
+                trackToRequestsDataMap.put(data.track, new DownloadRequest.Builder(data.track, data.url, data.duration));
             }
             trackToRequestsDataMap.get(data.track)
                     .addToPlaylist(data.playlist)
@@ -73,7 +73,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
 
     private List<OfflineRequestData> tracksFromLikes() {
         final Query likesToDownload = Query.from(Sounds.name())
-                .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.STREAM_URL))
+                .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.STREAM_URL), Sounds.field(TableColumns.Sounds.DURATION))
                 .innerJoin(TrackPolicies.name(), Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
                 .innerJoin(Table.Likes.name(), Table.Likes.field(TableColumns.Likes._ID), Sounds.field(TableColumns.Sounds._ID))
                 .where(isDownloadable())
@@ -97,7 +97,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
         final List<Long> playlistIds = database.query(orderedPlaylists).toList(new IdMapper());
 
         final Query playlistTracksToDownload = Query.from(PlaylistTracks.name())
-                .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.STREAM_URL), PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
+                .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.STREAM_URL), Sounds.field(TableColumns.Sounds.DURATION), PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID))
                 .innerJoin(Sounds.name(), filter()
                         .whereEq(Sounds.field(_ID), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID))
                         .whereIn(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistIds))
@@ -112,17 +112,20 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
     private static class OfflineRequestData {
         private final String url;
         private final Urn track;
+        private final long duration;
         private final Urn playlist;
         private final boolean isInLikes;
 
-        public OfflineRequestData(String url, long trackId, long playlistId) {
+        public OfflineRequestData(String url, long trackId, long duration, long playlistId) {
+            this.duration = duration;
             this.track = Urn.forTrack(trackId);
             this.url = url;
             this.playlist = Urn.forPlaylist(playlistId);
             this.isInLikes = false;
         }
 
-        public OfflineRequestData(String url, long trackId, boolean isInLikes) {
+        public OfflineRequestData(String url, long trackId, long duration, boolean isInLikes) {
+            this.duration = duration;
             this.track = Urn.forTrack(trackId);
             this.url = url;
             this.playlist = Urn.NOT_SET;
@@ -136,6 +139,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
             return new OfflineRequestData(
                     reader.getString(TableColumns.Sounds.STREAM_URL),
                     reader.getLong(_ID),
+                    reader.getLong(TableColumns.Sounds.DURATION),
                     reader.getLong(TableColumns.PlaylistTracks.PLAYLIST_ID));
         }
     }
@@ -146,6 +150,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
             return new OfflineRequestData(
                     reader.getString(TableColumns.Sounds.STREAM_URL),
                     reader.getLong(_ID),
+                    reader.getLong(TableColumns.Sounds.DURATION),
                     true);
         }
     }

@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -25,7 +26,6 @@ import rx.subjects.PublishSubject;
 import android.content.Intent;
 import android.os.Message;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -203,6 +203,17 @@ public class OfflineContentServiceTest {
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1)));
     }
 
+    @Test
+    public void sendsDownloadRequestEventForRelatedPlaylist() {
+        List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
+
+        startService();
+        service.onError(createFailedDownloadResult(TRACK_1, relatedPlaylists));
+
+        expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
+                CurrentDownloadEvent.unavailable(false, Lists.newArrayList(TRACK_1)),
+                CurrentDownloadEvent.downloadRequested(false, relatedPlaylists));
+    }
 
     @Test
     public void stopAndScheduleRetryWhenTrackDownloadFailed() {
@@ -327,12 +338,12 @@ public class OfflineContentServiceTest {
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest(track, "http://" + track.getNumericId());
+        return new DownloadRequest(track, "http://" + track.getNumericId(), 123456);
     }
 
-    private Observable<List<DownloadRequest>> buildDownloadRequestObservable(DownloadRequest... downloadRequests) {
-        final List<DownloadRequest> requestsList = new ArrayList<>(Arrays.asList(downloadRequests));
-        return Observable.just(requestsList);
+    private DownloadResult createFailedDownloadResult(Urn downloadedTrack, List<Urn> relatedPlaylists) {
+        DownloadRequest downloadRequest = new DownloadRequest(downloadedTrack, "http://" + downloadedTrack.getNumericId(), 123456, false, relatedPlaylists);
+        return DownloadResult.failed(downloadRequest);
     }
 
     private void setupNoDownloadRequest() {

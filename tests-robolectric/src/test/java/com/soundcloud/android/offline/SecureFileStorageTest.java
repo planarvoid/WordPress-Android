@@ -1,11 +1,16 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
@@ -16,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.net.Uri;
+import org.mockito.internal.util.reflection.Whitebox;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,6 +33,7 @@ import java.io.OutputStream;
 public class SecureFileStorageTest {
 
     @Mock private CryptoOperations operations;
+    @Mock private OfflineSettingsStorage settingsStorage;
     @Mock private InputStream inputStream;
 
     private SecureFileStorage storage;
@@ -34,7 +41,7 @@ public class SecureFileStorageTest {
 
     @Before
     public void setUp() throws Exception {
-        storage = new SecureFileStorage(operations);
+        storage = new SecureFileStorage(operations, settingsStorage);
         when(operations.generateHashForUrn(TRACK_URN)).thenReturn(TRACK_URN.toEncodedString());
     }
 
@@ -47,7 +54,7 @@ public class SecureFileStorageTest {
 
     @Test
     public void offlineTrackDirectoryIsReusedWhenAlreadyExists() throws IOException, EncryptionException {
-        final SecureFileStorage otherStorage = new SecureFileStorage(operations);
+        final SecureFileStorage otherStorage = new SecureFileStorage(operations, settingsStorage);
 
         storage.storeTrack(TRACK_URN, inputStream);
         otherStorage.storeTrack(Urn.forTrack(234L), inputStream);
@@ -94,6 +101,31 @@ public class SecureFileStorageTest {
         final File file = createOfflineFile();
         storage.deleteTrack(TRACK_URN);
         expect(file.exists()).toBeFalse();
+    }
+
+    @Test
+    public void shouldBeEnoughSpaceForTrackInStorageHappyCase() throws Exception {
+        storage.OFFLINE_DIR.mkdirs();
+        when(settingsStorage.getStorageLimit()).thenReturn(1024L * 1024 * 1024);
+
+        expect(storage.isEnoughSpaceForTrack(1000)).toBeTrue();
+    }
+
+    @Test
+    public void shouldNotBeEnoughSpaceForTrackInStorage() throws Exception {
+        storage.OFFLINE_DIR.mkdirs();
+        when(settingsStorage.getStorageLimit()).thenReturn(500L);
+
+        expect(storage.isEnoughSpaceForTrack(1000000L)).toBeFalse();
+    }
+
+    @Test
+    public void calculateCorrectFileSizeBasedOnTrackDurationMp3WithBitRate128Stereo() {
+        long fileSizeFor1SecondTrackDuration = storage.calculateFileSizeInBytes(1000);
+        long fileSizeFor1MinuteTrackDuration = storage.calculateFileSizeInBytes(1000 * 60);
+
+        expect(fileSizeFor1SecondTrackDuration).toEqual(16384L);   //16 KB
+        expect(fileSizeFor1MinuteTrackDuration).toEqual(983040L);  //960 KB
     }
 
     @Test

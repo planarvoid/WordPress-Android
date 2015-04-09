@@ -68,8 +68,11 @@ class DownloadOperations {
     }
 
     public DownloadResult download(DownloadRequest request) {
-        StrictSSLHttpClient.DownloadResponse response = null;
+        if (!fileStorage.isEnoughSpaceForTrack(request.duration)) {
+            return DownloadResult.notEnoughSpace(request);
+        }
 
+        StrictSSLHttpClient.DownloadResponse response = null;
         try {
             response = strictSSLHttpClient.downloadFile(request.fileUrl);
             if (response.isUnavailable()) {

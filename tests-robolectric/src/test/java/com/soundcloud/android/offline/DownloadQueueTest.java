@@ -17,6 +17,7 @@ public class DownloadQueueTest {
     private static final Urn TRACK2 = Urn.forTrack(456L);
     private static final Urn PLAYLIST1 = Urn.forPlaylist(123L);
     private static final Urn PLAYLIST2 = Urn.forPlaylist(456L);
+    private static final long TRACK_DURATION = 12345L;
 
     private DownloadQueue downloadQueue;
 
@@ -131,19 +132,19 @@ public class DownloadQueueTest {
     }
     
     private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
-        return new DownloadRequest.Builder(track, "http://")
+        return new DownloadRequest.Builder(track, "http://", TRACK_DURATION)
                 .addToLikes(isLikedTrack)
                 .build();
     }
 
     private DownloadRequest createDownloadRequest(Urn track, Urn playlist) {
-        return new DownloadRequest.Builder(track, "http://")
+        return new DownloadRequest.Builder(track, "http://", TRACK_DURATION)
                 .addToPlaylist(playlist)
                 .build();
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest.Builder(track, "http://").build();
+        return new DownloadRequest.Builder(track, "http://", TRACK_DURATION).build();
     }
 
 }

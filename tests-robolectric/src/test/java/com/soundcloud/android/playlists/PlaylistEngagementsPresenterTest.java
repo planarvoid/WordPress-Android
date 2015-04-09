@@ -393,7 +393,7 @@ public class PlaylistEngagementsPresenterTest {
     public void setDownloadingStateWhenDownloading() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), "http://sctream").addToPlaylist(playlistWithTracks.getUrn()).build();
+        final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), "http://sctream", 12345L).addToPlaylist(playlistWithTracks.getUrn()).build();
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
 
         verify(engagementsView).showDownloadingState();

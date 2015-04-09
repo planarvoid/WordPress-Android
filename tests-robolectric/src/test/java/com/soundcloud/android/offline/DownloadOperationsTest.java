@@ -2,8 +2,10 @@ package com.soundcloud.android.offline;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
 import static com.soundcloud.android.offline.StrictSSLHttpClient.DownloadResponse;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -40,7 +42,8 @@ public class DownloadOperationsTest {
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final String streamUrl = "http://stream1.url";
-    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, streamUrl);
+    private final long trackDuration = 12345;
+    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, streamUrl, trackDuration);
 
     @Before
     public void setUp() throws Exception {
@@ -50,6 +53,7 @@ public class DownloadOperationsTest {
         when(response.isFailure()).thenReturn(false);
         when(response.isUnavailable()).thenReturn(false);
         when(response.getInputStream()).thenReturn(downloadStream);
+        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(true);
     }
 
     @Test
@@ -99,6 +103,31 @@ public class DownloadOperationsTest {
     }
 
     @Test
+    public void doesNotDownloadTrackWhenNotEnoughSpace() {
+        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
+
+        operations.download(downloadRequest);
+
+        verifyZeroInteractions(httpClient);
+    }
+
+    @Test
+    public void doesNotStoreTrackWhenNotEnoughSpace() throws IOException, EncryptionException {
+        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
+
+        operations.download(downloadRequest);
+
+        verify(fileStorage, never()).storeTrack(trackUrn, downloadStream);
+    }
+
+    @Test
+    public void returnsNotEnoughSpaceResult() {
+        when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(false);
+
+        expect(operations.download(downloadRequest).isNotEnoughSpace()).toBeTrue();
+    }
+
+    @Test
     public void deletesFileFromFailedIO() throws IOException, EncryptionException {
         final IOException ioException = new IOException("Test IOException");
         doThrow(ioException).when(fileStorage).storeTrack(trackUrn, downloadStream);
@@ -120,12 +149,12 @@ public class DownloadOperationsTest {
     }
 
     @Test
-    public void doesNotStoreFileWhenResponseIsNotSuccess() {
+    public void doesNotStoreFileWhenResponseIsNotSuccess() throws IOException, EncryptionException {
         when(response.isFailure()).thenReturn(true);
 
         operations.download(downloadRequest);
 
-        verifyZeroInteractions(fileStorage);
+        verify(fileStorage, never()).storeTrack(trackUrn, downloadStream);
     }
 
     @Test
@@ -160,4 +189,5 @@ public class DownloadOperationsTest {
 
         expect(operations.isValidNetwork()).toBeTrue();
     }
+
 }

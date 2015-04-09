@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.Message;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -141,6 +142,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         notificationController.onDownloadError();
         notifyUnavailable(result);
         notifyRequestedPlaylists(result);
+        notifyRelatedPlaylistsAsRequested(result);
 
         if (result.isFailure()) {
             stopAndRetryLater();
@@ -158,6 +160,13 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
+    private void notifyRelatedPlaylistsAsRequested(DownloadResult result) {
+        List<Urn> relatedPlaylists = result.getRequest().inPlaylists;
+        if (!relatedPlaylists.isEmpty()) {
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(false, relatedPlaylists));
+        }
+    }
+
     private void notifyDownloaded(DownloadResult result) {
         final List<Urn> completed = queue.getDownloaded(result);
         final boolean isLikedTrackCompleted = queue.isAllLikedTracksDownloaded(result);
@@ -168,7 +177,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     }
 
     private void notifyUnavailable(DownloadResult result) {
-        final List<Urn> unavailable = queue.getUnavailable(result);
+        final List<Urn> unavailable = Arrays.asList(result.getTrack());
         final boolean isLikedTrackUnavailable = queue.isAllLikedTracksDownloaded(result);
 
         if (hasChanges(unavailable, isLikedTrackUnavailable)) {
@@ -183,12 +192,10 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private void downloadNextOrFinish() {
         if (queue.isEmpty()) {
             stopAndFinish();
+        } else if (downloadOperations.isValidNetwork()) {
+            download(queue.poll());
         } else {
-            if (downloadOperations.isValidNetwork()) {
-                download(queue.poll());
-            } else {
-                stopAndRetryLater();
-            }
+            stopAndRetryLater();
         }
     }
 

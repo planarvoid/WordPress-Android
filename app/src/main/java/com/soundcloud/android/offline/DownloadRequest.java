@@ -10,18 +10,21 @@ import java.util.List;
 public final class DownloadRequest {
     public final String fileUrl;
     public final Urn track;
+    public final long duration;
     public final List<Urn> inPlaylists;
     public final boolean inLikedTracks;
 
     public static class Builder {
         private final Urn track;
+        private final long duration;
         private final String stream;
 
         private List<Urn> playlists = new ArrayList<>();
         private boolean inLikes = false;
 
-        public Builder(Urn track, String stream) {
+        public Builder(Urn track, String stream, long duration) {
             this.track = track;
+            this.duration = duration;
             this.stream = stream;
         }
 
@@ -40,19 +43,20 @@ public final class DownloadRequest {
         }
 
         public DownloadRequest build() {
-            return new DownloadRequest(track, stream, inLikes, playlists);
+            return new DownloadRequest(track, stream, duration, inLikes, playlists);
         }
     }
 
-    public DownloadRequest(Urn track, String url, boolean inLikedTracks, List<Urn> inPlaylists) {
+    public DownloadRequest(Urn track, String url, long duration, boolean inLikedTracks, List<Urn> inPlaylists) {
         this.fileUrl = url;
         this.track = track;
+        this.duration = duration;
         this.inPlaylists = inPlaylists;
         this.inLikedTracks = inLikedTracks;
     }
 
-    public DownloadRequest(Urn trackUrn, String stream) {
-        this (trackUrn, stream, false, Collections.<Urn>emptyList());
+    public DownloadRequest(Urn trackUrn, String stream, long duration) {
+        this (trackUrn, stream, duration, false, Collections.<Urn>emptyList());
     }
 
     @Override

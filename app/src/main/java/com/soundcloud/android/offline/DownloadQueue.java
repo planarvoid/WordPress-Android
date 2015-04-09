@@ -54,10 +54,6 @@ class DownloadQueue {
         return getComplementWith(result);
     }
 
-    List<Urn> getUnavailable(DownloadResult result) {
-        return getComplementWith(result);
-    }
-
     private List<Urn> getComplementWith(DownloadResult result) {
         final ArrayList<Urn> completed = newArrayList(result.getRequest().inPlaylists);
         completed.removeAll(getRequestedEntities());
