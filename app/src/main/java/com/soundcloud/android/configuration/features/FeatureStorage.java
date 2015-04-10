@@ -1,5 +1,6 @@
 package com.soundcloud.android.configuration.features;
 
+import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.rx.PreferenceChangeOnSubscribe;
 import com.soundcloud.android.storage.StorageModule;
 import rx.Observable;
@@ -9,43 +10,56 @@ import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.HashMap;
 import java.util.Map;
 
 public class FeatureStorage {
 
     private final SharedPreferences sharedPreferences;
+    private final Obfuscator obfuscator;
 
     private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
         @Override
         public Boolean call(String key) {
-            return sharedPreferences.getBoolean(key, false);
+            String enabled = sharedPreferences.getString(key, null);
+            return toBoolean(enabled, false);
         }
     };
 
     @Inject
-    public FeatureStorage(@Named(StorageModule.FEATURES) SharedPreferences sharedPreferences) {
+    public FeatureStorage(@Named(StorageModule.FEATURES) SharedPreferences sharedPreferences, Obfuscator obfuscator) {
         this.sharedPreferences = sharedPreferences;
+        this.obfuscator = obfuscator;
     }
 
-    public boolean isEnabled(final String featureName, final boolean defaultValue) {
-        return sharedPreferences.getBoolean(featureName, defaultValue);
+    public void update(String name, boolean enabled) {
+        String key = obfuscator.obfuscate(name);
+        String value = obfuscator.obfuscate(enabled);
+        sharedPreferences.edit().putString(key, value).apply();
+    }
+
+    public boolean isEnabled(String name, boolean defaultValue) {
+        String enabled = sharedPreferences.getString(obfuscator.obfuscate(name), null);
+        return toBoolean(enabled, defaultValue);
     }
 
     @SuppressWarnings("unchecked")
     public Map<String, Boolean> list() {
-        return (Map<String, Boolean>) sharedPreferences.getAll();
+        Map<String, String> obfuscatedMap = (Map<String, String>) sharedPreferences.getAll();
+        Map<String, Boolean> featureMap = new HashMap<>();
+
+        for (Map.Entry<String, String> entry : obfuscatedMap.entrySet()) {
+            String key = obfuscator.deobfuscateString(entry.getKey());
+            boolean value = obfuscator.deobfuscateBoolean(entry.getValue());
+            featureMap.put(key, value);
+        }
+        return featureMap;
     }
 
     public void update(Map<String, Boolean> features) {
-        final SharedPreferences.Editor edit = sharedPreferences.edit();
         for (Map.Entry<String, Boolean> feature : features.entrySet()) {
-            edit.putBoolean(feature.getKey(), feature.getValue());
+            update(feature.getKey(), feature.getValue());
         }
-        edit.apply();
-    }
-
-    public void update(String name, boolean enabled) {
-        sharedPreferences.edit().putBoolean(name, enabled).apply();
     }
 
     public Observable<Boolean> getUpdates(final String name) {
@@ -58,9 +72,15 @@ public class FeatureStorage {
         return new Func1<String, Boolean>() {
             @Override
             public Boolean call(String s) {
-                return s.equals(name);
+                return obfuscator.deobfuscateString(s).equals(name);
             }
         };
+    }
+
+    private boolean toBoolean(String value, boolean defaultValue) {
+        return value == null
+                ? defaultValue
+                : obfuscator.deobfuscateBoolean(value);
     }
 
     public void clear() {

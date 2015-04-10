@@ -56,7 +56,7 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
     }
 
     private void resetOfflineSyncState(Context context) {
-        ConfigurationHelper.disableOfflineSync(context);
+        ConfigurationHelper.disableOfflineContent(context);
         OfflineContentHelper.clearOfflineContent(context);
     }
 }
