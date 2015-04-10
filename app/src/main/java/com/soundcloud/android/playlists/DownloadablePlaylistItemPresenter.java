@@ -37,7 +37,7 @@ public class DownloadablePlaylistItemPresenter extends PlaylistItemPresenter {
     }
 
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
-        final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.download_progress_icon);
+        final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.item_download_state);
 
         if (featureOperations.isOfflineContentEnabled()) {
             downloadProgressIcon.setState(playlistItem.getDownloadState());

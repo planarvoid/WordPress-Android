@@ -13,7 +13,7 @@ import javax.inject.Inject;
 public class DownloadableHeaderView {
     private final Resources resources;
 
-    @InjectView(R.id.download_state) DownloadImageView downloadStateView;
+    @InjectView(R.id.header_download_state) DownloadImageView downloadStateView;
     @InjectView(R.id.header_text) TextView headerView;
 
     private String headerText;

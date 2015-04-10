@@ -1,10 +1,11 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.robotium.solo.Solo;
-import com.soundcloud.android.screens.elements.ListElement;
-import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.offline.DownloadImageView;
+import com.soundcloud.android.screens.elements.ListElement;
+import com.soundcloud.android.screens.elements.SlidingTabs;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
@@ -12,6 +13,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewParent;
 import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.webkit.WebView;
 import android.widget.ToggleButton;
 
@@ -75,6 +77,12 @@ public final class DefaultViewElement extends ViewElement {
     }
 
     @Override
+    public boolean isAnimating() {
+        final Animation animation = view.getAnimation();
+        return animation != null && animation.hasStarted() && !animation.hasEnded();
+    }
+
+    @Override
     public ListElement toListView() {
         return new ListElement(view, testDriver);
     }
@@ -117,6 +125,11 @@ public final class DefaultViewElement extends ViewElement {
     @Override
     public WebView toWebView() {
         return (WebView) view;
+    }
+
+    @Override
+    public DownloadImageView toDownloadImageView() {
+        return (DownloadImageView) view;
     }
 
     private boolean hasDimensions() {

@@ -6,6 +6,7 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.SyncYourLikesScreen;
 import com.soundcloud.android.screens.elements.ActionBarElement;
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 
 
 public class LikesActionBarElement extends ActionBarElement {
@@ -21,5 +22,9 @@ public class LikesActionBarElement extends ActionBarElement {
     public SyncYourLikesScreen clickSyncLikesButton() {
         syncAction().click();
         return new SyncYourLikesScreen(testDriver);
+    }
+
+    public DownloadImageViewElement downloadElement() {
+        return new DownloadImageViewElement(testDriver.findElement(With.id(R.id.header_download_state)));
     }
 }

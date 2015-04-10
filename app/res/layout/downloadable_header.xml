@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.soundcloud.android.offline.DownloadImageView
-        android:id="@+id/download_state"
+        android:id="@+id/header_download_state"
         style="@style/DownloadHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -38,7 +38,7 @@ public class DownloadableHeaderViewTest {
         downloadableHeaderView.show(DownloadState.DOWNLOADING);
 
         expect(header.findViewById(R.id.header_text)).toHaveText(inProgressText);
-        expect(header.findViewById(R.id.download_state)).toBeVisible();
+        expect(header.findViewById(R.id.header_download_state)).toBeVisible();
     }
 
     @Test
@@ -47,7 +47,7 @@ public class DownloadableHeaderViewTest {
         downloadableHeaderView.show(DownloadState.DOWNLOADED);
 
         expect(header.findViewById(R.id.header_text)).toHaveText("Header test text");
-        expect(header.findViewById(R.id.download_state)).toBeVisible();
+        expect(header.findViewById(R.id.header_download_state)).toBeVisible();
     }
 
     @Test
@@ -56,6 +56,6 @@ public class DownloadableHeaderViewTest {
         downloadableHeaderView.show(DownloadState.NO_OFFLINE);
 
         expect(header.findViewById(R.id.header_text)).toHaveText("Header test text");
-        expect(header.findViewById(R.id.download_state)).toBeGone();
+        expect(header.findViewById(R.id.header_download_state)).toBeGone();
     }
 }

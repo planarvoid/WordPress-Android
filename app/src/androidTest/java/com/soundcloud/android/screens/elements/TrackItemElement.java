@@ -11,7 +11,7 @@ public class TrackItemElement {
         this.wrapped = wrapped;
     }
 
-    public boolean isDownloadingOrDownloaded() {
-        return wrapped.findElement(With.id(R.id.download_progress_icon)).isVisible();
+    public DownloadImageViewElement downloadElement() {
+        return new DownloadImageViewElement(wrapped.findElement(With.id(R.id.item_download_state)));
     }
 }

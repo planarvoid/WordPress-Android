@@ -41,7 +41,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         final TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
 
-        assertFalse(likesScreen.isdownloadIconVisible());
+        assertFalse(likesScreen.actionBar().downloadElement().isVisible());
         assertTrue(likesScreen.actionBar().syncAction().isVisible());
     }
 

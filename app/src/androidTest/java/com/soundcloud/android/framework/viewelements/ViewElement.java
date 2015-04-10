@@ -1,9 +1,10 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
-import com.soundcloud.android.framework.with.With;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -33,6 +34,8 @@ public abstract class ViewElement {
 
     public abstract boolean isVisible();
 
+    public abstract boolean isAnimating();
+
     public abstract int getHeight();
 
     public abstract int getWidth();
@@ -50,6 +53,8 @@ public abstract class ViewElement {
     public abstract ViewPager toViewPager();
 
     public abstract WebView toWebView();
+
+    public abstract DownloadImageView toDownloadImageView();
 
     /* package */ abstract View getView();
 

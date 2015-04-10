@@ -17,8 +17,9 @@ public class SyncYourLikesScreen extends Screen {
         return testDriver.findElement(text(testDriver.getString(R.string.offline_likes_dialog_title))).isVisible();
     }
 
-    public void clickKeepLikesSynced() {
+    public TrackLikesScreen clickKeepLikesSynced() {
         testDriver.findElement(text(testDriver.getString(R.string.offline_likes_dialog_accept))).click();
+        return new TrackLikesScreen(testDriver);
     }
 
     @Override

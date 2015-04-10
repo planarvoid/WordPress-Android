@@ -1,7 +1,32 @@
 package com.soundcloud.android.screens.elements;
 
-/**
- * Created by guillaume on 4/10/15.
- */
+import com.soundcloud.android.framework.viewelements.ViewElement;
+
 public class DownloadImageViewElement {
+    private final ViewElement wrappedElement;
+
+    public DownloadImageViewElement(ViewElement element) {
+        this.wrappedElement = element;
+    }
+
+    public boolean isVisible() {
+        return wrappedElement.isVisible();
+    }
+
+    public boolean isUnavailable() {
+        return wrappedElement.toDownloadImageView().isUnavailable();
+    }
+
+    public boolean isRequested() {
+        return wrappedElement.toDownloadImageView().isRequested();
+    }
+
+    public boolean isDownloading() {
+        return wrappedElement.toDownloadImageView().isDownloading();
+    }
+
+    public boolean isDownloaded() {
+        return wrappedElement.toDownloadImageView().isDownloaded();
+    }
 }
+

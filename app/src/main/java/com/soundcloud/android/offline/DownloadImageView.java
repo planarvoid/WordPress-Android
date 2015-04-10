@@ -11,9 +11,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 public class DownloadImageView extends ImageView {
-    protected final Drawable downloading;
-    protected final Drawable requested;
-    protected final Drawable downloaded;
+    private final Drawable downloading;
+    private final Drawable requested;
+    private final Drawable downloaded;
+    private final Drawable unavailable;
     private DownloadState downloadState;
 
     public DownloadImageView(Context context, AttributeSet attrs) {
@@ -22,7 +23,12 @@ public class DownloadImageView extends ImageView {
         downloaded = a.getDrawable(R.styleable.DownloadImageView_downloaded);
         downloading = a.getDrawable(R.styleable.DownloadImageView_downloading);
         requested = a.getDrawable(R.styleable.DownloadImageView_requested);
+        unavailable = a.getDrawable(R.styleable.DownloadImageView_unavailable);
         a.recycle();
+    }
+
+    public boolean isUnavailable() {
+        return downloadState == DownloadState.UNAVAILABLE;
     }
 
     public boolean isRequested() {
@@ -31,6 +37,10 @@ public class DownloadImageView extends ImageView {
 
     public boolean isDownloading() {
         return downloadState == DownloadState.DOWNLOADING;
+    }
+
+    public boolean isDownloaded() {
+        return downloadState == DownloadState.DOWNLOADED;
     }
 
     private void setNoOfflineState() {
@@ -54,8 +64,10 @@ public class DownloadImageView extends ImageView {
         downloadState = state;
         switch (state) {
             case NO_OFFLINE:
-            case UNAVAILABLE:
                 setNoOfflineState();
+                break;
+            case UNAVAILABLE:
+                setDownloadStateResource(unavailable);
                 break;
             case REQUESTED:
                 setDownloadStateResource(requested);

@@ -67,14 +67,6 @@ public class TrackLikesScreen extends Screen {
         return testDriver.isElementDisplayed(text(downloadInProgress));
     }
 
-    public boolean isdownloadIconVisible() {
-        return downloadIcon().isVisible();
-    }
-
-    private ViewElement downloadIcon() {
-        return testDriver.findElement(With.id(R.id.download_state));
-    }
-
     private ListElement likesList() {
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }

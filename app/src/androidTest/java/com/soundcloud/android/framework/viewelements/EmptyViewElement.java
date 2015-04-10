@@ -1,9 +1,10 @@
 package com.soundcloud.android.framework.viewelements;
 
 import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
-import com.soundcloud.android.framework.with.With;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;
@@ -53,6 +54,11 @@ public final class EmptyViewElement extends ViewElement {
     @Override
     public boolean isVisible() {
         return false;
+    }
+
+    @Override
+    public boolean isAnimating() {
+        throw new ViewNotFoundException(selector);
     }
 
     @Override
@@ -112,6 +118,11 @@ public final class EmptyViewElement extends ViewElement {
 
     @Override
     public WebView toWebView() {
+        throw new ViewNotFoundException(selector);
+    }
+
+    @Override
+    public DownloadImageView toDownloadImageView() {
         throw new ViewNotFoundException(selector);
     }
 

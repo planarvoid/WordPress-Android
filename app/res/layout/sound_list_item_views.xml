@@ -10,7 +10,7 @@
 
 
     <com.soundcloud.android.offline.DownloadImageView
-        android:id="@+id/download_progress_icon"
+        android:id="@+id/item_download_state"
         style="@style/DownloadItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

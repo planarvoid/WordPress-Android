@@ -130,7 +130,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         notificationController.onDownloadSuccess();
         notifyDownloaded(result);
-        notifyRequestedPlaylists(result);
+        notifyRelatedQueuedCollectionsAsRequested(result);
 
         downloadNextOrFinish();
     }
@@ -141,8 +141,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         notificationController.onDownloadError();
         notifyTrackUnavailable(result);
-        notifyRequestedPlaylists(result);
-        notifyRelatedPlaylistsAsRequested(result);
+        notifyRelatedQueuedCollectionsAsRequested(result);
+        notifyRelatedCollectionsAsRequested(result);
 
         if (result.isConnectionError()) {
             stopAndRetryLater();
@@ -151,7 +151,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void notifyRequestedPlaylists(DownloadResult result) {
+    private void notifyRelatedQueuedCollectionsAsRequested(DownloadResult result) {
         final List<Urn> requested = queue.getRequested(result);
         final boolean likedTrackRequested = queue.isLikedTrackRequested();
 
@@ -160,10 +160,10 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void notifyRelatedPlaylistsAsRequested(DownloadResult result) {
+    private void notifyRelatedCollectionsAsRequested(DownloadResult result) {
         List<Urn> relatedPlaylists = result.getRequest().inPlaylists;
-        if (!relatedPlaylists.isEmpty()) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(false, relatedPlaylists));
+        if (!relatedPlaylists.isEmpty() || result.getRequest().inLikedTracks) {
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(result.getRequest().inLikedTracks, relatedPlaylists));
         }
     }
 
