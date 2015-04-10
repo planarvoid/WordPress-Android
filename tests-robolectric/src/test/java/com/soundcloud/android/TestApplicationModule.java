@@ -3,7 +3,7 @@ package com.soundcloud.android;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.localytics.android.LocalyticsAmpSession;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.analytics.AnalyticsProviderFactory;
@@ -13,7 +13,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.cast.CastSessionReconnector;
+import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playback.PlaybackStrategy;
@@ -204,8 +204,8 @@ public class TestApplicationModule {
     }
 
     @Provides
-    public CastSessionReconnector provideCastSessionReconnector() {
-        return mock(CastSessionReconnector.class);
+    public CastSessionController provideCastSessionReconnector() {
+        return mock(CastSessionController.class);
     }
 
     @Provides

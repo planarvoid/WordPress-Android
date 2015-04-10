@@ -72,7 +72,7 @@ class AdPageListener extends PageListener {
         new MaterialDialog.Builder(activity)
                 .title(R.string.why_ads)
                 .content(R.string.why_ads_dialog_message)
-                .positiveText(R.string.ok)
+                .positiveText(android.R.string.ok)
                 .show();
     }
 

@@ -28,7 +28,7 @@ public class WrongUserDialog extends UnrecoverableErrorDialog {
         return new AlertDialogWrapper.Builder(getActivity())
                 .setTitle(R.string.payments_error_title)
                 .setMessage(R.string.payments_error_wrong_user)
-                .setPositiveButton(R.string.ok, listener)
+                .setPositiveButton(android.R.string.ok, listener)
                 .create();
     }
 }

@@ -146,6 +146,30 @@ public class PlayQueueManagerTest {
     }
 
     @Test
+    public void getCurrentQueueAsUrnListReturnsUrnList() {
+        final List<Urn> tracksUrn = createTracksUrn(1L, 2L, 3L);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playSessionSource), playSessionSource);
+
+        expect(playQueueManager.getCurrentQueueAsUrnList()).toEqual(tracksUrn);
+    }
+
+    @Test
+    public void hasSameTrackListTrueForMatchingUrns() {
+        final List<Urn> tracksUrn = createTracksUrn(1L, 2L, 3L);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playSessionSource), playSessionSource);
+
+        expect(playQueueManager.hasSameTrackList(createTracksUrn(1L, 2L, 3L))).toBeTrue();
+    }
+
+    @Test
+    public void hasSameTrackListTrueForDifferentOrder() {
+        final List<Urn> tracksUrn = createTracksUrn(1L, 2L, 3L);
+        playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(tracksUrn, playSessionSource), playSessionSource);
+
+        expect(playQueueManager.hasSameTrackList(createTracksUrn(3L, 2L, 1L))).toBeFalse();
+    }
+
+    @Test
     public void getCurrentPlayQueueCountReturnsSizeOfCurrentQueue() {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource), playSessionSource);
 

@@ -45,7 +45,7 @@ ext {
   materialDialogsVersion = '0.6.7.0'
   facebookReboundVersion = '0.3.4'
   facebookAndroidSdkVersion = '3.20.0'
-  castCompanionLibraryVersion = '1.14-SOUNDCLOUD'
+  castCompanionLibraryVersion = '2.0-SOUNDCLOUD'
   undoBarVersion = '1.4'
 
   //Rx
@@ -101,7 +101,7 @@ ext {
       facebookRebound:              "com.facebook.rebound:rebound:${facebookReboundVersion}",
       facebookAndroidSdk:           "com.facebook.android:facebook-android-sdk:${facebookAndroidSdkVersion}@aar",
       butterKnife:                  "com.jakewharton:butterknife:${butterKnifeVersion}",
-      castCompanionLibrary:         "com.google.sample:castcompanionlibrary:${castCompanionLibraryVersion}@aar",
+      castCompanionLibrary:         "com.google.android.cast:castcompanionlibrary:${castCompanionLibraryVersion}@aar",
       undoBar:                      "com.cocosw:undobar:${undoBarVersion}@aar",
       androidSupportLibrary:        "com.android.support:support-v4:${androidSupportLibraryVersion}",
       androidAppCompatLibrary:      "com.android.support:appcompat-v7:${androidAppCompatLibraryVersion}",

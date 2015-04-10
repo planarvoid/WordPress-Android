@@ -34,16 +34,6 @@ public class UselessCastConnectionHelper extends DefaultLightCycleActivity<Actio
     }
 
     @Override
-    public void addConnectionListener(CastConnectionListener listener) {
-        // no-op
-    }
-
-    @Override
-    public void removeConnectionListener(CastConnectionListener listener) {
-        // no-op
-    }
-
-    @Override
     public boolean isConnected() {
         return false;
     }

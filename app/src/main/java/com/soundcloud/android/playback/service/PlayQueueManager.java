@@ -35,6 +35,7 @@ import android.content.Intent;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.Iterator;
+import java.util.List;
 
 @Singleton
 public class PlayQueueManager implements Observer<RecommendedTracksCollection>, OriginProvider {
@@ -200,6 +201,14 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         } else {
             return false;
         }
+    }
+
+    public List<Urn> getCurrentQueueAsUrnList() {
+        return playQueue.getTrackUrns();
+    }
+
+    public boolean hasSameTrackList(List<Urn> remoteTrackList) {
+        return playQueue.getTrackUrns().equals(remoteTrackList);
     }
 
     public PropertySet getCurrentMetaData() {

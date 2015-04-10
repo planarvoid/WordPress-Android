@@ -13,7 +13,7 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.cast.CastSessionReconnector;
+import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crypto.CryptoOperations;
@@ -96,9 +96,9 @@ public class SoundCloudApplication extends Application {
     @Inject FeatureFlags featureFlags;
     @Inject CryptoOperations cryptoOperations;
     @Inject ConfigurationFeatureController configurationFeatureController;
-    @Inject CastSessionReconnector castSessionReconnector;
     @Inject ScreenProvider screenProvider;
     @Inject AdIdHelper adIdHelper;
+    @Inject CastSessionController castSessionController;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -166,7 +166,7 @@ public class SoundCloudApplication extends Application {
         screenProvider.subscribe();
 
         if (featureFlags.isEnabled(Flag.GOOGLE_CAST)) {
-            castSessionReconnector.startListening();
+            castSessionController.startListening();
         }
 
         configurationFeatureController.subscribe();

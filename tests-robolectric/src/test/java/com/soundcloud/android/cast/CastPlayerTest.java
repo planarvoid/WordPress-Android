@@ -16,7 +16,7 @@ import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.RemoteMediaPlayer;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
-import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
@@ -31,6 +31,8 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +42,9 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.res.Resources;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CastPlayerTest {
@@ -238,7 +243,7 @@ public class CastPlayerTest {
         castPlayer.playCurrent();
 
         ArgumentCaptor<MediaInfo> mediaInfoArgumentCaptor = ArgumentCaptor.forClass(MediaInfo.class);
-        verify(castManager).loadMedia(mediaInfoArgumentCaptor.capture(), anyBoolean(), anyInt());
+        verify(castManager).loadMedia(mediaInfoArgumentCaptor.capture(), anyBoolean(), anyInt(), any(JSONObject.class));
         final MediaInfo value = mediaInfoArgumentCaptor.getValue();
         expect(value.getContentType()).toEqual("audio/mpeg");
         expect(value.getMetadata().getImages().get(0).getUrl().toString()).toEqual(HTTP_IMAGE_URL);
@@ -253,7 +258,7 @@ public class CastPlayerTest {
         when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
         castPlayer.playCurrent();
 
-        verify(castManager).loadMedia(any(MediaInfo.class), eq(true), anyInt());
+        verify(castManager).loadMedia(any(MediaInfo.class), eq(true), anyInt(), any(JSONObject.class));
     }
 
     @Test
@@ -263,7 +268,7 @@ public class CastPlayerTest {
         when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
         castPlayer.playCurrent();
 
-        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(0));
+        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(0), any(JSONObject.class));
     }
 
     @Test
@@ -272,7 +277,24 @@ public class CastPlayerTest {
         when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
         castPlayer.playCurrent(100);
 
-        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(100));
+        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(100), any(JSONObject.class));
+    }
+
+    @Test
+    public void playCallsLoadOnRemoteMediaPlayerWithQueueAsCustomData() throws Exception {
+        final List<Urn> playQueue = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(456L));
+        when(playQueueManager.getCurrentQueueAsUrnList()).thenReturn(playQueue);
+        setupSuccesfulTrackInfoLoad();
+        when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
+        castPlayer.playCurrent(100);
+
+        ArgumentCaptor<JSONObject> customDataCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(100), customDataCaptor.capture());
+        JSONObject customData = customDataCaptor.getValue();
+
+        final JSONArray playQueueArr = (JSONArray) customData.get("play_queue");
+        expect(playQueueArr.get(0)).toEqual(Urn.forTrack(123L).toString());
+        expect(playQueueArr.get(1)).toEqual(Urn.forTrack(456L).toString());
     }
 
     @Test
@@ -333,14 +355,6 @@ public class CastPlayerTest {
         when(castManager.getCurrentMediaPosition()).thenReturn(123L);
 
         expect(castPlayer.getProgress()).toEqual(123L);
-    }
-
-    @Test
-    public void stopsListeningInDestroy() throws Exception {
-
-        castPlayer.destroy();
-
-        verify(castManager).removeVideoCastConsumer(castPlayer);
     }
 
     @Test

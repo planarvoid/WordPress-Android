@@ -1,12 +1,7 @@
 package com.soundcloud.android.cast;
 
-import com.google.android.gms.cast.ApplicationMetadata;
-import com.google.sample.castcompanionlibrary.cast.VideoCastManager;
-import com.google.sample.castcompanionlibrary.cast.callbacks.VideoCastConsumerImpl;
-import com.google.sample.castcompanionlibrary.cast.exceptions.NoConnectionException;
-import com.google.sample.castcompanionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.utils.Log;
+import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -27,12 +22,10 @@ import java.util.Set;
 @Singleton
 public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implements CastConnectionHelper {
 
-    private static final int EXPECTED_CAST_LISTENER_CAPACITY = 5;
-    private static final String TAG = "CastConnectionHelper";
+    private static final int EXPECTED_MEDIA_BUTTON_CAPACITY = 6;
 
     private final Context context;
     private final VideoCastManager videoCastManager;
-    private final Set<CastConnectionListener> castConnectionListeners;
     private final Set<MediaRouteButton> mediaRouteButtons;
 
     private boolean isCastableDeviceAvailable;
@@ -41,8 +34,7 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     public DefaultCastConnectionHelper(Context context, VideoCastManager videoCastManager) {
         this.context = context;
         this.videoCastManager = videoCastManager;
-        castConnectionListeners = new HashSet<>(EXPECTED_CAST_LISTENER_CAPACITY);
-        mediaRouteButtons = new HashSet<>(EXPECTED_CAST_LISTENER_CAPACITY);
+        mediaRouteButtons = new HashSet<>(EXPECTED_MEDIA_BUTTON_CAPACITY);
         videoCastManager.addVideoCastConsumer(this);
     }
 
@@ -91,37 +83,8 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void addConnectionListener(final CastConnectionListener listener) {
-        castConnectionListeners.add(listener);
-    }
-
-    @Override
-    public void removeConnectionListener(final CastConnectionListener listener) {
-        castConnectionListeners.remove(listener);
-    }
-
-    @Override
     public boolean isConnected() {
         return videoCastManager.isConnected();
-    }
-
-    @Override
-    public void onRemoteMediaPlayerMetadataUpdated() {
-        try {
-            final Urn urnFromMediaMetadata = CastPlayer.getUrnFromMediaMetadata(videoCastManager.getRemoteMediaInformation());
-            for (CastConnectionListener listener : castConnectionListeners){
-                listener.onMetaDataUpdated(urnFromMediaMetadata);
-            }
-        } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
-            Log.e(TAG, "Unable to get remote media information", e);
-        }
-    }
-
-    @Override
-    public void onApplicationConnected(ApplicationMetadata appMetadata, String sessionId, boolean wasLaunched) {
-        for (CastConnectionListener listener : castConnectionListeners){
-            listener.onConnectedToReceiverApp();
-        }
     }
 
     @Override
