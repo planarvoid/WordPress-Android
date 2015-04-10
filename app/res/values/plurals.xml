@@ -177,4 +177,11 @@
         <item quantity="other">%1$d of %2$d tracks</item>
     </plurals>
 
+    <!-- __OFFLINE_SYNC -->
+    <plurals name="offline_synced_n_tracks">
+        <item quantity="one">1 track was offline synced</item>
+        <item quantity="other">%1$d tracks offline synced</item>
+    </plurals>
+
+
 </resources>

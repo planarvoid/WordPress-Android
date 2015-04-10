@@ -59,8 +59,8 @@ public class OfflineSettingsStorage {
         return sharedPreferences.getLong(OFFLINE_STORAGE_LIMIT, DEFAULT_OFFLINE_STORAGE_LIMIT_BYTES);
     }
 
-    public void setStorageLimit(long limitBytes) {
-        sharedPreferences.edit().putLong(OFFLINE_STORAGE_LIMIT, limitBytes).apply();
+    public void setStorageLimit(long newLimit) {
+        sharedPreferences.edit().putLong(OFFLINE_STORAGE_LIMIT, newLimit).apply();
     }
 
     public Observable<Boolean> getOfflineLikedTracksStatusChange() {

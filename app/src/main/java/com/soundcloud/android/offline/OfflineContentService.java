@@ -32,19 +32,20 @@ import java.util.List;
 
 public class OfflineContentService extends Service implements DownloadHandler.Listener {
 
-    static final String TAG = "OfflineContent";
+    public static final String TAG = "OfflineContent";
     @VisibleForTesting static final String ACTION_START_DOWNLOAD = "action_start_download";
     @VisibleForTesting static final String ACTION_STOP_DOWNLOAD = "action_stop_download";
 
     @Inject DownloadOperations downloadOperations;
     @Inject OfflineContentOperations offlineContentOperations;
     @Inject DownloadNotificationController notificationController;
-    @Inject EventBus eventBus;
     @Inject OfflineContentScheduler offlineContentScheduler;
-    @Inject DownloadHandler.Builder builder;
-    @Inject DownloadQueue queue;
-    private DownloadHandler downloadHandler;
+    @Inject EventBus eventBus;
 
+    @Inject DownloadQueue queue;
+    @Inject DownloadHandler.Builder builder;
+
+    private DownloadHandler downloadHandler;
     private Subscription subscription = Subscriptions.empty();
 
     private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
@@ -128,26 +129,26 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public void onSuccess(DownloadResult result) {
         Log.d(TAG, "Download finished " + result);
 
-        notificationController.onDownloadSuccess();
+        notificationController.onDownloadSuccess(result);
         notifyDownloaded(result);
         notifyRelatedQueuedCollectionsAsRequested(result);
 
-        downloadNextOrFinish();
+        downloadNextOrFinish(result);
     }
 
     @Override
     public void onError(DownloadResult result) {
         Log.d(TAG, "Download failed " + result);
 
-        notificationController.onDownloadError();
+        notificationController.onDownloadError(result);
         notifyTrackUnavailable(result);
         notifyRelatedQueuedCollectionsAsRequested(result);
         notifyRelatedCollectionsAsRequested(result);
 
         if (result.isConnectionError()) {
-            stopAndRetryLater();
+            stopAndRetryLater(result);
         } else {
-            downloadNextOrFinish();
+            downloadNextOrFinish(result);
         }
     }
 
@@ -161,9 +162,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     }
 
     private void notifyRelatedCollectionsAsRequested(DownloadResult result) {
-        List<Urn> relatedPlaylists = result.getRequest().inPlaylists;
-        if (!relatedPlaylists.isEmpty() || result.getRequest().inLikedTracks) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(result.getRequest().inLikedTracks, relatedPlaylists));
+        List<Urn> relatedPlaylists = result.request.inPlaylists;
+        if (!relatedPlaylists.isEmpty() || result.request.inLikedTracks) {
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(result.request.inLikedTracks, relatedPlaylists));
         }
     }
 
@@ -184,25 +185,23 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         return !entitiesChangeList.isEmpty() || likedTracksChanged;
     }
 
-    private void downloadNextOrFinish() {
+    private void downloadNextOrFinish(DownloadResult result) {
         if (queue.isEmpty()) {
-            stopAndFinish();
-        } else if (downloadOperations.isValidNetwork()) {
-            download(queue.poll());
+            stopAndFinish(result);
         } else {
-            stopAndRetryLater();
+            download(queue.poll());
         }
     }
 
-    private void stopAndFinish() {
+    private void stopAndFinish(DownloadResult result) {
         stop();
-        notificationController.onDownloadsFinished();
+        notificationController.onDownloadsFinished(result);
     }
 
-    private void stopAndRetryLater() {
+    private void stopAndRetryLater(DownloadResult result) {
         offlineContentScheduler.scheduleRetry();
         stop();
-        notificationController.onConnectionError();
+        notificationController.onConnectionError(result);
     }
 
     private void download(DownloadRequest request) {
@@ -258,14 +257,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         private void startDownloadIfNecessary() {
             if (!downloadHandler.isDownloading()) {
-                downloadNextOrFinish();
+                downloadNextOrFinish(null);
             }
         }
 
         private void updateNotification() {
             if (!queue.isEmpty()) {
                 final int size = downloadHandler.isDownloading() ? queue.size() + 1 : queue.size();
-                startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size));
+                startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size, queue.getFirst()));
             }
         }
     }

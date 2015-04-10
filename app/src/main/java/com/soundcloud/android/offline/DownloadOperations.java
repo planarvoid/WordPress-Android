@@ -18,6 +18,11 @@ import java.io.IOException;
 import java.util.Collection;
 
 class DownloadOperations {
+
+    enum ConnectionState {
+        DISCONNECTED, CONNECTED, NOT_ALLOWED
+    }
+
     private final StrictSSLHttpClient strictSSLHttpClient;
     private final SecureFileStorage fileStorage;
     private final DeleteOfflineTrackCommand deleteOfflineContent;
@@ -51,10 +56,6 @@ class DownloadOperations {
         this.scheduler = scheduler;
     }
 
-    boolean isValidNetwork() {
-        return connectionHelper.isWifiConnected() || (!offlineSettings.isWifiOnlyEnabled() && connectionHelper.isNetworkConnected());
-    }
-
     Observable<Collection<Urn>> removeOfflineTracks(Collection<Urn> requests) {
         return deleteOfflineContent
                 .toObservable(Collections2.filter(requests, isNotCurrentTrackFilter))
@@ -75,19 +76,30 @@ class DownloadOperations {
             return DownloadResult.notEnoughSpace(request);
         }
 
+        if (!isValidNetwork()) {
+            return DownloadResult.connectionError(request, getConnectionState());
+        }
+
+        return downloadAndStore(request);
+    }
+
+    boolean isValidNetwork() {
+        return getConnectionState() == ConnectionState.CONNECTED;
+    }
+
+    private DownloadResult downloadAndStore(DownloadRequest request) {
         StrictSSLHttpClient.DownloadResponse response = null;
         try {
             response = strictSSLHttpClient.downloadFile(request.fileUrl);
             if (response.isUnavailable()) {
                 return DownloadResult.unavailable(request);
-            } else if (response.isFailure()) {
-                return DownloadResult.failed(request);
             }
-            saveFile(request, response);
-            return DownloadResult.success(request);
-        } catch (EncryptionException | IOException e) {
-            deleteTrack(request.track);
-            return DownloadResult.failed(request);
+            if (response.isFailure()) {
+                return DownloadResult.error(request);
+            }
+            return saveFile(request, response);
+        } catch (IOException ioException) {
+            return DownloadResult.connectionError(request, getConnectionState());
         } finally {
             if (response != null) {
                 response.close();
@@ -95,9 +107,27 @@ class DownloadOperations {
         }
     }
 
-    private void saveFile(DownloadRequest track, StrictSSLHttpClient.DownloadResponse response) throws IOException, EncryptionException {
-        fileStorage.storeTrack(track.track, response.getInputStream());
-        Log.d(OfflineContentService.TAG, "Track stored on device: " + track.track);
+    private ConnectionState getConnectionState() {
+        if (!connectionHelper.isNetworkConnected()) {
+            return ConnectionState.DISCONNECTED;
+        } else if (!connectionHelper.isWifiConnected() && offlineSettings.isWifiOnlyEnabled()) {
+            return ConnectionState.NOT_ALLOWED;
+        } else {
+            return ConnectionState.CONNECTED;
+        }
+    }
+
+    private DownloadResult saveFile(DownloadRequest request, StrictSSLHttpClient.DownloadResponse response) {
+        try {
+            fileStorage.storeTrack(request.track, response.getInputStream());
+            Log.d(OfflineContentService.TAG, "Track stored on device: " + request.track);
+            return DownloadResult.success(request);
+
+        } catch (Exception exception) {
+            Log.e(OfflineContentService.TAG, "Failed to save file: ", exception);
+            deleteTrack(request.track);
+            return DownloadResult.error(request);
+        }
     }
 
 }

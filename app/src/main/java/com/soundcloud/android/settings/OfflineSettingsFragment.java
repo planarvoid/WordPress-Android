@@ -15,6 +15,7 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
+import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.SubscribeActivity;
 import com.soundcloud.android.rx.ScSchedulers;
@@ -97,13 +98,22 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         switch (preference.getKey()) {
             case OFFLINE_STORAGE_LIMIT:
-                offlineSettings.setStorageLimit((long) newValue);
+                onUpdateStorageLimit((long) newValue);
                 return true;
             case WIFI_ONLY:
                 offlineSettings.setWifiOnlyEnabled((boolean) newValue);
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private void onUpdateStorageLimit(long newValue) {
+        final long previousLimit = offlineSettings.getStorageLimit();
+        offlineSettings.setStorageLimit(newValue);
+
+        if (newValue > previousLimit) {
+            OfflineContentService.start(getActivity());
         }
     }
 

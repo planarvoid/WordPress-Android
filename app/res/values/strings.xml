@@ -604,6 +604,7 @@
     <!-- __OFFLINE_SYNC -->
     <string name="offline_track_not_available">Track is not available offline</string>
     <string name="offline_update_completed_title">All tracks synced!</string>
+    <string name="offline_update_storage_limit_reached">Storage limit reached</string>
     <string name="offline_update_completed_message">Ready for offline listening!</string>
     <string name="offline_update_in_progress">Syncing your tracks</string>
     <string name="offline_likes_dialog_title">Make available offline</string>
@@ -653,5 +654,8 @@
     </string-array>
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
+    <string name="offline_update_paused">Offline syncing paused</string>
+    <string name="no_network_connection">no network connection</string>
+    <string name="no_wifi_connection">no Wifi connection</string>
 
 </resources>

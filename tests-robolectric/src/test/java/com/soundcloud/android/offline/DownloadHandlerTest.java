@@ -1,14 +1,13 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.offline.DownloadHandler.MainHandler;
+import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
-import com.soundcloud.android.offline.commands.UpdateContentAsUnavailableCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.WriteResult;
@@ -16,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import rx.Observable;
 
 import android.os.Message;
 
@@ -25,8 +23,8 @@ public class DownloadHandlerTest {
 
     @Mock MainHandler mainHandler;
     @Mock DownloadOperations downloadOperations;
-    @Mock StoreCompletedDownloadCommand completedDownloadCommand;
-    @Mock UpdateContentAsUnavailableCommand updateContentAsUnavailable;
+    @Mock OfflineTracksStorage tracksStorage;
+    @Mock WriteResult writeResult;
 
     private DownloadHandler handler;
     private Message successMessage;
@@ -42,7 +40,7 @@ public class DownloadHandlerTest {
     public void setUp() throws Exception {
         downloadRequest = new DownloadRequest(Urn.forTrack(123), "http://", 12345);
         downloadResultSuccess = DownloadResult.success(downloadRequest);
-        downloadResultFailed = DownloadResult.failed(downloadRequest);
+        downloadResultFailed = DownloadResult.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
         downloadResultUnavailable = DownloadResult.unavailable(downloadRequest);
         downloadResultNotEnoughSpace = DownloadResult.notEnoughSpace(downloadRequest);
 
@@ -50,11 +48,14 @@ public class DownloadHandlerTest {
         failureMessage = createMessage(downloadRequest);
         notEnoughSpaceMessage = createMessage(downloadRequest);
 
-        handler = new DownloadHandler(mainHandler, downloadOperations, completedDownloadCommand, updateContentAsUnavailable);
+        handler = new DownloadHandler(mainHandler, downloadOperations, tracksStorage);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, downloadResultSuccess)).thenReturn(successMessage);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultFailed)).thenReturn(failureMessage);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultNotEnoughSpace)).thenReturn(notEnoughSpaceMessage);
-        when(updateContentAsUnavailable.toObservable()).thenReturn(Observable.<WriteResult>empty());
+        when(writeResult.success()).thenReturn(true);
+        when(tracksStorage.storeCompletedDownload(any(DownloadResult.class))).thenReturn(writeResult);
+        when(tracksStorage.markTrackAsUnavailable(any(Urn.class))).thenReturn(writeResult);
+
     }
 
     @Test
@@ -63,7 +64,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(successMessage);
 
-        expect(completedDownloadCommand.getInput()).toBe(downloadResultSuccess);
+        verify(tracksStorage).storeCompletedDownload(downloadResultSuccess);
     }
 
     @Test
@@ -72,7 +73,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(failureMessage);
 
-        verifyZeroInteractions(completedDownloadCommand);
+        verify(tracksStorage, never()).storeCompletedDownload(downloadResultFailed);
     }
 
     @Test
@@ -105,7 +106,8 @@ public class DownloadHandlerTest {
     @Test
     public void deletesFileWhenFailToStoreSuccessStatus() throws PropellerWriteException {
         when(downloadOperations.download(downloadRequest)).thenReturn(downloadResultSuccess);
-        when(completedDownloadCommand.call()).thenThrow(new PropellerWriteException("Test", new Exception()));
+        when(writeResult.success()).thenReturn(false);
+        when(tracksStorage.storeCompletedDownload(downloadResultSuccess)).thenReturn(writeResult);
 
         handler.handleMessage(successMessage);
 
@@ -118,7 +120,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(successMessage);
 
-        expect(updateContentAsUnavailable.getInput()).toEqual(downloadResultUnavailable.getTrack());
+        verify(tracksStorage).markTrackAsUnavailable(downloadResultUnavailable.getTrack());
     }
 
     private Message createMessage(DownloadRequest downloadRequest) {

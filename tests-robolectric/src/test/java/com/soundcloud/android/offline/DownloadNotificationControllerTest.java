@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
@@ -8,6 +9,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -26,6 +28,11 @@ public class DownloadNotificationControllerTest {
 
     private static final String DOWNLOAD_IN_PROGRESS = getString(R.string.offline_update_in_progress);
     private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_update_completed_title);
+    private static final String DOWNLOAD_PAUSED = getString(R.string.offline_update_paused);
+
+    private final DownloadRequest downloadRequest = new DownloadRequest(Urn.forTrack(123L), "http://", 12L);
+    private final DownloadResult successfulDownloadResult = DownloadResult.success(downloadRequest);
+    private final DownloadResult failedDownloadResult = DownloadResult.error(downloadRequest);
 
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
@@ -49,10 +56,10 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void displayCompletedNotificationWhenCompleted() {
-        notificationController.onPendingRequests(20);
+        notificationController.onPendingRequests(20, downloadRequest);
 
         reset(notificationBuilder);
-        notificationController.onDownloadsFinished();
+        notificationController.onDownloadsFinished(successfulDownloadResult);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_COMPLETED);
         verify(notificationBuilder).setOngoing(false);
@@ -62,25 +69,25 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void doesNotShowCompletedNotificationIfNoTrackDownloaded() {
-        notificationController.onPendingRequests(1);
-        notificationController.onDownloadError();
+        notificationController.onPendingRequests(1, downloadRequest);
+        notificationController.onDownloadError(failedDownloadResult);
 
         reset(notificationBuilder, notificationManager);
-        notificationController.onDownloadsFinished();
+        notificationController.onDownloadsFinished(null);
 
         verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
     }
 
     @Test
     public void onCompletedDoesNotShowNotificationWhenNoPendingRequests() {
-        notificationController.onDownloadsFinished();
+        notificationController.onDownloadsFinished(successfulDownloadResult);
 
         verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
 
     @Test
     public void onNewPendingRequestsCreatesNewProgressNotification() {
-        notificationController.onPendingRequests(20);
+        notificationController.onPendingRequests(20, downloadRequest);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -91,11 +98,11 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onNewPendingRequestsOverridesNumberOfTotalDownloads() {
-        notificationController.onPendingRequests(5);
-        notificationController.onDownloadSuccess();
+        notificationController.onPendingRequests(5, downloadRequest);
+        notificationController.onDownloadSuccess(successfulDownloadResult);
 
         reset(notificationBuilder);
-        notificationController.onPendingRequests(10);
+        notificationController.onPendingRequests(10, downloadRequest);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -106,10 +113,10 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onDownloadSuccessModifiesNumberOfCompletedDownloads() {
-        notificationController.onPendingRequests(20);
+        notificationController.onPendingRequests(20, downloadRequest);
         reset(notificationBuilder);
 
-        notificationController.onDownloadSuccess();
+        notificationController.onDownloadSuccess(successfulDownloadResult);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -121,10 +128,10 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onDownloadErrorModifiesNumberOfCompletedDownloads() {
-        notificationController.onPendingRequests(20);
+        notificationController.onPendingRequests(20, downloadRequest);
 
         reset(notificationBuilder);
-        notificationController.onDownloadError();
+        notificationController.onDownloadError(failedDownloadResult);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -136,10 +143,10 @@ public class DownloadNotificationControllerTest {
 
     @Test
     public void onProgressUpdateDisplaysCountBasedOnCurrentDownloadingTrack() {
-        notificationController.onPendingRequests(2);
+        notificationController.onPendingRequests(2, downloadRequest);
         reset(notificationBuilder);
 
-        notificationController.onDownloadSuccess();
+        notificationController.onDownloadSuccess(successfulDownloadResult);
 
         verify(notificationBuilder).setContentTitle(DOWNLOAD_IN_PROGRESS);
         verify(notificationBuilder).setOngoing(true);
@@ -150,10 +157,31 @@ public class DownloadNotificationControllerTest {
     }
 
     @Test
-    public void removesNotificationOnConnectionError() {
-        notificationController.onConnectionError();
+    public void onConnectionErrorWithDisconnectedShowsNoNetworkNotification() {
+        reset(notificationBuilder);
 
-        verify(notificationManager).cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
+        DownloadResult result = DownloadResult.connectionError(downloadRequest, ConnectionState.DISCONNECTED);
+        notificationController.onConnectionError(result);
+
+        verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
+        verify(notificationBuilder).setOngoing(false);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        verify(notificationBuilder).setContentText(getString(R.string.no_network_connection));
+        verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
+    public void onConnectionNetworkWithWifiOnlyRestrictionShowsWifiOnlyNotification() {
+        reset(notificationBuilder);
+
+        DownloadResult result = DownloadResult.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
+        notificationController.onConnectionError(result);
+
+        verify(notificationBuilder).setContentTitle(DOWNLOAD_PAUSED);
+        verify(notificationBuilder).setOngoing(false);
+        verify(notificationBuilder).setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+        verify(notificationBuilder).setContentText(getString(R.string.no_wifi_connection));
+        verify(notificationManager).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
     }
 
     private String getQuantifiedDownloadString(int completed, int queueSize) {
