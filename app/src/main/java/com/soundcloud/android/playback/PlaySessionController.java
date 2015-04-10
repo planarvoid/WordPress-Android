@@ -15,6 +15,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
 import dagger.Lazy;
@@ -27,6 +28,7 @@ import android.graphics.Bitmap;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.Collections;
 
 @Singleton
 public class PlaySessionController {
@@ -112,17 +114,46 @@ public class PlaySessionController {
     private final class ArtworkSubscriber extends DefaultSubscriber<Bitmap> {
         @Override
         public void onNext(Bitmap bitmap) {
-            audioManager.onTrackChanged(currentPlayQueueTrack, bitmap);
+            try {
+                audioManager.onTrackChanged(currentPlayQueueTrack, bitmap);
+            } catch (IllegalArgumentException e){
+                logArtworkException(bitmap, e);
+            }
+        }
+
+        private void logArtworkException(Bitmap bitmap, IllegalArgumentException e) {
+            final String bitmapSize = bitmap == null ? "null" : bitmap.getWidth() + "x" + bitmap.getHeight();
+            ErrorUtils.handleSilentException(e, Collections.singletonMap("bitmap_size", bitmapSize));
         }
     }
 
     private void updateRemoteAudioManager() {
         if (audioManager.isTrackChangeSupported()) {
             audioManager.onTrackChanged(currentPlayQueueTrack, null); // set initial data without bitmap so it doesn't have to wait
-            currentTrackSubscription = imageOperations.artwork(currentPlayQueueTrack.get(TrackProperty.URN), ApiImageSize.getFullImageSize(resources))
+            final Urn resourceUrn = currentPlayQueueTrack.get(TrackProperty.URN);
+            currentTrackSubscription = imageOperations.artwork(resourceUrn, ApiImageSize.getFullImageSize(resources))
+                    .filter(validateBitmap(resourceUrn))
                     .map(copyBitmap)
                     .subscribe(new ArtworkSubscriber());
         }
+    }
+
+    // Trying to debug : https://github.com/soundcloud/SoundCloud-Android/issues/2984
+    private Func1<Bitmap, Boolean> validateBitmap(final Urn resourceUrn) {
+        return new Func1<Bitmap, Boolean>() {
+            @Override
+            public Boolean call(Bitmap bitmap) {
+                if (bitmap == null){
+                    ErrorUtils.handleSilentException(new IllegalArgumentException("Artwork bitmap is null " + resourceUrn));
+                    return false;
+                } else if (bitmap.getWidth() <= 0 || bitmap.getHeight() <= 0){
+                    ErrorUtils.handleSilentException(new IllegalArgumentException("Artwork bitmap has no size " + resourceUrn));
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        };
     }
 
     private StateTransition createPlayQueueCompleteEvent(Urn trackUrn){

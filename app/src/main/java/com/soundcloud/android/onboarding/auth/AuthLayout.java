@@ -37,4 +37,8 @@ public abstract class AuthLayout extends RelativeLayout {
     public void onFacebookClick() {
         getAuthHandler().onFacebookAuth();
     }
+
+    public void setGooglePlusVisibility(boolean visible) {
+        findViewById(R.id.google_plus_btn).setVisibility(visible ? VISIBLE : GONE);
+    }
 }

@@ -222,10 +222,12 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
 
     @Override
     public void onPlayShuffled() {
-        offlinePlaybackOperations
-                .playPlaylistShuffled(playlistWithTracks.getUrn(), playSessionSourceInfo)
-                .doOnCompleted(publishAnalyticsEventForShuffle())
-                .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+        if (playlistWithTracks != null) {
+            offlinePlaybackOperations
+                    .playPlaylistShuffled(playlistWithTracks.getUrn(), playSessionSourceInfo)
+                    .doOnCompleted(publishAnalyticsEventForShuffle())
+                    .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+        }
     }
 
     private Action0 publishAnalyticsEventForShuffle() {

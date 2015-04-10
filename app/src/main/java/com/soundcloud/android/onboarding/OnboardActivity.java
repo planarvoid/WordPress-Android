@@ -119,6 +119,7 @@ public class OnboardActivity extends FragmentActivity
         }
     };
 
+
     private OnboardingState lastAuthState;
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
@@ -173,8 +174,6 @@ public class OnboardActivity extends FragmentActivity
 
     private final Session.StatusCallback sessionStatusCallback = new FacebookSessionCallback(this);
     private PublicCloudAPI oldCloudAPI;
-    private ApplicationProperties applicationProperties;
-    private EventBus eventBus;
     private Session currentFacebookSession;
     private final View.OnClickListener onLoginButtonClick = new View.OnClickListener() {
         @Override
@@ -201,14 +200,17 @@ public class OnboardActivity extends FragmentActivity
     private TourPhotoPagerAdapter photosAdapter;
 
     @Inject ConfigurationOperations configurationOperations;
+    @Inject ApplicationProperties applicationProperties;
+    @Inject EventBus eventBus;
 
     public OnboardActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    OnboardActivity(ConfigurationOperations configurationOperations) {
+    OnboardActivity(ConfigurationOperations configurationOperations, EventBus eventBus) {
         this.configurationOperations = configurationOperations;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -217,10 +219,8 @@ public class OnboardActivity extends FragmentActivity
         setContentView(R.layout.start);
 
         oauth = new OAuth(SoundCloudApplication.instance.getAccountOperations());
-        applicationProperties = new ApplicationProperties(getResources());
         oldCloudAPI = new PublicApi(this);
 
-        eventBus = SoundCloudApplication.fromContext(this).getEventBus();
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(this.getClass()));
 
         accountAuthenticatorResponse = getIntent().getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
@@ -703,6 +703,7 @@ public class OnboardActivity extends FragmentActivity
             loginLayout.setLoginHandler(this);
             loginLayout.setVisibility(View.GONE);
             loginLayout.setStateFromBundle(loginBundle);
+            loginLayout.setGooglePlusVisibility(applicationProperties.isGooglePlusEnabled());
         }
 
         return loginLayout;
@@ -715,6 +716,7 @@ public class OnboardActivity extends FragmentActivity
             signUpMethodLayout = (SignupMethodLayout) stub.inflate();
             signUpMethodLayout.setSignUpMethodHandler(this);
             signUpMethodLayout.setVisibility(View.GONE);
+            signUpMethodLayout.setGooglePlusVisibility(applicationProperties.isGooglePlusEnabled());
         }
 
         return signUpMethodLayout;

@@ -64,7 +64,7 @@ task buildBetaCI(dependsOn: ['assembleBeta']) {
 }
 buildBetaCI.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['commitVersionBump', 'uploadStore', 'uploadGithub']) {
+task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 deployBeta.mustRunAfter('buildBetaCI')
@@ -78,7 +78,7 @@ task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard']) {
 }
 buildReleaseNoProguardCI.mustRunAfter('updateVersion')
 
-task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assembleRelease', 'uploadStore',
+task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assembleRelease', 'uploadStoreBeta',
                                        'uploadGithub']) {
   description = 'Builds and deploys Release build to playstore and github.'
 }
@@ -92,9 +92,9 @@ task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVe
   description = 'Updates AndroidManifest versionName and versionCode and rename APK.'
 }
 
-task uploadStore(type: Exec) {
+task uploadStoreBeta(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
-  commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', project.buildType
+  commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
 }
 
 // *********************************************************************************************************************

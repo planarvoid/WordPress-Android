@@ -24,8 +24,9 @@ public class ApplicationProperties {
 
     private static BuildType BUILD_TYPE;
     private static boolean VERBOSE_LOGGING;
-    private final String castReceiverAppId;
+    private static boolean GOOGLE_PLUS_ENABLED;
 
+    private final String castReceiverAppId;
     @VisibleForTesting
     protected static final boolean IS_RUNNING_ON_DEVICE = Build.PRODUCT != null;
     @VisibleForTesting
@@ -45,6 +46,7 @@ public class ApplicationProperties {
         }
     }
 
+
     public enum BuildType {
         DEBUG,
         ALPHA,
@@ -59,7 +61,12 @@ public class ApplicationProperties {
         checkArgument(ScTextUtils.isNotBlank(buildType), "Build type not found in application package resources");
         BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
         VERBOSE_LOGGING = resources.getBoolean(R.bool.verbose_logging);
+        GOOGLE_PLUS_ENABLED = resources.getBoolean(R.bool.google_plus_enabled);
         castReceiverAppId = resources.getString(R.string.cast_receiver_app_id);
+    }
+
+    public boolean isGooglePlusEnabled() {
+        return GOOGLE_PLUS_ENABLED;
     }
 
     public boolean useVerboseLogging() {

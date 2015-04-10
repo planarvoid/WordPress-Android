@@ -59,6 +59,7 @@ public class TrackRepositoryTest {
 
     @Test
     public void trackReturnsTrackPropertySetByUrnWithLoggedInUserUrn() throws Exception {
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(track));
 
         trackRepository.track(trackUrn).subscribe(observer);
@@ -71,6 +72,18 @@ public class TrackRepositoryTest {
         final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
         when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
         when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.just(PropertySet.create()), Observable.just(syncedTrack));
+
+        trackRepository.track(trackUrn).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(syncedTrack);
+        verify(syncInitiator, times(2)).syncTrack(trackUrn);
+    }
+
+    @Test
+    public void trackUsesSyncerToBackfillErrorOnLoad() {
+        final PropertySet syncedTrack = TestPropertySets.expectedTrackForPlayer();
+        when(syncInitiator.syncTrack(trackUrn)).thenReturn(Observable.just(true));
+        when(trackStorage.loadTrack(trackUrn)).thenReturn(Observable.<PropertySet>error(new NullPointerException()), Observable.just(syncedTrack));
 
         trackRepository.track(trackUrn).subscribe(observer);
 

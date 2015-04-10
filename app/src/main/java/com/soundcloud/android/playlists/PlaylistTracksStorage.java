@@ -113,7 +113,8 @@ class PlaylistTracksStorage {
                 .innerJoin(Table.Sounds.name(), filter()
                         .whereEq(PlaylistTracks.PLAYLIST_ID, Table.SoundView.field(SoundView._ID))
                         .whereEq(PlaylistTracks.TRACK_ID, trackUrn.getNumericId())
-                        .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST));
+                        .whereEq(SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST))
+                        .whereNull(PlaylistTracks.REMOVED_AT);
 
     }
 

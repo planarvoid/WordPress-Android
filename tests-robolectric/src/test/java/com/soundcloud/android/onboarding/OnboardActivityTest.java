@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +31,7 @@ public class OnboardActivityTest {
 
     @Before
     public void setup() throws Exception {
-        activity = new OnboardActivity(configurationOperations) {
+        activity = new OnboardActivity(configurationOperations, new TestEventBus()) {
             @Override
             protected boolean wasAuthorizedViaSignupScreen() {
                 return false;
