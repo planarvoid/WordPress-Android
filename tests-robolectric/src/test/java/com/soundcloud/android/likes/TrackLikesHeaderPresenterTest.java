@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -77,6 +78,7 @@ public class TrackLikesHeaderPresenterTest {
         likedTrackUrns = Lists.newArrayList(TRACK1, TRACK2);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.<DownloadState>never());
+        when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.<Boolean>never());
     }
 
     @Test
@@ -209,10 +211,34 @@ public class TrackLikesHeaderPresenterTest {
     }
 
     @Test
+    public void removeDownloadStateWhenOfflineLikedChangeToDisable() {
+        final PublishSubject<Boolean> offlineLikedSettingsSubject = PublishSubject.create();
+        when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(offlineLikedSettingsSubject);
+
+        presenter.onResume(fragment);
+        offlineLikedSettingsSubject.onNext(false);
+
+        verify(headerView).showDefaultState();
+    }
+
+    @Test
+    public void ignoreOfflineLikedTrackEnabled() {
+        final PublishSubject<Boolean> offlineLikedSettingsSubject = PublishSubject.create();
+        when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(offlineLikedSettingsSubject);
+
+        presenter.onResume(fragment);
+        reset(headerView);
+        offlineLikedSettingsSubject.onNext(true);
+
+        verifyZeroInteractions(headerView);
+    }
+
+    @Test
     public void doesNotShowDownloadedStateWhenOfflineContentFeatureIsDisabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         presenter.onViewCreated(layoutView, listView);
 
         verify(headerView, never()).showDownloadedState();
     }
+
 }

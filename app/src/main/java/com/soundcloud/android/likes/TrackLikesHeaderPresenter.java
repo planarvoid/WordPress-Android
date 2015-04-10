@@ -103,12 +103,17 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     @Override
     public void onResume(Fragment fragment) {
         if (featureOperations.isOfflineContentEnabled()) {
-            foregroundSubscription = eventBus
+            foregroundSubscription = new CompositeSubscription(
+                    eventBus
                     .queue(EventQueue.CURRENT_DOWNLOAD)
                     .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
                     .map(CurrentDownloadEvent.TO_DOWNLOAD_STATE)
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DownloadStateSubscriber());
+                    .subscribe(new DownloadStateSubscriber()),
+                    offlineContentOperations
+                            .getOfflineLikesSettingsStatus()
+                            .subscribe(new OfflineLikesSettingSubscriber())
+            );
         }
     }
 
@@ -170,5 +175,13 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     }
 
+    private class OfflineLikesSettingSubscriber extends DefaultSubscriber<Boolean> {
+        @Override
+        public void onNext(Boolean isEnabled) {
+            if (!isEnabled) {
+                headerView.showDefaultState();
+            }
+        }
+    }
 }
 
