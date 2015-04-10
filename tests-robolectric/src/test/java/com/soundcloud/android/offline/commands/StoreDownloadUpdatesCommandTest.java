@@ -61,6 +61,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
 
     @Test
     public void storesRestoredRequestsAsDownloaded() {
+        testFixtures().insertTrackDownloadPendingRemoval(TRACK, 1L, 2L);
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),

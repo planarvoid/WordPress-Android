@@ -27,19 +27,19 @@ public class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<Offl
     }
 
     @Override
-    protected WriteResult write(PropellerDatabase propeller, final OfflineContentRequests input) {
+    protected WriteResult write(PropellerDatabase propeller, final OfflineContentRequests requests) {
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                for (Urn urn : input.newRemovedTracks){
+                for (Urn urn : requests.newRemovedTracks){
                     step(propeller.upsert(TrackDownloads, buildContentValuesForRemoval(urn)));
                 }
 
-                for (DownloadRequest downloadRequest : input.newRestoredRequests){
+                for (DownloadRequest downloadRequest : requests.newRestoredRequests){
                     step(propeller.upsert(TrackDownloads, buildContentValuesForDownloaded(downloadRequest.track)));
                 }
 
-                for (DownloadRequest downloadRequest : input.newDownloadRequests){
+                for (DownloadRequest downloadRequest : requests.newDownloadRequests){
                     step(propeller.upsert(TrackDownloads, buildContentValuesForPendingDownload(downloadRequest.track)));
                 }
             }
@@ -59,6 +59,7 @@ public class StoreDownloadUpdatesCommand extends DefaultWriteStorageCommand<Offl
                 .values()
                 .put(_ID, urn.getNumericId())
                 .put(UNAVAILABLE_AT, null)
+                .put(REMOVED_AT, null)
                 .put(DOWNLOADED_AT, System.currentTimeMillis())
                 .get();
     }
