@@ -1,8 +1,8 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.DeprecatedRecordingProfile;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -100,7 +100,7 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
 
         if (isPendingRecording(position)) {
             return TYPE_PENDING_RECORDING;
-        } else if (isTrack(position)) {
+        } else if (isTrack(position - getPendingRecordingsCount())) {
             return TYPE_NEW_TRACK;
         } else {
             return TYPE_NEW_PLAYLIST;
@@ -116,7 +116,7 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
             return pendingRecordingItemPresenter.createItemView(position, parent);
         } else {
-            return getCellPresenter(position).createItemView(position, parent);
+            return getCellPresenter(position - getPendingRecordingsCount()).createItemView(position, parent);
         }
     }
 
