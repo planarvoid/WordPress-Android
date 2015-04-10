@@ -81,4 +81,10 @@
         <attr name="spaceWidth" format="dimension" />
         <attr name="baseline" format="dimension" />
     </declare-styleable>
+
+    <declare-styleable name="DownloadImageView">
+        <attr name="requested" format="integer"/>
+        <attr name="downloaded" format="integer"/>
+        <attr name="downloading" format="integer"/>
+    </declare-styleable>
 </resources>

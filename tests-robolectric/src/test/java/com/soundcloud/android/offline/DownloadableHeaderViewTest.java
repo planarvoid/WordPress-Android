@@ -35,7 +35,7 @@ public class DownloadableHeaderViewTest {
     @Test
     public void displayInProgressTextWhenDownloading() {
         downloadableHeaderView.setHeaderText("Header test text");
-        downloadableHeaderView.showDownloadingState();
+        downloadableHeaderView.show(DownloadState.DOWNLOADING);
 
         expect(header.findViewById(R.id.header_text)).toHaveText(inProgressText);
         expect(header.findViewById(R.id.download_state)).toBeVisible();
@@ -44,7 +44,7 @@ public class DownloadableHeaderViewTest {
     @Test
     public void displayHeaderTextWhenDownloaded() {
         downloadableHeaderView.setHeaderText("Header test text");
-        downloadableHeaderView.showDownloadedState();
+        downloadableHeaderView.show(DownloadState.DOWNLOADED);
 
         expect(header.findViewById(R.id.header_text)).toHaveText("Header test text");
         expect(header.findViewById(R.id.download_state)).toBeVisible();
@@ -53,7 +53,7 @@ public class DownloadableHeaderViewTest {
     @Test
     public void displayHeadTextWhenNoOffline() {
         downloadableHeaderView.setHeaderText("Header test text");
-        downloadableHeaderView.showNoOfflineState();
+        downloadableHeaderView.show(DownloadState.NO_OFFLINE);
 
         expect(header.findViewById(R.id.header_text)).toHaveText("Header test text");
         expect(header.findViewById(R.id.download_state)).toBeGone();

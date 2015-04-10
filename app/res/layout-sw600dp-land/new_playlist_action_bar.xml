@@ -4,8 +4,9 @@
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
-    <ImageView
+    <com.soundcloud.android.offline.DownloadImageView
         android:id="@+id/download_state"
+        style="@style/DownloadHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/collection_download_state_margin_right"/>

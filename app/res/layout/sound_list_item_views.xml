@@ -8,15 +8,17 @@
             android:id="@+id/image"
             style="@style/ListItemImage"/>
 
-    <ImageView
-            android:id="@+id/download_progress_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/image"
-            android:layout_alignRight="@id/image"
-            android:visibility="gone"
-            android:layout_marginTop="@dimen/download_progress_indicator_margin"
-            android:layout_marginRight="@dimen/download_progress_indicator_margin"/>
+
+    <com.soundcloud.android.offline.DownloadImageView
+        android:id="@+id/download_progress_icon"
+        style="@style/DownloadItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/image"
+        android:layout_alignRight="@id/image"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/download_progress_indicator_margin"
+        android:layout_marginRight="@dimen/download_progress_indicator_margin"/>
 
     <LinearLayout
             android:id="@id/list_item_header_container"

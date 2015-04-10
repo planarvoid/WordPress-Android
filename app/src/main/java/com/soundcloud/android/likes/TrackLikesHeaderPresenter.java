@@ -156,22 +156,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
         @Override
         public void onNext(DownloadState state) {
-            switch (state) {
-                case DOWNLOADED:
-                    headerView.showDownloadedState();
-                    break;
-                case DOWNLOADING:
-                    headerView.showDownloadingState();
-                    break;
-                case REQUESTED:
-                    headerView.showDefaultState();
-                    break;
-                case NO_OFFLINE:
-                    headerView.showDefaultState();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Unknown state:" + state);
-            }
+            headerView.show(state);
         }
     }
 
@@ -179,7 +164,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         @Override
         public void onNext(Boolean isEnabled) {
             if (!isEnabled) {
-                headerView.showDefaultState();
+                headerView.show(DownloadState.NO_OFFLINE);
             }
         }
     }

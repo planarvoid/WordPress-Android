@@ -3,14 +3,13 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 
 import android.content.res.Resources;
 import android.view.View;
-import android.widget.ImageView;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -38,49 +37,12 @@ public class DownloadablePlaylistItemPresenter extends PlaylistItemPresenter {
     }
 
     private void setDownloadProgressIndicator(View itemView, PlaylistItem playlistItem) {
-        final ImageView downloadProgressIcon = (ImageView) itemView.findViewById(R.id.download_progress_icon);
-        downloadProgressIcon.clearAnimation();
+        final DownloadImageView downloadProgressIcon = (DownloadImageView) itemView.findViewById(R.id.download_progress_icon);
 
         if (featureOperations.isOfflineContentEnabled()) {
-            final DownloadState downloadState = playlistItem.getDownloadState();
-            switch (downloadState) {
-                case NO_OFFLINE:
-                    setNoOfflineState(downloadProgressIcon);
-                    break;
-                case REQUESTED:
-                    setRequestedDownloadState(downloadProgressIcon);
-                    break;
-                case DOWNLOADING:
-                    setDownloadingState(itemView, downloadProgressIcon);
-                    break;
-                case DOWNLOADED:
-                    setDownloadedState(downloadProgressIcon);
-                    break;
-                default:
-                    throw new IllegalStateException("Playlist download state not expected: " + downloadState);
-            }
+            downloadProgressIcon.setState(playlistItem.getDownloadState());
         } else {
-            setNoOfflineState(downloadProgressIcon);
+            downloadProgressIcon.setState(DownloadState.NO_OFFLINE);
         }
-    }
-
-    private void setNoOfflineState(ImageView downloadProgressIcon) {
-        downloadProgressIcon.setVisibility(View.GONE);
-    }
-
-    private void setRequestedDownloadState(ImageView downloadProgressIcon) {
-        downloadProgressIcon.setImageResource(R.drawable.entity_downloadable);
-        downloadProgressIcon.setVisibility(View.VISIBLE);
-    }
-
-    private void setDownloadingState(View itemView, ImageView downloadProgressIcon) {
-        downloadProgressIcon.setImageResource(R.drawable.entity_downloading);
-        downloadProgressIcon.setVisibility(View.VISIBLE);
-        AnimUtils.runSpinClockwiseAnimationOn(itemView.getContext(), downloadProgressIcon);
-    }
-
-    private void setDownloadedState(ImageView downloadProgressIcon) {
-        downloadProgressIcon.setImageResource(R.drawable.entity_downloaded);
-        downloadProgressIcon.setVisibility(View.VISIBLE);
     }
 }

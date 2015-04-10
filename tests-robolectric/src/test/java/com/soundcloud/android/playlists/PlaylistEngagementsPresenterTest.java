@@ -381,7 +381,7 @@ public class PlaylistEngagementsPresenterTest {
         
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRemoved(Arrays.asList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).showDefaultState();
+        verify(engagementsView).show(DownloadState.NO_OFFLINE);
     }
 
     @Test
@@ -391,7 +391,7 @@ public class PlaylistEngagementsPresenterTest {
 
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(false, Arrays.asList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).showRequestedState();
+        verify(engagementsView).show(DownloadState.REQUESTED);
     }
 
     @Test
@@ -402,7 +402,7 @@ public class PlaylistEngagementsPresenterTest {
         final DownloadRequest request = new DownloadRequest.Builder(Urn.forTrack(123L), "http://sctream", 12345L).addToPlaylist(playlistWithTracks.getUrn()).build();
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
 
-        verify(engagementsView).showDownloadingState();
+        verify(engagementsView).show(DownloadState.DOWNLOADING);
     }
 
     @Test
@@ -412,7 +412,7 @@ public class PlaylistEngagementsPresenterTest {
 
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(false, Arrays.asList(playlistWithTracks.getUrn())));
 
-        verify(engagementsView).showDownloadedState();
+        verify(engagementsView).show(DownloadState.DOWNLOADED);
     }
 
     @Test
@@ -420,7 +420,7 @@ public class PlaylistEngagementsPresenterTest {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(false, Arrays.asList(Urn.forPlaylist(999999L))));
 
-        verify(engagementsView, never()).showDownloadedState();
+        verify(engagementsView, never()).show(DownloadState.DOWNLOADED);
     }
 
     @Test
@@ -429,7 +429,7 @@ public class PlaylistEngagementsPresenterTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).showDefaultState();
+        verify(engagementsView).show(DownloadState.NO_OFFLINE);
     }
 
     @Test
@@ -438,7 +438,7 @@ public class PlaylistEngagementsPresenterTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).showRequestedState();
+        verify(engagementsView).show(DownloadState.REQUESTED);
     }
 
     @Test
@@ -447,7 +447,7 @@ public class PlaylistEngagementsPresenterTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADING);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).showDownloadingState();
+        verify(engagementsView).show(DownloadState.DOWNLOADING);
     }
 
     @Test
@@ -456,7 +456,7 @@ public class PlaylistEngagementsPresenterTest {
         playlistWithTracks.getSourceSet().put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
-        verify(engagementsView).showDownloadedState();
+        verify(engagementsView).show(DownloadState.DOWNLOADED);
     }
 
     @Test

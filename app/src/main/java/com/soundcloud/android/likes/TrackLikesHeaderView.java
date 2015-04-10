@@ -4,6 +4,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 
 import android.view.View;
@@ -49,18 +50,11 @@ class TrackLikesHeaderView {
         shuffleButton.setOnClickListener(listener);
     }
 
-    void showDefaultState() {
-        downloadableHeaderView.showNoOfflineState();
-        updateTrackCount(trackCount);
-    }
-
-    void showDownloadingState() {
-        downloadableHeaderView.showDownloadingState();
-    }
-
-    void showDownloadedState() {
-        downloadableHeaderView.showDownloadedState();
-        updateTrackCount(trackCount);
+    public void show(DownloadState state) {
+        downloadableHeaderView.show(state);
+        if (state == DownloadState.NO_OFFLINE || state == DownloadState.DOWNLOADED) {
+            updateTrackCount(trackCount);
+        }
     }
 
     void updateTrackCount(int trackCount) {

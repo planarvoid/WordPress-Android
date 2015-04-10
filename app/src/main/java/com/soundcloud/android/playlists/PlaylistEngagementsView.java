@@ -4,6 +4,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
+import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.DownloadableHeaderView;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -55,6 +56,10 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         downloadableHeaderView.onViewCreated(engagementsView);
     }
 
+    void show(DownloadState state) {
+        downloadableHeaderView.show(state);
+    }
+
     @OnClick(R.id.toggle_like)
     void onToggleLikeClicked() {
         getListener().onToggleLike(likeToggle.isChecked());
@@ -73,22 +78,6 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         popupMenuWrapper.setItemVisible(R.id.make_offline_available, !isAvailable);
         popupMenuWrapper.setItemVisible(R.id.make_offline_unavailable, isAvailable);
         popupMenuWrapper.setItemVisible(R.id.upsell_offline_content, false);
-    }
-
-    void showDefaultState() {
-        downloadableHeaderView.showNoOfflineState();
-    }
-
-    void showDownloadingState() {
-        downloadableHeaderView.showDownloadingState();
-    }
-
-    void showDownloadedState() {
-        downloadableHeaderView.showDownloadedState();
-    }
-
-    void showRequestedState() {
-        downloadableHeaderView.showRequestedState();
     }
 
     void showUpsell() {

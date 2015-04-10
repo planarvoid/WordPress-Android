@@ -142,7 +142,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(true, Arrays.asList(TRACK1)));
 
-        verify(headerView).showDownloadedState();
+        verify(headerView).show(DownloadState.DOWNLOADED);
     }
 
     @Test
@@ -150,15 +150,15 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(TRACK1_DOWNLOAD_REQUEST));
 
-        verify(headerView).showDownloadingState();
+        verify(headerView).show(DownloadState.DOWNLOADING);
     }
 
     @Test
-    public void showsDefaultStateWhenCurrentDownloadEmitsLikedTrackRequested() {
+    public void showsRequestedStateWhenCurrentDownloadEmitsLikedTrackRequested() {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(true, Arrays.asList(TRACK1)));
 
-        verify(headerView).showDefaultState();
+        verify(headerView).show(DownloadState.REQUESTED);
     }
 
     @Test
@@ -166,7 +166,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(TRACK1_DOWNLOAD_REQUEST)));
 
-        verify(headerView).showDefaultState();
+        verify(headerView).show(DownloadState.NO_OFFLINE);
     }
 
     @Test
@@ -191,15 +191,15 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.DOWNLOADED));
         presenter.onViewCreated(layoutView, listView);
 
-        verify(headerView).showDownloadedState();
+        verify(headerView).show(DownloadState.DOWNLOADED);
     }
 
     @Test
-    public void showsDefaultStateWhenLikedTracksDownloadStateIsRequested() {
+    public void showsRequestedStateWhenLikedTracksDownloadStateIsRequested() {
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.REQUESTED));
         presenter.onViewCreated(layoutView, listView);
 
-        verify(headerView).showDefaultState();
+        verify(headerView).show(DownloadState.REQUESTED);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class TrackLikesHeaderPresenterTest {
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.NO_OFFLINE));
         presenter.onViewCreated(layoutView, listView);
 
-        verify(headerView).showDefaultState();
+        verify(headerView).show(DownloadState.NO_OFFLINE);
     }
 
     @Test
@@ -218,7 +218,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         offlineLikedSettingsSubject.onNext(false);
 
-        verify(headerView).showDefaultState();
+        verify(headerView).show(DownloadState.NO_OFFLINE);
     }
 
     @Test
@@ -238,7 +238,7 @@ public class TrackLikesHeaderPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         presenter.onViewCreated(layoutView, listView);
 
-        verify(headerView, never()).showDownloadedState();
+        verify(headerView, never()).show(DownloadState.DOWNLOADED);
     }
 
 }

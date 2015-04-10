@@ -199,7 +199,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private void updateOfflineAvailability() {
         if (featureOperations.isOfflineContentEnabled()) {
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
-            bindDownloadState(playlistWithTracks.getDownloadState());
+            playlistEngagementsView.show(playlistWithTracks.getDownloadState());
         } else if (featureOperations.isOfflineContentUpsellEnabled()) {
             playlistEngagementsView.showUpsell();
         } else {
@@ -300,25 +300,6 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         return context.getString(R.string.share_track_on_soundcloud, playlistWithTracks.getTitle(), playlistWithTracks.getPermalinkUrl());
     }
 
-    private void bindDownloadState(DownloadState state) {
-        switch (state) {
-            case DOWNLOADED:
-                playlistEngagementsView.showDownloadedState();
-                break;
-            case DOWNLOADING:
-                playlistEngagementsView.showDownloadingState();
-                break;
-            case REQUESTED:
-                playlistEngagementsView.showRequestedState();
-                break;
-            case NO_OFFLINE:
-                playlistEngagementsView.showDefaultState();
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown state:" + state);
-        }
-    }
-
     private class PlaylistChangedSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
         @Override
         public void onNext(EntityStateChangedEvent event) {
@@ -345,7 +326,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
         @Override
         public void onNext(DownloadState state) {
-            bindDownloadState(state);
+            playlistEngagementsView.show(state);
         }
     }
 
@@ -353,7 +334,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         @Override
         public void onNext(PropertySet entityChanges) {
             if (!entityChanges.get(Collection.IS_MARKED_FOR_OFFLINE)) {
-                playlistEngagementsView.showDefaultState();
+                playlistEngagementsView.show(DownloadState.NO_OFFLINE);
             }
         }
     }
