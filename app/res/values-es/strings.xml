@@ -535,7 +535,6 @@
   <string name="subscribe_buy">Comprar</string>
 
   <!-- __SETTINGS OFFLINE -->
-  <string name="pref_offline_header">Ajustes de sincronización sin conexión</string>
   <string name="pref_offline_wifi_only_sync">Solo sincronización sin conexión a través del Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">Sincroniza tus gustos y listas de reproducción usando solamente la conexión Wi-Fi</string>
 

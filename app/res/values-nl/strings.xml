@@ -57,9 +57,7 @@
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Zoek SoundCloud</string>
     <string name="accessibility_stats_user_liked">Door u geliked</string>
-    <string name="accessibility_stats_user_reposted">Door u gedeeld</string>
     <string name="accessibility_like_action">Like</string>
-    <string name="accessibility_repost_action">Delen</string>
 
     <!-- __ACCESSIBILITY OFFLINE SYNC -->
     <string name="accessibility_start_offline_update">Synchronisatie starten</string>
@@ -353,7 +351,6 @@
     <string name="activity_title_playlist">Afspeellijst</string>
     <string name="your_playlists_tab">Uw afspeellijsten</string>
     <string name="liked_playlists_tab">Gelikte afspeellijsten</string>
-    <string name="playlist_info_header_text">Deze afspeellijst bevat %1$s, totale tijd: %2$s</string>
     <string name="playlist_removed">Deze afspeellijst kon niet op SoundCloud worden gevonden</string>
     <string name="playlist_load_error">Kon deze afspeellijst niet laden</string>
     <string name="playlist_new_info_header_text">%1$s, %2$s</string>
@@ -473,17 +470,6 @@
     <string name="pref_help_desc">Toegang tot de SoundCloud helpdesksite</string>
     <string name="pref_revoke_access">Afmelden</string>
     <string name="pref_revoke_desc">Huidige gebruiker afmelden</string>
-    <string name="pref_sync_my_likes">Mijn Likes</string>
-    <string name="pref_sync_my_likes_description">Houd mijn likes lokaal geüpdatet</string>
-    <string name="pref_sync_my_followers">Mijn Volgers</string>
-    <string name="pref_sync_my_followers_description">Houd de mensen die mij volgen lokaal geüpdatet</string>
-    <string name="pref_sync_my_following">Mensen die ik volg</string>
-    <string name="pref_sync_my_following_description">Houd de mensen die ik volg lokaal geüpdatet</string>
-    <string name="pref_sync_my_sounds">Mijn Geluiden</string>
-    <string name="pref_sync_my_sounds_description">Hou mijn geluiden lokaal geüpdatet</string>
-    <string name="pref_sync_settings">Accountsynchronisatie Instellingen</string>
-    <string name="pref_sync_settings_summary">Beheer uw gesynchroniseerde middelen</string>
-    <string name="pref_sync_toggles">Gesynchroniseerde Middelen</string>
     <string name="pref_sync_wifi_only">Alleen synchroniseren via WiFi</string>
     <string name="pref_sync_wifi_only_description">Synchroniseer mijn gegevens alleen wanneer ik verbonden ben via Wifi</string>
     <string name="pref_analytics">Analytics</string>
@@ -510,7 +496,6 @@
     <string name="title_about">Over</string>
     <string name="title_legal">Legaal</string>
     <string name="pref_extras">Extra\'s</string>
-    <string name="title_account_settings">Accountinstellingen</string>
     <string name="title_notification_settings">Notificatie Instellingen</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -551,7 +536,6 @@
     <string name="subscribe_buy">Kopen</string>
 
     <!-- __SETTINGS OFFLINE -->
-    <string name="pref_offline_header">Offlinesynchronisatie-instellingen</string>
     <string name="pref_offline_wifi_only_sync">Alleen offlinesynchronisatie via wifi</string>
     <string name="pref_offline_wifi_only_description">Synchroniseer uw favorieten en afspeellijsten alleen via een wifi-verbinding</string>
 

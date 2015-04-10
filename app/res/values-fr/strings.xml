@@ -57,9 +57,7 @@
   <!-- __ACCESSIBILITY -->
   <string name="accessibility_search">Rechercher sur SoundCloud</string>
   <string name="accessibility_stats_user_liked">Aimé(s) par vous</string>
-  <string name="accessibility_stats_user_reposted">Republié par vous</string>
   <string name="accessibility_like_action">«J\'aime»</string>
-  <string name="accessibility_repost_action">Republier</string>
 
   <!-- __ACCESSIBILITY OFFLINE SYNC -->
   <string name="accessibility_start_offline_update">Démarrer la synchronisation</string>
@@ -472,17 +470,6 @@
   <string name="pref_help_desc">Accéder au site du service d\'assistance SoundCloud</string>
   <string name="pref_revoke_access">Déconnexion</string>
   <string name="pref_revoke_desc">Déconnexion de l\'utilisateur actuel</string>
-  <string name="pref_sync_my_likes">Mes mentions «J’aime»</string>
-  <string name="pref_sync_my_likes_description">Actualiser mes mentions «J’aime» localement</string>
-  <string name="pref_sync_my_followers">Mes abonnés</string>
-  <string name="pref_sync_my_followers_description">Actualiser ma liste d\'abonnés localement</string>
-  <string name="pref_sync_my_following">Mes abonnements</string>
-  <string name="pref_sync_my_following_description">Actualiser localement mes abonnements</string>
-  <string name="pref_sync_my_sounds">Mes fichiers audio</string>
-  <string name="pref_sync_my_sounds_description">Actualiser localement mes fichiers audio</string>
-  <string name="pref_sync_settings">Paramètres de synchronisation de compte</string>
-  <string name="pref_sync_settings_summary">Gérez vos ressources synchronisées</string>
-  <string name="pref_sync_toggles">Ressources synchronisées</string>
   <string name="pref_sync_wifi_only">Synchronisation Wifi uniquement</string>
   <string name="pref_sync_wifi_only_description">Synchroniser mes données uniquement pour les connexions Wifi</string>
   <string name="pref_analytics">Analyse des données</string>
@@ -509,7 +496,6 @@
   <string name="title_about">À propos</string>
   <string name="title_legal">Juridique</string>
   <string name="pref_extras">Suppléments</string>
-  <string name="title_account_settings">Paramètres du compte</string>
   <string name="title_notification_settings">Paramètres de notification</string>
 
   <!-- __SETTINGS NOTIFICATIONS -->
@@ -550,7 +536,6 @@
   <string name="subscribe_buy">Acheter</string>
 
   <!-- __SETTINGS OFFLINE -->
-  <string name="pref_offline_header">Paramètres de synchronisation hors ligne</string>
   <string name="pref_offline_wifi_only_sync">Ne synchroniser hors ligne que via un réseau Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">Synchronisez vos likes et listes de lecture en utilisant la connexion Wi-Fi</string>
 

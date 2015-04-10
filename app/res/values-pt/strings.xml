@@ -57,9 +57,7 @@
   <!-- __ACCESSIBILITY -->
   <string name="accessibility_search">Pesquisar no SoundCloud</string>
   <string name="accessibility_stats_user_liked">Curtido por você</string>
-  <string name="accessibility_stats_user_reposted">Republicado por você</string>
   <string name="accessibility_like_action">Curtir</string>
-  <string name="accessibility_repost_action">Republicar</string>
 
   <!-- __ACCESSIBILITY OFFLINE SYNC -->
   <string name="accessibility_start_offline_update">Iniciar Sincronização</string>
@@ -353,7 +351,6 @@
   <string name="activity_title_playlist">Lista de reprodução</string>
   <string name="your_playlists_tab">Suas Listas de Reprodução</string>
   <string name="liked_playlists_tab">Listas Curtidas</string>
-  <string name="playlist_info_header_text">Esta lista de reprodução contém %1$s, tempo total: %2$s</string>
   <string name="playlist_removed">Esta lista não foi encontrada no SoundCloud</string>
   <string name="playlist_load_error">Não foi possível carregar esta lista de reprodução</string>
   <string name="playlist_new_info_header_text">%1$s, %2$s</string>
@@ -473,17 +470,6 @@
   <string name="pref_help_desc">Acesse o site de suporte do SoundCloud</string>
   <string name="pref_revoke_access">Sair</string>
   <string name="pref_revoke_desc">Desconectar usuário atual</string>
-  <string name="pref_sync_my_likes">Minhas curtidas</string>
-  <string name="pref_sync_my_likes_description">Mantenha minhas curtidas atualizadas localmente</string>
-  <string name="pref_sync_my_followers">Meus seguidores</string>
-  <string name="pref_sync_my_followers_description">Manter as pessoas que me seguem atualizadas localmente</string>
-  <string name="pref_sync_my_following">Pessoas que sigo</string>
-  <string name="pref_sync_my_following_description">Manter as pessoas que sigo atualizadas localmente</string>
-  <string name="pref_sync_my_sounds">Meus sons</string>
-  <string name="pref_sync_my_sounds_description">Manter meus sons atualizados localmente</string>
-  <string name="pref_sync_settings">Configurações da sincronização de conta</string>
-  <string name="pref_sync_settings_summary">Gerencie seus recursos sincronizados</string>
-  <string name="pref_sync_toggles">Recursos sincronizados</string>
   <string name="pref_sync_wifi_only">Sincronizar apenas WiFi</string>
   <string name="pref_sync_wifi_only_description">Sincronizar os meus dados somente quando conectado via WiFi</string>
   <string name="pref_analytics">Analítica</string>
@@ -510,7 +496,6 @@
   <string name="title_about">Sobre</string>
   <string name="title_legal">Legal</string>
   <string name="pref_extras">Extras</string>
-  <string name="title_account_settings">Configurações de Conta</string>
   <string name="title_notification_settings">Configurações de notificação</string>
 
   <!-- __SETTINGS NOTIFICATIONS -->
@@ -551,7 +536,6 @@
   <string name="subscribe_buy">Comprar</string>
 
   <!-- __SETTINGS OFFLINE -->
-  <string name="pref_offline_header">Configurações de sincronização offline</string>
   <string name="pref_offline_wifi_only_sync">Apenas sincronize offline se conectado através de Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">Sincronize suas curtidas e listas de reprodução utilizando apenas conexão Wi-Fi</string>
 

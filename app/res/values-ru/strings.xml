@@ -58,9 +58,7 @@
   <!-- __ACCESSIBILITY -->
   <string name="accessibility_search">Поиск по SoundCloud</string>
   <string name="accessibility_stats_user_liked">Нравится вам</string>
-  <string name="accessibility_stats_user_reposted">Переопубликовано вами</string>
   <string name="accessibility_like_action">Нравится</string>
-  <string name="accessibility_repost_action">Переопубликовать</string>
 
   <!-- __ACCESSIBILITY OFFLINE SYNC -->
   <string name="accessibility_start_offline_update">Начать синхронизацию</string>
@@ -354,7 +352,6 @@
   <string name="activity_title_playlist">Плейлист</string>
   <string name="your_playlists_tab">Ваши плейлисты</string>
   <string name="liked_playlists_tab">Понравившиеся плейлисты</string>
-  <string name="playlist_info_header_text">Этот плейлист содержит %1$s, общее время: %2$s</string>
   <string name="playlist_removed">Такой плейлист отсутствует на SoundCloud</string>
   <string name="playlist_load_error">Не удалось загрузить этот плейлист</string>
   <string name="playlist_new_info_header_text">%1$s, %2$s</string>
@@ -474,17 +471,6 @@
   <string name="pref_help_desc">Перейти на сайт поддержки SoundCloud</string>
   <string name="pref_revoke_access">Выход</string>
   <string name="pref_revoke_desc">Завершить сеанс текущего пользователя</string>
-  <string name="pref_sync_my_likes">Мои отметки \"Нравится\"</string>
-  <string name="pref_sync_my_likes_description">Сохранять обновления моих отметок \"Нравится\" на устройстве</string>
-  <string name="pref_sync_my_followers">Мои подписчики</string>
-  <string name="pref_sync_my_followers_description">Сохранять обновления списка моих подписчиков на устройстве</string>
-  <string name="pref_sync_my_following">Мои подписки</string>
-  <string name="pref_sync_my_following_description">Сохранять обновления списка моих подписок на устройстве</string>
-  <string name="pref_sync_my_sounds">Моя музыка</string>
-  <string name="pref_sync_my_sounds_description">Сохранять обновления моей музыки на устройстве</string>
-  <string name="pref_sync_settings">Настройки синхронизации</string>
-  <string name="pref_sync_settings_summary">Организовать синхронизированные данные</string>
-  <string name="pref_sync_toggles">Синхронизированные данные</string>
   <string name="pref_sync_wifi_only">Синхронизация только через Wi-Fi</string>
   <string name="pref_sync_wifi_only_description">Синхронизировать данные только при подключении к Wi-Fi</string>
   <string name="pref_analytics">Аналитика</string>
@@ -511,7 +497,6 @@
   <string name="title_about">Информация</string>
   <string name="title_legal">Условия</string>
   <string name="pref_extras">Дополнительно</string>
-  <string name="title_account_settings">Настройки учетной записи</string>
   <string name="title_notification_settings">Настройки уведомлений</string>
 
   <!-- __SETTINGS NOTIFICATIONS -->
@@ -552,7 +537,6 @@
   <string name="subscribe_buy">Купить</string>
 
   <!-- __SETTINGS OFFLINE -->
-  <string name="pref_offline_header">Настройки автономной синхронизации</string>
   <string name="pref_offline_wifi_only_sync">Синхронизировать автономные данные только по Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">Синхронизировать понравившиеся вам записи и плейлисты только по Wi-Fi-соединению</string>
 

@@ -57,9 +57,7 @@
   <!-- __ACCESSIBILITY -->
   <string name="accessibility_search">Cari SoundCloud</string>
   <string name="accessibility_stats_user_liked">Disukai olehmu</string>
-  <string name="accessibility_stats_user_reposted">Dikirim ulang olehmu</string>
   <string name="accessibility_like_action">Suka</string>
-  <string name="accessibility_repost_action">Kirim ulang</string>
 
   <!-- __ACCESSIBILITY OFFLINE SYNC -->
   <string name="accessibility_start_offline_update">Mulai Sinkronkan</string>
@@ -353,7 +351,6 @@
   <string name="activity_title_playlist">Daftar putar</string>
   <string name="your_playlists_tab">Daftar Putarmu</string>
   <string name="liked_playlists_tab">Daftar Putar yang Disukai</string>
-  <string name="playlist_info_header_text">Daftar putar ini berisi %1$s, total waktu: %2$s</string>
   <string name="playlist_removed">Daftar putar ini tidak ditemukan di SoundCloud</string>
   <string name="playlist_load_error">Tidak dapat memuat daftar putar ini</string>
   <string name="playlist_new_info_header_text">%1$s, %2$s</string>
@@ -473,17 +470,6 @@
   <string name="pref_help_desc">Akses situs dukungan SoundCloud</string>
   <string name="pref_revoke_access">Keluar</string>
   <string name="pref_revoke_desc">Keluar pengguna saat ini</string>
-  <string name="pref_sync_my_likes">Yang Aku Sukai</string>
-  <string name="pref_sync_my_likes_description">Terus perbarui suka-ku secara lokal</string>
-  <string name="pref_sync_my_followers">Pengikutku</string>
-  <string name="pref_sync_my_followers_description">Pastikan orang yang mengikutiku diberi tahu secara lokal</string>
-  <string name="pref_sync_my_following">Yang Aku Ikuti</string>
-  <string name="pref_sync_my_following_description">Pastikan orang yang aku ikuti diperbarui secara lokal</string>
-  <string name="pref_sync_my_sounds">Suaraku</string>
-  <string name="pref_sync_my_sounds_description">Pastikan suaraku diperbarui secara lokal</string>
-  <string name="pref_sync_settings">Pengaturan Sinkronisasi Akun</string>
-  <string name="pref_sync_settings_summary">Kelola sumber yang kamu sinkronkan</string>
-  <string name="pref_sync_toggles">Sumber Yang Disinkronkan</string>
   <string name="pref_sync_wifi_only">Sinkronkan hanya dengan wifi</string>
   <string name="pref_sync_wifi_only_description">Sinkronkan dataku hanya saat terhubung wifi</string>
   <string name="pref_analytics">Analitis</string>
@@ -510,7 +496,6 @@
   <string name="title_about">Tentang</string>
   <string name="title_legal">Hukum</string>
   <string name="pref_extras">Ekstra</string>
-  <string name="title_account_settings">Pengaturan Akun</string>
   <string name="title_notification_settings">Pengaturan Notifikasi</string>
 
   <!-- __SETTINGS NOTIFICATIONS -->
@@ -551,7 +536,6 @@
   <string name="subscribe_buy">Beli</string>
 
   <!-- __SETTINGS OFFLINE -->
-  <string name="pref_offline_header">Pengaturan sinkronisasi offline</string>
   <string name="pref_offline_wifi_only_sync">Hanya sinkron secara offline dengan Wi-Fi</string>
   <string name="pref_offline_wifi_only_description">Sinkronkan yang kamu suka dan daftar putarmu hanya dengan menggunakan koneksi Wi-Fi</string>
 
