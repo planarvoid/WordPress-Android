@@ -11,11 +11,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 public class OfflineSettingsStorage {
+
     private static final long DEFAULT_OFFLINE_STORAGE_LIMIT_BYTES = 1024l * 1024l * 1024l;
+
     private static final String OFFLINE_LIKES_ENABLED = "offline_likes";
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
-
 
     private final SharedPreferences sharedPreferences;
 
@@ -68,11 +69,8 @@ public class OfflineSettingsStorage {
                 .map(toValue);
     }
 
-    public Observable<Boolean> getOfflineLikedTracksStatus() {
-        return getOfflineLikedTracksStatusChange().startWith(isOfflineLikedTracksEnabled());
-    }
-
     public void clear() {
         sharedPreferences.edit().clear().apply();
     }
+
 }

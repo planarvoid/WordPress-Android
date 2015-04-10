@@ -25,7 +25,7 @@ public class EncryptorTest {
     private Encryptor encryptor = new Encryptor();
 
     @Test
-    public void hashShouldTrackUrnUsesMessageDigest() throws EncryptionException {
+    public void hashTrackUrnUsesMessageDigest() throws EncryptionException {
         final Urn urn = Urn.forTrack(123L);
         final byte[] testBytes = "test".getBytes();
         when(digest.digest(urn.toEncodedString().getBytes(Charsets.UTF_8))).thenReturn(testBytes);

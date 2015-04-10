@@ -22,7 +22,11 @@ import java.security.SecureRandom;
 public class CryptoOperations {
 
     private static final String TAG = "CryptoOps";
+
+    private static final int KEY_SIZE = 128;
+    private static final String ALGORITHM = "AES";
     private static final int GENERATED_KEY_SIZE = 16;
+
     protected static final String DEVICE_KEY = "device_key";
 
     private final KeyStorage storage;
@@ -81,8 +85,8 @@ public class CryptoOperations {
 
     private void generateAndStoreDeviceKey() {
         try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-            keyGen.init(128, secureRandom);
+            KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+            keyGen.init(KEY_SIZE, secureRandom);
 
             byte[] iv = new byte[GENERATED_KEY_SIZE];
             secureRandom.nextBytes(iv);
@@ -95,4 +99,5 @@ public class CryptoOperations {
             ErrorUtils.handleSilentException(e);
         }
     }
+
 }
