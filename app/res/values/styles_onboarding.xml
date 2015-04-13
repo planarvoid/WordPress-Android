@@ -74,6 +74,7 @@
 
     <style name="Tour.CallToAction.Base" parent="BlackOverlayText">
         <item name="android:layout_height">wrap_content</item>
+        <item name="custom_font">fonts/Interstate-Light.ttf</item>
     </style>
 
     <style name="Tour.CallToAction" parent="Tour.CallToAction.Base">
