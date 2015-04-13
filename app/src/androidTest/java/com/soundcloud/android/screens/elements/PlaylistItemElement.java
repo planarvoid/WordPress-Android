@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 
 public class PlaylistItemElement {
     private final Han testDriver;
@@ -21,6 +22,12 @@ public class PlaylistItemElement {
 
     public String getCreator() {
         return getText(wrapped.findElement(With.id(R.id.list_item_header)));
+    }
+
+    public PlaylistDetailsScreen click() {
+        wrapped.click();
+
+        return new PlaylistDetailsScreen(testDriver);
     }
 
     private String getText(ViewElement element) {

@@ -38,9 +38,10 @@ public class PlaylistsScreen extends Screen {
     }
 
     //TODO: Wait for the tab to be displayed
-    public void touchLikedPlaylistsTab() {
+    public PlaylistsScreen touchLikedPlaylistsTab() {
         touchTab(testDriver.getString(R.string.liked_playlists_tab).toUpperCase());
         waiter.waitTwoSeconds();
+        return this;
     }
 
     //TODO: Wait for the tab to be displayed

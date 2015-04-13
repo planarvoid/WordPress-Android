@@ -58,6 +58,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         menuScreen = new MenuScreen(solo);
 
         networkManager.bind();
+        networkManager.switchWifiOn();
 
         logIn();
 

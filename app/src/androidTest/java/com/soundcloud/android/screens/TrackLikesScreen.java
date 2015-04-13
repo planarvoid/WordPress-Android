@@ -77,7 +77,7 @@ public class TrackLikesScreen extends Screen {
             @Nullable
             @Override
             public TrackItemElement apply(@Nullable ViewElement viewElement) {
-                return new TrackItemElement(viewElement);
+                return new TrackItemElement(testDriver, viewElement);
             }
         });
     }
