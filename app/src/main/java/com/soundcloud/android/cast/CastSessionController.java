@@ -2,6 +2,7 @@ package com.soundcloud.android.cast;
 
 import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
@@ -86,10 +87,14 @@ public class CastSessionController extends VideoCastConsumerImpl {
                 Log.i(TAG, "Does not have the same tracklist, updating locally");
                 final PlayQueue playQueue = PlayQueue.fromTrackUrnList(remoteTrackList.isEmpty() ? Arrays.asList(currentUrn) : remoteTrackList, PlaySessionSource.EMPTY);
                 playQueueManager.setNewPlayQueue(playQueue, position, PlaySessionSource.EMPTY);
+                playbackOperations.playCurrent();
                 eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
             } else {
                 Log.i(TAG, "Has the same tracklist, setting position");
                 playQueueManager.setPosition(position);
+                if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
+                    playbackOperations.playCurrent();
+                }
             }
         }
     }

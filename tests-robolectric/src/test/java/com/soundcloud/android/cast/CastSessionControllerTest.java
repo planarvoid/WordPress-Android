@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumer;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
@@ -107,9 +108,22 @@ public class CastSessionControllerTest {
     }
 
     @Test
+    public void onMetaDataUpdatedPlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() throws Exception {
+        castSessionController.startListening();
+        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+        when(videoCastManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
+        setupExistingCastSession();
+
+        callOnMetadatUpdated();
+
+        verify(playbackOperations).playCurrent();
+    }
+
+    @Test
     public void onMetaDataUpdatedSetsPlayQueueWithDifferentTracklist() throws Exception {
         castSessionController.startListening();
         setupExistingCastSession();
+
         callOnMetadatUpdated();
 
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).toEqual(1);
@@ -117,14 +131,24 @@ public class CastSessionControllerTest {
     }
 
     @Test
+    public void onMetaDataUpdatedPlaysCurrentTrackWhenRemotePlayQueueIsDifferent() throws Exception {
+        castSessionController.startListening();
+        setupExistingCastSession();
+
+        callOnMetadatUpdated();
+
+        verify(playbackOperations).playCurrent();
+    }
+
+    @Test
     public void onMetaDataUpdatedShowsPlayer() throws Exception {
         castSessionController.startListening();
         setupExistingCastSession();
+
         callOnMetadatUpdated();
 
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).toEqual(1);
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).toBeTrue();
-
     }
 
     private void setupExistingCastSession() throws TransientNetworkDisconnectionException, NoConnectionException {
