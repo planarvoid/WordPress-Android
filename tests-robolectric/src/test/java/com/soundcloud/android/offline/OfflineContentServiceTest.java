@@ -103,7 +103,8 @@ public class OfflineContentServiceTest {
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1))
+                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)),
+                CurrentDownloadEvent.idle()
         );
     }
 
@@ -120,7 +121,8 @@ public class OfflineContentServiceTest {
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest1))
+                CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest1)),
+                CurrentDownloadEvent.idle()
         );
     }
 
@@ -199,7 +201,8 @@ public class OfflineContentServiceTest {
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1))
+                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)),
+                CurrentDownloadEvent.idle()
         );
     }
 
@@ -210,7 +213,8 @@ public class OfflineContentServiceTest {
 
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
                 CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1))
+                CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1)),
+                CurrentDownloadEvent.idle()
         );
     }
 
@@ -224,7 +228,9 @@ public class OfflineContentServiceTest {
         expect(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).toContainExactly(
                 CurrentDownloadEvent.idle(),
                 CurrentDownloadEvent.unavailable(false, Lists.newArrayList(TRACK_1)),
-                CurrentDownloadEvent.downloadRequested(false, relatedPlaylists));
+                CurrentDownloadEvent.downloadRequested(false, relatedPlaylists),
+                CurrentDownloadEvent.idle()
+        );
     }
 
     @Test

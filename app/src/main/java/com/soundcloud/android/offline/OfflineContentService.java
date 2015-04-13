@@ -226,6 +226,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private void stop() {
         Log.d(TAG, "Stopping the service");
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.idle());
         subscription.unsubscribe();
         downloadHandler.quit();
 
