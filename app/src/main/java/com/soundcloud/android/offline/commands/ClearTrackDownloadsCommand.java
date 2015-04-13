@@ -16,6 +16,12 @@ public class ClearTrackDownloadsCommand extends DefaultWriteStorageCommand<Void,
 
     @Override
     protected WriteResult write(PropellerDatabase propeller, Void input) {
-        return propeller.delete(Table.TrackDownloads);
+        return propeller.runTransaction(new PropellerDatabase.Transaction() {
+            @Override
+            public void steps(PropellerDatabase propeller) {
+                step(propeller.delete(Table.TrackDownloads));
+                step(propeller.delete(Table.OfflineContent));
+            }
+        });
     }
 }

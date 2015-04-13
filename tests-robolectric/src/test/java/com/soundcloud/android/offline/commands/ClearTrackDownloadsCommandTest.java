@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline.commands;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -25,6 +26,15 @@ public class ClearTrackDownloadsCommandTest extends StorageIntegrationTest {
         command.call(null);
 
         databaseAssertions().assertTrackDownloadNotStored(track);
+    }
+
+    @Test
+    public void removesOfflineContent() {
+        ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+
+        command.call(null);
+
+        databaseAssertions().assertPlaylistNotMarkedForOfflineSync(playlist.getUrn());
     }
 
 }
