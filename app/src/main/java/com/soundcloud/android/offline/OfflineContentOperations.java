@@ -64,6 +64,20 @@ public class OfflineContentOperations {
         }
     };
 
+    private final Action1<WriteResult> removeFilesFromStorage = new Action1<WriteResult>() {
+        @Override
+        public void call(WriteResult writeResult) {
+            secureFileStorage.deleteAllTracks();
+        }
+    };
+
+    private final Action1<WriteResult> disableOfflineLikes = new Action1<WriteResult>() {
+        @Override
+        public void call(WriteResult writeResult) {
+            setOfflineLikesEnabled(false);
+        }
+    };
+
     @Inject
     public OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
                                     LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
@@ -118,12 +132,10 @@ public class OfflineContentOperations {
     }
 
     public Observable<WriteResult> clearOfflineContent() {
-        return clearTrackDownloadsCommand.toObservable(null).doOnNext(new Action1<WriteResult>() {
-            @Override
-            public void call(WriteResult writeResult) {
-                secureFileStorage.deleteAllTracks();
-            }
-        }).subscribeOn(scheduler);
+        return clearTrackDownloadsCommand.toObservable(null)
+                .doOnNext(removeFilesFromStorage)
+                .doOnNext(disableOfflineLikes)
+                .subscribeOn(scheduler);
     }
 
     private Action1<Boolean> publishMarkedForOfflineChange(final Urn playlistUrn, final boolean isMarkedOffline) {
