@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.likes;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSync;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
@@ -61,7 +61,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     private void resetOfflineSyncState(Context context) {
-        disableOfflineSync(context);
+        disableOfflineContent(context);
         clearOfflineContent(context);
     }
 }

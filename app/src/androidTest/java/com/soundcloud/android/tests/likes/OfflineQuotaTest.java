@@ -1,6 +1,6 @@
 package com.soundcloud.android.tests.likes;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineSync;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
@@ -27,7 +27,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         final Context context = getInstrumentation().getTargetContext();
-        disableOfflineSync(context);
+        disableOfflineContent(context);
         clearOfflineContent(context);
         enableOfflineContent(context);
     }

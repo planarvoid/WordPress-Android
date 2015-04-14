@@ -5,7 +5,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.shadows.ScTestSharedPreferences;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,19 +14,19 @@ import org.mockito.Mock;
 public class FeatureOperationsTest {
 
     @Mock private ApplicationProperties appProperties;
+    @Mock private FeatureStorage featureStorage;
 
     private FeatureOperations featureOperations;
 
     @Before
     public void setUp() throws Exception {
-        FeatureStorage storage = new FeatureStorage(new ScTestSharedPreferences());
         when(appProperties.isAlphaBuild()).thenReturn(false);
-        featureOperations = new FeatureOperations(appProperties, storage);
+        featureOperations = new FeatureOperations(appProperties, featureStorage);
     }
 
     @Test
-    public void isOfflineContentEnabledReturnsDownloadedState() {
-        featureOperations.update("offline_sync", true);
+    public void isOfflineContentEnabledReturnsStoredState() {
+        when(featureStorage.isEnabled("offline_sync", false)).thenReturn(true);
 
         expect(featureOperations.isOfflineContentEnabled()).toBeTrue();
     }
@@ -38,8 +37,8 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void isOfflineContentUpsellEnabledReturnsDownloadedState() {
-        featureOperations.update("offline_sync_upsell", true);
+    public void isOfflineContentUpsellEnabledReturnsStoredState() {
+        when(featureStorage.isEnabled("offline_sync_upsell", false)).thenReturn(true);
 
         expect(featureOperations.isOfflineContentUpsellEnabled()).toBeTrue();
     }

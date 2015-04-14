@@ -1,5 +1,9 @@
 package com.soundcloud.android.framework.helpers;
 
+import com.soundcloud.android.configuration.features.FeatureStorage;
+import com.soundcloud.android.crypto.Obfuscator;
+import rx.functions.Action1;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -17,22 +21,29 @@ public class ConfigurationHelper {
     }
 
     private static void enableFeature(Context context, final String feature) {
-        final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
-        sharedPreferences.edit().putBoolean(feature, true).apply();
+        final FeatureStorage featureStorage = getFeatureStorage(context);
 
-        sharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if (key.equals(feature) && sharedPreferences.getBoolean(feature, false)) {
-                    sharedPreferences.edit().putBoolean(feature, true).apply();
-                }
-            }
-        });
+        featureStorage.update(feature, true);
+
+        featureStorage.getUpdates(feature)
+                .doOnNext(new Action1<Boolean>() {
+                    @Override
+                    public void call(Boolean enabled) {
+                        if (!enabled) {
+                            featureStorage.update(feature, true);
+                        }
+                    }
+                })
+                .subscribe();
     }
 
-    public static void disableOfflineSync(Context context) {
+    public static void disableOfflineContent(Context context) {
+        getFeatureStorage(context).update(OFFLINE_CONTENT, false);
+    }
+
+    private static FeatureStorage getFeatureStorage(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
-        sharedPreferences.edit().putBoolean("offline_likes", false).putBoolean(OFFLINE_CONTENT, false).apply();
+        return new FeatureStorage(sharedPreferences, new Obfuscator());
     }
 
 }
