@@ -9,7 +9,7 @@ public class ConfigurationFeaturesActivity extends ScActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentFragment(ConfigurationFeaturesFragment.create());
+        setContentFragment(ConfigurationSettingsFragment.create());
     }
 
 }

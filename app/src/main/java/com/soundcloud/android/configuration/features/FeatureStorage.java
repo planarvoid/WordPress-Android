@@ -21,8 +21,7 @@ public class FeatureStorage {
     private final Func1<String, Boolean> toValue = new Func1<String, Boolean>() {
         @Override
         public Boolean call(String key) {
-            String enabled = sharedPreferences.getString(key, null);
-            return toBoolean(enabled, false);
+            return toBoolean(sharedPreferences.getString(key, null), false);
         }
     };
 

@@ -5,9 +5,8 @@ import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_S
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.actionbar.menu.ActionMenuController;
 import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -18,8 +17,6 @@ import rx.Observable;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-
-import javax.inject.Provider;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesActionMenuControllerTest {

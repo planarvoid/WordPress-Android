@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -267,7 +267,7 @@ public class TrackLikesHeaderPresenterTest {
     @Test
     public void doesNotShowLikesMenuWhenOfflineContentFeaturesIsDisable() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        when(featureOperations.isOfflineContentUpsellEnabled()).thenReturn(false);
+        when(featureOperations.shouldShowUpsell()).thenReturn(false);
         presenter.onViewCreated(layoutView, listView);
 
         verify(headerView, never()).showOverflowMenuButton();

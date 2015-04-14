@@ -10,7 +10,7 @@ import static com.soundcloud.android.settings.SettingKey.WIFI_ONLY;
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.DownloadState;
@@ -59,7 +59,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
             addPreferencesFromResource(R.xml.settings_offline);
             subscription.add(eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new CurrentDownloadSubscriber()));
             setupOffline();
-        } else if (featureOperations.isOfflineContentUpsellEnabled()) {
+        } else if (featureOperations.shouldShowUpsell()) {
             addPreferencesFromResource(R.xml.settings_subscribe);
             setupUpsell();
         } else {
