@@ -94,6 +94,8 @@ public class CastSessionController extends VideoCastConsumerImpl {
                 playQueueManager.setPosition(position);
                 if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
                     playbackOperations.playCurrent();
+                } else {
+                    playbackOperations.stopService();
                 }
             }
         }

@@ -120,6 +120,18 @@ public class CastSessionControllerTest {
     }
 
     @Test
+    public void onMetaDataUpdatedStopsPlaybackServiceWithSameRemoteQueueAndRemoteIsNotPlaying() throws Exception {
+        castSessionController.startListening();
+        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
+        when(videoCastManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_UNKNOWN);
+        setupExistingCastSession();
+
+        callOnMetadatUpdated();
+
+        verify(playbackOperations).stopService();
+    }
+
+    @Test
     public void onMetaDataUpdatedSetsPlayQueueWithDifferentTracklist() throws Exception {
         castSessionController.startListening();
         setupExistingCastSession();
