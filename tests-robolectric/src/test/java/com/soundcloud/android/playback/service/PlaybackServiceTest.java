@@ -19,14 +19,14 @@ import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import com.xtremelabs.robolectric.shadows.ShadowService;
-import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +58,6 @@ public class PlaybackServiceTest {
     @Mock private StreamPlaya streamPlayer;
     @Mock private PlaybackReceiver.Factory playbackReceiverFactory;
     @Mock private PlaybackReceiver playbackReceiver;
-    @Mock private Lazy<IRemoteAudioManager> audioManagerProvider;
     @Mock private IRemoteAudioManager remoteAudioManager;
     @Mock private PlayQueue playQueue;
     @Mock private Playa.StateTransition stateTransition;
@@ -70,12 +69,11 @@ public class PlaybackServiceTest {
     public void setUp() throws Exception {
         playbackService = new PlaybackService(playQueueManager, eventBus, trackRepository,
                 accountOperations, streamPlayer,
-                playbackReceiverFactory, audioManagerProvider, playbackNotificationController, analyticsController, adsOperations);
+                playbackReceiverFactory, InjectionSupport.lazyOf(remoteAudioManager), playbackNotificationController, analyticsController, adsOperations);
 
         track = TestPropertySets.expectedTrackForPlayer();
 
         when(playbackReceiverFactory.create(playbackService, accountOperations, playQueueManager, eventBus)).thenReturn(playbackReceiver);
-        when(audioManagerProvider.get()).thenReturn(remoteAudioManager);
     }
 
     @Test

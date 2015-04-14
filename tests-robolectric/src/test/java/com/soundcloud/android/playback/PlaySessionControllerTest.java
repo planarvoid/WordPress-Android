@@ -23,10 +23,10 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
-import dagger.Lazy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,27 +44,24 @@ public class PlaySessionControllerTest {
     private Urn trackUrn;
     private PropertySet track;
     private PropertySet trackWithAdMeta;
+    private Bitmap bitmap;
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private Resources resources;
     @Mock private TrackRepository trackRepository;
-    @Mock private Lazy<IRemoteAudioManager> audioManagerProvider;
     @Mock private IRemoteAudioManager audioManager;
     @Mock private ImageOperations imageOperations;
-    private Bitmap bitmap;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
 
-    private PlaySessionController controller;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
-        when(audioManagerProvider.get()).thenReturn(audioManager);
-        controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackRepository,
-                audioManagerProvider, imageOperations, playSessionStateProvider);
+        PlaySessionController controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackRepository,
+                InjectionSupport.lazyOf(audioManager), imageOperations, playSessionStateProvider);
         controller.subscribe();
 
         track = expectedTrackForPlayer();
