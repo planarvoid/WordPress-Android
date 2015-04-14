@@ -29,10 +29,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
-import android.view.View;
-import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -63,45 +60,23 @@ public class AddCommentDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
-        final View dialogView = View.inflate(getActivity(), R.layout.dialog_comment_at, null);
-        final EditText input = (EditText) dialogView.findViewById(android.R.id.edit);
         final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION), TimeUnit.MILLISECONDS);
-        configureCommentInputField(input, timeFormatted);
-
         return new MaterialDialog.Builder(getActivity())
                 .title(getString(R.string.comment_on, track.get(TrackProperty.TITLE)))
-                .customView(dialogView, false)
+                .input(getString(R.string.comment_at, timeFormatted), ScTextUtils.EMPTY_STRING, new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                        final String commentText = input.toString();
+                        if (ScTextUtils.isNotBlank(commentText)) {
+                            onAddComment(commentText);
+                            dismiss();
+                        }
+                    }
+                })
                 .positiveText(R.string.post)
                 .negativeText(R.string.cancel)
-                .callback(getCallback(input))
                 .build();
-    }
-
-    private MaterialDialog.ButtonCallback getCallback(final EditText input) {
-        return new MaterialDialog.ButtonCallback() {
-            @Override
-            public void onPositive(MaterialDialog dialog) {
-                final String commentText = input.getText().toString();
-                if (ScTextUtils.isNotBlank(commentText)) {
-                    onAddComment(commentText);
-                    dismiss();
-                }
-            }
-        };
-    }
-
-    private void configureCommentInputField(EditText input, String timeFormatted) {
-        input.setHint(getString(R.string.comment_at, timeFormatted));
-        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
     }
 
     private void onAddComment(String commentText){

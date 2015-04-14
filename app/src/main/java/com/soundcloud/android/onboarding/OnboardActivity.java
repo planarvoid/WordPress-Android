@@ -56,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
-import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -910,7 +910,7 @@ public class OnboardActivity extends FragmentActivity
 
     private void showDialogWithHyperlinksAndTrackEvent(AlertDialogWrapper.Builder dialogBuilder, OnboardingEvent event) {
         if (!isFinishing()) {
-            final AlertDialog alertDialog = dialogBuilder.create();
+            final Dialog alertDialog = dialogBuilder.create();
             alertDialog.show();
 
             final TextView messageView = (TextView) alertDialog.findViewById(android.R.id.message);

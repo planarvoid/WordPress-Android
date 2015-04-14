@@ -9,7 +9,7 @@
 
     <TextView
             android:text="@string/optin_question"
-            style="@style/DialogText"
+            style="@style/DialogContentText"
             android:layout_marginBottom="@dimen/dialog_padding" />
 
     <TextView

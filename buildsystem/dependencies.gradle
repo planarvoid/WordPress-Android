@@ -42,7 +42,7 @@ ext {
   slidingUpPanelVersion = '2.0.2-SC'
   androidCropVersion = '0.9.10'
   universalImageLoaderVersion = '1.9.2'
-  materialDialogsVersion = '0.6.7.0'
+  materialDialogsVersion = '0.7.1.3'
   facebookReboundVersion = '0.3.4'
   facebookAndroidSdkVersion = '3.20.0'
   castCompanionLibraryVersion = '2.0-SOUNDCLOUD'

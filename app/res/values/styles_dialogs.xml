@@ -42,10 +42,10 @@
         <item name="android:windowAnimationStyle">@style/Animation.Popup</item>
     </style>
 
-    <style name="DialogText">
+    <style name="DialogContentText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textSize">15sp</item>
+        <item name="android:textSize">@dimen/dialog_content_text_size</item>
         <item name="android:textColor">@color/dialog_text</item>
     </style>
     <style name="DialogSubText">
@@ -70,15 +70,10 @@
     </style>
 
     <style name="DialogInput">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">@dimen/dialog_content_text_size</item>
         <item name="android:inputType">text</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <style name="DialogInput.Comment">
-        <item name="android:inputType">textMultiLine|textCapSentences</item>
-        <item name="android:maxLines">5</item>
     </style>
 
 </resources>
