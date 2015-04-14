@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.crop.util.VisibleForTesting;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -78,6 +78,13 @@ public class OfflineContentOperations {
         }
     };
 
+    private final Func1<Void, Observable<Long>> toLastPolicyUpdateDate = new Func1<Void, Observable<Long>>() {
+        @Override
+        public Observable<Long> call(Void ignored) {
+            return tracksStorage.getLastPolicyUpdate();
+        }
+    };
+
     @Inject
     public OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
                                     LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
@@ -147,8 +154,15 @@ public class OfflineContentOperations {
         };
     }
 
+    Observable<Long> tryToUpdateAndLoadLastPoliciesUpdateTime() {
+        return updateOfflineContentStalePolicies()
+                .onErrorResumeNext(Observable.<Void>just(null))
+                .flatMap(toLastPolicyUpdateDate)
+                .subscribeOn(scheduler);
+    }
+
     Observable<OfflineContentRequests> loadOfflineContentUpdates() {
-        return updateStalePolicies()
+        return updateOfflineContentStalePolicies()
                 .flatMap(loadExpectedContentCommand.toContinuation())
                 .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
                 .doOnNext(storeDownloadUpdatesCommand.toAction())
@@ -160,9 +174,10 @@ public class OfflineContentOperations {
     }
 
     @VisibleForTesting
-    Observable<Void> updateStalePolicies() {
+    Observable<Void> updateOfflineContentStalePolicies() {
         return loadTracksWithStalePolicies.toObservable()
-                .flatMap(UPDATE_POLICIES);
+                .flatMap(UPDATE_POLICIES)
+                .subscribeOn(scheduler);
     }
 
     public Observable<DownloadState> getLikedTracksDownloadStateFromStorage() {

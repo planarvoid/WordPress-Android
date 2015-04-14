@@ -25,10 +25,13 @@ import java.util.Date;
 public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
     private LoadExpectedContentCommand command;
+
+    private long NOW;
     @Mock private OfflineSettingsStorage settingsStorage;
 
     @Before
     public void setUp() {
+        NOW = System.currentTimeMillis();
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(true);
         command = new LoadExpectedContentCommand(propeller(), settingsStorage);
     }
@@ -38,7 +41,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
         Urn urn = apiTrack.getUrn();
         testFixtures().insertTrackPendingDownload(urn, 100);
-        testFixtures().insertPolicyAllow(urn);
+        testFixtures().insertPolicyAllow(urn, NOW);
 
         final Collection<DownloadRequest> pending = command.call(null);
 
@@ -52,7 +55,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack track1 = testFixtures().insertPlaylistTrack(playlist, 0);
         Urn urn = track1.getUrn();
         testFixtures().insertTrackPendingDownload(urn, 100);
-        testFixtures().insertPolicyAllow(urn);
+        testFixtures().insertPolicyAllow(urn, NOW);
 
         Collection<DownloadRequest> pending = command.call(null);
 
@@ -94,13 +97,13 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     @Test
     public void returnsLikesPendingDownloadOrderedByLikeDate() throws Exception {
         final ApiTrack apiTrack1 = testFixtures().insertLikedTrackPendingDownload(new Date(100));
-        testFixtures().insertPolicyAllow(apiTrack1.getUrn());
+        testFixtures().insertPolicyAllow(apiTrack1.getUrn(), NOW);
 
         final ApiTrack apiTrack2 = testFixtures().insertLikedTrackPendingDownload(new Date(200));
-        testFixtures().insertPolicyAllow(apiTrack2.getUrn());
+        testFixtures().insertPolicyAllow(apiTrack2.getUrn(), NOW);
 
         final ApiTrack apiTrack3 = testFixtures().insertLikedTrackPendingDownload(new Date(300));
-        testFixtures().insertPolicyAllow(apiTrack3.getUrn());
+        testFixtures().insertPolicyAllow(apiTrack3.getUrn(), NOW);
 
         Collection<DownloadRequest> pending = command.call(null);
 
@@ -118,12 +121,12 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack playlistTrack1 = testFixtures().insertPlaylistTrack(playlist, 1);
         Urn urn1 = playlistTrack1.getUrn();
         testFixtures().insertTrackPendingDownload(urn1, 100);
-        testFixtures().insertPolicyAllow(urn1);
+        testFixtures().insertPolicyAllow(urn1, NOW);
 
         final ApiTrack playlistTrack0 = testFixtures().insertPlaylistTrack(playlist, 0);
         Urn urn2 = playlistTrack0.getUrn();
         testFixtures().insertTrackPendingDownload(urn2, 100);
-        testFixtures().insertPolicyAllow(urn2);
+        testFixtures().insertPolicyAllow(urn2, NOW);
 
         Collection<DownloadRequest> pending = command.call(null);
 
@@ -141,14 +144,14 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         final ApiTrack playlistTrack2 = testFixtures().insertPlaylistTrack(apiPlaylist2, 0);
         Urn urn1 = playlistTrack2.getUrn();
         testFixtures().insertTrackPendingDownload(urn1, 100);
-        testFixtures().insertPolicyAllow(urn1);
+        testFixtures().insertPolicyAllow(urn1, NOW);
         testFixtures().insertPlaylistMarkedForOfflineSync(apiPlaylist2);
 
         final ApiPlaylist apiPlaylist1 = testFixtures().insertPlaylistWithCreationDate(user, new Date(20023094823L));
         final ApiTrack playlistTrack1 = testFixtures().insertPlaylistTrack(apiPlaylist1, 0);
         Urn urn2 = playlistTrack1.getUrn();
         testFixtures().insertTrackPendingDownload(urn2, 100);
-        testFixtures().insertPolicyAllow(urn2);
+        testFixtures().insertPolicyAllow(urn2, NOW);
         testFixtures().insertPlaylistMarkedForOfflineSync(apiPlaylist1);
 
         Collection<DownloadRequest> pending = command.call(null);
@@ -162,13 +165,13 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     @Test
     public void returnsOfflinePlaylistTracksBeforeLikes() throws Exception {
         final ApiTrack apiTrack = testFixtures().insertLikedTrackPendingDownload(new Date(100));
-        testFixtures().insertPolicyAllow(apiTrack.getUrn());
+        testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
 
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         final ApiTrack playlistTrack = testFixtures().insertPlaylistTrack(playlist, 0);
         Urn urn = playlistTrack.getUrn();
         testFixtures().insertTrackPendingDownload(urn, 100);
-        testFixtures().insertPolicyAllow(urn);
+        testFixtures().insertPolicyAllow(urn, NOW);
 
         Collection<DownloadRequest> pending = command.call(null);
 
@@ -181,7 +184,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     @Test
     public void doesNotReturnDuplicatedDownloadRequests() throws Exception {
         final ApiTrack apiTrack = testFixtures().insertLikedTrackPendingDownload(new Date(100));
-        testFixtures().insertPolicyAllow(apiTrack.getUrn());
+        testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
 
         final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
         testFixtures().insertPlaylistTrack(playlist.getUrn(), apiTrack.getUrn(), 0);

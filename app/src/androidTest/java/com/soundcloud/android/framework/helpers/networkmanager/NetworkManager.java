@@ -37,7 +37,7 @@ public class NetworkManager {
     }
 
     public boolean bind() {
-        return context.bindService(getIntent(), connection, Context.BIND_AUTO_CREATE);
+        return context.bindService(getIntent(), connection, Context.BIND_AUTO_CREATE) && new Waiter().waitForServiceBinding(this);
     }
 
     public void unbind() {
@@ -54,6 +54,10 @@ public class NetworkManager {
 
     public boolean isWifiEnabled() {
         return Boolean.parseBoolean(sendIfConnected(IS_WIFI_ENABLED).getResponse());
+    }
+
+    public boolean isBound() {
+        return networkServiceClient != null;
     }
 
     private Response sendIfConnected(String command) {

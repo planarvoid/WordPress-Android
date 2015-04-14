@@ -67,6 +67,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.TrackPolicies.POLICY, track.getPolicy());
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable());
         cv.put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable());
+        cv.put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis());
 
         return insertInto(Table.TrackPolicies, cv);
     }
@@ -440,12 +441,13 @@ public class DatabaseFixtures {
     }
 
 
-    public void insertPolicyAllow(Urn urn) {
+    public void insertPolicyAllow(Urn urn, long lastUpdate) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackPolicies.TRACK_ID, urn.getNumericId());
         cv.put(TableColumns.TrackPolicies.POLICY, "ALLOW");
         cv.put(TableColumns.TrackPolicies.MONETIZABLE, true);
         cv.put(TableColumns.TrackPolicies.SYNCABLE, true);
+        cv.put(TableColumns.TrackPolicies.LAST_UPDATED, lastUpdate);
 
         insertInto(Table.TrackPolicies, cv);
     }

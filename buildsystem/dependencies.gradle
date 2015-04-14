@@ -14,7 +14,7 @@ ext {
   androidBuildToolsVersion = '22.0.1'
 
   //Google Android
-  androidSupportLibraryVersion = '22.0.0-15.04.15'
+  androidSupportLibraryVersion = '22.0.0-15.04.23'
   androidAppCompatLibraryVersion = '22.0.0'
   androidMediaRouterLibraryVersion = '22.0.0'
   androidPlayServicesBaseVersion = '6.5.87'

@@ -17,7 +17,8 @@ public class PolicyOperations {
     private final Scheduler scheduler;
 
     @Inject
-    public PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand, StorePoliciesCommand storePoliciesCommand,
+    public PolicyOperations(FetchPoliciesCommand fetchPoliciesCommand,
+                            StorePoliciesCommand storePoliciesCommand,
                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.fetchPoliciesCommand = fetchPoliciesCommand;
         this.storePoliciesCommand = storePoliciesCommand;

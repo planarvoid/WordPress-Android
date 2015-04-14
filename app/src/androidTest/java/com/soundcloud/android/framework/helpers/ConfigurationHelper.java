@@ -11,8 +11,10 @@ import android.content.SharedPreferences;
 
 public class ConfigurationHelper {
 
+    private final static String PREFS_OFFLINE_SETTINGS = "offline_settings";
     private final static String OFFLINE_CONTENT = "offline_sync";
     private final static String OFFLINE_UPSELL = "offline_sync_upsell";
+    private final static String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, OFFLINE_CONTENT);
@@ -21,7 +23,16 @@ public class ConfigurationHelper {
     public static void enableUpsell(Context context) {
         enableFeature(context, OFFLINE_UPSELL);
     }
+    
+    public static void disableOfflineContent(Context context) {
+        getFeatureStorage(context).update(OFFLINE_CONTENT, false);
+    }
 
+    public static void resetOfflineSyncState(Context context) {
+        disableOfflineContent(context);
+        clearOfflineContent(context);
+    }
+    
     private static void enableFeature(Context context, final String feature) {
         final FeatureStorage featureStorage = getFeatureStorage(context);
 
@@ -39,18 +50,27 @@ public class ConfigurationHelper {
                 .subscribe();
     }
 
-    public static void disableOfflineContent(Context context) {
-        getFeatureStorage(context).update(OFFLINE_CONTENT, false);
-    }
-
-    public static void resetOfflineSyncState(Context context) {
-        disableOfflineContent(context);
-        clearOfflineContent(context);
-    }
-
     private static FeatureStorage getFeatureStorage(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
         return new FeatureStorage(sharedPreferences, new Obfuscator());
+    }
+
+    private static SharedPreferences getOfflineSettingsPreferences(Context context) {
+        return context.getSharedPreferences(PREFS_OFFLINE_SETTINGS, Context.MODE_PRIVATE);
+    }
+
+    public static void resetPolicyUpdateCheckTime(Context context) {
+        getOfflineSettingsPreferences(context)
+                .edit()
+                .remove(LAST_POLICY_UPDATE_CHECK)
+                .commit();
+    }
+
+    public static void setPolicyUpdateCheckTime(Context context, long time) {
+        getOfflineSettingsPreferences(context)
+                .edit()
+                .putLong(LAST_POLICY_UPDATE_CHECK, time)
+                .commit();
     }
 
 }

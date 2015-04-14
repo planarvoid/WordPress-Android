@@ -49,4 +49,14 @@ public class OfflineSettingsStorageTest {
         expect(storage.isWifiOnlyEnabled()).toBeTrue();
     }
 
+    @Test
+    public void getPolicyUpdateCheckTimeReturns0ByDefault() {
+        expect(storage.getPolicyUpdateCheckTime()).toEqual(0L);
+    }
+
+    @Test
+    public void getReturnsSetPolicyUpdateCheckTime() {
+        storage.setPolicyUpdateCheckTime(123456789L);
+        expect(storage.getPolicyUpdateCheckTime()).toEqual(123456789L);
+    }
 }

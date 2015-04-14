@@ -5,25 +5,30 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+import java.util.Random;
+
 public class NetworkServiceClient {
 
     private final Waiter waiter;
     private final Messenger service;
     private final ResponseHandler responseHandler;
-    private int MESSAGE_TYPE_STRING = 0;
+    private final Random random;
 
     public NetworkServiceClient(Messenger service, ResponseHandler responseHandler) {
         waiter = new Waiter();
         this.service = service;
         this.responseHandler = responseHandler;
+        this.random = new Random();
     }
 
     //TODO: Use DVO instead of creating message here
     public Response send(String command) {
-        int id = (int) System.currentTimeMillis();
+        int id = random.nextInt();
         Message message = createMessage(getMsgBundle(command, id));
         sendMessage(message);
-        waiter.waitForMessage(responseHandler, id);
+        if (!waiter.waitForMessage(responseHandler, id)) {
+            throw new IllegalStateException("Did not receive a message back from the network manager");
+        }
         return responseHandler.getResponse(id);
     }
 
@@ -39,7 +44,6 @@ public class NetworkServiceClient {
 
     private Message createMessage(Bundle msgBundle) {
         Message msg = Message.obtain(null, 0);
-        msg.what = MESSAGE_TYPE_STRING;
         msg.replyTo = new Messenger(responseHandler);
         msg.setData(msgBundle);
         return msg;

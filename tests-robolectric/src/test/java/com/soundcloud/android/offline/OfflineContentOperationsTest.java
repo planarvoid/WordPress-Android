@@ -18,6 +18,7 @@ import com.soundcloud.android.offline.commands.StoreDownloadUpdatesCommand;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.PropertySet;
@@ -87,7 +88,7 @@ public class OfflineContentOperationsTest {
     @Test
     public void doesNotRequestPolicyUpdatesWhenAllPoliciesAreUpToDate() {
         when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(new ArrayList<Urn>()));
-        operations.updateStalePolicies().subscribe(subscriber);
+        operations.updateOfflineContentStalePolicies().subscribe(subscriber);
 
         verifyZeroInteractions(policyOperations);
     }
@@ -97,7 +98,7 @@ public class OfflineContentOperationsTest {
         final List<Urn> tracks = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(124L));
         when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.<Collection<Urn>>just(tracks));
 
-        operations.updateStalePolicies().subscribe();
+        operations.updateOfflineContentStalePolicies().subscribe();
 
         verify(policyOperations).fetchAndStorePolicies(tracks);
     }
@@ -229,6 +230,43 @@ public class OfflineContentOperationsTest {
         operations.getLikedTracksDownloadStateFromStorage().subscribe(observer);
 
         expect(observer.getOnNextEvents()).toContainExactly(DownloadState.DOWNLOADED);
+    }
+
+    @Test
+    public void tryToUpdateAndLoadLastPoliciesUpdateTimeFetchThePolicies() {
+        final TestObserver<Long> observer = new TestObserver<>();
+        final TestObservables.MockObservable<Void> fetchingObservable = TestObservables.just(null);
+
+        when(offlineTracksStorage.getLastPolicyUpdate()).thenReturn(Observable.<Long>empty());
+        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(fetchingObservable);
+
+        operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
+
+        expect(fetchingObservable.subscribedTo()).toBeTrue();
+    }
+
+    @Test
+    public void tryToUpdateAndLoadLastPoliciesUpdateTimeReturnsLastUpdateWhenFetchFailed() {
+        final TestObserver<Long> observer = new TestObserver<>();
+        when(offlineTracksStorage.getLastPolicyUpdate()).thenReturn(Observable.just(12344567L));
+        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
+
+        operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(12344567L);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
+
+    @Test
+    public void tryToUpdateAndLoadLastPoliciesUpdateTimeReturnsLastUpdateWhenFetchSucceeded() {
+        final TestObserver<Long> observer = new TestObserver<>();
+        when(offlineTracksStorage.getLastPolicyUpdate()).thenReturn(Observable.just(12344567L));
+        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
+
+        operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(12344567L);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
     private static class WriteResultStub extends WriteResult {

@@ -10,6 +10,7 @@ import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
 import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleActionBarActivity;
+import com.soundcloud.android.offline.PolicyUpdateController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -35,6 +36,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject @LightCycle ImageOperationsController imageOperationsController;
     @Inject @LightCycle AccountPlaybackController accountPlaybackController;
     @Inject @LightCycle ScreenStateProvider screenStateProvider;
+    @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject ApplicationProperties applicationProperties;
 
     @Inject protected EventBus eventBus;

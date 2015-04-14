@@ -17,6 +17,7 @@ public class OfflineSettingsStorage {
     private static final String OFFLINE_LIKES_ENABLED = "offline_likes";
     private static final String OFFLINE_WIFI_ONLY = "offline_wifi_only";
     private static final String OFFLINE_STORAGE_LIMIT = "offline_storage_limit";
+    private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
 
     private final SharedPreferences sharedPreferences;
 
@@ -43,7 +44,7 @@ public class OfflineSettingsStorage {
         return sharedPreferences.getBoolean(OFFLINE_LIKES_ENABLED, false);
     }
 
-    public void setOfflineLikedTracksEnabled(final boolean enabled) {
+    void setOfflineLikedTracksEnabled(final boolean enabled) {
         sharedPreferences.edit().putBoolean(OFFLINE_LIKES_ENABLED, enabled).apply();
     }
 
@@ -63,7 +64,15 @@ public class OfflineSettingsStorage {
         sharedPreferences.edit().putLong(OFFLINE_STORAGE_LIMIT, newLimit).apply();
     }
 
-    public Observable<Boolean> getOfflineLikedTracksStatusChange() {
+    void setPolicyUpdateCheckTime(long policiesCheckTime) {
+        sharedPreferences.edit().putLong(LAST_POLICY_UPDATE_CHECK, policiesCheckTime).apply();
+    }
+
+    long getPolicyUpdateCheckTime() {
+        return sharedPreferences.getLong(LAST_POLICY_UPDATE_CHECK, 0);
+    }
+
+    Observable<Boolean> getOfflineLikedTracksStatusChange() {
         return Observable.create(new PreferenceChangeOnSubscribe(sharedPreferences))
                 .filter(FILTER_OFFLINE_LIKES_KEY)
                 .map(toValue);
