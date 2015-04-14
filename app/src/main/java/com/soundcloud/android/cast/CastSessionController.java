@@ -59,13 +59,11 @@ public class CastSessionController extends VideoCastConsumerImpl {
     @Override
     public void onApplicationConnected(ApplicationMetadata appMetadata, String sessionId, boolean wasLaunched) {
         Log.i(TAG, "On Application Connected, launched: " + wasLaunched);
-        if (wasLaunched){
-            if (playSessionStateProvider.isPlaying()){
-                Log.i(TAG, "Sending current track to cast device");
-                playbackOperations.stopService();
-                final PlaybackProgress lastProgressByUrn = playSessionStateProvider.getLastProgressByUrn(playQueueManager.getCurrentTrackUrn());
-                playbackOperations.playCurrent(lastProgressByUrn.getPosition());
-            }
+        playbackOperations.stopService();
+        if (wasLaunched && !playQueueManager.isQueueEmpty()) {
+            Log.i(TAG, "Sending current track to cast device");
+            final PlaybackProgress lastProgressByUrn = playSessionStateProvider.getLastProgressByUrn(playQueueManager.getCurrentTrackUrn());
+            playbackOperations.playCurrent(lastProgressByUrn.getPosition());
         }
     }
 
@@ -94,8 +92,6 @@ public class CastSessionController extends VideoCastConsumerImpl {
                 playQueueManager.setPosition(position);
                 if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
                     playbackOperations.playCurrent();
-                } else {
-                    playbackOperations.stopService();
                 }
             }
         }
@@ -116,10 +112,10 @@ public class CastSessionController extends VideoCastConsumerImpl {
         try {
             final MediaInfo remoteMediaInformation = videoCastManager.getRemoteMediaInformation();
             Log.i(TAG, "Got media information " + remoteMediaInformation);
-            if (remoteMediaInformation != null){
+            if (remoteMediaInformation != null) {
                 final JSONObject customData = remoteMediaInformation.getCustomData();
                 Log.i(TAG, "Has custom data object " + customData);
-                if (customData != null){
+                if (customData != null) {
                     return convertRemoteDataToTrackList(customData);
                 }
             }
@@ -133,7 +129,7 @@ public class CastSessionController extends VideoCastConsumerImpl {
         final JSONArray jsonArray = (JSONArray) customData.get(CastPlayer.KEY_PLAY_QUEUE);
         Log.i(TAG, "Has tracklist of length " + jsonArray.length());
         List<Urn> remoteList = new ArrayList<>(jsonArray.length());
-        for (int i = 0; i < jsonArray.length(); i++){
+        for (int i = 0; i < jsonArray.length(); i++) {
             remoteList.add(new Urn(jsonArray.getString(i)));
         }
         return remoteList;

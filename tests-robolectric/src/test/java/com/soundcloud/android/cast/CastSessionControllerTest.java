@@ -64,20 +64,19 @@ public class CastSessionControllerTest {
     }
 
     @Test
-    public void onConnectedToReceiverAppDoesNothingIfNotPlaying() throws Exception {
+    public void onConnectedToReceiverAppDoesNotPlayIfQueueIsEmpty() throws Exception {
         castSessionController.startListening();
+        when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
         callOnConnectedToReceiverApp();
 
-        verifyZeroInteractions(playbackOperations);
+        verify(playbackOperations, never()).playCurrent(anyInt());
     }
 
     @Test
-    public void onConnectedToReceiverAppStopsPlaybackServiceIfPlaying() throws Exception {
+    public void onConnectedToReceiverAppStopsPlaybackService() throws Exception {
         castSessionController.startListening();
-        when(playSessionStateProvider.isPlaying()).thenReturn(true);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
-        when(playSessionStateProvider.getLastProgressByUrn(URN)).thenReturn(new PlaybackProgress(123, 456));
+        when(playSessionStateProvider.getLastProgressByUrn(any(Urn.class))).thenReturn(PlaybackProgress.empty());
 
         callOnConnectedToReceiverApp();
 
@@ -117,18 +116,6 @@ public class CastSessionControllerTest {
         callOnMetadatUpdated();
 
         verify(playbackOperations).playCurrent();
-    }
-
-    @Test
-    public void onMetaDataUpdatedStopsPlaybackServiceWithSameRemoteQueueAndRemoteIsNotPlaying() throws Exception {
-        castSessionController.startListening();
-        when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
-        when(videoCastManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_UNKNOWN);
-        setupExistingCastSession();
-
-        callOnMetadatUpdated();
-
-        verify(playbackOperations).stopService();
     }
 
     @Test
