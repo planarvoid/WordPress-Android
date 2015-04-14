@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.whoToFollow;
 
-import static com.soundcloud.android.framework.helpers.NavigationHelper.openWhoToFollow;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
@@ -38,13 +37,13 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(player, is(expanded()));
         player.pressBackToCollapse();
 
-        openWhoToFollow(streamScreen);
+        streamScreen.actionBar().clickWhoToFollowOverflowButton();
         assertThat(player, is(visible()));
         assertThat(player, is(collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() {
-        openWhoToFollow(streamScreen);
+        streamScreen.actionBar().clickWhoToFollowOverflowButton();
 
         assertThat(new VisualPlayerElement(solo), is(not(visible())));
     }

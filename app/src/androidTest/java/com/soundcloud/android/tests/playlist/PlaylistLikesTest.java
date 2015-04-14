@@ -5,7 +5,6 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
@@ -23,7 +22,8 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testDrawerShowsPlaylists() {
-        final PlaylistsScreen playlistsScreen = NavigationHelper.openLikedPlaylists(menuScreen);
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        playlistsScreen.touchLikedPlaylistsTab();
         if(!playlistsScreen.hasLikes()) {
             playlistsScreen.pullToRefresh();
         }
@@ -32,7 +32,8 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testLoadsNextPage() {
-        final PlaylistsScreen playlistsScreen = NavigationHelper.openLikedPlaylists(menuScreen);
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        playlistsScreen.touchLikedPlaylistsTab();
         if(!playlistsScreen.hasLikes()) {
             playlistsScreen.pullToRefresh();
         }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.activity;
 
-import static com.soundcloud.android.framework.helpers.NavigationHelper.openActivities;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
@@ -38,13 +37,13 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
         player.pressBackToCollapse();
 
-        openActivities(streamScreen);
+        streamScreen.actionBar().clickActivityOverflowButton();
         assertThat(player, is(visible()));
         assertThat(player, is(collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() {
-        openActivities(streamScreen);
+        streamScreen.actionBar().clickActivityOverflowButton();
 
         assertThat(new VisualPlayerElement(solo), is(not(visible())));
     }

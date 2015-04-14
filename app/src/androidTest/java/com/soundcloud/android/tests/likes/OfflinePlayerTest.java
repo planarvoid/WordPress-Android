@@ -1,16 +1,14 @@
 package com.soundcloud.android.tests.likes;
 
-import android.content.Context;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
+import android.content.Context;
 
 public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
@@ -32,7 +30,8 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
         Context context = getInstrumentation().getTargetContext();
         clearOfflineContent(context);
         enableOfflineContent(context);
-        likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), getWaiter());
+        getWaiter().waitForContentAndRetryIfLoadingFailed();
+        likesScreen = menuScreen.open().clickLikes();
     }
 
     public void testPlayTrackWhenContentDownloaded() throws Exception {

@@ -45,9 +45,10 @@ public class PlaylistsScreen extends Screen {
     }
 
     //TODO: Wait for the tab to be displayed
-    public void touchPostedPlaylistsTab() {
+    public PlaylistsScreen touchPostedPlaylistsTab() {
         touchTab(testDriver.getString(R.string.your_playlists_tab).toUpperCase());
         waiter.waitTwoSeconds();
+        return this;
     }
 
     public int getLoadedTrackCount(){

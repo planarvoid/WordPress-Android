@@ -13,7 +13,6 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -37,19 +36,19 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         assertThat(player(), is(expanded()));
         player().pressBackToCollapse();
 
-        NavigationHelper.openSearch(streamScreen());
+        streamScreen().actionBar().clickSearchButton();
         assertThat(player(), is(visible()));
         assertThat(player(), is(collapsed()));
     }
 
     public void testPlayerIsNotVisibleIfNothingIsPlaying() throws Exception {
-        NavigationHelper.openSearch(streamScreen());
+        streamScreen().actionBar().clickSearchButton();
 
         assertThat(player(), is(not(visible())));
     }
 
     public void testTapingATrackFromSearchOpenVisualPlayer() throws Exception {
-        NavigationHelper.openSearch(streamScreen());
+        streamScreen().actionBar().clickSearchButton();
         searchScreen().actionBar().doSearch("nasa");
         player = searchScreen().clickFirstTrackItem();
 

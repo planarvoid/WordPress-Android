@@ -13,7 +13,6 @@ import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
     private StreamScreen streamScreen;
@@ -50,7 +49,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void openExploreGenreAmbient() {
-        final ExploreScreen exploreScreen = NavigationHelper.openExploreFromMenu(streamScreen);
+        final ExploreScreen exploreScreen = streamScreen.openExploreFromMenu();
         exploreScreen.touchGenresTab();
         exploreScreen.clickGenreItem("Ambient");
     }

@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.framework.helpers.PlayerHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddCommentScreen;
@@ -178,7 +177,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     private void playExploreTrack() {
         final StreamScreen streamScreen = new StreamScreen(solo);
-        playerElement = PlayerHelper.openPlayer(this, NavigationHelper.openExploreFromMenu(streamScreen));
+        playerElement = PlayerHelper.openPlayer(this, streamScreen.openExploreFromMenu());
     }
 
     private void playSingleTrack() {

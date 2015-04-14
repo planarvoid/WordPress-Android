@@ -11,7 +11,6 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 
 public class TrackCommentsTest extends ActivityTest<MainActivity> {
     private TrackCommentsScreen trackCommentsScreen;
@@ -27,7 +26,7 @@ public class TrackCommentsTest extends ActivityTest<MainActivity> {
 
     public void setUp() throws Exception {
         super.setUp();
-        ActivitiesScreen activitiesScreen = NavigationHelper.openActivities(new StreamScreen(solo));
+        ActivitiesScreen activitiesScreen = new StreamScreen(solo).actionBar().clickActivityOverflowButton();
         trackCommentsScreen = activitiesScreen.clickComment();
     }
 

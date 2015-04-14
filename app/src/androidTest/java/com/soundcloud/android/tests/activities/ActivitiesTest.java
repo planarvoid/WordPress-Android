@@ -13,7 +13,6 @@ import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 
 public class ActivitiesTest extends ActivityTest<MainActivity> {
 
@@ -34,9 +33,7 @@ public class ActivitiesTest extends ActivityTest<MainActivity> {
 
         waiter = new Waiter(solo);
         menuScreen = new MenuScreen(solo);
-        final StreamScreen streamScreen = new StreamScreen(solo);
-
-        activitiesScreen = NavigationHelper.openActivities(streamScreen);
+        activitiesScreen = new StreamScreen(solo).actionBar().clickActivityOverflowButton();
     }
 
     public void testNewFollowerGoesToProfile() {

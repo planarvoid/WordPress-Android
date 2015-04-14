@@ -7,17 +7,25 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.NavigationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class TrackLikesTest extends ActivityTest<MainActivity> {
 
+    private TrackLikesScreen likesScreen;
+
     public TrackLikesTest() {
         super(MainActivity.class);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+
+        likesScreen = menuScreen.open().clickLikes();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     @Override
@@ -26,21 +34,18 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testClickingShuffleButtonOpensPlayer() {
-        TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         VisualPlayerElement playerElement = likesScreen.clickShuffleButton();
 
         assertThat(playerElement, is(visible()));
     }
 
     public void testClickingTrackOpensPlayer() {
-        TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         VisualPlayerElement playerElement = likesScreen.clickTrack(1);
 
         assertThat(playerElement, is(visible()));
     }
 
     public void testLoadsNextPage() {
-        TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         int numberOfTracks = likesScreen.getLoadedTrackCount();
         assertThat(numberOfTracks, is(greaterThan(0)));
 
@@ -50,8 +55,6 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
-
-        TrackLikesScreen likesScreen = NavigationHelper.openLikedTracks(new MenuScreen(solo), waiter);
         final int initialLikedTracksCount = likesScreen.getLoadedTrackCount();
 
         final VisualPlayerElement player = likesScreen.clickTrack(0);
