@@ -14,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.legacy.model.behavior.Identifiable;
@@ -49,13 +48,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -364,46 +361,8 @@ public class TestHelper {
         }
     }
 
-    public static Recording createRecording(long userId) throws IOException {
-        File tmp = createRecordingFile("wav");
-
-        Recording r = new Recording(tmp);
-        r.setId(1);
-        r.latitude = 32.3;
-        r.longitude = 23.1;
-        r.what_text = "somewhat";
-        r.where_text = "somehere";
-        r.four_square_venue_id = "foursquare";
-        r.description = "test recording";
-        r.genre = "speed blues ";
-        r.duration = 86 * 1000;
-        r.user_id = userId;
-        r.recipient_user_id = 300L;
-        r.recipient_username = "foo";
-        r.shared_emails = "foo@example.com";
-        r.shared_ids = "1,2,3,4";
-        r.upload_status = Recording.Status.NOT_YET_UPLOADED;
-        r.artwork_path = r.getFile();
-        r.resized_artwork_path = r.artwork_path;
-        r.tip = "something";
-
-        return r;
-    }
-
     public static void addResourceResponse(Class<?> klazz, String url, String resource) throws IOException {
         TestHelper.addCannedResponse(klazz, url, resource);
-    }
-
-    private static File createRecordingFile(String extension) throws IOException {
-        File tmp = File.createTempFile("recording-test", extension);
-        tmp.createNewFile();
-        expect(tmp.exists()).toBeTrue();
-
-        Calendar c = Calendar.getInstance();
-        //noinspection MagicConstant
-        c.set(2001, 1, 15, 14, 31, 1);  // 14:31:01, 15/02/2011
-        tmp.setLastModified(c.getTimeInMillis());
-        return tmp;
     }
 
     public static PublicApiPlaylist createNewUserPlaylist(PublicApiUser user, boolean isPrivate, List<PublicApiTrack> tracks) {

@@ -5,4 +5,5 @@
     <integer name="waveform_ratio_bottom">1</integer>
     <integer name="timestamp_animate_percentage">50</integer>
     <integer name="overlay_animate_duration">120</integer>
+    <integer name="button_pressed_animation_delay">100</integer>
 </resources>

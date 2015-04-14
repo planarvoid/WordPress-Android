@@ -247,32 +247,32 @@ public class TableTest {
         expect(cursor).toHaveCount(2);
     }
 
-    @Test
-    public void shouldInsertAndUpsertEntries() {
-        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
-
-        long id = Table.Recordings.insertOrReplaceArgs(db,
-            TableColumns.Recordings.WHAT_TEXT,  "what",
-            TableColumns.Recordings.WHERE_TEXT, "where"
-        );
-        expect(id).not.toBe(0l);
-
-        Table.Recordings.upsertSingleArgs(db,
-            TableColumns.Recordings._ID, id,
-            TableColumns.Recordings.WHAT_TEXT, "was"
-        );
-
-        Cursor c = Robolectric.application.getContentResolver().
-                query(Content.RECORDINGS.forId(id),
-                        null, null, null, null);
-
-        expect(c.moveToFirst()).toBeTrue();
-        String what = c.getString(c.getColumnIndex(TableColumns.Recordings.WHAT_TEXT));
-        String where = c.getString(c.getColumnIndex(TableColumns.Recordings.WHERE_TEXT));
-
-        expect(what).toEqual("was");
-        expect(where).toEqual("where");
-    }
+//    @Test
+//    public void shouldInsertAndUpsertEntries() {
+//        SQLiteDatabase db = new DatabaseManager(Robolectric.application).getWritableDatabase();
+//
+//        long id = Table.Recordings.insertOrReplaceArgs(db,
+//            TableColumns.Recordings.WHAT_TEXT,  "what",
+//            TableColumns.Recordings.WHERE_TEXT, "where"
+//        );
+//        expect(id).not.toBe(0l);
+//
+//        Table.Recordings.upsertSingleArgs(db,
+//            TableColumns.Recordings._ID, id,
+//            TableColumns.Recordings.WHAT_TEXT, "was"
+//        );
+//
+//        Cursor c = Robolectric.application.getContentResolver().
+//                query(Content.RECORDINGS.forId(id),
+//                        null, null, null, null);
+//
+//        expect(c.moveToFirst()).toBeTrue();
+//        String what = c.getString(c.getColumnIndex(TableColumns.Recordings.WHAT_TEXT));
+//        String where = c.getString(c.getColumnIndex(TableColumns.Recordings.WHERE_TEXT));
+//
+//        expect(what).toEqual("was");
+//        expect(where).toEqual("where");
+//    }
 
     public static void main(String[] args) throws IOException {
         File schema = new File("tests/src/resources/com/soundcloud/android/provider/schema_"

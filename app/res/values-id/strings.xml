@@ -376,7 +376,6 @@
   <string name="rec_title_editing">Edit</string>
   <string name="record_another_sound">Rekam suara lain</string>
   <string name="record_insert_sd_card">Harap masukkan kartu SD untuk merekam.</string>
-  <string name="record_instructions">Bagikan Suaramu</string>
   <string name="record_storage_is_full">Penyimpanan penuh</string>
   <string name="recorded_afternoon">%s sore</string>
   <string name="recorded_at">%1$s di %2$s</string>
@@ -399,43 +398,6 @@
   <string name="cloud_recorder_event_message">Merekam selama %s</string>
   <string name="cloud_recorder_event_title">Perekaman sedang berlangsung</string>
   <string name="cloud_recorder_playback_event_title">Pemutaran sedang berlangsung</string>
-
-  <!-- __RECORD TIPS -->
-  <string-array name="record_suggestions">
-    <item>Mengapa kamu tidak merekam suara jalanmu?</item>
-    <item>Rekam catatan suara sebagai pengingat praktis.</item>
-    <item>Gunakan tombol REC untuk membuat blog suara – apa yang akan kamu bagikan hari ini?</item>
-    <item>Apa yang sedang kamu lakukan saat ini?</item>
-    <item>Abadikan momen: kata-kata pertama anak</item>
-    <item>Abadikan momen: suara binatang peliharaanmu</item>
-    <item>Abadikan momen: suara seseorang yang kamu sayangi</item>
-    <item>Pergi berbelanja? Rekam pengingat agar kamu tidak lupa apa yang harus dibeli.</item>
-    <item>Punya gagasan bagus? Abadikan dengan tombol REC.</item>
-    <item>Mendengar lelucon yang bagus akhir-akhir ini? Bagikan lelucon tersebut!</item>
-    <item>Menikmati percakapan yang bagus? Mengapa tidak merekamnya untuk anak cucu?</item>
-    <item>Abadikan momen lucu dalam suara</item>
-    <item>Tahukah kamu kalau rekaman pribadi dapat disimpan jika kamu tidak ingin membagikannya?</item>
-    <item>Kadang-kadang alat perekam terbaik adalah yang kamu miliki saat ini.</item>
-    <item>Suarakan dirimui!</item>
-    <item>Suarakan internet.</item>
-    <item>Suarakan dunia.</item>
-    <item>Ekspresikan dirimu!</item>
-    <item>Mengapa tidak merekam risalah rapat berikutnya?</item>
-    <item>Gunakan tombol REC untuk mengabadikan ide-ide untuk nanti.</item>
-    <item>Gunakan tombol REC sebagai bantuan studi: simpan catatanmu saat bepergian.</item>
-    <item>Kamu dapat menggunakan tombol REC untuk merekam wawancara dan rapat.</item>
-    <item>Rekam suara gelombang laut di pantai</item>
-    <item>Abadikan suara kota yang hidup pada jam sibuk</item>
-    <item>Mendengar suara aneh? Abadikan dengan tombol REC!</item>
-    <item>Merasa terinspirasi? Abadikan idemu dengan tombol REC.</item>
-    <item>Punya ide untuk lagu baru? Simpan dengan tombol REC.</item>
-    <item>Irama terjebak hanya di pikiranmu? Abadikan dengan tombol REC.</item>
-    <item>Gagasan untuk lirik lagu? Abadikan gagasan tersebut langsung dengan tombol REC.</item>
-    <item>Apa yang sedang terjadi sekarang?</item>
-    <item>Rekam peristiwa saat terjadi dan bagikan kepada dunia.</item>
-    <item>Sesuatu yang menarik sedang terjadi? Abadikan momen dalam audio.</item>
-    <item>Reporter Warga? Beri tahu dunia tentang apa yang terjadi di lokasimu.</item>
-  </string-array>
 
   <!-- __SEARCH -->
   <string name="search_hint">Cari SoundCloud</string>

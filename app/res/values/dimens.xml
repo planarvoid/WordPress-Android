@@ -39,8 +39,8 @@
     <dimen name="rec_header_you_button_width">40dp</dimen>
 
     <dimen name="create_wave_view_bottom_margin">37dp</dimen>
-    <dimen name="trim_handle_left_margin_offset">-3dip</dimen>
-    <dimen name="trim_handle_right_margin_offset">-2dip</dimen>
+    <dimen name="trim_handle_left_margin_offset">0dip</dimen>
+    <dimen name="trim_handle_right_margin_offset">0dip</dimen>
 
     <dimen name="round_progress_bar_corner_radius">10dp</dimen>
     <dimen name="rec_chronometer_text_size">32sp</dimen>
@@ -129,6 +129,24 @@
     <dimen name="likes_shuffle_button_margin_left">8dp</dimen>
     <dimen name="likes_shuffle_button_margin_right">12dp</dimen>
     <dimen name="collection_download_state_margin_right">5dip</dimen>
+
+    <!-- Record -->
+    <dimen name="rec_upload_button_dimension">60dp</dimen>
+    <dimen name="rec_record_button_dimension">60dp</dimen>
+
+    <dimen name="rec_action_button_dimension">60dp</dimen>
+    <dimen name="rec_dark_button_dimension">40dp</dimen>
+    <dimen name="rec_control_margin_top">-20dp</dimen>
+    <dimen name="rec_edit_control_margin_top">20dp</dimen>
+    <dimen name="button_pressed_z_material">1dp</dimen>
+    <dimen name="button_z_material">5dp</dimen>
+    <dimen name="button_disabled_z_material">0dp</dimen>
+    <dimen name="progress_z_material">3dp</dimen>
+
+    <dimen name="rec_waveform_bar_width">2dp</dimen>
+    <dimen name="rec_waveform_space_width">1dp</dimen>
+
+    <dimen name="rec_upload_progress_dimension">66dp</dimen>
 
     <!-- Toolbar -->
     <dimen name="toolbar_elevation">4dip</dimen>

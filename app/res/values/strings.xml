@@ -12,6 +12,7 @@
     <string name="btn_apply">Apply</string>
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
+    <string name="upload">Upload</string>
     <string name="shuffle">Shuffle</string>
     <string name="done">Done</string>
     <string name="email">Email</string>
@@ -42,7 +43,7 @@
     <string name="reset">Discard</string>
     <string name="share_fail_message">OK, that went wrong.</string>
     <string name="share_log_out">Sign out</string>
-    <string name="share_success_message">Yay, that worked!</string>
+    <string name="share_success_message">Upload successful</string>
     <string name="share_to_soundcloud">&lt;b&gt;Share&lt;/b&gt; to &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Sounds from %s</string>
     <string name="this_user">This user</string>
@@ -289,9 +290,6 @@
 
     <!-- __PLAYABLE -->
     <string name="private_indicator">Private</string>
-    <string name="recording_pending_upload">Pending Upload</string>
-    <string name="recording_uploading">Uploading...</string>
-    <string name="recording_upload_failed">Upload Failed</string>
     <string name="title_now_playing">Now Playing</string>
     <string name="like_toast_overflow_action">Saved to your likes</string>
     <string name="unlike_toast_overflow_action">Removed from your likes</string>
@@ -382,7 +380,7 @@
     <string name="rec_title_editing">Edit</string>
     <string name="record_another_sound">Record another sound</string>
     <string name="record_insert_sd_card">Please insert an SD card to record.</string>
-    <string name="record_instructions">Share your Sounds</string>
+    <string name="record_instructions">Record</string>
     <string name="record_storage_is_full">Storage is full</string>
     <string name="recorded_afternoon">%s afternoon</string>
     <string name="recorded_at">%1$s at %2$s</string>
@@ -405,50 +403,16 @@
     <string name="cloud_recorder_event_message">Recording for %s</string>
     <string name="cloud_recorder_event_title">Recording in progress</string>
     <string name="cloud_recorder_playback_event_title">Playback in progress</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-        <item>Why don\'t you record the sounds of your street?</item>
-
-        <item>Record voice notes as handy reminders.</item>
-        <item>Use the REC button to create a voice blog – what will you share today?</item>
-        <item>What are you doing right now?</item>
-        <item>Capture the moment: a child\’s first words</item>
-        <item>Capture the moment: the sounds your pet makes</item>
-        <item>Capture the moment: the voice of someone you care about</item>
-        <item>Going shopping?  Record reminders so you don\’t forget what to buy.</item>
-        <item>Had a great idea?  Capture it with the REC button.</item>
-
-        <item>Heard a good joke lately? Share it!</item>
-        <item>Enjoying a great conversation?  Why not record it for posterity?</item>
-        <item>Capture a hilarious moment in sound</item>
-
-        <item>Did you know you can save private recordings if you don\’t want to share them?</item>
-        <item>Sometimes the best recording device is the one you have with you.</item>
-        <item>Unmute yourself!</item>
-        <item>Unmute the internet.</item>
-        <item>Unmute the world.</item>
-        <item>Express yourself!</item>
-
-        <item>Why not record the minutes of your next meeting?</item>
-        <item>Use the REC button to capture ideas for later.</item>
-        <item>Use the REC button as a study aid: store your notes on the go.</item>
-        <item>You can use the REC button to record interviews and meetings.</item>
-
-        <item>Record the sound of the ocean waves at the beach</item>
-        <item>Capture the sounds of a vibrant city at rush hour</item>
-        <item>Heard a crazy sound?  Capture it with the REC button!</item>
-
-        <item>Feel inspired? Capture your idea with the REC button.</item>
-        <item>Got an idea for a new track? Save it with the REC button.</item>
-        <item>Tune stuck in your head? Capture it with the REC button.</item>
-        <item>Ideas for song lyrics? Capture them instantly with the REC button.</item>
-
-        <item>What’s going on right now?</item>
-        <item>Record current events as they happen and share them with the world.</item>
-        <item>Is something interesting happening?  Capture the moment in audio.</item>
-        <item>Citizen Reporter?  Tell the world what\’s happening where you are.</item>
-    </string-array>
+    <string name="record_restored_old_recording">Restored old recording : %s</string>
+    <string name="record_track_title">Track title</string>
+    <string name="record_back">Back to recording</string>
+    <string name="recording_pending_upload">Pending Upload</string>
+    <string name="recording_uploading">Uploading...</string>
+    <string name="recording_upload_failed">Upload failed</string>
+    <string name="recording_upload_finished">Upload finished</string>
+    <string name="record_privacy_header">Track will be</string>
+    <string name="record_delete">Delete</string>
+    <string name="record_tap_to_post">Tap to post your recording</string>
 
     <!-- __SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
@@ -573,6 +537,7 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Processing</string>
+    <string name="uploader_event_processing_your_sound">Processing your Sound</string>
     <string name="uploader_event_processing_percent">Processing: %d%%</string>
     <string name="uploader_event_not_yet_uploading">Not yet uploading</string>
     <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
@@ -639,6 +604,10 @@
     <string name="feedback_other_issue">Other issue</string>
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
+    <string name="record_change_artwork">Change Artwork</string>
+    <string name="record_tap_to_record">Tap to start recording</string>
+    <string name="record_tap_to_pause">Tap to pause recording</string>
+    <string name="record_tap_to_resume">Tap to resume recording</string>
     <string name="feedback_unable_to_get_logs">Unable to get logs</string>
 
     <!-- __PROMOTED TRACKS -->

@@ -332,7 +332,6 @@
     <string name="rec_title_editing">تحرير</string>
     <string name="record_another_sound">تسجيل صوت آخر</string>
     <string name="record_insert_sd_card">يرجى إدخال بطاقة SD للتسجيل.</string>
-    <string name="record_instructions">مشاركة أصواتك</string>
     <string name="record_storage_is_full">التخزين مكتمل</string>
     <string name="recorded_afternoon">%s بعد الظهر</string>
     <string name="recorded_at">%1$s في %2$s</string>
@@ -355,50 +354,6 @@
     <string name="cloud_recorder_event_message">تسجيل لـ %s</string>
     <string name="cloud_recorder_event_title">التسجيل قيد التقدم</string>
     <string name="cloud_recorder_playback_event_title">التشغيل قيد التقدم</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-        <item>لماذا لا تقوم بتسجيل أصوات الشارع؟</item>
-
-        <item>استمتع بتسجيل الملاحظات الصوتية كرسائل تذكير في المتناول.</item>
-        <item>استخدم زر REC لإنشاء مدونة صوتية - ما الذي ستشاركه اليوم؟</item>
-        <item>ماذا تفعل الآن؟</item>
-        <item>التقط اللحظة: كلمات الطفل الأولى</item>
-        <item>التقط اللحظة: الأصوات التي تصدرها حيواناتك الأليفة</item>
-        <item>التقط اللحظة: صوت شخص يحوز اهتمامك</item>
-        <item>أتذهب للتسوق؟ استمتع بتسجيل رسائل التذكير بحيث لا تنسى ما الذي سوف تشتريه.</item>
-        <item>ألديك فكرة عظيمة؟ هيا التقطها بضغطة على زر REC.</item>
-
-        <item>هل سمعت نكتة جديدة مؤخرًا؟ هيا شاركها!</item>
-        <item>أتستمتع بمحادثة رائعة؟ لماذا لا تقوم بالتسجيل لأبنائك؟</item>
-        <item>التقط لحظة المرحة وسجِّلها صوتيًا</item>
-
-        <item>هل تعلم أنه يمكنك حفظ التسجيلات الخاصة إذا كنت لا ترغب في مشاركتها؟</item>
-        <item>أحيانًا يكون أفضل جهاز تسجيل هو الذي بين يديك.</item>
-        <item>استمتع بإلغاء كتم نفسك!</item>
-        <item>قم بإلغاء كتم الإنترنت,</item>
-        <item>إلغاء كتم العالم.</item>
-        <item>عبِّر عن نفسك!</item>
-
-        <item>لماذا لا تُسجل محضر الاجتماع المقبل؟</item>
-        <item>استخدم زر REC لالتقاط الأفكار لتذكرها في وقت لاحق.</item>
-        <item>استخدم زر REC كوسيلة دراسة مساعدة: قم بتخزين ملاحظاتك أثناء تنقلاتك.</item>
-        <item>يمكنك استخدام زر REC لتسجيل المقابلات والاجتماعات.</item>
-
-        <item>تسجيل صوت أمواج المحيطات على الشاطئ</item>
-        <item>التقاط أصوات المدينة النابضة الحيوية ساعة الذروة</item>
-        <item>هل استمتعت إلى صوت غريب؟ التقط الصوت باستخدام زر REC!</item>
-
-        <item>أتشعر بأنك ملهم؟ التقط فكرتك باستخدام زر REC.</item>
-        <item>هل تريد الحصول على فكرة لمسار جديد؟ احفظه باستخدام زر REC.</item>
-        <item>النغمة لا تزال تتردد في رأسك؟ التقط الصوت باستخدام زر REC.</item>
-        <item>ألديك أفكار لكلمات أغنية؟ التقط الأفكار على الفور باستخدام زر REC.</item>
-
-        <item>ماذا يحدث الآن؟</item>
-        <item>تسجيل الأحداث الجارية فور حدوثها ومشاركتها مع العالم.</item>
-        <item>هل يحدث شيء مثير للاهتمام؟ التقاط اللحظة صوتيًا.</item>
-        <item>هل أنت مراسل مواطن؟ هيا أخبر العالم بما يحدث من حولك.</item>
-    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">بحث في SoundCloud</string>

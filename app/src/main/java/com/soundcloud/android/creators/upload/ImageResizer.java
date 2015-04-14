@@ -2,26 +2,34 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UploadEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.images.ImageUtils;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 
 public class ImageResizer implements Runnable {
     private final Recording recording;
-    private final Context context;
-    private final LocalBroadcastManager broadcastManager;
 
-    public ImageResizer(Context context, Recording recording) {
+    @Inject EventBus eventBus;
+
+    public ImageResizer(Recording recording) {
         this.recording = recording;
-        this.context = context.getApplicationContext();
-        broadcastManager = LocalBroadcastManager.getInstance(context);
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    public ImageResizer(Recording recording, EventBus eventBus) {
+        this.recording = recording;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -29,7 +37,7 @@ public class ImageResizer implements Runnable {
         Log.d(UploadService.TAG, "ImageResizer.run(" + recording + ")");
 
         if (!recording.hasArtwork()) {
-            broadcast(UploadService.RESIZE_ERROR);
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
         } else {
             resize();
         }
@@ -40,7 +48,8 @@ public class ImageResizer implements Runnable {
             Log.d(TAG, "resizing " + recording.artwork_path);
         }
         try {
-            broadcast(UploadService.RESIZE_STARTED);
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.resizeStarted(recording));
+
             File resized = File.createTempFile("upload_tmp_" + recording.getId(), ".jpg");
             final long start = System.currentTimeMillis();
             if (ImageUtils.resizeImageFile(recording.artwork_path, resized, ImageUtils.RECOMMENDED_IMAGE_SIZE, ImageUtils.RECOMMENDED_IMAGE_SIZE)) {
@@ -49,19 +58,15 @@ public class ImageResizer implements Runnable {
                     Log.d(TAG, String.format("resized %s => %s  in %d ms", recording.artwork_path, recording.resized_artwork_path,
                             System.currentTimeMillis() - start));
                 }
-                broadcast(UploadService.RESIZE_SUCCESS);
+                eventBus.publish(EventQueue.UPLOAD, UploadEvent.resizeSuccess(recording));
             } else {
                 Log.w(TAG, "did not resize image " + recording.artwork_path);
                 recording.resized_artwork_path = recording.artwork_path;
-                broadcast(UploadService.RESIZE_SUCCESS);
+                eventBus.publish(EventQueue.UPLOAD, UploadEvent.resizeSuccess(recording));
             }
         } catch (IOException e) {
             Log.e(TAG, "error resizing", e);
-            broadcast(UploadService.RESIZE_ERROR);
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
         }
-    }
-
-    private void broadcast(String action) {
-        broadcastManager.sendBroadcast(new Intent(action).putExtra(UploadService.EXTRA_RECORDING, recording));
     }
 }

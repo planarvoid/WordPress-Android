@@ -7,4 +7,8 @@
     <dimen name="player_title_top">48dp</dimen>
     <dimen name="ad_learn_more_bottom">60dp</dimen>
     <dimen name="ad_learn_more_height">30dp</dimen>
+
+    <dimen name="rec_action_button_dimension">50dp</dimen>
+    <dimen name="rec_upload_button_dimension">60dp</dimen>
+    <dimen name="rec_record_button_dimension">60dp</dimen>
 </resources>

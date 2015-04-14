@@ -1,12 +1,18 @@
 package com.soundcloud.android.creators.upload;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.OnLongClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
@@ -24,10 +30,11 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     private Recording recording;
     private File artworkFile;
+    private Drawable placeholder;
+    private Activity activity;
 
-    private EditText whatText;
-    private EditText whereText;
-    private ImageView artwork;
+    @InjectView(R.id.title) EditText titleText;
+    @InjectView(R.id.artwork) ImageView artwork;
 
     @SuppressWarnings("UnusedDeclaration")
     public RecordingMetaDataLayout(Context context) {
@@ -49,38 +56,40 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     private void init() {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.metadata, this);
+        View view = inflater.inflate(R.layout.metadata, this);
+        ButterKnife.inject(this, view);
 
-        IOUtils.mkdirs(Recording.IMAGE_DIR);
-
-        artwork = (ImageView) findViewById(R.id.artwork);
-        whatText = (EditText) findViewById(R.id.what);
-        whereText = (EditText) findViewById(R.id.where);
+        if(!isInEditMode()) {
+            IOUtils.mkdirs(Recording.IMAGE_DIR);
+        }
     }
 
     public void setActivity(final FragmentActivity activity) {
-        artwork.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getContext(), R.string.cloud_upload_clear_artwork, Toast.LENGTH_LONG).show();
-            }
-        });
+        this.activity = activity;
+    }
 
-        findViewById(R.id.txt_artwork_bg).setOnClickListener(
-                new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ImageUtils.showImagePickerDialog(activity, recording.generateImageFile(Recording.IMAGE_DIR));
-                    }
-                });
+    @OnClick(R.id.artwork_button)
+    void onArtworkButtonClick() {
+        showImagePickerDialog();
+    }
 
-        artwork.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                clearArtwork();
-                return true;
-            }
-        });
+    @OnClick(R.id.artwork)
+    void onArtworkClick() {
+        if (!hasImage()) {
+            showImagePickerDialog();
+        } else {
+            Toast.makeText(getContext(), R.string.cloud_upload_clear_artwork, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @OnLongClick(R.id.artwork)
+    boolean onArtworkLongClick() {
+        clearArtwork();
+        return true;
+    }
+
+    private void showImagePickerDialog() {
+        ImageUtils.showImagePickerDialog(activity, recording.generateImageFile(Recording.IMAGE_DIR));
     }
 
     public void setRecording(Recording recording, boolean map) {
@@ -88,18 +97,21 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         if (map) {
             mapFromRecording(recording);
         }
+
+        if (recording != null) {
+            titleText.setHint(recording.defaultSharingNote(getResources()));
+        }
     }
 
     /* package */
-    public void setWhere(String where) {
-        if (where != null) {
-            whereText.setTextKeepState(where);
+    public void setTitle(String title) {
+        if (title != null) {
+            titleText.setTextKeepState(title);
         }
     }
 
     public void onSaveInstanceState(Bundle state) {
-        state.putString("createWhatValue", whatText.getText().toString());
-        state.putString("createWhereValue", whereText.getText().toString());
+        state.putString("createTitleValue", titleText.getText().toString());
 
         if (artworkFile != null) {
             state.putString("createArtworkPath", artworkFile.getAbsolutePath());
@@ -109,8 +121,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     }
 
     public void onRestoreInstanceState(Bundle state) {
-        whatText.setText(state.getString("createWhatValue"));
-        whereText.setText(state.getString("createWhereValue"));
+        titleText.setText(state.getString("createTitleValue"));
         recording = state.getParcelable("recording");
 
         if (!TextUtils.isEmpty(state.getString("createArtworkPath"))) {
@@ -119,8 +130,7 @@ public class RecordingMetaDataLayout extends RelativeLayout {
     }
 
     public void reset() {
-        whatText.setText(null);
-        whereText.setText(null);
+        titleText.setText(null);
         clearArtwork();
         recording = null;
     }
@@ -132,32 +142,43 @@ public class RecordingMetaDataLayout extends RelativeLayout {
         }
     }
 
+    public void setPlaceholder(Drawable drawable) {
+        placeholder = drawable;
+        setImage(placeholder);
+    }
+
+    public void setImage(Drawable drawable) {
+        artwork.setImageDrawable(drawable);
+    }
+
     private void clearArtwork() {
         artworkFile = null;
-        artwork.setVisibility(View.GONE);
-        if (artwork.getDrawable() instanceof BitmapDrawable) {
+
+        if (hasImage()) {
             ImageUtils.recycleImageViewBitmap(artwork);
+        }
+
+        if (placeholder != null) {
+            setImage(placeholder);
         }
     }
 
+    private boolean hasImage() {
+        return artwork.getDrawable() instanceof BitmapDrawable;
+    }
+
     public void mapToRecording(final Recording recording) {
-        recording.what_text = whatText.getText().toString();
-        recording.where_text = whereText.getText().toString();
+        recording.title = titleText.getText().toString();
         recording.artwork_path = artworkFile;
     }
 
     public void mapFromRecording(final Recording recording) {
-        if (!TextUtils.isEmpty(recording.what_text)) {
-            whatText.setTextKeepState(recording.what_text);
-        }
-        if (!TextUtils.isEmpty(recording.where_text)) {
-            whereText.setTextKeepState(recording.where_text);
+        if (!TextUtils.isEmpty(recording.title)) {
+            titleText.setTextKeepState(recording.title);
         }
         if (recording.artwork_path != null) {
             setImage(recording.artwork_path);
         }
-
-        setWhere(TextUtils.isEmpty(recording.where_text) ? "" : recording.where_text);
     }
 
     public void onDestroy() {

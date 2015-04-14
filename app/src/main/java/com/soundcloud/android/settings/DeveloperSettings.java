@@ -2,7 +2,6 @@ package com.soundcloud.android.settings;
 
 import static android.preference.Preference.OnPreferenceClickListener;
 import static com.soundcloud.android.settings.SettingKey.DEV_CLEAR_NOTIFICATIONS;
-import static com.soundcloud.android.settings.SettingKey.DEV_CLEAR_RECORDINGS;
 import static com.soundcloud.android.settings.SettingKey.DEV_CONFIG_FEATURES;
 import static com.soundcloud.android.settings.SettingKey.DEV_CRASH;
 import static com.soundcloud.android.settings.SettingKey.DEV_HTTP_PROXY;
@@ -13,18 +12,12 @@ import static com.soundcloud.android.settings.SettingKey.DEV_SYNC_NOW;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.creators.record.SoundRecorder;
-import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncAdapterService;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.SharedPreferencesUtils;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Handler;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -60,8 +53,6 @@ class DeveloperSettings implements OnPreferenceClickListener {
         settings.findPreference(DEV_SYNC_NOW).setOnPreferenceClickListener(this);
         settings.findPreference(DEV_CRASH).setOnPreferenceClickListener(this);
         settings.findPreference(DEV_CONFIG_FEATURES).setOnPreferenceClickListener(this);
-        settings.findPreference(DEV_CLEAR_RECORDINGS).setOnPreferenceClickListener(this);
-        settings.findPreference(DEV_CLEAR_RECORDINGS).setOnPreferenceClickListener(this);
 
         settings.findPreference(DEV_HTTP_PROXY).setOnPreferenceChangeListener(
                 new Preference.OnPreferenceChangeListener() {
@@ -116,49 +107,8 @@ class DeveloperSettings implements OnPreferenceClickListener {
             case DEV_CONFIG_FEATURES:
                 parent.startActivity(new Intent(parent, ConfigurationFeaturesActivity.class));
                 return true;
-            case DEV_CLEAR_RECORDINGS:
-                showClearRecordingsDialog(parent);
-                return true;
             default:
                 return false;
-        }
-    }
-
-    private void showClearRecordingsDialog(final Activity parent) {
-        new AlertDialog.Builder(parent)
-                .setMessage(R.string.dev_clear_recordings)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        new Thread(new DeleteRecordings(application)).start();
-                    }
-                })
-                .setNegativeButton(android.R.string.no, null)
-                .create()
-                .show();
-    }
-
-    private static class DeleteRecordings implements Runnable {
-        private final Context context;
-        private final Handler handler = new Handler();
-
-        private DeleteRecordings(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public void run() {
-            synchronized (DeleteRecordings.class) {
-                IOUtils.deleteDir(SoundRecorder.RECORD_DIR);
-                IOUtils.mkdirs(SoundRecorder.RECORD_DIR);
-                final int count = context.getContentResolver().delete(Content.RECORDINGS.uri, null, null);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        AndroidUtils.showToast(context, "Deleted " + count + " recordings");
-                    }
-                });
-            }
         }
     }
 

@@ -208,16 +208,9 @@ public class SoundRecorderService extends Service {
     }
 
     private void sendPlayingNotification(Recording recording) {
-        Intent intent;
-        if (!recording.isSaved()) {
-            intent = (new Intent(Actions.RECORD))
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        } else {
-            intent = (new Intent(this, RecordActivity.class))
-                    .setData(recording.toUri())
-                    .setAction(Intent.ACTION_MAIN);
-        }
+        Intent intent = (new Intent(Actions.RECORD))
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startForeground(PLAYBACK_NOTIFY_ID, createPlaynotification(intent, recording));
     }
 

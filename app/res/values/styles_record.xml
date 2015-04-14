@@ -1,66 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="toggle_blue">
-        <item name="android:textColor">@drawable/txt_toggle_blue_states</item>
-        <item name="android:background">@drawable/toggle_blue_states</item>
-    </style>
-
-    <style name="toggle_record_edit" parent="toggle_blue">
-        <item name="android:layout_width">125dp</item>
-        <item name="android:layout_height">50dp</item>
-    </style>
-
-    <style name="txt_record_dark">
-        <item name="android:textColor">#ff000000</item>
-        <item name="android:textStyle">bold</item>
-        <item name="android:shadowColor">#ff777777</item>
-        <item name="android:shadowDy">1</item>
-        <item name="android:shadowRadius">1</item>
-    </style>
-
-    <style name="txt_record_saved_message">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:background">@color/btn_dark_flat</item>
-        <item name="android:textSize">12sp</item>
-        <item name="android:paddingTop">5dp</item>
-        <item name="android:paddingBottom">5dp</item>
-        <item name="android:paddingRight">5dp</item>
-        <item name="android:paddingLeft">5dp</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="txt_record_title">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textSize">20sp</item>
-        <item name="android:padding">5dp</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="txt_record_instructions" parent="txt_record_dark">
-        <item name="android:textSize">44sp</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
-    </style>
-
-    <style name="txt_record_chrono" parent="txt_record_dark">
-        <item name="android:textSize">@dimen/rec_chronometer_text_size</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
-    </style>
-
-    <style name="txt_record_message">
-        <item name="android:textColor">@color/list_text_secondary</item>
-        <item name="android:gravity">center</item>
-        <item name="android:background">@drawable/rec_tips_bubble</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:padding">5dip</item>
-    </style>
-
     <style name="txt_record_input">
         <item name="android:textColorHint">@color/gray_text</item>
         <item name="android:textColor">@color/white</item>
@@ -145,6 +85,92 @@
 
     <style name="txt_upload_monitor_events_inactive" parent="txt_upload_monitor_events">
         <item name="android:textColor">#ff9e9e9e</item>
+    </style>
+
+
+    <style name="txt_record_title">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="RecordOrangeButtonBase">
+        <item name="android:background">@drawable/rec_button_states</item>
+    </style>
+
+    <style name="RecordOrangeButton" parent="RecordOrangeButtonBase" />
+
+    <style name="RecordButton" parent="RecordOrangeButton">
+        <item name="android:layout_width">@dimen/rec_record_button_dimension</item>
+        <item name="android:layout_height">@dimen/rec_record_button_dimension</item>
+        <item name="android:src">@drawable/ic_record_record_white</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="UploadButton" parent="RecordOrangeButton">
+        <item name="android:layout_width">@dimen/rec_upload_button_dimension</item>
+        <item name="android:layout_height">@dimen/rec_upload_button_dimension</item>
+        <item name="android:src">@drawable/ic_record_upload_white</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="RecordUploadProgressBar">
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:layout_height">@dimen/rec_upload_progress_dimension</item>
+        <item name="android:layout_width">@dimen/rec_upload_progress_dimension</item>
+    </style>
+
+    <style name="RecordDarkButtonBase" parent="android:Widget.Holo.Button.Borderless" />
+
+    <style name="RecordDarkButton" parent="RecordDarkButtonBase">
+        <item name="android:layout_width">@dimen/rec_action_button_dimension</item>
+        <item name="android:layout_height">@dimen/rec_action_button_dimension</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <style name="RecordPlayButton" parent="RecordDarkButton">
+        <item name="android:src">@drawable/ic_record_play</item>
+    </style>
+
+    <style name="RecordEditButton" parent="RecordDarkButton">
+        <item name="android:src">@drawable/ic_record_edit</item>
+    </style>
+
+    <style name="RecordTextDark">
+        <item name="android:textColor">#ff333333</item>
+    </style>
+
+    <style name="RecordInstructions" parent="RecordTextDark">
+        <item name="android:textSize">44sp</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+    </style>
+
+    <style name="RecordTextChrono" parent="RecordTextDark">
+        <item name="android:textSize">@dimen/rec_chronometer_text_size</item>
+        <item name="android:paddingLeft">5dip</item>
+        <item name="android:paddingRight">5dip</item>
+    </style>
+
+    <style name="RecordFadeSwitch">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:text">@string/fade_toggle_on</item>
+        <item name="switchPadding">16dip</item>
+    </style>
+
+    <style name="RecordMessage">
+        <item name="android:textColor">@color/gray_text</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:padding">5dip</item>
+    </style>
+
+    <style name="MetadataContainer">
+        <item name="android:background">@color/white</item>
     </style>
 
 </resources>

@@ -258,7 +258,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="@string/side_menu_record" android:launchMode="singleTask" android:name=".creators.record.RecordActivity" android:theme="@style/Theme.ScCreate">
+        <activity android:label="@string/side_menu_record" android:launchMode="singleTask" android:name=".creators.record.RecordActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -278,29 +278,21 @@
                 <data android:host="soundcloud.com" android:path="/upload" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/upload" android:scheme="https"/>
             </intent-filter>
-        </activity>
-        <activity android:name=".creators.upload.UploadMonitorActivity" android:theme="@style/Theme.SoundCloud.NoActionBar">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload.monitor"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.soundcloud/recording"/>
             </intent-filter>
-        </activity>
-
-        <activity android:name=".creators.upload.UploadActivity" android:theme="@style/Theme.ScCreate" android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <data android:mimeType="audio/*"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
             <intent-filter>
                 <action android:name="com.soundcloud.android.SHARE"/>
                 <!--<data android:mimeType="audio/*"/>-->
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
         <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
         <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>

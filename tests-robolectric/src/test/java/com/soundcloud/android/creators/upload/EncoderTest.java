@@ -3,83 +3,99 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UploadEvent;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
-import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class EncoderTest {
-    List<Intent> intents = new ArrayList<Intent>();
-    List<String> actions = new ArrayList<String>();
+    private TestEventBus eventBus = new TestEventBus();
+    private Recording recording;
+    private Encoder encoder;
 
     @Before
-    public void before() {
-        LocalBroadcastManager.getInstance(Robolectric.application).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                intents.add(intent);
-                actions.add(intent.getAction());
-            }
-        }, UploadService.getIntentFilter());
+    public void before() throws Exception {
+        recording = RecordingTestHelper.getValidRecording();
+        encoder = new Encoder(recording);
     }
 
     @Test
     public void shouldEncode() throws Exception {
+        expect(recording.getEncodedFile().delete()).toBeTrue();
         Recording rec = RecordingTestHelper.getValidRecording();
         rec.getEncodedFile().delete();
 
         ShadowVorbisEncoder.simulateProgress = true;
-        Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
 
-        expect(actions).toContainExactly(UploadService.PROCESSING_STARTED,
-                UploadService.PROCESSING_PROGRESS,
-                UploadService.PROCESSING_SUCCESS);
+        List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
 
-        expect(rec.getEncodedFile().exists()).toBeTrue();
+        expect(events).toNumber(4);
+        expect(events).toContainExactly(
+                UploadEvent.idle(),
+                UploadEvent.processingStarted(recording),
+                UploadEvent.processingProgress(recording, 0),
+                UploadEvent.processingSuccess(recording));
+
+        expect(recording.getEncodedFile().exists()).toBeTrue();
     }
 
     @Test
     public void shouldHandleEncodingFailure() throws Exception {
         Recording rec = RecordingTestHelper.getValidRecording();
         ShadowVorbisEncoder.throwException = new IOException();
-        Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
-        expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_ERROR);
+
+        List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
+
+        expect(events).toNumber(3);
+        expect(events).toContainExactly(
+                UploadEvent.idle(),
+                UploadEvent.processingStarted(recording),
+                UploadEvent.error(recording));
     }
 
     @Test
     public void shouldHandleCancel() throws Exception {
         Recording rec = RecordingTestHelper.getValidRecording();
         ShadowVorbisEncoder.simulateCancel = true;
-        Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
-        expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_CANCELED);
+
+        List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
+
+        expect(events).toNumber(3);
+        expect(events).toContainExactly(
+                UploadEvent.idle(),
+                UploadEvent.processingStarted(recording),
+                UploadEvent.cancelled(recording));
     }
 
     @Test
     public void shouldMakeSureOutputfileGetsCreatedAtomically() throws Exception {
+        expect(recording.getEncodedFile().delete()).toBeTrue();
         Recording rec = RecordingTestHelper.getValidRecording();
         expect(rec.getEncodedFile().delete()).toBeTrue();
 
         ShadowVorbisEncoder.simulateCancel = true;
-        Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
 
-        expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_CANCELED);
-        expect(rec.getEncodedFile().exists()).toBeFalse();
+        List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
+
+        expect(events).toNumber(3);
+        expect(events).toContainExactly(
+                UploadEvent.idle(),
+                UploadEvent.processingStarted(recording),
+                UploadEvent.cancelled(recording));
+
+        expect(recording.getEncodedFile().exists()).toBeFalse();
     }
 }

@@ -376,7 +376,6 @@
   <string name="rec_title_editing">Editar</string>
   <string name="record_another_sound">Gravar outro som</string>
   <string name="record_insert_sd_card">Insira um cartão SD para gravar.</string>
-  <string name="record_instructions">Compartilhar seus sons</string>
   <string name="record_storage_is_full">Armazenamento cheio</string>
   <string name="recorded_afternoon">%s tarde</string>
   <string name="recorded_at">%1$s em %2$s</string>
@@ -400,44 +399,7 @@
   <string name="cloud_recorder_event_title">Gravação em andamento</string>
   <string name="cloud_recorder_playback_event_title">Reprodução em andamento</string>
 
-  <!-- __RECORD TIPS -->
-  <string-array name="record_suggestions">
-    <item>Por que você não grava os sons da sua rua?</item>
-    <item>Grave notas de voz como lembretes úteis.</item>
-    <item>Use o botão REC para criar um blog de voz - o que você compartilhará hoje?</item>
-    <item>O que você está fazendo agora?</item>
-    <item>Capture o momento: as primeiras palavras de uma criança</item>
-    <item>Capture o momento: os sons do seu animal de estimação</item>
-    <item>Capture o momento: a voz de alguém que você gosta</item>
-    <item>Vai às compras? Grave lembretes para que não esqueça o que comprar.</item>
-    <item>Teve uma ótima ideia? Grave-a com o botão REC.</item>
-    <item>Ouviu alguma piada boa recentemente? Compartilhe-a!</item>
-    <item>Curtindo uma ótima conversa? Que tal registrá-la para o futuro?</item>
-    <item>Capture o som de um momento hilariante.</item>
-    <item>Você sabia que pode salvar gravações particulares se não quiser compartilhá-las?</item>
-    <item>Às vezes, o melhor dispositivo de gravação é aquele que você tem.</item>
-    <item>Desativar o mudo!</item>
-    <item>Desativar o mudo da Internet.</item>
-    <item>Desativar o mudo do mundo ao redor.</item>
-    <item>Se expresse!</item>
-    <item>Por que não gravar os minutos da sua próxima reunião?</item>
-    <item>Use o botão REC para gravar ideias para mais tarde.</item>
-    <item>Use o botão REC como ferramenta de estudo: guarde suas notas em qualquer lugar.</item>
-    <item>Você pode usar o botão REC para gravar entrevistas e reuniões.</item>
-    <item>Grave o som das ondas do oceano na praia.</item>
-    <item>Grave os sons da hora do rush de uma cidade vibrante.</item>
-    <item>Ouviu um som estranho? Grave-o com o botão REC!</item>
-    <item>Se sente inspirado? Grave sua ideia com o botão REC.</item>
-    <item>Tem uma ideia para uma nova música? Salve-a com o botão REC.</item>
-    <item>Uma melodia presa na cabeça? Grave-a com o botão REC.</item>
-    <item>Ideias para a letra de uma música? Grave-a instantaneamente com o botão REC.</item>
-    <item>O que está acontecendo agora?</item>
-    <item>Grave eventos atuais enquanto eles acontecem e compartilhe-os com o mundo.</item>
-    <item>Há algo de interessante acontecendo? Capture o momento em áudio.</item>
-    <item>Cidadão Repórter? Conte ao mundo o que esta acontecendo onde você está.</item>
-  </string-array>
-
-  <!-- __SEARCH -->
+  <!--__SEARCH-->
   <string name="search_hint">Pesquisar no SoundCloud</string>
   <string name="search_settings_description">Pesquisar sons</string>
   <string name="search_type_all">Todas</string>

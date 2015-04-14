@@ -50,6 +50,10 @@
     <color name="btn_dark_flat">#242424</color>
     <color name="rec_button_bar_separator">@color/black</color>
 
+    <color name="rec_button_orange">#FE3C00</color>
+    <color name="rec_button_orange_light">#FF7400</color>
+    <color name="rec_button_orange_background">#ffbf99</color>
+
     <color name="cloud_progress_background_start">#444444</color>
     <color name="cloud_progress_background_center">#666666</color>
     <color name="cloud_progress_background_end">#444444</color>
@@ -132,5 +136,15 @@
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>
     <color name="notification_user">#c5c5c5</color>
+
+    <!-- Notifications -->
+    <color name="rec_wave_gray_above">#aaaaaa</color>
+    <color name="rec_wave_gray_below">#cccccc</color>
+    <color name="rec_wave_dark_gray_above">#444444</color>
+    <color name="rec_wave_dark_gray_below">#777777</color>
+    <color name="rec_wave_orange_above_start">#ff7700</color>
+    <color name="rec_wave_orange_above_end">#ff3300</color>
+    <color name="rec_wave_orange_below">#ffbf99</color>
+    <color name="rec_wave_trim_color">#33000000</color>
 
 </resources>

@@ -46,6 +46,14 @@ public class TrimHandleView extends ImageButton {
         return lp;
     }
 
+    public int getRightWithMargin() {
+        return getRight() + marginOffset;
+    }
+
+    public int getLeftWithMargin() {
+        return getLeft() - marginOffset;
+    }
+
     private static RelativeLayout.LayoutParams getLeftLayoutParams() {
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.addRule(ALIGN_PARENT_BOTTOM, 1);
@@ -54,8 +62,8 @@ public class TrimHandleView extends ImageButton {
     }
 
     public enum HandleType {
-        LEFT(getLeftLayoutParams(), R.drawable.left_handle_states, R.dimen.trim_handle_left_margin_offset),
-        RIGHT(getRightLayoutParams(), R.drawable.right_handle_states, R.dimen.trim_handle_right_margin_offset);
+        LEFT(getLeftLayoutParams(), R.drawable.ic_record_handle_l, R.dimen.trim_handle_left_margin_offset),
+        RIGHT(getRightLayoutParams(), R.drawable.ic_record_handle_r, R.dimen.trim_handle_right_margin_offset);
 
         private final RelativeLayout.LayoutParams layoutParams;
         private final int backgroundResId;

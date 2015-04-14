@@ -376,7 +376,6 @@
     <string name="rec_title_editing">Bewerken</string>
     <string name="record_another_sound">Neem nog een ander geluid op</string>
     <string name="record_insert_sd_card">Steek er a.u.b. een SD-kaart in om op te nemen.</string>
-    <string name="record_instructions">Deel uw Geluiden</string>
     <string name="record_storage_is_full">Opslag is vol</string>
     <string name="recorded_afternoon">%s \'s middags</string>
     <string name="recorded_at">%1$s om %2$s</string>
@@ -399,43 +398,6 @@
     <string name="cloud_recorder_event_message">Aan het opnemen voor %s</string>
     <string name="cloud_recorder_event_title">Opname aan de gang</string>
     <string name="cloud_recorder_playback_event_title">Terugspelen aan de gang</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-        <item>Waarom neemt u het geluid van uw straat niet op?</item>
-        <item>Spraakberichten opnemen als handige reminders.</item>
-        <item>Gebruik de REC-knop om een voice blog te maken - wat gaat u vandaag delen?</item>
-        <item>Wat bent u nu aan het doen?</item>
-        <item>Leg het moment vast: de eerste woorden van een kind</item>
-        <item>Leg het moment vast: het geluid dat uw huisdier maakt</item>
-        <item>Leg het moment vast: de stem van iemand om wie u geeft</item>
-        <item>Gaat u shoppen? Neem reminders op zodat u niet vergeet wat u wil kopen.</item>
-        <item>Had u een geweldig idee? Leg het met de REC-knop vast.</item>
-        <item>Onlangs een geweldige grap gehoord? Deel hem!</item>
-        <item>Voert u een geweldig gesprek? Waarom niet opnemen voor later?</item>
-        <item>Leg een hilarisch moment in geluid vast</item>
-        <item>Wist u dat u uw privé-opnamen kunt opslaan als u ze niet wilt delen?</item>
-        <item>Soms is het beste opname-apparaat hetgene u bij u hebt.</item>
-        <item>Laat uzelf horen!</item>
-        <item>Laat het internet horen.</item>
-        <item>Laat de wereld horen.</item>
-        <item>Druk uzelf uit!</item>
-        <item>Waarom niet de notulen van uw volgende vergadering opnemen?</item>
-        <item>Gebruik de knop REC-knop om ideeën vast te leggen voor later.</item>
-        <item>Gebruik de REC-knop als een ezelsbruggetje: bewaar uw notities onderweg.</item>
-        <item>U kunt de REC-knop gebruiken om gesprekken en vergaderingen op te nemen.</item>
-        <item>Neem het geluid van de golven op het strand op</item>
-        <item>Leg de geluiden van een bruisende stad in de spits vast</item>
-        <item>Een gek geluid gehoord? Leg het vast met de REC-knop</item>
-        <item>Heeft u inspiratie? Leg uw idee vast met de REC-knop.</item>
-        <item>Hebt u een idee voor een nieuw nummer? Sla het op met de REC-knop.</item>
-        <item>Melodietje in uw hoofd? Leg het vast met de REC-knop.</item>
-        <item>Ideeën voor songteksten? Leg ze direct vast met de REC-knop.</item>
-        <item>Wat is er gaande op dit moment?</item>
-        <item>Neem actuele gebeurtenissen live op en deel ze met de wereld.</item>
-        <item>Gebeurt er iets interessants? Leg het moment in audio vast.</item>
-        <item>Stadsreporter? Laat de wereld weten wat er op uw locatie gebeurt.</item>
-    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Zoek in SoundCloud</string>

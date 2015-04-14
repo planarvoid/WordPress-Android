@@ -376,7 +376,6 @@
   <string name="rec_title_editing">Modifier</string>
   <string name="record_another_sound">Enregistrer un autre fichier audio</string>
   <string name="record_insert_sd_card">Veuillez insérer une carte SD pour enregistrer.</string>
-  <string name="record_instructions">Partagez vos fichiers audio</string>
   <string name="record_storage_is_full">La mémoire est pleine</string>
   <string name="recorded_afternoon">%s après-midi</string>
   <string name="recorded_at">%1$s à %2$s</string>
@@ -400,44 +399,7 @@
   <string name="cloud_recorder_event_title">Enregistrement en cours</string>
   <string name="cloud_recorder_playback_event_title">Lecture en cours</string>
 
-  <!-- __RECORD TIPS -->
-  <string-array name="record_suggestions">
-    <item>Pourquoi ne pas enregistrer les sons de votre rue?</item>
-    <item>Enregistrer des mémos vocaux en tant que rappels pratiques.</item>
-    <item>Servez-vous du bouton REC pour créer un blog vocal - qu\'allez-vous partager aujourd\'hui?</item>
-    <item>Que faites-vous en ce moment?</item>
-    <item>Saisissez des instants précieux: les premiers mots d\'un enfant</item>
-    <item>Saisissez des instants précieux: les bruits que fait votre animal de compagnie</item>
-    <item>Saisissez des instants précieux: la voix d\'une personne qui vous est chère</item>
-    <item>Une tournée shopping ? Enregistrez des rappels pour ne pas oublier ce que vous devez acheter.</item>
-    <item>Une idée lumineuse ? Saisissez-la grâce au bouton REC.</item>
-    <item>Vous venez d\'entendre une blague ? Partagez-la!</item>
-    <item>Conversation des plus intéressantes ? Pourquoi ne pas l\'enregistrer pour la postérité ?</item>
-    <item>Captivez un moment hilarant dans un format sonore</item>
-    <item>Saviez-vous que vous pouviez sauvegarder des enregistrements en mode privé si vous ne souhaitez pas les partager?</item>
-    <item>Le meilleur dispositif d\'enregistrement qui soit est celui que vous pouvez emporter partout.</item>
-    <item>Exprimez-vous !</item>
-    <item>Libérez la parole de l\'Internet.</item>
-    <item>Libérez la parole du monde.</item>
-    <item>Exprimez-vous !</item>
-    <item>Pourquoi ne pas enregistrer votre prochain meeting ?</item>
-    <item>Servez-vous du bouton REC et sauvegardez vos idées pour plus tard.</item>
-    <item>Servez-vous du bouton REC comme d\'un assistant: enregistrer vos notes instantanément.</item>
-    <item>Servez-vous du bouton REC pour enregistrer des interviews et des réunions.</item>
-    <item>Capturez le bruit des vagues sur la plage</item>
-    <item>Enregistrez les bruits d\'une ville frémissante à l\'heure de pointe</item>
-    <item>Un son complètement fou ? Capturez-le avec le bouton REC!</item>
-    <item>Élan d\'inspiration ? Saisissez votre idée grâce au bouton REC.</item>
-    <item>Vous avez un nouveau morceau en tête ? Saisissez-le grâce au bouton REC.</item>
-    <item>Une chanson en tête ? Saisissez-la grâce au bouton REC.</item>
-    <item>Des idées de paroles de chanson ? Saisissez-les instantanément avec le bouton REC.</item>
-    <item>Que se passe-t-il en ce moment ?</item>
-    <item>Enregistrer les évènements sur le moment et partagez-les avec le monde.</item>
-    <item>Il se passe quelque chose d\'intéressant ? Capturez le moment en audio.</item>
-    <item>Vous êtes un reporter citoyen ? Dites au monde ce qui se passe là où vous vous trouvez.</item>
-  </string-array>
-
-  <!-- __SEARCH -->
+    <!-- __SEARCH -->
   <string name="search_hint">Rechercher sur SoundCloud</string>
   <string name="search_settings_description">Rechercher des fichiers audio</string>
   <string name="search_type_all">Tous</string>
