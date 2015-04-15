@@ -25,8 +25,9 @@ public class PlaylistDetailsScreen extends Screen {
         super(solo);
     }
 
-    public void scrollToBottom() {
+    public PlaylistDetailsScreen scrollToBottom() {
         tracksListElement().scrollToBottom();
+        return this;
     }
 
     public void clickBack() {
