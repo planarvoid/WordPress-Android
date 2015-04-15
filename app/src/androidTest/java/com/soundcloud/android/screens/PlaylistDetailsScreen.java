@@ -102,7 +102,6 @@ public class PlaylistDetailsScreen extends Screen {
         return this;
     }
 
-    //TODO: This should operate on TrackListItem POM
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return scrollToFirstTrackItem()
