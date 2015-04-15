@@ -92,8 +92,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public void onMediaPlayerStatusUpdatedListener(int playerState, int idleReason) {
         switch (playerState) {
             case MediaStatus.PLAYER_STATE_PLAYING:
-                final StateTransition stateTransition = getStateTransition(PlayaState.PLAYING, Reason.NONE);
-                reportStateChange(stateTransition);
+                reportStateChange(getStateTransition(PlayaState.PLAYING, Reason.NONE));
                 break;
 
             case MediaStatus.PLAYER_STATE_PAUSED:
