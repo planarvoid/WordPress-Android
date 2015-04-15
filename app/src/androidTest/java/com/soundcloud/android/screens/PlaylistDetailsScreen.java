@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
@@ -8,8 +10,11 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
+import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+
+import java.util.List;
 
 public class PlaylistDetailsScreen extends Screen {
 
@@ -29,7 +34,10 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
-        testDriver.findElements(With.id(R.id.playlist_details_overflow_button)).get(0).click();
+        testDriver
+                .findElements(With.id(R.id.playlist_details_overflow_button))
+                .get(0)
+                .click();
         return new PlaylistOverflowMenu(testDriver);
     }
 
@@ -81,18 +89,11 @@ public class PlaylistDetailsScreen extends Screen {
         return clickNthTrack(0);
     }
 
-    public VisualPlayerElement clickSecondTrack() {
-        return clickNthTrack(1);
-    }
-
     private VisualPlayerElement clickNthTrack(int trackIndex) {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver
-                .findElement(With.id(android.R.id.list))
-                .findElements(With.id(R.id.track_list_item))
-                .get(trackIndex).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
-        return visualPlayerElement;
+        return trackItemElements()
+                .get(trackIndex)
+                .click();
     }
 
     public PlaylistDetailsScreen scrollToFirstTrackItem() {
@@ -104,19 +105,32 @@ public class PlaylistDetailsScreen extends Screen {
     //TODO: This should operate on TrackListItem POM
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        scrollToFirstTrackItem()
-                .tracksListElement()
-                .getItemAt(1) // header is at 0
-                .findElement(With.id(R.id.overflow_button)).click();
-        return new TrackItemMenuElement(testDriver);
+        return scrollToFirstTrackItem()
+                .trackItemElements()
+                .get(0)
+                .clickOverflowButton();
     }
 
     private ListElement tracksListElement() {
-        return testDriver.findElement(With.id(android.R.id.list)).toListView();
+        return testDriver
+                .findElement(With.id(android.R.id.list))
+                .toListView();
     }
 
-    private ViewElement playlistDetailOferflowButton() {
-        return testDriver.findElement(With.id(R.id.playlist_details_overflow_button));
+    private List<TrackItemElement> trackItemElements() {
+        return Lists.transform(
+                testDriver
+                        .findElement(With.id(android.R.id.list))
+                        .findElements(With.id(R.id.track_list_item)),
+                toTrackItemElement
+        );
     }
 
+    private final Function<ViewElement, TrackItemElement> toTrackItemElement =
+            new Function<ViewElement, TrackItemElement>() {
+        @Override
+        public TrackItemElement apply(ViewElement viewElement) {
+            return new TrackItemElement(testDriver, viewElement);
+        }
+    };
 }
