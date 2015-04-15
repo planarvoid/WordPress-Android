@@ -54,9 +54,10 @@ public class AudioAdTest extends AdBaseTest {
 
     public void testSkipAdShouldStartTheMonetizableTrack() {
         swipeToAd();
-        playerElement.waitForAdToBeSkippable();
-        playerElement.waitForSkipAdButton();
-        playerElement.tapSkipAd();
+        playerElement
+                .waitForAdToBeSkippable()
+                .waitForSkipAdButton()
+                .tapSkipAd();
 
         assertFalse(playerElement.isAdPageVisible());
     }
@@ -83,8 +84,9 @@ public class AudioAdTest extends AdBaseTest {
     }
 
     public void testExpandsPlayerWhenAdStartsPlayingInCollapsedState() {
-        playerElement.pressBackToCollapse();
-        playerElement.waitForExpandedPlayer();
+        playerElement
+                .pressBackToCollapse()
+                .waitForExpandedPlayer();
         playerElement.waitForAdPage();
 
         assertTrue(playerElement.isAdPageVisible());

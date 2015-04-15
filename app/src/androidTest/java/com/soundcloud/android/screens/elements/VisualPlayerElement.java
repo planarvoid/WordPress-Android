@@ -150,9 +150,10 @@ public class VisualPlayerElement extends Element {
         waitForExpandedPlayer();
     }
 
-    public void pressBackToCollapse() {
+    public VisualPlayerElement pressBackToCollapse() {
         solo.goBack();
         waitForCollapsedPlayer();
+        return this;
     }
 
     public void pressCloseButton() {
@@ -239,8 +240,9 @@ public class VisualPlayerElement extends Element {
         waiter.waitFiveSeconds();
     }
 
-    public void waitForAdToBeSkippable() {
+    public VisualPlayerElement waitForAdToBeSkippable() {
         waiter.waitForAdToBeComeSkippable(With.id(R.id.skip_ad));
+        return this;
     }
 
     public void waitForAdToBeDone() {
@@ -251,8 +253,9 @@ public class VisualPlayerElement extends Element {
         solo.sleep(firstTrackLengthInMiliSeconds);
     }
 
-    public void waitForSkipAdButton() {
+    public VisualPlayerElement waitForSkipAdButton() {
         waiter.waitForElement(R.id.skip_ad);
+        return this;
     }
 
     public void waitForAdOverlayToLoad() {
