@@ -7,7 +7,6 @@ import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clea
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.SyncYourLikesScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -37,25 +36,29 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
-        TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
-        getWaiter().waitForContentAndRetryIfLoadingFailed();
+        LikesActionBarElement likesActionBarElement =
+                menuScreen
+                        .clickLikes()
+                        .actionBar();
 
-        assertFalse(likesScreen.actionBar().downloadElement().isVisible());
-        assertTrue(likesScreen.actionBar().syncAction().isVisible());
+        assertFalse(likesActionBarElement.downloadElement().isVisible());
+        assertTrue(likesActionBarElement.syncAction().isVisible());
     }
 
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
         enableOfflineContent(context);
 
-        TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
-        getWaiter().waitForContentAndRetryIfLoadingFailed();
-        final SyncYourLikesScreen syncLikesDialog = likesScreen.actionBar().clickSyncLikesButton();
-        assertTrue(syncLikesDialog.isVisible());
+        final TrackLikesScreen likesScreen =
+                menuScreen
+                        .clickLikes()
+                        .actionBar()
+                        .clickSyncLikesButton()
+                        .clickKeepLikesSynced();
 
-        syncLikesDialog.clickKeepLikesSynced();
         assertTrue(likesScreen.isDownloadInProgressTextVisible());
 
         likesScreen.waitForLikesdownloadToFinish();
+
         assertEquals(OfflineContentHelper.offlineFilesCount(), likesScreen.getLoadedTrackCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
     }
