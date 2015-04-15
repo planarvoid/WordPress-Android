@@ -23,6 +23,11 @@ public class TrackItemElement {
         return new TextElement(wrapped.findElement(With.id(R.id.list_item_subheader))).getText();
     }
 
+    public VisualPlayerElement click() {
+        wrapped.click();
+        return new VisualPlayerElement(testDriver);
+    }
+
     public TrackItemMenuElement clickOverflowButton() {
         wrapped
                 .findElement(With.id(R.id.overflow_button))
