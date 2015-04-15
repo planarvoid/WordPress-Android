@@ -106,7 +106,7 @@ public class PlaylistDetailsScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
         scrollToFirstTrackItem()
                 .tracksListElement()
-                .getItemAt(0)
+                .getItemAt(1) // header is at 0
                 .findElement(With.id(R.id.overflow_button)).click();
         return new TrackItemMenuElement(testDriver);
     }
