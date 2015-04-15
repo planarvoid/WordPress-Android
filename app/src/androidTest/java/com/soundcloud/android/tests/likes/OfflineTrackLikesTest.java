@@ -38,6 +38,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         LikesActionBarElement likesActionBarElement =
                 menuScreen
+                        .open()
                         .clickLikes()
                         .actionBar();
 
@@ -50,6 +51,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         final TrackLikesScreen likesScreen =
                 menuScreen
+                        .open()
                         .clickLikes()
                         .actionBar()
                         .clickSyncLikesButton()
