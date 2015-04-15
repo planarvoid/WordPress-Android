@@ -77,11 +77,11 @@ public class PlaySessionController {
             if (!StateTransition.DEFAULT.equals(stateTransition)) {
                 audioManager.setPlaybackState(stateTransition.playSessionIsActive());
 
-                if ((stateTransition.isPlayerIdle() && !stateTransition.isPlayQueueComplete())) {
-                    if (stateTransition.trackEnded()) {
-                        if (!playQueueManager.autoNextTrack()) {
-                            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
-                        }
+                if (stateTransition.isPlayerIdle()
+                        && !stateTransition.isPlayQueueComplete()
+                        && stateTransition.trackEnded()) {
+                    if (!playQueueManager.autoNextTrack()) {
+                        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
                     }
                 }
             }
