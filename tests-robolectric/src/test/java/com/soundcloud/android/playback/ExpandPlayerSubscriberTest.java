@@ -48,9 +48,9 @@ public class ExpandPlayerSubscriberTest {
         verify(playbackToastHelper).showToastOnPlaybackError(someException);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void onErrorRethrowsExceptionIfNotHandledByPlaybackToastHelper() throws Exception {
-        final IllegalArgumentException someException = new IllegalArgumentException("some exception");
+        final ClassNotFoundException someException = new ClassNotFoundException("some exception");
         when(playbackToastHelper.showToastOnPlaybackError(someException)).thenReturn(false);
 
         subscriber.onError(someException);

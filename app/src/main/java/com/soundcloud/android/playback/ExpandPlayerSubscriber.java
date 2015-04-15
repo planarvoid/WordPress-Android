@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 
 import android.os.Handler;
 import android.os.Message;
@@ -41,7 +42,7 @@ public class ExpandPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
     @Override
     public void onError(Throwable e) {
         if (!playbackToastHelper.showToastOnPlaybackError(e)) {
-            super.onError(e);
+            ErrorUtils.handleSilentException("Unhandled exception when expanding a player", e);
         }
     }
 }

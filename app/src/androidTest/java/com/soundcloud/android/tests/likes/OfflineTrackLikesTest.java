@@ -4,6 +4,7 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disab
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
@@ -63,6 +64,23 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         assertEquals(OfflineContentHelper.offlineFilesCount(), likesScreen.getLoadedTrackCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
+    }
+
+    public void testShuffleLikesWhenOfflineWithNoTracksDownloaded() {
+        enableOfflineContent(context);
+
+        final TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
+        networkManager.switchWifiOff();
+
+        likesScreen.clickShuffleButton();
+
+        final String message = solo.getString(R.string.playback_missing_playable_tracks);
+        assertTrue(waiter.expectToastWithText(toastObserver, message));
+    }
+
+    @Override
+    protected void observeToastsHelper() {
+        toastObserver.observe();
     }
 
     private void resetOfflineSyncState(Context context) {

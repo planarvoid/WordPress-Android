@@ -33,12 +33,19 @@ public class PlaybackToastHelper {
         Toast.makeText(context, R.string.offline_track_not_available, Toast.LENGTH_SHORT).show();
     }
 
+    private void showUnableToFindTracksToPlayToast() {
+        Toast.makeText(context, R.string.playback_missing_playable_tracks, Toast.LENGTH_SHORT).show();
+    }
+
     public boolean showToastOnPlaybackError(Throwable e) {
         if (e instanceof UnskippablePeriodException) {
             showUnskippableAdToast();
             return true;
         } else if (e instanceof TrackNotAvailableOffline) {
             showTrackUnavailableOfflineToast();
+            return true;
+        } else if (e instanceof IllegalStateException) {
+            showUnableToFindTracksToPlayToast();
             return true;
         }
         return false;

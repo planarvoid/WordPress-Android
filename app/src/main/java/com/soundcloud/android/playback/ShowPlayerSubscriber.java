@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -27,6 +28,9 @@ public class ShowPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
 
     @Override
     public void onError(Throwable e) {
-       playbackToastHelper.showToastOnPlaybackError(e);
+        if (!playbackToastHelper.showToastOnPlaybackError(e)){
+            ErrorUtils.handleSilentException("Unhandled exception when showing a player", e);
+        }
+
     }
 }
