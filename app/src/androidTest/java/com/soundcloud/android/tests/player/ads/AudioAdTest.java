@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.player.ads;
 
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
 import static com.soundcloud.android.framework.matcher.player.IsExpanded.expanded;
-import static com.soundcloud.android.framework.matcher.player.IsPlaying.Playing;
+import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static com.soundcloud.android.framework.matcher.player.IsSkipAllowed.SkipAllowed;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -33,7 +33,7 @@ public class AudioAdTest extends AdBaseTest {
         swipeToAd();
         playerElement.waitForPlayState();
         playerElement.clickArtwork();
-        assertThat(playerElement, is(not(Playing())));
+        assertThat(playerElement, is(not(playing())));
     }
 
     public void testTappingArtworkTwiceResumePlayingAd() {
@@ -42,7 +42,7 @@ public class AudioAdTest extends AdBaseTest {
         playerElement.clickArtwork();
         playerElement.waitForPlayButton();
         playerElement.clickArtwork();
-        assertThat(playerElement, is(Playing()));
+        assertThat(playerElement, is(playing()));
     }
 
 

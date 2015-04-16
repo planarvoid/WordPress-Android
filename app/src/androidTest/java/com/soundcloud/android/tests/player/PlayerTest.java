@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.player;
 
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
-import static com.soundcloud.android.framework.matcher.player.IsPlaying.Playing;
+import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -83,17 +83,17 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         playExploreTrack();
         playerElement.pressBackToCollapse();
         assertThat(playerElement, is(collapsed()));
-        assertThat(playerElement, is(Playing()));
+        assertThat(playerElement, is(playing()));
 
         playerElement.toggleFooterPlay();
-        assertThat(playerElement, is(not(Playing())));
+        assertThat(playerElement, is(not(playing())));
     }
 
     public void testPlayStateCanBeToggledFromFullPlayer() {
         playExploreTrack();
-        assertThat(playerElement, is(Playing()));
+        assertThat(playerElement, is(playing()));
         playerElement.clickArtwork();
-        assertThat(playerElement, is(not(Playing())));
+        assertThat(playerElement, is(not(playing())));
     }
 
     public void testPlayerIsExpandedAfterClickingTrack() {
@@ -128,7 +128,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         playerElement.clickArtwork();
         playerElement.tapNext();
 
-        assertThat(playerElement, is(not(Playing())));
+        assertThat(playerElement, is(not(playing())));
     }
 
     public void testUserButtonGoesToUserProfile() {
