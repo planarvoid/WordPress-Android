@@ -23,7 +23,7 @@ ext {
   //Application
   daggerVersion = '1.2.2'
   butterKnifeVersion = '5.1.2'
-  guavaRepackVersion = '14.0.1-15.04.15'
+  guavaRepackVersion = '14.11.14'
   sqliteJdbcVersion = '3.7.15-M1'
   propellerVersion = '0.44'
   findBugsAnnotationVersion = '3.0.0'
