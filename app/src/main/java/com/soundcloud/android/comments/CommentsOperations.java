@@ -72,6 +72,11 @@ class CommentsOperations {
         return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
     }
 
+    private Observable<CommentsCollection> comments(String nextPageUrl) {
+        final ApiRequest<CommentsCollection> request = apiRequest(nextPageUrl).build();
+        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
+    }
+
     private ApiRequest.Builder<CommentsCollection> apiRequest(String url) {
         return ApiRequest.Builder.<CommentsCollection>get(url)
                 .forPublicApi()
@@ -95,7 +100,7 @@ class CommentsOperations {
         @Override
         public Observable<CommentsCollection> call(CommentsCollection apiComments) {
             if (apiComments.getNextHref() != null) {
-                return apiClientRx.mappedResponse(apiRequest(apiComments.getNextHref()).build());
+                return comments(apiComments.getNextHref());
             } else {
                 return Pager.finish();
             }
