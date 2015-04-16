@@ -156,11 +156,12 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void getRelatedTracksShouldMakeGetRequestToRelatedTracksEndpoint() {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
+                .thenReturn(Observable.<RecommendedTracksCollection>empty());
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(observer);
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), eq(RecommendedTracksCollection.class));
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
         expect(argumentCaptor.getValue().getEncodedPath()).toEqual(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
     }
@@ -173,7 +174,8 @@ public class PlayQueueOperationsTest {
         ApiTrack suggestion2 = ModelFixtures.create(ApiTrack.class);
         RecommendedTracksCollection collection = createCollection(suggestion1, suggestion2);
 
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
+                .thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(123)).subscribe(relatedObserver);
 
@@ -190,7 +192,8 @@ public class PlayQueueOperationsTest {
     public void shouldWriteRelatedTracksInLocalStorage() throws Exception {
         RecommendedTracksCollection collection = createCollection(
                 ModelFixtures.create(ApiTrack.class));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
+                .thenReturn(Observable.just(collection));
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
 

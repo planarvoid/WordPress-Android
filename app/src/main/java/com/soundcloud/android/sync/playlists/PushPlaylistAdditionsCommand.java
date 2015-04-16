@@ -33,8 +33,8 @@ class PushPlaylistAdditionsCommand extends LegacyCommand<Collection<Urn>, Collec
     public Collection<Urn> call() throws Exception {
         List<Urn> successes = new ArrayList<>(input.size());
         for (Urn urn : input) {
-            final ApiRequest<ApiPlaylistWithTracks> request =
-                    ApiRequest.Builder.<ApiPlaylistWithTracks>post(ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn))
+            final ApiRequest request =
+                    ApiRequest.Builder.post(ApiEndpoints.PLAYLIST_ADD_TRACK.path(playlistUrn))
                             .forPrivateApi(1)
                             .withContent(Collections.singletonMap("track_urn", urn.toString()))
                             .build();

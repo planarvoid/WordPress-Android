@@ -3,8 +3,10 @@ package com.soundcloud.android.sync.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.model.Urn;
@@ -34,7 +36,8 @@ public class FetchPlaylistWithTracksCommandTest {
         ApiPlaylistWithTracks playlistWithTracks = ModelFixtures.apiPlaylistWithNoTracks();
 
         when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("GET", ApiEndpoints.PLAYLIST_WITH_TRACKS.path(URN))))).thenReturn(playlistWithTracks);
+                isApiRequestTo("GET", ApiEndpoints.PLAYLIST_WITH_TRACKS.path(URN))), isA(TypeToken.class)))
+                .thenReturn(playlistWithTracks);
 
         expect(command.with(URN).call()).toBe(playlistWithTracks);
     }

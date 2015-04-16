@@ -28,7 +28,7 @@ public class ApiUrlBuilder {
         return withOAuthClientIdParam();
     }
 
-    public ApiUrlBuilder from(ApiRequest<?> request) {
+    public ApiUrlBuilder from(ApiRequest request) {
         if (request.getUri().isAbsolute()) {
             // if the URI is aleady absolute, i.e. contains a schema and host, we take it as is
             uriBuilder = request.getUri().buildUpon();

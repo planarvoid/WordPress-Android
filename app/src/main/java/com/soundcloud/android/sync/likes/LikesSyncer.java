@@ -23,8 +23,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
 
     private final FetchLikesCommand fetchLikes;
     private final BulkFetchCommand<ApiModel> fetchLikedResources;
-    private final PushLikeAdditionsCommand pushLikeAdditions;
-    private final PushLikeDeletionsCommand pushLikeDeletions;
+    private final PushLikesCommand<ApiLike> pushLikeAdditions;
+    private final PushLikesCommand<ApiDeletedLike> pushLikeDeletions;
     private final LoadLikesCommand loadLikes;
     private final LoadLikesPendingAdditionCommand loadLikesPendingAddition;
     private final LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
@@ -35,8 +35,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     @SuppressWarnings("PMD.ExcessiveParameterList") // We will run into this a lot with commands...
     LikesSyncer(FetchLikesCommand fetchLikes,
                 BulkFetchCommand<ApiModel> fetchLikedResources,
-                PushLikeAdditionsCommand pushLikeAdditions,
-                PushLikeDeletionsCommand pushLikeDeletions,
+                PushLikesCommand<ApiLike> pushLikeAdditions,
+                PushLikesCommand<ApiDeletedLike> pushLikeDeletions,
                 LoadLikesCommand loadLikes,
                 LoadLikesPendingAdditionCommand loadLikesPendingAddition,
                 LoadLikesPendingRemovalCommand loadLikesPendingRemoval,

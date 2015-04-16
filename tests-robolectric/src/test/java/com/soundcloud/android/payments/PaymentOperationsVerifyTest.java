@@ -3,6 +3,7 @@ package com.soundcloud.android.payments;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,7 +52,7 @@ public class PaymentOperationsVerifyTest {
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload())))))
                 .thenReturn(Observable.just(new ApiResponse(null, HttpStatus.SC_OK, null)));
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123")))))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))), eq(CheckoutUpdated.class)))
                 .thenReturn(successObservable());
     }
 
@@ -83,7 +84,9 @@ public class PaymentOperationsVerifyTest {
         InOrder inOrder = inOrder(api);
         inOrder.verify(api).response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromSuccess(billingResult.getPayload()))));
-        inOrder.verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))));
+        inOrder.verify(api).mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))),
+                eq(CheckoutUpdated.class));
     }
 
     @Test
@@ -96,7 +99,8 @@ public class PaymentOperationsVerifyTest {
 
     @Test
     public void verifyReturnsVerificationFailStatusIfPaymentWasNotValid() {
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123")))))
+        when(api.mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))), eq(CheckoutUpdated.class)))
                 .thenReturn(failObservable());
 
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
@@ -107,7 +111,7 @@ public class PaymentOperationsVerifyTest {
 
     @Test
     public void pollVerificationUntilNonPendingStatus() {
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123")))))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))), eq(CheckoutUpdated.class)))
                 .thenReturn(pendingObservable(), successObservable());
 
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
@@ -121,19 +125,19 @@ public class PaymentOperationsVerifyTest {
 
     @Test
     public void pollVerificationWithThreeReattemptsIfPaymentIsNotConfirmed() {
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123")))))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))), eq(CheckoutUpdated.class)))
                 .thenReturn(pendingObservable());
 
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
         scheduler.advanceTimeBy(8, TimeUnit.SECONDS);
 
-        verify(api, times(4)).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))));
+        verify(api, times(4)).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))), eq(CheckoutUpdated.class));
         observer.assertTerminalEvent();
     }
 
     @Test
     public void pollVerificationTimeoutReturnsTimeoutStatus() {
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123")))))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))), eq(CheckoutUpdated.class)))
                 .thenReturn(pendingObservable());
 
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);
@@ -157,7 +161,7 @@ public class PaymentOperationsVerifyTest {
 
     @Test
     public void verifyClearsTokenWhenFinished() {
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123")))))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CHECKOUT_URN.path("token_123"))), eq(CheckoutUpdated.class)))
                 .thenReturn(pendingObservable());
 
         paymentOperations.verify(billingResult.getPayload()).subscribe(observer);

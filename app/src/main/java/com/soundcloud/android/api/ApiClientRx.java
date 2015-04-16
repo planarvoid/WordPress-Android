@@ -1,5 +1,6 @@
 package com.soundcloud.android.api;
 
+import com.google.common.reflect.TypeToken;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -19,7 +20,7 @@ public class ApiClientRx {
         return apiClient;
     }
 
-    public Observable<ApiResponse> response(final ApiRequest<?> request) {
+    public Observable<ApiResponse> response(final ApiRequest request) {
         return Observable.create(new Observable.OnSubscribe<ApiResponse>() {
             @Override
             public void call(Subscriber<? super ApiResponse> subscriber) {
@@ -34,14 +35,14 @@ public class ApiClientRx {
         });
     }
 
-    public <T> Observable<T> mappedResponse(final ApiRequest<T> request) {
+    public <T> Observable<T> mappedResponse(final ApiRequest request, final TypeToken<T> resourceType) {
         return Observable.create(new Observable.OnSubscribe<T>() {
             @Override
             public void call(Subscriber<? super T> subscriber) {
                 try {
                     final ApiResponse response = apiClient.fetchResponse(request);
                     if (response.isSuccess()) {
-                        subscriber.onNext(apiClient.mapResponse(request, response));
+                        subscriber.onNext(apiClient.mapResponse(response, resourceType));
                         subscriber.onCompleted();
                     } else {
                         subscriber.onError(response.getFailure());
@@ -51,5 +52,9 @@ public class ApiClientRx {
                 }
             }
         });
+    }
+
+    public <T> Observable<T> mappedResponse(final ApiRequest request, final Class<T> resourceType) {
+        return mappedResponse(request, TypeToken.of(resourceType));
     }
 }

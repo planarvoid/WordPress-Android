@@ -65,7 +65,7 @@ public class ConfigurationOperationsTest {
 
         when(experimentOperations.loadAssignment()).thenReturn(Observable.just(Assignment.empty()));
         when(experimentOperations.getActiveLayers()).thenReturn(new String[]{"android_listening", "ios"});
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configuration));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configuration));
         when(featureFlags.isEnabled(Flag.OFFLINE_SYNC)).thenReturn(true);
     }
 
@@ -74,15 +74,17 @@ public class ConfigurationOperationsTest {
         operations.update();
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
-                .withQueryParam("experiment_layers", "android_listening", "ios")));
+                .withQueryParam("experiment_layers", "android_listening", "ios")), eq(Configuration.class));
     }
 
     @Test
     public void registerDeviceGetsConfigurationAndReturnsDeviceManagement() throws ApiRequestException, IOException, ApiMapperException {
         Token token = new Token("accessToken","refreshToken");
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
+        when(apiClient.fetchMappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
                 .withQueryParam("experiment_layers", "android_listening", "ios")
-                .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")))).thenReturn(configuration);
+                        .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")),
+                eq(Configuration.class))).thenReturn(configuration);
 
         expect(operations.registerDevice(token)).toBe(configuration.deviceManagement);
     }
@@ -92,7 +94,7 @@ public class ConfigurationOperationsTest {
         Token token = new Token("accessToken","refreshToken");
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.CONFIGURATION.path())
                 .withQueryParam("experiment_layers", "android_listening", "ios")
-                .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")))).thenReturn(configuration);
+                .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")), eq(Configuration.class))).thenReturn(configuration);
 
         operations.registerDevice(token);
 
@@ -107,7 +109,8 @@ public class ConfigurationOperationsTest {
 
         when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CONFIGURATION.path())
                 .withHeader(HttpHeaders.AUTHORIZATION, "OAuth accessToken")
-                .withContent(Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceId)))))).thenReturn(configuration);
+                        .withContent(Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceId)))),
+                eq(Configuration.class))).thenReturn(configuration);
 
         expect(operations.forceRegisterDevice(token, deviceId)).toBe(configuration.deviceManagement);
     }
@@ -115,7 +118,7 @@ public class ConfigurationOperationsTest {
     @Test
     public void updateStoresConfiguration() {
         final Configuration authorizedConfiguration = getAuthorizedConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(authorizedConfiguration));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(authorizedConfiguration));
         operations.update();
 
         verify(featureOperations).update(eq(getFeaturesAsMap()));
@@ -131,7 +134,7 @@ public class ConfigurationOperationsTest {
     public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() throws Exception {
         Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(), Collections.<Layer>emptyList(),
                 new DeviceManagement(false, null));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(configurationWithDeviceConflict));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configurationWithDeviceConflict));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         final PublishSubject<WriteResult> clearOfflineContentSubject = PublishSubject.create();

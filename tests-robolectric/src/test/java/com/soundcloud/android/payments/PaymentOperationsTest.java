@@ -42,10 +42,10 @@ public class PaymentOperationsTest {
     @Before
     public void setUp() throws Exception {
         paymentOperations = new PaymentOperations(Schedulers.immediate(), api, billingService, tokenStorage);
-        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path()))))
+        when(api.mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())), eq(AvailableProducts.class)))
                 .thenReturn(availableProductsObservable());
         when(api.mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
-                .withContent(new StartCheckout("product_id")))))
+                .withContent(new StartCheckout("product_id"))), eq(CheckoutStarted.class)))
                 .thenReturn(checkoutResultObservable());
         when(api.response(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT_URN.path("token_123"))
                 .withContent(UpdateCheckout.fromFailure("user cancelled")))))
@@ -80,12 +80,12 @@ public class PaymentOperationsTest {
 
         paymentOperations.queryProduct().subscribe();
 
-        verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())));
+        verify(api).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PRODUCTS.path())), eq(AvailableProducts.class));
     }
 
     @Test
     public void queryProductReturnsFailedStatusWhenNoProductsAreAvailable() {
-        when(api.mappedResponse(any(ApiRequest.class))).thenReturn(noProductsObservable());
+        when(api.mappedResponse(any(ApiRequest.class), eq(AvailableProducts.class))).thenReturn(noProductsObservable());
         TestObserver<ProductStatus> observer = new TestObserver<>();
 
         paymentOperations.queryProduct().subscribe(observer);
@@ -121,7 +121,7 @@ public class PaymentOperationsTest {
         paymentOperations.purchase("product_id").subscribe();
 
         verify(api).mappedResponse(argThat(isApiRequestTo("POST", ApiEndpoints.CHECKOUT.path())
-                .withContent(new StartCheckout("product_id"))));
+                .withContent(new StartCheckout("product_id"))), eq(CheckoutStarted.class));
     }
 
     @Test

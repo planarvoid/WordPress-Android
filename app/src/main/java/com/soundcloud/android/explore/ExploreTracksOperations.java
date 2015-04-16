@@ -1,7 +1,6 @@
 package com.soundcloud.android.explore;
 
 import com.google.common.base.Optional;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
@@ -43,10 +42,10 @@ class ExploreTracksOperations {
     }
 
     public Observable<ExploreGenresSections> getCategories() {
-        ApiRequest<ExploreGenresSections> request = ApiRequest.Builder.<ExploreGenresSections>get(ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
+        ApiRequest request = ApiRequest.Builder.get(ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())
                 .forPrivateApi(1)
-                .forResource(TypeToken.of(ExploreGenresSections.class)).build();
-        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
+                .build();
+        return apiClientRx.mappedResponse(request, ExploreGenresSections.class).subscribeOn(scheduler);
     }
 
     public Observable<SuggestedTracksCollection> getSuggestedTracks(ExploreGenre category) {
@@ -64,12 +63,12 @@ class ExploreTracksOperations {
     }
 
     private Observable<SuggestedTracksCollection> getSuggestedTracks(String endpoint) {
-        ApiRequest<SuggestedTracksCollection> request = ApiRequest.Builder.<SuggestedTracksCollection>get(endpoint)
+        ApiRequest request = ApiRequest.Builder.get(endpoint)
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
                 .forPrivateApi(1)
-                .forResource(TypeToken.of(SuggestedTracksCollection.class)).build();
+                .build();
 
-        return apiClientRx.mappedResponse(request)
+        return apiClientRx.mappedResponse(request, SuggestedTracksCollection.class)
                 .doOnNext(storeTracksCommand.toAction())
                 .subscribeOn(scheduler);
     }

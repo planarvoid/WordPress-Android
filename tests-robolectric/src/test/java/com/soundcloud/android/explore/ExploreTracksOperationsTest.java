@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,37 +44,48 @@ public class ExploreTracksOperationsTest {
 
     @Test
     public void getCategoriesShouldMakeGetRequestToCategoriesEndpoint() {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ExploreGenresSections.class)))
+                .thenReturn(Observable.<ExploreGenresSections>empty());
         exploreTracksOperations.getCategories().subscribe(observer);
 
-        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())));
+        verify(apiClientRx).mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_CATEGORIES.path())),
+                eq(ExploreGenresSections.class));
     }
 
     @Test
     public void getPopularMusicShouldMakeGetRequestToMobileApiEndpoint() throws Exception {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class)))
+                .thenReturn(Observable.<SuggestedTracksCollection>empty());
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_MUSIC_CATEGORY).subscribe(observer);
 
-        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path())));
+        verify(apiClientRx).mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_MUSIC.path())),
+                eq(SuggestedTracksCollection.class));
     }
 
     @Test
     public void getPopularAudioShouldMakeGetRequestToMobileApiEndpoint() throws Exception {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class)))
+                .thenReturn(Observable.<SuggestedTracksCollection>empty());
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_AUDIO_CATEGORY).subscribe(observer);
 
-        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path())));
+        verify(apiClientRx).mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.EXPLORE_TRACKS_POPULAR_AUDIO.path())),
+                eq(SuggestedTracksCollection.class));
     }
 
     @Test
     public void getTracksByCategoryShouldMakeGetRequestToMobileApiEndpoint() throws Exception {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class)))
+                .thenReturn(Observable.<SuggestedTracksCollection>empty());
         String tracksUrl = "/suggestions/tracks/electronic";
         ExploreGenre genre = new ExploreGenre("title", tracksUrl);
 
         exploreTracksOperations.getSuggestedTracks(genre).subscribe(observer);
 
-        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", tracksUrl)));
+        verify(apiClientRx).mappedResponse(
+                argThat(isApiRequestTo("GET", tracksUrl)), eq(SuggestedTracksCollection.class));
     }
 
     @Test
@@ -90,7 +102,7 @@ public class ExploreTracksOperationsTest {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
         SuggestedTracksCollection collection = new SuggestedTracksCollection();
         collection.setCollection(Arrays.asList(track));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(SuggestedTracksCollection.class))).thenReturn(
                 Observable.just(collection));
         return collection;
     }

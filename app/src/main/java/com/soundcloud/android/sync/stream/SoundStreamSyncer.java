@@ -82,13 +82,12 @@ public class SoundStreamSyncer implements SyncStrategy {
 
     private ApiSyncResult refreshSoundStream() throws Exception {
 
-        final ApiRequest.Builder<ModelCollection<ApiStreamItem>> requestBuilder =
-                ApiRequest.Builder.<ModelCollection<ApiStreamItem>>get(ApiEndpoints.STREAM.path())
+        final ApiRequest.Builder requestBuilder =
+                ApiRequest.Builder.get(ApiEndpoints.STREAM.path())
                         .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
-                        .forResource(collectionTypeToken)
                         .forPrivateApi(1);
 
-        ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build());
+        ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
         replaceSoundStreamCommand.with(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate)).call();
         setNextPageUrl(streamItems.getNextLink());
 
@@ -107,12 +106,9 @@ public class SoundStreamSyncer implements SyncStrategy {
             final String nextPageUrl = getNextPageUrl();
             Log.d(this, "Building soundstream request from stored next link " + nextPageUrl);
 
-            final ApiRequest.Builder<ModelCollection<ApiStreamItem>> requestBuilder =
-                    ApiRequest.Builder.<ModelCollection<ApiStreamItem>>get(nextPageUrl)
-                            .forResource(collectionTypeToken)
-                            .forPrivateApi(1);
+            final ApiRequest.Builder requestBuilder = ApiRequest.Builder.get(nextPageUrl).forPrivateApi(1);
 
-            ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build());
+            ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
             setNextPageUrl(streamItems.getNextLink());
 
             if (streamItems.getCollection().isEmpty()){
@@ -134,12 +130,9 @@ public class SoundStreamSyncer implements SyncStrategy {
         final String previousPageUrl = getFuturePageUrl();
         Log.d(this, "Building soundstream request from stored future link " + previousPageUrl);
 
-        final ApiRequest.Builder<ModelCollection<ApiStreamItem>> requestBuilder =
-                ApiRequest.Builder.<ModelCollection<ApiStreamItem>>get(previousPageUrl)
-                        .forResource(collectionTypeToken)
-                        .forPrivateApi(1);
+        final ApiRequest.Builder requestBuilder = ApiRequest.Builder.get(previousPageUrl).forPrivateApi(1);
 
-        ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build());
+        ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
         final Map<String, Link> links = streamItems.getLinks();
         if (links.containsKey(FUTURE_LINK_REL)) {
             setFuturePageUrl(links.get(FUTURE_LINK_REL));
