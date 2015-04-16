@@ -27,6 +27,7 @@ apply from: "${buildSrcDir}/ci.gradle"
 apply from: "${buildSrcDir}/networkmanager.gradle"
 apply from: "${buildSrcDir}/git.gradle"
 apply from: "${buildSrcDir}/github.gradle"
+apply from: "${buildSrcDir}/repacker/repacker.gradle"
 
 apply plugin: 'com.android.application'
 apply plugin: 'maven'
@@ -126,6 +127,12 @@ android {
     end2end {
       versionNameSuffix '-end2end'
     }
+
+    repack.initWith(buildTypes.debug)
+    repack {
+      minifyEnabled true
+      proguardFiles 'buildsystem/repacker/proguard-repack.cfg'
+    }
   }
 
   lintOptions {
@@ -154,6 +161,8 @@ android {
  */
 configurations {
   all*.exclude group: 'commons-logging', module: 'commons-logging'
+  // need to exclude any support libraries we pull, or they will clash with our repack
+  all*.exclude group: 'com.android.support', module: 'support-v4'
 }
 
 dependencies {

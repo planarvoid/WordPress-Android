@@ -13,9 +13,6 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import java.io.FileDescriptor;
-import java.io.PrintWriter;
-
 @Implements(Fragment.class)
 public class ShadowV4Fragment extends ShadowFragment {
 
@@ -67,10 +64,6 @@ public class ShadowV4Fragment extends ShadowFragment {
         @Override
         public <D> Loader<D> getLoader(int id) {
             return null;
-        }
-
-        @Override
-        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         }
     }
 
