@@ -224,7 +224,7 @@ public class ApiSyncer extends LegacySyncStrategy {
     private ApiSyncResult syncMe(Content c) {
         ApiSyncResult result = new ApiSyncResult(c.uri);
         PublicApiUser user;
-        ApiRequest request = ApiRequest.Builder.get(ApiEndpoints.CURRENT_USER.path())
+        ApiRequest request = ApiRequest.get(ApiEndpoints.CURRENT_USER.path())
                 .forPublicApi()
                 .build();
         try {

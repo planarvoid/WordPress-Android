@@ -24,7 +24,7 @@ public class OnboardingOperations {
     }
 
     public void sendEmailOptIn() {
-        ApiRequest request = ApiRequest.Builder.put(ApiEndpoints.SUBSCRIPTIONS.path())
+        ApiRequest request = ApiRequest.put(ApiEndpoints.SUBSCRIPTIONS.path())
                 .forPrivateApi(1)
                 .withContent(new EmailOptIn())
                 .build();

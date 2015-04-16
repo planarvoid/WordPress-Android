@@ -24,7 +24,7 @@ class FetchPoliciesCommand extends LegacyCommand<Collection<Urn>, Collection<Pol
     @Override
     public Collection<PolicyInfo> call() throws Exception {
         final ApiRequest request =
-                ApiRequest.Builder.post(ApiEndpoints.POLICIES.path())
+                ApiRequest.post(ApiEndpoints.POLICIES.path())
                 .withContent(Collections2.transform(input, GuavaFunctions.urnToString()))
                 .forPrivateApi(1)
                 .build();

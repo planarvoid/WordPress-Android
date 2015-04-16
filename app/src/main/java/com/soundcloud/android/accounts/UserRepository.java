@@ -34,7 +34,7 @@ public class UserRepository {
 
 
     public Observable<PublicApiUser> refreshCurrentUser() {
-        final ApiRequest request = ApiRequest.Builder.<PublicApiUser>get(ApiEndpoints.CURRENT_USER.path())
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.CURRENT_USER.path())
                 .forPublicApi()
                 .build();
         return apiClientRx.mappedResponse(request, PublicApiUser.class).subscribeOn(scheduler).doOnNext(cacheUser);

@@ -31,6 +31,22 @@ public class ApiRequest {
     @NotNull private final Map<String, String> headers;
     @Nullable private final Object content;
 
+    public static Builder get(String uri) {
+        return new Builder(uri, HttpGet.METHOD_NAME);
+    }
+
+    public static Builder post(String uri) {
+        return new Builder(uri, HttpPost.METHOD_NAME);
+    }
+
+    public static Builder put(String uri) {
+        return new Builder(uri, HttpPut.METHOD_NAME);
+    }
+
+    public static Builder delete(String uri) {
+        return new Builder(uri, HttpDelete.METHOD_NAME);
+    }
+
     ApiRequest(Uri uri, String method, int endpointVersion,
                Boolean isPrivate, @NotNull Multimap<String, String> queryParams, @Nullable Object content,
                @NotNull Map<String, String> headers) {
@@ -108,22 +124,6 @@ public class ApiRequest {
             this.uri = UriUtils.clearQueryParams(Uri.parse(uri));
             this.httpMethod = methodName;
             this.headers = new HashMap<>();
-        }
-
-        public static Builder get(String uri) {
-            return new Builder(uri, HttpGet.METHOD_NAME);
-        }
-
-        public static Builder post(String uri) {
-            return new Builder(uri, HttpPost.METHOD_NAME);
-        }
-
-        public static Builder put(String uri) {
-            return new Builder(uri, HttpPut.METHOD_NAME);
-        }
-
-        public static Builder delete(String uri) {
-            return new Builder(uri, HttpDelete.METHOD_NAME);
         }
 
         public ApiRequest build() {

@@ -89,7 +89,7 @@ public class ConfigurationOperations {
     public DeviceManagement forceRegisterDevice(Token token, String deviceIdToDeregister) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Forcing device registration");
         final Map<String, Map<String, String>> content = Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceIdToDeregister));
-        final ApiRequest request = ApiRequest.Builder.post(ApiEndpoints.CONFIGURATION.path())
+        final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
                 .withContent(content)
                 .forPrivateApi(1)
@@ -125,7 +125,7 @@ public class ConfigurationOperations {
     }
 
     private ApiRequest.Builder configurationRequestBuilderForGet() {
-        return ApiRequest.Builder.get(ApiEndpoints.CONFIGURATION.path())
+        return ApiRequest.get(ApiEndpoints.CONFIGURATION.path())
                 .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
                 .forPrivateApi(1);
     }

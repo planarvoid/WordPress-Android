@@ -213,7 +213,7 @@ public class FollowingOperations {
         final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
         final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
         if (!tokens.isEmpty()) {
-            return ApiRequest.Builder.post(ApiEndpoints.BULK_FOLLOW_USERS.path())
+            return ApiRequest.post(ApiEndpoints.BULK_FOLLOW_USERS.path())
                     .forPublicApi()
                     .withContent(new BulkFollowingsHolder(tokens))
                     .build();

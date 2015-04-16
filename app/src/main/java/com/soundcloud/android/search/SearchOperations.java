@@ -180,14 +180,14 @@ class SearchOperations {
         }
 
         private Observable<SearchResult> searchResult(String query) {
-            return getSearchResultObservable(ApiRequest.Builder.get(apiEndpoint)
+            return getSearchResultObservable(ApiRequest.get(apiEndpoint)
                     .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
                     .addQueryParam("q", query)
                     .forPrivateApi(1));
         }
 
         private Observable<SearchResult> nextResultPage(Link nextPageLink) {
-            return getSearchResultObservable(ApiRequest.Builder.get(nextPageLink.getHref())
+            return getSearchResultObservable(ApiRequest.get(nextPageLink.getHref())
                     .forPrivateApi(1));
         }
 

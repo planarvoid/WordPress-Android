@@ -33,7 +33,7 @@ public class FetchPlaylistsCommand extends BulkFetchCommand<ApiPlaylist> {
         final ArrayMap<String, Object> body = new ArrayMap<>(1);
         body.put("urns", CollectionUtils.urnsToStrings(urns));
 
-        return ApiRequest.Builder.post(ApiEndpoints.PLAYLISTS_FETCH.path())
+        return ApiRequest.post(ApiEndpoints.PLAYLISTS_FETCH.path())
                 .forPrivateApi(1)
                 .withContent(body)
                 .build();
