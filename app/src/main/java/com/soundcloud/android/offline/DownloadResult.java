@@ -1,37 +1,48 @@
 package com.soundcloud.android.offline;
 
-import com.google.common.annotations.VisibleForTesting;
+import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
+
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
 
 public final class DownloadResult {
 
-    private enum Status {SUCCESS, UNAVAILABLE, NOT_ENOUGH_SPACE, CONNECTION_ERROR}
+    private enum Status {SUCCESS, UNAVAILABLE, NOT_ENOUGH_SPACE, CONNECTION_ERROR, ERROR}
 
-    private final Status status;
-    private final DownloadRequest request;
-    private final long timestamp;
+    final Status status;
+    final DownloadRequest request;
+    final long timestamp;
+    final ConnectionState connectionState;
 
     private DownloadResult(Status status, DownloadRequest request) {
+        this(status, request, null);
+    }
+
+    private DownloadResult(Status status, DownloadRequest request, ConnectionState connectionState) {
         this.status = status;
         this.request = request;
         this.timestamp = System.currentTimeMillis();
-    }
-
-    public static DownloadResult failed(DownloadRequest request) {
-        return new DownloadResult(Status.CONNECTION_ERROR, request);
-    }
-
-    public static DownloadResult unavailable(DownloadRequest request) {
-        return new DownloadResult(Status.UNAVAILABLE, request);
+        this.connectionState = connectionState;
     }
 
     public static DownloadResult success(DownloadRequest request) {
         return new DownloadResult(Status.SUCCESS, request);
     }
 
+    public static DownloadResult unavailable(DownloadRequest request) {
+        return new DownloadResult(Status.UNAVAILABLE, request);
+    }
+
+    public static DownloadResult connectionError(DownloadRequest request, ConnectionState connectionState) {
+        return new DownloadResult(Status.CONNECTION_ERROR, request, connectionState);
+    }
+
     public static DownloadResult notEnoughSpace(DownloadRequest request) {
         return new DownloadResult(Status.NOT_ENOUGH_SPACE, request);
+    }
+
+    public static DownloadResult error(DownloadRequest request) {
+        return new DownloadResult(Status.ERROR, request);
     }
 
     public boolean isSuccess() {
@@ -46,21 +57,20 @@ public final class DownloadResult {
         return status == Status.UNAVAILABLE;
     }
 
-    @VisibleForTesting
-    boolean isNotEnoughSpace() {
-        return status ==  Status.NOT_ENOUGH_SPACE;
+    public boolean isNotEnoughSpace() {
+        return status == Status.NOT_ENOUGH_SPACE;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
-    public DownloadRequest getRequest() {
-        return request;
+    public boolean isDownloadFailed() {
+        return status == Status.ERROR;
     }
 
     public Urn getTrack() {
         return request.track;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 
     @Override

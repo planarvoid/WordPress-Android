@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
@@ -46,7 +47,7 @@ public class OfflineContentServiceTest {
     private final DownloadRequest downloadRequest2 = createDownloadRequest(TRACK_2);
     private final DownloadResult downloadResult1 = DownloadResult.success(downloadRequest1);
     private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(downloadRequest1);
-    private final DownloadResult failedResult1 = DownloadResult.failed(downloadRequest1);
+    private final DownloadResult failedResult1 = DownloadResult.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
 
     private TestObservables.MockObservable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
@@ -55,23 +56,23 @@ public class OfflineContentServiceTest {
 
     @Before
     public void setUp() {
-        deletePendingRemoval = TestObservables.emptyObservable();
         eventBus = new TestEventBus();
+        downloadMessage = new Message();
+        deletePendingRemoval = TestObservables.emptyObservable();
+
+        when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
         service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
                 eventBus, offlineContentScheduler, handlerFactory, new DownloadQueue());
 
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
         when(handlerFactory.create(service)).thenReturn(downloadHandler);
-        downloadMessage = new Message();
-        when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
-        when(downloadOperations.isValidNetwork()).thenReturn(true);
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.<OfflineContentRequests>never());
 
         service.onCreate();
     }
 
     @Test
-    public void emitsNewDownlaodRequests() {
+    public void emitsNewDownloadRequests() {
         final OfflineContentRequests updates = new OfflineContentRequests(
                 Arrays.asList(downloadRequest1, downloadRequest2),
                 Arrays.asList(downloadRequest1),
@@ -251,7 +252,18 @@ public class OfflineContentServiceTest {
         startService();
         service.onError(failedResult1);
 
-        verify(notificationController).onConnectionError();
+        verify(notificationController).onConnectionError(failedResult1);
+    }
+
+    @Test
+    public void stopAndScheduleRetryWhenNoValidNetworkOnNewDownload() {
+        setUpsDownloads(downloadRequest1, downloadRequest2);
+
+        startService();
+        service.onError(failedResult1);
+
+        verify(offlineContentScheduler).scheduleRetry();
+        verify(downloadHandler).quit();
     }
 
     @Test
@@ -261,22 +273,10 @@ public class OfflineContentServiceTest {
         startService();
         service.onError(unavailableTrackResult1);
 
-        verify(notificationController).onDownloadError();
+        verify(notificationController).onDownloadError(unavailableTrackResult1);
         verify(downloadHandler).sendMessage(downloadMessage);
     }
 
-
-    @Test
-    public void stopAndScheduleRetryWhenNoValidNetworkOnNewDownload() {
-        setUpsDownloads(downloadRequest1, downloadRequest2);
-
-        startService();
-        when(downloadOperations.isValidNetwork()).thenReturn(false);
-        service.onSuccess(unavailableTrackResult1);
-
-        verify(offlineContentScheduler).scheduleRetry();
-        verify(downloadHandler).quit();
-    }
 
     @Test
     public void showsNotificationWhenDownloading() {
@@ -284,7 +284,7 @@ public class OfflineContentServiceTest {
 
         startService();
 
-        verify(notificationController).onPendingRequests(2);
+        verify(notificationController).onPendingRequests(2, downloadRequest1);
     }
 
     @Test
@@ -294,21 +294,21 @@ public class OfflineContentServiceTest {
 
         startService();
 
-        verify(notificationController).onPendingRequests(3);
+        verify(notificationController).onPendingRequests(3, downloadRequest1);
     }
 
     @Test
     public void updatesNotificationWhenTrackDownloaded() {
         service.onSuccess(downloadResult1);
 
-        verify(notificationController).onDownloadSuccess();
+        verify(notificationController).onDownloadSuccess(downloadResult1);
     }
 
     @Test
     public void showsNotificationWhenAllTrackDownloaded() {
         service.onSuccess(downloadResult1);
 
-        verify(notificationController).onDownloadsFinished();
+        verify(notificationController).onDownloadsFinished(downloadResult1);
     }
 
     @Test
@@ -317,7 +317,7 @@ public class OfflineContentServiceTest {
 
         startService();
 
-        verify(notificationController, never()).onPendingRequests(anyInt());
+        verify(notificationController, never()).onPendingRequests(anyInt(), any(DownloadRequest.class));
     }
 
     @Test
@@ -330,7 +330,7 @@ public class OfflineContentServiceTest {
 
         observable.onNext(createSingleDownloadRequestUpdate());
 
-        verify(notificationController, never()).onPendingRequests(anyInt());
+        verify(notificationController, never()).onPendingRequests(anyInt(), any(DownloadRequest.class));
         verify(downloadHandler).quit();
     }
 
@@ -361,7 +361,7 @@ public class OfflineContentServiceTest {
 
     private DownloadResult createFailedDownloadResult(Urn downloadedTrack, List<Urn> relatedPlaylists) {
         DownloadRequest downloadRequest = new DownloadRequest(downloadedTrack, "http://" + downloadedTrack.getNumericId(), 123456, false, relatedPlaylists);
-        return DownloadResult.failed(downloadRequest);
+        return DownloadResult.connectionError(downloadRequest, ConnectionState.DISCONNECTED);
     }
 
     private void setupNoDownloadRequest() {

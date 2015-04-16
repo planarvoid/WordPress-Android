@@ -54,6 +54,8 @@ public class DownloadOperationsTest {
         when(response.isUnavailable()).thenReturn(false);
         when(response.getInputStream()).thenReturn(downloadStream);
         when(fileStorage.isEnoughSpaceForTrack(anyLong())).thenReturn(true);
+        when(connectionHelper.isWifiConnected()).thenReturn(true);
+        when(connectionHelper.isNetworkConnected()).thenReturn(true);
     }
 
     @Test
@@ -85,16 +87,23 @@ public class DownloadOperationsTest {
     }
 
     @Test
-    public void returnsDownloadFailedWhenServerError() throws IOException, EncryptionException {
+    public void returnsDownloadFailedWhenServerError() throws IOException {
         when(httpClient.downloadFile(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(true);
         when(response.isUnavailable()).thenReturn(false);
+
+        expect(operations.download(downloadRequest).isDownloadFailed()).toBeTrue();
+    }
+
+    @Test
+    public void returnConnectionErrorWhenIOExceptionThrown() throws IOException {
+        when(httpClient.downloadFile(streamUrl)).thenThrow(new IOException());
 
         expect(operations.download(downloadRequest).isConnectionError()).toBeTrue();
     }
 
     @Test
-    public void returnsFileUnavailableWhenTrackUnavailable() throws IOException, EncryptionException {
+    public void returnsFileUnavailableWhenTrackUnavailable() throws IOException {
         when(httpClient.downloadFile(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(true);
         when(response.isUnavailable()).thenReturn(true);

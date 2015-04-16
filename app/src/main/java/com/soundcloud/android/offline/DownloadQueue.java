@@ -36,6 +36,10 @@ class DownloadQueue {
         return queue.poll();
     }
 
+    DownloadRequest getFirst() {
+        return queue.getFirst();
+    }
+
     boolean isEmpty() {
         return queue.isEmpty();
     }
@@ -46,7 +50,7 @@ class DownloadQueue {
 
     private List<Urn> getIntersectionWith(DownloadResult result) {
         final List<Urn> stillRequested = getRequestedEntities();
-        stillRequested.retainAll(result.getRequest().inPlaylists);
+        stillRequested.retainAll(result.request.inPlaylists);
         return stillRequested;
     }
 
@@ -55,14 +59,14 @@ class DownloadQueue {
     }
 
     private List<Urn> getComplementWith(DownloadResult result) {
-        final ArrayList<Urn> completed = newArrayList(result.getRequest().inPlaylists);
+        final ArrayList<Urn> completed = newArrayList(result.request.inPlaylists);
         completed.removeAll(getRequestedEntities());
         completed.add(result.getTrack());
         return completed;
     }
 
     boolean isAllLikedTracksDownloaded(DownloadResult result) {
-        return result.getRequest().inLikedTracks && !isLikedTrackRequested();
+        return result.request.inLikedTracks && !isLikedTrackRequested();
     }
 
     List<Urn> getRequestedEntities() {

@@ -8,6 +8,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +31,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     @Before
     public void setup() {
-        storage = new OfflineTracksStorage(propellerRx(), dateProvider);
+        storage = new OfflineTracksStorage(propeller(), propellerRx(), dateProvider);
         observer = new TestObserver<>();
     }
 
@@ -126,6 +127,37 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expect(observer.getOnNextEvents().get(0)).toContainExactly(TRACK_2);
+    }
+
+    @Test
+    public void updatesDownloadTracksWithDownloadResults() throws PropellerWriteException {
+        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(TRACK_1, "http://url", 12345L));
+        testFixtures().insertTrackPendingDownload(TRACK_1, 100L);
+
+        storage.storeCompletedDownload(downloadResult);
+
+        databaseAssertions().assertDownloadResultsInserted(downloadResult);
+    }
+
+    @Test
+    public void resetUnavailableAtWhenDownloaded() {
+        testFixtures().insertUnavailableTrackDownload(TRACK_1, 100L);
+
+        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(TRACK_1, "http://url", 12345L));
+        storage.storeCompletedDownload(downloadResult);
+
+        databaseAssertions().assertDownloadIsAvailable(TRACK_1);
+    }
+
+    @Test
+    public void markTrackAsUnavailable() throws Exception {
+        final Date now = new Date();
+        testFixtures().insertTrackPendingDownload(TRACK_1, 100L);
+        when(dateProvider.getCurrentDate()).thenReturn(now);
+
+        storage.markTrackAsUnavailable(TRACK_1);
+
+        databaseAssertions().assertTrackIsUnavailable(TRACK_1, now.getTime());
     }
 
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {

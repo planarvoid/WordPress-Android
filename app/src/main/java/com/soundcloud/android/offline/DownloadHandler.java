@@ -1,11 +1,7 @@
 package com.soundcloud.android.offline;
 
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
-
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.offline.commands.StoreCompletedDownloadCommand;
-import com.soundcloud.android.offline.commands.UpdateContentAsUnavailableCommand;
-import com.soundcloud.propeller.PropellerWriteException;
+import com.soundcloud.propeller.WriteResult;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -21,8 +17,7 @@ public class DownloadHandler extends Handler {
 
     private final MainHandler mainHandler;
     private final DownloadOperations downloadOperations;
-    private final StoreCompletedDownloadCommand storeCompletedDownload;
-    private final UpdateContentAsUnavailableCommand  updateContentAsUnavailable;
+    private final OfflineTracksStorage offlineTracksStorage;
     private DownloadRequest current;
 
     public boolean isDownloading() {
@@ -35,23 +30,26 @@ public class DownloadHandler extends Handler {
 
     interface Listener {
         void onSuccess(DownloadResult result);
+
         void onError(DownloadResult request);
     }
 
-    public DownloadHandler(Looper looper, MainHandler mainHandler, DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload, UpdateContentAsUnavailableCommand updateContentAsUnavailable) {
+    public DownloadHandler(Looper looper, MainHandler mainHandler,
+                           DownloadOperations downloadOperations,
+                           OfflineTracksStorage offlineTracksStorage) {
         super(looper);
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
-        this.storeCompletedDownload = storeCompletedDownload;
-        this.updateContentAsUnavailable = updateContentAsUnavailable;
+        this.offlineTracksStorage = offlineTracksStorage;
     }
 
     @VisibleForTesting
-    DownloadHandler(MainHandler mainHandler, DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload, UpdateContentAsUnavailableCommand updateContentAsUnavailable) {
+    DownloadHandler(MainHandler mainHandler,
+                    DownloadOperations downloadOperations,
+                    OfflineTracksStorage offlineTracksStorage) {
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
-        this.storeCompletedDownload = storeCompletedDownload;
-        this.updateContentAsUnavailable = updateContentAsUnavailable;
+        this.offlineTracksStorage = offlineTracksStorage;
     }
 
     @Override
@@ -65,17 +63,17 @@ public class DownloadHandler extends Handler {
             tryToStoreDownloadSuccess(result);
         } else {
             if (result.isUnavailable()) {
-                fireAndForget(updateContentAsUnavailable.call(result.getTrack()));
+                offlineTracksStorage.markTrackAsUnavailable(result.getTrack());
             }
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
     }
 
     private void tryToStoreDownloadSuccess(DownloadResult result) {
-        try {
-            storeCompletedDownload.with(result).call();
+        final WriteResult writeResult = offlineTracksStorage.storeCompletedDownload(result);
+        if (writeResult.success()) {
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
-        } catch (PropellerWriteException e) {
+        } else {
             downloadOperations.deleteTrack(result.getTrack());
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
@@ -93,18 +91,16 @@ public class DownloadHandler extends Handler {
     @VisibleForTesting
     static class Builder {
         private final DownloadOperations downloadOperations;
-        private final StoreCompletedDownloadCommand storeCompletedDownload;
-        private final UpdateContentAsUnavailableCommand updateContentAsUnavailable;
+        private final OfflineTracksStorage tracksStorage;
 
         @Inject
-        Builder(DownloadOperations downloadOperations, StoreCompletedDownloadCommand storeCompletedDownload, UpdateContentAsUnavailableCommand updateContentAsUnavailable) {
+        Builder(DownloadOperations downloadOperations, OfflineTracksStorage tracksStorage) {
             this.downloadOperations = downloadOperations;
-            this.storeCompletedDownload = storeCompletedDownload;
-            this.updateContentAsUnavailable = updateContentAsUnavailable;
+            this.tracksStorage = tracksStorage;
         }
 
         DownloadHandler create(Listener listener) {
-            return new DownloadHandler(createLooper(), new MainHandler(listener), downloadOperations, storeCompletedDownload, updateContentAsUnavailable);
+            return new DownloadHandler(createLooper(), new MainHandler(listener), downloadOperations, tracksStorage);
         }
 
         private Looper createLooper() {

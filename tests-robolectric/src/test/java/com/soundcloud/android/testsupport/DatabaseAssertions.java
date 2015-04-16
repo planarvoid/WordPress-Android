@@ -61,6 +61,12 @@ public class DatabaseAssertions {
         assertTrackPolicyInserted(track);
     }
 
+    public void assertTrackIsUnavailable(Urn trackUrn, long time) {
+        assertThat(select(from(Table.TrackDownloads.name())
+                .whereEq(TableColumns.TrackDownloads._ID, trackUrn.getNumericId())
+                .whereEq(TableColumns.TrackDownloads.UNAVAILABLE_AT, time)), counts(1));
+    }
+
     public void assertDownloadIsAvailable(Urn track) {
         assertThat(select(from(Table.TrackDownloads.name())
                 .whereEq(TableColumns.TrackDownloads._ID, track.getNumericId())
@@ -264,6 +270,7 @@ public class DatabaseAssertions {
 
     public void assertDownloadResultsInserted(DownloadResult result) {
         assertThat(select(from(Table.TrackDownloads.name())
+                .whereNull(TableColumns.TrackDownloads.UNAVAILABLE_AT)
                 .whereEq(TableColumns.TrackDownloads._ID, result.getTrack().getNumericId())
                 .whereEq(TableColumns.TrackDownloads.DOWNLOADED_AT, result.getTimestamp())), counts(1));
     }

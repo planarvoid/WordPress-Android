@@ -12,15 +12,21 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.DOWNLOA
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REMOVED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUESTED_AT;
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.propeller.ContentValuesBuilder;
+import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import rx.Observable;
+
+import android.content.ContentValues;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -29,12 +35,14 @@ import java.util.concurrent.TimeUnit;
 class OfflineTracksStorage {
     private static final long DELAY_BEFORE_REMOVAL = TimeUnit.MINUTES.toMillis(3);
 
-    private final PropellerRx scheduler;
+    private final PropellerDatabase propeller;
+    private final PropellerRx propellerRx;
     private final DateProvider dateProvider;
 
     @Inject
-    OfflineTracksStorage(PropellerRx scheduler, DateProvider dateProvider) {
-        this.scheduler = scheduler;
+    OfflineTracksStorage(PropellerDatabase propeller, PropellerRx propellerRx, DateProvider dateProvider) {
+        this.propeller = propeller;
+        this.propellerRx = propellerRx;
         this.dateProvider = dateProvider;
     }
 
@@ -53,7 +61,7 @@ class OfflineTracksStorage {
                 .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
                 .whereNull(TrackDownloads.field(REMOVED_AT))
                 .order(PlaylistTracks.field(POSITION), Query.ORDER_ASC);
-        return scheduler.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new UrnMapper()).toList();
     }
 
     /**
@@ -69,7 +77,7 @@ class OfflineTracksStorage {
                 .whereNull(TrackDownloads.field(REMOVED_AT))
                 .order(Likes.field(CREATED_AT), Query.ORDER_DESC);
 
-        return scheduler.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new UrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingLikedTracksUrns() {
@@ -82,7 +90,7 @@ class OfflineTracksStorage {
                 .whereNotNull(TrackDownloads.field(REQUESTED_AT))
                 .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
 
-        return scheduler.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new UrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingPlaylistTracksUrns(Urn playlist) {
@@ -95,15 +103,34 @@ class OfflineTracksStorage {
                 .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
                 .whereNotNull(TrackDownloads.field(REQUESTED_AT));
 
-        return scheduler.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new UrnMapper()).toList();
     }
 
     Observable<List<Urn>> getTracksToRemove() {
-        long removalDelayedTimestamp = dateProvider.getCurrentDate().getTime() - DELAY_BEFORE_REMOVAL;
-        return scheduler.query(Query.from(Table.TrackDownloads.name())
+        final long removalDelayedTimestamp = dateProvider.getCurrentDate().getTime() - DELAY_BEFORE_REMOVAL;
+        return propellerRx.query(Query.from(Table.TrackDownloads.name())
                 .select(_ID)
                 .whereLe(REMOVED_AT, removalDelayedTimestamp))
                 .map(new UrnMapper())
                 .toList();
     }
+
+    WriteResult storeCompletedDownload(DownloadResult downloadResult) {
+        final ContentValues contentValues = ContentValuesBuilder.values(3)
+                .put(_ID, downloadResult.getTrack().getNumericId())
+                .put(UNAVAILABLE_AT, null)
+                .put(DOWNLOADED_AT, downloadResult.timestamp)
+                .get();
+
+        return propeller.upsert(TrackDownloads, contentValues);
+    }
+
+    public WriteResult markTrackAsUnavailable(Urn track) {
+        final ContentValues contentValues = ContentValuesBuilder.values(1)
+                .put(UNAVAILABLE_AT, dateProvider.getCurrentDate().getTime()).get();
+
+        return propeller.update(TrackDownloads, contentValues,
+                filter().whereEq(_ID, track.getNumericId()));
+    }
+
 }
