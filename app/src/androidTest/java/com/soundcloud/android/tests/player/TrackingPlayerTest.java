@@ -1,20 +1,18 @@
 package com.soundcloud.android.tests.player;
 
+import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
+import static com.soundcloud.android.framework.matcher.player.IsPlaying.playing;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.mrLogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO = "Android-PlayerTest";
-
-    private VisualPlayerElement playerElement;
+    private static final String TEST_SCENARIO = "android-player-test";
 
     public TrackingPlayerTest() {
         super(MainActivity.class);
@@ -29,15 +27,22 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         mrLoggaVerifier.startLogging();
-        //mrLoggaVerifier.startRecording(TEST_SCENARIO);
+        //mrLoggaRecorder.startRecording(TEST_SCENARIO);
     }
 
-    public void ignore_testSwipingNextAndPreviousChangesTrack() {
-        playTrackFromStream();
-        String originalTrack = playerElement.getTrackTitle();
+    public void ignore_testPlayAndPauseTrackFromStream() {
+        final VisualPlayerElement playerElement =
+                menuScreen
+                        .open()
+                        .clickStream()
+                        .clickFirstTrack();
 
-        playerElement.swipeNext();
-        assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
+        assertThat(playerElement, is(visible()));
+        assertThat(playerElement, is(playing()));
+
+        playerElement.clickArtwork();
+
+        assertThat(playerElement, is(not(playing())));
     }
 
     @Override
@@ -46,11 +51,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
         mrLoggaVerifier.finishLogging();
         mrLoggaVerifier.isValid(TEST_SCENARIO);
-        //mrLoggaVerifier.finishRecording();
+        //mrLoggaRecorder.finishRecording();
     }
 
-    private void playTrackFromStream() {
-        playerElement = new StreamScreen(solo).clickFirstTrack();
-        playerElement.waitForExpandedPlayer();
-    }
 }
