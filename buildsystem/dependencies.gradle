@@ -14,7 +14,7 @@ ext {
   androidBuildToolsVersion = '21.1.2'
 
   //Google Android
-  androidSupportLibraryVersion = '22.0.0'
+  androidSupportLibraryVersion = '22.0.0-15.04.15'
   androidAppCompatLibraryVersion = '22.0.0'
   androidMediaRouterLibraryVersion = '22.0.0'
   androidPlayServicesBaseVersion = '6.5.87'
@@ -23,7 +23,7 @@ ext {
   //Application
   daggerVersion = '1.2.2'
   butterKnifeVersion = '5.1.2'
-  guavaRepackVersion = '14.11.14'
+  guavaRepackVersion = '14.0.1-15.04.15'
   sqliteJdbcVersion = '3.7.15-M1'
   propellerVersion = '0.44'
   findBugsAnnotationVersion = '3.0.0'
@@ -34,7 +34,7 @@ ext {
   comscoreVersion = '2.1407.28'
   adjustAndroidVersion = '3.6.1'
   crashlyticsVersion = '1.1.11'
-  jacksonRepackVersion = '14.11.05'
+  jacksonRepackVersion = '15.04.14'
   okHttpVersion = '2.2.0'
   httpClientAndroidVersion = '4.3.5'
   httpmimeVersion = '4.0.3'
@@ -103,7 +103,7 @@ ext {
       butterKnife:                  "com.jakewharton:butterknife:${butterKnifeVersion}",
       castCompanionLibrary:         "com.google.android.cast:castcompanionlibrary:${castCompanionLibraryVersion}@aar",
       undoBar:                      "com.cocosw:undobar:${undoBarVersion}@aar",
-      androidSupportLibrary:        "com.android.support:support-v4:${androidSupportLibraryVersion}",
+      androidSupportLibrary:        "com.android.support:support-v4-repack:${androidSupportLibraryVersion}",
       androidAppCompatLibrary:      "com.android.support:appcompat-v7:${androidAppCompatLibraryVersion}",
       androidMediaRouterLibrary:    "com.android.support:mediarouter-v7:${androidMediaRouterLibraryVersion}",
       androidPlayServicesBase:      "com.google.android.gms:play-services-base:${androidPlayServicesBaseVersion}@aar",
@@ -124,7 +124,6 @@ ext {
       equalsVerifier:     "nl.jqno.equalsverifier:equalsverifier:${equalsVerifierVersion}",
       json:               "org.json:json:${jsonVersion}",
       propellerTest:      "com.soundcloud.propeller:propeller:${propellerVersion}:tests",
-      guavaRepack:        "com.google.guava:guava-repack:${guavaRepackVersion}",
   ]
 
   acceptanceTestLibraries = [
