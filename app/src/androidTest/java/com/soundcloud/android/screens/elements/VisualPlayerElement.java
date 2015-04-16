@@ -141,7 +141,7 @@ public class VisualPlayerElement extends Element {
         return footerPlayer().isVisible();
     }
 
-    public boolean isExpendedPlayerPlaying() {
+    public boolean isExpandedPlayerPlaying() {
         return waiter.waitForElementCondition(new TextChangedCondition(progress()));
     }
 

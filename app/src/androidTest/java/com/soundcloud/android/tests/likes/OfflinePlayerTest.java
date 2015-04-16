@@ -39,7 +39,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
         likesScreen.waitForLikesdownloadToFinish();
         networkManager.switchWifiOff();
 
-        assertTrue(likesScreen.clickTrack(0).isExpendedPlayerPlaying());
+        assertTrue(likesScreen.clickTrack(0).isExpandedPlayerPlaying());
     }
 
     public void testShowToastWhenContentNotDownloaded() throws Exception {
