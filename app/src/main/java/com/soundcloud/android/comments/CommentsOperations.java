@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -55,32 +54,29 @@ class CommentsOperations {
 
     Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long timestamp) {
 
-        final ApiRequest<PublicApiComment> request = ApiRequest.Builder.<PublicApiComment>post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+        final ApiRequest request = ApiRequest.Builder.post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .forPublicApi()
-                .forResource(TypeToken.of(PublicApiComment.class))
                 .withContent(new CommentHolder(commentText, timestamp))
                 .build();
 
-        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
+        return apiClientRx.mappedResponse(request, PublicApiComment.class).subscribeOn(scheduler);
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
-        final ApiRequest<CommentsCollection> request = apiRequest(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+        final ApiRequest request = apiRequest(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .addQueryParam("linked_partitioning", "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
                 .build();
-        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
+        return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
     }
 
     private Observable<CommentsCollection> comments(String nextPageUrl) {
-        final ApiRequest<CommentsCollection> request = apiRequest(nextPageUrl).build();
-        return apiClientRx.mappedResponse(request).subscribeOn(scheduler);
+        final ApiRequest request = apiRequest(nextPageUrl).build();
+        return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
     }
 
-    private ApiRequest.Builder<CommentsCollection> apiRequest(String url) {
-        return ApiRequest.Builder.<CommentsCollection>get(url)
-                .forPublicApi()
-                .forResource(TypeToken.of(CommentsCollection.class));
+    private ApiRequest.Builder apiRequest(String url) {
+        return ApiRequest.Builder.<CommentsCollection>get(url).forPublicApi();
     }
 
     @VisibleForTesting

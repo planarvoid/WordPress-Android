@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.soundcloud.android.utils.Log.ADS_TAG;
 
 import com.google.common.base.Predicate;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -59,12 +58,11 @@ public class AdsOperations {
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
-        final ApiRequest<ApiAdsForTrack> request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
+        final ApiRequest request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
                 .forPrivateApi(1)
-                .forResource(TypeToken.of(ApiAdsForTrack.class))
                 .build();
 
-        return apiClientRx.mappedResponse(request)
+        return apiClientRx.mappedResponse(request, ApiAdsForTrack.class)
                 .subscribeOn(scheduler)
                 .doOnError(logFailedAds(sourceUrn))
                 .doOnNext(logAds(sourceUrn))

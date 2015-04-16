@@ -118,12 +118,11 @@ class PaymentOperations {
     }
 
     public Observable<String> purchase(final String id) {
-        final ApiRequest<CheckoutStarted> request = ApiRequest.Builder.<CheckoutStarted>post(ApiEndpoints.CHECKOUT.path())
+        final ApiRequest request = ApiRequest.Builder.post(ApiEndpoints.CHECKOUT.path())
                         .forPrivateApi(API_VERSION)
                         .withContent(new StartCheckout(id))
-                        .forResource(CheckoutStarted.class)
                         .build();
-        return api.mappedResponse(request)
+        return api.mappedResponse(request, CheckoutStarted.class)
                 .subscribeOn(scheduler)
                 .map(CheckoutStarted.TOKEN)
                 .doOnNext(saveToken)
@@ -189,12 +188,11 @@ class PaymentOperations {
     }
 
     private Observable<PurchaseStatus> getStatus() {
-        final ApiRequest<CheckoutUpdated> request =
-                ApiRequest.Builder.<CheckoutUpdated>get(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
+        final ApiRequest request =
+                ApiRequest.Builder.get(ApiEndpoints.CHECKOUT_URN.path(tokenStorage.getCheckoutToken()))
                 .forPrivateApi(API_VERSION)
-                .forResource(CheckoutUpdated.class)
                 .build();
-        return api.mappedResponse(request)
+        return api.mappedResponse(request, CheckoutUpdated.class)
                 .subscribeOn(scheduler)
                 .map(CheckoutUpdated.TO_STATUS);
     }
@@ -223,12 +221,11 @@ class PaymentOperations {
     }
 
     private Observable<AvailableProducts> fetchAvailableProducts() {
-        final ApiRequest<AvailableProducts> request =
-                ApiRequest.Builder.<AvailableProducts>get(ApiEndpoints.PRODUCTS.path())
+        final ApiRequest request =
+                ApiRequest.Builder.get(ApiEndpoints.PRODUCTS.path())
                         .forPrivateApi(API_VERSION)
-                        .forResource(AvailableProducts.class)
                         .build();
-        return api.mappedResponse(request).subscribeOn(scheduler);
+        return api.mappedResponse(request, AvailableProducts.class).subscribeOn(scheduler);
     }
 
     private static class PollingState {

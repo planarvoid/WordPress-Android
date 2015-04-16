@@ -44,8 +44,8 @@ public class LikesSyncerTest {
     @Mock private LoadLikesPendingAdditionCommand loadLikesPendingAddition;
     @Mock private LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
     @Mock private BulkFetchCommand fetchLikedResources;
-    @Mock private PushLikeAdditionsCommand pushLikeAdditions;
-    @Mock private PushLikeDeletionsCommand pushLikeDeletions;
+    @Mock private PushLikesCommand<ApiLike> pushLikeAdditions;
+    @Mock private PushLikesCommand<ApiDeletedLike> pushLikeDeletions;
     @Mock private StoreCommand storeLikedResources;
     @Mock private StoreLikesCommand storeLikes;
     @Mock private RemoveLikesCommand removeLikes;

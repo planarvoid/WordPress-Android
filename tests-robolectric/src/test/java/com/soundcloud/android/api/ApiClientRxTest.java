@@ -1,13 +1,14 @@
 package com.soundcloud.android.api;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.model.ApiTrack;
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,9 +22,10 @@ public class ApiClientRxTest {
 
     private ApiClientRx apiClientRx;
 
-    @Mock ApiClient client;
-    @Mock ApiRequest request;
-    @Mock Observer observer;
+    @Mock private ApiClient client;
+    @Mock private ApiRequest request;
+    @Mock private Observer<ApiResponse> responseObserver;
+    @Mock private Observer<String> stringObserver;
 
     @Before
     public void setup() {
@@ -35,11 +37,11 @@ public class ApiClientRxTest {
         ApiResponse response = new ApiResponse(request, 200, "");
         when(client.fetchResponse(request)).thenReturn(response);
 
-        apiClientRx.response(request).subscribe(observer);
+        apiClientRx.response(request).subscribe(responseObserver);
 
-        InOrder inOrder = inOrder(observer);
-        inOrder.verify(observer).onNext(response);
-        inOrder.verify(observer).onCompleted();
+        InOrder inOrder = inOrder(responseObserver);
+        inOrder.verify(responseObserver).onNext(response);
+        inOrder.verify(responseObserver).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -48,25 +50,25 @@ public class ApiClientRxTest {
         ApiResponse response = new ApiResponse(request, 500, "");
         when(client.fetchResponse(request)).thenReturn(response);
 
-        apiClientRx.response(request).subscribe(observer);
+        apiClientRx.response(request).subscribe(responseObserver);
 
-        verify(observer).onError(isA(ApiRequestException.class));
-        verify(observer, never()).onNext(any());
-        verify(observer, never()).onCompleted();
+        verify(responseObserver).onError(isA(ApiRequestException.class));
+        verify(responseObserver, never()).onNext(any(ApiResponse.class));
+        verify(responseObserver, never()).onCompleted();
     }
 
     @Test
     public void shouldEmitMappedResponseOnSuccess() throws Exception {
-        ApiTrack track = new ApiTrack();
+        String mappedResponse = "mapped";
         ApiResponse response = new ApiResponse(request, 200, "");
         when(client.fetchResponse(request)).thenReturn(response);
-        when(client.mapResponse(request, response)).thenReturn(track);
+        when(client.mapResponse(response, TypeToken.of(String.class))).thenReturn(mappedResponse);
 
-        apiClientRx.mappedResponse(request).subscribe(observer);
+        apiClientRx.mappedResponse(request, String.class).subscribe(stringObserver);
 
-        InOrder inOrder = inOrder(observer);
-        inOrder.verify(observer).onNext(track);
-        inOrder.verify(observer).onCompleted();
+        InOrder inOrder = inOrder(stringObserver);
+        inOrder.verify(stringObserver).onNext(mappedResponse);
+        inOrder.verify(stringObserver).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -75,23 +77,23 @@ public class ApiClientRxTest {
         ApiResponse response = new ApiResponse(request, 500, "");
         when(client.fetchResponse(request)).thenReturn(response);
 
-        apiClientRx.mappedResponse(request).subscribe(observer);
+        apiClientRx.mappedResponse(request, String.class).subscribe(stringObserver);
 
-        verify(observer).onError(isA(ApiRequestException.class));
-        verify(observer, never()).onNext(any());
-        verify(observer, never()).onCompleted();
+        verify(stringObserver).onError(isA(ApiRequestException.class));
+        verify(stringObserver, never()).onNext(anyString());
+        verify(stringObserver, never()).onCompleted();
     }
 
     @Test
     public void shouldEmitExceptionOnFailedMapping() throws Exception {
         ApiResponse response = new ApiResponse(request, 200, "");
         when(client.fetchResponse(request)).thenReturn(response);
-        when(client.mapResponse(request, response)).thenThrow(new ApiMapperException("fail"));
+        when(client.mapResponse(response, TypeToken.of(String.class))).thenThrow(new ApiMapperException("fail"));
 
-        apiClientRx.mappedResponse(request).subscribe(observer);
+        apiClientRx.mappedResponse(request, String.class).subscribe(stringObserver);
 
-        InOrder inOrder = inOrder(observer);
-        inOrder.verify(observer).onError(isA(ApiMapperException.class));
+        InOrder inOrder = inOrder(stringObserver);
+        inOrder.verify(stringObserver).onError(isA(ApiMapperException.class));
         inOrder.verifyNoMoreInteractions();
     }
 }

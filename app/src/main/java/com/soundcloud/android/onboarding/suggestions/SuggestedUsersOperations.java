@@ -40,21 +40,19 @@ public class SuggestedUsersOperations {
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
-        ApiRequest<List<CategoryGroup>> request = ApiRequest.Builder.<List<CategoryGroup>>get(ApiEndpoints.SUGGESTED_USER_CATEGORIES.path())
+        ApiRequest request = ApiRequest.Builder.get(ApiEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forPrivateApi(1)
-                .forResource(new CategoryGroupListToken())
                 .build();
-        return apiClientRx.mappedResponse(request)
+        return apiClientRx.mappedResponse(request, new CategoryGroupListToken())
                 .subscribeOn(scheduler)
                 .flatMap(flattenGroupList);
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
-        ApiRequest<List<CategoryGroup>> request = ApiRequest.Builder.<List<CategoryGroup>>get(ApiEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
+        ApiRequest request = ApiRequest.Builder.get(ApiEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
                 .forPrivateApi(1)
-                .forResource(new CategoryGroupListToken())
                 .build();
-        return apiClientRx.mappedResponse(request)
+        return apiClientRx.mappedResponse(request, new CategoryGroupListToken())
                 .subscribeOn(scheduler)
                 .flatMap(flattenGroupList)
                 .onErrorReturn(EMPTY_FACEBOOK_GROUP);
@@ -64,7 +62,7 @@ public class SuggestedUsersOperations {
         return Observable.merge(getMusicAndSoundsSuggestions(), getFacebookSuggestions());
     }
 
-    private static class CategoryGroupListToken extends TypeToken<List<CategoryGroup>> {
+    static class CategoryGroupListToken extends TypeToken<List<CategoryGroup>> {
         //Needed because of a reflection issue on 2.2 devices, Exception is raised when logging happens in RxHttpClient
         //http://stackoverflow.com/questions/8041142/reflection-not-fully-implemented-in-android-2-2
         //This will prevent it from calling toString in TypeToken

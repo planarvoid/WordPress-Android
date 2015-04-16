@@ -3,8 +3,10 @@ package com.soundcloud.android.sync.commands;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -63,7 +65,7 @@ public class FetchTracksCommandTest {
         body.put("urns", CollectionUtils.urnsToStrings(urns));
 
         when(apiClient.fetchMappedResponse(argThat(
-                isApiRequestTo("POST", ApiEndpoints.TRACKS_FETCH.path()).withContent(body))))
+                isApiRequestTo("POST", ApiEndpoints.TRACKS_FETCH.path()).withContent(body)), isA(TypeToken.class)))
                 .thenReturn(new ModelCollection<>(tracks));
     }
 }

@@ -310,44 +310,40 @@ public class ApiClientTest {
     public void shouldFetchResourcesMappedToTypeSpecifiedInRequest() throws Exception {
         final ApiTrack mappedTrack = new ApiTrack();
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(mappedTrack);
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
+        ApiRequest request = ApiRequest.Builder.get(URL)
                 .forPrivateApi(1)
-                .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
-        ApiTrack resource = apiClient.fetchMappedResponse(request);
+        ApiTrack resource = apiClient.fetchMappedResponse(request, ApiTrack.class);
         expect(resource).toBe(mappedTrack);
     }
 
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfParsedToUnknownResource() throws Exception {
         when(jsonTransformer.fromJson(JSON_DATA, TypeToken.of(ApiTrack.class))).thenReturn(new UnknownResource());
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
+        ApiRequest request = ApiRequest.Builder.get(URL)
                 .forPrivateApi(1)
-                .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
-        apiClient.fetchMappedResponse(request);
+        apiClient.fetchMappedResponse(request, ApiTrack.class);
     }
 
     @Test(expected = ApiMapperException.class)
     public void shouldThrowMappingExceptionIfResponseBodyIsBlank() throws Exception {
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
+        ApiRequest request = ApiRequest.Builder.get(URL)
                 .forPrivateApi(1)
-                .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         mockJsonResponseFor(request, 200, "");
-        apiClient.fetchMappedResponse(request);
+        apiClient.fetchMappedResponse(request, ApiTrack.class);
     }
 
     @Test(expected = ApiRequestException.class)
     public void shouldThrowMappingExceptionIfResponseWasUnsuccessful() throws Exception {
-        ApiRequest<ApiTrack> request = ApiRequest.Builder.<ApiTrack>get(URL)
+        ApiRequest request = ApiRequest.Builder.get(URL)
                 .forPrivateApi(1)
-                .forResource(TypeToken.of(ApiTrack.class))
                 .build();
         mockJsonResponseFor(request, 500, "");
-        apiClient.fetchMappedResponse(request);
+        apiClient.fetchMappedResponse(request, ApiTrack.class);
     }
 
     @Test(expected = IllegalStateException.class)

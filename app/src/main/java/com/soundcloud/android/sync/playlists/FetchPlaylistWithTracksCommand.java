@@ -19,12 +19,12 @@ public class FetchPlaylistWithTracksCommand extends LegacyCommand<Urn, ApiPlayli
     }
 
     public ApiPlaylistWithTracks call() throws Exception {
-        final ApiRequest<ApiPlaylistWithTracks> request =
-                ApiRequest.Builder.<ApiPlaylistWithTracks>get(ApiEndpoints.PLAYLIST_WITH_TRACKS.path(input))
+        final ApiRequest request =
+                ApiRequest.Builder.get(ApiEndpoints.PLAYLIST_WITH_TRACKS.path(input))
                         .forPrivateApi(1)
-                        .forResource(new TypeToken<ApiPlaylistWithTracks>() { })
                         .build();
 
-        return apiClient.fetchMappedResponse(request);
+        return apiClient.fetchMappedResponse(request, new TypeToken<ApiPlaylistWithTracks>() {
+        });
     }
 }

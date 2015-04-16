@@ -2,13 +2,14 @@ package com.soundcloud.android.onboarding.suggestions;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersOperations.CategoryGroupListToken;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import org.junit.Before;
@@ -37,14 +38,15 @@ public class SuggestedUsersOperationsTest {
     @Before
     public void setUp(){
         suggestedUsersOperations = new SuggestedUsersOperations(apiClientRx, Schedulers.immediate());
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(CategoryGroupListToken.class)))
+                .thenReturn(Observable.<List<CategoryGroup>>empty());
     }
 
     @Test
     public void shouldMakeRequestToFacebookSuggestionsEndpoint(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
         expect(argumentCaptor.getValue().getEncodedPath()).toEqual("/suggestions/users/social/facebook");
     }
 
@@ -52,7 +54,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeRequestToFacebookSuggestionsEndpointVersion1(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
         expect(argumentCaptor.getValue().getVersion()).toEqual(1);
     }
 
@@ -60,7 +62,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeGetRequestToFacebookSuggestionsEndpoint(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
     }
 
@@ -68,15 +70,14 @@ public class SuggestedUsersOperationsTest {
     public void shouldRequestCollectionOfCategoriesFromFacebookSuggestionsEndpoint(){
         suggestedUsersOperations.getFacebookSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
-        expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
     }
 
     @Test
     public void shouldMakeRequestToSoundSuggestionsEndpoint(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
         expect(argumentCaptor.getValue().getEncodedPath()).toEqual("/suggestions/users/categories");
     }
 
@@ -84,7 +85,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeRequestToSoundSuggestionsEndpointVersion1(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
         expect(argumentCaptor.getValue().getVersion()).toEqual(1);
     }
 
@@ -92,7 +93,7 @@ public class SuggestedUsersOperationsTest {
     public void shouldMakeGetRequestToSoundSuggestionsEndpoint(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
         expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
     }
 
@@ -100,13 +101,13 @@ public class SuggestedUsersOperationsTest {
     public void shouldRequestCollectionOfCategoriesFromSoundSuggestionsEndpoint(){
         suggestedUsersOperations.getMusicAndSoundsSuggestions();
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(argumentCaptor.capture());
-        expect(argumentCaptor.getValue().getResourceType()).toEqual(new TypeToken<List<CategoryGroup>>(){});
+        verify(apiClientRx).mappedResponse(argumentCaptor.capture(), isA(CategoryGroupListToken.class));
     }
 
     @Test
     public void shouldReturnEmptyCategoryWhenFacebookFails() {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.error(new Exception()));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(CategoryGroupListToken.class)))
+                .thenReturn(Observable.<List<CategoryGroup>>error(new Exception()));
         suggestedUsersOperations.getFacebookSuggestions().subscribe(observer);
         verify(observer, never()).onError(any(Exception.class));
     }

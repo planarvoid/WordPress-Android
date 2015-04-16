@@ -10,6 +10,8 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.sync.commands.FetchPlaylistsCommand;
 import com.soundcloud.android.sync.commands.FetchTracksCommand;
+import com.soundcloud.android.sync.likes.PushLikesCommand.AddedLikesCollection;
+import com.soundcloud.android.sync.likes.PushLikesCommand.DeletedLikesCollection;
 import com.soundcloud.propeller.PropellerDatabase;
 import dagger.Module;
 import dagger.Provides;
@@ -32,8 +34,8 @@ public class LikesSyncModule {
     @Named(TRACK_LIKES_SYNCER)
     LikesSyncer<ApiTrack> provideTrackLikesSyncer(
             FetchLikesCommand fetchLikesCommand, FetchTracksCommand fetchTracks, LoadLikesCommand loadLikes,
-            @Named(TRACK_LIKE_ADDITIONS) PushLikeAdditionsCommand pushLikeAdditions,
-            @Named(TRACK_LIKE_DELETIONS) PushLikeDeletionsCommand pushLikeDeletions,
+            @Named(TRACK_LIKE_ADDITIONS) PushLikesCommand pushLikeAdditions,
+            @Named(TRACK_LIKE_DELETIONS) PushLikesCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StoreTracksCommand storeTracks, StoreLikesCommand storeLikes,
             @Named(REMOVE_TRACK_LIKES) RemoveLikesCommand removeLikes) {
@@ -46,8 +48,8 @@ public class LikesSyncModule {
     @Named(PLAYLIST_LIKES_SYNCER)
     LikesSyncer<ApiPlaylist> providePlaylistLikesSyncer(
             FetchLikesCommand fetchLikesCommand, FetchPlaylistsCommand fetchPlaylists, LoadLikesCommand loadLikes,
-            @Named(PLAYLIST_LIKE_ADDITIONS) PushLikeAdditionsCommand pushLikeAdditions,
-            @Named(PLAYLIST_LIKE_DELETIONS) PushLikeDeletionsCommand pushLikeDeletions,
+            @Named(PLAYLIST_LIKE_ADDITIONS) PushLikesCommand pushLikeAdditions,
+            @Named(PLAYLIST_LIKE_DELETIONS) PushLikesCommand pushLikeDeletions,
             LoadLikesPendingAdditionCommand loadLikesPendingAddition, LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
             StorePlaylistsCommand storePlaylists, StoreLikesCommand storeLikes,
             @Named(REMOVE_PLAYLIST_LIKES) RemoveLikesCommand removeLikes) {
@@ -58,26 +60,26 @@ public class LikesSyncModule {
 
     @Provides
     @Named(TRACK_LIKE_ADDITIONS)
-    PushLikeAdditionsCommand provideTrackLikeAdditionsPushCommand(ApiClient apiClient) {
-        return new PushLikeAdditionsCommand(apiClient, ApiEndpoints.CREATE_TRACK_LIKES);
+    PushLikesCommand provideTrackLikeAdditionsPushCommand(ApiClient apiClient) {
+        return new PushLikesCommand(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, AddedLikesCollection.class);
     }
 
     @Provides
     @Named(TRACK_LIKE_DELETIONS)
-    PushLikeDeletionsCommand provideTrackLikeDeletionsPushCommand(ApiClient apiClient) {
-        return new PushLikeDeletionsCommand(apiClient, ApiEndpoints.DELETE_TRACK_LIKES);
+    PushLikesCommand provideTrackLikeDeletionsPushCommand(ApiClient apiClient) {
+        return new PushLikesCommand(apiClient, ApiEndpoints.DELETE_TRACK_LIKES, DeletedLikesCollection.class);
     }
 
     @Provides
     @Named(PLAYLIST_LIKE_ADDITIONS)
-    PushLikeAdditionsCommand providePlaylistLikeAdditionsPushCommand(ApiClient apiClient) {
-        return new PushLikeAdditionsCommand(apiClient, ApiEndpoints.CREATE_PLAYLIST_LIKES);
+    PushLikesCommand providePlaylistLikeAdditionsPushCommand(ApiClient apiClient) {
+        return new PushLikesCommand(apiClient, ApiEndpoints.CREATE_PLAYLIST_LIKES, AddedLikesCollection.class);
     }
 
     @Provides
     @Named(PLAYLIST_LIKE_DELETIONS)
-    PushLikeDeletionsCommand providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
-        return new PushLikeDeletionsCommand(apiClient, ApiEndpoints.DELETE_PLAYLIST_LIKES);
+    PushLikesCommand providePlaylistLikeDeletionsPushCommand(ApiClient apiClient) {
+        return new PushLikesCommand(apiClient, ApiEndpoints.DELETE_PLAYLIST_LIKES, DeletedLikesCollection.class);
     }
 
     @Provides
