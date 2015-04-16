@@ -65,7 +65,7 @@ class StrictSSLHttpClient {
             return response.code() >= 400 && response.code() <= 499;
         }
 
-        public InputStream getInputStream() {
+        public InputStream getInputStream() throws IOException {
             return response.body().byteStream();
         }
 

@@ -35,7 +35,7 @@ ext {
   adjustAndroidVersion = '3.6.1'
   crashlyticsVersion = '1.1.11'
   jacksonRepackVersion = '15.04.14'
-  okHttpVersion = '2.2.0'
+  okHttpVersion = '2.3.0'
   httpClientAndroidVersion = '4.3.5'
   httpmimeVersion = '4.0.3'
   localyticsVersion = '2.71'
