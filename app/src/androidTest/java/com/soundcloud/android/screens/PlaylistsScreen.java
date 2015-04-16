@@ -24,7 +24,11 @@ public class PlaylistsScreen extends Screen {
     }
 
     public boolean hasLikes() {
-        return !emptyView().isVisible() && playlistsListOnCurrentPage().getItemCount() > 0;
+        return !emptyView().isVisible() && playlistsListOnCurrentPage().getVisibleItemViewCount() > 0;
+    }
+
+    public int getPlaylistItemCount() {
+        return playlistsListOnCurrentPage().getItemCount();
     }
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {

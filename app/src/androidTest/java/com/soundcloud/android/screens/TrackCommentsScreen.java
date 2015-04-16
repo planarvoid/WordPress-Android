@@ -34,6 +34,16 @@ public class TrackCommentsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.title));
     }
 
+    public TrackCommentsScreen scrollToBottomOfComments() {
+        getListView().scrollToBottom();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public int getCommentsCount() {
+        return getListView().getItemCount();
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;

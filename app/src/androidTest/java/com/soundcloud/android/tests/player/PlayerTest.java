@@ -5,6 +5,7 @@ import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collap
 import static com.soundcloud.android.framework.matcher.player.IsPlaying.Playing;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.IsNot.not;
 
@@ -161,6 +162,20 @@ public class PlayerTest extends ActivityTest<MainActivity> {
                 .clickComments();
 
         assertThat(originalTitle, is(equalTo((trackCommentsScreen.getTitle()))));
+    }
+
+    public void testListOfCommentsCanBePaged() throws Exception {
+        playTrackFromStream();
+
+        TrackCommentsScreen trackCommentsScreen = playerElement
+                .clickMenu()
+                .clickInfo()
+                .clickComments();
+        int initialCommentsCount = trackCommentsScreen.getCommentsCount();
+        trackCommentsScreen.scrollToBottomOfComments();
+        int nextCommentsCount = trackCommentsScreen.getCommentsCount();
+
+        assertThat(nextCommentsCount, is(greaterThan(initialCommentsCount)));
     }
 
     public void testPlayerTrackMakeComment() throws Exception {

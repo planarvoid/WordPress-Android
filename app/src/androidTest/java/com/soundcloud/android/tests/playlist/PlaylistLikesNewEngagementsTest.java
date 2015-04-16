@@ -2,6 +2,7 @@ package com.soundcloud.android.tests.playlist;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
@@ -64,14 +65,16 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         likePlaylist(openOverflowMenu(playlistsScreen));
         playlistsScreen.touchLikedPlaylistsTab();
         assertFirstItemTitle(playlistsScreen, expectedTitle);
+        int initialLikedPlaylistsCount = playlistsScreen.getPlaylistItemCount();
 
         // assert liked + then unlike
         final PlaylistItemOverflowMenu overflowMenu = openOverflowMenu(playlistsScreen);
         assertTrue(overflowMenu.isLiked());
         overflowMenu.toggleLike();
+        int newLikedPlaylistsCount = playlistsScreen.getPlaylistItemCount();
 
         // assert item now gone
-        assertThat(playlistsScreen.hasLikes(), is(false));
+        assertThat(newLikedPlaylistsCount, is(lessThan(initialLikedPlaylistsCount)));
 
         playlistsScreen.touchPostedPlaylistsTab();
 
