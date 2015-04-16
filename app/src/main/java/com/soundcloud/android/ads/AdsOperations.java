@@ -58,7 +58,7 @@ public class AdsOperations {
 
     public Observable<ApiAdsForTrack> ads(Urn sourceUrn) {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), sourceUrn.toEncodedString());
-        final ApiRequest request = ApiRequest.Builder.<ApiAdsForTrack>get(endpoint)
+        final ApiRequest request = ApiRequest.get(endpoint)
                 .forPrivateApi(1)
                 .build();
 

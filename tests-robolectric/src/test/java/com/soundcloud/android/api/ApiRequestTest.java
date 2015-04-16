@@ -35,18 +35,18 @@ public class ApiRequestTest {
 
     @Test
     public void shouldReturnRequestInstanceWithPostMethodSet() {
-        ApiRequest request = ApiRequest.Builder.post(URI_PATH).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.post(URI_PATH).forPrivateApi(1).build();
         expect(request.getMethod()).toEqual("POST");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIllegalArgumentExceptionOnNegativeVersionValue() {
-        ApiRequest.Builder.get(URI_PATH).forPrivateApi(-1).build();
+        ApiRequest.get(URI_PATH).forPrivateApi(-1).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIllegalArgumentExceptionOnZeroVersionValueForPrivateAPI() {
-        ApiRequest.Builder.get(URI_PATH).forPrivateApi(0).build();
+        ApiRequest.get(URI_PATH).forPrivateApi(0).build();
     }
 
     @Test
@@ -57,12 +57,12 @@ public class ApiRequestTest {
 
     @Test
     public void shouldAllowNoVersionForPublicAPI() {
-        ApiRequest.Builder.get("/uri").forPublicApi().build();
+        ApiRequest.get("/uri").forPublicApi().build();
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionIfAPIModeNotSet() {
-        ApiRequest.Builder.get(URI_PATH).build();
+        ApiRequest.get(URI_PATH).build();
     }
 
     @Test
@@ -73,7 +73,7 @@ public class ApiRequestTest {
 
     @Test
     public void shouldReturnSpecifiedPublicAPITarget() {
-        ApiRequest request = ApiRequest.Builder.get(URI_PATH).forPublicApi().build();
+        ApiRequest request = ApiRequest.get(URI_PATH).forPublicApi().build();
         expect(request.isPrivate()).toBeFalse();
     }
 
@@ -135,6 +135,6 @@ public class ApiRequestTest {
     }
 
     private ApiRequest.Builder validRequest(String uri) {
-        return ApiRequest.Builder.get(uri).forPrivateApi(1);
+        return ApiRequest.get(uri).forPrivateApi(1);
     }
 }

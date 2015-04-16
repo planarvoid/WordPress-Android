@@ -15,7 +15,7 @@ public class ApiResponseTest {
 
     @Before
     public void setUp() {
-        request = ApiRequest.Builder.get("/").forPrivateApi(1).build();
+        request = ApiRequest.get("/").forPrivateApi(1).build();
         response = new ApiResponse(request, 200, "response");
     }
 

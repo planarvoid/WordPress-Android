@@ -40,7 +40,7 @@ public class SuggestedUsersOperations {
     }
 
     public Observable<CategoryGroup> getMusicAndSoundsSuggestions() {
-        ApiRequest request = ApiRequest.Builder.get(ApiEndpoints.SUGGESTED_USER_CATEGORIES.path())
+        ApiRequest request = ApiRequest.get(ApiEndpoints.SUGGESTED_USER_CATEGORIES.path())
                 .forPrivateApi(1)
                 .build();
         return apiClientRx.mappedResponse(request, new CategoryGroupListToken())
@@ -49,7 +49,7 @@ public class SuggestedUsersOperations {
     }
 
     public Observable<CategoryGroup> getFacebookSuggestions() {
-        ApiRequest request = ApiRequest.Builder.get(ApiEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
+        ApiRequest request = ApiRequest.get(ApiEndpoints.SUGGESTED_USER_FACEBOOK_CATEGORIES.path())
                 .forPrivateApi(1)
                 .build();
         return apiClientRx.mappedResponse(request, new CategoryGroupListToken())

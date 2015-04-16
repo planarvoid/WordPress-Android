@@ -89,7 +89,7 @@ public class RepostOperations {
     }
 
     private Observable<ApiResponse> pushAddRepost(Urn soundUrn) {
-        final ApiRequest request = ApiRequest.Builder.put(getRepostEndpoint(soundUrn)
+        final ApiRequest request = ApiRequest.put(getRepostEndpoint(soundUrn)
                 .path(soundUrn.getNumericId()))
                 .forPublicApi()
                 .build();
@@ -97,7 +97,7 @@ public class RepostOperations {
     }
 
     private Observable<ApiResponse> pushRemoveRepost(Urn soundUrn) {
-        final ApiRequest request = ApiRequest.Builder.delete(getRepostEndpoint(soundUrn)
+        final ApiRequest request = ApiRequest.delete(getRepostEndpoint(soundUrn)
                 .path(soundUrn.getNumericId()))
                 .forPublicApi()
                 .build();

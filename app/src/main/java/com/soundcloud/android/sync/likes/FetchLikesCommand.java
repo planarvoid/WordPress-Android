@@ -29,7 +29,7 @@ class FetchLikesCommand extends LegacyCommand<ApiEndpoints, NavigableSet<Propert
     @Override
     public NavigableSet<PropertySet> call() throws Exception {
         final ApiRequest request =
-                ApiRequest.Builder.get(input.path())
+                ApiRequest.get(input.path())
                         .forPrivateApi(1)
                         .build();
 

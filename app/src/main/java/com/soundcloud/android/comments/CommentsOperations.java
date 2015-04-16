@@ -54,7 +54,7 @@ class CommentsOperations {
 
     Observable<PublicApiComment> addComment(Urn trackUrn, String commentText, long timestamp) {
 
-        final ApiRequest request = ApiRequest.Builder.post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+        final ApiRequest request = ApiRequest.post(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
                 .forPublicApi()
                 .withContent(new CommentHolder(commentText, timestamp))
                 .build();
@@ -76,7 +76,7 @@ class CommentsOperations {
     }
 
     private ApiRequest.Builder apiRequest(String url) {
-        return ApiRequest.Builder.<CommentsCollection>get(url).forPublicApi();
+        return ApiRequest.get(url).forPublicApi();
     }
 
     @VisibleForTesting

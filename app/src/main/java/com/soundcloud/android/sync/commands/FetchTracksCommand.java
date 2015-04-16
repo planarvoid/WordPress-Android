@@ -33,7 +33,7 @@ public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
         final ArrayMap<String, Object> body = new ArrayMap<>(1);
         body.put("urns", CollectionUtils.urnsToStrings(urns));
 
-        return ApiRequest.Builder.post(ApiEndpoints.TRACKS_FETCH.path())
+        return ApiRequest.post(ApiEndpoints.TRACKS_FETCH.path())
                 .forPrivateApi(1)
                 .withContent(body)
                 .build();

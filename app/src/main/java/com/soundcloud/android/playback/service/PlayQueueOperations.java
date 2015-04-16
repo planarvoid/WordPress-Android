@@ -108,7 +108,7 @@ public class PlayQueueOperations {
 
     public Observable<RecommendedTracksCollection> getRelatedTracks(Urn urn) {
         final String endpoint = String.format(ApiEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
-        final ApiRequest request = ApiRequest.Builder.get(endpoint).forPrivateApi(1).build();
+        final ApiRequest request = ApiRequest.get(endpoint).forPrivateApi(1).build();
 
         return apiClientRx.mappedResponse(request, RecommendedTracksCollection.class)
                 .doOnNext(storeTracksCommand.toAction())

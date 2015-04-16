@@ -20,7 +20,7 @@ public class FetchPlaylistWithTracksCommand extends LegacyCommand<Urn, ApiPlayli
 
     public ApiPlaylistWithTracks call() throws Exception {
         final ApiRequest request =
-                ApiRequest.Builder.get(ApiEndpoints.PLAYLIST_WITH_TRACKS.path(input))
+                ApiRequest.get(ApiEndpoints.PLAYLIST_WITH_TRACKS.path(input))
                         .forPrivateApi(1)
                         .build();
 
