@@ -27,9 +27,9 @@ public class TrackLikesScreen extends Screen {
     }
 
     public VisualPlayerElement clickTrack(int index) {
-        final int trackIndexInList = index + 1;
-        likesList().getItemAt(trackIndexInList).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        VisualPlayerElement visualPlayerElement = tracks()
+                .get(index)
+                .click();
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
@@ -43,7 +43,7 @@ public class TrackLikesScreen extends Screen {
 
     public int getLoadedTrackCount() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return likesList().getAdapter().getCount() - 1; // header
+        return tracks().size();
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
