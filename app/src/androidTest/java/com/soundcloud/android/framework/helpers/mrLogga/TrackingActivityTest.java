@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 public abstract class TrackingActivityTest<T extends Activity> extends ActivityTest<T> {
 
     protected MrLoggaVerifier mrLoggaVerifier;
+    protected MrLoggaRecorder mrLoggaRecorder;
 
     public TrackingActivityTest(Class<T> activityClass) {
         super(activityClass);
@@ -25,7 +26,9 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
 
         final Context context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context, new DeviceHelper(context, new BuildHelper()), new OkHttpClient());
+
         mrLoggaVerifier = new MrLoggaVerifier(client);
+        mrLoggaRecorder = new MrLoggaRecorder(client);
 
         enableEventLoggerInstantFlush(context);
     }
