@@ -25,7 +25,7 @@ public class DownloadHandler extends Handler {
     }
 
     public boolean isCurrentRequest(DownloadRequest request) {
-        return current != null && request.equals(current);
+        return current != null && current.equals(request);
     }
 
     interface Listener {
