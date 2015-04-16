@@ -319,7 +319,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         @Override
         public void onNext(PropertySet track) {
             play(track, playFromPosition);
-
         }
     }
 

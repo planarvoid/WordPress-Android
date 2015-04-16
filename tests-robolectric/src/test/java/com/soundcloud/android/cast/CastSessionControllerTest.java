@@ -5,7 +5,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.android.gms.cast.MediaInfo;
@@ -31,9 +30,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import rx.Observable;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -45,6 +44,7 @@ public class CastSessionControllerTest {
 
     private CastSessionController castSessionController;
 
+    @Mock private CastOperations castOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private VideoCastManager videoCastManager;
@@ -54,8 +54,13 @@ public class CastSessionControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        castSessionController = new CastSessionController(playbackOperations, playQueueManager, videoCastManager, eventBus, playSessionStateProvider);
-        when(playbackOperations.playTrackWithRecommendations(any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
+        castSessionController = new CastSessionController(castOperations,
+                playbackOperations,
+                playQueueManager,
+                videoCastManager,
+                eventBus,
+                playSessionStateProvider);
+        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(Collections.<Urn>emptyList(), Urn.NOT_SET));
     }
 
     @Test
@@ -109,6 +114,7 @@ public class CastSessionControllerTest {
     @Test
     public void onMetaDataUpdatedPlaysCurrentTrackWithSameRemoteQueueAndRemoteIsPlaying() throws Exception {
         castSessionController.startListening();
+        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
         when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
         when(videoCastManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
         setupExistingCastSession();
@@ -121,6 +127,7 @@ public class CastSessionControllerTest {
     @Test
     public void onMetaDataUpdatedSetsPlayQueueWithDifferentTracklist() throws Exception {
         castSessionController.startListening();
+        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
         setupExistingCastSession();
 
         callOnMetadatUpdated();
@@ -132,6 +139,7 @@ public class CastSessionControllerTest {
     @Test
     public void onMetaDataUpdatedPlaysCurrentTrackWhenRemotePlayQueueIsDifferent() throws Exception {
         castSessionController.startListening();
+        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
         setupExistingCastSession();
 
         callOnMetadatUpdated();
@@ -142,6 +150,7 @@ public class CastSessionControllerTest {
     @Test
     public void onMetaDataUpdatedShowsPlayer() throws Exception {
         castSessionController.startListening();
+        when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
         setupExistingCastSession();
 
         callOnMetadatUpdated();
