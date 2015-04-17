@@ -6,6 +6,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
@@ -41,9 +42,14 @@ public class TrackLikesScreen extends Screen {
         return visualPlayerElement;
     }
 
+    public int getTotalLikesCount() {
+        String text = listHeaderText().getText();
+        return Integer.parseInt(text.replaceAll("[^0-9]", ""));
+    }
+
     public int getLoadedTrackCount() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return tracks().size();
+        return likesList().getItemCount() - 1; // header
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
@@ -121,6 +127,10 @@ public class TrackLikesScreen extends Screen {
     private ViewElement listHeaderOverflowButton() {
         return listHeader()
                 .findElement(With.id(R.id.overflow_button));
+    }
+
+    private TextElement listHeaderText() {
+        return new TextElement(testDriver.findElement(With.id(R.id.header_text)));
     }
 
     private ViewElement listHeader() {
