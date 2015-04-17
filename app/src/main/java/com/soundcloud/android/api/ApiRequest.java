@@ -7,21 +7,27 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import android.net.Uri;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class ApiRequest {
+
+    private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json; charset=utf-8";
+    // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
+    private static final String PUBLIC_API_ACCEPT_CONTENT_TYPE = "application/json";
 
     private final Uri uri;
     private final String httpMethod;
@@ -29,7 +35,6 @@ public class ApiRequest {
     private final Boolean isPrivate;
     @NotNull private final Multimap<String, String> queryParams;
     @NotNull private final Map<String, String> headers;
-    @Nullable private final Object content;
 
     public static Builder get(String uri) {
         return new Builder(uri, HttpGet.METHOD_NAME);
@@ -48,14 +53,13 @@ public class ApiRequest {
     }
 
     ApiRequest(Uri uri, String method, int endpointVersion,
-               Boolean isPrivate, @NotNull Multimap<String, String> queryParams, @Nullable Object content,
+               Boolean isPrivate, @NotNull Multimap<String, String> queryParams,
                @NotNull Map<String, String> headers) {
         this.uri = uri;
         this.httpMethod = method;
         this.endpointVersion = endpointVersion;
         this.isPrivate = isPrivate;
         this.queryParams = queryParams;
-        this.content = content;
         this.headers = headers;
     }
 
@@ -89,9 +93,10 @@ public class ApiRequest {
         return ImmutableMap.copyOf(headers);
     }
 
-    @Nullable
-    public Object getContent() {
-        return content;
+    public String getAcceptMediaType() {
+        return isPrivate
+                ? String.format(Locale.US, PRIVATE_API_ACCEPT_CONTENT_TYPE, endpointVersion)
+                : PUBLIC_API_ACCEPT_CONTENT_TYPE;
     }
 
     public enum Param {
@@ -118,6 +123,7 @@ public class ApiRequest {
         private final Multimap<String, String> parameters;
         private final Map<String, String> headers;
         private Object content;
+        private List<ApiFileContentRequest.FileEntry> files;
 
         public Builder(String uri, String methodName) {
             this.parameters = UriUtils.getQueryParameters(uri);
@@ -131,8 +137,13 @@ public class ApiRequest {
             if (isPrivate) {
                 checkArgument(endpointVersion > 0, "Not a valid api version: %s", endpointVersion);
             }
-            return new ApiRequest(uri, httpMethod, endpointVersion,
-                    isPrivate, parameters, content, headers);
+            if (content != null) {
+                return new ApiObjectContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, content);
+            } else if (files != null) {
+                return new ApiFileContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, files);
+            } else {
+                return new ApiRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers);
+            }
         }
 
         public Builder forPrivateApi(int version) {
@@ -162,10 +173,19 @@ public class ApiRequest {
             return this;
         }
 
+        public Builder withFile(File file, String paramName, String fileName, String contentType) {
+            if (this.files == null) {
+                files = new ArrayList<>();
+            }
+            files.add(new ApiFileContentRequest.FileEntry(file, paramName, fileName, contentType));
+            return this;
+        }
+
         public Builder withHeader(String name, String value) {
             headers.put(name, value);
             return this;
         }
+
     }
 
     @Override
@@ -174,7 +194,6 @@ public class ApiRequest {
                 .add("uri", uri.toString())
                 .add("httpMethod", httpMethod)
                 .add("endPointVersion", endpointVersion)
-                .add("isPrivate", isPrivate)
-                .add("content", ScTextUtils.safeToString(content)).toString();
+                .add("isPrivate", isPrivate).toString();
     }
 }

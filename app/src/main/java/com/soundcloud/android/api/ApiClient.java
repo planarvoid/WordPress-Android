@@ -10,6 +10,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ads.AdIdHelper;
+import com.soundcloud.android.api.ApiFileContentRequest.FileEntry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -17,6 +18,7 @@ import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
@@ -27,14 +29,11 @@ import android.os.Looper;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 
 public class ApiClient {
 
-    private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json; charset=utf-8";
-    // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
-    private static final String PUBLIC_API_ACCEPT_CONTENT_TYPE = "application/json";
     private static final String TAG = "ApiClient";
 
     private final OkHttpClient httpClient;
@@ -118,7 +117,7 @@ public class ApiClient {
 
     private void setHttpHeaders(ApiRequest request, com.squareup.okhttp.Request.Builder builder) {
         // default headers
-        builder.header(HttpHeaders.ACCEPT, getContentType(request));
+        builder.header(HttpHeaders.ACCEPT, request.getAcceptMediaType());
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
         builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
 
@@ -138,20 +137,30 @@ public class ApiClient {
         }
     }
 
-    private String getContentType(ApiRequest request) {
-        return request.isPrivate()
-                ? String.format(Locale.US, PRIVATE_API_ACCEPT_CONTENT_TYPE, request.getVersion())
-                : PUBLIC_API_ACCEPT_CONTENT_TYPE;
+    private RequestBody getRequestBody(ApiRequest request) throws ApiMapperException, UnsupportedEncodingException {
+        if (request instanceof ApiObjectContentRequest) {
+            return getJsonRequestBody((ApiObjectContentRequest) request);
+        } else if (request instanceof ApiFileContentRequest) {
+            return getMultipartRequestBody((ApiFileContentRequest) request);
+        } else {
+            return RequestBody.create(MediaType.parse(request.getAcceptMediaType()), ScTextUtils.EMPTY_STRING);
+        }
     }
 
-    private RequestBody getRequestBody(ApiRequest request) throws ApiMapperException, UnsupportedEncodingException {
-        final MediaType mediaType = MediaType.parse(getContentType(request));
-        if (request.getContent() != null) {
-            final byte[] content = jsonTransformer.toJson(request.getContent()).getBytes(Charsets.UTF_8.name());
-            return RequestBody.create(mediaType, content);
-        } else {
-            return RequestBody.create(mediaType, ScTextUtils.EMPTY_STRING);
+    private RequestBody getJsonRequestBody(ApiObjectContentRequest request) throws UnsupportedEncodingException, ApiMapperException {
+        final MediaType mediaType = MediaType.parse(request.getContentType());
+        final byte[] content = jsonTransformer.toJson(request.getContent()).getBytes(Charsets.UTF_8.name());
+        return RequestBody.create(mediaType, content);
+    }
+
+    private RequestBody getMultipartRequestBody(ApiFileContentRequest request) {
+        final MultipartBuilder builder = new MultipartBuilder().type(MultipartBuilder.FORM);
+        final List<FileEntry> files = request.getFiles();
+        for (FileEntry fileEntry : files) {
+            final RequestBody fileBody = RequestBody.create(MediaType.parse(fileEntry.contentType), fileEntry.file);
+            builder.addFormDataPart(fileEntry.paramName, fileEntry.fileName, fileBody);
         }
+        return builder.build();
     }
 
     public <ResourceType> ResourceType fetchMappedResponse(ApiRequest request, TypeToken<ResourceType> resourceType)

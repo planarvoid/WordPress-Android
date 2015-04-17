@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.legacy.model.Association;
@@ -207,7 +208,7 @@ public class FollowingOperationsTest {
         ops.bulkFollowAssociations(userAssociations).subscribe(observer);
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).response(argumentCaptor.capture());
-        Object jsonContent = argumentCaptor.getValue().getContent();
+        Object jsonContent = ((ApiObjectContentRequest) argumentCaptor.getValue()).getContent();
         expect(((FollowingOperations.BulkFollowingsHolder) jsonContent).tokens).toContainExactly("token1", "token2");
     }
 

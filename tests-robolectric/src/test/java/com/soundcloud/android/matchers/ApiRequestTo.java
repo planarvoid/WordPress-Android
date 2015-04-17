@@ -2,6 +2,7 @@ package com.soundcloud.android.matchers;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
+import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
@@ -88,19 +89,19 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
     }
 
     private boolean contentMatches() {
-        if (request.getContent() == null) {
-            return content == null;
-
-        } else if (content == null) {
-            return false;
-
-        } else if (content instanceof Iterable) {
-            return request.getContent() instanceof Iterable
-                    && Iterables.elementsEqual((Iterable) content, (Iterable) request.getContent());
-        } else if (content instanceof Map && request.getContent() instanceof Map) {
-            return Iterables.elementsEqual(((Map) content).entrySet(), ((Map) request.getContent()).entrySet());
+        if (request instanceof ApiObjectContentRequest) {
+            Object targetContent = ((ApiObjectContentRequest) request).getContent();
+            if (content instanceof Iterable) {
+                return targetContent instanceof Iterable
+                        && Iterables.elementsEqual((Iterable) content, (Iterable) targetContent);
+            } else if (content instanceof Map && targetContent instanceof Map) {
+                return Iterables.elementsEqual(((Map) content).entrySet(), ((Map) targetContent).entrySet());
+            } else {
+                return Objects.equal(targetContent, content);
+            }
         } else {
-            return Objects.equal(request.getContent(), content);
+            // must not expect a content to exist if target request not a content request
+            return content == null;
         }
     }
 

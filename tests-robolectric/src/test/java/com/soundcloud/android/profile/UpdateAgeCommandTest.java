@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -37,7 +38,7 @@ public class UpdateAgeCommandTest {
         ArgumentCaptor<ApiRequest> captor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClient).fetchResponse(captor.capture());
 
-        Map<String, Integer> content = (Map) captor.getValue().getContent();
+        Map<String, Integer> content = (Map) ((ApiObjectContentRequest) captor.getValue()).getContent();
         expect(content.get("month")).toEqual(info.month);
         expect(content.get("year")).toEqual(info.year);
     }

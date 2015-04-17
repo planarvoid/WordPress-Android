@@ -19,6 +19,7 @@ import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.api.Request;
 import com.squareup.okhttp.Call;
+import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
@@ -249,22 +251,6 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldMakePostRequestsToPublicApiWithoutCharsetsInContentType() throws Exception {
-        when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
-        ApiRequest request = ApiRequest.post(URL)
-                .forPublicApi()
-                .withContent(new ApiTrack())
-                .build();
-        mockSuccessfulResponseFor(request);
-
-        apiClient.fetchResponse(request);
-
-        expect(httpRequestCaptor.getValue().method()).toEqual("POST");
-        expect(httpRequestCaptor.getValue().body().contentLength()).toEqual((long) JSON_DATA.length());
-        expect(httpRequestCaptor.getValue().body().contentType().toString()).toEqual("application/json");
-    }
-
-    @Test
     public void shouldMakePutRequestToApiMobileWithJsonContentProvidedInRequest() throws Exception {
         when(jsonTransformer.toJson(new ApiTrack())).thenReturn(JSON_DATA);
         ApiRequest request = ApiRequest.put(URL)
@@ -292,6 +278,20 @@ public class ApiClientTest {
         ApiResponse response = apiClient.fetchResponse(request);
         expect(response.isSuccess()).toBeFalse();
         expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.MALFORMED_INPUT);
+    }
+
+    @Test
+    public void shouldMakePostRequestToApiMobileWithMultipartFileContent() throws Exception {
+        ApiRequest request = ApiRequest.post(URL)
+                .forPrivateApi(1)
+                .withFile(new File("/path"), "file1", "file1.png", "image/png")
+                .build();
+        mockJsonResponseFor(request, 200, JSON_DATA);
+
+        apiClient.fetchResponse(request);
+
+        expect(httpRequestCaptor.getValue().method()).toEqual("POST");
+        expect(httpRequestCaptor.getValue().body().contentType().toString()).toStartWith(MultipartBuilder.FORM.toString());
     }
 
     @Test
