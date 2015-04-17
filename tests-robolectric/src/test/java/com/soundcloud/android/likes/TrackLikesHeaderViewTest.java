@@ -86,8 +86,22 @@ public class TrackLikesHeaderViewTest {
                 .getQuantityString(R.plurals.number_of_liked_tracks_you_liked, 1, 1));
     }
 
+    public void displayOverflowMenuWhenOfflineSyncOptionIsEnabled() {
+        trackLikesHeaderView.updateOverflowMenuButton(true);
+        expect(getOverflowMenuButton()).toBeVisible();
+    }
+
+    public void displayOverflowMenuWhenOfflineSyncOptionIsDisabled() {
+        trackLikesHeaderView.updateOverflowMenuButton(false);
+        expect(getOverflowMenuButton()).toBeInvisible();
+    }
+
     private View getShuffleButton() {
         return trackLikesHeaderView.getHeaderView().findViewById(R.id.shuffle_btn);
+    }
+
+    private View getOverflowMenuButton() {
+        return trackLikesHeaderView.getHeaderView().findViewById(R.id.overflow_button);
     }
 
     private TextView getHeaderText() {

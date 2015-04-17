@@ -35,16 +35,16 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     public void testDownloadsTrackWhenLiked() {
         menuScreen
                 .open()
-                .clickLikes()
-                .actionBar()
-                .clickSyncLikesButton()
-                .clickKeepLikesSynced();
-
-        menuScreen
-                .open()
                 .clickStream()
                 .clickFirstTrackOverflowButton()
                 .toggleLike();
+
+        menuScreen
+                .open()
+                .clickLikes()
+                .clickListHeaderOverflowButton()
+                .clickMakeAvailableOffline()
+                .clickKeepLikesSynced();
 
         final DownloadImageViewElement downloadElement = menuScreen
                 .open()

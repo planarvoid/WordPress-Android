@@ -37,14 +37,13 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
-        LikesActionBarElement likesActionBarElement =
+        TrackLikesScreen trackLikesScreen =
                 menuScreen
                         .open()
-                        .clickLikes()
-                        .actionBar();
+                        .clickLikes();
 
-        assertFalse(likesActionBarElement.downloadElement().isVisible());
-        assertTrue(likesActionBarElement.syncAction().isVisible());
+        assertFalse(trackLikesScreen.headerDownloadElement().isVisible());
+        assertTrue(trackLikesScreen.clickListHeaderOverflowButton().isVisible());
     }
 
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
@@ -54,8 +53,8 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
                 menuScreen
                         .open()
                         .clickLikes()
-                        .actionBar()
-                        .clickSyncLikesButton()
+                        .clickListHeaderOverflowButton()
+                        .clickMakeAvailableOffline()
                         .clickKeepLikesSynced();
 
         assertTrue(likesScreen.isDownloadInProgressTextVisible());

@@ -9,6 +9,7 @@ import com.soundcloud.android.offline.DownloadableHeaderView;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
@@ -17,7 +18,9 @@ class TrackLikesHeaderView {
 
     private View headerView;
     private final DownloadableHeaderView downloadableHeaderView;
+
     @InjectView(R.id.shuffle_btn) Button shuffleButton;
+    @InjectView(R.id.overflow_button) ImageView overflowMenuButton;
 
     private int trackCount;
 
@@ -50,6 +53,14 @@ class TrackLikesHeaderView {
         shuffleButton.setOnClickListener(listener);
     }
 
+    void showOverflowMenuButton() {
+        overflowMenuButton.setVisibility(View.VISIBLE);
+    }
+
+    void setOnOverflowMenuClick(View.OnClickListener listener) {
+        overflowMenuButton.setOnClickListener(listener);
+    }
+
     public void show(DownloadState state) {
         downloadableHeaderView.show(state);
         if (state == DownloadState.NO_OFFLINE || state == DownloadState.DOWNLOADED) {
@@ -61,6 +72,14 @@ class TrackLikesHeaderView {
         this.trackCount = trackCount;
         downloadableHeaderView.setHeaderText(getHeaderText(trackCount));
         updateShuffleButton(trackCount);
+    }
+
+    void updateOverflowMenuButton(boolean showOfflineSyncOptions) {
+        if (showOfflineSyncOptions) {
+            overflowMenuButton.setVisibility(View.VISIBLE);
+        } else {
+            overflowMenuButton.setVisibility(View.GONE);
+        }
     }
 
     private String getHeaderText(int likedTracks) {

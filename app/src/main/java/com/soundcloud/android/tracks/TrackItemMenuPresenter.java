@@ -43,7 +43,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
 
     @Nullable private RemoveTrackListener removeTrackListener;
 
-    public static interface RemoveTrackListener {
+    public interface RemoveTrackListener {
         void onPlaylistTrackRemoved(int position);
         Urn getPlaylistUrn();
     }
@@ -104,7 +104,7 @@ public final class TrackItemMenuPresenter implements PopupMenuWrapper.PopupMenuW
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
+    public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.add_to_likes:
                 handleLike();

@@ -1,5 +1,6 @@
 package com.soundcloud.android.likes;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
@@ -36,7 +37,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.List;
 
-public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements View.OnClickListener, ListHeaderPresenter {
+public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<Fragment> implements ListHeaderPresenter {
 
     private final TrackLikesHeaderView headerView;
     private final TrackLikeOperations likeOperations;
@@ -45,6 +46,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final FeatureOperations featureOperations;
     private final EventBus eventBus;
+    private final LikesMenuPresenter likesMenuPresenter;
 
     private final Action0 sendShuffleLikesAnalytics = new Action0() {
         @Override
@@ -60,6 +62,23 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         }
     };
 
+    private final View.OnClickListener onShuffleButtonClick = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
+            playbackOperations
+                    .playLikedTracksShuffled(new PlaySessionSource(Screen.SIDE_MENU_LIKES))
+                    .doOnCompleted(sendShuffleLikesAnalytics)
+                    .subscribe(expandPlayerSubscriberProvider.get());
+        }
+    };
+
+    private final View.OnClickListener onOverflowMenuClick = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
+            likesMenuPresenter.show(view);
+        }
+    };
+
     private CompositeSubscription viewLifeCycle;
     private Subscription foregroundSubscription = Subscriptions.empty();
 
@@ -70,7 +89,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                                      OfflinePlaybackOperations playbackOperations,
                                      Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                                      FeatureOperations featureOperations,
-                                     EventBus eventBus) {
+                                     EventBus eventBus,
+                                     LikesMenuPresenter likesMenuPresenter) {
         this.headerView = headerView;
         this.likeOperations = likeOperations;
         this.offlineContentOperations = offlineContentOperations;
@@ -78,13 +98,19 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.featureOperations = featureOperations;
         this.eventBus = eventBus;
+        this.likesMenuPresenter = likesMenuPresenter;
     }
 
     @Override
     public void onViewCreated(View view, ListView listView) {
         headerView.onViewCreated(view);
-        headerView.setOnShuffleButtonClick(this);
+        headerView.setOnShuffleButtonClick(onShuffleButtonClick);
         headerView.attachToList(listView);
+
+        if (shouldShowOfflineSyncOptions()) {
+            headerView.showOverflowMenuButton();
+            headerView.setOnOverflowMenuClick(onOverflowMenuClick);
+        }
 
         viewLifeCycle = new CompositeSubscription();
         viewLifeCycle.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
@@ -128,12 +154,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         viewLifeCycle.unsubscribe();
     }
 
-    @Override
-    public void onClick(View view) {
-        playbackOperations
-                .playLikedTracksShuffled(new PlaySessionSource(Screen.SIDE_MENU_LIKES))
-                .doOnCompleted(sendShuffleLikesAnalytics)
-                .subscribe(expandPlayerSubscriberProvider.get());
+    private boolean shouldShowOfflineSyncOptions() {
+        return featureOperations.isOfflineContentEnabled() || featureOperations.isOfflineContentUpsellEnabled();
     }
 
     public void onSubscribeListObservers(ListBinding<PropertySet, TrackItem> listBinding) {
@@ -150,6 +172,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         @Override
         public void onNext(List<Urn> allLikedTracks) {
             headerView.updateTrackCount(allLikedTracks.size());
+            headerView.updateOverflowMenuButton(!allLikedTracks.isEmpty() && shouldShowOfflineSyncOptions());
         }
     }
 

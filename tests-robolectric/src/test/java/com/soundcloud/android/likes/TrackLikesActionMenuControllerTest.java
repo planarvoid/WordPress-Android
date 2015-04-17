@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.actionbar.menu.ActionMenuController;
+import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
 import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -23,7 +24,7 @@ import javax.inject.Provider;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesActionMenuControllerTest {
 
-    @Mock private ActionMenuController actionMenuController;
+    @Mock private DefaultActionMenuController actionMenuController;
     @Mock private FeatureOperations featureOperations;
     @Mock private OfflineContentOperations offlineOperations;
     @Mock private Fragment fragment;
@@ -33,14 +34,7 @@ public class TrackLikesActionMenuControllerTest {
 
     @Before
     public void setUp() throws Exception {
-        controller = new TrackLikesActionMenuController(
-                new Provider<ActionMenuController>() {
-                    @Override
-                    public ActionMenuController get() {
-                        return actionMenuController;
-                    }
-                },
-                offlineOperations);
+        controller = new TrackLikesActionMenuController(actionMenuController, offlineOperations);
         when(fragment.getActivity()).thenReturn(activity);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
     }
