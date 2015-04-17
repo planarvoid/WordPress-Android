@@ -39,7 +39,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
                 .clickListHeaderOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSynced()
-                .waitForLikesdownloadToFinish();
+                .waitForLikesDownloadToFinish();
         networkManager.switchWifiOff();
 
         assertTrue(likesScreen.clickTrack(0).isExpandedPlayerPlaying());
