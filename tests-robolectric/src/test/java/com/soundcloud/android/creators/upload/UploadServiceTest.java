@@ -6,13 +6,13 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
+import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
@@ -73,8 +73,8 @@ public class UploadServiceTest {
 
         getUploadScheduler().pause();
         // 2 uploads queued
-        final Recording r1 = TestApplication.getValidRecording();
-        final Recording r2 = TestApplication.getValidRecording();
+        final Recording r1 = RecordingTestHelper.getValidRecording();
+        final Recording r2 = RecordingTestHelper.getValidRecording();
         svc.upload(r1);
         svc.upload(r2);
 
@@ -96,7 +96,7 @@ public class UploadServiceTest {
     public void shouldStopServiceAfterLastUploadCompletesSuccess() throws Exception {
         mockSuccessfullTrackCreation();
         getUploadScheduler().pause();
-        final Recording r1 = TestApplication.getValidRecording();
+        final Recording r1 = RecordingTestHelper.getValidRecording();
         svc.upload(r1);
 
         getUploadScheduler().runOneTask();
@@ -114,7 +114,7 @@ public class UploadServiceTest {
     public void shouldNotifyAboutUploadSuccess() throws Exception {
         mockSuccessfullTrackCreation();
 
-        final Recording upload = TestApplication.getValidRecording();
+        final Recording upload = RecordingTestHelper.getValidRecording();
         upload.what_text = "testing";
 
         svc.upload(upload);
@@ -140,7 +140,7 @@ public class UploadServiceTest {
     public void shouldNotifyMixedResults() throws Exception {
         mockSuccessfullTrackCreation();
 
-        final Recording upload = TestApplication.getValidRecording();
+        final Recording upload = RecordingTestHelper.getValidRecording();
         upload.what_text = "testing";
 
         svc.upload(upload);
@@ -155,7 +155,7 @@ public class UploadServiceTest {
         expect(notification).toMatchIntent(new Intent(Actions.YOUR_SOUNDS));
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
-        final Recording upload2 = TestApplication.getValidRecording();
+        final Recording upload2 = RecordingTestHelper.getValidRecording();
         upload2.what_text = "testing 2";
 
         svc.upload(upload2);
@@ -173,7 +173,7 @@ public class UploadServiceTest {
     @Test
     public void shouldNotifyAboutUploadFailure() throws Exception {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
-        final Recording upload = TestApplication.getValidRecording();
+        final Recording upload = RecordingTestHelper.getValidRecording();
         upload.what_text = "testing";
 
         svc.upload(upload);
@@ -192,7 +192,7 @@ public class UploadServiceTest {
     @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldUpdateRecordingEntryDuringUploadAndAfterSuccess() throws Exception {
-        Recording recording = TestApplication.getValidRecording();
+        Recording recording = RecordingTestHelper.getValidRecording();
         mockSuccessfullTrackCreation();
 
         getUploadScheduler().pause();
@@ -213,7 +213,7 @@ public class UploadServiceTest {
     @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldUpdateRecordingEntryAfterFailure() throws Exception {
-        Recording recording = TestApplication.getValidRecording();
+        Recording recording = RecordingTestHelper.getValidRecording();
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(401, "ERROR"));
 
@@ -229,7 +229,7 @@ public class UploadServiceTest {
         // cannot test this - just to execute code path
         mockSuccessfullTrackCreation();
 
-        final Recording upload = TestApplication.getValidRecording();
+        final Recording upload = RecordingTestHelper.getValidRecording();
         upload.artwork_path = File.createTempFile("some_artwork", ".png");
 
         svc.upload(upload);
@@ -244,7 +244,7 @@ public class UploadServiceTest {
     @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldHoldWifiAndWakelockDuringUpload() throws Exception {
-        Recording recording = TestApplication.getValidRecording();
+        Recording recording = RecordingTestHelper.getValidRecording();
         mockSuccessfullTrackCreation();
 
         getServiceScheduler().pause();
@@ -266,7 +266,7 @@ public class UploadServiceTest {
     @Ignore // fails with JNI error on Java 7
     @Test
     public void cancelUploadShouldRemoveAllMessagesFromTheQueue() throws Exception {
-        Recording recording = TestApplication.getValidRecording();
+        Recording recording = RecordingTestHelper.getValidRecording();
 
         getUploadScheduler().pause();
         svc.upload(recording);
@@ -289,7 +289,7 @@ public class UploadServiceTest {
 
     @Test
     public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
-        Recording stuck = TestApplication.getValidRecording();
+        Recording stuck = RecordingTestHelper.getValidRecording();
         stuck.upload_status = Recording.Status.UPLOADING;
 
         RecordingStorage recordings = new RecordingStorage();
@@ -305,7 +305,7 @@ public class UploadServiceTest {
     @Test
     public void shouldNotifyIfTranscodingFails() throws Exception {
         mockFailedTrackCreation();
-        final Recording upload = TestApplication.getValidRecording();
+        final Recording upload = RecordingTestHelper.getValidRecording();
         upload.what_text = "testing";
 
         svc.upload(upload);

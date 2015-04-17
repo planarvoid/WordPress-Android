@@ -3,13 +3,12 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.TestApplication;
-import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.creators.record.PlaybackStream;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -22,7 +21,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class ProcessorTest {
     List<Intent> intents = new ArrayList<Intent>();
     List<String> actions = new ArrayList<String>();
@@ -43,16 +42,15 @@ public class ProcessorTest {
 
     @Test
     public void shouldNotProcessFileIfNotModified() throws Exception {
-        Recording r = TestApplication.getValidRecording();
+        Recording r = RecordingTestHelper.getValidRecording();
         Processor processor = new Processor(Robolectric.application, r);
         processor.run();
         expect(actions).toContainExactly(UploadService.PROCESSING_SUCCESS);
     }
 
-    @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldTrimFileIfBoundsSet() throws Exception {
-        Recording r = TestApplication.getValidRecording();
+        Recording r = RecordingTestHelper.getValidRecording();
         r.setPlaybackStream(playbackStream);
         when(playbackStream.getEndPos()).thenReturn(20l);
 

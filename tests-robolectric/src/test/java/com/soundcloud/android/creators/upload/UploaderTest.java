@@ -4,10 +4,11 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.utils.IOUtils.readInputStream;
 import static org.mockito.Mockito.mock;
 
-import com.soundcloud.android.TestApplication;
+import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
+import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -26,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class UploaderTest {
     List<Intent> intents = new ArrayList<Intent>();
     List<String> actions = new ArrayList<String>();
@@ -43,15 +44,17 @@ public class UploaderTest {
     }
 
     private Uploader uploader(Recording r) {
-        return new Uploader(DefaultTestRunner.application, DefaultTestRunner.application.getCloudAPI(), r, mock(StorePostsCommand.class));
+        return new Uploader(Robolectric.application, new PublicApi(Robolectric.application), r, mock(StorePostsCommand.class));
     }
 
+    @Test
     public void shouldErrorWhenFileIsMissing() throws Exception {
         Recording upload = new Recording(new File("/boom/"));
         uploader(upload).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_ERROR);
     }
 
+    @Test
     public void shouldThrowWhenFileIsEmpty() throws Exception {
         uploader(Recording.create(null)).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_ERROR);
@@ -64,7 +67,7 @@ public class UploaderTest {
         Robolectric.addHttpResponseRule("GET", "/tracks/47204307", new TestHttpResponse(HttpStatus.SC_OK,
                         readInputStream(getClass().getResourceAsStream("track_finished.json"))));
 
-        final Recording recording = TestApplication.getValidRecording();
+        final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_STARTED, UploadService.TRANSFER_SUCCESS);
         expect(recording.isUploaded()).toBeTrue();
@@ -73,7 +76,7 @@ public class UploaderTest {
     @Test
     public void shouldNotSetSuccessAfterFailedUpload() throws Exception {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "Failz"));
-        final Recording recording = TestApplication.getValidRecording();
+        final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_STARTED, UploadService.TRANSFER_ERROR);
         expect(recording.isUploaded()).toBeFalse();
@@ -82,7 +85,7 @@ public class UploaderTest {
     @Test
     public void shouldNotSetSuccessAfterFailedUploadIOException() throws Exception {
         TestHelper.addPendingIOException("/tracks");
-        final Recording recording = TestApplication.getValidRecording();
+        final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
         expect(recording.isUploaded()).toBeFalse();
     }
@@ -91,7 +94,7 @@ public class UploaderTest {
     public void shouldNotSetSuccessIfTaskCanceled() throws Exception {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
                 readInputStream(getClass().getResourceAsStream("upload_response.json"))));
-        final Recording recording = TestApplication.getValidRecording();
+        final Recording recording = RecordingTestHelper.getValidRecording();
         final Uploader uploader = uploader(recording);
         uploader.cancel();
         uploader.run();
@@ -107,7 +110,7 @@ public class UploaderTest {
         Robolectric.addHttpResponseRule("GET", "/tracks/47204307", new TestHttpResponse(HttpStatus.SC_OK,
                 readInputStream(getClass().getResourceAsStream("track_finished.json"))));
 
-        final Recording recording = TestApplication.getValidRecording();
+        final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
         expect(actions).toContainExactly(
                 UploadService.TRANSFER_STARTED,

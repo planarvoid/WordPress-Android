@@ -2,13 +2,12 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
+import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -37,10 +36,9 @@ public class EncoderTest {
         }, UploadService.getIntentFilter());
     }
 
-    @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldEncode() throws Exception {
-        Recording rec = TestApplication.getValidRecording();
+        Recording rec = RecordingTestHelper.getValidRecording();
         rec.getEncodedFile().delete();
 
         ShadowVorbisEncoder.simulateProgress = true;
@@ -54,30 +52,27 @@ public class EncoderTest {
         expect(rec.getEncodedFile().exists()).toBeTrue();
     }
 
-    @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldHandleEncodingFailure() throws Exception {
-        Recording rec = TestApplication.getValidRecording();
+        Recording rec = RecordingTestHelper.getValidRecording();
         ShadowVorbisEncoder.throwException = new IOException();
         Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
         expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_ERROR);
     }
 
-    @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldHandleCancel() throws Exception {
-        Recording rec = TestApplication.getValidRecording();
+        Recording rec = RecordingTestHelper.getValidRecording();
         ShadowVorbisEncoder.simulateCancel = true;
         Encoder encoder = new Encoder(Robolectric.application, rec);
         encoder.run();
         expect(actions).toContainExactly(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_CANCELED);
     }
 
-    @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldMakeSureOutputfileGetsCreatedAtomically() throws Exception {
-        Recording rec = TestApplication.getValidRecording();
+        Recording rec = RecordingTestHelper.getValidRecording();
         expect(rec.getEncodedFile().delete()).toBeTrue();
 
         ShadowVorbisEncoder.simulateCancel = true;

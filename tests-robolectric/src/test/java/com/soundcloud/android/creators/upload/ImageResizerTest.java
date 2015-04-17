@@ -4,7 +4,8 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import java.util.ArrayList;
 import java.util.List;
 
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class ImageResizerTest {
     List<Intent> intents = new ArrayList<Intent>();
     List<String> actions = new ArrayList<String>();
@@ -36,15 +37,15 @@ public class ImageResizerTest {
 
     @Test
     public void shouldNotResizeWithEmptyArtwork() throws Exception {
-        ImageResizer resizer = new ImageResizer(DefaultTestRunner.application, TestApplication.getValidRecording());
+        ImageResizer resizer = new ImageResizer(Robolectric.application, RecordingTestHelper.getValidRecording());
         resizer.run();
         expect(actions).toContainExactly(UploadService.RESIZE_ERROR);
     }
 
     @Test
     public void shouldResizeWithArtwork() throws Exception {
-        final Recording recording = TestApplication.getValidRecording();
-        ImageResizer resizer = new ImageResizer(DefaultTestRunner.application, recording);
+        final Recording recording = RecordingTestHelper.getValidRecording();
+        ImageResizer resizer = new ImageResizer(Robolectric.application, recording);
         recording.artwork_path = TestApplication.createJpegFile();
         resizer.run();
 
