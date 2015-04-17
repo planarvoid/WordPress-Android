@@ -26,17 +26,17 @@ public class PlaylistItemElement {
 
     public PlaylistDetailsScreen click() {
         wrapped.click();
-
         return new PlaylistDetailsScreen(testDriver);
+    }
+
+    public PlaylistItemOverflowMenu clickOverflow() {
+        wrapped
+                .findElement(With.id(R.id.overflow_button))
+                .click();
+        return new PlaylistItemOverflowMenu(testDriver);
     }
 
     private String getText(ViewElement element) {
         return new TextElement(element).getText();
-    }
-
-    public PlaylistItemOverflowMenu clickOverflow() {
-        final ViewElement menuElement = wrapped.findElement(With.id(R.id.overflow_button));
-        menuElement.click();
-        return new PlaylistItemOverflowMenu(testDriver);
     }
 }
