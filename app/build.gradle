@@ -100,21 +100,22 @@ android {
       minifyEnabled true
       shrinkResources true
       zipAlignEnabled true
-      proguardFiles 'proguard.cfg'
+      proguardFiles 'buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg'
     }
 
     beta.initWith(buildTypes.release)
     beta {
       versionNameSuffix '-beta'
+      proguardFiles 'buildsystem/proguard.cfg'
     }
 
     alpha.initWith(buildTypes.release)
     alpha {
       minifyEnabled true
-
       versionNameSuffix '-alpha'
       ext.betaDistributionGroupAliases = 'soundcloud-alpha-testers'
       ext.betaDistributionNotifications = false
+      proguardFiles 'buildsystem/proguard.cfg'
     }
 
     debug {
