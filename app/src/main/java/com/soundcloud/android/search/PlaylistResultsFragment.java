@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
@@ -40,7 +41,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
     public static final String TAG = "playlist_results";
     static final String KEY_PLAYLIST_TAG = "playlist_tag";
 
-    @Inject ListViewController listViewController;
+    @Inject @LightCycle ListViewController listViewController;
     @Inject PlaylistDiscoveryOperations operations;
     @Inject PagingItemAdapter<PlaylistItem> adapter;
     @Inject EventBus eventBus;
@@ -60,7 +61,6 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
     public PlaylistResultsFragment() {
         setRetainInstance(true);
         SoundCloudApplication.getObjectGraph().inject(this);
-        attachLightCycle(listViewController);
     }
 
     @VisibleForTesting

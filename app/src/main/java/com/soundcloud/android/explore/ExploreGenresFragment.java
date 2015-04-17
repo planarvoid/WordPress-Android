@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListViewController;
@@ -46,19 +47,14 @@ public class ExploreGenresFragment extends LightCycleSupportFragment
     @Inject EventBus eventBus;
     @Inject ExploreTracksOperations exploreOperations;
     @Inject ExploreGenresAdapter adapter;
-    @Inject ListViewController listViewController;
+    @Inject @LightCycle ListViewController listViewController;
 
     private ConnectableObservable<GenreSection<ExploreGenre>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
 
     public ExploreGenresFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        addLifeCycleComponents();
-    }
-
-    private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter);
-        attachLightCycle(listViewController);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -43,8 +44,8 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
     @Inject PagingItemAdapter<TrackItem> adapter;
     @Inject PlaybackOperations playbackOperations;
     @Inject ExploreTracksOperations operations;
-    @Inject PullToRefreshController pullToRefreshController;
-    @Inject ListViewController listViewController;
+    @Inject @LightCycle PullToRefreshController pullToRefreshController;
+    @Inject @LightCycle ListViewController listViewController;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
     private ConnectableObservable<List<TrackItem>> observable;
@@ -61,7 +62,7 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
 
     public ExploreTracksFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        addLifeCycleComponents();
+        init();
     }
 
     @VisibleForTesting
@@ -77,15 +78,13 @@ public class ExploreTracksFragment extends LightCycleSupportFragment
         this.pullToRefreshController = pullToRefreshController;
         this.listViewController = listViewController;
         this.subscriberProvider = subscriberProvider;
-        addLifeCycleComponents();
+        init();
     }
 
-    private void addLifeCycleComponents() {
-        listViewController.setAdapter(adapter, operations.pager(), TrackItem.<SuggestedTracksCollection>fromApiTracks());
-        listViewController.setScrollListener(new AbsListViewParallaxer(null));
-        pullToRefreshController.setRefreshListener(this, adapter);
-        attachLightCycle(this.listViewController);
-        attachLightCycle(this.pullToRefreshController);
+    private void init() {
+        this.listViewController.setAdapter(this.adapter, this.operations.pager(), TrackItem.<SuggestedTracksCollection>fromApiTracks());
+        this.listViewController.setScrollListener(new AbsListViewParallaxer(null));
+        this.pullToRefreshController.setRefreshListener(this, this.adapter);
     }
 
     @Override

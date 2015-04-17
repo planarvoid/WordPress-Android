@@ -5,6 +5,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Urn;
@@ -31,7 +32,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
 
     @Inject CommentsOperations operations;
     @Inject PagingItemAdapter<Comment> adapter;
-    @Inject ListViewController listViewController;
+    @Inject @LightCycle ListViewController listViewController;
 
     private ConnectableObservable<List<Comment>> comments;
     private Subscription subscription = Subscriptions.empty();
@@ -52,7 +53,6 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
 
     private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter, operations.pager(), TO_COMMENT_VIEW_MODEL);
-        attachLightCycle(listViewController);
     }
 
     @Override

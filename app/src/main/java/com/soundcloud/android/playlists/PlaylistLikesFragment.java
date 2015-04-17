@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 
 import android.annotation.SuppressLint;
@@ -15,16 +16,10 @@ import javax.inject.Inject;
 @SuppressLint("ValidFragment")
 public class PlaylistLikesFragment extends LightCycleSupportFragment {
 
-    @Inject PlaylistLikesPresenter presenter;
+    @Inject @LightCycle PlaylistLikesPresenter presenter;
 
     public PlaylistLikesFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        attachLightCycle(presenter);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override
