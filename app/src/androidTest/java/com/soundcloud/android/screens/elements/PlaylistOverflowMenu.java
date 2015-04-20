@@ -8,7 +8,6 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
 
     private static final int SHUFFLE_ITEM_INDEX = 0;
     private static final int MAKE_AVAILABLE_OFFLINE_INDEX = 1;
-    ;
 
     public PlaylistOverflowMenu(Han testDriver) {
         super(testDriver);

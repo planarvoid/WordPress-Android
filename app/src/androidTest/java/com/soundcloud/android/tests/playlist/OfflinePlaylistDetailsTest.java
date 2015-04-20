@@ -1,8 +1,7 @@
 package com.soundcloud.android.tests.playlist;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
@@ -41,12 +40,7 @@ public class OfflinePlaylistDetailsTest extends ActivityTest<MainActivity> {
                 .clickMakeAvailableOffline();
 
         final DownloadImageViewElement downloadElement = playlistDetailsScreen.headerDownloadElement();
-        assertTrue(downloadElement.isVisible());
-        assertTrue(downloadElement.isRequested() || downloadElement.isDownloading() || downloadElement.isDownloaded());
-    }
-
-    private void resetOfflineSyncState(Context context) {
-        disableOfflineContent(context);
-        clearOfflineContent(context);
+        assertTrue("Playlist should be requested or downloading ",
+                downloadElement.isRequested() || downloadElement.isDownloading() || downloadElement.isDownloaded());
     }
 }

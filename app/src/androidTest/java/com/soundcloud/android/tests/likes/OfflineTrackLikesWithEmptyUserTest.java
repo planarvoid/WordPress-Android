@@ -1,8 +1,8 @@
 package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearLikes;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
@@ -27,9 +27,10 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     public void setUp() throws Exception {
         final Context context = getInstrumentation().getTargetContext();
 
-        clearOfflineContent(context);
         clearLikes(context);
         super.setUp();
+
+        resetOfflineSyncState(context);
         enableOfflineContent(context);
     }
 
@@ -55,6 +56,34 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
                 .downloadElement();
 
         assertTrue(downloadElement.isRequested() || downloadElement.isDownloading() || downloadElement.isDownloaded());
+    }
+
+    public void testDownloadResumesWhenConnectionBack() {
+        menuScreen
+                .open()
+                .clickStream()
+                .clickFirstTrackOverflowButton()
+                .toggleLike();
+
+        final TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
+
+        networkManager.switchWifiOff();
+
+        final DownloadImageViewElement downloadElement = likesScreen
+                .clickListHeaderOverflowButton()
+                .clickMakeAvailableOffline()
+                .clickKeepLikesSynced()
+                .tracks()
+                .get(0)
+                .downloadElement();
+
+        // we tried to download but it failed with connection error so its not unavailable
+        assertTrue("Track should be unavailable", downloadElement.isUnavailable());
+
+        networkManager.switchWifiOn();
+
+        likesScreen.waitForLikesToStartDownloading();
+        assertTrue("Track should be downloading", downloadElement.isDownloading() || downloadElement.isDownloaded());
     }
 
 }

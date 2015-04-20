@@ -11,6 +11,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.screens.elements.LikesOverflowMenu;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
@@ -61,6 +62,10 @@ public class TrackLikesScreen extends Screen {
         return waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
     }
 
+    public void waitForLikesToStartDownloading() {
+        waiter.waitForElement(listHeaderText(), testDriver.getString(R.string.offline_update_in_progress));
+    }
+
     public boolean isDownloadInProgressTextVisible() {
         final String downloadInProgress = testDriver.getString(R.string.offline_update_in_progress);
         return testDriver.isElementDisplayed(text(downloadInProgress));
@@ -96,37 +101,23 @@ public class TrackLikesScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
+    public LikesOverflowMenu clickListHeaderOverflowButton() {
+        listHeaderOverflowButton().click();
+        return new LikesOverflowMenu(testDriver);
+    }
+
     public DownloadImageViewElement headerDownloadElement() {
         return new DownloadImageViewElement(listHeader()
                 .findElement(With.id(R.id.header_download_state)));
-    }
-
-    public SyncYourLikesScreen clickMakeAvailableOffline() {
-        makeAvailableOfflineItem().click();
-        return new SyncYourLikesScreen(testDriver);
-    }
-
-    public TrackLikesScreen clickListHeaderOverflowButton() {
-        listHeaderOverflowButton().click();
-        return this;
     }
 
     private ListElement likesList() {
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
-    private ViewElement makeAvailableOfflineItem() {
-        return testDriver.findElement(text(testDriver.getString(R.string.make_offline_available)));
-    }
-
     private ViewElement listHeaderShuffleButton() {
         return listHeader()
                 .findElement(With.id(R.id.shuffle_btn));
-    }
-
-    public ViewElement listHeaderOverflowButton() {
-        return listHeader()
-                .findElement(With.id(R.id.overflow_button));
     }
 
     private TextElement listHeaderText() {
@@ -137,6 +128,10 @@ public class TrackLikesScreen extends Screen {
         return testDriver
                 .findElement(With.id(android.R.id.list))
                 .findElement(With.id(R.id.header));
+    }
+
+    public ViewElement listHeaderOverflowButton() {
+        return listHeader().findElement(With.id(R.id.overflow_button));
     }
 
     @Override
