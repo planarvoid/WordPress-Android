@@ -33,4 +33,9 @@ class PlanStorage {
         return value;
     }
 
+    public void remove(String name) {
+        String key = obfuscator.obfuscate(name);
+        sharedPreferences.edit().remove(key).apply();
+    }
+
 }

@@ -31,14 +31,22 @@ public class PlanStorageTest {
 
     @Test
     public void updateStoresValue() {
-        storage.update("key1", "some value");
+        storage.update("plan", "plan1");
 
-        expect(storage.get("key1", "key2")).toEqual("some value");
+        expect(storage.get("plan", "plan2")).toEqual("plan1");
     }
 
     @Test
-    public void getReturnsDefaultIfNotSet() {
-        expect(storage.get("key", "default")).toEqual("default");
+    public void returnsDefaultIfNotSet() {
+        expect(storage.get("plan", "default")).toEqual("default");
+    }
+
+    @Test
+    public void removesStoredValue() {
+        storage.update("plan", "plan1");
+        storage.remove("plan");
+
+        expect(storage.get("plan", "default")).toEqual("default");
     }
 
     private void configureMockObfuscation() throws Exception {

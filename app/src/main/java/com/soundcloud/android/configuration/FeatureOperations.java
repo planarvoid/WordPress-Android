@@ -53,7 +53,11 @@ public class FeatureOperations {
 
     public void updatePlan(String plan, @Nullable String upsell) {
         planStorage.update(PLAN, plan);
-        planStorage.update(UPSELL, upsell);
+        if (upsell == null) {
+            planStorage.remove(UPSELL);
+        } else {
+            planStorage.update(UPSELL, upsell);
+        }
     }
 
     public String getPlan() {
