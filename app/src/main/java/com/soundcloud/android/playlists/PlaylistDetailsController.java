@@ -38,6 +38,16 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     protected ListView listView;
     private Listener listener;
 
+    void setContent(PlaylistWithTracks playlist) {
+        eventSubscriptions.unsubscribe();
+        adapter.clear();
+        for (TrackItem track : playlist.getTracks()) {
+            adapter.addItem(track);
+        }
+        adapter.notifyDataSetChanged();
+        subscribeToContentUpdate();
+    }
+
     static interface Listener {
         void onPlaylistContentChanged();
     }
@@ -84,6 +94,10 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
     abstract void setListShown(boolean show);
 
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        subscribeToContentUpdate();
+    }
+
+    private void subscribeToContentUpdate() {
         eventSubscriptions = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, trackPresenter)),
                 eventBus.subscribe(CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),

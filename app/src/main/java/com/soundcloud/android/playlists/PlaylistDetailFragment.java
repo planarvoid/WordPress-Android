@@ -35,7 +35,6 @@ import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -378,21 +377,12 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         headerUsernameText.setEnabled(true);
     }
 
-    private void updateTracksAdapter(PlaylistWithTracks playlist) {
-        final ItemAdapter<TrackItem> adapter = controller.getAdapter();
-        adapter.clear();
-        for (TrackItem track : playlist.getTracks()) {
-            adapter.addItem(track);
-        }
-        adapter.notifyDataSetChanged();
-    }
-
     private class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
         @Override
         public void onNext(PlaylistWithTracks playlist) {
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
-            updateTracksAdapter(playlist);
+            controller.setContent(playlist);
             showContent(true);
 
             if (playOnLoad && controller.hasTracks()) {
