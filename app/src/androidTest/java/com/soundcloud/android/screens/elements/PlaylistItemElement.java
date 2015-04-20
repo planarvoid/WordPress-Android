@@ -36,6 +36,10 @@ public class PlaylistItemElement {
         return new PlaylistItemOverflowMenu(testDriver);
     }
 
+    public DownloadImageViewElement downloadElement() {
+        return new DownloadImageViewElement(wrapped.findElement(With.id(R.id.item_download_state)));
+    }
+
     private String getText(ViewElement element) {
         return new TextElement(element).getText();
     }
