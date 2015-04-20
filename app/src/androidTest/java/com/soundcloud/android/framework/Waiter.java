@@ -136,7 +136,6 @@ public class Waiter {
         }, TIMEOUT);
     }
 
-
     public boolean waitForItemCountToIncrease(final Adapter adapter, final int currentSize) {
         return solo.waitForCondition(new Condition() {
             @Override

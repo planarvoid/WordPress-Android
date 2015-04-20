@@ -5,7 +5,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 
 public class PlaylistOverflowMenu extends PopupMenuElement {
 
-    private static int SHUFFLE_ITEM_INDEX = 0;
+    private final static int SHUFFLE_ITEM_INDEX = 0;
 
     public PlaylistOverflowMenu(Han testDriver) {
         super(testDriver);
