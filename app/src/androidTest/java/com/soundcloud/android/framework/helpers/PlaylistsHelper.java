@@ -27,7 +27,7 @@ public class PlaylistsHelper {
         return playlistsScreen;
     }
 
-    public PlaylistsScreen unlikePlaylistItemUnIfCurrentlyLiked(int index) {
+    public PlaylistsScreen unlikePlaylistItemIfCurrentlyLiked(int index) {
         if (isPlaylistItemLiked(index)) {
             togglePlaylistItemLike(index);
         }
@@ -35,7 +35,7 @@ public class PlaylistsHelper {
     }
 
     public PlaylistsScreen likePlaylistItemEvenIfCurrentlyLiked(int index) {
-        unlikePlaylistItemUnIfCurrentlyLiked(index);
+        unlikePlaylistItemIfCurrentlyLiked(index);
         return togglePlaylistItemLike(index);
     }
 }
