@@ -36,7 +36,7 @@ ext {
   httpClientAndroidVersion = '4.3.5'
   localyticsVersion = '2.71'
   slidingUpPanelVersion = '2.0.2-SC'
-  androidCropVersion = '0.9.10'
+  androidCropVersion = '1.0.0'
   universalImageLoaderVersion = '1.9.2'
   facebookReboundVersion = '0.3.4'
   facebookAndroidSdkVersion = '3.20.0'

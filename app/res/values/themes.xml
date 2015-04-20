@@ -13,6 +13,8 @@
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">@color/sc_orange</item>
+
+        <item name="cropImageStyle">@style/Widget.CropImageView</item>
     </style>
 
     <style name="Theme.SoundCloud" parent="BaseTheme">
@@ -63,6 +65,11 @@
     <style name="Theme.Onboard" parent="Theme.SoundCloud">
         <item name="actionButtonStyle">@style/OnboardActionButtonStyle</item>
         <item name="android:actionButtonStyle">@style/OnboardActionButtonStyle</item>
+    </style>
+
+    <style name="Widget.CropImageView" parent="android:Widget">
+        <item name="showHandles">always</item>
+        <item name="highlightColor">@color/white</item>
     </style>
 
 </resources>

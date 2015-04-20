@@ -326,7 +326,7 @@ public final class ImageUtils {
     }
 
     public static void sendCropIntent(Activity activity, Uri inputUri, Uri outputUri, int width, int height) {
-        new Crop(inputUri).output(outputUri).asSquare().withMaxSize(width, height).start(activity);
+        Crop.of(inputUri, outputUri).asSquare().withMaxSize(width, height).start(activity);
     }
 
     public static void recycleImageViewBitmap(ImageView view) {

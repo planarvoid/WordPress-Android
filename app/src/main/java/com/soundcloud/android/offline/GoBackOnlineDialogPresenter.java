@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.crop.util.VisibleForTesting;
 
 import android.app.Activity;
 import android.support.v7.app.AlertDialog;
