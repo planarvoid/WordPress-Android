@@ -15,7 +15,7 @@ public class SkippyFactory {
     private static final int PROGRESS_INTERVAL_MS = 500;
     private static final int BUFFER_DURATION_MS = (int) TimeUnit.SECONDS.toMillis(90);
     private static final boolean ALL_TRACKS_CACHE = false;
-    private static final int CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE = 10;
+    private static final int CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE = 1;
 
     private final ApplicationProperties applicationProperties;
     private final CryptoOperations cryptoOperations;
