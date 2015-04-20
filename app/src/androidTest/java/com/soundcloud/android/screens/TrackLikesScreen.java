@@ -57,8 +57,8 @@ public class TrackLikesScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void waitForLikesDownloadToFinish() {
-        waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
+    public boolean waitForLikesDownloadToFinish() {
+        return waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
     }
 
     public boolean isDownloadInProgressTextVisible() {

@@ -57,11 +57,11 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
                         .clickMakeAvailableOffline()
                         .clickKeepLikesSynced();
 
-        assertTrue(likesScreen.isDownloadInProgressTextVisible());
+        assertTrue("Download never started", likesScreen.isDownloadInProgressTextVisible());
 
-        likesScreen.waitForLikesDownloadToFinish();
+        assertTrue("Download never finished", likesScreen.waitForLikesDownloadToFinish());
 
-        assertEquals(OfflineContentHelper.offlineFilesCount(), likesScreen.getLoadedTrackCount());
+        assertEquals(OfflineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
     }
 
