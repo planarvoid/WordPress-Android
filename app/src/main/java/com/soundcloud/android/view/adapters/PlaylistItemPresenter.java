@@ -6,7 +6,6 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.res.Resources;
@@ -25,16 +24,14 @@ public class PlaylistItemPresenter implements CellPresenter<PlaylistItem> {
     private final Resources resources;
     private final ImageOperations imageOperations;
     private final PlaylistItemMenuPresenter playlistItemMenuPresenter;
-    private final FeatureFlags featureFlags;
     private boolean allowOfflineOptions;
 
     @Inject
     public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations,
-                                 PlaylistItemMenuPresenter playlistItemMenuPresenter, FeatureFlags featureFlags) {
+                                 PlaylistItemMenuPresenter playlistItemMenuPresenter) {
         this.resources = resources;
         this.imageOperations = imageOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;
-        this.featureFlags = featureFlags;
     }
 
     @Override

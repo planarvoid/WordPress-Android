@@ -12,7 +12,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistItemMenuPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -36,7 +35,6 @@ public class PlaylistItemPresenterTest {
 
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistItemMenuPresenter playlistItemMenuPresenter;
-    @Mock private FeatureFlags featureFlags;
 
     private View itemView;
 
@@ -58,7 +56,7 @@ public class PlaylistItemPresenterTest {
         final Context context = Robolectric.application;
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context), false);
-        presenter = new PlaylistItemPresenter(context.getResources(), imageOperations, playlistItemMenuPresenter, featureFlags);
+        presenter = new PlaylistItemPresenter(context.getResources(), imageOperations, playlistItemMenuPresenter);
     }
 
     @Test

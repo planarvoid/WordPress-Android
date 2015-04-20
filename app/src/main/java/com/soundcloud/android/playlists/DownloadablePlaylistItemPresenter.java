@@ -5,7 +5,6 @@ import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.DownloadState;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
 
 import android.content.res.Resources;
@@ -22,9 +21,8 @@ public class DownloadablePlaylistItemPresenter extends PlaylistItemPresenter {
     public DownloadablePlaylistItemPresenter(Resources resources,
                                              ImageOperations imageOperations,
                                              PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                             FeatureFlags featureFlags,
                                              FeatureOperations featureOperations) {
-        super(resources, imageOperations, playlistItemMenuPresenter, featureFlags);
+        super(resources, imageOperations, playlistItemMenuPresenter);
         this.featureOperations = featureOperations;
     }
 
