@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.likes;
 
+import static com.soundcloud.android.framework.helpers.TrackItemElementHelper.assertLikeActionOnUnlikedTrack;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.MainScreen;
@@ -32,7 +34,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 .get(0);
 
         networkManager.switchWifiOff();
-        expectedTrack.clickOverflowButton().toggleLike();
+        assertLikeActionOnUnlikedTrack(this, expectedTrack);
         final String expectedTitle = expectedTrack.getTitle();
 
         solo.goBack();
@@ -45,7 +47,8 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 .get(0)
                 .getTitle();
 
-        assertEquals("The track we liked from the search page should be the same as the top track in your likes", expectedTitle, actualTitle);
+        assertEquals("The track we liked from the search page should be the same as the top track in your likes",
+                expectedTitle, actualTitle);
     }
 
     public void testLikedPlaylistAddedToLikeCollectionWhenLikingFromPlaylistScreenEngagementBar() throws Exception {
@@ -79,6 +82,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 .get(0)
                 .getTitle();
 
-        assertEquals("The playlist we liked from the playlist detail screen should be the same as the top playlist in your liked playlists", expectedTitle, actualTitle);
+        assertEquals("The playlist we liked from the playlist detail screen should be the same as the top playlist in "+
+                "your liked playlists", expectedTitle, actualTitle);
     }
 }

@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
@@ -16,7 +17,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     public void toggleLike() {
-        menuItems().get(0).click();
+        likeItem().click();
     }
 
     public AddToPlaylistScreen clickAddToPlaylist() {
@@ -26,6 +27,18 @@ public class TrackItemMenuElement extends PopupMenuElement {
 
     public void clickRemoveFromPlaylist() {
         clickItemWithText(1, "Remove");
+    }
+
+    public boolean isLiked() {
+        return getTextView(likeItem()).getText().equals("Unlike");
+    }
+
+    private TextElement getTextView(ViewElement viewElement) {
+        return new TextElement(viewElement.findElement(With.className("android.widget.TextView")));
+    }
+
+    private ViewElement likeItem() {
+        return menuItems().get(0);
     }
 
     private void clickItemWithText(int position, String text) {
