@@ -6,7 +6,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-import static com.soundcloud.android.framework.TestUser.over18user;
+import static com.soundcloud.android.framework.TestUser.over21user;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -20,7 +20,7 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
 
     @Override
     protected void logInHelper() {
-        over18user.logIn(getInstrumentation().getTargetContext());
+        over21user.logIn(getInstrumentation().getTargetContext());
     }
 
     @Override
@@ -29,7 +29,7 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
         playlistTagsScreen = new MainScreen(solo).actionBar().clickSearchButton();
     }
 
-    public void testAbove18UsersAreAbleToFollowAgeGatedUsers() {
+    public void testAbove21UsersAreAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = playlistTagsScreen
                 .actionBar()
                 .doSearch("annoymouse")
