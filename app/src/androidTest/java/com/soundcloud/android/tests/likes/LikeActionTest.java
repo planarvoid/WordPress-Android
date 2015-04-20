@@ -15,7 +15,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.emptyUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.likesActionUser.logIn(getInstrumentation().getTargetContext());
     }
 
     public void testLikedTrackAddedToLikeCollectionWhenLikingFromTrackItemOverflowMenu() throws Exception {
