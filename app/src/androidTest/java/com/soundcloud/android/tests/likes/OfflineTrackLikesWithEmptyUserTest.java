@@ -6,6 +6,7 @@ import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clea
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -39,19 +40,20 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
                 .clickFirstTrackOverflowButton()
                 .toggleLike();
 
-        menuScreen
+        final TrackLikesScreen likesScreen = menuScreen
                 .open()
-                .clickLikes()
+                .clickLikes();
+
+        likesScreen
                 .clickListHeaderOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSynced();
 
-        final DownloadImageViewElement downloadElement = menuScreen
-                .open()
-                .clickLikes()
+        final DownloadImageViewElement downloadElement = likesScreen
                 .tracks()
                 .get(0)
                 .downloadElement();
+
         assertTrue(downloadElement.isRequested() || downloadElement.isDownloading() || downloadElement.isDownloaded());
     }
 
