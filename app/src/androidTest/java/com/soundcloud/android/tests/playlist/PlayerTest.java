@@ -22,7 +22,6 @@ public class PlayerTest extends ActivityTest<MainActivity> {
         super(MainActivity.class);
     }
 
-
     @Override
     protected void logInHelper() {
         TestUser.playlistUser.logIn(getInstrumentation().getTargetContext());

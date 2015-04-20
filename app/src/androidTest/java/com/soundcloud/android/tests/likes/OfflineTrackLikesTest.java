@@ -3,10 +3,13 @@ package com.soundcloud.android.tests.likes;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.offlineFilesCount;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -37,13 +40,13 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
-        TrackLikesScreen trackLikesScreen =
+        final TrackLikesScreen trackLikesScreen =
                 menuScreen
                         .open()
                         .clickLikes();
 
         assertFalse(trackLikesScreen.headerDownloadElement().isVisible());
-        assertTrue(trackLikesScreen.clickListHeaderOverflowButton().isVisible());
+        assertThat(trackLikesScreen.listHeaderOverflowButton(), is(visible()));
     }
 
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
@@ -61,7 +64,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
         assertTrue("Download never finished", likesScreen.waitForLikesDownloadToFinish());
 
-        assertEquals(OfflineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount());
+        assertEquals(offlineFilesCount(), likesScreen.getTotalLikesCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
     }
 

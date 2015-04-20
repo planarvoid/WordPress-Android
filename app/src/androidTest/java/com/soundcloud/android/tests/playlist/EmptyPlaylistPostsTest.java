@@ -12,7 +12,6 @@ public class EmptyPlaylistPostsTest extends ActivityTest<MainActivity> {
         super(MainActivity.class);
     }
 
-
     @Override
     protected void logInHelper() {
         emptyUser.logIn(getInstrumentation().getTargetContext());

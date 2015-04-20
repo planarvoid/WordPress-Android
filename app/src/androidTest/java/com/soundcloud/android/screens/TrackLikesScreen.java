@@ -124,7 +124,7 @@ public class TrackLikesScreen extends Screen {
                 .findElement(With.id(R.id.shuffle_btn));
     }
 
-    private ViewElement listHeaderOverflowButton() {
+    public ViewElement listHeaderOverflowButton() {
         return listHeader()
                 .findElement(With.id(R.id.overflow_button));
     }
