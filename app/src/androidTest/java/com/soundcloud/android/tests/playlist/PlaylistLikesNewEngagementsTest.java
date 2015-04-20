@@ -1,17 +1,17 @@
 package com.soundcloud.android.tests.playlist;
 
+import static com.soundcloud.android.framework.helpers.PlaylistItemElementHelper.assertLikeActionOnPlaylist;
+import static com.soundcloud.android.framework.helpers.PlaylistItemElementHelper.assertUnlikeActionOnLikedPlaylist;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.PlaylistsHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> {
     private PlaylistsScreen playlistsScreen;
-    private PlaylistsHelper playlistsHelper;
 
     public PlaylistLikesNewEngagementsTest() {
         super(MainActivity.class);
@@ -26,7 +26,6 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     protected void setUp() throws Exception {
         super.setUp();
         playlistsScreen = menuScreen.open().clickPlaylist();
-        playlistsHelper = new PlaylistsHelper(this, playlistsScreen);
     }
 
     // Given I liked a playlist
@@ -34,32 +33,30 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     // Then the playlists should the first one
     public void testLastLikedPlaylistShouldAppearOnTop() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        final String expectedTitle = playlistsHelper.getPlaylistItemTitle(0);
-        playlistsHelper.likePlaylistItemEvenIfCurrentlyLiked(0);
-        assertThat(playlistsHelper.isPlaylistItemLiked(0), is(true));
+        final String expectedTitle = playlistsScreen.get(0).getTitle();
+        assertLikeActionOnPlaylist(this, playlistsScreen.get(0));
 
         playlistsScreen.touchLikedPlaylistsTab();
 
-        assertEquals(expectedTitle, playlistsHelper.getPlaylistItemTitle(0));
-        playlistsHelper.togglePlaylistItemLike(0);
+        assertEquals(expectedTitle, playlistsScreen.get(0).getTitle());
+        playlistsScreen.get(0).clickOverflow().toggleLike();
     }
 
     public void testLikingAndUnlikingPlaylistFromOverflowMenu() {
         // assert liked
-        final String expectedTitle = playlistsHelper.getPlaylistItemTitle(0);
-        playlistsHelper.likePlaylistItemEvenIfCurrentlyLiked(0);
-        assertThat(playlistsHelper.isPlaylistItemLiked(0), is(true));
+        final String expectedTitle = playlistsScreen.get(0).getTitle();
+        assertLikeActionOnPlaylist(this, playlistsScreen.get(0));
+
         playlistsScreen.touchLikedPlaylistsTab();
-        assertEquals(expectedTitle, playlistsHelper.getPlaylistItemTitle(0));
+        assertEquals(expectedTitle, playlistsScreen.get(0).getTitle());
         int initialLikedPlaylistsCount = playlistsScreen.getPlaylistItemCount();
 
         // unlike and assert item now gone
-        playlistsHelper.togglePlaylistItemLike(0);
-        int newLikedPlaylistsCount = playlistsScreen.getPlaylistItemCount();
-        assertThat(newLikedPlaylistsCount, is(initialLikedPlaylistsCount - 1));
+        assertUnlikeActionOnLikedPlaylist(this, playlistsScreen.get(0));
+        assertThat(playlistsScreen.getPlaylistItemCount(), is(initialLikedPlaylistsCount - 1));
 
         // assert item has been unliked on posted playlists tab
         playlistsScreen.touchPostedPlaylistsTab();
-        assertThat(playlistsHelper.isPlaylistItemLiked(0), is(false));
+        assertThat(playlistsScreen.get(0).clickOverflow().isLiked(), is(false));
     }
 }
