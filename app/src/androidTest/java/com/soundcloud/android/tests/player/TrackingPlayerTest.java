@@ -30,7 +30,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         //mrLoggaRecorder.startRecording(TEST_SCENARIO);
     }
 
-    public void ignore_testPlayAndPauseTrackFromStream() {
+    public void testPlayAndPauseTrackFromStream() {
         final VisualPlayerElement playerElement =
                 menuScreen
                         .open()
