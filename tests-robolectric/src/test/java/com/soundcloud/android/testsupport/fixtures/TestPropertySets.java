@@ -221,7 +221,7 @@ public abstract class TestPropertySets {
         );
     }
 
-    public static PropertySet fromApiPlaylist(ApiPlaylist apiPlaylist, boolean isLiked, boolean isReposted, boolean markedForOffline) {
+    public static PropertySet fromApiPlaylist(ApiPlaylist apiPlaylist, boolean isLiked, boolean isReposted, boolean markedForOffline, boolean isPosted) {
         return PropertySet.from(
                 TrackProperty.URN.bind(Urn.forPlaylist(apiPlaylist.getId())),
                 PlayableProperty.TITLE.bind(apiPlaylist.getTitle()),
@@ -235,6 +235,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.IS_PRIVATE.bind(Sharing.PRIVATE.equals(apiPlaylist.getSharing())),
                 PlayableProperty.IS_LIKED.bind(isLiked),
                 PlayableProperty.IS_REPOSTED.bind(isReposted),
+                PlaylistProperty.IS_POSTED.bind(isPosted),
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
                 PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));
     }

@@ -15,6 +15,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.apply;
 import static com.soundcloud.propeller.query.Query.from;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -35,11 +36,15 @@ public class PlaylistStorage {
 
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
+    private final AccountOperations accountOperations;
 
     @Inject
-    public PlaylistStorage(PropellerDatabase propeller, PropellerRx propellerRx) {
+    public PlaylistStorage(PropellerDatabase propeller,
+                           PropellerRx propellerRx,
+                           AccountOperations accountOperations) {
         this.propeller = propeller;
         this.propellerRx = propellerRx;
+        this.accountOperations = accountOperations;
     }
 
     public boolean hasLocalPlaylists() {
@@ -70,7 +75,7 @@ public class PlaylistStorage {
 
     public Observable<PropertySet> loadPlaylist(Urn playlistUrn) {
         return propellerRx.query(buildSinglePlaylistQuery(playlistUrn))
-                .map(new PlaylistInfoMapper())
+                .map(new PlaylistInfoMapper(accountOperations.getLoggedInUserUrn()))
                 .defaultIfEmpty(PropertySet.create());
     }
 

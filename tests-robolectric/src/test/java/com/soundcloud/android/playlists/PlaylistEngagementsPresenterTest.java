@@ -374,6 +374,15 @@ public class PlaylistEngagementsPresenterTest {
     }
 
     @Test
+    public void hidesOfflineOptionsWhenPlaylistIsNotPostedByTheCurrentUser() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        controller.setPlaylistInfo(createPlaylistInfoWithPostedStatus(false), getPlaySessionSource());
+
+        verify(engagementsView).hideOfflineContentOptions();
+    }
+
+    @Test
     public void showDefaultDownloadStateWhenCurrentDownloadEmitsDownloadRemoved() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
@@ -461,7 +470,7 @@ public class PlaylistEngagementsPresenterTest {
 
     @Test
     public void disablesShuffleWithOneTrack() throws Exception {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false);
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false, true);
         sourceSet.put(PlaylistProperty.TRACK_COUNT, 1);
         List<TrackItem> tracks = ModelFixtures.trackItems(1);
 
@@ -472,15 +481,13 @@ public class PlaylistEngagementsPresenterTest {
 
     @Test
     public void enablesShuffleWithMoreThanOneTrack() throws Exception {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false);
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false, true);
         List<TrackItem> tracks = ModelFixtures.trackItems(10);
 
         controller.setPlaylistInfo(new PlaylistWithTracks(sourceSet, tracks), getPlaySessionSource());
 
         verify(engagementsView).enableShuffle();
     }
-
-
 
     private PlaylistWithTracks createPublicPlaylistInfo() {
         return createPlaylistInfoWithSharing(Sharing.PUBLIC);
@@ -491,24 +498,31 @@ public class PlaylistEngagementsPresenterTest {
     }
 
     private PlaylistWithTracks createPlaylistInfoWithSharing(Sharing sharing) {
-        final PropertySet sourceSet = createPlaylistProperties(sharing, false);
+        final PropertySet sourceSet = createPlaylistProperties(sharing, false, true);
+        List<TrackItem> tracks = ModelFixtures.trackItems(10);
+        return new PlaylistWithTracks(sourceSet, tracks);
+    }
+
+    private PlaylistWithTracks createPlaylistInfoWithPostedStatus(boolean isPostedByCurrentUser) {
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false, isPostedByCurrentUser);
         List<TrackItem> tracks = ModelFixtures.trackItems(10);
         return new PlaylistWithTracks(sourceSet, tracks);
     }
 
     private PlaylistWithTracks createPlaylistInfoWithOfflineAvailability(boolean markedForOffline) {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, markedForOffline);
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, markedForOffline, true);
         List<TrackItem> tracks = ModelFixtures.trackItems(10);
         return new PlaylistWithTracks(sourceSet, tracks);
     }
 
-    private PropertySet createPlaylistProperties(Sharing sharing, boolean markedForOffline) {
+    private PropertySet createPlaylistProperties(Sharing sharing, boolean markedForOffline, boolean isPostedByCurrentUser) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setSharing(sharing);
         final PropertySet sourceSet = playlist.toPropertySet();
         sourceSet.put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, markedForOffline);
         sourceSet.put(PlaylistProperty.IS_LIKED, false);
         sourceSet.put(PlaylistProperty.IS_REPOSTED, false);
+        sourceSet.put(PlaylistProperty.IS_POSTED, isPostedByCurrentUser);
         return sourceSet;
     }
 
