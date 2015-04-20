@@ -1,14 +1,29 @@
 package com.soundcloud.android.cast;
 
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.common.images.WebImage;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
+import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.propeller.PropertySet;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import rx.Observable;
+import rx.functions.Func1;
+import rx.functions.Func2;
+
+import android.content.res.Resources;
+import android.net.Uri;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -19,11 +34,95 @@ public class CastOperations {
 
     public static final String TAG = "ChromeCast";
 
+    private static final String KEY_URN = "urn";
+    private static final String KEY_PLAY_QUEUE = "play_queue";
+    private static final Func1<List<Urn>, Boolean> FILTER_EMPTY_QUEUE = new Func1<List<Urn>, Boolean>() {
+        @Override
+        public Boolean call(List<Urn> urns) {
+            return !urns.isEmpty();
+        }
+    };
+
     private final VideoCastManager videoCastManager;
+    private final PlayQueueManager playQueueManager;
+    private final TrackRepository trackRepository;
+    private final PolicyOperations policyOperations;
+    private final ImageOperations imageOperations;
+    private final Resources resources;
+
+    private Func1<List<Urn>, Observable<List<Urn>>> filterMonetizableTracks = new Func1<List<Urn>, Observable<List<Urn>>>() {
+        @Override
+        public Observable<List<Urn>> call(List<Urn> urns) {
+            return policyOperations.filterMonetizableTracks(urns);
+        }
+    };
+
+    private Func1<List<Urn>, JSONObject> toPlayQueueJSON = new Func1<List<Urn>, JSONObject>() {
+        @Override
+        public JSONObject call(List<Urn> urns) {
+            return createPlayQueueObject(urns);
+        }
+    };
 
     @Inject
-    public CastOperations(VideoCastManager videoCastManager) {
+    public CastOperations(VideoCastManager videoCastManager,
+                          PlayQueueManager playQueueManager,
+                          TrackRepository trackRepository,
+                          PolicyOperations policyOperations,
+                          ImageOperations imageOperations,
+                          Resources resources) {
         this.videoCastManager = videoCastManager;
+        this.playQueueManager = playQueueManager;
+        this.trackRepository = trackRepository;
+        this.policyOperations = policyOperations;
+        this.imageOperations = imageOperations;
+        this.resources = resources;
+    }
+
+    public Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn) {
+        return Observable.zip(getLocalPlayQueueTracks(), trackRepository.track(currentTrackUrn),
+                new Func2<JSONObject, PropertySet, LocalPlayQueue>() {
+                    @Override
+                    public LocalPlayQueue call(JSONObject playQueueObject, PropertySet track) {
+                        return new LocalPlayQueue(playQueueObject, createMediaInfo(track), track.get(TrackProperty.URN));
+                    }
+                });
+    }
+
+    private Observable<JSONObject> getLocalPlayQueueTracks() {
+        return getLocalPlayQueueUrns()
+                .flatMap(filterMonetizableTracks)
+                .filter(FILTER_EMPTY_QUEUE)
+                .map(toPlayQueueJSON);
+    }
+
+    private Observable<List<Urn>> getLocalPlayQueueUrns() {
+        return Observable.just(playQueueManager.getCurrentQueueAsUrnList());
+    }
+
+    private JSONObject createPlayQueueObject(List<Urn> urns) {
+        JSONObject playQueue = new JSONObject();
+        try {
+            playQueue.put(KEY_PLAY_QUEUE, new JSONArray(CollectionUtils.urnsToStrings(urns)));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return playQueue;
+    }
+
+    private MediaInfo createMediaInfo(PropertySet track) {
+        final Urn trackUrn = track.get(TrackProperty.URN);
+        MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
+        mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.get(TrackProperty.TITLE));
+        mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.get(TrackProperty.CREATOR_NAME));
+        mediaMetadata.putString(KEY_URN, trackUrn.toString());
+        mediaMetadata.addImage(new WebImage(Uri.parse(imageOperations.getUrlForLargestImage(resources, trackUrn))));
+
+        return new MediaInfo.Builder(trackUrn.toString())
+                .setContentType("audio/mpeg")
+                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                .setMetadata(mediaMetadata)
+                .build();
     }
 
     public RemotePlayQueue loadRemotePlayQueue() {
@@ -52,7 +151,7 @@ public class CastOperations {
     }
 
     private List<Urn> convertRemoteDataToTrackList(JSONObject customData) throws JSONException {
-        final JSONArray jsonArray = (JSONArray) customData.get(CastPlayer.KEY_PLAY_QUEUE);
+        final JSONArray jsonArray = (JSONArray) customData.get(KEY_PLAY_QUEUE);
         List<Urn> remoteTracks = new ArrayList<>(jsonArray.length());
         for (int i = 0; i < jsonArray.length(); i++){
             remoteTracks.add(new Urn(jsonArray.getString(i)));
@@ -61,7 +160,11 @@ public class CastOperations {
     }
 
     private Urn getRemoteUrn(MediaInfo mediaInfo) {
-        return CastPlayer.getUrnFromMediaMetadata(mediaInfo);
+        return getUrnFromMediaMetadata(mediaInfo);
+    }
+
+    public Urn getUrnFromMediaMetadata(MediaInfo mediaInfo) {
+        return mediaInfo == null ? Urn.NOT_SET : new Urn(mediaInfo.getMetadata().getString(KEY_URN));
     }
 
 }

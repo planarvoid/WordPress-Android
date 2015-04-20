@@ -71,7 +71,7 @@ public class CastPlayerTest {
 
     @Before
     public void setUp() throws Exception {
-        castPlayer = new CastPlayer(castManager, progressReporter, imageOperations, resources, eventBus, trackRepository, playQueueManager);
+        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, imageOperations, resources, eventBus, trackRepository, playQueueManager);
     }
 
     @Test

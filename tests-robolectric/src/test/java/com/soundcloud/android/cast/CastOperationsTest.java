@@ -10,6 +10,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConn
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.CollectionUtils;
 import org.json.JSONArray;
@@ -33,11 +34,12 @@ public class CastOperationsTest {
     private CastOperations castOperations;
 
     @Mock private VideoCastManager videoCastManager;
+    @Mock private PlayQueueManager playQueueManager;
 
 
     @Before
     public void setUp() throws Exception {
-        castOperations = new CastOperations(videoCastManager);
+        castOperations = new CastOperations(videoCastManager, playQueueManager, policyOperations);
     }
 
     @Test

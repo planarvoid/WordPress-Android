@@ -4,6 +4,8 @@ import rx.Observable;
 import rx.Observer;
 import rx.functions.Func1;
 
+import java.util.Collection;
+
 public final class RxUtils {
 
     public static final Func1<Boolean, Boolean> IS_TRUE = new Func1<Boolean, Boolean>() {
@@ -24,6 +26,15 @@ public final class RxUtils {
         for (T item : iterable){
             observer.onNext(item);
         }
+    }
+
+    public static <T> Func1<Collection<T>, Observable<T>> emitCollectionItems() {
+        return new Func1<Collection<T>, Observable<T>>() {
+            @Override
+            public Observable<T> call(Collection<T> items) {
+                return Observable.from(items);
+            }
+        };
     }
 
     public static <T> Func1<Object, T> returning(final T obj) {

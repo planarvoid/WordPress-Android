@@ -102,7 +102,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         saveQueue();
         saveCurrentProgress(0L);
 
-        fireAndForget(policyOperations.fetchAndStorePolicies(playQueue.getTrackUrns()));
+        fireAndForget(policyOperations.updatePolicies(playQueue.getTrackUrns()));
     }
 
     @Deprecated

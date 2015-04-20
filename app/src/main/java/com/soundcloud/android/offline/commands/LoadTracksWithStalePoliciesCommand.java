@@ -11,6 +11,7 @@ import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.UrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
+import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -22,7 +23,6 @@ import android.provider.BaseColumns;
 import javax.inject.Inject;
 import java.util.Collection;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 
 public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Void, Collection<Urn>, LoadTracksWithStalePoliciesCommand> {
 
@@ -37,7 +37,7 @@ public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Void, Coll
 
     @Override
     public Collection<Urn> call() throws Exception {
-        final long stalePolicyTimestamp = System.currentTimeMillis() - TimeUnit.HOURS.toMillis(24);
+        final long stalePolicyTimestamp = System.currentTimeMillis() - PolicyOperations.POLICY_STALE_AGE_MILISECONDS;
         final Collection<Urn> set = new TreeSet<>();
         final Where stalePolicyCondition = filter()
                 .whereLt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), stalePolicyTimestamp)
