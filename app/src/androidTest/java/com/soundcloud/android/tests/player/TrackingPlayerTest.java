@@ -27,7 +27,6 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         mrLoggaVerifier.startLogging();
-        //mrLoggaRecorder.startRecording(TEST_SCENARIO);
     }
 
     public void testPlayAndPauseTrackFromStream() {
@@ -51,7 +50,6 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
 
         mrLoggaVerifier.finishLogging();
         mrLoggaVerifier.isValid(TEST_SCENARIO);
-        //mrLoggaRecorder.finishRecording();
     }
 
 }
