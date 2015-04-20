@@ -97,4 +97,5 @@ public class TestUser {
     public static final TestUser offlineUser    = new TestUser("sctestoffline",         "sctestoffline@gmail.com",      "passwordyeah88");
     public static final TestUser offlinePlaylistUser = new TestUser("sctestoffline_playlist",      "sctestoffline_playlist@gmail.com","passwordyeah88");
     public static final TestUser offlineEmptyUser    = new TestUser("sctestoffline_empty",         "sctestoffline_empty@gmail.com",   "passwordyeah88");
+    public static final TestUser over18user     = new TestUser("over18userblah",         "over18user@soundcloud.com",   "#s0undcl0ud");
 }
