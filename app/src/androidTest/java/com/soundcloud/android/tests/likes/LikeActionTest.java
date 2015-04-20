@@ -1,6 +1,7 @@
 package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.helpers.TrackItemElementHelper.assertLikeActionOnUnlikedTrack;
+import static com.soundcloud.android.framework.helpers.PlaylistDetailsScreenHelper.assertLikeActionOnUnlikedPlaylist;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
@@ -68,7 +69,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         final String expectedTitle = playlistScreen.getTitle();
 
         networkManager.switchWifiOff();
-        playlistScreen.touchToggleLike();
+        assertLikeActionOnUnlikedPlaylist(playlistScreen);
 
         solo.goBack();
         solo.goBack();
