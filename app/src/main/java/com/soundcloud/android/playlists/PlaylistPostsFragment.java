@@ -46,7 +46,7 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
         listViewController.setAdapter(adapter, playlistPostOperations.postedPlaylistsPager(), PlaylistItem.fromPropertySets());
         pullToRefreshController.setRefreshListener(this, adapter);
 
-        attachLightCycle(adapter.getLifeCycleHandler());
+        bind(adapter.getLifeCycleHandler());
     }
 
     @VisibleForTesting
