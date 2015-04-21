@@ -1,23 +1,18 @@
 package com.soundcloud.android.testsupport.fixtures;
 
-import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.api.model.stream.ApiStreamPlaylistPost;
 import com.soundcloud.android.api.model.stream.ApiStreamPlaylistRepost;
-import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.api.model.stream.ApiStreamTrackPost;
 import com.soundcloud.android.api.model.stream.ApiStreamTrackRepost;
 
 public class ApiStreamItemFixtures {
 
-    public static ApiStreamItem promotedStreamItemWithoutPromoter(){
+    public static ApiStreamItem promotedStreamItemWithoutPromoter() {
         return new ApiStreamItem(PromotedFixtures.promotedStreamItemWithoutPromoter());
     }
 
-    public static ApiStreamItem promotedStreamItemWithPromoter(){
-        return new ApiStreamItem(PromotedFixtures.promotedStreamItemWithPromoter(ModelFixtures.create((ApiUser.class))));
-    }
-
-    public static ApiStreamItem trackPost(){
+    public static ApiStreamItem trackPost() {
         return new ApiStreamItem(ModelFixtures.create(ApiStreamTrackPost.class));
     }
 

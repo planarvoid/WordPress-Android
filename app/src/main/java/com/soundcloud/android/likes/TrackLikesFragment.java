@@ -20,14 +20,7 @@ public class TrackLikesFragment extends LightCycleSupportFragment {
 
     public TrackLikesFragment() {
         setRetainInstance(true);
-        setHasOptionsMenu(true);
         SoundCloudApplication.getObjectGraph().inject(this);
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        setHasOptionsMenu(true);
-        super.onCreate(savedInstanceState);
     }
 
     @Override
