@@ -9,6 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
@@ -75,8 +76,20 @@ public class SoundStreamSyncer implements SyncStrategy {
             return refreshSoundStream();
 
         } else {
-            return prependActivities();
+            return prependActivitiesWithFallback();
+        }
+    }
 
+    private ApiSyncResult prependActivitiesWithFallback() throws Exception {
+        try {
+            return prependActivities();
+        } catch (ApiRequestException exception){
+            if (exception.isNetworkError()) {
+                throw exception;
+            } else {
+                // we probably had a bad cursor in the local url, so just refresh everything to start over
+                return refreshSoundStream();
+            }
         }
     }
 

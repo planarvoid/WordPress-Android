@@ -89,6 +89,10 @@ public final class ApiRequestException extends Exception {
         return errorKey;
     }
 
+    public boolean isNetworkError(){
+        return errorReason == NETWORK_ERROR;
+    }
+
     public boolean loggable() {
         return errorReason == UNEXPECTED_RESPONSE
                 || errorReason == MALFORMED_INPUT

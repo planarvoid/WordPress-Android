@@ -70,8 +70,7 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
         public void onError(Throwable error) {
             error.printStackTrace();
             if (error instanceof ApiRequestException) {
-                boolean networkError = ((ApiRequestException) error).reason() == ApiRequestException.Reason.NETWORK_ERROR;
-                updateEmptyViewStatus(networkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
+                updateEmptyViewStatus(((ApiRequestException) error).isNetworkError() ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
             } if (error instanceof SyncFailedException) {
                 // default Sync Failures to connection for now as we can't tell the diff
                 updateEmptyViewStatus(EmptyView.Status.CONNECTION_ERROR);
