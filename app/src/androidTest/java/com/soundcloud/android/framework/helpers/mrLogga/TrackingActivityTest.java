@@ -1,4 +1,4 @@
-package com.soundcloud.android.framework.helpers.mrLogga;
+package com.soundcloud.android.framework.helpers.mrlogga;
 
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tests.ActivityTest;

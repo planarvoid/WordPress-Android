@@ -7,7 +7,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.mrLogga.TrackingActivityTest;
+import com.soundcloud.android.framework.helpers.mrlogga.TrackingActivityTest;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
