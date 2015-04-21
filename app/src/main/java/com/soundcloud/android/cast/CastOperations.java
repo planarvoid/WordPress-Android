@@ -8,7 +8,6 @@ import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConn
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
@@ -44,7 +43,6 @@ public class CastOperations {
     };
 
     private final VideoCastManager videoCastManager;
-    private final PlayQueueManager playQueueManager;
     private final TrackRepository trackRepository;
     private final PolicyOperations policyOperations;
     private final ImageOperations imageOperations;
@@ -57,50 +55,56 @@ public class CastOperations {
         }
     };
 
-    private Func1<List<Urn>, JSONObject> toPlayQueueJSON = new Func1<List<Urn>, JSONObject>() {
-        @Override
-        public JSONObject call(List<Urn> urns) {
-            return createPlayQueueObject(urns);
-        }
-    };
-
     @Inject
     public CastOperations(VideoCastManager videoCastManager,
-                          PlayQueueManager playQueueManager,
                           TrackRepository trackRepository,
                           PolicyOperations policyOperations,
                           ImageOperations imageOperations,
                           Resources resources) {
         this.videoCastManager = videoCastManager;
-        this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.policyOperations = policyOperations;
         this.imageOperations = imageOperations;
         this.resources = resources;
     }
 
-    public Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn) {
-        return Observable.zip(getLocalPlayQueueTracks(), trackRepository.track(currentTrackUrn),
-                new Func2<JSONObject, PropertySet, LocalPlayQueue>() {
+    public Observable<LocalPlayQueue> loadAndFilterLocalPlayQueue(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
+        return filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
+                .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
                     @Override
-                    public LocalPlayQueue call(JSONObject playQueueObject, PropertySet track) {
-                        return new LocalPlayQueue(playQueueObject, createMediaInfo(track), track.get(TrackProperty.URN));
+                    public Observable<LocalPlayQueue> call(List<Urn> filteredLocalPlayQueueTracks) {
+                        if (filteredLocalPlayQueueTracks.contains(currentTrackUrn)) {
+                            return loadLocalPlayQueue(currentTrackUrn, filteredLocalPlayQueueTracks);
+                        } else {
+                            // TODO: Improve the initial position correction when the track got filtered out (instead of just using first track).
+                            // This can be done by using the nearest unfiltered neighbour track, based on "unfilteredLocalPlayQueueTracks"
+                            return loadLocalPlayQueue(filteredLocalPlayQueueTracks.get(0), filteredLocalPlayQueueTracks);
+                        }
                     }
                 });
     }
 
-    private Observable<JSONObject> getLocalPlayQueueTracks() {
-        return getLocalPlayQueueUrns()
+    public Observable<LocalPlayQueue> loadLocalPlayQueue(Urn currentTrackUrn, List<Urn> filteredLocalPlayQueueTracks) {
+        return Observable.zip(trackRepository.track(currentTrackUrn), Observable.from(filteredLocalPlayQueueTracks).toList(),
+                new Func2<PropertySet, List<Urn>, LocalPlayQueue>() {
+                    @Override
+                    public LocalPlayQueue call(PropertySet track, List<Urn> filteredLocalPlayQueueTracks) {
+                        return new LocalPlayQueue(
+                                createPlayQueueJSON(filteredLocalPlayQueueTracks),
+                                filteredLocalPlayQueueTracks,
+                                createMediaInfo(track),
+                                track.get(TrackProperty.URN));
+                    }
+                });
+    }
+
+    private Observable<List<Urn>> filterMonetizableTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
+        return Observable.just(unfilteredLocalPlayQueueTracks)
                 .flatMap(filterMonetizableTracks)
-                .filter(FILTER_EMPTY_QUEUE)
-                .map(toPlayQueueJSON);
+                .filter(FILTER_EMPTY_QUEUE);
     }
 
-    private Observable<List<Urn>> getLocalPlayQueueUrns() {
-        return Observable.just(playQueueManager.getCurrentQueueAsUrnList());
-    }
-
-    private JSONObject createPlayQueueObject(List<Urn> urns) {
+    private JSONObject createPlayQueueJSON(List<Urn> urns) {
         JSONObject playQueue = new JSONObject();
         try {
             playQueue.put(KEY_PLAY_QUEUE, new JSONArray(CollectionUtils.urnsToStrings(urns)));
