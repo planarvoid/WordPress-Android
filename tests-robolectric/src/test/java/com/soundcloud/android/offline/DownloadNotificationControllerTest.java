@@ -33,6 +33,7 @@ public class DownloadNotificationControllerTest {
     private final DownloadRequest downloadRequest = new DownloadRequest(Urn.forTrack(123L), "http://", 12L);
     private final DownloadResult successfulDownloadResult = DownloadResult.success(downloadRequest);
     private final DownloadResult failedDownloadResult = DownloadResult.error(downloadRequest);
+    private final DownloadResult storageLimitResult = DownloadResult.notEnoughSpace(downloadRequest);
 
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationCompat.Builder notificationBuilder;
@@ -55,7 +56,7 @@ public class DownloadNotificationControllerTest {
     }
 
     @Test
-    public void displayCompletedNotificationWhenCompleted() {
+    public void onDownloadsFinishedDisplayCompletedNotification() {
         notificationController.onPendingRequests(20, downloadRequest);
 
         reset(notificationBuilder);
@@ -68,7 +69,7 @@ public class DownloadNotificationControllerTest {
     }
 
     @Test
-    public void doesNotShowCompletedNotificationIfNoTrackDownloaded() {
+    public void onDownloadsFinishedDoesNotShowNotificationIfNoTrackDownloaded() {
         notificationController.onPendingRequests(1, downloadRequest);
         notificationController.onDownloadError(failedDownloadResult);
 
@@ -79,10 +80,22 @@ public class DownloadNotificationControllerTest {
     }
 
     @Test
-    public void onCompletedDoesNotShowNotificationWhenNoPendingRequests() {
+    public void onDownloadsFinishedDoesNotShowNotificationWhenNoPendingRequests() {
         notificationController.onDownloadsFinished(successfulDownloadResult);
 
         verify(notificationManager, never()).notify(eq(NotificationConstants.OFFLINE_NOTIFY_ID), any(Notification.class));
+    }
+
+    @Test
+    public void onDownloadsFinishedShowsStorageLimitReachedNotification() {
+        notificationController.onPendingRequests(1, downloadRequest);
+        notificationController.onDownloadError(storageLimitResult);
+
+        reset(notificationBuilder, notificationManager);
+        notificationController.onDownloadsFinished(storageLimitResult);
+
+        verify(notificationBuilder).setContentTitle(getString(R.string.offline_update_storage_limit_reached_title));
+        verify(notificationBuilder).setContentText(getString(R.string.offline_update_storage_limit_reached_message));
     }
 
     @Test
