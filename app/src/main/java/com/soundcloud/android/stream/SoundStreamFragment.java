@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
@@ -68,9 +69,9 @@ public class SoundStreamFragment extends LightCycleSupportFragment
 
 
     @Inject SoundStreamOperations operations;
-    @Inject SoundStreamAdapter adapter;
-    @Inject ListViewController listViewController;
-    @Inject PullToRefreshController pullToRefreshController;
+    @Inject @LightCycle SoundStreamAdapter adapter;
+    @Inject @LightCycle ListViewController listViewController;
+    @Inject @LightCycle PullToRefreshController pullToRefreshController;
     @Inject PlaybackOperations playbackOperations;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
@@ -110,10 +111,6 @@ public class SoundStreamFragment extends LightCycleSupportFragment
     private void addLifeCycleComponents() {
         listViewController.setAdapter(adapter, operations.pager(), PAGE_TRANSFORMER);
         pullToRefreshController.setRefreshListener(this, adapter);
-
-        attachLightCycle(listViewController);
-        attachLightCycle(pullToRefreshController);
-        attachLightCycle(adapter);
     }
 
     @Override

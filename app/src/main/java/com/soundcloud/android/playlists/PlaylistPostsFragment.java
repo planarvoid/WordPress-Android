@@ -7,6 +7,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
@@ -33,8 +34,8 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
 
     @Inject PlaylistPostsAdapter adapter;
     @Inject PlaylistPostOperations playlistPostOperations;
-    @Inject ListViewController listViewController;
-    @Inject PullToRefreshController pullToRefreshController;
+    @Inject @LightCycle ListViewController listViewController;
+    @Inject @LightCycle PullToRefreshController pullToRefreshController;
 
     private ConnectableObservable<List<PlaylistItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
@@ -45,8 +46,6 @@ public class PlaylistPostsFragment extends LightCycleSupportFragment
         listViewController.setAdapter(adapter, playlistPostOperations.postedPlaylistsPager(), PlaylistItem.fromPropertySets());
         pullToRefreshController.setRefreshListener(this, adapter);
 
-        attachLightCycle(listViewController);
-        attachLightCycle(pullToRefreshController);
         attachLightCycle(adapter.getLifeCycleHandler());
     }
 

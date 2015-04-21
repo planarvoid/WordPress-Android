@@ -8,6 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -30,18 +31,15 @@ public class TrackCommentsActivity extends ScActivity {
 
     public static final String EXTRA_COMMENTED_TRACK = "extra";
 
-    @Inject AdPlayerController adPlayerController;
-    @Inject SlidingPlayerController playerController;
-    @Inject ActionBarController actionBarController;
+    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle SlidingPlayerController playerController;
+    @Inject @LightCycle ActionBarController actionBarController;
 
     @Inject ScreenPresenter presenter;
     @Inject FeatureFlags featureFlags;
     @Inject ImageOperations imageOperations;
 
     public TrackCommentsActivity() {
-        attachLightCycle(playerController);
-        attachLightCycle(adPlayerController);
-        attachLightCycle(actionBarController);
         presenter.attach(this);
     }
 

@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -71,8 +72,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaybackOperations playbackOperations;
     @Inject OfflinePlaybackOperations offlinePlaybackOperations;
     @Inject ImageOperations imageOperations;
-    @Inject PlaylistEngagementsPresenter engagementsPresenter;
-    @Inject PullToRefreshController pullToRefreshController;
+    @Inject @LightCycle PlaylistEngagementsPresenter engagementsPresenter;
+    @Inject @LightCycle PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
     @Inject PlaylistPresenter playlistPresenter;
@@ -188,8 +189,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private void addLifeCycleComponents() {
         pullToRefreshController.setRefreshListener(this);
-        attachLightCycle(pullToRefreshController);
-        attachLightCycle(engagementsPresenter);
     }
 
     @Override

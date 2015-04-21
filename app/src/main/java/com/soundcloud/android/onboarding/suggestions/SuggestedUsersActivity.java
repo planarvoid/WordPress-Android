@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 
 import android.content.Intent;
@@ -16,11 +17,7 @@ import android.view.MenuItem;
 import javax.inject.Inject;
 
 public class SuggestedUsersActivity extends ScActivity {
-    @Inject ActionBarController actionBarController;
-
-    public SuggestedUsersActivity() {
-        attachLightCycle(actionBarController);
-    }
+    @Inject @LightCycle ActionBarController actionBarController;
 
     @Override
     protected void onCreate(Bundle state) {
