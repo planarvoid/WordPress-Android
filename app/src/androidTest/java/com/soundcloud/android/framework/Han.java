@@ -16,10 +16,9 @@ import com.soundcloud.android.framework.with.With;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Context;
+import android.graphics.Point;
 import android.support.v7.internal.view.menu.ActionMenuItemView;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
@@ -146,23 +145,16 @@ public class Han  {
         swipeHorizontal(Solo.LEFT);
     }
 
-    public void swipeLeft(float verticalPosition) {
-        swipeHorizontal(Solo.LEFT, verticalPosition);
-    }
-
     public void swipeRight() {
         swipeHorizontal(Solo.RIGHT);
     }
 
-    public void swipeRight(float verticalPosition){
-        swipeHorizontal(Solo.RIGHT, verticalPosition);
-    }
-
     public void swipeDown() {
-        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
+        Point deviceSize = new Point();
+        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
-        final int screenHeight = display.getHeight();
-        final int screenWidth = display.getWidth();
+        final int screenWidth = deviceSize.x;
+        final int screenHeight = deviceSize.y;
 
         drag(screenWidth / 4, screenWidth / 4, screenHeight / 4, screenHeight / 2, 10);
     }
@@ -172,17 +164,19 @@ public class Han  {
     }
 
     private void swipeHorizontal(int side) {
-        swipeHorizontal(side, .5f);
+        // swipe at vertical center and from one horizontal side to the other
+        swipeHorizontal(side, .9f, .5f);
     }
 
-    private void swipeHorizontal(int side, float verticalPosition){
-        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
+    private void swipeHorizontal(int side, float horizontalPosition, float verticalPosition){
+        Point deviceSize = new Point();
+        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
 
-        final int screenHeight = display.getHeight();
-        final int screenWidth = display.getWidth();
+        final int screenWidth = deviceSize.x;
+        final int screenHeight = deviceSize.y;
 
-        // center of the screen
-        float x = screenWidth * verticalPosition;
+        // horizontal/vertical offset
+        float x = screenWidth * horizontalPosition;
         float y = screenHeight * verticalPosition;
 
         //each ~50 pixels is one step
@@ -191,13 +185,8 @@ public class Han  {
         if (side == Solo.LEFT) {
             drag(x, 0, y, y, steps);
         } else if (side == Solo.RIGHT) {
-            drag(x, screenWidth, y, y, steps);
+            drag(0, x, y, y, steps);
         }
-    }
-
-    public int getScreenWidth() {
-        Display display = solo.getCurrentActivity().getWindowManager().getDefaultDisplay();
-        return display.getWidth();
     }
 
     public void drag(float fromX, float toX, float fromY, float toY, int stepCount) {
