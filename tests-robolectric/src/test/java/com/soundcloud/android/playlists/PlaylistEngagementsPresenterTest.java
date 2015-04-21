@@ -39,7 +39,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.After;
@@ -96,7 +95,7 @@ public class PlaylistEngagementsPresenterTest {
 
         controller.bindView(rootView);
         controller.onResume(fragment);
-        playlistWithTracks = createPublicPlaylistInfo();
+        playlistWithTracks = createPlaylistInfoWithSharing(Sharing.PUBLIC);
 
         verify(engagementsView).setOnEngagement(listenerCaptor.capture());
         onEngagementListener = listenerCaptor.getValue();
@@ -186,7 +185,7 @@ public class PlaylistEngagementsPresenterTest {
 
     @Test
     public void shouldNotSendShareIntentWhenSharingPrivatePlaylist() {
-        playlistWithTracks = createPlaylistInfoFromPrivatePlaylist();
+        playlistWithTracks = createPlaylistInfoWithSharing(Sharing.PRIVATE);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
 
         onEngagementListener.onShare();
@@ -343,7 +342,10 @@ public class PlaylistEngagementsPresenterTest {
     public void showsOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedAvailable() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(true), getPlaySessionSource());
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
+                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(PlaylistProperty.IS_POSTED, true);
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).setOfflineOptionsMenu(true);
     }
@@ -352,7 +354,9 @@ public class PlaylistEngagementsPresenterTest {
     public void showsNotOfflineAvailableWhenOfflineContentIsEnabledAndPlaylistCurrentlyMarkedUnavailable() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(false), getPlaySessionSource());
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
+                .put(PlaylistProperty.IS_POSTED, true);
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).setOfflineOptionsMenu(false);
     }
@@ -361,14 +365,20 @@ public class PlaylistEngagementsPresenterTest {
     public void showsUpsellWhenOfflineContentIsNotEnabledAndAllowedToShowUpsell() {
         when(featureOperations.shouldShowUpsell()).thenReturn(true);
 
-        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(true), getPlaySessionSource());
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
+                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(PlaylistProperty.IS_POSTED, true);
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).showUpsell();
     }
 
     @Test
     public void hidesOfflineOptionsWhenOfflineContentIsNotEnabledAndNotAllowedToShowUpsell() {
-        controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(true), getPlaySessionSource());
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
+                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(PlaylistProperty.IS_POSTED, true);
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).hideOfflineContentOptions();
     }
@@ -377,7 +387,29 @@ public class PlaylistEngagementsPresenterTest {
     public void hidesOfflineOptionsWhenPlaylistIsNotPostedByTheCurrentUser() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
-        controller.setPlaylistInfo(createPlaylistInfoWithPostedStatus(false), getPlaySessionSource());
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC);
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
+
+        verify(engagementsView).hideOfflineContentOptions();
+    }
+
+    @Test
+    public void doesNotHideOfflineOptionsWhenPlaylistIsLikedByTheCurrentUser() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
+                .put(PlaylistProperty.IS_LIKED, true);
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
+
+        verify(engagementsView, never()).hideOfflineContentOptions();
+    }
+
+    @Test
+    public void hidesOfflineOptionsWhenPlaylistIsNotLikedByTheCurrentUser() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC);
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).hideOfflineContentOptions();
     }
@@ -387,7 +419,7 @@ public class PlaylistEngagementsPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
         reset(engagementsView);
-        
+
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRemoved(Arrays.asList(playlistWithTracks.getUrn())));
 
         verify(engagementsView).show(DownloadState.NO_OFFLINE);
@@ -470,60 +502,48 @@ public class PlaylistEngagementsPresenterTest {
 
     @Test
     public void disablesShuffleWithOneTrack() throws Exception {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false, true);
-        sourceSet.put(PlaylistProperty.TRACK_COUNT, 1);
-        List<TrackItem> tracks = ModelFixtures.trackItems(1);
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
+                .put(PlaylistProperty.IS_POSTED, true)
+                .put(PlaylistProperty.TRACK_COUNT, 1);
 
-        controller.setPlaylistInfo(new PlaylistWithTracks(sourceSet, tracks), getPlaySessionSource());
+        controller.setPlaylistInfo(createPlaylistWithSingleTrack(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).disableShuffle();
     }
 
     @Test
     public void enablesShuffleWithMoreThanOneTrack() throws Exception {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false, true);
-        List<TrackItem> tracks = ModelFixtures.trackItems(10);
+        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC)
+                .put(PlaylistProperty.IS_POSTED, true);
 
-        controller.setPlaylistInfo(new PlaylistWithTracks(sourceSet, tracks), getPlaySessionSource());
+        controller.setPlaylistInfo(createPlaylistWithTracks(sourceSet), getPlaySessionSource());
 
         verify(engagementsView).enableShuffle();
     }
 
-    private PlaylistWithTracks createPublicPlaylistInfo() {
-        return createPlaylistInfoWithSharing(Sharing.PUBLIC);
-    }
-
-    private PlaylistWithTracks createPlaylistInfoFromPrivatePlaylist() {
-        return createPlaylistInfoWithSharing(Sharing.PRIVATE);
-    }
-
     private PlaylistWithTracks createPlaylistInfoWithSharing(Sharing sharing) {
-        final PropertySet sourceSet = createPlaylistProperties(sharing, false, true);
-        List<TrackItem> tracks = ModelFixtures.trackItems(10);
-        return new PlaylistWithTracks(sourceSet, tracks);
+        final PropertySet sourceSet = createPlaylistProperties(sharing)
+                .put(PlaylistProperty.IS_POSTED, true);
+        return createPlaylistWithTracks(sourceSet);
     }
 
-    private PlaylistWithTracks createPlaylistInfoWithPostedStatus(boolean isPostedByCurrentUser) {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, false, isPostedByCurrentUser);
-        List<TrackItem> tracks = ModelFixtures.trackItems(10);
-        return new PlaylistWithTracks(sourceSet, tracks);
+    private PlaylistWithTracks createPlaylistWithTracks(PropertySet sourceSet) {
+        return new PlaylistWithTracks(sourceSet, ModelFixtures.trackItems(10));
     }
 
-    private PlaylistWithTracks createPlaylistInfoWithOfflineAvailability(boolean markedForOffline) {
-        final PropertySet sourceSet = createPlaylistProperties(Sharing.PUBLIC, markedForOffline, true);
-        List<TrackItem> tracks = ModelFixtures.trackItems(10);
-        return new PlaylistWithTracks(sourceSet, tracks);
+    private PlaylistWithTracks createPlaylistWithSingleTrack(PropertySet sourceSet) {
+
+        return new PlaylistWithTracks(sourceSet, ModelFixtures.trackItems(1));
     }
 
-    private PropertySet createPlaylistProperties(Sharing sharing, boolean markedForOffline, boolean isPostedByCurrentUser) {
+    private PropertySet createPlaylistProperties(Sharing sharing) {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         playlist.setSharing(sharing);
-        final PropertySet sourceSet = playlist.toPropertySet();
-        sourceSet.put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, markedForOffline);
-        sourceSet.put(PlaylistProperty.IS_LIKED, false);
-        sourceSet.put(PlaylistProperty.IS_REPOSTED, false);
-        sourceSet.put(PlaylistProperty.IS_POSTED, isPostedByCurrentUser);
-        return sourceSet;
+        return playlist.toPropertySet()
+                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, false)
+                .put(PlaylistProperty.IS_LIKED, false)
+                .put(PlaylistProperty.IS_REPOSTED, false)
+                .put(PlaylistProperty.IS_POSTED, false);
     }
 
     private PlaySessionSource getPlaySessionSource() {
