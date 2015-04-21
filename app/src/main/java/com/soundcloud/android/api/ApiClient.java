@@ -76,16 +76,16 @@ public class ApiClient {
             setHttpHeaders(request, builder);
 
             switch (request.getMethod()) {
-                case "GET":
+                case ApiRequest.HTTP_GET:
                     builder.get();
                     break;
-                case "POST":
+                case ApiRequest.HTTP_POST:
                     builder.post(getRequestBody(request));
                     break;
-                case "PUT":
+                case ApiRequest.HTTP_PUT:
                     builder.put(getRequestBody(request));
                     break;
-                case "DELETE":
+                case ApiRequest.HTTP_DELETE:
                     builder.delete();
                     break;
                 default:

@@ -8,10 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.soundcloud.android.utils.UriUtils;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
@@ -25,6 +21,11 @@ import java.util.Map;
 
 public class ApiRequest {
 
+    static final String HTTP_GET = "GET";
+    static final String HTTP_POST = "POST";
+    static final String HTTP_PUT = "PUT";
+    static final String HTTP_DELETE = "DELETE";
+
     private static final String PRIVATE_API_ACCEPT_CONTENT_TYPE = "application/vnd.com.soundcloud.mobile.v%d+json; charset=utf-8";
     // do not use MediaType.JSON_UTF8; the public API does not accept qualified media types that include charsets
     private static final String PUBLIC_API_ACCEPT_CONTENT_TYPE = "application/json";
@@ -37,19 +38,19 @@ public class ApiRequest {
     @NotNull private final Map<String, String> headers;
 
     public static Builder get(String uri) {
-        return new Builder(uri, HttpGet.METHOD_NAME);
+        return new Builder(uri, HTTP_GET);
     }
 
     public static Builder post(String uri) {
-        return new Builder(uri, HttpPost.METHOD_NAME);
+        return new Builder(uri, HTTP_POST);
     }
 
     public static Builder put(String uri) {
-        return new Builder(uri, HttpPut.METHOD_NAME);
+        return new Builder(uri, HTTP_PUT);
     }
 
     public static Builder delete(String uri) {
-        return new Builder(uri, HttpDelete.METHOD_NAME);
+        return new Builder(uri, HTTP_DELETE);
     }
 
     ApiRequest(Uri uri, String method, int endpointVersion,
