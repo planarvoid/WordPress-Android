@@ -13,10 +13,10 @@ ext {
 
 buildscript {
   repositories {
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
   }
   dependencies {
-    classpath 'com.crashlytics.tools.gradle:crashlytics-gradle:1.+'
+    classpath 'io.fabric.tools:gradle:1.+'
   }
 }
 
@@ -32,7 +32,7 @@ apply from: "${buildSrcDir}/repacker/repacker.gradle"
 apply plugin: 'com.android.application'
 apply plugin: 'maven'
 apply plugin: 'android-apt'
-apply plugin: 'crashlytics'
+apply plugin: 'io.fabric'
 
 def globalConfiguration = rootProject.extensions.getByName('ext')
 
@@ -194,14 +194,15 @@ dependencies {
   compile libraries.adjustAndroid
   compile libraries.dagger
   compile libraries.guavaRepack
-  compile libraries.crashlytics
+  compile (libraries.crashlytics) {
+    transitive = true
+  }
   compile libraries.jacksonRespack
   compile libraries.okHttp
   provided libraries.httpClientAndroid
   compile (libraries.httpmime) { exclude group: 'org.apache.httpcomponents', module: 'httpclient' }
   compile libraries.localytics
   compile (libraries.slidingUpPanel) {
-    // TODO: fork lib and remove NineOldAndroids
     transitive = true;
   }
   compile libraries.androidCrop

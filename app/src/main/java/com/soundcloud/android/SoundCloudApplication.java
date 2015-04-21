@@ -42,12 +42,12 @@ import com.soundcloud.android.sync.SyncModule;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.DeviceHelper;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.fabric.sdk.android.Fabric;
 import org.jetbrains.annotations.NotNull;
 
 import android.accounts.Account;
@@ -189,8 +189,7 @@ public class SoundCloudApplication extends Application {
 
     private void setUpCrashReportingIfNeeded() {
         if (isReportingCrashes()) {
-            Crashlytics.start(this);
-            ErrorUtils.setupUncaughtExceptionHandler(memoryReporter);
+            Fabric.with(this, new Crashlytics());
         }
     }
 
