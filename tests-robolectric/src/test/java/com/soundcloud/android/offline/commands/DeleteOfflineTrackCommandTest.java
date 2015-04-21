@@ -7,7 +7,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -45,6 +44,7 @@ public class DeleteOfflineTrackCommandTest extends StorageIntegrationTest {
     @Test
     public void deleteTrackFromTheDatabase() throws Exception {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
+        when(fileStorage.deleteTrack(TRACK_URN)).thenReturn(true);
 
         final Collection<Urn> deleted = command.call(Arrays.asList(TRACK_URN));
 
@@ -55,7 +55,7 @@ public class DeleteOfflineTrackCommandTest extends StorageIntegrationTest {
     @Test
     public void doesNotDeleteTrackFromTheDataBaseWhenFailedToDeleteFromTheFileSystem() throws Exception {
         testFixtures().insertTrackDownloadPendingRemoval(TRACK_URN, 100L);
-        when(fileStorage.deleteTrack(TRACK_URN)).thenThrow(new EncryptionException("Test exception", new RuntimeException()));
+        when(fileStorage.deleteTrack(TRACK_URN)).thenReturn(false);
 
         final Collection<Urn> deleted = command.call(Arrays.asList(TRACK_URN));
 

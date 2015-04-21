@@ -17,7 +17,9 @@ public class DownloadHandler extends Handler {
 
     private final MainHandler mainHandler;
     private final DownloadOperations downloadOperations;
+    private final SecureFileStorage secureFileStorage;
     private final OfflineTracksStorage offlineTracksStorage;
+
     private DownloadRequest current;
 
     public boolean isDownloading() {
@@ -36,19 +38,21 @@ public class DownloadHandler extends Handler {
 
     public DownloadHandler(Looper looper, MainHandler mainHandler,
                            DownloadOperations downloadOperations,
-                           OfflineTracksStorage offlineTracksStorage) {
+                           SecureFileStorage secureFileStorage, OfflineTracksStorage offlineTracksStorage) {
         super(looper);
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
+        this.secureFileStorage = secureFileStorage;
         this.offlineTracksStorage = offlineTracksStorage;
     }
 
     @VisibleForTesting
     DownloadHandler(MainHandler mainHandler,
                     DownloadOperations downloadOperations,
-                    OfflineTracksStorage offlineTracksStorage) {
+                    SecureFileStorage secureFileStorage, OfflineTracksStorage offlineTracksStorage) {
         this.mainHandler = mainHandler;
         this.downloadOperations = downloadOperations;
+        this.secureFileStorage = secureFileStorage;
         this.offlineTracksStorage = offlineTracksStorage;
     }
 
@@ -74,7 +78,7 @@ public class DownloadHandler extends Handler {
         if (writeResult.success()) {
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_SUCCESS, result);
         } else {
-            downloadOperations.deleteTrack(result.getTrack());
+            secureFileStorage.deleteTrack(result.getTrack());
             sendDownloadResult(MainHandler.ACTION_DOWNLOAD_FAILED, result);
         }
     }
@@ -92,15 +96,18 @@ public class DownloadHandler extends Handler {
     static class Builder {
         private final DownloadOperations downloadOperations;
         private final OfflineTracksStorage tracksStorage;
+        private final SecureFileStorage secureFileStorage;
 
         @Inject
-        Builder(DownloadOperations downloadOperations, OfflineTracksStorage tracksStorage) {
-            this.downloadOperations = downloadOperations;
+        Builder(DownloadOperations operations, OfflineTracksStorage tracksStorage, SecureFileStorage secureFiles) {
+            this.downloadOperations = operations;
             this.tracksStorage = tracksStorage;
+            this.secureFileStorage = secureFiles;
         }
 
         DownloadHandler create(Listener listener) {
-            return new DownloadHandler(createLooper(), new MainHandler(listener), downloadOperations, tracksStorage);
+            return new DownloadHandler(
+                    createLooper(), new MainHandler(listener), downloadOperations, secureFileStorage, tracksStorage);
         }
 
         private Looper createLooper() {

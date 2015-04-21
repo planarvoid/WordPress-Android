@@ -1,16 +1,12 @@
 package com.soundcloud.android.offline;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
@@ -21,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.net.Uri;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -75,7 +70,7 @@ public class SecureFileStorageTest {
 
         verify(operations).encryptStream(eq(inputStream), any(OutputStream.class));
     }
-    
+
     @Test
     public void storeTrackSavesDataToAFile() throws Exception {
         final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
@@ -83,6 +78,30 @@ public class SecureFileStorageTest {
         storage.storeTrack(TRACK_URN, inputStream);
 
         expect(file.exists()).toBeTrue();
+    }
+
+    @Test(expected = EncryptionException.class)
+    public void deletesFileWhenEncryptionFailed() throws IOException, EncryptionException {
+        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
+
+        final EncryptionException ioException = new EncryptionException("Test encrypt exception", new Exception());
+        doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class));
+
+        storage.storeTrack(TRACK_URN, inputStream);
+
+        expect(file.exists()).toBeFalse();
+    }
+
+    @Test(expected = IOException.class)
+    public void deletesFileWhenIOFailed() throws IOException, EncryptionException {
+        final File file = new File(storage.OFFLINE_DIR, TRACK_URN.toEncodedString() + ".enc");
+
+        final IOException ioException = new IOException("Test IOException");
+        doThrow(ioException).when(operations).encryptStream(eq(inputStream), any(OutputStream.class));
+
+        storage.storeTrack(TRACK_URN, inputStream);
+
+        expect(file.exists()).toBeFalse();
     }
 
     @Test

@@ -24,6 +24,7 @@ public class DownloadHandlerTest {
     @Mock MainHandler mainHandler;
     @Mock DownloadOperations downloadOperations;
     @Mock OfflineTracksStorage tracksStorage;
+    @Mock SecureFileStorage secureFileStorage;
     @Mock WriteResult writeResult;
 
     private DownloadHandler handler;
@@ -48,7 +49,7 @@ public class DownloadHandlerTest {
         failureMessage = createMessage(downloadRequest);
         notEnoughSpaceMessage = createMessage(downloadRequest);
 
-        handler = new DownloadHandler(mainHandler, downloadOperations, tracksStorage);
+        handler = new DownloadHandler(mainHandler, downloadOperations, secureFileStorage, tracksStorage);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_SUCCESS, downloadResultSuccess)).thenReturn(successMessage);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultFailed)).thenReturn(failureMessage);
         when(mainHandler.obtainMessage(MainHandler.ACTION_DOWNLOAD_FAILED, downloadResultNotEnoughSpace)).thenReturn(notEnoughSpaceMessage);
@@ -111,7 +112,7 @@ public class DownloadHandlerTest {
 
         handler.handleMessage(successMessage);
 
-        verify(downloadOperations).deleteTrack(downloadRequest.track);
+        verify(secureFileStorage).deleteTrack(downloadRequest.track);
     }
 
     @Test
