@@ -83,6 +83,21 @@
                 style="@style/PlayerTitle"
                 android:layout_marginTop="4dp"
                 android:layout_below="@id/track_page_user" />
+
+        <com.soundcloud.android.view.JaggedTextView
+            android:id="@+id/casting_to"
+            style="@style/PlayerCastingTo"
+            android:layout_marginTop="4dp"
+            android:layout_below="@id/track_page_title" />
+
+        <com.soundcloud.android.view.JaggedTextView
+            android:id="@+id/cast_device_name"
+            style="@style/PlayerCastDeviceName"
+            android:layout_marginTop="4dp"
+            android:layout_alignBaseline="@id/casting_to"
+            android:layout_toEndOf="@id/casting_to"
+            android:layout_toRightOf="@id/casting_to" />
+
     </RelativeLayout>
 
     <include layout="@layout/player_footer_controls" />

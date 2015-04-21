@@ -8,7 +8,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastPlayer;
 import com.soundcloud.android.cast.DefaultCastConnectionHelper;
-import com.soundcloud.android.cast.UselessCastConnectionHelper;
+import com.soundcloud.android.cast.NoOpCastConnectionHelper;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageProcessor;
 import com.soundcloud.android.image.ImageProcessorCompat;
@@ -205,9 +205,9 @@ public class ApplicationModule {
         // This is temporary, until we play https://soundcloud.atlassian.net/browse/MC-213
 
         if (featureFlags.isEnabled(Flag.GOOGLE_CAST) && "Dalvik".equals(System.getProperty("java.vm.name"))){
-            return new DefaultCastConnectionHelper(context, provideVideoCastManager(context, applicationProperties));
+            return new DefaultCastConnectionHelper(provideVideoCastManager(context, applicationProperties));
         } else {
-            return new UselessCastConnectionHelper();
+            return new NoOpCastConnectionHelper();
         }
     }
 

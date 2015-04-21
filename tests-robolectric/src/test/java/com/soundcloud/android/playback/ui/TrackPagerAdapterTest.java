@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -20,7 +21,6 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
@@ -61,7 +61,8 @@ public class TrackPagerAdapterTest {
     @Mock private TrackRepository trackRepository;
     @Mock private TrackPagePresenter trackPagePresenter;
     @Mock private AdPagePresenter adPagePresenter;
-    @Mock private PlaybackOperations playbackOperations;
+    @Mock private CastConnectionHelper castConnectionHelper;
+
     @Mock private ViewGroup container;
     @Mock private SkipListener skipListener;
     @Mock private ViewVisibilityProvider viewVisibilityProvider;
@@ -93,8 +94,14 @@ public class TrackPagerAdapterTest {
         when(adPagePresenter.createItemView(container, skipListener)).thenReturn(adView);
 
         eventBus = new TestEventBus();
-        adapter = new TrackPagerAdapter(playQueueManager, playSessionStateProvider, trackRepository, trackPagePresenter, adPagePresenter, eventBus);
-        adapter.initialize(container, skipListener, viewVisibilityProvider);
+        adapter = new TrackPagerAdapter(playQueueManager,
+                playSessionStateProvider,
+                trackRepository,
+                trackPagePresenter,
+                adPagePresenter,
+                castConnectionHelper,
+                eventBus);
+        adapter.onViewCreated(container, skipListener, viewVisibilityProvider);
         adapter.setCurrentData(trackPageData);
 
         track = PropertySet.from(TrackProperty.URN.bind(TRACK1_URN),
@@ -274,7 +281,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void shouldCreateAdViewForAudioAds() {
-        adapter.initialize(container, skipListener, viewVisibilityProvider);
+        adapter.onViewCreated(container, skipListener, viewVisibilityProvider);
         setupAudioAd();
         getAdPageView();
 
@@ -361,6 +368,16 @@ public class TrackPagerAdapterTest {
         final View pageView = getPageView(1, TRACK2_URN);
 
         verify(trackPagePresenter).onPositionSet(pageView, 1, 4);
+    }
+
+    @Test
+    public void bindingTrackViewSetsCastDeviceNameOnPresenter() {
+        final String castDeviceName = "the chromecast device name";
+        when(castConnectionHelper.getDeviceName()).thenReturn(castDeviceName);
+
+        final View pageView = getPageView(1, TRACK2_URN);
+
+        verify(trackPagePresenter).setCastDeviceName(pageView, castDeviceName);
     }
 
     @Test

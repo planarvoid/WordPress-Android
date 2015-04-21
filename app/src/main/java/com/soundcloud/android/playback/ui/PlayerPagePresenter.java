@@ -27,4 +27,6 @@ public interface PlayerPagePresenter {
     void onPlayerSlide(View trackPage, float position);
 
     void clearAdOverlay(View trackPage);
+
+    void setCastDeviceName(View trackPage, String deviceName);
 }
