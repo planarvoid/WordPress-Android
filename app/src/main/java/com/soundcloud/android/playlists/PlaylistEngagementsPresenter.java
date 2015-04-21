@@ -197,7 +197,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     }
 
     private void updateOfflineAvailability() {
-        if (featureOperations.isOfflineContentEnabled() && playlistWithTracks.isPostedByUser()) {
+        if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
             playlistEngagementsView.show(playlistWithTracks.getDownloadState());
         } else if (featureOperations.shouldShowUpsell()) {
@@ -205,6 +205,10 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         } else {
             playlistEngagementsView.hideOfflineContentOptions();
         }
+    }
+
+    private boolean isEligibleForOfflineContent() {
+        return playlistWithTracks.isPostedByUser() || playlistWithTracks.isLikedByUser();
     }
 
     @Override
