@@ -1,7 +1,7 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineLikesDialog;
 import com.soundcloud.android.payments.SubscribeActivity;

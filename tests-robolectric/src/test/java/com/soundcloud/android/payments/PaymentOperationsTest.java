@@ -158,7 +158,7 @@ public class PaymentOperationsTest {
     }
 
     private Observable<AvailableProducts> availableProductsObservable() {
-        AvailableProducts products = new AvailableProducts(Lists.newArrayList(new AvailableProducts.Product("product_id", "consumer_sub")));
+        AvailableProducts products = new AvailableProducts(Lists.newArrayList(new AvailableProducts.Product("product_id", "mid_tier")));
         return Observable.just(products);
     }
 

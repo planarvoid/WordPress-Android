@@ -19,7 +19,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.associations.RepostOperations;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -359,7 +359,7 @@ public class PlaylistEngagementsPresenterTest {
 
     @Test
     public void showsUpsellWhenOfflineContentIsNotEnabledAndAllowedToShowUpsell() {
-        when(featureOperations.isOfflineContentUpsellEnabled()).thenReturn(true);
+        when(featureOperations.shouldShowUpsell()).thenReturn(true);
 
         controller.setPlaylistInfo(createPlaylistInfoWithOfflineAvailability(true), getPlaySessionSource());
 

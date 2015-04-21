@@ -12,7 +12,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -101,7 +100,7 @@ public class ConfigurationOperations {
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Registering device");
-        final ApiRequest<Configuration> request = getConfigurationRequestBuilderForGet()
+        final ApiRequest<Configuration> request = configurationRequestBuilderForGet()
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token)).build();
 
         Configuration configuration = apiClient.get().fetchMappedResponse(request);
@@ -118,14 +117,15 @@ public class ConfigurationOperations {
     }
 
     private Observable<Configuration> loadAndUpdateConfiguration() {
-        final ApiRequest<Configuration> request = getConfigurationRequestBuilderForGet().build();
         return Observable.zip(experimentOperations.loadAssignment(),
-                apiClientRx.get().mappedResponse(request).subscribeOn(scheduler),
+                apiClientRx.get()
+                        .mappedResponse(configurationRequestBuilderForGet().build())
+                        .subscribeOn(scheduler),
                 toUpdatedConfiguration
         );
     }
 
-    private ApiRequest.Builder<Configuration> getConfigurationRequestBuilderForGet() {
+    private ApiRequest.Builder<Configuration> configurationRequestBuilderForGet() {
         return ApiRequest.Builder.<Configuration>get(ApiEndpoints.CONFIGURATION.path())
                 .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
                 .forPrivateApi(1)
@@ -143,13 +143,13 @@ public class ConfigurationOperations {
             }
             saveConfiguration(configuration);
         }
-
     }
 
     public void saveConfiguration(Configuration configuration) {
         experimentOperations.update(configuration.assignment);
         if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
-            featureOperations.update(configuration.getFeatureMap());
+            featureOperations.updateFeatures(configuration.getFeatureMap());
+            featureOperations.updatePlan(configuration.plan.id, configuration.plan.upsell);
         }
     }
 

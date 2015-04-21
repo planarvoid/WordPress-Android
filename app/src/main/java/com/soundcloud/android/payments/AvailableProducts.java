@@ -8,13 +8,13 @@ import java.util.List;
 
 class AvailableProducts {
 
-    private static final String CONSUMER_SUB = "consumer_sub";
+    private static final String MID_TIER = "mid_tier";
 
     public static final Func1<AvailableProducts, Product> TO_PRODUCT = new Func1<AvailableProducts, Product>() {
         @Override
         public Product call(AvailableProducts availableProducts) {
             for (Product product : availableProducts.products) {
-                if (product.clientProductId.equals(CONSUMER_SUB)) {
+                if (product.planId.equals(MID_TIER)) {
                     return product;
                 }
             }
@@ -34,12 +34,12 @@ class AvailableProducts {
         private static final String EMPTY = "unavailable";
 
         public final String id;
-        public final String clientProductId;
+        public final String planId;
 
         @JsonCreator
-        public Product(@JsonProperty("id") String id, @JsonProperty("client_product_id") String clientProductId) {
+        public Product(@JsonProperty("id") String id, @JsonProperty("client_product_id") String planId) {
             this.id = id;
-            this.clientProductId = clientProductId;
+            this.planId = planId;
         }
 
         public static Product empty() {

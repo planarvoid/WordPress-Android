@@ -1,7 +1,7 @@
 package com.soundcloud.android.settings;
 
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -10,17 +10,16 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceScreen;
 
 import javax.inject.Inject;
-import java.util.Map;
 
-public class ConfigurationFeaturesFragment extends PreferenceFragment {
+public class ConfigurationSettingsFragment extends PreferenceFragment {
 
     @Inject FeatureOperations featureOperations;
 
-    public static ConfigurationFeaturesFragment create() {
-        return new ConfigurationFeaturesFragment();
+    public static ConfigurationSettingsFragment create() {
+        return new ConfigurationSettingsFragment();
     }
 
-    public ConfigurationFeaturesFragment() {
+    public ConfigurationSettingsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
@@ -29,8 +28,9 @@ public class ConfigurationFeaturesFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
         PreferenceScreen screen = getPreferenceManager().createPreferenceScreen(getActivity());
 
-        for (Map.Entry<String, Boolean> feature : featureOperations.list().entrySet()) {
-            addPreference(screen, feature.getKey(), feature.getValue());
+        for (String feature : featureOperations.listFeatures()) {
+            boolean enabled = featureOperations.isFeatureEnabled(feature);
+            addPreference(screen, feature, enabled);
         }
         setPreferenceScreen(screen);
     }
@@ -42,11 +42,10 @@ public class ConfigurationFeaturesFragment extends PreferenceFragment {
         featurePref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                featureOperations.update(preference.getTitle().toString(), (boolean) o);
+                featureOperations.updateFeature(preference.getTitle().toString(), (boolean) o);
                 return true;
             }
         });
-
         screen.addPreference(featurePref);
     }
 

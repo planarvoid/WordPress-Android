@@ -2,7 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;

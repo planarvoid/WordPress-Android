@@ -1,8 +1,7 @@
 package com.soundcloud.android.likes;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -155,7 +154,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     private boolean shouldShowOfflineSyncOptions() {
-        return featureOperations.isOfflineContentEnabled() || featureOperations.isOfflineContentUpsellEnabled();
+        return featureOperations.isOfflineContentEnabled() || featureOperations.shouldShowUpsell();
     }
 
     public void onSubscribeListObservers(ListBinding<PropertySet, TrackItem> listBinding) {

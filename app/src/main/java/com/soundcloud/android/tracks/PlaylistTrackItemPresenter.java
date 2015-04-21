@@ -2,7 +2,7 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.tracks.TrackItemMenuPresenter.RemoveTrackListener;
 
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 
 import android.support.v4.app.FragmentActivity;
