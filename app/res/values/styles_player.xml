@@ -81,6 +81,7 @@
     </style>
 
     <style name="PlayerCastDeviceName" parent="PlayerCastingTo">
+        <item name="android:paddingRight">8dp</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:textColor">@color/player_cast_device_name</item>
     </style>
