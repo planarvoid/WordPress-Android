@@ -12,7 +12,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
-    private static final String TEST_SCENARIO = "android-player-test";
+    private static final String TEST_SCENARIO = "player-test";
 
     public TrackingPlayerTest() {
         super(MainActivity.class);
