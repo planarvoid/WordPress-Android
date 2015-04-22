@@ -94,7 +94,7 @@ public final class ErrorUtils {
 
     public static int getEmptyViewStatusFromApiException(Throwable e) {
         final boolean isNetworkError = e instanceof ApiRequestException
-                && ((ApiRequestException) e).reason() == ApiRequestException.Reason.NETWORK_ERROR;
+                && ((ApiRequestException) e).isNetworkError();
         return isNetworkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR;
     }
 

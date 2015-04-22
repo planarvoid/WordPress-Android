@@ -40,7 +40,7 @@ class PushPlaylistRemovalsCommand extends LegacyCommand<Collection<Urn>, Collect
 
     private void throwNetworkOrServerError(ApiResponse apiResponse) throws ApiRequestException {
         final ApiRequestException failure = apiResponse.getFailure();
-        if (failure != null && (failure.reason() == ApiRequestException.Reason.NETWORK_ERROR || apiResponse.getStatusCode() >= 500)) {
+        if (failure != null && (failure.isNetworkError() || apiResponse.getStatusCode() >= 500)) {
             throw failure;
         }
     }
