@@ -45,21 +45,21 @@ public class ApiUrlBuilderTest {
 
     @Test
     public void shouldBuildFullUrlFromApiMobileRequestWithRelativeUrl() {
-        ApiRequest request = ApiRequest.Builder.get("/path").forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get("/path").forPrivateApi(1).build();
         final String url = urlBuilder.from(request).build();
         expect(url).toEqual("https://api-mobile.soundcloud.com/path?client_id=test_client_id");
     }
 
     @Test
     public void shouldBuildFullUrlFromApiMobileRequestWithAbsoluteUrl() {
-        ApiRequest request = ApiRequest.Builder.get("http://api.com/path").forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.get("http://api.com/path").forPrivateApi(1).build();
         final String url = urlBuilder.from(request).build();
         expect(url).toEqual("http://api.com/path?client_id=test_client_id");
     }
 
     @Test
     public void shouldBuildUrlFromPublicApiRequest() {
-        ApiRequest request = ApiRequest.Builder.get("/path").forPublicApi().build();
+        ApiRequest request = ApiRequest.get("/path").forPublicApi().build();
         final String url = urlBuilder.from(request).build();
         expect(url).toEqual("https://api.soundcloud.com/path?client_id=test_client_id");
     }

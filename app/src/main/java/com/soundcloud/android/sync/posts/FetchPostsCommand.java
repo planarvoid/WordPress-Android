@@ -23,13 +23,13 @@ class FetchPostsCommand extends LegacyCommand<ApiEndpoints, NavigableSet<Propert
 
     @Override
     public NavigableSet<PropertySet> call() throws Exception {
-        final ApiRequest<ModelCollection<ApiPostItem>> request =
-                ApiRequest.Builder.<ModelCollection<ApiPostItem>>get(input.path())
+        final ApiRequest request =
+                ApiRequest.get(input.path())
                         .forPrivateApi(1)
-                        .forResource(new TypeToken<ModelCollection<ApiPostItem>>() {})
                         .build();
 
-        final ModelCollection<ApiPostItem> apiPosts = apiClient.fetchMappedResponse(request);
+        final ModelCollection<ApiPostItem> apiPosts = apiClient.fetchMappedResponse(request, new TypeToken<ModelCollection<ApiPostItem>>() {
+        });
         final NavigableSet<PropertySet> result = new TreeSet<>(PostProperty.COMPARATOR);
         for (ApiPostItem post : apiPosts) {
             result.add(post.toPropertySet());

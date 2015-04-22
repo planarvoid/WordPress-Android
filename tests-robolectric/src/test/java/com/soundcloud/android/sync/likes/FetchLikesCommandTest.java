@@ -3,8 +3,10 @@ package com.soundcloud.android.sync.likes;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.model.ModelCollection;
@@ -33,7 +35,8 @@ public class FetchLikesCommandTest {
     public void returnsSetOfCurrentUsersLikes() throws Exception {
         final ApiLike apiLike = ModelFixtures.apiTrackLike();
         final ModelCollection<ApiLike> response = new ModelCollection<>(Arrays.asList(apiLike));
-        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.LIKED_TRACKS.path())))).thenReturn(response);
+        when(apiClient.fetchMappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.LIKED_TRACKS.path())), isA(TypeToken.class))).thenReturn(response);
 
         expect(fetchLikesCommand.with(ApiEndpoints.LIKED_TRACKS).call()).toContainExactly(apiLike.toPropertySet());
     }

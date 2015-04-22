@@ -119,7 +119,7 @@ class SearchOperations {
         return getSearchStrategy(searchType).nextResultPage(link);
     }
 
-    private SearchStrategy<?> getSearchStrategy(int searchType) {
+    private SearchStrategy getSearchStrategy(int searchType) {
         switch (searchType) {
             case TYPE_ALL:
                 return new UniversalSearchStrategy();
@@ -171,60 +171,60 @@ class SearchOperations {
         }
     }
 
-    private abstract class SearchStrategy<ResultT> {
+    private abstract class SearchStrategy {
 
-        private final TypeToken<ResultT> typeToken;
         private final String apiEndpoint;
 
-        protected SearchStrategy(TypeToken<ResultT> typeToken, String apiEndpoint) {
-            this.typeToken = typeToken;
+        protected SearchStrategy(String apiEndpoint) {
             this.apiEndpoint = apiEndpoint;
         }
 
         private Observable<SearchResult> searchResult(String query) {
-            return getSearchResultObservable(ApiRequest.Builder.<ResultT>get(apiEndpoint)
+            return getSearchResultObservable(ApiRequest.get(apiEndpoint)
                     .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
                     .addQueryParam("q", query)
-                    .forPrivateApi(1)
-                    .forResource(typeToken));
+                    .forPrivateApi(1));
         }
 
         private Observable<SearchResult> nextResultPage(Link nextPageLink) {
-            return getSearchResultObservable(ApiRequest.Builder.<ResultT>get(nextPageLink.getHref())
-                    .forPrivateApi(1)
-                    .forResource(typeToken));
+            return getSearchResultObservable(ApiRequest.get(nextPageLink.getHref())
+                    .forPrivateApi(1));
         }
 
-        protected abstract Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<ResultT> builder);
+        protected abstract Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder);
 
     }
 
-    private final class TrackSearchStrategy extends SearchStrategy<SearchCollection<ApiTrack>> {
+    private final class TrackSearchStrategy extends SearchStrategy {
+
+        private final TypeToken<SearchCollection<ApiTrack>> typeToken = new TypeToken<SearchCollection<ApiTrack>>() {
+        };
 
         protected TrackSearchStrategy() {
-            super(new TypeToken<SearchCollection<ApiTrack>>() {
-            }, ApiEndpoints.SEARCH_TRACKS.path());
+            super(ApiEndpoints.SEARCH_TRACKS.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiTrack>> builder) {
-            return apiClientRx.mappedResponse(builder.build())
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
+            return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(storeTracksCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
     }
 
-    private final class PlaylistSearchStrategy extends SearchStrategy<SearchCollection<ApiPlaylist>> {
+    private final class PlaylistSearchStrategy extends SearchStrategy {
+
+        private final TypeToken<SearchCollection<ApiPlaylist>> typeToken = new TypeToken<SearchCollection<ApiPlaylist>>() {
+        };
 
         protected PlaylistSearchStrategy() {
-            super(new TypeToken<SearchCollection<ApiPlaylist>>() {
-            }, ApiEndpoints.SEARCH_PLAYLISTS.path());
+            super(ApiEndpoints.SEARCH_PLAYLISTS.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiPlaylist>> builder) {
-            return apiClientRx.mappedResponse(builder.build())
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
+            return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(storePlaylistsCommand.toAction())
                     .map(TO_SEARCH_RESULT)
@@ -232,32 +232,36 @@ class SearchOperations {
         }
     }
 
-    private final class UserSearchStrategy extends SearchStrategy<SearchCollection<ApiUser>> {
+    private final class UserSearchStrategy extends SearchStrategy {
+
+        private final TypeToken<SearchCollection<ApiUser>> typeToken = new TypeToken<SearchCollection<ApiUser>>() {
+        };
 
         protected UserSearchStrategy() {
-            super(new TypeToken<SearchCollection<ApiUser>>() {
-            }, ApiEndpoints.SEARCH_USERS.path());
+            super(ApiEndpoints.SEARCH_USERS.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiUser>> builder) {
-            return apiClientRx.mappedResponse(builder.build())
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
+            return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(storeUsersCommand.toAction())
                     .map(TO_SEARCH_RESULT);
         }
     }
 
-    private final class UniversalSearchStrategy extends SearchStrategy<SearchCollection<ApiUniversalSearchItem>> {
+    private final class UniversalSearchStrategy extends SearchStrategy {
+
+        private final TypeToken<SearchCollection<ApiUniversalSearchItem>> typeToken = new TypeToken<SearchCollection<ApiUniversalSearchItem>>() {
+        };
 
         protected UniversalSearchStrategy() {
-            super(new TypeToken<SearchCollection<ApiUniversalSearchItem>>() {
-            }, ApiEndpoints.SEARCH_ALL.path());
+            super(ApiEndpoints.SEARCH_ALL.path());
         }
 
         @Override
-        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder<SearchCollection<ApiUniversalSearchItem>> builder) {
-            return apiClientRx.mappedResponse(builder.build())
+        protected Observable<SearchResult> getSearchResultObservable(ApiRequest.Builder builder) {
+            return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(cacheUniversalSearchCommand.toAction())
                     .map(TO_SEARCH_RESULT)

@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.ApiClientRx;
@@ -109,11 +108,9 @@ public class PlayQueueOperations {
 
     public Observable<RecommendedTracksCollection> getRelatedTracks(Urn urn) {
         final String endpoint = String.format(ApiEndpoints.RELATED_TRACKS.path(), urn.toEncodedString());
-        final ApiRequest<RecommendedTracksCollection> request = ApiRequest.Builder.<RecommendedTracksCollection>get(endpoint)
-                .forPrivateApi(1)
-                .forResource(TypeToken.of(RecommendedTracksCollection.class)).build();
+        final ApiRequest request = ApiRequest.get(endpoint).forPrivateApi(1).build();
 
-        return apiClientRx.mappedResponse(request)
+        return apiClientRx.mappedResponse(request, RecommendedTracksCollection.class)
                 .doOnNext(storeTracksCommand.toAction())
                 .subscribeOn(scheduler);
     }

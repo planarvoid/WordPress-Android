@@ -3,14 +3,16 @@ package com.soundcloud.android.sync.likes;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.when;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.sync.likes.PushLikesCommand.AddedLikesCollection;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -35,12 +37,7 @@ public class PushLikesCommandTest {
 
     @Before
     public void setup() {
-        pushLikesCommand = new PushLikesCommand<ApiLike>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES) {
-            @Override
-            protected ApiRequest.Builder<ModelCollection<ApiLike>> requestBuilder(ApiEndpoints endpoint) {
-                return ApiRequest.Builder.post(endpoint.path());
-            }
-        };
+        pushLikesCommand = new PushLikesCommand<>(apiClient, ApiEndpoints.CREATE_TRACK_LIKES, AddedLikesCollection.class);
     }
 
     @Test
@@ -53,7 +50,7 @@ public class PushLikesCommandTest {
 
         when(apiClient.fetchMappedResponse(argThat(
                 isApiRequestTo("POST", ApiEndpoints.CREATE_TRACK_LIKES.path())
-                        .withContent(expectedBody)))).thenReturn(addedLikes);
+                        .withContent(expectedBody)), isA(TypeToken.class))).thenReturn(addedLikes);
 
         Collection<PropertySet> result = pushLikesCommand.with(Collections.singleton(input)).call();
         expect(result).toContainExactly(PropertySet.from(

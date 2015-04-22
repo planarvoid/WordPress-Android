@@ -26,7 +26,7 @@ public class PaymentErrorControllerTest {
 
     @Before
     public void setUp() {
-        apiRequest = ApiRequest.Builder.get("/").forPrivateApi(1).build();
+        apiRequest = ApiRequest.get("/").forPrivateApi(1).build();
         paymentErrorController = new PaymentErrorController(errorPresenter);
         paymentErrorController.bind(activity);
     }

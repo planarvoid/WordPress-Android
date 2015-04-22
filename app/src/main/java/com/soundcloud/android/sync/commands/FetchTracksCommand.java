@@ -29,15 +29,19 @@ public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
     }
 
     @Override
-    protected ApiRequest<ModelCollection<ApiTrack>> buildRequest(List<Urn> urns) {
+    protected ApiRequest buildRequest(List<Urn> urns) {
         final ArrayMap<String, Object> body = new ArrayMap<>(1);
         body.put("urns", CollectionUtils.urnsToStrings(urns));
 
-        return ApiRequest.Builder.<ModelCollection<ApiTrack>>post(ApiEndpoints.TRACKS_FETCH.path())
+        return ApiRequest.post(ApiEndpoints.TRACKS_FETCH.path())
                 .forPrivateApi(1)
-                .forResource(new TypeToken<ModelCollection<ApiTrack>>() {
-                })
                 .withContent(body)
                 .build();
+    }
+
+    @Override
+    protected TypeToken<ModelCollection<? extends ApiTrack>> provideResourceType() {
+        return new TypeToken<ModelCollection<? extends ApiTrack>>() {
+        };
     }
 }
