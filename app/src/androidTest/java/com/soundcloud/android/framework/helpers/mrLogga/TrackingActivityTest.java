@@ -1,5 +1,6 @@
 package com.soundcloud.android.framework.helpers.mrlogga;
 
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.utils.BuildHelper;
@@ -14,6 +15,7 @@ import android.preference.PreferenceManager;
 public abstract class TrackingActivityTest<T extends Activity> extends ActivityTest<T> {
 
     protected MrLoggaVerifier mrLoggaVerifier;
+    private Context context;
 
     public TrackingActivityTest(Class<T> activityClass) {
         super(activityClass);
@@ -23,7 +25,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     protected void setUp() throws Exception {
         super.setUp();
 
-        final Context context = getInstrumentation().getTargetContext();
+        context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context, new DeviceHelper(context, new BuildHelper()), new OkHttpClient());
 
         mrLoggaVerifier = new MrLoggaVerifier(client);
@@ -34,6 +36,12 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
     protected void enableEventLoggerInstantFlush(Context context) {
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         sharedPreferences.edit().putBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, true).apply();
+    }
+
+    @Override
+    protected boolean shouldSkip() {
+        final ApplicationProperties applicationProperties = new ApplicationProperties(context.getResources());
+        return !applicationProperties.isDebugBuild();
     }
 
 }

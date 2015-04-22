@@ -23,13 +23,9 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-        mrLoggaVerifier.startLogging();
-    }
-
     public void testPlayAndPauseTrackFromStream() {
+        mrLoggaVerifier.startLogging();
+
         final VisualPlayerElement playerElement =
                 menuScreen
                         .open()
@@ -42,14 +38,8 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         playerElement.clickArtwork();
 
         assertThat(playerElement, is(not(playing())));
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
 
         mrLoggaVerifier.finishLogging();
         mrLoggaVerifier.isValid(TEST_SCENARIO);
     }
-
 }
