@@ -3,6 +3,7 @@ package com.soundcloud.android.utils;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
 import com.google.common.base.Charsets;
+import com.soundcloud.android.R;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -33,19 +34,20 @@ public final class DebugUtils {
         // save logcat in file
         File outputFile = new File(Environment.getExternalStorageDirectory(), "logcat.txt");
         try {
-            Runtime.getRuntime().exec("logcat -df " + outputFile.getAbsolutePath());
+            Runtime.getRuntime().exec("logcat -v time -df " + outputFile.getAbsolutePath());
+
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType(EMAIL_MESSAGE_FORMAT_RFC822);
+            i.putExtra(Intent.EXTRA_EMAIL  , new String[]{toEmail});
+            i.putExtra(Intent.EXTRA_SUBJECT, subject);
+            i.putExtra(Intent.EXTRA_TEXT   , body);
+            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile));
+            context.startActivity(Intent.createChooser(i, chooserText));
+
         } catch (IOException e) {
             ErrorUtils.handleSilentException(e);
+            AndroidUtils.showToast(context, R.string.feedback_unable_to_get_logs);
         }
-
-        Intent i = new Intent(Intent.ACTION_SEND);
-        i.setType(EMAIL_MESSAGE_FORMAT_RFC822);
-        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{toEmail});
-        i.putExtra(Intent.EXTRA_SUBJECT, subject);
-        i.putExtra(Intent.EXTRA_TEXT   , body);
-        i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile));
-
-        context.startActivity(Intent.createChooser(i, chooserText));
     }
 
     @SuppressWarnings("UnusedDeclaration")

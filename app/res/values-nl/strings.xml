@@ -625,11 +625,9 @@
 
     <!-- DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Wat zou u graag willen rapporteren?</string>
-    <string-array name="feedback_options">
-        <item>Crash</item>
-        <item>Afspeelprobleem</item>
-        <item>Ander probleem</item>
-    </string-array>
+    <string name="feedback_playback_issue">Afspeelprobleem</string>
+    <string name="feedback_crash">Crash</string>
+    <string name="feedback_other_issue">Ander probleem</string>
     <string name="feedback_email_subject">Rapporteer: %1$s</string>
     <string name="feedback_action_chooser">Zend feedback via e-mail...</string>
 

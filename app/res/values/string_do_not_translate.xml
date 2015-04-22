@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="feedback_options">
+        <item>@string/feedback_playback_issue</item>
+        <item>@string/feedback_crash</item>
+        <item>@string/feedback_other_issue</item>
+    </string-array>
+</resources>
