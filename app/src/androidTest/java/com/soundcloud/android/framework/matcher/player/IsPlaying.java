@@ -18,7 +18,7 @@ public class IsPlaying extends TypeSafeMatcher<VisualPlayerElement> {
     }
 
     @Factory
-    public static Matcher<VisualPlayerElement> Playing() {
+    public static Matcher<VisualPlayerElement> playing() {
         return new IsPlaying();
     }
 }

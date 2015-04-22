@@ -147,6 +147,7 @@ class PlayerPagerController {
 
     void onViewCreated(View view) {
         setPager((PlayerTrackPager) view.findViewById(R.id.player_track_pager));
+        adapter.onViewCreated(trackPager, getSkipListener(trackPager), new PlayerViewVisibilityProvider(trackPager));
 
         subscription = new CompositeSubscription();
         subscription.add(eventBus.subscribeImmediate(EventQueue.PLAY_QUEUE, new PlayQueueSubscriber()));
@@ -184,7 +185,7 @@ class PlayerPagerController {
     void onDestroyView() {
         subscription.unsubscribe();
         unblockPagerSubscription.unsubscribe();
-        adapter.unsubscribe();
+        adapter.onViewDestroyed();
         playerPagerScrollListener.unsubscribe();
         changeTracksHandler.removeMessages(CHANGE_TRACKS_MESSAGE);
         AnimUtils.clearAllAnimations();
@@ -197,7 +198,6 @@ class PlayerPagerController {
         refreshPlayQueue();
 
         playerPagerScrollListener.initialize(trackPager, adapter);
-        adapter.initialize(trackPager, getSkipListener(trackPager), new PlayerViewVisibilityProvider(trackPager));
     }
 
     private SkipListener getSkipListener(final PlayerTrackPager trackPager) {

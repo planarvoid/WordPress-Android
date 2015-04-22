@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
@@ -35,7 +36,6 @@ import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -72,8 +72,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject PlaybackOperations playbackOperations;
     @Inject OfflinePlaybackOperations offlinePlaybackOperations;
     @Inject ImageOperations imageOperations;
-    @Inject PlaylistEngagementsPresenter engagementsPresenter;
-    @Inject PullToRefreshController pullToRefreshController;
+    @Inject @LightCycle PlaylistEngagementsPresenter engagementsPresenter;
+    @Inject @LightCycle PullToRefreshController pullToRefreshController;
     @Inject PlayQueueManager playQueueManager;
     @Inject EventBus eventBus;
     @Inject PlaylistPresenter playlistPresenter;
@@ -189,8 +189,6 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private void addLifeCycleComponents() {
         pullToRefreshController.setRefreshListener(this);
-        attachLightCycle(pullToRefreshController);
-        attachLightCycle(engagementsPresenter);
     }
 
     @Override
@@ -378,21 +376,12 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         headerUsernameText.setEnabled(true);
     }
 
-    private void updateTracksAdapter(PlaylistWithTracks playlist) {
-        final ItemAdapter<TrackItem> adapter = controller.getAdapter();
-        adapter.clear();
-        for (TrackItem track : playlist.getTracks()) {
-            adapter.addItem(track);
-        }
-        adapter.notifyDataSetChanged();
-    }
-
     private class PlaylistSubscriber extends DefaultSubscriber<PlaylistWithTracks> {
         @Override
         public void onNext(PlaylistWithTracks playlist) {
             Log.d(PlaylistDetailActivity.LOG_TAG, "got playlist; track count = " + playlist.getTracks().size());
             refreshMetaData(playlist);
-            updateTracksAdapter(playlist);
+            controller.setContent(playlist);
             showContent(true);
 
             if (playOnLoad && controller.hasTracks()) {

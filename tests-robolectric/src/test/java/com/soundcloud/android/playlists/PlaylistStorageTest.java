@@ -1,7 +1,9 @@
 package com.soundcloud.android.playlists;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.EntityProperty;
@@ -16,17 +18,22 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import java.util.Date;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistStorageTest extends StorageIntegrationTest {
 
+    private static final Urn LOGGED_IN_USER = Urn.forUser(123L);
+    
     private com.soundcloud.android.playlists.PlaylistStorage storage;
+    @Mock AccountOperations accountOperations;
 
     @Before
     public void setUp() throws Exception {
-        storage = new com.soundcloud.android.playlists.PlaylistStorage(propeller(), propellerRx());
+        storage = new com.soundcloud.android.playlists.PlaylistStorage(propeller(), propellerRx(), accountOperations);
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
     }
 
     @Test
@@ -67,7 +74,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false));
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false, false));
     }
 
     @Test
@@ -93,7 +100,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, true, false, false));
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, true, false, false, false));
     }
 
     @Test
@@ -103,7 +110,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
 
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
-        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, true, false));
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, true, false, false));
     }
 
     @Test
@@ -125,11 +132,12 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
                         PlayableProperty.IS_PRIVATE,
                         PlayableProperty.IS_LIKED,
                         PlayableProperty.IS_REPOSTED,
+                        PlaylistProperty.IS_POSTED,
                         OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE,
                         PlaylistProperty.TRACK_COUNT
                 )
         ).toEqual(
-                TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true)
+                TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, true, false)
         );
     }
 
@@ -142,7 +150,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets
-                .fromApiPlaylist(apiPlaylist, false, false, true)
+                .fromApiPlaylist(apiPlaylist, false, false, true, false)
                 .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
 
         expect(playlist).toEqual(expected);
@@ -157,7 +165,7 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets
-                .fromApiPlaylist(apiPlaylist, false, false, true)
+                .fromApiPlaylist(apiPlaylist, false, false, true, false)
                 .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
 
         expect(playlist).toEqual(expected);
@@ -176,9 +184,19 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
         PropertySet result = storage.loadPlaylist(downloadedPlaylist.getUrn()).toBlocking().single();
 
         final PropertySet expected = TestPropertySets
-                .fromApiPlaylist(downloadedPlaylist, false, false, true)
+                .fromApiPlaylist(downloadedPlaylist, false, false, true, false)
                 .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
 
         expect(result).toEqual(expected);
+    }
+
+    @Test
+    public void loadsPostedPlaylistFromDatabase() throws Exception {
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(apiPlaylist.getUser().getUrn());
+
+        PropertySet playlist = storage.loadPlaylist(apiPlaylist.getUrn()).toBlocking().single();
+
+        expect(playlist).toEqual(TestPropertySets.fromApiPlaylist(apiPlaylist, false, false, false, true));
     }
 }

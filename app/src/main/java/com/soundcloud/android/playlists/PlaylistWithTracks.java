@@ -67,6 +67,10 @@ public class PlaylistWithTracks {
         return sourceSet.get(PlaylistProperty.IS_REPOSTED);
     }
 
+    public boolean isPostedByUser() {
+        return sourceSet.get(PlaylistProperty.IS_POSTED);
+    }
+
     public boolean isOwnedBy(Urn userUrn) {
         return userUrn.equals(getCreatorUrn());
     }

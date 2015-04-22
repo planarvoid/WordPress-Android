@@ -1,5 +1,7 @@
 package com.soundcloud.android.tests.player.ads;
 
+import static com.soundcloud.android.framework.helpers.PlayerHelper.assertSwipeToNextTrack;
+
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.R;
@@ -26,7 +28,7 @@ public abstract class AdBaseTest extends ResolveBaseTest {
         playlistDetailsScreen = new PlaylistDetailsScreen(solo);
         playerElement = playlistDetailsScreen.clickFirstTrack();
         assertTrue("Player did not expand", playerElement.waitForExpandedPlayer());
-        playerElement.swipeNext();
+        assertSwipeToNextTrack(playerElement);
         assertTrue("Playback did not play", waiter.waitForPlaybackToBePlaying());
         playerElement.waitForAdToBeFetched();
     }

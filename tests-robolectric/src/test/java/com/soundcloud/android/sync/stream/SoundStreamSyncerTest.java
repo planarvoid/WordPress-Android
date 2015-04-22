@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
@@ -198,6 +199,34 @@ public class SoundStreamSyncerTest {
 
         soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_APPEND);
         verify(sharedPreferencesEditor).remove(SoundStreamSyncer.PREFS_NEXT_URL);
+    }
+
+    @Test
+    public void softRefreshResultingIn4XXFallsBackToHardRefreshToReplaceContent() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_FUTURE_URL)).thenReturn(true);
+        when(sharedPreferences.getString(eq(SoundStreamSyncer.PREFS_FUTURE_URL), anyString())).thenReturn(FUTURE_URL);
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
+                .thenThrow(ApiRequestException.notFound(null));
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
+                .thenReturn(streamWithFutureLink());
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
+
+        verify(replaceCommand).call();
+        expect(replaceCommand.getInput()).toContainExactly(streamItem1, streamItem2);
+    }
+
+    @Test
+    public void softRefreshResultingIn4XXFallsBackToHardRefreshToStoreNextPageUrl() throws Exception {
+        when(sharedPreferences.contains(SoundStreamSyncer.PREFS_FUTURE_URL)).thenReturn(true);
+        when(sharedPreferences.getString(eq(SoundStreamSyncer.PREFS_FUTURE_URL), anyString())).thenReturn(FUTURE_URL);
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", FUTURE_URL)), isA(TypeToken.class)))
+                .thenThrow(ApiRequestException.notFound(null));
+        when(apiClient.fetchMappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.STREAM.path())), isA(TypeToken.class)))
+                .thenReturn(streamWithFutureLink());
+
+        soundstreamSyncer.syncContent(Content.ME_SOUND_STREAM.uri, null);
+        verify(sharedPreferencesEditor).putString(SoundStreamSyncer.PREFS_FUTURE_URL, FUTURE_URL);
     }
 
     @Test

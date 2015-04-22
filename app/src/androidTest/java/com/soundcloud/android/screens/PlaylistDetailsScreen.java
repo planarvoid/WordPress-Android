@@ -8,6 +8,7 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.TrackItemElement;
@@ -40,6 +41,11 @@ public class PlaylistDetailsScreen extends Screen {
                 .get(0)
                 .click();
         return new PlaylistOverflowMenu(testDriver);
+    }
+
+    public DownloadImageViewElement headerDownloadElement() {
+        return new DownloadImageViewElement(testDriver
+                .findElement(With.id(R.id.header_download_state)));
     }
 
     @Override
@@ -126,8 +132,7 @@ public class PlaylistDetailsScreen extends Screen {
         );
     }
 
-    private final Function<ViewElement, TrackItemElement> toTrackItemElement =
-            new Function<ViewElement, TrackItemElement>() {
+    private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
         @Override
         public TrackItemElement apply(ViewElement viewElement) {
             return new TrackItemElement(testDriver, viewElement);

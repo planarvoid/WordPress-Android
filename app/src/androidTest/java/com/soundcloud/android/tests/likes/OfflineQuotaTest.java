@@ -45,11 +45,11 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
         final TrackLikesScreen trackLikesScreen = menuScreen
                 .open()
                 .clickLikes()
-                .actionBar()
-                .clickSyncLikesButton()
+                .clickListHeaderOverflowButton()
+                .clickMakeAvailableOffline()
                 .clickKeepLikesSynced();
 
-        assertTrue(trackLikesScreen.actionBar().downloadElement().isRequested());
+        assertTrue(trackLikesScreen.headerDownloadElement().isRequested());
         assertTrue(trackLikesScreen.tracks().get(0).downloadElement().isUnavailable());
     }
 }

@@ -9,7 +9,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.associations.RepostOperations;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -197,14 +197,18 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     }
 
     private void updateOfflineAvailability() {
-        if (featureOperations.isOfflineContentEnabled()) {
+        if (featureOperations.isOfflineContentEnabled() && isEligibleForOfflineContent()) {
             playlistEngagementsView.setOfflineOptionsMenu(playlistWithTracks.isOfflineAvailable());
             playlistEngagementsView.show(playlistWithTracks.getDownloadState());
-        } else if (featureOperations.isOfflineContentUpsellEnabled()) {
+        } else if (featureOperations.shouldShowUpsell()) {
             playlistEngagementsView.showUpsell();
         } else {
             playlistEngagementsView.hideOfflineContentOptions();
         }
+    }
+
+    private boolean isEligibleForOfflineContent() {
+        return playlistWithTracks.isPostedByUser() || playlistWithTracks.isLikedByUser();
     }
 
     @Override

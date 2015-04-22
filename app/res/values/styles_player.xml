@@ -74,6 +74,18 @@
         <item name="android:maxLines">2</item>
     </style>
 
+    <style name="PlayerCastingTo" parent="PlayerUser">
+        <item name="android:paddingRight">3dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/player_casting_to</item>
+    </style>
+
+    <style name="PlayerCastDeviceName" parent="PlayerCastingTo">
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:textColor">@color/player_cast_device_name</item>
+    </style>
+
     <style name="PlayerLikeBase" parent="CustomToggle">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">@dimen/player_engagement</item>
@@ -81,7 +93,6 @@
         <item name="android:minWidth">0dp</item>
         <item name="android:textColor">@color/white</item>
         <item name="android:background">@drawable/btn_player_like</item>
-
     </style>
 
     <style name="PlayerLike" parent="PlayerLikeBase"/>

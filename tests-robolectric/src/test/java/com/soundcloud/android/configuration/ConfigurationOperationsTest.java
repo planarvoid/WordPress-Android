@@ -21,7 +21,6 @@ import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -98,7 +97,8 @@ public class ConfigurationOperationsTest {
 
         operations.registerDevice(token);
 
-        verify(featureOperations).update(eq(getFeaturesAsMap()));
+        verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
+        verify(featureOperations).updatePlan(configuration.plan.id, configuration.plan.upsell);
         verify(experimentOperations).update(configuration.assignment);
     }
 
@@ -117,24 +117,26 @@ public class ConfigurationOperationsTest {
 
     @Test
     public void updateStoresConfiguration() {
-        final Configuration authorizedConfiguration = getAuthorizedConfiguration();
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(authorizedConfiguration));
+        final Configuration authorized = getAuthorizedConfiguration();
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(authorized));
         operations.update();
 
-        verify(featureOperations).update(eq(getFeaturesAsMap()));
-        verify(experimentOperations).update(authorizedConfiguration.assignment);
+        verify(featureOperations).updateFeatures(eq(getFeaturesAsMap()));
+        verify(featureOperations).updatePlan(authorized.plan.id, authorized.plan.upsell);
+        verify(experimentOperations).update(authorized.assignment);
     }
 
     private Configuration getAuthorizedConfiguration() {
-        return new Configuration(ConfigurationBlueprint.createFeatures(), ConfigurationBlueprint.createLayers(),
-                new DeviceManagement(true, null));
+        return new Configuration(ConfigurationBlueprint.createFeatures(), new UserPlan("mid_tier", null),
+                ConfigurationBlueprint.createLayers(), new DeviceManagement(true, null));
     }
 
     @Test
     public void updateWithUnauthorizedDeviceResponseLogsOutAndClearsContent() throws Exception {
-        Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(), Collections.<Layer>emptyList(),
-                new DeviceManagement(false, null));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class))).thenReturn(Observable.just(configurationWithDeviceConflict));
+        Configuration configurationWithDeviceConflict = new Configuration(Collections.<Feature>emptyList(),
+                new UserPlan("free", "mid_tier"), Collections.<Layer>emptyList(), new DeviceManagement(false, null));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(Configuration.class)))
+                .thenReturn(Observable.just(configurationWithDeviceConflict));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
         final PublishSubject<WriteResult> clearOfflineContentSubject = PublishSubject.create();

@@ -1,12 +1,23 @@
 package com.soundcloud.android.cast;
 
 import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.android.utils.ScTextUtils;
 
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 
-public class UselessCastConnectionHelper extends DefaultLightCycleActivity<ActionBarActivity> implements CastConnectionHelper  {
+public class NoOpCastConnectionHelper extends DefaultLightCycleActivity<ActionBarActivity> implements CastConnectionHelper  {
+
+    @Override
+    public void addOnConnectionChangeListener(OnConnectionChangeListener listener) {
+        // no-op
+    }
+
+    @Override
+    public void removeOnConnectionChangeListener(OnConnectionChangeListener listener) {
+        // no-op
+    }
 
     @Override
     public void addMediaRouterButton(Menu menu, int itemId) {
@@ -37,4 +48,10 @@ public class UselessCastConnectionHelper extends DefaultLightCycleActivity<Actio
     public boolean isConnected() {
         return false;
     }
+
+    @Override
+    public String getDeviceName() {
+        return ScTextUtils.EMPTY_STRING;
+    }
+
 }

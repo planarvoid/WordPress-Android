@@ -383,6 +383,9 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             case FRAGMENT_DOWNLOAD_RATE:
                 return PlaybackPerformanceEvent.fragmentDownloadRate(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
                         userUrn);
+            case TIME_TO_LOAD_LIBRARY:
+                return PlaybackPerformanceEvent.timeToLoad(value, playbackProtocol, PlayerType.SKIPPY, currentConnectionType, cdnHost,
+                        userUrn);
             default:
                 throw new IllegalArgumentException("Unexpected performance metric : " + metric);
         }

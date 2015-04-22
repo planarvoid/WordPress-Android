@@ -19,6 +19,7 @@ import com.soundcloud.android.tracks.TrackInfoFragment;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.menu.PopupMenuWrapper;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
@@ -92,7 +93,7 @@ public class TrackPageMenuController implements ProgressAware, ScrubController.O
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
+    public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.share:
                 handleShare(track);

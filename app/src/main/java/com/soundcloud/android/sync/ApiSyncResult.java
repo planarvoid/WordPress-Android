@@ -1,6 +1,6 @@
 package com.soundcloud.android.sync;
 
-import com.soundcloud.android.crop.util.VisibleForTesting;
+import com.google.common.annotations.VisibleForTesting;
 
 import android.content.SyncResult;
 import android.net.Uri;

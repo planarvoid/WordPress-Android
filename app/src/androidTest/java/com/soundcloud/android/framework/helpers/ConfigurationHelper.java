@@ -1,5 +1,7 @@
 package com.soundcloud.android.framework.helpers;
 
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
+
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import rx.functions.Action1;
@@ -39,6 +41,11 @@ public class ConfigurationHelper {
 
     public static void disableOfflineContent(Context context) {
         getFeatureStorage(context).update(OFFLINE_CONTENT, false);
+    }
+
+    public static void resetOfflineSyncState(Context context) {
+        disableOfflineContent(context);
+        clearOfflineContent(context);
     }
 
     private static FeatureStorage getFeatureStorage(Context context) {

@@ -1,6 +1,7 @@
 package com.soundcloud.android.payments;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 
@@ -10,11 +11,7 @@ import javax.inject.Inject;
 
 public class SubscribeActivity extends ScActivity {
 
-    @Inject SubscribeController controller;
-
-    public SubscribeActivity() {
-        attachLightCycle(controller);
-    }
+    @Inject @LightCycle SubscribeController controller;
 
     @VisibleForTesting
     @Override

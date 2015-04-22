@@ -84,6 +84,10 @@ task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assemb
 }
 assembleRelease.mustRunAfter('renameApk', 'commitVersionBump')
 
+task buildReleaseNonPlayStore(dependsOn: ['assembleRelease_non_play_store']) {
+  description = 'Assembles Release for Non Google Play Stores.'
+}
+
 // *********************************************************************************************************************
 // HELPERS
 // *********************************************************************************************************************

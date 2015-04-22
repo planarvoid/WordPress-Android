@@ -91,6 +91,14 @@ public class UrnTest {
     }
 
     @Test
+    public void shouldParseQueryUrnCorrectly() {
+        Urn urn = new Urn("soundcloud:search-suggest:57322698561340628722353c71e20d86");
+
+        expect(urn.getNumericId()).toBe(-1L);
+        expect(urn.toString()).toEqual("soundcloud:search-suggest:57322698561340628722353c71e20d86");
+    }
+
+    @Test
     public void shouldImplementEqualsAndHashCode() throws Exception {
         EqualsVerifier.forClass(Urn.class).allFieldsShouldBeUsedExcept("numericId").verify();
     }

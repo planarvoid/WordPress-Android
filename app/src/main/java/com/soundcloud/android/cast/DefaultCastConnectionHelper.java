@@ -4,7 +4,6 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import org.jetbrains.annotations.Nullable;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -24,18 +23,43 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
 
     private static final int EXPECTED_MEDIA_BUTTON_CAPACITY = 6;
 
-    private final Context context;
     private final VideoCastManager videoCastManager;
     private final Set<MediaRouteButton> mediaRouteButtons;
+    private final Set<OnConnectionChangeListener> connectionChangeListeners;
 
     private boolean isCastableDeviceAvailable;
 
+
     @Inject
-    public DefaultCastConnectionHelper(Context context, VideoCastManager videoCastManager) {
-        this.context = context;
+    public DefaultCastConnectionHelper(VideoCastManager videoCastManager) {
         this.videoCastManager = videoCastManager;
         mediaRouteButtons = new HashSet<>(EXPECTED_MEDIA_BUTTON_CAPACITY);
+        connectionChangeListeners = new HashSet<>();
         videoCastManager.addVideoCastConsumer(this);
+    }
+
+    public void addOnConnectionChangeListener(OnConnectionChangeListener listener) {
+        connectionChangeListeners.add(listener);
+    }
+
+    public void removeOnConnectionChangeListener(OnConnectionChangeListener listener) {
+        connectionChangeListeners.remove(listener);
+    }
+
+    @Override
+    public void onConnected() {
+        notifyConnectionChange();
+    }
+
+    @Override
+    public void onDisconnected() {
+        notifyConnectionChange();
+    }
+
+    private void notifyConnectionChange() {
+        for (CastConnectionHelper.OnConnectionChangeListener listener : connectionChangeListeners) {
+            listener.onCastConnectionChange();
+        }
     }
 
     @Override
@@ -85,6 +109,11 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     @Override
     public boolean isConnected() {
         return videoCastManager.isConnected();
+    }
+
+    @Override
+    public String getDeviceName() {
+        return videoCastManager.getDeviceName();
     }
 
     @Override

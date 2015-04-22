@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.menu;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.PopupMenu;
@@ -10,14 +11,17 @@ import javax.inject.Inject;
 public class PopupMenuWrapper {
 
     private final PopupMenu popupMenu;
+    private final Context context;
 
     public interface PopupMenuWrapperListener {
-        boolean onMenuItemClick(MenuItem menuItem);
+        boolean onMenuItemClick(MenuItem menuItem, Context context);
+
         void onDismiss();
     }
 
-    public PopupMenuWrapper(PopupMenu popupMenu) {
+    public PopupMenuWrapper(PopupMenu popupMenu, Context context) {
         this.popupMenu = popupMenu;
+        this.context = context;
     }
 
     public void inflate(int menuResourceId) {
@@ -32,7 +36,7 @@ public class PopupMenuWrapper {
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                return popupMenuWrapperListener.onMenuItemClick(item);
+                return popupMenuWrapperListener.onMenuItemClick(item, context);
             }
         });
     }
@@ -71,8 +75,9 @@ public class PopupMenuWrapper {
         public Factory() {
             // for dagger
         }
+
         public PopupMenuWrapper build(Context context, View anchor) {
-            return new PopupMenuWrapper(new PopupMenu(context, anchor));
+            return new PopupMenuWrapper(new PopupMenu(context, anchor), context);
         }
     }
 

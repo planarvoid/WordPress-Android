@@ -1,5 +1,19 @@
 package com.soundcloud.android.onboarding.auth;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
+import butterknife.OnEditorAction;
+import butterknife.OnTextChanged;
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.R;
+import com.soundcloud.android.profile.BirthdayInfo;
+import com.soundcloud.android.profile.MonthPickerDialogFragment;
+import com.soundcloud.android.utils.AndroidUtils;
+import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -18,19 +32,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
-import butterknife.OnClick;
-import butterknife.OnEditorAction;
-import butterknife.OnTextChanged;
-import com.soundcloud.android.R;
-import com.soundcloud.android.crop.util.VisibleForTesting;
-import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.profile.MonthPickerDialogFragment;
-import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.ScTextUtils;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class SignupBasicsLayout extends FrameLayout
         implements GenderPickerDialogFragment.Callback, MonthPickerDialogFragment.Callback {

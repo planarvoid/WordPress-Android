@@ -1,6 +1,5 @@
 package com.soundcloud.android.configuration;
 
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentController;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Observable;

@@ -2,6 +2,7 @@ package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
@@ -28,4 +29,9 @@ public class PopupMenuElement {
     private ViewElement container() {
         return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
+
+    protected String getElementText(ViewElement viewElement) {
+        return new TextElement(viewElement.findElement(With.className("android.widget.TextView"))).getText();
+    }
+
 }

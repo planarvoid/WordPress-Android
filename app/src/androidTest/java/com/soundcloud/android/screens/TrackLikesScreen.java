@@ -6,14 +6,16 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.elements.DownloadImageViewElement;
+import com.soundcloud.android.screens.elements.LikesOverflowMenu;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
-import com.soundcloud.android.tests.likes.LikesActionBarElement;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -27,23 +29,28 @@ public class TrackLikesScreen extends Screen {
     }
 
     public VisualPlayerElement clickTrack(int index) {
-        final int trackIndexInList = index + 1;
-        likesList().getItemAt(trackIndexInList).click();
-        VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
+        VisualPlayerElement visualPlayerElement = tracks()
+                .get(index)
+                .click();
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
     public VisualPlayerElement clickShuffleButton() {
-        testDriver.findElement(text(testDriver.getString(R.string.shuffle))).click();
+        listHeaderShuffleButton().click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
+    public int getTotalLikesCount() {
+        String text = listHeaderText().getText();
+        return Integer.parseInt(text.replaceAll("[^0-9]", ""));
+    }
+
     public int getLoadedTrackCount() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return likesList().getAdapter().getCount() - 1; // header
+        return likesList().getItemCount() - 1; // header
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
@@ -51,8 +58,12 @@ public class TrackLikesScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    public void waitForLikesdownloadToFinish() {
-        waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
+    public boolean waitForLikesDownloadToFinish() {
+        return waiter.waitForTextToDisappear(testDriver.getString(R.string.offline_update_in_progress));
+    }
+
+    public void waitForLikesToStartDownloading() {
+        waiter.waitForElement(listHeaderText(), testDriver.getString(R.string.offline_update_in_progress));
     }
 
     public boolean isDownloadInProgressTextVisible() {
@@ -65,10 +76,6 @@ public class TrackLikesScreen extends Screen {
         final String downloadInProgress =
                 testDriver.getQuantityString(R.plurals.number_of_liked_tracks_you_liked, count, count);
         return testDriver.isElementDisplayed(text(downloadInProgress));
-    }
-
-    private ListElement likesList() {
-        return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
     public List<TrackItemElement> tracks(With with) {
@@ -86,17 +93,45 @@ public class TrackLikesScreen extends Screen {
         return tracks(With.id(R.id.track_list_item));
     }
 
-    @Override
-    public LikesActionBarElement actionBar() {
-        return new LikesActionBarElement(testDriver);
-    }
-
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver
-                .findElements(With.id(R.id.overflow_button))
-                .get(0).click();
+        tracks()
+                .get(0)
+                .clickOverflowButton();
         return new TrackItemMenuElement(testDriver);
+    }
+
+    public LikesOverflowMenu clickListHeaderOverflowButton() {
+        listHeaderOverflowButton().click();
+        return new LikesOverflowMenu(testDriver);
+    }
+
+    public DownloadImageViewElement headerDownloadElement() {
+        return new DownloadImageViewElement(listHeader()
+                .findElement(With.id(R.id.header_download_state)));
+    }
+
+    private ListElement likesList() {
+        return testDriver.findElement(With.id(android.R.id.list)).toListView();
+    }
+
+    private ViewElement listHeaderShuffleButton() {
+        return listHeader()
+                .findElement(With.id(R.id.shuffle_btn));
+    }
+
+    private TextElement listHeaderText() {
+        return new TextElement(testDriver.findElement(With.id(R.id.header_text)));
+    }
+
+    private ViewElement listHeader() {
+        return testDriver
+                .findElement(With.id(android.R.id.list))
+                .findElement(With.id(R.id.header));
+    }
+
+    public ViewElement listHeaderOverflowButton() {
+        return listHeader().findElement(With.id(R.id.overflow_button));
     }
 
     @Override

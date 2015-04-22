@@ -12,7 +12,6 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -90,7 +89,7 @@ public class ConfigurationOperations {
     public DeviceManagement forceRegisterDevice(Token token, String deviceIdToDeregister) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Forcing device registration");
         final Map<String, Map<String, String>> content = Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceIdToDeregister));
-        final ApiRequest request = ApiRequest.<Configuration>post(ApiEndpoints.CONFIGURATION.path())
+        final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
                 .withContent(content)
                 .forPrivateApi(1)
@@ -101,7 +100,7 @@ public class ConfigurationOperations {
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Registering device");
-        final ApiRequest request = getConfigurationRequestBuilderForGet()
+        final ApiRequest request = configurationRequestBuilderForGet()
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token)).build();
 
         Configuration configuration = apiClient.get().fetchMappedResponse(request, Configuration.class);
@@ -118,14 +117,14 @@ public class ConfigurationOperations {
     }
 
     private Observable<Configuration> loadAndUpdateConfiguration() {
-        final ApiRequest request = getConfigurationRequestBuilderForGet().build();
+        final ApiRequest request = configurationRequestBuilderForGet().build();
         return Observable.zip(experimentOperations.loadAssignment(),
                 apiClientRx.get().mappedResponse(request, Configuration.class).subscribeOn(scheduler),
                 toUpdatedConfiguration
         );
     }
 
-    private ApiRequest.Builder getConfigurationRequestBuilderForGet() {
+    private ApiRequest.Builder configurationRequestBuilderForGet() {
         return ApiRequest.get(ApiEndpoints.CONFIGURATION.path())
                 .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
                 .forPrivateApi(1);
@@ -142,13 +141,13 @@ public class ConfigurationOperations {
             }
             saveConfiguration(configuration);
         }
-
     }
 
     public void saveConfiguration(Configuration configuration) {
         experimentOperations.update(configuration.assignment);
         if (featureFlags.isEnabled(Flag.OFFLINE_SYNC)) {
-            featureOperations.update(configuration.getFeatureMap());
+            featureOperations.updateFeatures(configuration.getFeatureMap());
+            featureOperations.updatePlan(configuration.plan.id, configuration.plan.upsell);
         }
     }
 

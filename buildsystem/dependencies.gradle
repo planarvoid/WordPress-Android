@@ -4,7 +4,7 @@ allprojects {
     jcenter()
     maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
     maven { url 'http://maven.int.s-cloud.net/content/repositories/thirdparty_releases' }
-    maven { url 'http://download.crashlytics.com/maven' }
+    maven { url 'https://maven.fabric.io/public' }
     maven { url 'http://maven.int.s-cloud.net/content/repositories/snapshots' }
   }
 }
@@ -29,11 +29,11 @@ ext {
   findBugsAnnotationVersion = '3.0.0'
   findBugsJsr305Version = '3.0.0'
   intellijAnnotationsVersion = '9.0.4'
-  skippyVersion = '695'
+  skippyVersion = '712'
   soundCloudVorbisEncoderVersion = '1.0.9-SNAPSHOT'
   comscoreVersion = '2.1407.28'
   adjustAndroidVersion = '3.6.1'
-  crashlyticsVersion = '1.1.11'
+  crashlyticsVersion = '2.2.3'
   jacksonRepackVersion = '15.04.14'
   okHttpVersion = '2.3.0'
   httpClientAndroidVersion = '4.3.5'
@@ -83,7 +83,7 @@ ext {
       adjustAndroid:                "com.adjust.sdk:adjust-android:${adjustAndroidVersion}",
       dagger:                       "com.squareup.dagger:dagger:${daggerVersion}",
       guavaRepack:                  "com.google.guava:guava-repack:${guavaRepackVersion}",
-      crashlytics:                  "com.crashlytics.android:crashlytics:${crashlyticsVersion}",
+      crashlytics:                  "com.crashlytics.sdk.android:crashlytics:${crashlyticsVersion}",
       jacksonRespack:               "com.fasterxml.jackson.core:jackson-repack:${jacksonRepackVersion}",
       okHttp:                       "com.squareup.okhttp:okhttp:${okHttpVersion}",
       httpClientAndroid:            "org.apache.httpcomponents:httpclient-android:${httpClientAndroidVersion}",

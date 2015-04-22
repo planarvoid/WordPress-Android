@@ -1,7 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.DownloadState;

@@ -105,7 +105,7 @@ public class PlayerPagerControllerTest {
     public void onNextOnSkipListenerSetsPagerToNextPosition() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
+        verify(adapter).onViewCreated(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
         skipListenerArgumentCaptor.getValue().onNext();
 
         verify(viewPager).setCurrentItem(eq(4));
@@ -115,7 +115,7 @@ public class PlayerPagerControllerTest {
     public void onNextOnSkipListenerEmitsPlayerSkipClickEvent() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
+        verify(adapter).onViewCreated(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
         skipListenerArgumentCaptor.getValue().onNext();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
@@ -126,7 +126,7 @@ public class PlayerPagerControllerTest {
     public void onPreviousOnSkipListenerEmitsPlayerPreviousClickEvent() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
+        verify(adapter).onViewCreated(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
         skipListenerArgumentCaptor.getValue().onPrevious();
 
         TrackingEvent event = eventBus.lastEventOn(EventQueue.TRACKING);
@@ -137,7 +137,7 @@ public class PlayerPagerControllerTest {
     public void onPreviousOnSkipListenerSetsPagerToPreviousPosition() {
         when(viewPager.getCurrentItem()).thenReturn(3);
 
-        verify(adapter).initialize(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
+        verify(adapter).onViewCreated(same(viewPager), skipListenerArgumentCaptor.capture(), any(ViewVisibilityProvider.class));
         skipListenerArgumentCaptor.getValue().onPrevious();
 
         verify(viewPager).setCurrentItem(eq(2));

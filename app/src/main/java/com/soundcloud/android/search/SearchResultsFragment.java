@@ -17,6 +17,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
@@ -98,8 +99,8 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     @Inject PlaybackOperations playbackOperations;
     @Inject EventBus eventBus;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
-    @Inject ListViewController listViewController;
-    @Inject SearchResultsAdapter adapter;
+    @Inject @LightCycle ListViewController listViewController;
+    @Inject @LightCycle SearchResultsAdapter adapter;
 
     private int searchType;
     private boolean publishSearchSubmissionEvent;
@@ -130,8 +131,6 @@ public class SearchResultsFragment extends LightCycleSupportFragment
 
     public SearchResultsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        attachLightCycle(listViewController);
-        attachLightCycle(adapter);
     }
 
     @VisibleForTesting

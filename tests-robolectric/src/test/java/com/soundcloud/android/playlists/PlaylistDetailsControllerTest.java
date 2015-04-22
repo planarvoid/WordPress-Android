@@ -3,18 +3,20 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
-
-import java.util.Arrays;
+import org.mockito.Mockito;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistDetailsControllerTest {
@@ -22,12 +24,14 @@ public class PlaylistDetailsControllerTest {
     PlaylistDetailsController controller;
 
     @Mock private PlaylistTrackItemPresenter trackItemPresenter;
-    @Mock private ItemAdapter itemAdapter;
+    @Mock private ItemAdapter<TrackItem> itemAdapter;
     private EventBus eventBus = new TestEventBus();
+    private PlaylistWithTracks playlist;
 
     @Before
     public void setUp() throws Exception {
         controller = new PlaylistDetailsControllerImpl(trackItemPresenter, itemAdapter, eventBus);
+        playlist = createPlaylist();
     }
 
     @Test
@@ -37,8 +41,25 @@ public class PlaylistDetailsControllerTest {
 
     @Test
     public void hasTracksIsTrueIfAdapterDataIsNotEmpty() throws Exception {
-        when(itemAdapter.getItems()).thenReturn(Arrays.asList(0, 1, 2));
+        when(itemAdapter.getItems()).thenReturn(playlist.getTracks());
         expect(controller.hasTracks()).toBeTrue();
+    }
+
+    @Test
+    public void clearsAndAddsAllItemsToAdapterWhenPlaylistIsReturned() throws Exception {
+        controller.setContent(playlist);
+
+        InOrder inOrder = Mockito.inOrder(itemAdapter);
+        inOrder.verify(itemAdapter).clear();
+        for (TrackItem track : playlist.getTracks()) {
+            inOrder.verify(itemAdapter).addItem(track);
+        }
+    }
+
+    private PlaylistWithTracks createPlaylist() {
+        return new PlaylistWithTracks(
+                ModelFixtures.create(ApiPlaylist.class).toPropertySet(),
+                ModelFixtures.trackItems(10));
     }
 
     private static class PlaylistDetailsControllerImpl extends PlaylistDetailsController {

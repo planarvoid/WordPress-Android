@@ -1,12 +1,14 @@
 package com.soundcloud.android.tests.likes;
 
-import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
+import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.offlineFilesCount;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -37,14 +39,13 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     public void testDownloadActionAvailableWhenUserSubscribed() {
         enableOfflineContent(context);
 
-        LikesActionBarElement likesActionBarElement =
+        final TrackLikesScreen trackLikesScreen =
                 menuScreen
                         .open()
-                        .clickLikes()
-                        .actionBar();
+                        .clickLikes();
 
-        assertFalse(likesActionBarElement.downloadElement().isVisible());
-        assertTrue(likesActionBarElement.syncAction().isVisible());
+        assertFalse(trackLikesScreen.headerDownloadElement().isVisible());
+        assertThat(trackLikesScreen.listHeaderOverflowButton(), is(visible()));
     }
 
     public void testDownloadsTracksWhenEnabledOfflineLikes() {
@@ -54,15 +55,15 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
                 menuScreen
                         .open()
                         .clickLikes()
-                        .actionBar()
-                        .clickSyncLikesButton()
+                        .clickListHeaderOverflowButton()
+                        .clickMakeAvailableOffline()
                         .clickKeepLikesSynced();
 
-        assertTrue(likesScreen.isDownloadInProgressTextVisible());
+        assertTrue("Download never started", likesScreen.isDownloadInProgressTextVisible());
 
-        likesScreen.waitForLikesdownloadToFinish();
+        assertTrue("Download never finished", likesScreen.waitForLikesDownloadToFinish());
 
-        assertEquals(OfflineContentHelper.offlineFilesCount(), likesScreen.getLoadedTrackCount());
+        assertEquals(offlineFilesCount(), likesScreen.getTotalLikesCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
     }
 
@@ -81,10 +82,5 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
     @Override
     protected void observeToastsHelper() {
         toastObserver.observe();
-    }
-
-    private void resetOfflineSyncState(Context context) {
-        disableOfflineContent(context);
-        clearOfflineContent(context);
     }
 }

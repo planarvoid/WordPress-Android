@@ -1,8 +1,12 @@
-package com.soundcloud.android.configuration.features;
+package com.soundcloud.android.configuration;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
@@ -15,13 +19,14 @@ public class FeatureOperationsTest {
 
     @Mock private ApplicationProperties appProperties;
     @Mock private FeatureStorage featureStorage;
+    @Mock private PlanStorage planStorage;
 
     private FeatureOperations featureOperations;
 
     @Before
     public void setUp() throws Exception {
         when(appProperties.isAlphaBuild()).thenReturn(false);
-        featureOperations = new FeatureOperations(appProperties, featureStorage);
+        featureOperations = new FeatureOperations(appProperties, featureStorage, planStorage);
     }
 
     @Test
@@ -37,15 +42,29 @@ public class FeatureOperationsTest {
     }
 
     @Test
-    public void isOfflineContentUpsellEnabledReturnsStoredState() {
-        when(featureStorage.isEnabled("offline_sync_upsell", false)).thenReturn(true);
+    public void shouldShowUpsellIfSetToKnownPlan() {
+        when(planStorage.get(eq("upsell"), anyString())).thenReturn("mid_tier");
 
-        expect(featureOperations.isOfflineContentUpsellEnabled()).toBeTrue();
+        expect(featureOperations.shouldShowUpsell()).toBeTrue();
     }
 
     @Test
-    public void isOfflineContentUpsellEnabledDefaultsFalse() {
-        expect(featureOperations.isOfflineContentUpsellEnabled()).toBeFalse();
+    public void clearsStoredUpsellIfNoneIsReturned() {
+        featureOperations.updatePlan("free", null);
+
+        verify(planStorage).remove("upsell");
+    }
+
+    @Test
+    public void shouldShowUpsellDefaultsFalse() {
+        expect(featureOperations.shouldShowUpsell()).toBeFalse();
+    }
+
+    @Test
+    public void getPlanReturnsStoredPlan() {
+        when(planStorage.get(eq("plan"), anyString())).thenReturn("mid_tier");
+
+        expect(featureOperations.getPlan()).toEqual("mid_tier");
     }
 
 }

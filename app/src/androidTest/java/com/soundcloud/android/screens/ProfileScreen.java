@@ -73,8 +73,9 @@ public class ProfileScreen extends Screen {
         return new TextElement(followersMessage()).getText();
     }
 
-    public void clickFollowToggle() {
+    public ProfileScreen clickFollowToggle() {
         followButton().click();
+        return new ProfileScreen(testDriver);
     }
 
     public void waitToBeFollowing() {

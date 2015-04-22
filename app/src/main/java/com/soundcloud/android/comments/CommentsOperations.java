@@ -63,7 +63,7 @@ class CommentsOperations {
     }
 
     Observable<CommentsCollection> comments(Urn trackUrn) {
-        final ApiRequest request = apiRequest(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId()))
+        final ApiRequest request = ApiRequest.get(ApiEndpoints.TRACK_COMMENTS.path(trackUrn.getNumericId())).forPublicApi()
                 .addQueryParam("linked_partitioning", "1")
                 .addQueryParam(ApiRequest.Param.PAGE_SIZE, COMMENTS_PAGE_SIZE)
                 .build();
@@ -71,12 +71,8 @@ class CommentsOperations {
     }
 
     private Observable<CommentsCollection> comments(String nextPageUrl) {
-        final ApiRequest request = apiRequest(nextPageUrl).build();
+        final ApiRequest request = ApiRequest.get(nextPageUrl).forPublicApi().build();
         return apiClientRx.mappedResponse(request, CommentsCollection.class).subscribeOn(scheduler);
-    }
-
-    private ApiRequest.Builder apiRequest(String url) {
-        return ApiRequest.get(url).forPublicApi();
     }
 
     @VisibleForTesting

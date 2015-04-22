@@ -7,6 +7,7 @@ import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -41,8 +42,8 @@ import javax.inject.Provider;
 class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
         implements AdapterView.OnItemClickListener {
 
-    final TrackLikesActionMenuController actionMenuController;
-    final TrackLikesHeaderPresenter headerPresenter;
+    final @LightCycle TrackLikesActionMenuController actionMenuController;
+    final @LightCycle TrackLikesHeaderPresenter headerPresenter;
 
     private final TrackLikeOperations likeOperations;
     private final OfflinePlaybackOperations playbackOperations;
@@ -70,10 +71,7 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
         this.eventBus = eventBus;
 
         setHeaderPresenter(headerPresenter);
-        attachLightCycle(headerPresenter);
-        attachLightCycle(actionMenuController);
     }
-
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
@@ -107,12 +105,11 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        final ListView listView = (ListView) getListView();
+
+        getListView().setOnItemClickListener(this);
 
         getEmptyView().setImage(R.drawable.empty_like);
         getEmptyView().setMessageText(R.string.list_empty_user_likes_message);
-
-        listView.setOnItemClickListener(this);
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),

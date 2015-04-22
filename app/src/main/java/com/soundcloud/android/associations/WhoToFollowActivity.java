@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.storage.provider.Content;
@@ -20,16 +21,13 @@ import android.view.Menu;
 import javax.inject.Inject;
 
 public class WhoToFollowActivity extends ScActivity {
-    @Inject SlidingPlayerController playerController;
-    @Inject AdPlayerController adPlayerController;
-    @Inject ActionBarController actionBarController;
+    @Inject @LightCycle SlidingPlayerController playerController;
+    @Inject @LightCycle AdPlayerController adPlayerController;
+    @Inject @LightCycle ActionBarController actionBarController;
 
     @Inject ScreenPresenter presenter;
 
     public WhoToFollowActivity() {
-        attachLightCycle(playerController);
-        attachLightCycle(adPlayerController);
-        attachLightCycle(actionBarController);
         presenter.attach(this);
     }
 

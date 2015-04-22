@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Predicate;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -54,6 +55,7 @@ public class PlaySessionControllerTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
+    @Mock private CastConnectionHelper castConnectionHelper;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -61,7 +63,7 @@ public class PlaySessionControllerTest {
     public void setUp() throws Exception {
         bitmap = Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888);
         PlaySessionController controller = new PlaySessionController(resources, eventBus, playbackOperations, playQueueManager, trackRepository,
-                InjectionSupport.lazyOf(audioManager), imageOperations, playSessionStateProvider);
+                InjectionSupport.lazyOf(audioManager), imageOperations, playSessionStateProvider, castConnectionHelper);
         controller.subscribe();
 
         track = expectedTrackForPlayer();
@@ -140,6 +142,13 @@ public class PlaySessionControllerTest {
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.PLAYING, Playa.Reason.NONE, trackUrn));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, trackUrn));
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.ERROR_FAILED, trackUrn));
+        verify(playQueueManager, never()).autoNextTrack();
+    }
+
+    @Test
+    public void onStateTransitionDoesNotTryToAdvanceTrackIfTrackEndedWhileCasting() {
+        when(castConnectionHelper.isConnected()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, trackUrn));
         verify(playQueueManager, never()).autoNextTrack();
     }
 

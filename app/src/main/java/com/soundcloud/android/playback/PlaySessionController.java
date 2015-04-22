@@ -3,6 +3,7 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.playback.service.Playa.PlayaState;
 import static com.soundcloud.android.playback.service.Playa.StateTransition;
 
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
@@ -41,6 +42,7 @@ public class PlaySessionController {
     private final IRemoteAudioManager audioManager;
     private final ImageOperations imageOperations;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final CastConnectionHelper castConnectionHelper;
     private final Func1<Bitmap, Bitmap> copyBitmap = new Func1<Bitmap, Bitmap>() {
         @Override
         public Bitmap call(Bitmap bitmap) {
@@ -52,9 +54,15 @@ public class PlaySessionController {
     private PropertySet currentPlayQueueTrack; // the track that is currently set in the queue
 
     @Inject
-    public PlaySessionController(Resources resources, EventBus eventBus, PlaybackOperations playbackOperations,
-                                 PlayQueueManager playQueueManager, TrackRepository trackRepository, Lazy<IRemoteAudioManager> audioManager,
-                                 ImageOperations imageOperations, PlaySessionStateProvider playSessionStateProvider) {
+    public PlaySessionController(Resources resources,
+                                 EventBus eventBus,
+                                 PlaybackOperations playbackOperations,
+                                 PlayQueueManager playQueueManager,
+                                 TrackRepository trackRepository,
+                                 Lazy<IRemoteAudioManager> audioManager,
+                                 ImageOperations imageOperations,
+                                 PlaySessionStateProvider playSessionStateProvider,
+                                 CastConnectionHelper castConnectionHelper) {
         this.resources = resources;
         this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
@@ -63,6 +71,7 @@ public class PlaySessionController {
         this.audioManager = audioManager.get();
         this.imageOperations = imageOperations;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.castConnectionHelper = castConnectionHelper;
     }
 
     public void subscribe() {
@@ -73,18 +82,25 @@ public class PlaySessionController {
     private class PlayStateSubscriber extends DefaultSubscriber<StateTransition> {
         @Override
         public void onNext(StateTransition stateTransition) {
-
             if (!StateTransition.DEFAULT.equals(stateTransition)) {
                 audioManager.setPlaybackState(stateTransition.playSessionIsActive());
-
-                if (stateTransition.isPlayerIdle()
-                        && !stateTransition.isPlayQueueComplete()
-                        && stateTransition.trackEnded()) {
-                    if (!playQueueManager.autoNextTrack()) {
-                        eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
-                    }
-                }
+                skipOnTrackFinish(stateTransition);
             }
+        }
+    }
+
+    private void skipOnTrackFinish(StateTransition stateTransition) {
+        if (!castConnectionHelper.isConnected()
+                && stateTransition.isPlayerIdle()
+                && !stateTransition.isPlayQueueComplete()
+                && stateTransition.trackEnded()) {
+            tryToSkipTrack(stateTransition);
+        }
+    }
+
+    private void tryToSkipTrack(StateTransition stateTransition) {
+        if (!playQueueManager.autoNextTrack()) {
+            eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, createPlayQueueCompleteEvent(stateTransition.getTrackUrn()));
         }
     }
 

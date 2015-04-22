@@ -1,36 +1,8 @@
 package com.soundcloud.android.likes;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.actionbar.menu.ActionMenuController;
-import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
-import com.soundcloud.android.actionbar.menu.SyncActionMenuController;
-import com.soundcloud.android.configuration.features.FeatureOperations;
-import dagger.Lazy;
-import dagger.Module;
-import dagger.Provides;
 
-import javax.inject.Named;
+import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class, injects = {TrackLikesFragment.class})
-public class LikesModule {
-
-    public static final String LIKED_TRACKS_MENU = "LikedTracksMenu";
-
-    @Provides
-    @Named(LIKED_TRACKS_MENU)
-    ActionMenuController provideTrackLikesActionMenuController(
-            Lazy<SyncActionMenuController> syncActionMenuController,
-            Lazy<DefaultActionMenuController> defaultActionMenuControllerProvider,
-            FeatureOperations featureOperations) {
-        if (shouldShowSyncOptions(featureOperations)) {
-            return syncActionMenuController.get();
-        } else {
-            return defaultActionMenuControllerProvider.get();
-        }
-    }
-
-    private boolean shouldShowSyncOptions(FeatureOperations featureOperations) {
-        return featureOperations.isOfflineContentEnabled() || featureOperations.isOfflineContentUpsellEnabled();
-    }
-
-}
+public class LikesModule {}

@@ -14,7 +14,7 @@
     <ImageView android:id="@+id/playlist_details_overflow_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        style="@style/ListItemOverflowButton"
+        style="@style/EngagementOverflowButton"
         android:layout_gravity="bottom|end"/>
 
 </LinearLayout>

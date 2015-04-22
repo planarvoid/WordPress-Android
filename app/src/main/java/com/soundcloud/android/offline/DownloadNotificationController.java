@@ -96,9 +96,8 @@ class DownloadNotificationController {
         final NotificationCompat.Builder notification = buildBaseCompletedNotification();
 
         notification.setContentIntent(getSettingsIntent());
-        notification.setContentTitle(resources.getString(R.string.offline_update_storage_limit_reached));
-        notification.setContentText(
-                resources.getQuantityString(R.plurals.offline_synced_n_tracks, completed, completed));
+        notification.setContentTitle(resources.getString(R.string.offline_update_storage_limit_reached_title));
+        notification.setContentText(resources.getString(R.string.offline_update_storage_limit_reached_message));
         return notification.build();
     }
 

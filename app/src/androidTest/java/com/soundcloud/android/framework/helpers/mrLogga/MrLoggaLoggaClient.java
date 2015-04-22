@@ -1,4 +1,4 @@
-package com.soundcloud.android.framework.helpers.mrLogga;
+package com.soundcloud.android.framework.helpers.mrlogga;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.DeviceHelper;

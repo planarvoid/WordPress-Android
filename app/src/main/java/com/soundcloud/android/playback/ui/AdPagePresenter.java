@@ -163,7 +163,12 @@ class AdPagePresenter implements PlayerPagePresenter, View.OnClickListener {
 
     @Override
     public void clearAdOverlay(View trackPage) {
+        // no-op
+    }
 
+    @Override
+    public void setCastDeviceName(View trackPage, String deviceName) {
+        // no-op
     }
 
     private void bindItemView(View view, PlayerAd playerAd) {

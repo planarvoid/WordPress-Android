@@ -626,11 +626,9 @@
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">О чём вы желаете сообщить?</string>
-  <string-array name="feedback_options">
-    <item>Сбой</item>
-    <item>Проблема воспроизведения</item>
-    <item>Другая проблема</item>
-  </string-array>
+  <string name="feedback_playback_issue">Проблема воспроизведения</string>
+  <string name="feedback_crash">Сбой</string>
+  <string name="feedback_other_issue">Другая проблема</string>
   <string name="feedback_email_subject">Сообщить:%1$s</string>
   <string name="feedback_action_chooser">Отправить сообщение по электронной почте...</string>
 

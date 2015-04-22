@@ -16,7 +16,7 @@ public class TrackItemMenuElement extends PopupMenuElement {
     }
 
     public void toggleLike() {
-        menuItems().get(0).click();
+        likeItem().click();
     }
 
     public AddToPlaylistScreen clickAddToPlaylist() {
@@ -26,6 +26,14 @@ public class TrackItemMenuElement extends PopupMenuElement {
 
     public void clickRemoveFromPlaylist() {
         clickItemWithText(1, "Remove");
+    }
+
+    public boolean isLiked() {
+        return getElementText(likeItem()).equals("Unlike");
+    }
+
+    private ViewElement likeItem() {
+        return menuItems().get(0);
     }
 
     private void clickItemWithText(int position, String text) {

@@ -1,4 +1,4 @@
-package com.soundcloud.android.framework.helpers.mrLogga;
+package com.soundcloud.android.framework.helpers.mrlogga;
 
 import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.tests.ActivityTest;
@@ -25,6 +25,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
 
         final Context context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context, new DeviceHelper(context, new BuildHelper()), new OkHttpClient());
+
         mrLoggaVerifier = new MrLoggaVerifier(client);
 
         enableEventLoggerInstantFlush(context);

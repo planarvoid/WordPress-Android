@@ -126,7 +126,7 @@ public class EmptyViewPresenterTest {
     @Test
     public void shouldDispatchOnViewCreatedToLightCycleComponents() {
         SupportFragmentLightCycle lightCycle = mock(SupportFragmentLightCycle.class);
-        presenter.attachLightCycle(lightCycle);
+        presenter.bind(lightCycle);
 
         presenter.onViewCreated(fragment, layout, null);
 
@@ -136,7 +136,7 @@ public class EmptyViewPresenterTest {
     @Test
     public void shouldDispatchOnDestroyViewToLightCycleComponents() {
         SupportFragmentLightCycle lightCycle = mock(SupportFragmentLightCycle.class);
-        presenter.attachLightCycle(lightCycle);
+        presenter.bind(lightCycle);
 
         presenter.onDestroyView(fragment);
 

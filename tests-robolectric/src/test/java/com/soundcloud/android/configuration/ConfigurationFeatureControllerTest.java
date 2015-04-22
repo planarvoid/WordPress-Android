@@ -4,7 +4,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.configuration.features.FeatureOperations;
 import com.soundcloud.android.offline.OfflineContentController;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;

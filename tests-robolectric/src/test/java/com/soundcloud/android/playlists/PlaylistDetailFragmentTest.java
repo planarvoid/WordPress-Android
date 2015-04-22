@@ -17,7 +17,6 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.TestApiResponses;
-import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
@@ -353,11 +352,7 @@ public class PlaylistDetailFragmentTest {
         expect(playlistWithTracks.getTracks().size()).toBeGreaterThan(0);
         createFragmentView();
 
-        InOrder inOrder = Mockito.inOrder(adapter);
-        inOrder.verify(adapter).clear();
-        for (TrackItem track : playlistWithTracks.getTracks()) {
-            inOrder.verify(adapter).addItem(track);
-        }
+        verify(controller).setContent(playlistWithTracks);
     }
 
     @Test
@@ -371,15 +366,9 @@ public class PlaylistDetailFragmentTest {
 
         createFragmentView();
 
-        InOrder inOrder = Mockito.inOrder(adapter);
-        inOrder.verify(adapter).clear();
-        for (TrackItem track : playlistWithTracks.getTracks()) {
-            inOrder.verify(adapter).addItem(track);
-        }
-        inOrder.verify(adapter).clear();
-        for (TrackItem track : updatedPlaylistWithTracks.getTracks()) {
-            inOrder.verify(adapter).addItem(track);
-        }
+        InOrder inOrder = Mockito.inOrder(controller);
+        inOrder.verify(controller).setContent(playlistWithTracks);
+        inOrder.verify(controller).setContent(updatedPlaylistWithTracks);
     }
 
     @Test
@@ -467,12 +456,6 @@ public class PlaylistDetailFragmentTest {
         fragment.onCreateView(activity.getLayoutInflater(), new RelativeLayout(activity), null);
 
         verify(controllerProvider, times(2)).create();
-    }
-
-    private PublicApiTrack createTrackWithTitle(String title) throws com.tobedevoured.modelcitizen.CreateModelException {
-        final PublicApiTrack model = ModelFixtures.create(PublicApiTrack.class);
-        model.setTitle(title);
-        return model;
     }
 
     private View createFragmentView() {

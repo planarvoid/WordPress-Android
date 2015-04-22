@@ -103,7 +103,7 @@ public final class Urn implements Parcelable, Comparable<Urn> {
 
     private long parseNumericId() {
         final Matcher matcher = Pattern.compile(NUMERIC_ID_PATTERN).matcher(content);
-        if (matcher.find()) {
+        if (isSoundCloudUrn(content) && matcher.find()) {
             return Long.parseLong(matcher.group(1));
         }
         return Consts.NOT_SET;

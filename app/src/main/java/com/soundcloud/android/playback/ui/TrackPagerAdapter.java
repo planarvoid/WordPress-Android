@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.ui;
 
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
@@ -13,8 +14,8 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -37,7 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-public class TrackPagerAdapter extends PagerAdapter {
+public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHelper.OnConnectionChangeListener {
 
     static final int TRACKVIEW_POOL_SIZE = 6;
     private static final int TYPE_TRACK_VIEW = 0;
@@ -49,6 +50,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     private final TrackRepository trackRepository;
     private final TrackPagePresenter trackPagePresenter;
     private final AdPagePresenter adPagePresenter;
+    private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
     private final TrackPageRecycler trackPageRecycler;
 
@@ -59,9 +61,9 @@ public class TrackPagerAdapter extends PagerAdapter {
     // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
     private final Set<View> subscribedTrackViews = Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
         private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
-            new LruCache<Urn, ReplaySubject<PropertySet>>(TRACK_CACHE_SIZE);
+            new LruCache<>(TRACK_CACHE_SIZE);
     
-    private final Map<View, TrackPageData> trackByViews = new HashMap<View, TrackPageData>(TRACKVIEW_POOL_SIZE);
+    private final Map<View, TrackPageData> trackByViews = new HashMap<>(TRACKVIEW_POOL_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
@@ -82,14 +84,19 @@ public class TrackPagerAdapter extends PagerAdapter {
     private boolean isForeground;
 
     @Inject
-    TrackPagerAdapter(PlayQueueManager playQueueManager, PlaySessionStateProvider playSessionStateProvider,
-                      TrackRepository trackRepository, TrackPagePresenter trackPagePresenter, AdPagePresenter adPagePresenter,
+    TrackPagerAdapter(PlayQueueManager playQueueManager,
+                      PlaySessionStateProvider playSessionStateProvider,
+                      TrackRepository trackRepository,
+                      TrackPagePresenter trackPagePresenter,
+                      AdPagePresenter adPagePresenter,
+                      CastConnectionHelper castConnectionHelper,
                       EventBus eventBus) {
         this.playQueueManager = playQueueManager;
         this.trackRepository = trackRepository;
         this.trackPagePresenter = trackPagePresenter;
         this.playSessionStateProvider = playSessionStateProvider;
         this.adPagePresenter = adPagePresenter;
+        this.castConnectionHelper = castConnectionHelper;
         this.eventBus = eventBus;
         this.trackPageRecycler = new TrackPageRecycler();
     }
@@ -127,19 +134,21 @@ public class TrackPagerAdapter extends PagerAdapter {
         }
     }
 
-    void unsubscribe() {
-        subscription.unsubscribe();
-        subscription = new CompositeSubscription();
-        subscribedTrackViews.clear();
-    }
-
-    void initialize(ViewGroup container, SkipListener skipListener, ViewVisibilityProvider viewVisibilityProvider) {
+    void onViewCreated(ViewGroup container, SkipListener skipListener, ViewVisibilityProvider viewVisibilityProvider) {
         this.skipListener = skipListener;
         this.viewVisibilityProvider = viewVisibilityProvider;
         for (int i = 0; i < TRACKVIEW_POOL_SIZE; i++) {
             final View itemView = trackPagePresenter.createItemView(container, skipListener);
             trackPageRecycler.addScrapView(itemView);
         }
+        castConnectionHelper.addOnConnectionChangeListener(this);
+    }
+
+    void onViewDestroyed() {
+        subscription.unsubscribe();
+        subscription = new CompositeSubscription();
+        subscribedTrackViews.clear();
+        castConnectionHelper.removeOnConnectionChangeListener(this);
     }
 
     public int getItemViewType(int position) {
@@ -184,6 +193,13 @@ public class TrackPagerAdapter extends PagerAdapter {
         return view.equals(object);
     }
 
+    @Override
+    public void onCastConnectionChange() {
+        for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
+            getPresenter(entry.getValue()).setCastDeviceName(entry.getKey(), castConnectionHelper.getDeviceName());
+        }
+    }
+
     private View instantiateTrackView(int position) {
         View view;
         final TrackPageData trackPageData = currentData.get(position);
@@ -197,7 +213,6 @@ public class TrackPagerAdapter extends PagerAdapter {
             } else {
                 trackPagePresenter.onBackground(view);
             }
-
         } else {
             view = trackPageRecycler.getRecycledPage();
             bindView(position, view);
@@ -309,6 +324,7 @@ public class TrackPagerAdapter extends PagerAdapter {
     private void onTrackPageSet(View view, int position) {
         final TrackPageData trackPageData = currentData.get(position);
         trackPagePresenter.onPositionSet(view, position, currentData.size());
+        trackPagePresenter.setCastDeviceName(view, castConnectionHelper.getDeviceName());
         if (trackPageData.hasAdOverlay()){
             trackPagePresenter.setAdOverlay(view, trackPageData.getProperties());
         } else {

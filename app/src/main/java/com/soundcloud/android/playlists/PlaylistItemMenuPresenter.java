@@ -6,7 +6,7 @@ import com.google.common.base.Optional;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
-import com.soundcloud.android.configuration.features.FeatureOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.likes.LikeOperations;
@@ -72,7 +72,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     }
 
     @Override
-    public boolean onMenuItemClick(MenuItem menuItem) {
+    public boolean onMenuItemClick(MenuItem menuItem, Context context) {
         switch (menuItem.getItemId()) {
             case R.id.add_to_likes:
                 handleLike();
@@ -136,7 +136,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private void configureOfflineOptions(PopupMenuWrapper menu, Optional<Boolean> maybeMarkedForOffline) {
         if (featureOperations.isOfflineContentEnabled() && allowOfflineOptions && maybeMarkedForOffline.isPresent()) {
             showOfflineContentOption(menu, maybeMarkedForOffline.get());
-        } else if (featureOperations.isOfflineContentUpsellEnabled() && allowOfflineOptions) {
+        } else if (featureOperations.shouldShowUpsell() && allowOfflineOptions) {
             showUpsellOption(menu);
         } else {
             hideAllOfflineContentOptions(menu);

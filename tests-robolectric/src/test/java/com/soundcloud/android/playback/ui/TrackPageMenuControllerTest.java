@@ -46,6 +46,7 @@ public class TrackPageMenuControllerTest {
     private PlayerTrack track;
     private PlayerTrack privateTrack;
 
+    @Mock private Context context;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private RepostOperations repostOperations;
     @Mock private PopupMenuWrapper popupMenuWrapper;
@@ -72,7 +73,7 @@ public class TrackPageMenuControllerTest {
     public void clickingShareMenuItemSendsShareIntentWithAllData() {
         MenuItem share = mockMenuItem(R.id.share);
 
-        controller.onMenuItemClick(share);
+        controller.onMenuItemClick(share, context);
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem - SoundCloud");
@@ -92,7 +93,7 @@ public class TrackPageMenuControllerTest {
                 PlayableProperty.IS_REPOSTED.bind(true)));
         controller.setTrack(withoutUser);
 
-        controller.onMenuItemClick(share);
+        controller.onMenuItemClick(share, context);
 
         Intent shareIntent = shadowOf(Robolectric.application).getNextStartedActivity();
         expect(shareIntent.getStringExtra(Intent.EXTRA_SUBJECT)).toEqual("dubstep anthem - SoundCloud");
@@ -105,7 +106,7 @@ public class TrackPageMenuControllerTest {
         MenuItem share = mockMenuItem(R.id.share);
         controller.setTrack(privateTrack);
 
-        controller.onMenuItemClick(share);
+        controller.onMenuItemClick(share, context);
 
         expect(shadowOf(Robolectric.application).getNextStartedActivity()).toBeNull();
     }
@@ -114,7 +115,7 @@ public class TrackPageMenuControllerTest {
     public void clickingShareMenuItemEmitsShareEvent() {
         MenuItem share = mockMenuItem(R.id.share);
 
-        controller.onMenuItemClick(share);
+        controller.onMenuItemClick(share, context);
 
         UIEvent expectedEvent = UIEvent.fromShare("screen", track.getUrn());
         expectUIEvent(expectedEvent);
@@ -124,7 +125,7 @@ public class TrackPageMenuControllerTest {
     public void clickingRepostMenuItemCallsOnRepostWithTrue() {
         MenuItem repost = mockMenuItem(R.id.repost);
 
-        controller.onMenuItemClick(repost);
+        controller.onMenuItemClick(repost, context);
 
         verify(repostOperations).toggleRepost(track.getUrn(), true);
         expect(repostObservable.subscribedTo()).toBeTrue();
@@ -134,7 +135,7 @@ public class TrackPageMenuControllerTest {
     public void clickingUnpostMenuItemCallsOnRepostWithFalse() {
         MenuItem unpost = mockMenuItem(R.id.unpost);
 
-        controller.onMenuItemClick(unpost);
+        controller.onMenuItemClick(unpost, context);
 
         verify(repostOperations).toggleRepost(track.getUrn(), false);
         expect(repostObservable.subscribedTo()).toBeTrue();
@@ -143,7 +144,7 @@ public class TrackPageMenuControllerTest {
     @Test
     public void clickingRepostMenuItemEmitsRepostEvent() {
         MenuItem repost = mockMenuItem(R.id.repost);
-        controller.onMenuItemClick(repost);
+        controller.onMenuItemClick(repost, context);
 
         UIEvent expectedEvent = UIEvent.fromToggleRepost(true, "screen", track.getUrn());
         expectUIEvent(expectedEvent);
@@ -152,7 +153,7 @@ public class TrackPageMenuControllerTest {
     @Test
     public void clickingUnpostMenuItemEmitsRepostEvent() {
         MenuItem unpost = mockMenuItem(R.id.unpost);
-        controller.onMenuItemClick(unpost);
+        controller.onMenuItemClick(unpost, context);
 
         UIEvent expectedEvent = UIEvent.fromToggleRepost(false, "screen", track.getUrn());
         expectUIEvent(expectedEvent);

@@ -326,6 +326,7 @@
     <string name="pause">Pause</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+    <string name="casting_to">Casting to</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s at %2$s</string>
@@ -604,8 +605,9 @@
     <!-- __OFFLINE_SYNC -->
     <string name="offline_track_not_available">Track is not available offline</string>
     <string name="offline_update_completed_title">All tracks synced!</string>
-    <string name="offline_update_storage_limit_reached">Storage limit reached</string>
     <string name="offline_update_completed_message">Ready for offline listening!</string>
+    <string name="offline_update_storage_limit_reached_title">Storage limit reached</string>
+    <string name="offline_update_storage_limit_reached_message">Tap here to view storage settings</string>
     <string name="offline_update_in_progress">Syncing your tracks</string>
     <string name="offline_likes_dialog_title">Make available offline</string>
     <string name="offline_likes_dialog_message">This will keep all your Likes available for offline listening including any tracks you like in the future.</string>
@@ -647,13 +649,13 @@
 
     <!-- DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>
-    <string-array name="feedback_options">
-        <item>Crash</item>
-        <item>Playback issue</item>
-        <item>Other issue</item>
-    </string-array>
+    <string name="feedback_playback_issue">Playback issue</string>
+    <string name="feedback_crash">Crash</string>
+    <string name="feedback_other_issue">Other issue</string>
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
+    <string name="feedback_unable_to_get_logs">Unable to get logs</string>
+
     <string name="offline_update_paused">Offline syncing paused</string>
     <string name="no_network_connection">no network connection</string>
     <string name="no_wifi_connection">no Wifi connection</string>

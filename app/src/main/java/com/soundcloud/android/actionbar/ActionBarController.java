@@ -69,10 +69,13 @@ public class ActionBarController extends DefaultLightCycleActivity<ActionBarActi
                 .setItems(feedbackOptions, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        final String subject = activity.getString(R.string.feedback_email_subject, feedbackOptions[which]);
+                        final String feedbackOption = feedbackOptions[which];
+                        final String subject = activity.getString(R.string.feedback_email_subject, feedbackOption);
                         final String actionChooser = activity.getString(R.string.feedback_action_chooser);
-                        DebugUtils.sendLogs(activity, applicationProperties.getFeedbackEmail(), subject,
-                                deviceHelper.getUserAgent(), actionChooser);
+                        final String feedbackEmail = feedbackOption.equals(activity.getString(R.string.feedback_playback_issue)) ?
+                                applicationProperties.getPlaybackFeedbackEmail() : applicationProperties.getFeedbackEmail() ;
+
+                        DebugUtils.sendLogs(activity, feedbackEmail, subject, deviceHelper.getUserAgent(), actionChooser);
                     }
                 }).show();
     }

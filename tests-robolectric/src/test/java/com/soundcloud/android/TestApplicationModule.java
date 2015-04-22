@@ -13,6 +13,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.image.ImageOperations;
@@ -272,6 +273,11 @@ public class TestApplicationModule {
     @Provides
     AdIdHelper provideAdIdHelper() {
         return mock(AdIdHelper.class);
+    }
+
+    @Provides
+    CastConnectionHelper provideCastConnectionHelper() {
+        return mock(CastConnectionHelper.class);
     }
 
 }

@@ -55,20 +55,19 @@ public class TrackLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testLikeChangeOnPlayerUpdatesTrackLikesScreen() {
-        final int initialLikedTracksCount = likesScreen.getLoadedTrackCount();
+        final int initialLikedTracksCount = likesScreen.getTotalLikesCount();
 
         final VisualPlayerElement player = likesScreen.clickTrack(0);
 
         player.tapToggleLikeButton();
         player.pressCloseButton();
 
-        assertThat(likesScreen.getLoadedTrackCount(), equalTo(initialLikedTracksCount - 1));
+        assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount - 1));
 
         player.tapFooter();
         player.tapToggleLikeButton();
         player.pressBackToCollapse();
 
-        assertThat(likesScreen.getLoadedTrackCount(), equalTo(initialLikedTracksCount));
+        assertThat(likesScreen.getTotalLikesCount(), equalTo(initialLikedTracksCount));
     }
-
 }
