@@ -104,7 +104,6 @@ public class CastSessionControllerTest {
     public void onMetaDataUpdatedDoesNotSetPlayQueueWithSameTrackList() throws Exception {
         castSessionController.startListening();
         when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
-        setupExistingCastSession();
 
         callOnMetadatUpdated();
 
@@ -117,7 +116,6 @@ public class CastSessionControllerTest {
         when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
         when(playQueueManager.hasSameTrackList(PLAY_QUEUE)).thenReturn(true);
         when(videoCastManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
-        setupExistingCastSession();
 
         callOnMetadatUpdated();
 
@@ -128,7 +126,6 @@ public class CastSessionControllerTest {
     public void onMetaDataUpdatedSetsPlayQueueWithDifferentTracklist() throws Exception {
         castSessionController.startListening();
         when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
-        setupExistingCastSession();
 
         callOnMetadatUpdated();
 
@@ -140,7 +137,6 @@ public class CastSessionControllerTest {
     public void onMetaDataUpdatedPlaysCurrentTrackWhenRemotePlayQueueIsDifferent() throws Exception {
         castSessionController.startListening();
         when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
-        setupExistingCastSession();
 
         callOnMetadatUpdated();
 
@@ -151,31 +147,11 @@ public class CastSessionControllerTest {
     public void onMetaDataUpdatedShowsPlayer() throws Exception {
         castSessionController.startListening();
         when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(PLAY_QUEUE, URN));
-        setupExistingCastSession();
 
         callOnMetadatUpdated();
 
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).toEqual(1);
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).toBeTrue();
-    }
-
-    private void setupExistingCastSession() throws TransientNetworkDisconnectionException, NoConnectionException {
-        MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-        mediaMetadata.putString(CastPlayer.KEY_URN, URN.toString());
-
-        JSONObject playQueue = new JSONObject();
-        try {
-            playQueue.put(CastPlayer.KEY_PLAY_QUEUE, PLAY_QUEUE);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        when(videoCastManager.getRemoteMediaInformation()).thenReturn(new MediaInfo.Builder("content-id")
-                .setMetadata(mediaMetadata)
-                .setCustomData(playQueue)
-                .setContentType("audio/mpeg")
-                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .build());
     }
 
     private void callOnMetadatUpdated() {

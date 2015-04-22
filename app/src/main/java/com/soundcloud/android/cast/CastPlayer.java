@@ -63,11 +63,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         progressReporter.setProgressPusher(this);
     }
 
-    @Override
-    public void onRemoteMediaPlayerStatusUpdated() {
-        onMediaPlayerStatusUpdatedListener(castManager.getPlaybackStatus(), castManager.getIdleReason());
-    }
-
     public boolean isConnected() {
         return castManager.isConnected();
     }
@@ -75,6 +70,11 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     @Override
     public void onDisconnected() {
         reportStateChange(getStateTransition(PlayaState.IDLE, Reason.NONE)); // possibly show disconnect error here instead?
+    }
+
+    @Override
+    public void onRemoteMediaPlayerStatusUpdated() {
+        onMediaPlayerStatusUpdatedListener(castManager.getPlaybackStatus(), castManager.getIdleReason());
     }
 
     public void onMediaPlayerStatusUpdatedListener(int playerState, int idleReason) {
@@ -122,14 +122,14 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public void pushProgress() {
         try {
             final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(), castManager.getMediaDuration());
-            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, getCurrentPlayingUrn()));
+            eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(TAG, "Unable to report progress", e);
         }
     }
 
     private StateTransition getStateTransition(PlayaState state, Reason reason) {
-        return new StateTransition(state, reason, getCurrentPlayingUrn(), getProgress(), getDuration());
+        return new StateTransition(state, reason, castOperations.getRemoteCurrentTrackUrn(), getProgress(), getDuration());
     }
 
     @Nullable
@@ -165,7 +165,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
 
     public void playNewQueue(List<Urn> unfilteredLocalPlayQueueTracks, Urn initialTrackUrnCandidate, int initialTrackPosition, PlaySessionSource playSessionSource) {
         playNewQueueSubscription.unsubscribe();
-        playNewQueueSubscription = castOperations.loadAndFilterLocalPlayQueue(initialTrackUrnCandidate, unfilteredLocalPlayQueueTracks)
+        playNewQueueSubscription = castOperations.loadLocalPlayQueueWithoutMonetizableTracks(initialTrackUrnCandidate, unfilteredLocalPlayQueueTracks)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlayNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource, 0));
     }
@@ -214,23 +214,8 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     private boolean isCurrentlyLoadedInPlayer(Urn urn) {
-        final Urn currentPlayingUrn = getCurrentPlayingUrn();
+        final Urn currentPlayingUrn = castOperations.getRemoteCurrentTrackUrn();
         return currentPlayingUrn != Urn.NOT_SET && currentPlayingUrn.equals(urn);
-    }
-
-    private Urn getCurrentPlayingUrn() {
-        MediaInfo mediaInfo = getCurrentRemoteMediaInfo();
-        return mediaInfo == null ? Urn.NOT_SET : castOperations.getUrnFromMediaMetadata(mediaInfo);
-    }
-
-    @Nullable
-    private MediaInfo getCurrentRemoteMediaInfo() {
-        try {
-            return castManager.getRemoteMediaInformation();
-        } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
-            Log.e(TAG, "Unable to get remote media information", e);
-        }
-        return null;
     }
 
     private void reconnectToExistingSession() {

@@ -68,7 +68,7 @@ public class CastOperations {
         this.resources = resources;
     }
 
-    public Observable<LocalPlayQueue> loadAndFilterLocalPlayQueue(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
+    public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableTracks(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
         return filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
                 .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
                     @Override
@@ -145,7 +145,7 @@ public class CastOperations {
             if (remoteMediaInformation != null){
                 final JSONObject customData = remoteMediaInformation.getCustomData();
                 if (customData != null){
-                    return new RemotePlayQueue(convertRemoteDataToTrackList(customData), getRemoteUrn(remoteMediaInformation));
+                    return new RemotePlayQueue(convertRemoteDataToTrackList(customData), getCurrentTrackUrn(remoteMediaInformation));
                 }
             }
         } catch (JSONException e) {
@@ -163,11 +163,16 @@ public class CastOperations {
         return remoteTracks;
     }
 
-    private Urn getRemoteUrn(MediaInfo mediaInfo) {
-        return getUrnFromMediaMetadata(mediaInfo);
+    public Urn getRemoteCurrentTrackUrn() {
+        try {
+            return getCurrentTrackUrn(videoCastManager.getRemoteMediaInformation());
+        } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
+            Log.e(TAG, "Unable to get remote media information", e);
+            return Urn.NOT_SET;
+        }
     }
 
-    public Urn getUrnFromMediaMetadata(MediaInfo mediaInfo) {
+    private Urn getCurrentTrackUrn(MediaInfo mediaInfo) {
         return mediaInfo == null ? Urn.NOT_SET : new Urn(mediaInfo.getMetadata().getString(KEY_URN));
     }
 

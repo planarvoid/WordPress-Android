@@ -84,7 +84,7 @@ public class PlayQueueManagerTest {
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
         when(playQueue.getTrackUrns()).thenReturn(queueUrns);
-        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 
@@ -108,7 +108,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldUpdateTrackPoliciesOnNewQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        verify(policyOperations).fetchAndStorePolicies(queueUrns);
+        verify(policyOperations).updatePolicies(queueUrns);
     }
 
     @Test

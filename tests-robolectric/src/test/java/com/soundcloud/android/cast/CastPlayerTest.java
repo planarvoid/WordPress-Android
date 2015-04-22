@@ -4,8 +4,9 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.same;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,8 +18,10 @@ import com.google.android.gms.cast.RemoteMediaPlayer;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
+import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ProgressReporter;
@@ -27,11 +30,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.tracks.TrackRepository;
-import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.propeller.PropertySet;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,29 +39,25 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
-import android.content.res.Resources;
-
-import java.util.Arrays;
-import java.util.List;
+import java.util.ArrayList;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CastPlayerTest {
 
-    public static final String HTTP_IMAGE_URL = "http://image.url";
-    private static final Urn URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN2 = Urn.forTrack(456L);
+    private static final Urn TRACK_URN3 = Urn.forTrack(789L);
 
     private CastPlayer castPlayer;
 
     private TestEventBus eventBus = new TestEventBus();
 
+    @Mock private CastOperations castOperations;
     @Mock private VideoCastManager castManager;
     @Mock private ApplicationProperties applicationProperties;
-    @Mock private ImageOperations imageOperations;
-    @Mock private Resources resources;
     @Mock private GoogleApiClient googleApiClient;
     @Mock private ProgressReporter progressReporter;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
-    @Mock private TrackRepository trackRepository;
     @Mock private PlayQueueManager playQueueManager;
 
     @Captor private ArgumentCaptor<Playa.StateTransition> transitionArgumentCaptor;
@@ -71,7 +65,7 @@ public class CastPlayerTest {
 
     @Before
     public void setUp() throws Exception {
-        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, imageOperations, resources, eventBus, trackRepository, playQueueManager);
+        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, eventBus, playQueueManager);
     }
 
     @Test
@@ -197,10 +191,8 @@ public class CastPlayerTest {
 
     @Test
     public void playWithUrnAlreadyLoadedDoesNotLoadMedia() throws Exception {
-        final PropertySet track = setupSuccesfulTrackInfoLoad();
-
-        final MediaInfo media = getMediaInfoForTrack(track);
-        when(castManager.getRemoteMediaInformation()).thenReturn(media);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN);
 
         castPlayer.playCurrent();
 
@@ -209,9 +201,8 @@ public class CastPlayerTest {
 
     @Test
     public void playWithUrnAlreadyLoadedOutputsExistingState() throws Exception {
-        final PropertySet track = setupSuccesfulTrackInfoLoad();
-        final MediaInfo media = getMediaInfoForTrack(track);
-        when(castManager.getRemoteMediaInformation()).thenReturn(media);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(castManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
         when(castManager.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_NONE);
 
@@ -220,113 +211,83 @@ public class CastPlayerTest {
         final Playa.StateTransition stateTransition = captureFirstStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.PLAYING);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
-        expect(stateTransition.getTrackUrn()).toEqual(track.get(TrackProperty.URN));
+        expect(stateTransition.getTrackUrn()).toEqual(TRACK_URN);
 
-    }
-
-    private MediaInfo getMediaInfoForTrack(PropertySet track) {
-        MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
-        mediaMetadata.putString(CastPlayer.KEY_URN, String.valueOf(track.get(TrackProperty.URN)));
-
-        return new MediaInfo.Builder("some-url")
-                .setContentType("audio/mpeg")
-                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setMetadata(mediaMetadata)
-                .build();
     }
 
     @Test
-    public void playCallsLoadOnRemoteMediaPlayerStreamContent() throws Exception {
-        final PropertySet track = setupSuccesfulTrackInfoLoad();
-        when(imageOperations.getUrlForLargestImage(resources, track.get(TrackProperty.URN))).thenReturn(HTTP_IMAGE_URL);
+    public void playCurrentLoadsPlayQueueRemotely() throws TransientNetworkDisconnectionException, NoConnectionException {
+        ArrayList<Urn> localPlayQueueTracks = Lists.newArrayList(TRACK_URN, TRACK_URN2);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentQueueAsUrnList()).thenReturn(localPlayQueueTracks);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        LocalPlayQueue localPlayQueue = new LocalPlayQueue(new JSONObject(), localPlayQueueTracks, createMediaInfo(TRACK_URN), TRACK_URN);
+        when(castOperations.loadLocalPlayQueue(TRACK_URN, localPlayQueueTracks)).thenReturn(Observable.just(localPlayQueue));
 
         castPlayer.playCurrent();
 
-        ArgumentCaptor<MediaInfo> mediaInfoArgumentCaptor = ArgumentCaptor.forClass(MediaInfo.class);
-        verify(castManager).loadMedia(mediaInfoArgumentCaptor.capture(), anyBoolean(), anyInt(), any(JSONObject.class));
-        final MediaInfo value = mediaInfoArgumentCaptor.getValue();
-        expect(value.getContentType()).toEqual("audio/mpeg");
-        expect(value.getMetadata().getImages().get(0).getUrl().toString()).toEqual(HTTP_IMAGE_URL);
-        expect(value.getContentId()).toEqual(track.get(TrackProperty.URN).toString());
-        expect(new Urn(value.getMetadata().getString(CastPlayer.KEY_URN))).toEqual(track.get(TrackProperty.URN));
+        verify(castManager).loadMedia(eq(localPlayQueue.mediaInfo), anyBoolean(), anyInt(), eq(localPlayQueue.playQueueTracksJSON));
     }
 
     @Test
-    public void playCallsLoadOnRemoteMediaPlayerWithAutoPlayTrue() throws Exception {
-        setupSuccesfulTrackInfoLoad();
+    public void playCurrentLoadsMediaWithAutoPlay() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
 
-        when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
         castPlayer.playCurrent();
 
         verify(castManager).loadMedia(any(MediaInfo.class), eq(true), anyInt(), any(JSONObject.class));
     }
 
     @Test
-    public void playCallsLoadOnRemoteMediaPlayerWithDefaultPosition() throws Exception {
-        setupSuccesfulTrackInfoLoad();
+    public void playCurrentLoadsMediaWithDefaultPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
 
-        when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
         castPlayer.playCurrent();
 
         verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(0), any(JSONObject.class));
     }
 
     @Test
-    public void playCallsLoadOnRemoteMediaPlayerWithRequestedPosition() throws Exception {
-        setupSuccesfulTrackInfoLoad();
-        when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
+    public void playCurrentLoadsMediaWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+
         castPlayer.playCurrent(100);
 
         verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(100), any(JSONObject.class));
     }
 
     @Test
-    public void playCallsLoadOnRemoteMediaPlayerWithQueueAsCustomData() throws Exception {
-        final List<Urn> playQueue = Arrays.asList(Urn.forTrack(123L), Urn.forTrack(456L));
-        when(playQueueManager.getCurrentQueueAsUrnList()).thenReturn(playQueue);
-        setupSuccesfulTrackInfoLoad();
-        when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
-        castPlayer.playCurrent(100);
-
-        ArgumentCaptor<JSONObject> customDataCaptor = ArgumentCaptor.forClass(JSONObject.class);
-        verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(100), customDataCaptor.capture());
-        JSONObject customData = customDataCaptor.getValue();
-
-        final JSONArray playQueueArr = (JSONArray) customData.get("play_queue");
-        expect(playQueueArr.get(0)).toEqual(Urn.forTrack(123L).toString());
-        expect(playQueueArr.get(1)).toEqual(Urn.forTrack(456L).toString());
-    }
-
-    @Test
     public void playReportsBufferingEvent() throws Exception {
-        final PropertySet track = setupSuccesfulTrackInfoLoad();
-        when(imageOperations.getUrlForLargestImage(same(resources), any(Urn.class))).thenReturn(HTTP_IMAGE_URL);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+
         castPlayer.playCurrent(100);
 
         final Playa.StateTransition stateTransition = captureFirstStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.BUFFERING);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
-        expect(stateTransition.getTrackUrn()).toEqual(track.get(TrackProperty.URN));
-    }
-
-    private PropertySet setupSuccesfulTrackInfoLoad() {
-        final PropertySet track = TestPropertySets.expectedTrackForPlayer();
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
-        when(trackRepository.track(URN)).thenReturn(Observable.just(track));
-        return track;
+        expect(stateTransition.getTrackUrn()).toEqual(TRACK_URN);
     }
 
     @Test
     public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() throws Exception {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
-        when(trackRepository.track(URN)).thenReturn(Observable.<PropertySet>error(new Throwable("loading error")));
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
 
         castPlayer.playCurrent();
 
         final Playa.StateTransition stateTransition = captureFirstStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
-        expect(stateTransition.getTrackUrn()).toBe(URN);
+        expect(stateTransition.getTrackUrn()).toBe(TRACK_URN);
     }
 
     @Test
@@ -364,6 +325,17 @@ public class CastPlayerTest {
         final Playa.StateTransition stateTransition = captureFirstStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
+    }
+
+    private MediaInfo createMediaInfo(Urn urn) {
+        MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
+        mediaMetadata.putString("urn", String.valueOf(urn));
+
+        return new MediaInfo.Builder("some-url")
+                .setContentType("audio/mpeg")
+                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                .setMetadata(mediaMetadata)
+                .build();
     }
 
     private Playa.StateTransition captureFirstStateTransition() {
