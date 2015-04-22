@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
+import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -64,6 +65,7 @@ class SoundStreamStorage {
                 SoundView.PLAYBACK_COUNT,
                 SoundView.TRACK_COUNT,
                 SoundView.LIKES_COUNT,
+                SoundView.SHARING,
                 SoundStreamView.CREATED_AT,
                 SoundStreamView.REPOSTER_USERNAME,
                 exists(likeQuery()).as(SoundView.USER_LIKE),
@@ -114,6 +116,7 @@ class SoundStreamStorage {
             addOptionalPlayCount(cursorReader, propertySet);
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
+            addOptionalPrivacy(cursorReader, propertySet);
 
             return propertySet;
         }
@@ -158,6 +161,13 @@ class SoundStreamStorage {
             final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
             if (ScTextUtils.isNotBlank(reposter)) {
                 propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
+            }
+        }
+
+        private void addOptionalPrivacy(CursorReader cursorReader, PropertySet propertySet) {
+            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
+                propertySet.put(PlaylistProperty.IS_PRIVATE,
+                        Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             }
         }
 
