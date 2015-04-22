@@ -51,8 +51,8 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
 
     @Override
     public void playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrn, int initialTrackPosition, PlaySessionSource playSessionSource) {
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(playQueueTracks, playSessionSource);
         final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueueTracks, initialTrackPosition, initialTrackUrn);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(playQueueTracks, playSessionSource);
         playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
         playCurrent();
     }
