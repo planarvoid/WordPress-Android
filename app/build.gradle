@@ -98,7 +98,7 @@ android {
     release {
       versionNameSuffix '-release'
       minifyEnabled true
-      shrinkResources true
+      shrinkResources false
       zipAlignEnabled true
       proguardFiles 'buildsystem/proguard.cfg', 'buildsystem/proguard_release.cfg'
     }

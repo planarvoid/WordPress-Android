@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback.service.mediaplayer;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -9,7 +10,6 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
@@ -36,10 +36,10 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 
 public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener,MediaPlayer.OnBufferingUpdateListener {
+        MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnInfoListener, MediaPlayer.OnBufferingUpdateListener {
 
     private static final String TAG = "MediaPlayerAdapter";
-    private static final int POS_NOT_SET = -1;
+    private static final int POS_NOT_SET = Consts.NOT_SET;
 
     public static final int MAX_CONNECT_RETRIES = 2;
     public static final int SEEK_COMPLETE_PROGRESS_DELAY = 3000;
@@ -137,7 +137,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        if(!accountOperations.isUserLoggedIn()) {
+        if (!accountOperations.isUserLoggedIn()) {
             return;
         }
         if (mediaPlayer.equals(this.mediaPlayer) && internalState == PlaybackState.PREPARING) {
@@ -177,7 +177,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     private void play() {
-        if (mediaPlayer != null){
+        if (mediaPlayer != null) {
             mediaPlayer.start();
             setInternalState(PlaybackState.PLAYING);
         }
@@ -253,16 +253,16 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             Log.d(TAG, "onInfo(" + what + "," + extra + ", state=" + internalState + ")");
         }
 
-        if (internalState == PlaybackState.PREPARING){
+        if (internalState == PlaybackState.PREPARING) {
             return true; // swallow info callbacks if preparing. HTC Bug
         }
 
-        if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what){
+        if (MediaPlayer.MEDIA_INFO_BUFFERING_START == what) {
             setInternalState(PlaybackState.PAUSED_FOR_BUFFERING);
             playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
             return true;
 
-        } else if (MediaPlayer.MEDIA_INFO_BUFFERING_END == what){
+        } else if (MediaPlayer.MEDIA_INFO_BUFFERING_END == what) {
             if (seekPos != -1 && !waitingForSeek) {
                 playerHandler.removeMessages(PlayerHandler.CLEAR_LAST_SEEK);
                 playerHandler.sendEmptyMessageDelayed(PlayerHandler.CLEAR_LAST_SEEK, 3000);
@@ -298,7 +298,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     void setResumeTimeAndInvokeErrorListener(MediaPlayer mediaPlayer, long lastPosition) {
-        if (mediaPlayer == this.mediaPlayer){
+        if (mediaPlayer == this.mediaPlayer) {
             handleMediaPlayerError(mediaPlayer, lastPosition);
         }
     }
@@ -316,7 +316,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     }
 
     void stop(MediaPlayer mediaPlayer) {
-        if (mediaPlayer == this.mediaPlayer){
+        if (mediaPlayer == this.mediaPlayer) {
             stop();
         }
     }
@@ -350,7 +350,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         // TODO : Replace this with ProgressReporter next time we are in here
         playerHandler.removeMessages(PlayerHandler.SEND_PROGRESS);
-        if (playbackState == PlaybackState.PLAYING){
+        if (playbackState == PlaybackState.PLAYING) {
             playerHandler.sendEmptyMessage(PlayerHandler.SEND_PROGRESS);
         }
 
@@ -369,7 +369,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         return track == null ? Urn.NOT_SET : track.get(TrackProperty.URN);
     }
 
-    boolean isInErrorState(){
+    boolean isInErrorState() {
         return internalState.isError();
     }
 
@@ -452,7 +452,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
                 return newPos;
             }
         } else {
-            return -1;
+            return POS_NOT_SET;
         }
     }
 
@@ -494,7 +494,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         if (mediaPlayer != null && internalState.canGetMPProgress()) {
             return mediaPlayer.getDuration();
         } else {
-            return track.get(PlayableProperty.DURATION);
+            return track == null ? POS_NOT_SET : track.get(TrackProperty.DURATION);
         }
     }
 
@@ -534,7 +534,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Override
     public void setVolume(float volume) {
-        if (mediaPlayer != null){
+        if (mediaPlayer != null) {
             mediaPlayer.setVolume(volume, volume);
         }
     }
@@ -578,7 +578,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
         @VisibleForTesting
         void setMediaPlayerAdapter(MediaPlayerAdapter adapter) {
-            mediaPlayerAdapterWeakReference = new WeakReference<MediaPlayerAdapter>(adapter);
+            mediaPlayerAdapterWeakReference = new WeakReference<>(adapter);
         }
 
         @Override
@@ -590,7 +590,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
             switch (msg.what) {
                 case CLEAR_LAST_SEEK:
-                    mediaPlayerAdapter.seekPos = -1;
+                    mediaPlayerAdapter.seekPos = POS_NOT_SET;
                     break;
                 case SEND_PROGRESS:
                     mediaPlayerAdapter.sendProgress();
