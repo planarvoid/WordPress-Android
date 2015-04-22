@@ -7,7 +7,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +35,6 @@ public class ApiRequest {
     private final int endpointVersion;
     private final Boolean isPrivate;
     @NotNull private final Multimap<String, String> queryParams;
-    private final Object content;
     @NotNull private final Map<String, String> headers;
 
     public static Builder get(String uri) {
@@ -56,14 +54,13 @@ public class ApiRequest {
     }
 
     ApiRequest(Uri uri, String method, int endpointVersion,
-               Boolean isPrivate, @NotNull Multimap<String, String> queryParams, Object content,
+               Boolean isPrivate, @NotNull Multimap<String, String> queryParams,
                @NotNull Map<String, String> headers) {
         this.uri = uri;
         this.httpMethod = method;
         this.endpointVersion = endpointVersion;
         this.isPrivate = isPrivate;
         this.queryParams = queryParams;
-        this.content = content;
         this.headers = headers;
     }
 
@@ -146,7 +143,7 @@ public class ApiRequest {
             } else if (files != null) {
                 return new ApiFileContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, files);
             } else {
-                return new ApiRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, content, headers);
+                return new ApiRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers);
             }
         }
 
@@ -198,7 +195,6 @@ public class ApiRequest {
                 .add("uri", uri.toString())
                 .add("httpMethod", httpMethod)
                 .add("endPointVersion", endpointVersion)
-                .add("isPrivate", isPrivate)
-                .add("content", ScTextUtils.safeToString(content)).toString();
+                .add("isPrivate", isPrivate).toString();
     }
 }
