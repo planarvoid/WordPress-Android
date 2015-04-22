@@ -624,11 +624,10 @@
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">¿Qué desearías informar?</string>
-  <string-array name="feedback_options">
-    <item>Congelar</item>
-    <item>Problema de reproducción</item>
-    <item>Otro problema</item>
-  </string-array>
+  <string name="feedback_playback_issue">Problema de reproducción</string>
+  <string name="feedback_crash">Congelar</string>
+  <string name="feedback_other_issue">Otro problema</string>
+
   <string name="feedback_email_subject">Informe: %1$s</string>
   <string name="feedback_action_chooser">Enviar comentario por correo electrónico...</string>
 

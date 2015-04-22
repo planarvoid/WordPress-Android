@@ -625,11 +625,9 @@
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">Apa yang ingin kamu laporkan?</string>
-  <string-array name="feedback_options">
-    <item>Tabrakan</item>
-    <item>Masalah pemutaran</item>
-    <item>Masalah lain</item>
-  </string-array>
+  <string name="feedback_playback_issue">Masalah pemutaran</string>
+  <string name="feedback_crash">Tabrakan</string>
+  <string name="feedback_other_issue">Masalah lain</string>
   <string name="feedback_email_subject">Laporan: %1$s</string>
   <string name="feedback_action_chooser">Kirim umpan balik melalui email...</string>
 

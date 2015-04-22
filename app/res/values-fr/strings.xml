@@ -625,11 +625,9 @@
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">Que voudriez-vous signaler ?</string>
-  <string-array name="feedback_options">
-    <item>Fracas</item>
-    <item>Problème de lecture</item>
-    <item>Autre question</item>
-  </string-array>
+  <string name="feedback_playback_issue">Problème de lecture</string>
+  <string name="feedback_crash">Fracas</string>
+  <string name="feedback_other_issue">Autre question</string>
   <string name="feedback_email_subject">Rapport: %1$s</string>
   <string name="feedback_action_chooser">Envoyer vos commentaires par e-mail...</string>
 

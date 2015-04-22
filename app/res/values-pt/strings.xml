@@ -625,11 +625,9 @@
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">O que você gostaria de informar?</string>
-  <string-array name="feedback_options">
-    <item>Falha</item>
-    <item>Problema de reprodução</item>
-    <item>Outro problema</item>
-  </string-array>
+  <string name="feedback_playback_issue">Problema de reprodução</string>
+  <string name="feedback_crash">Falha</string>
+  <string name="feedback_other_issue">Outro problema</string>
   <string name="feedback_email_subject">Relatar: %1$s</string>
   <string name="feedback_action_chooser">Enviar feedback via e-mail...</string>
 
