@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.likes;
 
+import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearLikes;
 import static com.soundcloud.android.framework.helpers.TrackItemElementHelper.assertLikeActionOnUnlikedTrack;
 import static com.soundcloud.android.framework.helpers.PlaylistDetailsScreenHelper.assertLikeActionOnUnlikedPlaylist;
 
@@ -10,6 +11,8 @@ import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
 
+import android.content.Context;
+
 public class LikeActionTest extends ActivityTest<MainActivity> {
 
     public LikeActionTest() {
@@ -18,7 +21,14 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.likesActionUser.logIn(getInstrumentation().getTargetContext());
+        final Context context = getInstrumentation().getTargetContext();
+        TestUser.likesActionUser.logIn(context);
+        // TODO : this because the network manager does not return turnWifiOff/on when the
+        // TODO : wifi is connected/disconnected but when it is enabled/disabled.
+        // TODO : The side effect is that the following like actions get synced eventually
+        // TODO : which break the following test run.
+        // TODO : Fix the NetworkManager and remove this.
+        clearLikes(context);
     }
 
     public void testLikedTrackAddedToLikeCollectionWhenLikingFromTrackItemOverflowMenu() throws Exception {
