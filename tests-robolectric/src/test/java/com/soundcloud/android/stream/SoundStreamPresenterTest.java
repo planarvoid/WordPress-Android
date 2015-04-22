@@ -9,6 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -18,8 +20,10 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -49,23 +53,26 @@ public class SoundStreamPresenterTest {
     @Mock private SoundStreamAdapter adapter;
     @Mock private ImageOperations imageOperations;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
+    @Mock private TrackItemPresenter trackPresenter;
 
     @Mock private Fragment fragment;
     @Mock private View view;
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;
 
+    private TestEventBus eventBus = new TestEventBus();
     private TestSubscriber testSubscriber = new TestSubscriber();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
 
     @Before
     public void setUp() throws Exception {
         presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imageOperations,
-                pullToRefreshWrapper, expandPlayerSubscriberProvider);
+                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
         when(streamOperations.existingStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
+        when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
     }
 
     @Test
@@ -140,6 +147,38 @@ public class SoundStreamPresenterTest {
         presenter.onResume(fragment);
 
         verify(streamOperations).updateLastSeen();
+    }
+
+    @Test
+    public void unsubscribesFromEventBusOnDestroyView() {
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        presenter.onDestroyView(fragment);
+
+        eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void trackChangedEventUpdatesCurrentlyPlayingTrack() {
+        final Urn playingTrack = Urn.forTrack(123L);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
+
+        verify(trackPresenter).setPlayingTrack(playingTrack);
+    }
+
+    @Test
+    public void newQueueEventUpdatesCurrentlyPlayingTrack() {
+        final Urn playingTrack = Urn.forTrack(123L);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
+
+        verify(trackPresenter).setPlayingTrack(playingTrack);
     }
 
 }

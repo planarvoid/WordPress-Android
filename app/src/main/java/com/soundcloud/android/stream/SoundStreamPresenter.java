@@ -3,8 +3,8 @@ package com.soundcloud.android.stream;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -17,11 +17,15 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
+import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -54,12 +58,13 @@ public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableIte
                 }
             };
 
-    final @LightCycle SoundStreamAdapter adapter;
-
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
+    private final SoundStreamAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
+    private final EventBus eventBus;
 
+    private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
 
     @Inject
@@ -68,12 +73,14 @@ public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableIte
                          SoundStreamAdapter adapter,
                          ImageOperations imageOperations,
                          PullToRefreshWrapper pullToRefreshWrapper,
-                         Provider<ExpandPlayerSubscriber> subscriberProvider) {
+                         Provider<ExpandPlayerSubscriber> subscriberProvider,
+                         EventBus eventBus) {
         super(imageOperations, pullToRefreshWrapper);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
         this.subscriberProvider = subscriberProvider;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -123,6 +130,17 @@ public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableIte
 
         getListView().setOnItemClickListener(this);
         configureEmptyView();
+
+        viewLifeCycle = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
+        );
+    }
+
+    @Override
+    public void onDestroyView(Fragment fragment) {
+        viewLifeCycle.unsubscribe();
+        super.onDestroyView(fragment);
     }
 
     private void configureEmptyView() {
