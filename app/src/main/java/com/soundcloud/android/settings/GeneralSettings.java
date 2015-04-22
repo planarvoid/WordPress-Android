@@ -17,8 +17,8 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
@@ -45,15 +45,15 @@ class GeneralSettings implements OnPreferenceClickListener {
 
     private final Context appContext;
     private final DeviceHelper deviceHelper;
-    private final ApplicationProperties appProperties;
+    private final FeatureOperations featureOperations;
 
     private PreferenceFragment settings;
 
     @Inject
-    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, ApplicationProperties appProperties) {
+    public GeneralSettings(Context appContext, DeviceHelper deviceHelper, FeatureOperations featureOperations) {
         this.appContext = appContext;
         this.deviceHelper = deviceHelper;
-        this.appProperties = appProperties;
+        this.featureOperations = featureOperations;
     }
 
     public void addTo(final PreferenceFragment settings) {
@@ -65,7 +65,7 @@ class GeneralSettings implements OnPreferenceClickListener {
     }
 
     private void setupOfflineSync(PreferenceFragment settings) {
-        if (appProperties.isAlphaBuild() || appProperties.isDebugBuild()) {
+        if (featureOperations.isOfflineContentEnabled()) {
             final PreferenceCategory category = (PreferenceCategory) settings.findPreference(GENERAL_SETTINGS);
             category.addPreference(createOfflineSyncPref(settings));
         }
