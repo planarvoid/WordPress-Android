@@ -49,25 +49,14 @@ public class PlaylistWithTracksTest {
     }
 
     @Test
-    public void needsTracksIfTracklistEmptyAndTrackCountGreaterThanZero() throws Exception {
+    public void needsTracksIfTracklistEmpty() throws Exception {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
-                PlaylistProperty.TRACK_COUNT.bind(1)
+                PlaylistProperty.TRACK_COUNT.bind(0) // the track count is usually wrong, as it does not count private tracks
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
         expect(playlistWithTracks.needsTracks()).toBeTrue();
-    }
-
-    @Test
-    public void doesNotNeedTracksIfTracklistEmptyAndTrackCountIsZero() throws Exception {
-        final PropertySet metadata = PropertySet.from(
-                PlaylistProperty.URN.bind(Urn.forTrack(123L)),
-                PlaylistProperty.TRACK_COUNT.bind(0)
-        );
-
-        final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
-        expect(playlistWithTracks.needsTracks()).toBeFalse();
     }
 
     @Test
