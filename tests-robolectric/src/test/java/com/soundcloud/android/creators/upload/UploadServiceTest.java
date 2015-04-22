@@ -13,7 +13,7 @@ import com.soundcloud.android.service.LocalBinder;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowNotificationManager;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -334,21 +334,21 @@ public class UploadServiceTest {
     private void mockSuccessfullTrackCreation() throws IOException {
         // track upload
         Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpPost.METHOD_NAME, "/tracks"), new TestHttpResponse(201,
-                TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
+                JsonFixtures.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
         Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, "/tracks/12345"), new TestHttpResponse(200,
-                TestHelper.resourceAsBytes(getClass(), "track_finished.json")));
+                JsonFixtures.resourceAsBytes(getClass(), "track_finished.json")));
     }
 
 
     private void mockFailedTrackCreation() throws IOException {
         // track upload
         Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpPost.METHOD_NAME, "/tracks"), new TestHttpResponse(201,
-                TestHelper.resourceAsBytes(getClass(), "track_processing.json")));
+                JsonFixtures.resourceAsBytes(getClass(), "track_processing.json")));
 
         // transcoding polling
         Robolectric.addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, "/tracks/12345"), new TestHttpResponse(200,
-                TestHelper.resourceAsBytes(getClass(), "track_failed.json")));
+                JsonFixtures.resourceAsBytes(getClass(), "track_failed.json")));
     }
 }

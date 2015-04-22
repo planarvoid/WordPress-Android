@@ -8,6 +8,7 @@ import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.message.BasicHeader;
 import org.junit.Before;
@@ -34,7 +35,7 @@ public class SignupTaskTest {
 
     @Test
     public void shouldReturnUser() throws Exception {
-        setupPendingHttpResponse(201, TestHelper.resourceAsString(getClass(), "me.json"));
+        setupPendingHttpResponse(201, JsonFixtures.resourceAsString(getClass(), "me.json"));
 
         AuthTaskResult result = doSignup();
 
