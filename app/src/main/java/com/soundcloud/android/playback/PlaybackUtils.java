@@ -33,6 +33,7 @@ public class PlaybackUtils {
      * Remove duplicates from playqueue, preserving the ordering with regards to the item they clicked on
      * Returns the new startPosition
      */
+    // TODO: This method should return de-duplicated list, instead of mutating the original one
     private static int getDeduplicatedList(List<Urn> trackUrns, int startPosition) {
         final Set<Urn> seenTracks = Sets.newHashSetWithExpectedSize(trackUrns.size());
         final Urn playedTrack = trackUrns.get(startPosition);
