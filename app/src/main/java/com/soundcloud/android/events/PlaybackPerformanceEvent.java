@@ -10,6 +10,7 @@ public final class PlaybackPerformanceEvent {
     public static final int METRIC_TIME_TO_BUFFER = 2;
     public static final int METRIC_TIME_TO_SEEK = 3;
     public static final int METRIC_FRAGMENT_DOWNLOAD_RATE = 4;
+    public static final int METRIC_TIME_TO_LOAD = 5;
     private final long timestamp;
     private final int metric;
     private final long metricValue;
@@ -49,6 +50,11 @@ public final class PlaybackPerformanceEvent {
     public static PlaybackPerformanceEvent timeToSeek(long value, PlaybackProtocol protocol, PlayerType playerType,
                                                       ConnectionType connectionType, String cdnHost, Urn urn) {
         return new PlaybackPerformanceEvent(METRIC_TIME_TO_SEEK, value, protocol, playerType, connectionType, cdnHost, urn);
+    }
+
+    public static PlaybackPerformanceEvent timeToLoad(long value, PlaybackProtocol protocol, PlayerType playerType,
+                                                      ConnectionType connectionType, String cdnHost, Urn urn) {
+        return new PlaybackPerformanceEvent(METRIC_TIME_TO_LOAD, value, protocol, playerType, connectionType, cdnHost, urn);
     }
 
     public static PlaybackPerformanceEvent fragmentDownloadRate(long value, PlaybackProtocol protocol, PlayerType playerType,
