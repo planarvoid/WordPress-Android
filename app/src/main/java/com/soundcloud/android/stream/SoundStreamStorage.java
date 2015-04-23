@@ -111,12 +111,13 @@ class SoundStreamStorage {
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
+            propertySet.put(PlayableProperty.IS_PRIVATE,
+                    Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             addOptionalPlaylistLike(cursorReader, propertySet);
             addOptionalLikesCount(cursorReader, propertySet);
             addOptionalPlayCount(cursorReader, propertySet);
             addOptionalTrackCount(cursorReader, propertySet);
             addOptionalReposter(cursorReader, propertySet);
-            addOptionalPrivacy(cursorReader, propertySet);
 
             return propertySet;
         }
@@ -161,13 +162,6 @@ class SoundStreamStorage {
             final String reposter = cursorReader.getString(SoundStreamView.REPOSTER_USERNAME);
             if (ScTextUtils.isNotBlank(reposter)) {
                 propertySet.put(PlayableProperty.REPOSTER, cursorReader.getString(SoundStreamView.REPOSTER_USERNAME));
-            }
-        }
-
-        private void addOptionalPrivacy(CursorReader cursorReader, PropertySet propertySet) {
-            if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
-                propertySet.put(PlaylistProperty.IS_PRIVATE,
-                        Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             }
         }
 
