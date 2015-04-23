@@ -5,6 +5,7 @@ import static com.soundcloud.propeller.query.Filter.filter;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -15,6 +16,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
+import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -39,6 +41,22 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
     @Before
     public void setup() {
         storage = new SoundStreamStorage(propellerRx(), propeller());
+    }
+
+    @Test
+    public void loadingInitialStreamItemsIncludesPromotedTrack() {
+        ApiTrack track = testFixtures().insertPromotedTrack(TIMESTAMP);
+
+        storage.initialStreamItems(50).subscribe(observer);
+
+        final PropertySet promotedTrack = createTrackPropertySet(track)
+                .put(PlayableProperty.IS_PRIVATE, false)
+                .put(PromotedTrackProperty.AD_URN, "promoted:track:123")
+                .put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(83)))
+                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
+
+        verify(observer).onNext(promotedTrack);
+        verify(observer).onCompleted();
     }
 
     @Test
@@ -148,6 +166,18 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP, 50);
         expect(actual.size()).toBe(1);
         expect(actual.get(0).get(PlayableProperty.URN)).toEqual(newest.getUrn());
+    }
+
+    @Test
+    public void loadStreamItemsSinceDoesNotIncludePromotedTracks() {
+        testFixtures().insertPromotedTrack(TIMESTAMP);
+        final ApiTrack newest = testFixtures().insertTrack();
+        testFixtures().insertStreamTrackPost(newest.getId(), TIMESTAMP + 1);
+
+        storage.initialStreamItems(50).subscribe(observer);
+
+        final List<PropertySet> actual = storage.loadStreamItemsSince(TIMESTAMP - 1, 50);
+        expect(actual.size()).toBe(1);
     }
 
     @Test

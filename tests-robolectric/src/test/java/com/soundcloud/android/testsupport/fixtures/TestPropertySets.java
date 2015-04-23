@@ -2,6 +2,7 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.InterstitialProperty;
 import com.soundcloud.android.ads.LeaveBehindProperty;
@@ -13,6 +14,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
 
@@ -122,6 +124,18 @@ public abstract class TestPropertySets {
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
                 TrackProperty.IS_PRIVATE.bind(false));
+    }
+
+    public static PropertySet expectedPromotedTrack() {
+        return expectedTrackForListItem(Urn.forTrack(123L))
+                .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
+                .put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
+                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
+    }
+
+    public static PropertySet expectedPromotedTrackWithoutPromoter() {
+        return expectedTrackForListItem(Urn.forTrack(123L))
+                .put(PromotedTrackProperty.AD_URN, "ad:urn:123");
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {

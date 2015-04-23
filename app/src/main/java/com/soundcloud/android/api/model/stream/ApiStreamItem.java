@@ -7,7 +7,6 @@ import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.Urn;
 
 import java.util.Collections;
 import java.util.List;
@@ -108,9 +107,9 @@ public class ApiStreamItem {
         }
     }
 
-    public Optional<ApiUser> getPromoter(){
-        if (apiPromotedTrack != null && apiPromotedTrack.getPromoter() != null){
-            return Optional.of(apiPromotedTrack.getPromoter());
+    public Optional<ApiUser> getPromoter() {
+        if (apiPromotedTrack != null) {
+            return Optional.fromNullable(apiPromotedTrack.getPromoter());
         } else {
             return Optional.absent();
         }
@@ -118,13 +117,13 @@ public class ApiStreamItem {
 
     public long getCreatedAtTime() {
 
-        if (apiTrackPost != null){
+        if (apiTrackPost != null) {
             return apiTrackPost.getCreatedAtTime();
 
         } else if (apiTrackRepost != null) {
             return apiTrackRepost.getCreatedAtTime();
 
-        } else if (apiPlaylistPost != null){
+        } else if (apiPlaylistPost != null) {
             return apiPlaylistPost.getCreatedAtTime();
 
         } else if (apiPlaylistRepost != null) {
@@ -134,13 +133,13 @@ public class ApiStreamItem {
             return PROMOTED_CREATION_DATE;
 
         } else {
-            throw new IllegalArgumentException("Unknown stream item type when fecthing creation date");
+            throw new IllegalArgumentException("Unknown stream item type when fetching creation date");
         }
     }
 
-    public Optional<Urn> getPromotedUrn() {
-        if (apiPromotedTrack != null){
-            return Optional.of(apiPromotedTrack.getUrn());
+    public Optional<String> getAdUrn() {
+        if (apiPromotedTrack != null) {
+            return Optional.of(apiPromotedTrack.getAdUrn());
         } else {
             return Optional.absent();
         }

@@ -8,14 +8,22 @@
 
     <RelativeLayout style="@style/ListItemLayout">
 
-        <include layout="@layout/sound_list_item_views"/>
+        <include layout="@layout/sound_list_item_views" />
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/list_item_counter"
                 style="@style/ListItemText.Numeric.Stats"
                 android:layout_toRightOf="@id/image"
                 android:layout_below="@id/list_item_subheader"
-                android:drawableLeft="@drawable/stats_play"/>
+                android:drawableLeft="@drawable/stats_play" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+                android:id="@+id/promoted_track"
+                style="@style/ListItemText.TertiaryText"
+                android:layout_toRightOf="@id/image"
+                android:layout_below="@id/list_item_subheader"
+                android:drawableLeft="@drawable/promoted_track_icon"
+                android:visibility="gone" />
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/now_playing"
@@ -24,21 +32,21 @@
                 android:layout_below="@id/list_item_subheader"
                 android:textColor="@color/sc_orange"
                 android:text="@string/title_now_playing"
-                android:visibility="invisible"/>
+                android:visibility="invisible" />
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@id/list_item_right_info"
                 style="@style/ListItemText.Numeric"
                 android:layout_marginTop="-2dp"
                 android:layout_alignTop="@id/image"
-                android:layout_alignParentRight="true"/>
+                android:layout_alignParentRight="true" />
 
         <com.soundcloud.android.view.CustomFontTextView
                 android:id="@+id/private_indicator"
                 style="@style/ListPrivateIndicator"
                 android:layout_toRightOf="@id/image"
                 android:layout_below="@id/list_item_subheader"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
     </RelativeLayout>
 
@@ -46,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/ListItemOverflowButton"
-                android:layout_gravity="bottom|right"/>
+                android:layout_gravity="bottom|right" />
 
 </FrameLayout>
 

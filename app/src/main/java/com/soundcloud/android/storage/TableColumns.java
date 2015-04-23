@@ -54,8 +54,9 @@ public final class TableColumns {
     }
 
     public static class PromotedTracks implements BaseColumns {
-        public static final String URN = "urn";
+        public static final String AD_URN = "ad_urn";
         public static final String PROMOTER_ID = "promoter_id";
+        public static final String PROMOTER_NAME = "promoter_name";
         public static final String TRACKING_TRACK_CLICKED_URLS = "tracking_track_clicked_urls";
         public static final String TRACKING_PROFILE_CLICKED_URLS = "tracking_profile_clicked_urls";
         public static final String TRACKING_PROMOTER_CLICKED_URLS = "tracking_promoter_clicked_urls";

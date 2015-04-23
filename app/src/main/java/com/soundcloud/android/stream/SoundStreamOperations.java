@@ -17,8 +17,6 @@ import rx.Scheduler;
 import rx.android.Pager;
 import rx.functions.Func1;
 
-import android.content.Context;
-
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Collections;
@@ -26,8 +24,8 @@ import java.util.List;
 
 class SoundStreamOperations {
 
-    @VisibleForTesting
-    static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
+    private static final long INITIAL_TIMESTAMP = Long.MAX_VALUE;
+
     @VisibleForTesting
     static final int PAGE_SIZE = Consts.LIST_PAGE_SIZE;
 
@@ -36,7 +34,7 @@ class SoundStreamOperations {
 
     private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
-    private final Context appContext;
+    private final ContentStats contentStats;
     private final Scheduler scheduler;
 
     private final Pager<List<PropertySet>> pager = new Pager<List<PropertySet>>() {
@@ -59,10 +57,10 @@ class SoundStreamOperations {
 
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          Context appContext, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                          ContentStats contentStats, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
-        this.appContext = appContext;
+        this.contentStats = contentStats;
         this.scheduler = scheduler;
     }
 
@@ -78,8 +76,16 @@ class SoundStreamOperations {
      * Will deliver any stream items already existing in local storage, but also fall back to a
      * backfill sync in case it didn't find enough.
      */
-    public Observable<List<PropertySet>> existingStreamItems() {
-        return pagedStreamItems(INITIAL_TIMESTAMP, false);
+    public Observable<List<PropertySet>> initialStreamItems() {
+        return initialStreamItems(false);
+    }
+
+    private Observable<List<PropertySet>> initialStreamItems(boolean syncCompleted) {
+        Log.d(TAG, "Preparing page; initial page");
+        return soundStreamStorage
+                .initialStreamItems(PAGE_SIZE).toList()
+                .subscribeOn(scheduler)
+                .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback() {
@@ -90,7 +96,7 @@ class SoundStreamOperations {
     }
 
     public void updateLastSeen() {
-        ContentStats.setLastSeen(appContext, Content.ME_SOUND_STREAM, System.currentTimeMillis());
+        contentStats.setLastSeen(Content.ME_SOUND_STREAM, System.currentTimeMillis());
     }
 
     private Observable<List<PropertySet>> pagedStreamItems(final long timestamp, boolean syncCompleted) {
@@ -149,7 +155,11 @@ class SoundStreamOperations {
             public Observable<List<PropertySet>> call(Boolean syncSuccess) {
                 Log.d(TAG, "Sync finished; success = " + syncSuccess);
                 if (syncSuccess) {
-                    return pagedStreamItems(currentTimestamp, true);
+                    if (currentTimestamp == INITIAL_TIMESTAMP) {
+                        return initialStreamItems(true);
+                    } else {
+                        return pagedStreamItems(currentTimestamp, true);
+                    }
                 } else {
                     return Observable.just(NO_MORE_PAGES);
                 }

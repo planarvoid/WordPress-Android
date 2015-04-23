@@ -58,7 +58,7 @@ public class TrackItem extends PlayableItem {
         };
     }
 
-    TrackItem(PropertySet source) {
+    public TrackItem(PropertySet source) {
         super(source);
     }
 
