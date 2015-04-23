@@ -16,7 +16,7 @@ public class AddUserInfoTaskTest  {
     public void shouldWorkWithNullFile() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
 
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "name", null);
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "permalink", "name", null);
         AuthTaskResult result = task.doInBackground();
         expect(result.getUser().username).toEqual("testing");
     }
@@ -25,7 +25,7 @@ public class AddUserInfoTaskTest  {
     public void shouldWorkWithNonexistentFile() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
 
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "name", new File("/tmp/bla"));
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "permalink", "name", new File("/tmp/bla"));
         AuthTaskResult result = task.doInBackground();
         expect(result.getUser().username).toEqual("testing");
     }
@@ -35,7 +35,7 @@ public class AddUserInfoTaskTest  {
         TestHelper.addPendingHttpResponse(getClass(), "me.json");
 
         File tmp = File.createTempFile("test", "tmp");
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "name", tmp);
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "permalink", "name", tmp);
         AuthTaskResult result = task.doInBackground();
         expect(result.getUser().username).toEqual("testing");
     }
@@ -44,7 +44,7 @@ public class AddUserInfoTaskTest  {
     public void shouldHandleBadEntity() throws Exception {
         Robolectric.addPendingHttpResponse(422, "{\"errors\":{\"error\":\"Failz\"}}");
 
-        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "name", null);
+        AddUserInfoTask task = new AddUserInfoTask(DefaultTestRunner.application, "permalink", "name", null);
         AuthTaskResult result = task.doInBackground();
         expect(result.getUser()).toBeNull();
         expect(result.getErrors()[0]).toEqual("Failz");
