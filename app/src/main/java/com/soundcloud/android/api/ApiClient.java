@@ -8,6 +8,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
@@ -153,15 +154,22 @@ public class ApiClient {
         }
     }
 
-    public <ResourceType> ResourceType fetchMappedResponse(ApiRequest<ResourceType> request) throws IOException, ApiRequestException, ApiMapperException {
-        return mapResponse(request, fetchResponse(request));
+    public <ResourceType> ResourceType fetchMappedResponse(ApiRequest request, TypeToken<ResourceType> resourceType)
+            throws IOException, ApiRequestException, ApiMapperException {
+        return mapResponse(fetchResponse(request), resourceType);
+    }
+
+    public <ResourceType> ResourceType fetchMappedResponse(ApiRequest request, Class<ResourceType> resourceType)
+            throws IOException, ApiRequestException, ApiMapperException {
+        return fetchMappedResponse(request, TypeToken.of(resourceType));
     }
 
     @SuppressWarnings("unchecked")
-    <T> T mapResponse(final ApiRequest<T> apiRequest, final ApiResponse apiResponse) throws IOException, ApiRequestException, ApiMapperException {
+    <T> T mapResponse(ApiResponse apiResponse, TypeToken<T> typeToken)
+            throws IOException, ApiRequestException, ApiMapperException {
         if (apiResponse.isSuccess()) {
             if (apiResponse.hasResponseBody()) {
-                return (T) parseJsonResponse(apiResponse, apiRequest);
+                return parseJsonResponse(apiResponse, typeToken);
             } else {
                 throw new ApiMapperException("Empty response body");
             }
@@ -170,8 +178,8 @@ public class ApiClient {
         }
     }
 
-    private Object parseJsonResponse(ApiResponse apiResponse, ApiRequest apiRequest) throws IOException, ApiMapperException {
-        Object resource = jsonTransformer.fromJson(apiResponse.getResponseBody(), apiRequest.getResourceType());
+    private <T> T parseJsonResponse(ApiResponse apiResponse, TypeToken<T> typeToken) throws IOException, ApiMapperException {
+        final T resource = jsonTransformer.fromJson(apiResponse.getResponseBody(), typeToken);
 
         if (resource == null || UnknownResource.class.isAssignableFrom(resource.getClass())) {
             throw new ApiMapperException("Response could not be deserialized, or types do not match");
@@ -180,7 +188,7 @@ public class ApiClient {
         return resource;
     }
 
-    private Map<String, String> transformQueryParameters(ApiRequest<?> apiRequest) {
+    private Map<String, String> transformQueryParameters(ApiRequest apiRequest) {
         final Multimap<String, String> queryParameters = apiRequest.getQueryParameters();
         return Maps.toMap(queryParameters.keySet(), new Function<String, String>() {
             @Override

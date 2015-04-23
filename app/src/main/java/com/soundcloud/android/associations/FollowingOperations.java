@@ -131,7 +131,7 @@ public class FollowingOperations {
     }
 
     public Observable<Collection<UserAssociation>> bulkFollowAssociations(final Collection<UserAssociation> userAssociations) {
-        final ApiRequest<Void> apiRequest = createBulkFollowApiRequest(userAssociations);
+        final ApiRequest apiRequest = createBulkFollowApiRequest(userAssociations);
         if (apiRequest == null) {
             Log.d(LOG_TAG, "No api request, skipping bulk follow");
             return Observable.empty();
@@ -209,11 +209,11 @@ public class FollowingOperations {
     }
 
     @Nullable
-    private ApiRequest<Void> createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
+    private ApiRequest createBulkFollowApiRequest(final Collection<UserAssociation> userAssociations) {
         final Collection<UserAssociation> associationsWithTokens = filter(userAssociations, UserAssociation.HAS_TOKEN_PREDICATE);
         final Collection<String> tokens = Collections2.transform(associationsWithTokens, UserAssociation.TO_TOKEN_FUNCTION);
         if (!tokens.isEmpty()) {
-            return ApiRequest.Builder.<Void>post(ApiEndpoints.BULK_FOLLOW_USERS.path())
+            return ApiRequest.post(ApiEndpoints.BULK_FOLLOW_USERS.path())
                     .forPublicApi()
                     .withContent(new BulkFollowingsHolder(tokens))
                     .build();

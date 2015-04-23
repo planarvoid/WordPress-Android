@@ -31,7 +31,7 @@ public class PlaylistWithTracks {
     }
 
     public boolean needsTracks() {
-        return getTracks().isEmpty() && getTrackCount() > 0;
+        return getTracks().isEmpty();
     }
 
     public Urn getUrn() {

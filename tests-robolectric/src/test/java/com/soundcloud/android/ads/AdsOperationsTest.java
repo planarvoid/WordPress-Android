@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,14 +59,16 @@ public class AdsOperationsTest {
     @Test
     public void audioAdReturnsAudioAdFromMobileApi() throws Exception {
         final String endpoint = String.format(ApiEndpoints.ADS.path(), TRACK_URN.toEncodedString());
-        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)))).thenReturn(Observable.just(fullAdsForTrack));
+        when(apiClientRx.mappedResponse(argThat(isApiRequestTo("GET", endpoint)), eq(ApiAdsForTrack.class)))
+                .thenReturn(Observable.just(fullAdsForTrack));
 
         expect(adsOperations.ads(TRACK_URN).toBlocking().first()).toBe(fullAdsForTrack);
     }
 
     @Test
     public void audioAdWritesEmbeddedTrackToStorage() throws Exception {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(fullAdsForTrack));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiAdsForTrack.class)))
+                .thenReturn(Observable.just(fullAdsForTrack));
 
         adsOperations.ads(TRACK_URN).subscribe();
 

@@ -224,12 +224,11 @@ public class ApiSyncer extends LegacySyncStrategy {
     private ApiSyncResult syncMe(Content c) {
         ApiSyncResult result = new ApiSyncResult(c.uri);
         PublicApiUser user;
-        ApiRequest<PublicApiUser> request = ApiRequest.Builder.<PublicApiUser>get(ApiEndpoints.CURRENT_USER.path())
+        ApiRequest request = ApiRequest.get(ApiEndpoints.CURRENT_USER.path())
                 .forPublicApi()
-                .forResource(PublicApiUser.class)
                 .build();
         try {
-            user = apiClient.fetchMappedResponse(request);
+            user = apiClient.fetchMappedResponse(request, PublicApiUser.class);
             user.setUpdated();
             SoundCloudApplication.sModelManager.cache(user, PublicApiResource.CacheUpdateMode.FULL);
         } catch (IOException | ApiRequestException | ApiMapperException e) {

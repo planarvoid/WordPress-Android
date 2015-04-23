@@ -29,15 +29,19 @@ public class FetchPlaylistsCommand extends BulkFetchCommand<ApiPlaylist> {
     }
 
     @Override
-    protected ApiRequest<ModelCollection<ApiPlaylist>> buildRequest(List<Urn> urns) {
+    protected ApiRequest buildRequest(List<Urn> urns) {
         final ArrayMap<String, Object> body = new ArrayMap<>(1);
         body.put("urns", CollectionUtils.urnsToStrings(urns));
 
-        return ApiRequest.Builder.<ModelCollection<ApiPlaylist>>post(ApiEndpoints.PLAYLISTS_FETCH.path())
+        return ApiRequest.post(ApiEndpoints.PLAYLISTS_FETCH.path())
                 .forPrivateApi(1)
-                .forResource(new TypeToken<ModelCollection<ApiPlaylist>>() {
-                })
                 .withContent(body)
                 .build();
+    }
+
+    @Override
+    protected TypeToken<ModelCollection<? extends ApiPlaylist>> provideResourceType() {
+        return new TypeToken<ModelCollection<? extends ApiPlaylist>>() {
+        };
     }
 }

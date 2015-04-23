@@ -7,7 +7,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import org.apache.http.client.methods.HttpDelete;
@@ -22,24 +21,38 @@ import android.net.Uri;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ApiRequest<ResourceType> {
+public class ApiRequest {
 
     private final Uri uri;
     private final String httpMethod;
     private final int endpointVersion;
-    private final TypeToken<ResourceType> resourceType;
     private final Boolean isPrivate;
     @NotNull private final Multimap<String, String> queryParams;
     @NotNull private final Map<String, String> headers;
     @Nullable private final Object content;
 
-    ApiRequest(Uri uri, String method, int endpointVersion, TypeToken<ResourceType> typeToken,
+    public static Builder get(String uri) {
+        return new Builder(uri, HttpGet.METHOD_NAME);
+    }
+
+    public static Builder post(String uri) {
+        return new Builder(uri, HttpPost.METHOD_NAME);
+    }
+
+    public static Builder put(String uri) {
+        return new Builder(uri, HttpPut.METHOD_NAME);
+    }
+
+    public static Builder delete(String uri) {
+        return new Builder(uri, HttpDelete.METHOD_NAME);
+    }
+
+    ApiRequest(Uri uri, String method, int endpointVersion,
                Boolean isPrivate, @NotNull Multimap<String, String> queryParams, @Nullable Object content,
                @NotNull Map<String, String> headers) {
         this.uri = uri;
         this.httpMethod = method;
         this.endpointVersion = endpointVersion;
-        this.resourceType = typeToken;
         this.isPrivate = isPrivate;
         this.queryParams = queryParams;
         this.content = content;
@@ -52,10 +65,6 @@ public class ApiRequest<ResourceType> {
 
     public String getEncodedPath() {
         return uri.getEncodedPath();
-    }
-
-    public TypeToken<ResourceType> getResourceType() {
-        return resourceType;
     }
 
     public String getMethod() {
@@ -85,13 +94,13 @@ public class ApiRequest<ResourceType> {
         return content;
     }
 
-    public static enum Param {
+    public enum Param {
         PAGE_SIZE("limit"),
         OAUTH_TOKEN("oauth_token");
 
         private final String parameter;
 
-        private Param(String parameter) {
+        Param(String parameter) {
             this.parameter = parameter;
         }
 
@@ -101,11 +110,10 @@ public class ApiRequest<ResourceType> {
         }
     }
 
-    public static class Builder<ResourceType> {
+    public static class Builder {
         private final Uri uri;
         private final String httpMethod;
         private int endpointVersion;
-        private TypeToken<ResourceType> resourceType;
         private Boolean isPrivate;
         private final Multimap<String, String> parameters;
         private final Map<String, String> headers;
@@ -118,69 +126,43 @@ public class ApiRequest<ResourceType> {
             this.headers = new HashMap<>();
         }
 
-        public static <ResourceType> Builder<ResourceType> get(String uri) {
-            return new Builder<>(uri, HttpGet.METHOD_NAME);
-        }
-
-        public static <ResourceType> Builder<ResourceType> post(String uri) {
-            return new Builder<>(uri, HttpPost.METHOD_NAME);
-        }
-
-        public static Builder put(String uri) {
-            return new Builder<>(uri, HttpPut.METHOD_NAME);
-        }
-
-        public static Builder delete(String uri) {
-            return new Builder<>(uri, HttpDelete.METHOD_NAME);
-        }
-
-        public ApiRequest<ResourceType> build() {
+        public ApiRequest build() {
             checkNotNull(isPrivate, "Must specify api mode");
             if (isPrivate) {
                 checkArgument(endpointVersion > 0, "Not a valid api version: %s", endpointVersion);
             }
-            return new ApiRequest<>(uri, httpMethod, endpointVersion,
-                    resourceType, isPrivate, parameters, content, headers);
+            return new ApiRequest(uri, httpMethod, endpointVersion,
+                    isPrivate, parameters, content, headers);
         }
 
-        public Builder<ResourceType> forResource(TypeToken<ResourceType> typeToken) {
-            resourceType = typeToken;
-            return this;
-        }
-
-        public Builder<ResourceType> forResource(Class<ResourceType> clazz) {
-            resourceType = TypeToken.of(clazz);
-            return this;
-        }
-
-        public Builder<ResourceType> forPrivateApi(int version) {
+        public Builder forPrivateApi(int version) {
             isPrivate = true;
             endpointVersion = version;
             return this;
         }
 
-        public Builder<ResourceType> forPublicApi() {
+        public Builder forPublicApi() {
             isPrivate = false;
             return this;
         }
 
-        public Builder<ResourceType> addQueryParam(String key, Object... values) {
+        public Builder addQueryParam(String key, Object... values) {
             for (Object object : values) {
                 parameters.put(key, object.toString());
             }
             return this;
         }
 
-        public Builder<ResourceType> addQueryParam(Param param, Object... values) {
+        public Builder addQueryParam(Param param, Object... values) {
             return addQueryParam(param.parameter, values);
         }
 
-        public Builder<ResourceType> withContent(Object content) {
+        public Builder withContent(Object content) {
             this.content = content;
             return this;
         }
 
-        public Builder<ResourceType> withHeader(String name, String value) {
+        public Builder withHeader(String name, String value) {
             headers.put(name, value);
             return this;
         }
@@ -193,7 +175,6 @@ public class ApiRequest<ResourceType> {
                 .add("httpMethod", httpMethod)
                 .add("endPointVersion", endpointVersion)
                 .add("isPrivate", isPrivate)
-                .add("resourceType", resourceType)
                 .add("content", ScTextUtils.safeToString(content)).toString();
     }
 }

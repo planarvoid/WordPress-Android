@@ -6,6 +6,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
@@ -51,7 +53,8 @@ public class PlaylistDiscoveryOperationsTest {
     @Before
     public void setup() {
         operations = new PlaylistDiscoveryOperations(apiClientRx, tagStorage, storePlaylistsCommand, Schedulers.immediate());
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.empty());
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPlaylistCollection.class)))
+                .thenReturn(Observable.<ApiPlaylistCollection>empty());
     }
 
     @Test
@@ -59,14 +62,15 @@ public class PlaylistDiscoveryOperationsTest {
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
         operations.popularPlaylistTags().subscribe(observer);
 
-        verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET", ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())));
+        verify(apiClientRx).mappedResponse(
+                argThat(isApiRequestTo("GET", ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())), isA(TypeToken.class));
     }
 
     @Test
     public void storesPopularTagsWhenRequestIsSuccessful() {
         ModelCollection<String> tags = new ModelCollection<>(Lists.newArrayList("tag"));
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(tags));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.just(tags));
 
         operations.popularPlaylistTags().subscribe(observer);
 
@@ -76,7 +80,7 @@ public class PlaylistDiscoveryOperationsTest {
     @Test
     public void doesNotStorePopularTagsWhenRequestFails() {
         when(tagStorage.getPopularTagsAsync()).thenReturn(Observable.just(Collections.<String>emptyList()));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.error(new Exception()));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.error(new Exception()));
 
         operations.popularPlaylistTags().subscribe(observer);
 
@@ -99,7 +103,7 @@ public class PlaylistDiscoveryOperationsTest {
         operations.playlistsForTag("electronic").subscribe(observer);
 
         verify(apiClientRx).mappedResponse(argThat(isApiRequestTo("GET",
-                ApiEndpoints.PLAYLIST_DISCOVERY.path())));
+                ApiEndpoints.PLAYLIST_DISCOVERY.path())), eq(ApiPlaylistCollection.class));
     }
 
     @Test
@@ -111,7 +115,7 @@ public class PlaylistDiscoveryOperationsTest {
         parameters.put("limit", String.valueOf(20));
 
         ArgumentCaptor<ApiRequest> resultCaptor = ArgumentCaptor.forClass(ApiRequest.class);
-        verify(apiClientRx).mappedResponse(resultCaptor.capture());
+        verify(apiClientRx).mappedResponse(resultCaptor.capture(), eq(ApiPlaylistCollection.class));
         expect(resultCaptor.getValue().getQueryParameters()).toEqual(parameters);
     }
 
@@ -138,7 +142,7 @@ public class PlaylistDiscoveryOperationsTest {
         ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         ApiPlaylistCollection collection = new ApiPlaylistCollection();
         collection.setCollection(Arrays.asList(playlist));
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.just(collection));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(ApiPlaylistCollection.class))).thenReturn(Observable.just(collection));
         return collection;
     }
 
@@ -200,7 +204,7 @@ public class PlaylistDiscoveryOperationsTest {
 
     @Test
     public void addsSearchedTagToRecentTagsStorageWhenRequestFails() {
-        when(apiClientRx.mappedResponse(any(ApiRequest.class))).thenReturn(Observable.error(new Exception()));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.error(new Exception()));
 
         operations.playlistsForTag("electronic").subscribe(observer);
 

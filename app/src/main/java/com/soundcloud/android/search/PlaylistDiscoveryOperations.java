@@ -79,19 +79,19 @@ class PlaylistDiscoveryOperations {
     }
 
     private Observable<List<String>> fetchAndCachePopularTags() {
-        ApiRequest<ModelCollection<String>> request = ApiRequest.Builder.<ModelCollection<String>>get(ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
+        ApiRequest request = ApiRequest.get(ApiEndpoints.PLAYLIST_DISCOVERY_TAGS.path())
                 .forPrivateApi(1)
-                .forResource(new TypeToken<ModelCollection<String>>() {
-                })
                 .build();
-        return apiClientRx.mappedResponse(request)
+        final TypeToken<ModelCollection<String>> resourceType = new TypeToken<ModelCollection<String>>() {
+        };
+        return apiClientRx.mappedResponse(request, resourceType)
                 .subscribeOn(scheduler)
                 .doOnNext(cachePopularTags)
                 .map(collectionToList);
     }
 
     Observable<ApiPlaylistCollection> playlistsForTag(final String tag) {
-        final ApiRequest<ApiPlaylistCollection> request =
+        final ApiRequest request =
                 createPlaylistResultsRequest(ApiEndpoints.PLAYLIST_DISCOVERY.path())
                         .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.CARD_PAGE_SIZE))
                         .addQueryParam("tag", tag)
@@ -109,19 +109,16 @@ class PlaylistDiscoveryOperations {
     }
 
     private Observable<ApiPlaylistCollection> getPlaylistResultsNextPage(String query, String nextHref) {
-        final ApiRequest.Builder<ApiPlaylistCollection> builder = createPlaylistResultsRequest(nextHref);
+        final ApiRequest.Builder builder = createPlaylistResultsRequest(nextHref);
         return getPlaylistResultsPage(query, builder.build());
     }
 
-    private ApiRequest.Builder<ApiPlaylistCollection> createPlaylistResultsRequest(String url) {
-        return ApiRequest.Builder.<ApiPlaylistCollection>get(url)
-                .forPrivateApi(1)
-                .forResource(ApiPlaylistCollection.class);
+    private ApiRequest.Builder createPlaylistResultsRequest(String url) {
+        return ApiRequest.get(url).forPrivateApi(1);
     }
 
-    private Observable<ApiPlaylistCollection> getPlaylistResultsPage(
-            String query, ApiRequest<ApiPlaylistCollection> request) {
-        return apiClientRx.mappedResponse(request)
+    private Observable<ApiPlaylistCollection> getPlaylistResultsPage(String query, ApiRequest request) {
+        return apiClientRx.mappedResponse(request, ApiPlaylistCollection.class)
                 .subscribeOn(scheduler)
                 .doOnNext(storePlaylistsCommand.toAction())
                 .map(withSearchTag(query));

@@ -4,12 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.List;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -37,18 +35,18 @@ public class ApiRequestTest {
 
     @Test
     public void shouldReturnRequestInstanceWithPostMethodSet() {
-        ApiRequest request = ApiRequest.Builder.post(URI_PATH).forResource(Object.class).forPrivateApi(1).build();
+        ApiRequest request = ApiRequest.post(URI_PATH).forPrivateApi(1).build();
         expect(request.getMethod()).toEqual("POST");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIllegalArgumentExceptionOnNegativeVersionValue() {
-        ApiRequest.Builder.get(URI_PATH).forResource(Object.class).forPrivateApi(-1).build();
+        ApiRequest.get(URI_PATH).forPrivateApi(-1).build();
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldRaiseIllegalArgumentExceptionOnZeroVersionValueForPrivateAPI() {
-        ApiRequest.Builder.get(URI_PATH).forResource(Object.class).forPrivateApi(0).build();
+        ApiRequest.get(URI_PATH).forPrivateApi(0).build();
     }
 
     @Test
@@ -59,28 +57,12 @@ public class ApiRequestTest {
 
     @Test
     public void shouldAllowNoVersionForPublicAPI() {
-        ApiRequest.Builder.get("/uri").forResource(Object.class).forPublicApi().build();
-    }
-
-    @Test
-    public void shouldReturnSpecifiedResourceTypeClassForValidRequest() {
-        ApiRequest request = validRequest(URI_PATH).build();
-        expect(request.getResourceType()).toEqual(new TypeToken<Object>() {
-        });
-    }
-
-    @Test
-    public void shouldReturnSpecifiedResourceTypeTokenForValidRequest() {
-        ApiRequest<List<Object>> request = ApiRequest.Builder.<List<Object>>get(URI_PATH).
-                forResource(new TypeToken<List<Object>>() {
-                }).forPrivateApi(1).build();
-        expect(request.getResourceType()).toEqual(new TypeToken<List<Object>>() {
-        });
+        ApiRequest.get("/uri").forPublicApi().build();
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldThrowExceptionIfAPIModeNotSet() {
-        ApiRequest.Builder.get(URI_PATH).forResource(Object.class).build();
+        ApiRequest.get(URI_PATH).build();
     }
 
     @Test
@@ -91,7 +73,7 @@ public class ApiRequestTest {
 
     @Test
     public void shouldReturnSpecifiedPublicAPITarget() {
-        ApiRequest request = ApiRequest.Builder.get(URI_PATH).forResource(Object.class).forPublicApi().build();
+        ApiRequest request = ApiRequest.get(URI_PATH).forPublicApi().build();
         expect(request.isPrivate()).toBeFalse();
     }
 
@@ -153,6 +135,6 @@ public class ApiRequestTest {
     }
 
     private ApiRequest.Builder validRequest(String uri) {
-        return ApiRequest.Builder.get(uri).forResource(Object.class).forPrivateApi(1);
+        return ApiRequest.get(uri).forPrivateApi(1);
     }
 }

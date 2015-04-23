@@ -16,7 +16,7 @@ public class ApiRequestExceptionTest {
 
     @Before
     public void setUp() {
-        request = ApiRequest.Builder.get("/").forPrivateApi(1).build();
+        request = ApiRequest.get("/").forPrivateApi(1).build();
     }
 
     @Test

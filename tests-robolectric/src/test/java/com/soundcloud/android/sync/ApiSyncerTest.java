@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.TestHelper.addPendingHttpResponse;
 import static com.soundcloud.android.testsupport.TestHelper.assertResolverNotified;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClient;
@@ -62,7 +63,9 @@ public class ApiSyncerTest {
 
     @Test
     public void shouldSyncMe() throws Exception {
-        when(apiClient.fetchMappedResponse(argThat(SoundCloudMatchers.isPublicApiRequestTo("GET", "/me")))).thenReturn(new PublicApiUser(123L));
+        when(apiClient.fetchMappedResponse(
+                argThat(SoundCloudMatchers.isPublicApiRequestTo("GET", "/me")), eq(PublicApiUser.class)))
+                .thenReturn(new PublicApiUser(123L));
         expect(Content.ME).toBeEmpty();
         ApiSyncResult result = sync(Content.ME.uri);
         expect(result.success).toBeTrue();

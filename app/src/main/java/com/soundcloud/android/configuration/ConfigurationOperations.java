@@ -89,21 +89,21 @@ public class ConfigurationOperations {
     public DeviceManagement forceRegisterDevice(Token token, String deviceIdToDeregister) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Forcing device registration");
         final Map<String, Map<String, String>> content = Collections.singletonMap("conflicting_device", Collections.singletonMap("device_id", deviceIdToDeregister));
-        final ApiRequest<Configuration> request = ApiRequest.Builder.<Configuration>post(ApiEndpoints.CONFIGURATION.path())
+        final ApiRequest request = ApiRequest.post(ApiEndpoints.CONFIGURATION.path())
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token))
                 .withContent(content)
                 .forPrivateApi(1)
-                .forResource(Configuration.class).build();
+                .build();
 
-        return apiClient.get().fetchMappedResponse(request).deviceManagement;
+        return apiClient.get().fetchMappedResponse(request, Configuration.class).deviceManagement;
     }
 
     public DeviceManagement registerDevice(Token token) throws ApiRequestException, IOException, ApiMapperException {
         Log.d(TAG, "Registering device");
-        final ApiRequest<Configuration> request = configurationRequestBuilderForGet()
+        final ApiRequest request = configurationRequestBuilderForGet()
                 .withHeader(HttpHeaders.AUTHORIZATION, OAuth.createOAuthHeaderValue(token)).build();
 
-        Configuration configuration = apiClient.get().fetchMappedResponse(request);
+        Configuration configuration = apiClient.get().fetchMappedResponse(request, Configuration.class);
         saveConfiguration(configuration);
         return configuration.deviceManagement;
     }
@@ -117,19 +117,17 @@ public class ConfigurationOperations {
     }
 
     private Observable<Configuration> loadAndUpdateConfiguration() {
+        final ApiRequest request = configurationRequestBuilderForGet().build();
         return Observable.zip(experimentOperations.loadAssignment(),
-                apiClientRx.get()
-                        .mappedResponse(configurationRequestBuilderForGet().build())
-                        .subscribeOn(scheduler),
+                apiClientRx.get().mappedResponse(request, Configuration.class).subscribeOn(scheduler),
                 toUpdatedConfiguration
         );
     }
 
-    private ApiRequest.Builder<Configuration> configurationRequestBuilderForGet() {
-        return ApiRequest.Builder.<Configuration>get(ApiEndpoints.CONFIGURATION.path())
+    private ApiRequest.Builder configurationRequestBuilderForGet() {
+        return ApiRequest.get(ApiEndpoints.CONFIGURATION.path())
                 .addQueryParam(PARAM_EXPERIMENT_LAYERS, experimentOperations.getActiveLayers())
-                .forPrivateApi(1)
-                .forResource(Configuration.class);
+                .forPrivateApi(1);
     }
 
     private class ConfigurationSubscriber extends DefaultSubscriber<Configuration> {

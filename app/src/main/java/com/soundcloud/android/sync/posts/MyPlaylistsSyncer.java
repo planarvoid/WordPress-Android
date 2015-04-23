@@ -57,13 +57,12 @@ public class MyPlaylistsSyncer implements SyncStrategy {
             final Urn playlistUrn = localPlaylist.get(PlaylistProperty.URN);
             final List<Urn> trackUrns = loadPlaylistTrackUrnsCommand.with(playlistUrn).call();
 
-            final ApiRequest<ApiPlaylistWrapper> request = ApiRequest.Builder.<ApiPlaylistWrapper>post(ApiEndpoints.PLAYLISTS_CREATE.path())
+            final ApiRequest request = ApiRequest.post(ApiEndpoints.PLAYLISTS_CREATE.path())
                     .forPrivateApi(1)
                     .withContent(createPlaylistBody(localPlaylist, trackUrns))
-                    .forResource(ApiPlaylistWrapper.class)
                     .build();
 
-            final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request).getApiPlaylist();
+            final ApiPlaylist newPlaylist = apiClient.fetchMappedResponse(request, ApiPlaylistWrapper.class).getApiPlaylist();
             replacePlaylist.with(Pair.create(playlistUrn, newPlaylist)).call();
         }
     }

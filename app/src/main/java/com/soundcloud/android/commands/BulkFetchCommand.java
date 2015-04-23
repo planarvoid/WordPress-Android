@@ -1,5 +1,6 @@
 package com.soundcloud.android.commands;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
@@ -36,8 +37,8 @@ public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>
         do {
             final int startIndex = pageIndex * pageSize;
             final int endIndex = Math.min(input.size(), (++pageIndex) * pageSize);
-            final ApiRequest<ModelCollection<ApiModel>> request = buildRequest(input.subList(startIndex, endIndex));
-            results.addAll(apiClient.fetchMappedResponse(request).getCollection());
+            final ApiRequest request = buildRequest(input.subList(startIndex, endIndex));
+            results.addAll(apiClient.fetchMappedResponse(request, provideResourceType()).getCollection());
 
         } while (pageIndex * pageSize < input.size());
         return results;
@@ -48,5 +49,7 @@ public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>
         return super.toObservable().subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
-    protected abstract ApiRequest<ModelCollection<ApiModel>> buildRequest(List<Urn> urnPage);
+    protected abstract TypeToken<ModelCollection<? extends ApiModel>> provideResourceType();
+
+    protected abstract ApiRequest buildRequest(List<Urn> urnPage);
 }
