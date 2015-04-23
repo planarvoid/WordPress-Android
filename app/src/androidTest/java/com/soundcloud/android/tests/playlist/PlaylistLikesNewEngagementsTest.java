@@ -32,7 +32,11 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     // Given I liked a playlist
     // Given I go the liked playlists tab on the playlists screen
     // Then the playlists should the first one
-    public void ignore_testLastLikedPlaylistShouldAppearOnTop() {
+
+    /**
+     * Re-enabling, as I fixed 2 bugs, and want to see if its still flaky - JS
+     */
+    public void testLastLikedPlaylistShouldAppearOnTop() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         final String expectedTitle = playlistsScreen.get(0).getTitle();
         assertLikeActionOnPlaylist(this, playlistsScreen.get(0));
