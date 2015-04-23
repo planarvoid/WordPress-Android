@@ -137,27 +137,6 @@ public class DownloadOperationsTest {
     }
 
     @Test
-    public void deletesFileFromFailedIO() throws IOException, EncryptionException {
-        final IOException ioException = new IOException("Test IOException");
-        doThrow(ioException).when(fileStorage).storeTrack(trackUrn, downloadStream);
-
-        operations.download(downloadRequest);
-
-        verify(fileStorage).deleteTrack(trackUrn);
-    }
-
-    @Test
-    public void deletesFileFromFailedEncryption() throws IOException, EncryptionException {
-        final EncryptionException encryptionException = new EncryptionException("Test EncryptionException", null);
-        when(httpClient.downloadFile(streamUrl)).thenReturn(response);
-        doThrow(encryptionException).when(fileStorage).storeTrack(trackUrn, downloadStream);
-
-        operations.download(downloadRequest);
-
-        verify(fileStorage).deleteTrack(trackUrn);
-    }
-
-    @Test
     public void doesNotStoreFileWhenResponseIsNotSuccess() throws IOException, EncryptionException {
         when(response.isFailure()).thenReturn(true);
 
