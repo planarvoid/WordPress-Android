@@ -1,41 +1,24 @@
 package com.soundcloud.android.stream;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItemPresenter;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import org.jetbrains.annotations.Nullable;
-import rx.Subscription;
-import rx.subscriptions.CompositeSubscription;
-import rx.subscriptions.Subscriptions;
-
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.MenuItem;
-import android.view.View;
 
 import javax.inject.Inject;
 
-class SoundStreamAdapter extends PagingItemAdapter<PlayableItem> implements SupportFragmentLightCycle {
+class SoundStreamAdapter extends PagingItemAdapter<PlayableItem> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
 
-    private final EventBus eventBus;
     private final TrackItemPresenter trackPresenter;
-    private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
-    SoundStreamAdapter(TrackItemPresenter trackPresenter, PlaylistItemPresenter playlistPresenter, EventBus eventBus) {
+    SoundStreamAdapter(TrackItemPresenter trackPresenter, PlaylistItemPresenter playlistPresenter) {
         super(new CellPresenterEntity<>(TRACK_ITEM_TYPE, trackPresenter),
                 new CellPresenterEntity<>(PLAYLIST_ITEM_TYPE, playlistPresenter));
-        this.eventBus = eventBus;
         this.trackPresenter = trackPresenter;
     }
 
@@ -56,61 +39,8 @@ class SoundStreamAdapter extends PagingItemAdapter<PlayableItem> implements Supp
         return 2;
     }
 
-    @Override
-    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
-
+    TrackItemPresenter getTrackPresenter() {
+        return trackPresenter;
     }
 
-    @Override
-    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackPresenter)),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(this))
-        );
-    }
-
-    @Override
-    public void onStart(Fragment fragment) {
-
-    }
-
-    @Override
-    public void onResume(Fragment fragment) {
-
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(Fragment fragment, MenuItem item) {
-        return false;
-    }
-
-    @Override
-    public void onPause(Fragment fragment) {
-
-    }
-
-    @Override
-    public void onStop(Fragment fragment) {
-
-    }
-
-    @Override
-    public void onSaveInstanceState(Fragment fragment, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onRestoreInstanceState(Fragment fragment, Bundle bundle) {
-
-    }
-
-    @Override
-    public void onDestroyView(Fragment fragment) {
-        eventSubscriptions.unsubscribe();
-    }
-
-    @Override
-    public void onDestroy(Fragment fragment) {
-
-    }
 }
