@@ -538,14 +538,14 @@
     <string name="pref_extras_skippy">Force Experimental Player</string>
     <string name="pref_extras_skippy_desc">Play all tracks through experimental player. This will take effect when playing back the next track.</string>
 
-    <!-- __SETTINGS SUBSCRIPTIONS -->
+    <!-- __SUBSCRIPTION SETTINGS -->
     <string name="pref_subscriptions_header">Subscriptions</string>
     <string name="pref_subscription_buy_title">Subscribe</string>
     <string name="pref_subscription_buy_summary">Upgrade your account</string>
     <string name="title_subscribe">Subscribe</string>
     <string name="subscribe_buy">Buy</string>
 
-    <!-- __SETTINGS OFFLINE -->
+    <!-- __OFFLINE SETTINGS -->
     <string name="pref_offline_settings">Offline Sync Settings</string>
     <string name="pref_offline_wifi_only_sync">Only offline sync over Wi-Fi</string>
     <string name="pref_offline_wifi_only_description">Sync your likes and playlists only using Wi-Fi connection</string>
@@ -614,8 +614,11 @@
     <string name="offline_likes_dialog_accept">Keep available offline</string>
     <string name="make_offline_available">Make available offline</string>
     <string name="make_offline_unavailable">Remove from offline listening</string>
+    <string name="offline_update_paused">Offline syncing paused</string>
+    <string name="no_network_connection">no network connection</string>
+    <string name="no_wifi_connection">no Wi-Fi connection</string>
 
-    <!-- AGE VERFICATION -->
+    <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Verify Age</string>
     <string name="age_verify_title">Please verify your age</string>
     <string name="age_verify_warning">Content on this profile may be inappropriate for those under a certain age.</string>
@@ -624,13 +627,13 @@
     <string name="age_verify_year_hint">Enter year</string>
     <string name="age_verify_button">Verify age</string>
 
-    <!-- DEVICE MANAGEMENT -->
+    <!-- __DEVICE MANAGEMENT -->
     <string name="device_management_limit">You\'ve reached the registered device limit.</string>
     <string name="device_management_login_message">Your subscription is limited to 3 devices. You can register this device and sign out of the device you used last by selecting continue.</string>
     <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
     <string name="device_management_continue">Continue</string>
 
-    <!-- MONTH PICKER DIALOG -->
+    <!-- __MONTH PICKER DIALOG -->
     <string name="select_month">Select month</string>
     <string-array name="select_month_options">
         <item>January</item>
@@ -647,7 +650,7 @@
         <item>December</item>
     </string-array>
 
-    <!-- DEBUG LOGS/FEEDBACK -->
+    <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>
     <string name="feedback_playback_issue">Playback issue</string>
     <string name="feedback_crash">Crash</string>
@@ -655,9 +658,5 @@
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
     <string name="feedback_unable_to_get_logs">Unable to get logs</string>
-
-    <string name="offline_update_paused">Offline syncing paused</string>
-    <string name="no_network_connection">no network connection</string>
-    <string name="no_wifi_connection">no Wifi connection</string>
 
 </resources>
