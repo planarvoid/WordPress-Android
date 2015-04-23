@@ -88,7 +88,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         testFixtures().insertStreamPlaylistRepost(playlist.getId(), TIMESTAMP, reposter.getId());
         storage.streamItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .put(PlayableProperty.REPOSTER, reposter.getUsername());
+                .put(PlayableProperty.REPOSTER, reposter.getUsername())
+                .put(PlayableProperty.IS_PRIVATE, false);
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
@@ -101,7 +102,8 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
         storage.streamItemsBefore(Long.MAX_VALUE, 50).subscribe(observer);
 
         PropertySet playlistRepost = createPlaylistPropertySet(playlist)
-                .put(PlayableProperty.IS_LIKED, true);
+                .put(PlayableProperty.IS_LIKED, true)
+                .put(PlayableProperty.IS_PRIVATE, false);
 
         verify(observer).onNext(playlistRepost);
         verify(observer).onCompleted();
