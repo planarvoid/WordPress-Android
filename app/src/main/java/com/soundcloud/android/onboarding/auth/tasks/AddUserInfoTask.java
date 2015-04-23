@@ -24,19 +24,21 @@ public class AddUserInfoTask extends AuthTask {
 
     private PublicCloudAPI oldCloudAPI;
 
-    private String username;
-    private File avatarFile;
+    private final String permalink;
+    private final String username;
+    private final File avatarFile;
 
-    protected AddUserInfoTask(SoundCloudApplication app, String username, File avatarFile, UserStorage userStorage,
+    protected AddUserInfoTask(SoundCloudApplication app, String permalink, String username, File avatarFile, UserStorage userStorage,
                               PublicCloudAPI oldCloudAPI) {
         super(app, userStorage);
+        this.permalink = permalink;
         this.oldCloudAPI = oldCloudAPI;
         this.username = username;
         this.avatarFile = avatarFile;
     }
 
-    public AddUserInfoTask(SoundCloudApplication application, String username, File avatarFile) {
-        this(application, username, avatarFile, new UserStorage(), new PublicApi(application));
+    public AddUserInfoTask(SoundCloudApplication application, String permalink, String username, File avatarFile) {
+        this(application, permalink, username, avatarFile, new UserStorage(), new PublicApi(application));
     }
 
     @Override
@@ -44,7 +46,7 @@ public class AddUserInfoTask extends AuthTask {
         try {
             Request updateMe = Request.to(Endpoints.MY_DETAILS).with(
                     Params.User.NAME, username,
-                    Params.User.PERMALINK, username);
+                    Params.User.PERMALINK, permalink);
 
             // resize and attach file if present
             if (avatarFile != null && avatarFile.canWrite()) {
