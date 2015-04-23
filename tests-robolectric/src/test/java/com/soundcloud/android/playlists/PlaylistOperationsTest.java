@@ -157,22 +157,6 @@ public class PlaylistOperationsTest {
     }
 
     @Test
-    public void loadsPlaylistAndEmitsOnceIfPlaylistHasEmptyTrackCount() {
-        final List<PropertySet> emptyTrackList = Collections.emptyList();
-        final PropertySet playlistProperties = playlist.toPropertySet();
-        playlistProperties.put(PlaylistProperty.TRACK_COUNT, 0);
-
-        when(tracksStorage.playlistTracks(playlist.getUrn())).thenReturn(Observable.just(emptyTrackList));
-        when(playlistStorage.loadPlaylist(playlist.getUrn())).thenReturn(Observable.just(playlistProperties));
-
-        operations.playlist(playlist.getUrn()).subscribe(playlistInfoObserver);
-
-        verify(syncInitiator, never()).syncPlaylist(playlist.getUrn());
-        verify(playlistInfoObserver).onNext(new PlaylistWithTracks(playlistProperties, TrackItem.fromPropertySets().call(emptyTrackList)));
-        verify(playlistInfoObserver).onCompleted();
-    }
-
-    @Test
     public void loadsLocalPlaylistAndRequestsMyPlaylistSyncWhenEmitting() {
         final List<PropertySet> trackList = Arrays.asList(track1, track2);
         final PropertySet playlistProperties = playlist.toPropertySet();
