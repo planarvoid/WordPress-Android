@@ -221,24 +221,6 @@ public class LikesSyncerTest {
     }
 
     @Test
-    public void shouldReplaceLocalLikePendingRemovalIfRemoteLikeExistsAndHasNewerTimestamp() throws Exception {
-        PropertySet trackLikePendingRemoval = trackLike.toPropertySet()
-                .put(LikeProperty.REMOVED_AT, new Date(trackLike.getCreatedAt().getTime() - 1));
-
-        withRemoteTrackLikes(trackLike);
-        withLocalTrackLikes();
-        withLocalTrackLikesPendingRemoval(trackLikePendingRemoval);
-
-        expect(syncer.call()).toBe(true);
-
-        expect(storeLikes.getInput()).toContainExactly(trackLike.toPropertySet());
-        verify(storeLikes).call();
-        verifyZeroInteractions(removeLikes);
-        verify(pushLikeAdditions, never()).call();
-        verify(pushLikeDeletions, never()).call();
-    }
-
-    @Test
     public void mixedScenario() throws Exception {
         // remote
         ApiLike existsRemotelyNotLocally = ModelFixtures.apiTrackLike();
