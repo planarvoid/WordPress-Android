@@ -105,15 +105,14 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
     }
 
     private boolean formPartsMatch() {
-        if (request instanceof ApiMultipartRequest) {
+        if (formParts != null && request instanceof ApiMultipartRequest) {
             final boolean matches = Objects.equal(formParts, ((ApiMultipartRequest) request).getParts());
             if (!matches) {
                 formMatchError = true;
             }
             return matches;
-        } else {
-            return formParts == null;
         }
+        return true;
     }
 
     public ApiRequestTo withQueryParam(String key, String... values) {
