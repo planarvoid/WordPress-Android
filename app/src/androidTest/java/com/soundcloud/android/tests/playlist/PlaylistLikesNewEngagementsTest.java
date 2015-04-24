@@ -47,8 +47,7 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         playlistsScreen.get(0).clickOverflow().toggleLike();
     }
 
-    // **** Disabling until DROID-953 is fixed ***
-    public void ignore_testLikingAndUnlikingPlaylistFromOverflowMenu() {
+    public void testLikingAndUnlikingPlaylistFromOverflowMenu() {
         // assert liked
         final String expectedTitle = playlistsScreen.get(0).getTitle();
         assertLikeActionOnPlaylist(this, playlistsScreen.get(0));
