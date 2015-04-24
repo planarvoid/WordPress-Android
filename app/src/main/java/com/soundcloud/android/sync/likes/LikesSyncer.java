@@ -11,7 +11,6 @@ import com.soundcloud.propeller.PropertySet;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -76,18 +75,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         // dirty local removals that do not need removing remotely
         pendingLocalRemovals.addAll(getSetDifference(localRemovals, remoteLikes));
 
-        // For likes that are flagged for removal locally, but that have actually been re-added remotely, we have
-        // we have to switch them from the remote removals set over to the local additions set.
+        // Local removals, that still exist remotely
         final Set<PropertySet> pendingRemoteRemovals = getSetIntersection(localRemovals, remoteLikes);
-        for (PropertySet candidate : pendingRemoteRemovals) {
-            final Date localRemovalDate = candidate.get(LikeProperty.REMOVED_AT);
-            final PropertySet remoteLike = remoteLikes.tailSet(candidate).first();
-            final Date remoteCreationDate = remoteLike.get(LikeProperty.CREATED_AT);
-            if (remoteCreationDate.after(localRemovalDate)) {
-                pendingRemoteRemovals.remove(candidate);
-                pendingLocalAdditions.add(remoteLike);
-            }
-        }
 
         pushPendingAdditionsToApi(pendingRemoteAdditions, pendingLocalAdditions);
         pushPendingRemovalsToApi(pendingRemoteRemovals, pendingLocalRemovals);

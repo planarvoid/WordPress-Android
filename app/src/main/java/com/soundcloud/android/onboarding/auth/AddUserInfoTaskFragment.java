@@ -10,6 +10,7 @@ import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
+import android.accounts.Account;
 import android.app.Activity;
 import android.os.Bundle;
 
@@ -39,10 +40,12 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     @NotNull
     @Override
     AuthTask createAuthTask() {
-        return new AddUserInfoTask((SoundCloudApplication) getActivity().getApplication(),
-                getArguments().getString(USERNAME_EXTRA),
-                getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null,
-                userStorage, apiClient, accountOperations);
+        final SoundCloudApplication application = (SoundCloudApplication) getActivity().getApplication();
+        final Account account = accountOperations.getSoundCloudAccount();
+        final String username = getArguments().getString(USERNAME_EXTRA);
+        final String permalink = account != null ? account.name : username;
+        final File avatarFile = getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null;
+        return new AddUserInfoTask(application, permalink, username, avatarFile, userStorage, apiClient, accountOperations);
     }
 
     @Override

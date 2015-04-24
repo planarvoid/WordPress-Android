@@ -12,13 +12,13 @@
  *
  * To repack a JAR, run:
  * <code>
- *   $ ./gradlew clean assembleRepackJar repackInstall repackDeploy -Pprofile=<profile>
+ *   $ ./gradlew clean assembleRepackJar repackInstall repackDeploy -P repackProfile=<profile>
  * </code>
  *
  * To repack a AAR, run:
  * <code>
  *   $ ./gradlew clean assembleDebug
- *   $ ./gradlew assembleRepackAar repackInstall repackDeploy -Pprofile=<profile>
+ *   $ ./gradlew assembleRepackAar repackInstall repackDeploy -P repackProfile=<profile>
  * </code>
  *
  * Running a normal build first make sure that the AAR has already

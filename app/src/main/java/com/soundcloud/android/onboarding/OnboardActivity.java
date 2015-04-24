@@ -66,7 +66,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -74,7 +73,6 @@ import android.view.ViewStub;
 import android.view.animation.Animation;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -912,9 +910,6 @@ public class OnboardActivity extends FragmentActivity
         if (!isFinishing()) {
             final Dialog alertDialog = dialogBuilder.create();
             alertDialog.show();
-
-            final TextView messageView = (TextView) alertDialog.findViewById(android.R.id.message);
-            messageView.setMovementMethod(LinkMovementMethod.getInstance());
 
             eventBus.publish(EventQueue.ONBOARDING, event);
         }

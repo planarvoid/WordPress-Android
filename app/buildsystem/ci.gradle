@@ -98,7 +98,11 @@ task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVe
 
 task uploadStoreBeta(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
+  version = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
+
   commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
+  commandLine 'curl', '--data', "\"channel=#android&message=slog: Released \\#android $version&username=The release captain\"", 'http://unslacked/'
+  commandLine 'curl', '--data', "\"channel=#android&message=https://soundcloud.com/nathanipale/boat-horn&username=The boat\"", 'http://unslacked/'
 }
 
 // *********************************************************************************************************************

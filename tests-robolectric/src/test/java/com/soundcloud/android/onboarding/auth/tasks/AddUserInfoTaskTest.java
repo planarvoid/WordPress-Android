@@ -43,10 +43,12 @@ public class AddUserInfoTaskTest  {
                 argThat(isPublicApiRequestTo("PUT", ApiEndpoints.CURRENT_USER)),
                 eq(PublicApiUser.class))).thenReturn(user);
 
-        AddUserInfoTask task = new AddUserInfoTask(application, "name", null, userStorage, apiClient, accountOperations);
+        AddUserInfoTask task = new AddUserInfoTask(
+                application, "permalink", "name", null, userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         expect(result.wasSuccess()).toBeTrue();
         expect(result.getUser().username).toEqual(user.getUsername());
+        expect(result.getUser().permalink).toEqual(user.getPermalink());
     }
 
     @Test
@@ -56,10 +58,11 @@ public class AddUserInfoTaskTest  {
                 eq(PublicApiUser.class))).thenReturn(user);
 
         AddUserInfoTask task = new AddUserInfoTask(
-                application, "name", new File("doesntexist"), userStorage, apiClient, accountOperations);
+                application, "permalink", "name", new File("doesntexist"), userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         expect(result.wasSuccess()).toBeTrue();
         expect(result.getUser().username).toEqual(user.getUsername());
+        expect(result.getUser().permalink).toEqual(user.getPermalink());
     }
 
     @Test
@@ -69,10 +72,11 @@ public class AddUserInfoTaskTest  {
                 eq(PublicApiUser.class))).thenReturn(user);
 
         File tmp = File.createTempFile("test", "tmp");
-        AddUserInfoTask task = new AddUserInfoTask(application, "name", tmp, userStorage, apiClient, accountOperations);
+        AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", tmp, userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         expect(result.wasSuccess()).toBeTrue();
         expect(result.getUser().username).toEqual(user.getUsername());
+        expect(result.getUser().permalink).toEqual(user.getPermalink());
     }
 
     @Test
@@ -81,7 +85,7 @@ public class AddUserInfoTaskTest  {
                 argThat(isPublicApiRequestTo("PUT", ApiEndpoints.CURRENT_USER)),
                 eq(PublicApiUser.class))).thenThrow(TestApiResponses.validationError().getFailure());
 
-        AddUserInfoTask task = new AddUserInfoTask(application, "name", null, userStorage, apiClient, accountOperations);
+        AddUserInfoTask task = new AddUserInfoTask(application, "permalink", "name", null, userStorage, apiClient, accountOperations);
         AuthTaskResult result = task.doInBackground();
         expect(result.wasSuccess()).toBeFalse();
         expect(result.wasValidationError()).toBeTrue();

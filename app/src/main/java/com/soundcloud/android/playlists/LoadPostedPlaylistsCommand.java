@@ -13,6 +13,7 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAIL
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
+import static com.soundcloud.propeller.query.Filter.filter;
 import static com.soundcloud.propeller.query.Query.on;
 
 import com.soundcloud.android.commands.PagedQueryCommand;
@@ -21,6 +22,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 
 import javax.inject.Inject;
 
@@ -43,6 +45,7 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
                         field(SoundView.field(TableColumns.SoundView.SHARING)).as(TableColumns.SoundView.SHARING),
                         field(SoundView.field(TableColumns.SoundView.CREATED_AT)).as(TableColumns.SoundView.CREATED_AT),
                         count(PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
+                        exists(likeQuery()).as(TableColumns.SoundView.USER_LIKE),
                         exists(pendingPlaylistTracksUrns()).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
                         exists(isMarkedForOfflineQuery()).as(PostedPlaylistMapper.IS_MARKED_FOR_OFFLINE))
                 .leftJoin(Table.PlaylistTracks.name(), SoundView.field(TableColumns.SoundView._ID), PLAYLIST_ID)
@@ -55,6 +58,16 @@ public class LoadPostedPlaylistsCommand extends PagedQueryCommand<ChronologicalQ
                 .whereLt(SoundView.field(TableColumns.SoundView.CREATED_AT), input.getTimestamp())
                 .groupBy(SoundView.field(TableColumns.SoundView._ID))
                 .order(TableColumns.SoundView.CREATED_AT, Query.ORDER_DESC);
+    }
+
+    public static Query likeQuery() {
+        final Where joinConditions = filter()
+                .whereEq(Table.Sounds.field(TableColumns.Sounds._ID), Table.Likes.field(TableColumns.Likes._ID))
+                .whereEq(Table.Sounds.field(TableColumns.Sounds._TYPE), Table.Likes.field(TableColumns.Likes._TYPE));
+
+        return Query.from(Table.Likes.name())
+                .innerJoin(Table.Sounds.name(), joinConditions)
+                .whereNull(TableColumns.Likes.REMOVED_AT);
     }
 
     private Query isMarkedForOfflineQuery() {

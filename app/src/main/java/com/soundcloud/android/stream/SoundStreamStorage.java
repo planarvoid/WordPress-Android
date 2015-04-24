@@ -5,6 +5,7 @@ import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 
+import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -64,6 +65,7 @@ class SoundStreamStorage {
                 SoundView.PLAYBACK_COUNT,
                 SoundView.TRACK_COUNT,
                 SoundView.LIKES_COUNT,
+                SoundView.SHARING,
                 SoundStreamView.CREATED_AT,
                 SoundStreamView.REPOSTER_USERNAME,
                 exists(likeQuery()).as(SoundView.USER_LIKE),
@@ -109,6 +111,8 @@ class SoundStreamStorage {
             propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
+            propertySet.put(PlayableProperty.IS_PRIVATE,
+                    Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
             addOptionalPlaylistLike(cursorReader, propertySet);
             addOptionalLikesCount(cursorReader, propertySet);
             addOptionalPlayCount(cursorReader, propertySet);

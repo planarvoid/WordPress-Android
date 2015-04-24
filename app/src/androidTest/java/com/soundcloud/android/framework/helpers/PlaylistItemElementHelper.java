@@ -30,4 +30,9 @@ public class PlaylistItemElementHelper {
         playlistItemElement.clickOverflow().toggleLike();
         assertFalse("Playlist is liked. Should be unliked.", isLiked(activityTest, playlistItemElement));
     }
+
+    public static void assertUnlikeActionOnLikedPlaylistWithoutVerification(ActivityTest activityTest, PlaylistItemElement playlistItemElement) {
+        assertTrue("Unable to unlike playlist; playlist is already unliked.", isLiked(activityTest, playlistItemElement));
+        playlistItemElement.clickOverflow().toggleLike();
+    }
 }

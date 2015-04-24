@@ -22,16 +22,17 @@ import java.io.IOException;
 public class AddUserInfoTask extends AuthTask {
 
     private final ApiClient apiClient;
-
     private final String username;
+    private final String permalink;
     private final File avatarFile;
     private final AccountOperations accountOperations;
 
-    public AddUserInfoTask(SoundCloudApplication app, String username, File avatarFile, UserStorage userStorage,
+    public AddUserInfoTask(SoundCloudApplication app, String permalink, String username, File avatarFile, UserStorage userStorage,
                            ApiClient apiClient, AccountOperations accountOperations) {
         super(app, userStorage);
         this.apiClient = apiClient;
         this.username = username;
+        this.permalink = permalink;
         this.avatarFile = avatarFile;
         this.accountOperations = accountOperations;
     }
@@ -42,7 +43,7 @@ public class AddUserInfoTask extends AuthTask {
             ApiRequest.Builder request = ApiRequest.put(ApiEndpoints.CURRENT_USER.path())
                     .forPublicApi()
                     .withFormPart(StringPart.from(Params.User.NAME, username))
-                    .withFormPart(StringPart.from(Params.User.PERMALINK, username));
+                    .withFormPart(StringPart.from(Params.User.PERMALINK, permalink));
 
             // resize and attach file if present
             if (avatarFile != null && avatarFile.canWrite()) {

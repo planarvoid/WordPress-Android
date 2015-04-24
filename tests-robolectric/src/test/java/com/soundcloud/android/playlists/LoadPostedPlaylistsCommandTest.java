@@ -8,10 +8,12 @@ import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.ChronologicalQueryParams;
+import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.PropertySet;
@@ -87,6 +89,17 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
         playlist1 = createPlaylistPostAt(POSTED_DATE_1);
         playlist2 = createPlaylistPostAt(POSTED_DATE_2);
         List<PropertySet> result = command.with(new ChronologicalQueryParams(2, POSTED_DATE_2.getTime())).call();
+
+        expect(result).toEqual(Arrays.asList(playlist1));
+    }
+
+    @Test
+    public void shouldIncludeLikeStatus() throws Exception {
+        playlist1 = createPlaylistPostAt(POSTED_DATE_1);
+        testFixtures().insertLike(new ApiLike(playlist1.get(PlaylistProperty.URN), new Date()));
+        playlist1.put(PlayableProperty.IS_LIKED, true);
+
+        List<PropertySet> result = command.with(new ChronologicalQueryParams(1, Long.MAX_VALUE)).call();
 
         expect(result).toEqual(Arrays.asList(playlist1));
     }
@@ -191,7 +204,7 @@ public class LoadPostedPlaylistsCommandTest extends StorageIntegrationTest {
                 PlaylistProperty.LIKES_COUNT,
                 PlaylistProperty.CREATED_AT,
                 PlaylistProperty.IS_PRIVATE
-        );
+        ).put(PlayableProperty.IS_LIKED, false);
     }
 
     private ApiPlaylist createPlaylistAt(Date creationDate) {

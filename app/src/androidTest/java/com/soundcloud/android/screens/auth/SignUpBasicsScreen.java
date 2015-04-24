@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens.auth;
 
+import static junit.framework.Assert.assertTrue;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EditTextElement;
@@ -107,6 +109,13 @@ public class SignUpBasicsScreen extends Screen {
     public void acceptTerms() {
         acceptTermsButton().click();
         waiter.waitForElement(R.id.btn_skip);
+    }
+
+    public void closeSpamDialog() {
+        final String dialogTitle = testDriver.getString(R.string.authentication_blocked_title);
+        final ViewElement blockedDialog = testDriver.findElement(With.text(dialogTitle));
+        assertTrue(blockedDialog.isVisible());
+        testDriver.findElement(With.text(testDriver.getString(R.string.close))).click();
     }
 
     public void skipSignUpDetails() {

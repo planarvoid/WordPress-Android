@@ -62,15 +62,6 @@ class DownloadOperations {
                 .subscribeOn(scheduler);
     }
 
-    void deleteTrack(Urn urn) {
-        try {
-            fileStorage.deleteTrack(urn);
-        } catch (EncryptionException e1) {
-            // note, in this case, the file probably didn't exist in the first place, so we are in a clean state
-            Log.e(OfflineContentService.TAG, "Failed to remove file", e1);
-        }
-    }
-
     DownloadResult download(DownloadRequest request) {
         if (!fileStorage.isEnoughSpaceForTrack(request.duration)) {
             return DownloadResult.notEnoughSpace(request);
@@ -98,6 +89,9 @@ class DownloadOperations {
                 return DownloadResult.error(request);
             }
             return saveFile(request, response);
+
+        } catch (EncryptionException encryptionException) {
+            return DownloadResult.error(request);
         } catch (IOException ioException) {
             return DownloadResult.connectionError(request, getConnectionState());
         } finally {
@@ -117,17 +111,11 @@ class DownloadOperations {
         }
     }
 
-    private DownloadResult saveFile(DownloadRequest request, StrictSSLHttpClient.DownloadResponse response) {
-        try {
-            fileStorage.storeTrack(request.track, response.getInputStream());
-            Log.d(OfflineContentService.TAG, "Track stored on device: " + request.track);
-            return DownloadResult.success(request);
+    private DownloadResult saveFile(DownloadRequest request, StrictSSLHttpClient.DownloadResponse response)
+            throws IOException, EncryptionException {
 
-        } catch (Exception exception) {
-            Log.e(OfflineContentService.TAG, "Failed to save file: ", exception);
-            deleteTrack(request.track);
-            return DownloadResult.error(request);
-        }
+        fileStorage.storeTrack(request.track, response.getInputStream());
+        Log.d(OfflineContentService.TAG, "Track stored on device: " + request.track);
+        return DownloadResult.success(request);
     }
-
 }

@@ -5,11 +5,11 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 
 import android.net.Uri;
-import android.os.StatFs;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -48,13 +48,27 @@ public class SecureFileStorage {
         final OutputStream output = new FileOutputStream(trackFile);
         try {
             cryptoOperations.encryptStream(input, output);
+        } catch (Exception e) {
+            IOUtils.close(output);
+            deleteFile(trackFile);
+
+            throw e;
         } finally {
             IOUtils.close(output);
         }
     }
 
-    public boolean deleteTrack(Urn urn) throws EncryptionException {
-        return new File(OFFLINE_DIR, generateFileName(urn)).delete();
+    private boolean deleteFile(File file) {
+        return !file.exists() || file.delete();
+    }
+
+    public boolean deleteTrack(Urn urn) {
+        try {
+            return deleteFile(new File(OFFLINE_DIR, generateFileName(urn)));
+        } catch (EncryptionException exception) {
+            ErrorUtils.handleSilentException("Offline file deletion failed for track " + urn, exception);
+            return false;
+        }
     }
 
     public void deleteAllTracks() {

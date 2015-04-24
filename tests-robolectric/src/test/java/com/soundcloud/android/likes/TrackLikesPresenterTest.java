@@ -18,7 +18,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.propeller.PropertySet;
@@ -44,7 +43,7 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesPresenterTest {
 
-    public static final Urn TRACK_URN = Urn.forTrack(123);
+    private static final Urn TRACK_URN = Urn.forTrack(123);
 
     private TrackLikesPresenter presenter;
 
@@ -63,7 +62,6 @@ public class TrackLikesPresenterTest {
     @Mock private MenuInflater menuInflater;
     @Mock private MenuItem menuItem;
 
-    private List<PropertySet> likedTracks = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
     private PublishSubject<List<PropertySet>> likedTracksObservable = PublishSubject.create();
     private TestSubscriber testSubscriber = new TestSubscriber();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
@@ -81,14 +79,6 @@ public class TrackLikesPresenterTest {
         when(likeOperations.likedTracksPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
-    }
-
-    @Test
-    public void shouldConnectLikedTracksBindingInOnCreate() {
-        presenter.onCreate(fragment, null);
-        likedTracksObservable.subscribe(testSubscriber);
-        likedTracksObservable.onNext(likedTracks);
-        testSubscriber.assertReceivedOnNext(Arrays.asList(likedTracks));
     }
 
     @Test
