@@ -5,6 +5,8 @@ import com.google.common.base.Objects;
 import java.io.File;
 
 public final class FilePart extends FormPart {
+    public static final String BLOB_MEDIA_TYPE = "application/octet-stream";
+
     private final File file;
     private final String fileName;
 

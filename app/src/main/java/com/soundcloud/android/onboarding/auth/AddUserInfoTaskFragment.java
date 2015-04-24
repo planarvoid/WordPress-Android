@@ -2,21 +2,27 @@ package com.soundcloud.android.onboarding.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.onboarding.auth.tasks.AddUserInfoTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
 import android.app.Activity;
 import android.os.Bundle;
 
+import javax.inject.Inject;
 import java.io.File;
 
 public class AddUserInfoTaskFragment extends AuthTaskFragment {
 
     private static final String USERNAME_EXTRA = "username";
     private static final String AVATAR_EXTRA = "avatar";
+
+    @Inject ApiClient apiClient;
+    @Inject UserStorage userStorage;
 
     public static AddUserInfoTaskFragment create(String username, File avatarFile) {
         final Bundle param = new Bundle();
@@ -35,7 +41,8 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     AuthTask createAuthTask() {
         return new AddUserInfoTask((SoundCloudApplication) getActivity().getApplication(),
                 getArguments().getString(USERNAME_EXTRA),
-                getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null);
+                getArguments().containsKey(AVATAR_EXTRA) ? new File(getArguments().getString(AVATAR_EXTRA)) : null,
+                userStorage, apiClient, accountOperations);
     }
 
     @Override

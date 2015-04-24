@@ -1,20 +1,19 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.PublicApi;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.FilePart;
+import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.storage.UserStorage;
-import com.soundcloud.android.utils.Log;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
-import com.soundcloud.api.Request;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import java.io.File;
@@ -22,51 +21,39 @@ import java.io.IOException;
 
 public class AddUserInfoTask extends AuthTask {
 
-    private PublicCloudAPI oldCloudAPI;
+    private final ApiClient apiClient;
 
-    private String username;
-    private File avatarFile;
+    private final String username;
+    private final File avatarFile;
+    private final AccountOperations accountOperations;
 
-    protected AddUserInfoTask(SoundCloudApplication app, String username, File avatarFile, UserStorage userStorage,
-                              PublicCloudAPI oldCloudAPI) {
+    public AddUserInfoTask(SoundCloudApplication app, String username, File avatarFile, UserStorage userStorage,
+                           ApiClient apiClient, AccountOperations accountOperations) {
         super(app, userStorage);
-        this.oldCloudAPI = oldCloudAPI;
+        this.apiClient = apiClient;
         this.username = username;
         this.avatarFile = avatarFile;
-    }
-
-    public AddUserInfoTask(SoundCloudApplication application, String username, File avatarFile) {
-        this(application, username, avatarFile, new UserStorage(), new PublicApi(application));
+        this.accountOperations = accountOperations;
     }
 
     @Override
     protected AuthTaskResult doInBackground(Bundle... params) {
         try {
-            Request updateMe = Request.to(Endpoints.MY_DETAILS).with(
-                    Params.User.NAME, username,
-                    Params.User.PERMALINK, username);
+            ApiRequest.Builder request = ApiRequest.put(ApiEndpoints.CURRENT_USER.path())
+                    .forPublicApi()
+                    .withFormPart(StringPart.from(Params.User.NAME, username))
+                    .withFormPart(StringPart.from(Params.User.PERMALINK, username));
 
             // resize and attach file if present
             if (avatarFile != null && avatarFile.canWrite()) {
-                updateMe.withFile(Params.User.AVATAR, avatarFile);
+                request.withFormPart(FilePart.from(avatarFile, Params.User.AVATAR, FilePart.BLOB_MEDIA_TYPE));
             }
-            Context app = getSoundCloudApplication();
-            HttpResponse resp = oldCloudAPI.put(updateMe);
-            switch (resp.getStatusLine().getStatusCode()) {
-                case HttpStatus.SC_OK:
-                    PublicApiUser u = oldCloudAPI.getMapper().readValue(resp.getEntity().getContent(), PublicApiUser.class);
-                    addAccount(u, oldCloudAPI.getToken(), SignupVia.API);
-                    return AuthTaskResult.success(u, SignupVia.API, false);
-
-                case HttpStatus.SC_UNPROCESSABLE_ENTITY:
-                    return AuthTaskResult.failure(extractErrors(resp));
-
-                default:
-                    Log.e("unexpected response: " + resp);
-                    return AuthTaskResult.failure(app.getString(R.string.authentication_add_info_error));
-            }
-        } catch (IOException e) {
-            Log.e("IOException while adding user details: " + e.getMessage());
+            PublicApiUser updatedUser = apiClient.fetchMappedResponse(request.build(), PublicApiUser.class);
+            addAccount(updatedUser, accountOperations.getSoundCloudToken(), SignupVia.API);
+            return AuthTaskResult.success(updatedUser, SignupVia.API, false);
+        } catch (ApiRequestException e) {
+            return AuthTaskResult.failure(e);
+        } catch (IOException | ApiMapperException e) {
             return AuthTaskResult.failure(e);
         }
     }

@@ -13,6 +13,7 @@ import android.net.Uri;
 
 import javax.inject.Inject;
 
+@Deprecated
 public class UserStorage extends ScheduledOperations implements Storage<PublicApiUser> {
     private UserDAO userDAO;
 

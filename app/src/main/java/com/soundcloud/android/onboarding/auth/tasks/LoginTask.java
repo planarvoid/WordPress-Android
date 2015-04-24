@@ -22,6 +22,7 @@ import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 
+import android.content.Context;
 import android.os.Bundle;
 
 public class LoginTask extends AuthTask {
@@ -58,7 +59,7 @@ public class LoginTask extends AuthTask {
     }
 
     protected AuthTaskResult login(Bundle data) {
-        SoundCloudApplication app = getSoundCloudApplication();
+        Context app = getSoundCloudApplication();
 
         try {
             Token token = tokenUtils.getToken(data);

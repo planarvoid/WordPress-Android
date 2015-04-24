@@ -1,6 +1,5 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.android.api.ApiRequestException.Reason.AUTH_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.BAD_REQUEST;
 import static com.soundcloud.android.api.ApiRequestException.Reason.MALFORMED_INPUT;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NETWORK_ERROR;
@@ -8,8 +7,7 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
 import static com.soundcloud.android.api.ApiRequestException.Reason.RATE_LIMITED;
 import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
-
-import com.soundcloud.api.CloudAPI;
+import static com.soundcloud.android.api.ApiRequestException.Reason.VALIDATION_ERROR;
 
 import java.io.IOException;
 
@@ -28,6 +26,7 @@ public final class ApiRequestException extends Exception {
         RATE_LIMITED,
         UNEXPECTED_RESPONSE,
         BAD_REQUEST,
+        VALIDATION_ERROR,
         MALFORMED_INPUT
     }
 
@@ -55,12 +54,12 @@ public final class ApiRequestException extends Exception {
         return new ApiRequestException(RATE_LIMITED, request);
     }
 
-    public static ApiRequestException authError(ApiRequest request, CloudAPI.InvalidTokenException e) {
-        return new ApiRequestException(AUTH_ERROR, request, e);
-    }
-
     public static ApiRequestException malformedInput(ApiRequest request, ApiMapperException e) {
         return new ApiRequestException(MALFORMED_INPUT, request, e);
+    }
+
+    public static ApiRequestException validationError(ApiRequest request) {
+        return new ApiRequestException(VALIDATION_ERROR, request);
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request) {

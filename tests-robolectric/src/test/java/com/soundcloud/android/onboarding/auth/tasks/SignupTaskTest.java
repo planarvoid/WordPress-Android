@@ -2,12 +2,11 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.xtremelabs.robolectric.Robolectric;
 import org.apache.http.message.BasicHeader;
@@ -118,7 +117,6 @@ public class SignupTaskTest {
         setupPendingHttpResponse(422, "{ \"error\": 105 }");
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
-        expect(result.getErrors()[0]).toEqual(Robolectric.application.getString(R.string.authentication_email_other_error_message));
     }
 
     @Test
@@ -126,7 +124,6 @@ public class SignupTaskTest {
         setupPendingHttpResponse(422, "{ \"error\": 105, \"errors\": [{ \"error_message\": \"Sorry we couldn't sign you up with the details you provided.\" }] }");
         AuthTaskResult result = doSignup();
         expect(result.wasFailure()).toBeTrue();
-        expect(result.getErrors()[0]).toEqual(Robolectric.application.getString(R.string.authentication_email_other_error_message));
     }
 
     @Test

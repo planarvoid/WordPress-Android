@@ -79,7 +79,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            listenerRef = new WeakReference<OnAuthResultListener>((OnAuthResultListener) activity);
+            listenerRef = new WeakReference<>((OnAuthResultListener) activity);
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnAuthResultListener");
         }

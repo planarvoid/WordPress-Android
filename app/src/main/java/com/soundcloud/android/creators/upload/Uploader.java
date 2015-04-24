@@ -38,8 +38,6 @@ import java.util.Map;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
 
-    private static final String BLOB_MEDIA_TYPE = "application/octet-stream";
-
     private final TrackStorage trackStorage = new TrackStorage();
     private final StorePostsCommand storePostsCommand;
 
@@ -132,9 +130,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         } else {
             fileName = recordingFile.getName();
         }
-        request.withFormPart(FilePart.from(recordingFile, fileName, Params.Track.ASSET_DATA, BLOB_MEDIA_TYPE));
+        request.withFormPart(FilePart.from(recordingFile, fileName, Params.Track.ASSET_DATA, FilePart.BLOB_MEDIA_TYPE));
         if (recording.artwork_path != null) {
-            request.withFormPart(FilePart.from(recording.artwork_path, Params.Track.ARTWORK_DATA, BLOB_MEDIA_TYPE));
+            request.withFormPart(FilePart.from(recording.artwork_path, Params.Track.ARTWORK_DATA, FilePart.BLOB_MEDIA_TYPE));
         }
 
         return request.build();

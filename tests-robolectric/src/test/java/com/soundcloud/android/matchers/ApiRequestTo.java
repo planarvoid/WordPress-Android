@@ -30,11 +30,6 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
         this.isMobileApi = isMobileApi;
     }
 
-    public ApiRequestTo(String expectedMethod, boolean isMobileApi) {
-        this.expectedMethod = expectedMethod;
-        this.isMobileApi = isMobileApi;
-    }
-
     @Override
     public boolean matches(Object argument) {
         if (argument instanceof ApiRequest) {
