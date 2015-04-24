@@ -284,7 +284,8 @@ public class ApiClientTest {
     public void shouldMakePostRequestToApiMobileWithMultipartFileContent() throws Exception {
         ApiRequest request = ApiRequest.post(URL)
                 .forPrivateApi(1)
-                .withFile(new File("/path"), "file1", "file1.png", "image/png")
+                .withFormPart(new StringPart("str", "value"))
+                .withFormPart(new FilePart(new File("/path"), "file1", "file1.png", "image/png"))
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
 

@@ -19,9 +19,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
-import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,7 +40,6 @@ import android.util.Log;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -428,31 +425,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
             data.put(Params.Track.SHARED_IDS, ids);
         }
         return data;
-    }
-
-    public Request getRequest(Resources resources, File file, Request.TransferProgressListener listener) {
-        final Request request = new Request(Endpoints.TRACKS);
-        final Map<String, ?> map = toParamsMap(resources);
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            if (entry.getValue() instanceof Iterable) {
-                for (Object o : (Iterable) entry.getValue()) {
-                    request.add(entry.getKey(), o.toString());
-                }
-            } else {
-                request.add(entry.getKey(), entry.getValue().toString());
-            }
-        }
-        final String fileName;
-        if (!external_upload) {
-            String title = map.get(Params.Track.TITLE).toString();
-            final String newTitle = title == null ? "unknown" : title;
-            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisReader.EXTENSION);
-        } else {
-            fileName = file.getName();
-        }
-        return request.withFile(Params.Track.ASSET_DATA, file, fileName)
-                .withFile(Params.Track.ARTWORK_DATA, artwork_path)
-                .setProgressListener(listener);
     }
 
     public boolean isError() {

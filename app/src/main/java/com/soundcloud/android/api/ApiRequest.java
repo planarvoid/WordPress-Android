@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,7 +123,7 @@ public class ApiRequest {
         private final Multimap<String, String> parameters;
         private final Map<String, String> headers;
         private Object content;
-        private List<ApiFileContentRequest.FileEntry> files;
+        private List<FormPart> formParts;
 
         public Builder(String uri, String methodName) {
             this.parameters = UriUtils.getQueryParameters(uri);
@@ -140,8 +139,8 @@ public class ApiRequest {
             }
             if (content != null) {
                 return new ApiObjectContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, content);
-            } else if (files != null) {
-                return new ApiFileContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, files);
+            } else if (formParts != null) {
+                return new ApiMultipartRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, formParts);
             } else {
                 return new ApiRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers);
             }
@@ -174,11 +173,11 @@ public class ApiRequest {
             return this;
         }
 
-        public Builder withFile(File file, String paramName, String fileName, String contentType) {
-            if (this.files == null) {
-                files = new ArrayList<>();
+        public Builder withFormPart(FormPart formPart) {
+            if (this.formParts == null) {
+                formParts = new ArrayList<>();
             }
-            files.add(new ApiFileContentRequest.FileEntry(file, paramName, fileName, contentType));
+            formParts.add(formPart);
             return this;
         }
 

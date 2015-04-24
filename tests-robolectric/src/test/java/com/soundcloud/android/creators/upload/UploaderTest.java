@@ -1,21 +1,26 @@
 package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.utils.IOUtils.readInputStream;
+import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.PublicApi;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
-import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,6 +28,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +37,8 @@ import java.util.List;
 public class UploaderTest {
     List<Intent> intents = new ArrayList<Intent>();
     List<String> actions = new ArrayList<String>();
+
+    @Mock private ApiClient apiClient;
 
     @Before
     public void before() {
@@ -44,7 +52,7 @@ public class UploaderTest {
     }
 
     private Uploader uploader(Recording r) {
-        return new Uploader(Robolectric.application, new PublicApi(Robolectric.application), r, mock(StorePostsCommand.class));
+        return new Uploader(Robolectric.application, apiClient, r, mock(StorePostsCommand.class));
     }
 
     @Test
@@ -62,10 +70,9 @@ public class UploaderTest {
 
     @Test
     public void shouldSetSuccessAfterFileUpload() throws Exception {
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(HttpStatus.SC_CREATED,
-                readInputStream(getClass().getResourceAsStream("upload_response.json"))));
-        Robolectric.addHttpResponseRule("GET", "/tracks/47204307", new TestHttpResponse(HttpStatus.SC_OK,
-                        readInputStream(getClass().getResourceAsStream("track_finished.json"))));
+        when(apiClient.fetchMappedResponse(
+                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                .thenReturn(ModelFixtures.create(PublicApiTrack.class));
 
         final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
@@ -75,7 +82,9 @@ public class UploaderTest {
 
     @Test
     public void shouldNotSetSuccessAfterFailedUpload() throws Exception {
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "Failz"));
+        when(apiClient.fetchMappedResponse(
+                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                .thenThrow(ApiRequestException.unexpectedResponse(null, 503));
         final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_STARTED, UploadService.TRANSFER_ERROR);
@@ -84,7 +93,9 @@ public class UploaderTest {
 
     @Test
     public void shouldNotSetSuccessAfterFailedUploadIOException() throws Exception {
-        TestHelper.addPendingIOException("/tracks");
+        when(apiClient.fetchMappedResponse(
+                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                .thenThrow(new IOException("network error"));
         final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
         expect(recording.isUploaded()).toBeFalse();
@@ -92,31 +103,13 @@ public class UploaderTest {
 
     @Test
     public void shouldNotSetSuccessIfTaskCanceled() throws Exception {
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(201,
-                readInputStream(getClass().getResourceAsStream("upload_response.json"))));
+        when(apiClient.fetchMappedResponse(
+                argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
+                .thenReturn(ModelFixtures.create(PublicApiTrack.class));
         final Recording recording = RecordingTestHelper.getValidRecording();
         final Uploader uploader = uploader(recording);
         uploader.cancel();
         uploader.run();
         expect(recording.isUploaded()).toBeFalse();
-    }
-
-    @Test
-    public void shouldRetryOnceIfServerErrorIsReturned() throws Exception {
-        Robolectric.addPendingHttpResponse(new TestHttpResponse(500, "Failz"));
-        Robolectric.addPendingHttpResponse(new TestHttpResponse(201,
-                readInputStream(getClass().getResourceAsStream("upload_response.json"))));
-
-        Robolectric.addHttpResponseRule("GET", "/tracks/47204307", new TestHttpResponse(HttpStatus.SC_OK,
-                readInputStream(getClass().getResourceAsStream("track_finished.json"))));
-
-        final Recording recording = RecordingTestHelper.getValidRecording();
-        uploader(recording).run();
-        expect(actions).toContainExactly(
-                UploadService.TRANSFER_STARTED,
-                UploadService.TRANSFER_STARTED,
-                UploadService.TRANSFER_SUCCESS);
-
-        expect(recording.isUploaded()).toBeTrue();
     }
 }

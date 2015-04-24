@@ -161,23 +161,15 @@ public class ApiRequestTest {
 
     @Test
     public void shouldCreateFileContentRequestWhenUsingWithFile() {
-        File file1 = new File("/path1");
-        File file2 = new File("/path2");
+        final FormPart part1 = new FilePart(new File("/path1"), "testFile1", "file1.txt", "image/png");
+        final FormPart part2 = new StringPart("param", "value");
         ApiRequest request = validRequest(URI_PATH)
-                .withFile(file1, "testFile1", "file1.txt", "text/plain")
-                .withFile(file2, "testFile2", "file2.txt", "text/plain; charset=utf-8")
+                .withFormPart(part1)
+                .withFormPart(part2)
                 .build();
-        expect(request).toBeInstanceOf(ApiFileContentRequest.class);
-        final ApiFileContentRequest contentRequest = (ApiFileContentRequest) request;
-        expect(contentRequest.getFiles()).toNumber(2);
-        expect(contentRequest.getFiles().get(0).file).toEqual(file1);
-        expect(contentRequest.getFiles().get(0).paramName).toEqual("testFile1");
-        expect(contentRequest.getFiles().get(0).fileName).toEqual("file1.txt");
-        expect(contentRequest.getFiles().get(0).contentType).toEqual("text/plain");
-        expect(contentRequest.getFiles().get(1).file).toEqual(file2);
-        expect(contentRequest.getFiles().get(1).paramName).toEqual("testFile2");
-        expect(contentRequest.getFiles().get(1).fileName).toEqual("file2.txt");
-        expect(contentRequest.getFiles().get(1).contentType).toEqual("text/plain; charset=utf-8");
+        expect(request).toBeInstanceOf(ApiMultipartRequest.class);
+        final ApiMultipartRequest contentRequest = (ApiMultipartRequest) request;
+        expect(contentRequest.getParts()).toContainExactly(part1, part2);
     }
 
     private ApiRequest.Builder validRequest(String uri) {

@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -206,6 +207,7 @@ public class UploadService extends Service {
     private PublicCloudAPI publicCloudAPI;
 
     @Inject StorePostsCommand storePostsCommand;
+    @Inject ApiClient apiClient;
 
     public UploadService() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -224,7 +226,8 @@ public class UploadService extends Service {
         recordingStorage = new RecordingStorage();
         broadcastManager = LocalBroadcastManager.getInstance(this);
         intentHandler = new IntentHandler(this, createLooper("UploadService", Process.THREAD_PRIORITY_DEFAULT));
-        uploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT), publicCloudAPI, storePostsCommand);
+        uploadHandler = new UploadHandler(this, createLooper("Uploader", Process.THREAD_PRIORITY_DEFAULT), apiClient,
+                publicCloudAPI, storePostsCommand);
         processingHandler = new Handler(createLooper("Processing", Process.THREAD_PRIORITY_BACKGROUND));
 
         broadcastManager.registerReceiver(receiver, getIntentFilter());
@@ -583,11 +586,13 @@ public class UploadService extends Service {
      */
     private static final class UploadHandler extends Handler {
         private final WeakReference<UploadService> serviceRef;
+        private final ApiClient apiClient;
         private final PublicCloudAPI publicCloudAPI;
         private final StorePostsCommand storePostsCommand;
 
-        private UploadHandler(UploadService service, Looper looper, PublicCloudAPI publicCloudAPI, StorePostsCommand storePostsCommand) {
+        private UploadHandler(UploadService service, Looper looper, ApiClient apiClient, PublicCloudAPI publicCloudAPI, StorePostsCommand storePostsCommand) {
             super(looper);
+            this.apiClient = apiClient;
             this.publicCloudAPI = publicCloudAPI;
             this.storePostsCommand = storePostsCommand;
             serviceRef = new WeakReference<>(service);
@@ -612,7 +617,7 @@ public class UploadService extends Service {
                 service.processingHandler.post(new Encoder(service, upload.recording));
             } else {
                 // perform the actual upload
-                post(new Uploader(service, publicCloudAPI, upload.recording, storePostsCommand));
+                post(new Uploader(service, apiClient, upload.recording, storePostsCommand));
             }
         }
     }

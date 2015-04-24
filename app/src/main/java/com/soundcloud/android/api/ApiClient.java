@@ -10,7 +10,6 @@ import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ads.AdIdHelper;
-import com.soundcloud.android.api.ApiFileContentRequest.FileEntry;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -140,8 +139,8 @@ public class ApiClient {
     private RequestBody getRequestBody(ApiRequest request) throws ApiMapperException, UnsupportedEncodingException {
         if (request instanceof ApiObjectContentRequest) {
             return getJsonRequestBody((ApiObjectContentRequest) request);
-        } else if (request instanceof ApiFileContentRequest) {
-            return getMultipartRequestBody((ApiFileContentRequest) request);
+        } else if (request instanceof ApiMultipartRequest) {
+            return getMultipartRequestBody((ApiMultipartRequest) request);
         } else {
             return RequestBody.create(MediaType.parse(request.getAcceptMediaType()), ScTextUtils.EMPTY_STRING);
         }
@@ -153,12 +152,17 @@ public class ApiClient {
         return RequestBody.create(mediaType, content);
     }
 
-    private RequestBody getMultipartRequestBody(ApiFileContentRequest request) {
+    private RequestBody getMultipartRequestBody(ApiMultipartRequest request) {
         final MultipartBuilder builder = new MultipartBuilder().type(MultipartBuilder.FORM);
-        final List<FileEntry> files = request.getFiles();
-        for (FileEntry fileEntry : files) {
-            final RequestBody fileBody = RequestBody.create(MediaType.parse(fileEntry.contentType), fileEntry.file);
-            builder.addFormDataPart(fileEntry.paramName, fileEntry.fileName, fileBody);
+        final List<FormPart> parts = request.getParts();
+        for (FormPart part : parts) {
+            if (part instanceof StringPart) {
+                builder.addFormDataPart(part.getPartName(), ((StringPart) part).getValue());
+            } else if (part instanceof FilePart) {
+                final FilePart filePart = ((FilePart) part);
+                final RequestBody requestBody = RequestBody.create(MediaType.parse(part.getContentType()), filePart.getFile());
+                builder.addFormDataPart(filePart.getPartName(), filePart.getFileName(), requestBody);
+            }
         }
         return builder.build();
     }

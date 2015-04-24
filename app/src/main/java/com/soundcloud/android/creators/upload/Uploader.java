@@ -2,9 +2,16 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.ApiClient;
+import com.soundcloud.android.api.ApiEndpoints;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.FilePart;
+import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
@@ -12,12 +19,8 @@ import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Request;
+import com.soundcloud.api.Params;
 import com.soundcloud.propeller.PropertySet;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.entity.mime.content.FileBody;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,28 +32,29 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.Locale;
+import java.util.Map;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
+
+    private static final String BLOB_MEDIA_TYPE = "application/octet-stream";
+
     private final TrackStorage trackStorage = new TrackStorage();
     private final StorePostsCommand storePostsCommand;
 
     private final RecordingStorage recordingStorage = new RecordingStorage();
     private final SyncStateManager syncStateManager;
 
-    private final PublicCloudAPI api;
-    private final Recording upload;
+    private final ApiClient apiClient;
+    private final Recording recording;
     private volatile boolean canceled;
     private final LocalBroadcastManager broadcastManager;
     private final Resources resources;
 
-
-    private static final int MAX_TRIES = 1;
-
-    public Uploader(Context context, PublicCloudAPI api, Recording recording, StorePostsCommand storePostsCommand) {
-        this.api = api;
-        upload = recording;
+    public Uploader(Context context, ApiClient apiClient, Recording recording, StorePostsCommand storePostsCommand) {
+        this.apiClient = apiClient;
+        this.recording = recording;
         this.storePostsCommand = storePostsCommand;
         broadcastManager = LocalBroadcastManager.getInstance(context);
         broadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
@@ -68,10 +72,10 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
     @Override
     public void run() {
-        Log.d(UploadService.TAG, "Uploader.run(" + upload + ")");
+        Log.d(UploadService.TAG, "Uploader.run(" + recording + ")");
 
         try {
-            upload(0);
+            upload();
         } catch (IllegalArgumentException e) {
             onUploadFailed(e);
         } finally {
@@ -79,81 +83,61 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
     }
 
-    /**
-     * @throws IllegalArgumentException
-     */
-    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
-    private boolean upload(int tries) {
-        final File toUpload = upload.getUploadFile();
-        if (toUpload == null || !toUpload.exists()) {
+    private void upload() {
+        final File recordingFile = recording.getUploadFile();
+        if (recordingFile == null || !recordingFile.exists()) {
             throw new IllegalArgumentException("File to be uploaded does not exist");
         }
-        if (toUpload.length() == 0) {
+        if (recordingFile.length() == 0) {
             throw new IllegalArgumentException("File to be uploaded is empty");
         }
-
-        final FileBody soundBody = new FileBody(toUpload);
-        final FileBody artworkBody = upload.hasArtwork() ? new FileBody(upload.getArtwork()) : null;
-
-        final long totalTransfer = soundBody.getContentLength() + (artworkBody == null ? 0 : artworkBody.getContentLength());
 
         try {
             if (isCancelled()) {
                 throw new UserCanceledException();
             }
-            Log.v(TAG, "starting upload of " + toUpload);
+            Log.v(TAG, "starting upload of " + recordingFile);
 
             broadcast(UploadService.TRANSFER_STARTED);
-            HttpResponse response = api.post(upload.getRequest(resources, toUpload, new Request.TransferProgressListener() {
-                long lastPublished;
 
-                @Override
-                public void transferred(long transferred) throws IOException {
-                    if (isCancelled()) {
-                        throw new UserCanceledException();
-                    }
+            final ApiRequest request = buildUploadRequest(resources, recording);
+            onUploadFinished(apiClient.fetchMappedResponse(request, PublicApiTrack.class));
 
-                    if (System.currentTimeMillis() - lastPublished > 1000) {
-                        final int progress = (int) Math.min(100, (100 * transferred) / totalTransfer);
-                        broadcastManager.sendBroadcast(new Intent(UploadService.TRANSFER_PROGRESS)
-                                .putExtra(UploadService.EXTRA_RECORDING, upload)
-                                .putExtra(UploadService.EXTRA_TRANSFERRED, transferred)
-                                .putExtra(UploadService.EXTRA_PROGRESS, progress)
-                                .putExtra(UploadService.EXTRA_TOTAL, totalTransfer));
-
-                        lastPublished = System.currentTimeMillis();
-                    }
-                }
-            }));
-            StatusLine status = response.getStatusLine();
-            switch (status.getStatusCode()) {
-                case HttpStatus.SC_CREATED:
-                    onUploadSuccess(response);
-                    return true;
-                case HttpStatus.SC_INTERNAL_SERVER_ERROR:
-                    // can happen on sandbox - retry once in this case
-                    if (tries < MAX_TRIES) {
-                        return upload(tries + 1);
-                    }
-
-                    //noinspection fallthrough
-                default:
-                    final String message = String.format(Locale.US, "Upload failed: %d (%s), try=%d",
-                            status.getStatusCode(),
-                            status.getReasonPhrase(),
-                            tries);
-
-                    Log.w(TAG, message);
-                    onUploadFailed(new IOException(message));
-                    return false;
-            }
         } catch (UserCanceledException e) {
             onUploadCancelled();
-            return false;
-        } catch (IOException e) {
+        } catch (IOException | ApiMapperException | ApiRequestException e) {
             onUploadFailed(e);
-            return false;
         }
+    }
+
+    private ApiRequest buildUploadRequest(Resources resources, Recording recording) {
+        final ApiRequest.Builder request = ApiRequest.post(ApiEndpoints.LEGACY_TRACKS.path()).forPublicApi();
+
+        final Map<String, ?> map = recording.toParamsMap(resources);
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            if (entry.getValue() instanceof Iterable) {
+                for (Object o : (Iterable) entry.getValue()) {
+                    request.withFormPart(new StringPart(entry.getKey(), o.toString()));
+                }
+            } else {
+                request.withFormPart(new StringPart(entry.getKey(), entry.getValue().toString()));
+            }
+        }
+        final File recordingFile = recording.getUploadFile();
+        final String fileName;
+        if (!recording.external_upload) {
+            String title = map.get(Params.Track.TITLE).toString();
+            final String newTitle = title == null ? "unknown" : title;
+            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisReader.EXTENSION);
+        } else {
+            fileName = recordingFile.getName();
+        }
+        request.withFormPart(new FilePart(recordingFile, fileName, Params.Track.ASSET_DATA, BLOB_MEDIA_TYPE));
+        if (recording.artwork_path != null) {
+            request.withFormPart(new FilePart(recording.artwork_path, Params.Track.ARTWORK_DATA, BLOB_MEDIA_TYPE));
+        }
+
+        return request.build();
     }
 
     private void onUploadCancelled() {
@@ -165,35 +149,30 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         broadcast(UploadService.TRANSFER_ERROR);
     }
 
-    private void onUploadSuccess(HttpResponse response) {
-        try {
-            PublicApiTrack track = api.getMapper().readValue(response.getEntity().getContent(), PublicApiTrack.class);
-            trackStorage.createOrUpdate(track);
-            createNewTrackPost(track);
+    private void onUploadFinished(PublicApiTrack track) {
+        trackStorage.createOrUpdate(track);
+        createNewTrackPost(track);
 
-            //request to update my collection
-            syncStateManager.forceToStale(Content.ME_SOUNDS);
+        //request to update my collection
+        syncStateManager.forceToStale(Content.ME_SOUNDS);
 
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Upload successful : " + track);
-            }
-
-            upload.markUploaded();
-            if (!upload.external_upload) {
-                IOUtils.deleteFile(upload.getFile());
-                IOUtils.deleteFile(upload.getEncodedFile());
-            }
-            File artworkPath = upload.resized_artwork_path;
-            if (artworkPath != null) {
-                IOUtils.deleteFile(artworkPath);
-            }
-
-            recordingStorage.updateStatus(upload);
-
-            broadcast(UploadService.TRANSFER_SUCCESS, track);
-        } catch (IOException e) {
-            onUploadFailed(e);
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Upload successful : " + track);
         }
+
+        recording.markUploaded();
+        if (!recording.external_upload) {
+            IOUtils.deleteFile(recording.getFile());
+            IOUtils.deleteFile(recording.getEncodedFile());
+        }
+        File artworkPath = recording.resized_artwork_path;
+        if (artworkPath != null) {
+            IOUtils.deleteFile(artworkPath);
+        }
+
+        recordingStorage.updateStatus(recording);
+
+        broadcast(UploadService.TRANSFER_SUCCESS, track);
     }
 
     private void createNewTrackPost(PublicApiTrack track) {
@@ -207,7 +186,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     }
 
     private void broadcast(String action, PublicApiTrack... track) {
-        final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, upload);
+        final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, recording);
         if (track.length > 0) {
             intent.putExtra(PublicApiTrack.EXTRA, track[0]);
         }
@@ -217,8 +196,8 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     @Override
     public void onReceive(Context context, Intent intent) {
         Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        if (upload.equals(recording)) {
-            Log.d(TAG, "canceling upload of " + upload);
+        if (this.recording.equals(recording)) {
+            Log.d(TAG, "canceling upload of " + this.recording);
             cancel();
         }
     }
