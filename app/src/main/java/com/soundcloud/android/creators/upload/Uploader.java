@@ -28,15 +28,36 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
+
+    private static final String PARAM_TITLE = "track[title]";          // required
+    private static final String PARAM_TYPE = "track[track_type]";
+    private static final String PARAM_DESCRIPTION = "track[description]";
+    private static final String PARAM_POST_TO = "track[post_to][][id]";
+    private static final String PARAM_POST_TO_EMPTY = "track[post_to][]";
+    private static final String PARAM_TAG_LIST = "track[tag_list]";
+    private static final String PARAM_SHARING = "track[sharing]";
+    private static final String PARAM_STREAMABLE = "track[streamable]";
+    private static final String PARAM_DOWNLOADABLE = "track[downloadable]";
+    private static final String PARAM_GENRE = "track[genre]";
+    private static final String PARAM_SHARED_EMAILS = "track[shared_to][emails][][address]";
+    private static final String PARAM_SHARED_IDS = "track[shared_to][users][][id]";
+    private static final String PARAM_SHARING_NOTE = "track[sharing_note]";
+    private static final String PARAM_ASSET_DATA = "track[asset_data]";
+    private static final String PARAM_ARTWORK_DATA = "track[artwork_data]";
 
     private final TrackStorage trackStorage = new TrackStorage();
     private final StorePostsCommand storePostsCommand;
@@ -111,7 +132,74 @@ public class Uploader extends BroadcastReceiver implements Runnable {
     private ApiRequest buildUploadRequest(Resources resources, Recording recording) {
         final ApiRequest.Builder request = ApiRequest.post(ApiEndpoints.LEGACY_TRACKS.path()).forPublicApi();
 
-        final Map<String, ?> map = recording.toParamsMap(resources);
+        final Map<String, ?> params = buildRecordingParamMap(resources, recording);
+        addRecordingFields(request, params);
+
+        final File recordingFile = recording.getUploadFile();
+        final String fileName;
+        if (!recording.external_upload) {
+            String title = params.get(PARAM_TITLE).toString();
+            final String newTitle = title == null ? "unknown" : title;
+            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisReader.EXTENSION);
+        } else {
+            fileName = recordingFile.getName();
+        }
+        request.withFormPart(FilePart.from(recordingFile, fileName, PARAM_ASSET_DATA, FilePart.BLOB_MEDIA_TYPE));
+        if (recording.artwork_path != null) {
+            request.withFormPart(FilePart.from(recording.artwork_path, PARAM_ARTWORK_DATA, FilePart.BLOB_MEDIA_TYPE));
+        }
+
+        return request.build();
+    }
+
+    private Map<String, ?> buildRecordingParamMap(Resources resources, Recording recording) {
+        Map<String, Object> data = new HashMap<>();
+        recording.title = recording.sharingNote(resources);
+
+        data.put(PARAM_TITLE, recording.title);
+        data.put(PARAM_TYPE, "recording");
+        data.put(PARAM_SHARING, recording.isPublic() ? Params.Track.PUBLIC : Params.Track.PRIVATE);
+        data.put(PARAM_DOWNLOADABLE, false);
+        data.put(PARAM_STREAMABLE, true);
+
+        final String tagString = recording.tagString();
+        if (!TextUtils.isEmpty(tagString)) {
+            data.put(PARAM_TAG_LIST, tagString);
+        }
+        if (!TextUtils.isEmpty(recording.description)) {
+            data.put(PARAM_DESCRIPTION, recording.description);
+        }
+        if (!TextUtils.isEmpty(recording.genre)) {
+            data.put(PARAM_GENRE, recording.genre);
+        }
+
+        if (!TextUtils.isEmpty(recording.service_ids)) {
+            List<String> ids = new ArrayList<>();
+            Collections.addAll(ids, recording.service_ids.split(","));
+            data.put(PARAM_POST_TO, ids);
+            data.put(PARAM_SHARING_NOTE, recording.title);
+        } else {
+            data.put(PARAM_POST_TO_EMPTY, "");
+        }
+
+        if (!TextUtils.isEmpty(recording.shared_emails)) {
+            List<String> ids = new ArrayList<>();
+            Collections.addAll(ids, recording.shared_emails.split(","));
+            data.put(PARAM_SHARED_EMAILS, ids);
+        }
+
+        if (recording.recipient_user_id > 0) {
+            data.put(PARAM_SHARED_IDS, recording.recipient_user_id);
+        } else if (!TextUtils.isEmpty(recording.shared_ids)) {
+            List<String> ids = new ArrayList<>();
+            Collections.addAll(ids, recording.shared_ids.split(","));
+            data.put(PARAM_SHARED_IDS, ids);
+        }
+        return data;
+    }
+
+
+    private void addRecordingFields(ApiRequest.Builder request, Map<String, ?> map) {
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             if (entry.getValue() instanceof Iterable) {
                 for (Object o : (Iterable) entry.getValue()) {
@@ -121,21 +209,6 @@ public class Uploader extends BroadcastReceiver implements Runnable {
                 request.withFormPart(StringPart.from(entry.getKey(), entry.getValue().toString()));
             }
         }
-        final File recordingFile = recording.getUploadFile();
-        final String fileName;
-        if (!recording.external_upload) {
-            String title = map.get(Params.Track.TITLE).toString();
-            final String newTitle = title == null ? "unknown" : title;
-            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisReader.EXTENSION);
-        } else {
-            fileName = recordingFile.getName();
-        }
-        request.withFormPart(FilePart.from(recordingFile, fileName, Params.Track.ASSET_DATA, FilePart.BLOB_MEDIA_TYPE));
-        if (recording.artwork_path != null) {
-            request.withFormPart(FilePart.from(recording.artwork_path, Params.Track.ARTWORK_DATA, FilePart.BLOB_MEDIA_TYPE));
-        }
-
-        return request.build();
     }
 
     private void onUploadCancelled() {
