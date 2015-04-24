@@ -52,4 +52,13 @@ public final class FilePart extends FormPart {
     public int hashCode() {
         return Objects.hashCode(file, partName, fileName, contentType);
     }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("partName", partName)
+                .add("file", file)
+                .add("fileName", fileName)
+                .toString();
+    }
 }

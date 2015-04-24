@@ -34,4 +34,12 @@ public final class StringPart extends FormPart {
     public int hashCode() {
         return Objects.hashCode(value, partName, contentType);
     }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("partName", partName)
+                .add("value", value)
+                .toString();
+    }
 }

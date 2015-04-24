@@ -43,21 +43,21 @@ import java.util.Map;
 
 public class Uploader extends BroadcastReceiver implements Runnable {
 
-    private static final String PARAM_TITLE = "track[title]";          // required
-    private static final String PARAM_TYPE = "track[track_type]";
-    private static final String PARAM_DESCRIPTION = "track[description]";
-    private static final String PARAM_POST_TO = "track[post_to][][id]";
-    private static final String PARAM_POST_TO_EMPTY = "track[post_to][]";
-    private static final String PARAM_TAG_LIST = "track[tag_list]";
-    private static final String PARAM_SHARING = "track[sharing]";
-    private static final String PARAM_STREAMABLE = "track[streamable]";
-    private static final String PARAM_DOWNLOADABLE = "track[downloadable]";
-    private static final String PARAM_GENRE = "track[genre]";
-    private static final String PARAM_SHARED_EMAILS = "track[shared_to][emails][][address]";
-    private static final String PARAM_SHARED_IDS = "track[shared_to][users][][id]";
-    private static final String PARAM_SHARING_NOTE = "track[sharing_note]";
-    private static final String PARAM_ASSET_DATA = "track[asset_data]";
-    private static final String PARAM_ARTWORK_DATA = "track[artwork_data]";
+    static final String PARAM_TITLE = "track[title]";          // required
+    static final String PARAM_TYPE = "track[track_type]";
+    static final String PARAM_DESCRIPTION = "track[description]";
+    static final String PARAM_POST_TO = "track[post_to][][id]";
+    static final String PARAM_POST_TO_EMPTY = "track[post_to][]";
+    static final String PARAM_TAG_LIST = "track[tag_list]";
+    static final String PARAM_SHARING = "track[sharing]";
+    static final String PARAM_STREAMABLE = "track[streamable]";
+    static final String PARAM_DOWNLOADABLE = "track[downloadable]";
+    static final String PARAM_GENRE = "track[genre]";
+    static final String PARAM_SHARED_EMAILS = "track[shared_to][emails][][address]";
+    static final String PARAM_SHARED_IDS = "track[shared_to][users][][id]";
+    static final String PARAM_SHARING_NOTE = "track[sharing_note]";
+    static final String PARAM_ASSET_DATA = "track[asset_data]";
+    static final String PARAM_ARTWORK_DATA = "track[artwork_data]";
 
     private final TrackStorage trackStorage = new TrackStorage();
     private final StorePostsCommand storePostsCommand;
