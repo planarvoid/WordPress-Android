@@ -6,7 +6,11 @@ public final class StringPart extends FormPart {
 
     private final String value;
 
-    public StringPart(String partName, String value) {
+    public static StringPart from(String partName, String value) {
+        return new StringPart(partName, value);
+    }
+
+    StringPart(String partName, String value) {
         super(partName, "text/plain; charset=UTF-8");
         this.value = value;
     }

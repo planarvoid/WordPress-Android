@@ -8,11 +8,19 @@ public final class FilePart extends FormPart {
     private final File file;
     private final String fileName;
 
-    public FilePart(File file, String partName, String contentType) {
+    public static FilePart from(File file, String partName, String contentType) {
+        return new FilePart(file, partName, contentType);
+    }
+
+    public static FilePart from(File file, String fileName, String partName, String contentType) {
+        return new FilePart(file, fileName, partName, contentType);
+    }
+
+    FilePart(File file, String partName, String contentType) {
         this(file, file.getName(), partName, contentType);
     }
 
-    public FilePart(File file, String fileName, String partName, String contentType) {
+    FilePart(File file, String fileName, String partName, String contentType) {
         super(partName, contentType);
         this.file = file;
         this.fileName = fileName;

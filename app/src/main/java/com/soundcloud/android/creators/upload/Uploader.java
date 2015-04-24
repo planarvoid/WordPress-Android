@@ -117,10 +117,10 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             if (entry.getValue() instanceof Iterable) {
                 for (Object o : (Iterable) entry.getValue()) {
-                    request.withFormPart(new StringPart(entry.getKey(), o.toString()));
+                    request.withFormPart(StringPart.from(entry.getKey(), o.toString()));
                 }
             } else {
-                request.withFormPart(new StringPart(entry.getKey(), entry.getValue().toString()));
+                request.withFormPart(StringPart.from(entry.getKey(), entry.getValue().toString()));
             }
         }
         final File recordingFile = recording.getUploadFile();
@@ -132,9 +132,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         } else {
             fileName = recordingFile.getName();
         }
-        request.withFormPart(new FilePart(recordingFile, fileName, Params.Track.ASSET_DATA, BLOB_MEDIA_TYPE));
+        request.withFormPart(FilePart.from(recordingFile, fileName, Params.Track.ASSET_DATA, BLOB_MEDIA_TYPE));
         if (recording.artwork_path != null) {
-            request.withFormPart(new FilePart(recording.artwork_path, Params.Track.ARTWORK_DATA, BLOB_MEDIA_TYPE));
+            request.withFormPart(FilePart.from(recording.artwork_path, Params.Track.ARTWORK_DATA, BLOB_MEDIA_TYPE));
         }
 
         return request.build();
