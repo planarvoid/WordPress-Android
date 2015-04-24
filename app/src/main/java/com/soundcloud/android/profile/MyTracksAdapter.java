@@ -111,6 +111,10 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
         return position < getPendingRecordingsCount();
     }
 
+    private int getPositionExcludingRecordings(int position) {
+        return position - getPendingRecordingsCount();
+    }
+
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
@@ -125,7 +129,7 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
         if (getItemViewType(position) == TYPE_PENDING_RECORDING) {
             pendingRecordingItemPresenter.bindItemView(position, rowView, recordingData);
         } else {
-            getCellPresenter(position).bindItemView(position - getPendingRecordingsCount(), rowView, (List) listItems);
+            getCellPresenter(position).bindItemView(getPositionExcludingRecordings(position), rowView, (List) listItems);
         }
     }
 
@@ -135,6 +139,11 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
         } else {
             return playlistItemPresenter;
         }
+    }
+
+    @Override
+    protected boolean isTrack(int position) {
+        return super.isTrack(getPositionExcludingRecordings(position));
     }
 
     @Override
@@ -216,7 +225,7 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
             if (position < recordingData.size()) {
                 return recordingData.get(position);
             } else {
-                return super.getItem(position - recordingData.size());
+                return super.getItem(getPositionExcludingRecordings(position));
             }
         } else {
             return super.getItem(position);
@@ -262,7 +271,7 @@ public class MyTracksAdapter extends LegacyAdapterBridge<PublicApiResource> {
     }
 
     private void playTrack(Context context, int position, Screen screen) {
-        int positionExcludingRecordings = position - recordingData.size();
+        int positionExcludingRecordings = getPositionExcludingRecordings(position);
         Playable playable = ((PlayableHolder) data.get(positionExcludingRecordings)).getPlayable();
         if (playable instanceof PublicApiTrack) {
             List<Urn> trackUrns = toTrackUrn(filterPlayables(data));
