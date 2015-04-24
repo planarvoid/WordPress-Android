@@ -106,7 +106,9 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
 
     private boolean formPartsMatch() {
         if (formParts != null && request instanceof ApiMultipartRequest) {
-            final boolean matches = Objects.equal(formParts, ((ApiMultipartRequest) request).getParts());
+            final List<FormPart> matchedParts = ((ApiMultipartRequest) request).getParts();
+            // don't check with equals, as that assumes order, which isn't required here.
+            final boolean matches = formParts.containsAll(matchedParts) && matchedParts.containsAll(formParts);
             if (!matches) {
                 formMatchError = true;
             }

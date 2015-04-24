@@ -40,8 +40,8 @@ import java.util.List;
 @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 @RunWith(SoundCloudTestRunner.class)
 public class UploaderTest {
-    List<Intent> intents = new ArrayList<Intent>();
-    List<String> actions = new ArrayList<String>();
+    List<Intent> intents = new ArrayList<>();
+    List<String> actions = new ArrayList<>();
 
     @Mock private ApiClient apiClient;
 
