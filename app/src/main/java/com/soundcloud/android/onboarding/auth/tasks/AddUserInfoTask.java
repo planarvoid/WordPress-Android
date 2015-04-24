@@ -47,7 +47,7 @@ public class AddUserInfoTask extends AuthTask {
 
             // resize and attach file if present
             if (avatarFile != null && avatarFile.canWrite()) {
-                request.withFormPart(FilePart.from(avatarFile, Params.User.AVATAR, FilePart.BLOB_MEDIA_TYPE));
+                request.withFormPart(FilePart.from(Params.User.AVATAR, avatarFile, FilePart.BLOB_MEDIA_TYPE));
             }
             PublicApiUser updatedUser = apiClient.fetchMappedResponse(request.build(), PublicApiUser.class);
             addAccount(updatedUser, accountOperations.getSoundCloudToken(), SignupVia.API);

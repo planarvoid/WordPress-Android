@@ -285,7 +285,7 @@ public class ApiClientTest {
         ApiRequest request = ApiRequest.post(URL)
                 .forPrivateApi(1)
                 .withFormPart(new StringPart("str", "value"))
-                .withFormPart(new FilePart(new File("/path"), "file1", "file1.png", "image/png"))
+                .withFormPart(new FilePart("file1.png", new File("/path"), "file1", "image/png"))
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
 

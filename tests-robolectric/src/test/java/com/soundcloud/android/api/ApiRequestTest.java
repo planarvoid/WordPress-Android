@@ -161,7 +161,7 @@ public class ApiRequestTest {
 
     @Test
     public void shouldCreateFileContentRequestWhenUsingWithFile() {
-        final FormPart part1 = new FilePart(new File("/path1"), "testFile1", "file1.txt", "image/png");
+        final FormPart part1 = new FilePart("file1.txt", new File("/path1"), "testFile1", "image/png");
         final FormPart part2 = new StringPart("param", "value");
         ApiRequest request = validRequest(URI_PATH)
                 .withFormPart(part1)

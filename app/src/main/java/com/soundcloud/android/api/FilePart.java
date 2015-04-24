@@ -10,19 +10,19 @@ public final class FilePart extends FormPart {
     private final File file;
     private final String fileName;
 
-    public static FilePart from(File file, String partName, String contentType) {
-        return new FilePart(file, partName, contentType);
+    public static FilePart from(String partName, File file, String contentType) {
+        return new FilePart(partName, file, contentType);
     }
 
-    public static FilePart from(File file, String fileName, String partName, String contentType) {
-        return new FilePart(file, fileName, partName, contentType);
+    public static FilePart from(String partName, File file, String fileName, String contentType) {
+        return new FilePart(partName, file, fileName, contentType);
     }
 
-    FilePart(File file, String partName, String contentType) {
-        this(file, file.getName(), partName, contentType);
+    FilePart(String partName, File file, String contentType) {
+        this(partName, file, file.getName(), contentType);
     }
 
-    FilePart(File file, String fileName, String partName, String contentType) {
+    FilePart(String partName, File file, String fileName, String contentType) {
         super(partName, contentType);
         this.file = file;
         this.fileName = fileName;

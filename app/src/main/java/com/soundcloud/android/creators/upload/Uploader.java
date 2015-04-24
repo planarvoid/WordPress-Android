@@ -144,9 +144,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         } else {
             fileName = recordingFile.getName();
         }
-        request.withFormPart(FilePart.from(recordingFile, fileName, PARAM_ASSET_DATA, FilePart.BLOB_MEDIA_TYPE));
+        request.withFormPart(FilePart.from(PARAM_ASSET_DATA, recordingFile, fileName, FilePart.BLOB_MEDIA_TYPE));
         if (recording.artwork_path != null) {
-            request.withFormPart(FilePart.from(recording.artwork_path, PARAM_ARTWORK_DATA, FilePart.BLOB_MEDIA_TYPE));
+            request.withFormPart(FilePart.from(PARAM_ARTWORK_DATA, recording.artwork_path, FilePart.BLOB_MEDIA_TYPE));
         }
 
         return request.build();

@@ -104,8 +104,9 @@ public class UploaderTest {
                                 StringPart.from(Uploader.PARAM_TAG_LIST, "soundcloud:source=android-record"),
                                 StringPart.from(Uploader.PARAM_DOWNLOADABLE, "false"),
                                 StringPart.from(Uploader.PARAM_POST_TO_EMPTY, ""),
-                                FilePart.from(transcodedFile, recording.title.replaceAll(" ", "_") + ".ogg",
-                                        Uploader.PARAM_ASSET_DATA, FilePart.BLOB_MEDIA_TYPE)
+                                FilePart.from(Uploader.PARAM_ASSET_DATA, transcodedFile,
+                                        recording.title.replaceAll(" ", "_") + ".ogg",
+                                        FilePart.BLOB_MEDIA_TYPE)
                         )),
                 eq(PublicApiTrack.class));
     }
