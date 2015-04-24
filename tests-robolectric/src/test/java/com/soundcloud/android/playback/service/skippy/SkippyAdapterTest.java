@@ -260,6 +260,13 @@ public class SkippyAdapterTest {
     }
 
     @Test
+    public void seekDoesNotCallOnProgressEventWhenDurationIsZero() {
+        when(skippy.getDuration()).thenReturn(0L);
+        skippyAdapter.seek(123L, true);
+        verify(listener, never()).onProgressEvent(anyLong(), anyLong());
+    }
+
+    @Test
     public void setVolumeCallsSetVolumeOnSkippy() {
         skippyAdapter.setVolume(123F);
         verify(skippy).setVolume(123F);
