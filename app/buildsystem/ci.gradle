@@ -64,7 +64,7 @@ task buildBetaCI(dependsOn: ['assembleBeta']) {
 }
 buildBetaCI.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub', 'slog']) {
+task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub', 'slog', 'headsup']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 deployBeta.mustRunAfter('buildBetaCI')
@@ -79,7 +79,7 @@ task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard']) {
 buildReleaseNoProguardCI.mustRunAfter('updateVersion')
 
 task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assembleRelease', 'uploadStoreBeta',
-                                       'uploadGithub', 'slog']) {
+                                       'uploadGithub', 'slog', 'headsup']) {
   description = 'Builds and deploys Release build to playstore and github.'
 }
 assembleRelease.mustRunAfter('renameApk', 'commitVersionBump')
@@ -107,8 +107,10 @@ task slog(type: Exec) {
   version = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
 
   commandLine 'curl', '--data', "channel=#android&message=slog: Released #android $version&username=The Release Captain", 'http://unslacked/'
-  // Sadly the boat was shut up because commandLine only execute the last one ... 
-  //commandLine 'curl', '--data', "channel=#android&message=https://soundcloud.com/nathanipale/boat-horn&username=The Boat", 'http://unslacked/'
+}
+
+task headsup(type: Exec) {
+  commandLine 'curl', '--data', "channel=#android&message=https://www.soundcloud.com/nathanipale/boat-horn\nhttp://stream1.gifsoup.com/view5/4601496/love-boat-isaac-o.gif&username=The Boat", 'http://unslacked/'
 }
 
 // *********************************************************************************************************************
