@@ -64,7 +64,7 @@ task buildBetaCI(dependsOn: ['assembleBeta']) {
 }
 buildBetaCI.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub', 'slog']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 deployBeta.mustRunAfter('buildBetaCI')
@@ -79,7 +79,7 @@ task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard']) {
 buildReleaseNoProguardCI.mustRunAfter('updateVersion')
 
 task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assembleRelease', 'uploadStoreBeta',
-                                       'uploadGithub']) {
+                                       'uploadGithub', 'slog']) {
   description = 'Builds and deploys Release build to playstore and github.'
 }
 assembleRelease.mustRunAfter('renameApk', 'commitVersionBump')
@@ -98,11 +98,17 @@ task updateVersion(dependsOn: ['renameApk', 'incrementVersionName', 'incrementVe
 
 task uploadStoreBeta(type: Exec) {
   description = 'Uploads apk to Google Play Store.'
-  version = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
 
   commandLine 'apublisher','-n', rootProject.applicationId, '-a', project.ext.apkPath, '-t', 'beta'
-  commandLine 'curl', '--data', "\"channel=#android&message=slog: Released \\#android $version&username=The release captain\"", 'http://unslacked/'
-  commandLine 'curl', '--data', "\"channel=#android&message=https://soundcloud.com/nathanipale/boat-horn&username=The boat\"", 'http://unslacked/'
+}
+
+task slog(type: Exec) {
+  description = 'Slog changes'
+  version = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
+
+  commandLine 'curl', '--data', "channel=#android&message=slog: Released #android $version&username=The Release Captain", 'http://unslacked/'
+  // Sadly the boat was shut up because commandLine only execute the last one ... 
+  //commandLine 'curl', '--data', "channel=#android&message=https://soundcloud.com/nathanipale/boat-horn&username=The Boat", 'http://unslacked/'
 }
 
 // *********************************************************************************************************************
