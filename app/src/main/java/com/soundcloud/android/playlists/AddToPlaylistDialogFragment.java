@@ -3,10 +3,13 @@ package com.soundcloud.android.playlists;
 import static rx.android.observables.AndroidObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
@@ -28,6 +31,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,13 +50,14 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     private static final int CLOSE_DELAY_MILLIS = 500;
 
+    @Inject PlaylistOperations playlistOperations;
+    @Inject FeatureOperations featureOperations;
+    @Inject EventBus eventBus;
+
     private MyPlaylistsAdapter adapter;
     private Subscription addTrackSubscription = Subscriptions.empty();
     private Subscription loadPlaylistSubscription = Subscriptions.empty();
-
-    private Observable<List<PropertySet>> loadPlaylists;
-    @Inject PlaylistOperations playlistOperations;
-    @Inject EventBus eventBus;
+    private Observable<List<AddTrackToPlaylistItem>> loadPlaylists;
 
     public static AddToPlaylistDialogFragment from(Urn trackUrn, String trackTitle, String invokerScreen, String contextScreen) {
         return createFragment(createBundle(trackUrn, trackTitle, invokerScreen, contextScreen));
@@ -91,8 +96,8 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        adapter = new MyPlaylistsAdapter(getActivity());
-        loadPlaylistSubscription = loadPlaylists.subscribe(new PlaylistLoadedSubscriber());
+        adapter = new MyPlaylistsAdapter(getActivity(), featureOperations);
+        loadPlaylistSubscription = loadPlaylists.subscribe(new PlaylistsLoadedSubscriber());
 
         return new MaterialDialog.Builder(getActivity())
                 .title(R.string.add_track_to_playlist)
@@ -136,7 +141,8 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         txtTrackCount.setText(String.valueOf(newTracksCount));
 
         addTrackSubscription = bindFragment(this,
-                playlistOperations.addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId))
+                playlistOperations
+                        .addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId))
                         .delay(CLOSE_DELAY_MILLIS, TimeUnit.MILLISECONDS, Schedulers.immediate())
         ).subscribe(new TrackAddedSubscriber());
 
@@ -177,11 +183,19 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         }
     }
 
-    private static class MyPlaylistsAdapter extends ItemAdapter<PropertySet> {
-        private final Context context;
+    static class MyPlaylistsAdapter extends ItemAdapter<AddTrackToPlaylistItem> {
 
-        public MyPlaylistsAdapter(Context c) {
-            context = c;
+        @InjectView(R.id.title) TextView titleView;
+        @InjectView(R.id.trackCount) TextView trackCountView;
+        @InjectView(R.id.icon_private) ImageView privateIcon;
+        @InjectView(R.id.icon_offline) ImageView offlineIcon;
+
+        private final Context context;
+        private final FeatureOperations featureOperations;
+
+        public MyPlaylistsAdapter(Context c, FeatureOperations featureOperations) {
+            this.context = c;
+            this.featureOperations = featureOperations;
         }
 
         @Override
@@ -189,17 +203,17 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
             return items.size();
         }
 
-        public PropertySet getItem(int position) {
+        public AddTrackToPlaylistItem getItem(int position) {
             return items.get(position);
         }
 
         public long getItemId(int position) {
-            return getItem(position).getOrElse(TrackInPlaylistProperty.URN, Urn.NOT_SET).getNumericId();
+            return getItem(position).playlistUrn.getNumericId();
         }
 
         @Override
         public boolean isEnabled(int position) {
-            return !getItem(position).getOrElse(TrackInPlaylistProperty.ADDED_TO_URN, false);
+            return !getItem(position).isTrackAdded;
         }
 
         @Override
@@ -207,36 +221,52 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
             if (convertView == null) {
                 convertView = View.inflate(context, R.layout.add_to_playlist_list_item, null);
             }
+            ButterKnife.inject(this, convertView);
 
-            final PropertySet item = getItem(position);
-            final TextView txtTitle = (TextView) convertView.findViewById(R.id.title);
-            final TextView txtTrackCount = ((TextView) convertView.findViewById(R.id.trackCount));
+            final AddTrackToPlaylistItem item = getItem(position);
 
-            // text colors
-            txtTitle.setEnabled(isEnabled(position));
-            txtTitle.setText(item.getOrElse(TrackInPlaylistProperty.TITLE, context.getString(R.string.create_new_playlist)));
-
-            final int trackCount = item.getOrElse(TrackInPlaylistProperty.TRACK_COUNT, Consts.NOT_SET);
-            if (trackCount == Consts.NOT_SET) {
-                txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                        null, null, context.getResources().getDrawable(R.drawable.ic_plus), null);
-                txtTrackCount.setText(null);
-            } else {
-                txtTrackCount.setCompoundDrawablesWithIntrinsicBounds(
-                        context.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
-                txtTrackCount.setText(String.valueOf(trackCount));
-            }
+            titleView.setEnabled(isEnabled(position));
+            setTitleText(item);
+            setTrackCountView(item.trackCount);
+            setIconsVisibility(item.isPrivate, item.isOffline);
 
             return convertView;
         }
+
+        private void setTitleText(AddTrackToPlaylistItem item) {
+            if (item.playlistUrn == Urn.NOT_SET) {
+                titleView.setText(context.getString(R.string.create_new_playlist));
+            } else {
+                titleView.setText(item.title);
+            }
+        }
+
+        private void setIconsVisibility(boolean isPrivatePlaylist, boolean isOfflinePlaylist) {
+            privateIcon.setVisibility(isPrivatePlaylist ? View.VISIBLE : View.GONE);
+
+            final boolean showOfflineIcon = featureOperations.isOfflineContentEnabled() && isOfflinePlaylist;
+            offlineIcon.setVisibility(showOfflineIcon ? View.VISIBLE : View.GONE);
+        }
+
+        private void setTrackCountView(int trackCount) {
+            if (trackCount == Consts.NOT_SET) {
+                trackCountView.setCompoundDrawablesWithIntrinsicBounds(
+                        null, null, context.getResources().getDrawable(R.drawable.ic_plus), null);
+                trackCountView.setText(null);
+            } else {
+                trackCountView.setCompoundDrawablesWithIntrinsicBounds(
+                        context.getResources().getDrawable(R.drawable.stats_sounds), null, null, null);
+                trackCountView.setText(String.valueOf(trackCount));
+            }
+        }
     }
 
-    private class PlaylistLoadedSubscriber extends DefaultSubscriber<List<PropertySet>> {
+    private class PlaylistsLoadedSubscriber extends DefaultSubscriber<List<AddTrackToPlaylistItem>> {
         @Override
-        public void onNext(List<PropertySet> args) {
-            adapter.addItem(PropertySet.create());
-            for (PropertySet p : args) {
-                adapter.addItem(p);
+        public void onNext(List<AddTrackToPlaylistItem> playlistItems) {
+            adapter.addItem(AddTrackToPlaylistItem.createNewPlaylistItem());
+            for (AddTrackToPlaylistItem playlist : playlistItems) {
+                adapter.addItem(playlist);
             }
             adapter.notifyDataSetChanged();
         }

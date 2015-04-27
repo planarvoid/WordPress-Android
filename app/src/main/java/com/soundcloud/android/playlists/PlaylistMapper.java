@@ -19,21 +19,21 @@ public abstract class PlaylistMapper extends RxResultMapper<PropertySet> {
         propertySet.put(PlaylistProperty.URN, readSoundUrn(cursorReader));
         propertySet.put(PlaylistProperty.TITLE, cursorReader.getString(TableColumns.SoundView.TITLE));
         propertySet.put(PlaylistProperty.CREATOR_NAME, cursorReader.getString(TableColumns.SoundView.USERNAME));
-        propertySet.put(PlaylistProperty.TRACK_COUNT, getTrackCount(cursorReader));
+        propertySet.put(PlaylistProperty.TRACK_COUNT, readTrackCount(cursorReader));
         propertySet.put(PlaylistProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.SoundView.LIKES_COUNT));
         propertySet.put(PlaylistProperty.IS_PRIVATE, Sharing.PRIVATE.name().equalsIgnoreCase(cursorReader.getString(TableColumns.SoundView.SHARING)));
         return propertySet;
     }
 
-    public Urn readSoundUrn(CursorReader cursorReader) {
+    static Urn readSoundUrn(CursorReader cursorReader) {
         return Urn.forPlaylist(cursorReader.getLong(BaseColumns._ID));
     }
 
-    public Urn readCreatorUrn(CursorReader cursorReader) {
+    Urn readCreatorUrn(CursorReader cursorReader) {
         return Urn.forUser(cursorReader.getLong(TableColumns.SoundView.USER_ID));
     }
 
-    public static int getTrackCount(CursorReader cursorReader) {
+    static int readTrackCount(CursorReader cursorReader) {
         return Math.max(cursorReader.getInt(PlaylistMapper.LOCAL_TRACK_COUNT),
                 cursorReader.getInt(TableColumns.SoundView.TRACK_COUNT));
     }

@@ -18,6 +18,7 @@
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        style="@style/DialogContentText"
         android:text="@string/add_playlist_private" />
 
     <CheckBox
@@ -25,6 +26,7 @@
         android:layout_marginTop="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/make_offline_available"/>
+        style="@style/DialogContentText"
+        android:text="@string/add_playlist_offline"/>
 
 </LinearLayout>

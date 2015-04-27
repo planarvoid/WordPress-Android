@@ -49,44 +49,61 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
 
     @Test
     public void playlistForAddingTrackLoadsPlaylistWithCorrectIsAddedStatus() {
-        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
         final ApiPlaylist apiPlaylist1 = insertPostedPlaylist();
         final ApiPlaylist apiPlaylist2 = insertPostedPlaylist();
         final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(apiPlaylist2.getUrn(), 0);
 
-        playlistTracksStorage.playlistsForAddingTrack(apiTrack.getUrn())
+        playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn())
                 .subscribe(testObserver);
 
-        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
         expect(result).toContainExactly(
-                playlistForTrackPropertySet(apiPlaylist1, false),
-                playlistForTrackPropertySet(apiPlaylist2, true));
+                createAddTrackToPlaylistItem(apiPlaylist1, false),
+                createAddTrackToPlaylistItem(apiPlaylist2, true));
     }
 
     @Test
-    public void playlistForAddingTrackLoadsPlaylistWithCorrectIsAddedStatusForLocallyRemovedTracks() {
-        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+    public void addTrackToPlaylistItemsLoadsPlaylistWithCorrectIsAddedStatusForLocallyRemovedTracks() {
+        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
         final ApiPlaylist apiPlaylist = insertPostedPlaylist();
         final ApiTrack apiTrack = testFixtures().insertPlaylistTrackPendingRemoval(apiPlaylist, 0, new Date());
 
-        playlistTracksStorage.playlistsForAddingTrack(apiTrack.getUrn())
+        playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn())
                 .subscribe(testObserver);
 
-        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
-        expect(result).toContainExactly(playlistForTrackPropertySet(apiPlaylist, false));
+        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
+        expect(result).toContainExactly(createAddTrackToPlaylistItem(apiPlaylist, false));
     }
 
     @Test
-    public void playlistForAddingTracksDoNoIncludeRepostedPlaylists() {
-        final TestObserver<List<PropertySet>> testObserver = new TestObserver<>();
+    public void addTrackToPlaylistItemsDoNotIncludeRepostedPlaylists() {
+        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
         final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
         final ApiTrack apiTrack = testFixtures().insertTrack();
         testFixtures().insertPlaylistRepost(apiPlaylist.getId(), dateProvider.getCurrentDate().getTime());
 
-        playlistTracksStorage.playlistsForAddingTrack(apiTrack.getUrn()).subscribe(testObserver);
+        playlistTracksStorage.loadAddTrackToPlaylistItems(apiTrack.getUrn()).subscribe(testObserver);
 
-        List<PropertySet> result = testObserver.getOnNextEvents().get(0);
+        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
         expect(result).toBeEmpty();
+    }
+
+    @Test
+    public void addTrackToPlaylistItemsLoadCorrectPlaylistOfflineState() {
+        final TestObserver<List<AddTrackToPlaylistItem>> testObserver = new TestObserver<>();
+
+        final ApiPlaylist offlinePlaylist = insertPostedPlaylist();
+        testFixtures().insertPlaylistMarkedForOfflineSync(offlinePlaylist);
+
+        final ApiPlaylist normalPlaylist = insertPostedPlaylist();
+
+        playlistTracksStorage.loadAddTrackToPlaylistItems(Urn.forTrack(123)).subscribe(testObserver);
+
+        List<AddTrackToPlaylistItem> result = testObserver.getOnNextEvents().get(0);
+        expect(result).toContainExactly(
+                createAddTrackToPlaylistItem(offlinePlaylist, false, true),
+                createAddTrackToPlaylistItem(normalPlaylist, false));
     }
 
     @Test
@@ -161,7 +178,7 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         );
     }
 
-    private PropertySet fromApiTrack(ApiTrack apiTrack){
+    private PropertySet fromApiTrack(ApiTrack apiTrack) {
         return PropertySet.from(
                 TrackProperty.URN.bind(apiTrack.getUrn()),
                 TrackProperty.TITLE.bind(apiTrack.getTitle()),
@@ -190,13 +207,18 @@ public class PlaylistTracksStorageTest extends StorageIntegrationTest {
         return apiPlaylist;
     }
 
-    private PropertySet playlistForTrackPropertySet(ApiPlaylist apiPlaylist, boolean isAdded) {
-        return PropertySet.from(
-                TrackInPlaylistProperty.URN.bind(apiPlaylist.getUrn()),
-                TrackInPlaylistProperty.TITLE.bind(apiPlaylist.getTitle()),
-                TrackInPlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()),
-                TrackInPlaylistProperty.ADDED_TO_URN.bind(isAdded)
-        );
+    private AddTrackToPlaylistItem createAddTrackToPlaylistItem(ApiPlaylist playlist, boolean isTrackAdded) {
+        return createAddTrackToPlaylistItem(playlist, isTrackAdded, false);
+    }
+
+    private AddTrackToPlaylistItem createAddTrackToPlaylistItem(ApiPlaylist playlist, boolean isTrackAdded, boolean isOffline) {
+        return new AddTrackToPlaylistItem(
+                playlist.getUrn(),
+                playlist.getTitle(),
+                playlist.getTrackCount(),
+                !playlist.isPublic(),
+                isOffline,
+                isTrackAdded);
     }
 
 }

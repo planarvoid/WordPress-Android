@@ -34,6 +34,10 @@ import java.util.Set;
 
 public class PlaylistStorage {
 
+    static final Query IS_MARKED_FOR_OFFLINE_QUERY = Query.from(Table.OfflineContent.name(), Table.Sounds.name())
+            .joinOn(Table.SoundView.field(TableColumns.SoundView._ID), Table.OfflineContent.field(TableColumns.Likes._ID))
+            .whereEq(Table.OfflineContent.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_PLAYLIST);
+
     private final PropellerDatabase propeller;
     private final PropellerRx propellerRx;
     private final AccountOperations accountOperations;
@@ -97,7 +101,7 @@ public class PlaylistStorage {
                         exists(likeQuery(playlistUrn)).as(TableColumns.SoundView.USER_LIKE),
                         exists(repostQuery(playlistUrn)).as(TableColumns.SoundView.USER_REPOST),
                         exists(pendingPlaylistTracksUrns(playlistUrn)).as(PostedPlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST),
-                        exists(isMarkedForOfflineQuery()).as(OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE)
+                        exists(IS_MARKED_FOR_OFFLINE_QUERY).as(OfflinePlaylistMapper.IS_MARKED_FOR_OFFLINE)
                 )
                 .whereEq(TableColumns.SoundView._ID, playlistUrn.getNumericId())
                 .whereEq(TableColumns.SoundView._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
@@ -144,9 +148,4 @@ public class PlaylistStorage {
                 .whereEq(TableColumns.Posts.TYPE, TableColumns.Posts.TYPE_REPOST);
     }
 
-    private Query isMarkedForOfflineQuery() {
-        return Query.from(Table.OfflineContent.name(), Table.Sounds.name())
-                .joinOn(Table.SoundView + "." + TableColumns.SoundView._ID, Table.OfflineContent.name() + "." + TableColumns.Likes._ID)
-                .whereEq(Table.OfflineContent + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-    }
 }

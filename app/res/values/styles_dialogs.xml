@@ -46,8 +46,9 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">@dimen/dialog_content_text_size</item>
-        <item name="android:textColor">@color/dialog_text</item>
+        <item name="android:textColor">@drawable/list_item_text_color</item>
     </style>
+
     <style name="DialogSubText">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

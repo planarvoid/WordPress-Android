@@ -77,7 +77,7 @@ class AddTrackToPlaylistCommand extends WriteStorageCommand<AddTrackToPlaylistCo
     private static final class TrackCountMapper extends RxResultMapper<Integer> {
         @Override
         public Integer map(CursorReader cursorReader) {
-            return PlaylistMapper.getTrackCount(cursorReader);
+            return PlaylistMapper.readTrackCount(cursorReader);
         }
     }
 }

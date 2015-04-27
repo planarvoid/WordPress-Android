@@ -87,9 +87,9 @@ public class PlaylistOperations {
         this.offlineOperations = offlineOperations;
     }
 
-    Observable<List<PropertySet>> loadPlaylistForAddingTrack(Urn trackUrn) {
+    Observable<List<AddTrackToPlaylistItem>> loadPlaylistForAddingTrack(Urn trackUrn) {
         return playlistTracksStorage
-                .playlistsForAddingTrack(trackUrn)
+                .loadAddTrackToPlaylistItems(trackUrn)
                 .subscribeOn(scheduler);
     }
 

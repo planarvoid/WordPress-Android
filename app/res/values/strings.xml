@@ -367,6 +367,7 @@
     <string name="create_new_playlist_hint">Enter playlist title</string>
     <string name="error_new_playlist_blank_title">Please enter a valid title</string>
     <string name="add_playlist_private">Private</string>
+    <string name="add_playlist_offline">Available Offline</string>
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Info</string>
