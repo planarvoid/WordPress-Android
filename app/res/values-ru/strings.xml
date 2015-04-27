@@ -60,10 +60,6 @@
   <string name="accessibility_stats_user_liked">Нравится вам</string>
   <string name="accessibility_like_action">Нравится</string>
 
-  <!-- __ACCESSIBILITY OFFLINE SYNC -->
-  <string name="accessibility_start_offline_update">Начать синхронизацию</string>
-  <string name="accessibility_remove_offline_likes">Удалить из оффлайн синхронизации</string>
-
   <!-- __ACTIVITIES -->
   <string name="liked">понравилось %s</string>
   <string name="reposted">переопубликовал %s</string>
