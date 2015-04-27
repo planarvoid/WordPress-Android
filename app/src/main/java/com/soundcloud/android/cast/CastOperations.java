@@ -109,7 +109,7 @@ public class CastOperations {
         try {
             playQueue.put(KEY_PLAY_QUEUE, new JSONArray(CollectionUtils.urnsToStrings(urns)));
         } catch (JSONException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Unable to build play queue JSON object", e);
         }
         return playQueue;
     }
