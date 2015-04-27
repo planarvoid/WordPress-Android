@@ -12,18 +12,16 @@ import android.widget.ImageView;
 
 public class DownloadImageView extends ImageView {
     private final Drawable downloading;
-    private final Drawable requested;
     private final Drawable downloaded;
-    private final Drawable unavailable;
+
     private DownloadState downloadState;
 
     public DownloadImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DownloadImageView);
+
+        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.DownloadImageView);
         downloaded = a.getDrawable(R.styleable.DownloadImageView_downloaded);
         downloading = a.getDrawable(R.styleable.DownloadImageView_downloading);
-        requested = a.getDrawable(R.styleable.DownloadImageView_requested);
-        unavailable = a.getDrawable(R.styleable.DownloadImageView_unavailable);
         a.recycle();
     }
 
@@ -49,7 +47,7 @@ public class DownloadImageView extends ImageView {
         setImageDrawable(null);
     }
 
-    private void setDownloadingState() {
+    private void animateDownloadingState() {
         setDownloadStateResource(downloading);
         AnimUtils.runSpinClockwiseAnimationOn(getContext(), this);
     }
@@ -67,13 +65,11 @@ public class DownloadImageView extends ImageView {
                 setNoOfflineState();
                 break;
             case UNAVAILABLE:
-                setDownloadStateResource(unavailable);
-                break;
             case REQUESTED:
-                setDownloadStateResource(requested);
+                setDownloadStateResource(downloading);
                 break;
             case DOWNLOADING:
-                setDownloadingState();
+                animateDownloadingState();
                 break;
             case DOWNLOADED:
                 setDownloadStateResource(downloaded);
