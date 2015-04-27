@@ -90,7 +90,7 @@ public class FollowingOperations {
         return userAssociationStorage.follow(user).lift(new ToggleFollowOperator(user.getUrn(), true));
     }
 
-    public Observable<UserAssociation> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
+    public Observable<Void> addFollowingBySuggestedUser(@NotNull final SuggestedUser suggestedUser) {
         updateLocalStatus(true, suggestedUser.getId());
         return userAssociationStorage.followSuggestedUser(suggestedUser);
     }
@@ -100,12 +100,12 @@ public class FollowingOperations {
         return userAssociationStorage.unfollow(user).lift(new ToggleFollowOperator(user.getUrn(), false));
     }
 
-    public Observable<UserAssociation> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
+    public Observable<Void> addFollowingsBySuggestedUsers(final List<SuggestedUser> suggestedUsers) {
         updateLocalStatus(true, ScModel.getIdList(suggestedUsers));
         return userAssociationStorage.followSuggestedUserList(suggestedUsers);
     }
 
-    public Observable<UserAssociation> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
+    public Observable<Void> removeFollowingsBySuggestedUsers(List<SuggestedUser> suggestedUsers) {
         return removeFollowings(Lists.transform(suggestedUsers, new Function<SuggestedUser, PublicApiUser>() {
             @Override
             public PublicApiUser apply(SuggestedUser input) {
@@ -122,7 +122,7 @@ public class FollowingOperations {
         }
     }
 
-    public Observable<UserAssociation> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
+    public Observable<Void> toggleFollowingBySuggestedUser(SuggestedUser suggestedUser) {
         if (followStatus.isFollowing(suggestedUser.getUrn())) {
             return removeFollowingsBySuggestedUsers(Arrays.asList(suggestedUser));
         } else {
@@ -203,7 +203,7 @@ public class FollowingOperations {
         }
     }
 
-    private Observable<UserAssociation> removeFollowings(final List<PublicApiUser> users) {
+    private Observable<Void> removeFollowings(final List<PublicApiUser> users) {
         updateLocalStatus(false, ScModel.getIdList(users));
         return userAssociationStorage.unfollowList(users);
     }

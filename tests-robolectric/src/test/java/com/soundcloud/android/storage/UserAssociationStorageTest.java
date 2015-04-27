@@ -67,7 +67,8 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldMarkFollowingAndStoreToken() throws Exception {
         SuggestedUser suggestedUser = ModelFixtures.create(SuggestedUser.class);
-        expect(storage.followSuggestedUser(suggestedUser).toBlocking().last().getUser()).toEqual(new PublicApiUser(suggestedUser));
+
+        storage.followSuggestedUser(suggestedUser).subscribe();
 
         UserAssociation userAssociation = TestHelper.loadUserAssociation(Content.ME_FOLLOWINGS, suggestedUser.getId());
         expect(userAssociation.getLocalSyncState()).toEqual(UserAssociation.LocalState.PENDING_ADDITION);
@@ -150,9 +151,10 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkInsertFollowingsFromSuggestedUsers() throws Exception {
         final List<SuggestedUser> suggestedUsers = ModelFixtures.create(SuggestedUser.class, 3);
-        expect(storage.followSuggestedUserList(suggestedUsers).toBlocking().last().getUser()).toEqual(new PublicApiUser(suggestedUsers.get(2)));
-        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
 
+        storage.followSuggestedUserList(suggestedUsers).subscribe();
+
+        expect(Content.ME_FOLLOWINGS).toHaveCount(3);
         for (SuggestedUser suggestedUser : suggestedUsers) {
             final UserAssociation userAssociationByTargetId = TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, suggestedUser.getId());
             expect(userAssociationByTargetId.getLocalSyncState()).toBe(UserAssociation.LocalState.PENDING_ADDITION);
@@ -163,7 +165,7 @@ public class UserAssociationStorageTest {
     @Test
     public void shouldBulkMarkFollowingsForRemoval() throws Exception {
         List<PublicApiUser> users = ModelFixtures.create(PublicApiUser.class, 3);
-        storage.unfollowList(users).toBlocking().last();
+        storage.unfollowList(users).subscribe();
         expect(Content.ME_FOLLOWINGS).toHaveCount(3);
         for (PublicApiUser user : users) {
             expect(TestHelper.getUserAssociationByTargetId(Content.ME_FOLLOWINGS.uri, user.getId()).getLocalSyncState())

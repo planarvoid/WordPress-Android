@@ -4,7 +4,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.collections.SingleLineCollectionTextView;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -41,7 +40,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
 
     private final SparseArray<Section> listPositionsToSections;
     private final FollowingOperations followingOperations;
-    private final DefaultSubscriber<UserAssociation> mNotifyWhenDoneObserver = new DefaultSubscriber<UserAssociation>() {
+    private final DefaultSubscriber<Void> mNotifyWhenDoneObserver = new DefaultSubscriber<Void>() {
         @Override
         public void onCompleted() {
             notifyDataSetChanged();
@@ -194,7 +193,7 @@ public class SuggestedUsersCategoriesAdapter extends BaseAdapter {
                 final boolean shouldFollow = ((CompoundButton) v).isChecked();
                 final Category toggleCategory = getItem((Integer) v.getTag());
                 final Set<Long> followedUserIds = followingOperations.getFollowedUserIds();
-                Observable<UserAssociation> toggleFollowings;
+                Observable<Void> toggleFollowings;
                 if (shouldFollow) {
                     final List<SuggestedUser> notFollowedUsers = toggleCategory.getNotFollowedUsers(followedUserIds);
                     toggleFollowings = followingOperations.addFollowingsBySuggestedUsers(notFollowedUsers);

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -73,7 +72,7 @@ public class SuggestedUsersCategoryFragmentTest {
 
     @Test
     public void shouldCallToggleFollowingBySuggestedUser() {
-        when(followingOperations.toggleFollowingBySuggestedUser(any(SuggestedUser.class))).thenReturn(Observable.<UserAssociation>empty());
+        when(followingOperations.toggleFollowingBySuggestedUser(any(SuggestedUser.class))).thenReturn(Observable.<Void>empty());
         fragment.onItemClick(null, null, 2, 0);
         verify(followingOperations).toggleFollowingBySuggestedUser(suggestedUsers.get(2));
     }

@@ -5,7 +5,6 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.image.ImageOperations;
 import rx.Observable;
@@ -98,7 +97,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         }
 
         final Set<Long> followedUserIds = followingOperations.getFollowedUserIds();
-        Observable<UserAssociation> toggleFollowings;
+        Observable<Void> toggleFollowings;
         if (shouldFollow) {
             toggleFollowings = followingOperations.addFollowingsBySuggestedUsers(category.getNotFollowedUsers(followedUserIds));
         } else {
@@ -107,7 +106,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         subscription.add(bindFragment(this, toggleFollowings).subscribe(new ToggleAllObserver(this)));
     }
 
-    private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, UserAssociation> {
+    private static final class ToggleFollowingObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, Void> {
         public ToggleFollowingObserver(SuggestedUsersCategoryFragment fragment) {
             super(fragment);
         }
@@ -124,7 +123,7 @@ public class SuggestedUsersCategoryFragment extends Fragment implements AdapterV
         }
     }
 
-    private static final class ToggleAllObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, UserAssociation> {
+    private static final class ToggleAllObserver extends RxFragmentObserver<SuggestedUsersCategoryFragment, Void> {
         public ToggleAllObserver(SuggestedUsersCategoryFragment fragment) {
             super(fragment);
         }

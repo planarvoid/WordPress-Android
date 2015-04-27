@@ -91,17 +91,16 @@ public class UserAssociationStorage extends ScheduledOperations {
 
     }
 
-    public Observable<UserAssociation> followSuggestedUser(final SuggestedUser suggestedUser) {
-        return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
+    public Observable<Void> followSuggestedUser(final SuggestedUser suggestedUser) {
+        return schedule(Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
-            public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
+            public void call(Subscriber<? super Void> userAssociationObserver) {
                 UserAssociation following = queryFollowingByTargetUserId(suggestedUser.getId());
                 if (following == null || following.getLocalSyncState() == UserAssociation.LocalState.PENDING_REMOVAL) {
                     following = new UserAssociation(UserAssociation.Type.FOLLOWING, new PublicApiUser(suggestedUser))
                             .markForAddition(suggestedUser.getToken());
                     followingsDAO.create(following);
                 }
-                userAssociationObserver.onNext(following);
                 userAssociationObserver.onCompleted();
             }
         }));
@@ -119,7 +118,7 @@ public class UserAssociationStorage extends ScheduledOperations {
         return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
             @Override
             public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
-                List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
+                List<UserAssociation> userAssociations = new ArrayList<>(users.size());
                 for (PublicApiUser user : users) {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForAddition());
                 }
@@ -139,18 +138,17 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param suggestedUsers
      * @return
      */
-    public Observable<UserAssociation> followSuggestedUserList(final List<SuggestedUser> suggestedUsers) {
-        return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
+    public Observable<Void> followSuggestedUserList(final List<SuggestedUser> suggestedUsers) {
+        return schedule(Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
-            public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
-                List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(suggestedUsers.size());
+            public void call(Subscriber<? super Void> userAssociationObserver) {
+                List<UserAssociation> userAssociations = new ArrayList<>(suggestedUsers.size());
                 for (SuggestedUser suggestedUser : suggestedUsers) {
                     userAssociations.add(new UserAssociation(
                             UserAssociation.Type.FOLLOWING, new PublicApiUser(suggestedUser)
                     ).markForAddition(suggestedUser.getToken()));
                 }
                 followingsDAO.createCollection(userAssociations);
-                RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
             }
         }));
@@ -187,16 +185,15 @@ public class UserAssociationStorage extends ScheduledOperations {
      * @param users the users to mark for removal
      * @return the number of insertions/updates performed
      */
-    public Observable<UserAssociation> unfollowList(final List<PublicApiUser> users) {
-        return schedule(Observable.create(new Observable.OnSubscribe<UserAssociation>() {
+    public Observable<Void> unfollowList(final List<PublicApiUser> users) {
+        return schedule(Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
-            public void call(Subscriber<? super UserAssociation> userAssociationObserver) {
-                List<UserAssociation> userAssociations = new ArrayList<UserAssociation>(users.size());
+            public void call(Subscriber<? super Void> userAssociationObserver) {
+                List<UserAssociation> userAssociations = new ArrayList<>(users.size());
                 for (PublicApiUser user : users) {
                     userAssociations.add(new UserAssociation(UserAssociation.Type.FOLLOWING, user).markForRemoval());
                 }
                 followingsDAO.createCollection(userAssociations);
-                RxUtils.emitIterable(userAssociationObserver, userAssociations);
                 userAssociationObserver.onCompleted();
             }
         }));
