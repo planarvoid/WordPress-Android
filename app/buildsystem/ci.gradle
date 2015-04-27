@@ -21,13 +21,13 @@ task renameApk << {
 task staticAnalysis(dependsOn: ['checkstyle', 'findbugs', 'pmd', "lint${project.buildType.capitalize()}"]) {
   description = 'Performs static analysis of code.'
 }
-staticAnalysis.mustRunAfter("build${project.buildType.capitalize()}CI")
+staticAnalysis.mustRunAfter("assemble${project.buildType.capitalize()}")
 
 // *********************************************************************************************************************
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task buildDebugCI(dependsOn: ['assembleDebug']) {
+task buildDebugCI(dependsOn: ['assembleDebug', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
 buildDebugCI.mustRunAfter('updateVersion')
@@ -73,8 +73,8 @@ deployBeta.mustRunAfter('buildBetaCI')
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard']) {
-  description = 'Assembles Release (without ProGuard!) build for CI.'
+task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard', 'staticAnalysis']) {
+  description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
 buildReleaseNoProguardCI.mustRunAfter('updateVersion')
 
