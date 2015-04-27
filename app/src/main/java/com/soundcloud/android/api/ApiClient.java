@@ -19,6 +19,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import org.apache.http.HttpStatus;
@@ -90,7 +91,7 @@ public class ApiClient {
                 default:
                     throw new IllegalArgumentException("Unsupported HTTP method: " + request.getMethod());
             }
-            final com.squareup.okhttp.Request httpRequest = builder.build();
+            final Request httpRequest = builder.build();
             logRequest(httpRequest);
             final Response response = httpClient.newCall(httpRequest).execute();
             if (response.code() == HttpStatus.SC_UNAUTHORIZED) {
@@ -159,7 +160,7 @@ public class ApiClient {
             if (part instanceof StringPart) {
                 builder.addFormDataPart(part.getPartName(), ((StringPart) part).getValue());
             } else if (part instanceof FilePart) {
-                final FilePart filePart = ((FilePart) part);
+                final FilePart filePart = (FilePart) part;
                 final RequestBody requestBody = RequestBody.create(MediaType.parse(part.getContentType()), filePart.getFile());
                 builder.addFormDataPart(filePart.getPartName(), filePart.getFileName(), requestBody);
             }
