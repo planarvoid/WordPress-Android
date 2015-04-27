@@ -31,7 +31,7 @@ import java.util.List;
 
 public class CastOperations {
 
-    public static final String TAG = "ChromeCast";
+    public static final String TAG = "GoogleCast";
 
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";

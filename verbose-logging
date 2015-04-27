@@ -4,5 +4,5 @@ adb shell setprop log.tag.OfflineContent DEBUG
 adb shell setprop log.tag.EventTracker DEBUG
 adb shell setprop log.tag.ApiClient DEBUG
 adb shell setprop log.tag.EventBus DEBUG
-adb shell setprop log.tag.ChromeCast DEBUG
+adb shell setprop log.tag.GoogleCast DEBUG
 
