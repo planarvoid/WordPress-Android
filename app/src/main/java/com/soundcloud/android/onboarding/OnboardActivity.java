@@ -46,7 +46,6 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.profile.MonthPickerDialogFragment;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
@@ -81,7 +80,7 @@ public class OnboardActivity extends FragmentActivity
         implements AuthTaskFragment.OnAuthResultListener, LoginLayout.LoginHandler,
         SignupMethodLayout.SignUpMethodHandler, SignupDetailsLayout.UserDetailsHandler,
         AcceptTermsLayout.AcceptTermsHandler, SignupBasicsLayout.SignUpBasicsHandler,
-        GenderPickerDialogFragment.CallbackProvider, MonthPickerDialogFragment.CallbackProvider {
+        GenderPickerDialogFragment.CallbackProvider {
 
     protected enum OnboardingState {
         PHOTOS, LOGIN, SIGN_UP_METHOD, SIGN_UP_BASICS, SIGN_UP_DETAILS, ACCEPT_TERMS
@@ -786,11 +785,6 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public GenderPickerDialogFragment.Callback getGenderPickerCallback() {
-        return getSignUpBasicsLayout();
-    }
-
-    @Override
-    public MonthPickerDialogFragment.Callback getMonthPickerCallback() {
         return getSignUpBasicsLayout();
     }
 

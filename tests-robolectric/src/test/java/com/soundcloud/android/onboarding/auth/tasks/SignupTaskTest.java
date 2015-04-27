@@ -173,7 +173,7 @@ public class SignupTaskTest {
         Bundle bundle = new Bundle();
         bundle.putString(SignupTask.KEY_USERNAME, "username");
         bundle.putString(SignupTask.KEY_PASSWORD, "password");
-        bundle.putSerializable(SignupTask.KEY_BIRTHDAY, BirthdayInfo.buildFrom(11, 1981));
+        bundle.putSerializable(SignupTask.KEY_BIRTHDAY, BirthdayInfo.buildFrom(22));
         bundle.putString(SignupTask.KEY_GENDER, "fluid");
         return bundle;
     }

@@ -23,8 +23,7 @@ public class EmailOptInTest extends SignUpTest {
         // TODO : Re-use the same user
         signUpBasicsScreen.typeEmail(TestUser.generateEmail());
         signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("April");
-        signUpBasicsScreen.typeBirthYear("1984");
+        signUpBasicsScreen.typeAge(21);
         signUpBasicsScreen.chooseGender("Male");
 
         signUpBasicsScreen.signup();

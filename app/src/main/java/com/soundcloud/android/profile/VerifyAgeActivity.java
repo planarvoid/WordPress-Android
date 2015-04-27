@@ -1,15 +1,16 @@
 package com.soundcloud.android.profile;
 
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+
 import javax.inject.Inject;
 
-public class VerifyAgeActivity extends ScActivity implements MonthPickerDialogFragment.CallbackProvider {
+public class VerifyAgeActivity extends ScActivity {
     static final String EXTRA_USER_TO_FOLLOW_URN = "userToFollowUrn";
 
     @Inject VerifyAgePresenter presenter;
@@ -26,8 +27,4 @@ public class VerifyAgeActivity extends ScActivity implements MonthPickerDialogFr
         presenter.onCreate(this, savedInstanceState);
     }
 
-    @Override
-    public MonthPickerDialogFragment.Callback getMonthPickerCallback() {
-        return presenter;
-    }
 }

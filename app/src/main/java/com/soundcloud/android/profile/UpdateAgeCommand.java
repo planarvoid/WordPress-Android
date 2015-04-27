@@ -25,8 +25,8 @@ class UpdateAgeCommand extends LegacyCommand<BirthdayInfo, Boolean, UpdateAgeCom
     @Override
     public Boolean call() throws Exception {
         Map<String, Integer> body = new HashMap<>(2);
-        body.put("month", input.month);
-        body.put("year", input.year);
+        body.put("month", input.getMonth());
+        body.put("year", input.getYear());
 
         ApiRequest request = ApiRequest.put(ApiEndpoints.MY_DOB.path()).forPrivateApi(1).withContent(body).build();
         ApiResponse response = apiClient.fetchResponse(request);

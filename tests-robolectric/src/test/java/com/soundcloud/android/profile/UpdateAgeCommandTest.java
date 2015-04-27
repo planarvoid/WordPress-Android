@@ -30,7 +30,7 @@ public class UpdateAgeCommandTest {
 
         when(apiClient.fetchResponse(any(ApiRequest.class))).thenReturn(response);
 
-        BirthdayInfo info = BirthdayInfo.buildFrom(10, 1972);
+        BirthdayInfo info = BirthdayInfo.buildFrom(40);
         UpdateAgeCommand command = new UpdateAgeCommand(apiClient).with(info);
         assertThat(command.call(), is(true));
 
@@ -38,7 +38,7 @@ public class UpdateAgeCommandTest {
         verify(apiClient).fetchResponse(captor.capture());
 
         Map<String, Integer> content = (Map) captor.getValue().getContent();
-        expect(content.get("month")).toEqual(info.month);
-        expect(content.get("year")).toEqual(info.year);
+        expect(content.get("month")).toEqual(info.getMonth());
+        expect(content.get("year")).toEqual(info.getYear());
     }
 }

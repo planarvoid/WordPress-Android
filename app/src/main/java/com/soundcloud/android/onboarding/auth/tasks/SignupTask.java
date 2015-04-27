@@ -7,6 +7,7 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.profile.BirthdayInfo;
@@ -16,10 +17,8 @@ import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Params;
 import com.soundcloud.api.Request;
-import com.soundcloud.android.api.oauth.Token;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
 
@@ -107,8 +106,8 @@ public class SignupTask extends AuthTask {
                 Params.User.PASSWORD_CONFIRMATION, parameters.getString(KEY_PASSWORD),
                 Params.User.TERMS_OF_USE, "1",
                 Params.User.GENDER, parameters.getString(KEY_GENDER),
-                Params.User.DATE_OF_BIRTH_MONTH, birthday.month,
-                Params.User.DATE_OF_BIRTH_YEAR, birthday.year
+                Params.User.DATE_OF_BIRTH_MONTH, birthday.getMonth(),
+                Params.User.DATE_OF_BIRTH_YEAR, birthday.getYear()
         ).usingToken(signupToken));
     }
 
