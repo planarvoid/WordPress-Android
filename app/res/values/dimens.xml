@@ -82,6 +82,9 @@
 
     <dimen name="playlist_header_height">120dp</dimen>
     <dimen name="playlist_header_padding">16dp</dimen>
+    <dimen name="playlist_overflow_button_margin_left">12dp</dimen>
+    <dimen name="playlist_overflow_button_margin_right">4dp</dimen>
+    <dimen name="playlist_action_bar_padding">8dp</dimen>
 
     <dimen name="explore_suggested_track_category_text_size">16sp</dimen>
     <dimen name="grid_item_bottom_text_size">14sp</dimen>
@@ -119,6 +122,12 @@
 
     <!-- Like -->
     <dimen name="likes_header_divider">1dp</dimen>
+    <dimen name="likes_header_padding_top">10dp</dimen>
+    <dimen name="likes_header_padding_bottom">6dp</dimen>
+    <dimen name="likes_header_padding_right">4dp</dimen>
+    <dimen name="likes_shuffle_button_padding">10dp</dimen>
+    <dimen name="likes_shuffle_button_margin_left">8dp</dimen>
+    <dimen name="likes_shuffle_button_margin_right">12dp</dimen>
     <dimen name="collection_download_state_margin_right">5dip</dimen>
 
 </resources>
