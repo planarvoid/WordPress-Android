@@ -80,4 +80,16 @@ public class PlaybackPerformanceEventTest {
         expect(event.getConnectionType()).toEqual(ConnectionType.FOUR_G);
         expect(event.getUserUrn()).toEqual(userUrn);
     }
+
+    @Test
+    public void createTimeToLoadEvent() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.timeToLoad(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST, userUrn);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
+        expect(event.getPlayerType()).toEqual(PLAYER_TYPE);
+        expect(event.getProtocol()).toEqual(PROTOCOL);
+        expect(event.getConnectionType()).toEqual(ConnectionType.FOUR_G);
+        expect(event.getUserUrn()).toEqual(userUrn);
+    }
 }

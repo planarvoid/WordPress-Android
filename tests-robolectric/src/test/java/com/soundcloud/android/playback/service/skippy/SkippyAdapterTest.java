@@ -99,7 +99,7 @@ public class SkippyAdapterTest {
     private Urn trackUrn;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, apiUrlBuilder,
@@ -159,7 +159,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void playUninterruptedUsesPlayAd() throws Exception {
+    public void playUninterruptedUsesPlayAd() {
         skippyAdapter.playUninterrupted(track);
         verify(skippy).playAd(STREAM_URL, 0);
     }
@@ -204,7 +204,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void playOfflinePlaysOfflineOnSkippy() throws Exception {
+    public void playOfflinePlaysOfflineOnSkippy() {
         final Uri uri = Uri.parse("asdf/123");
         final byte[] key = new byte[0];
         final byte[] iVector = new byte[0];
@@ -320,7 +320,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyIdlePausedEventTranslatesToListenerIdleEvent() throws Exception {
+    public void skippyIdlePausedEventTranslatesToListenerIdleEvent() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -329,7 +329,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyPlayingTranslatesToListenerPlayingEvent() throws Exception {
+    public void skippyPlayingTranslatesToListenerPlayingEvent() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.PLAYING, Playa.Reason.NONE, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -338,7 +338,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyPlayBufferingTranslatesToListenerBufferingEvent() throws Exception {
+    public void skippyPlayBufferingTranslatesToListenerBufferingEvent() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.BUFFERING, Playa.Reason.NONE, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -347,7 +347,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyIdleErrorTimeoutTranslatesToListenerTimeoutError() throws Exception {
+    public void skippyIdleErrorTimeoutTranslatesToListenerTimeoutError() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -356,7 +356,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyFailedErrorTranslatesToListenerErrorFailed() throws Exception {
+    public void skippyFailedErrorTranslatesToListenerErrorFailed() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FAILED, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -365,7 +365,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyIdleErrorForbiddenTranslatesToListenerErrorForbiddenEvent() throws Exception {
+    public void skippyIdleErrorForbiddenTranslatesToListenerErrorForbiddenEvent() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_FORBIDDEN, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -374,7 +374,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyIdleErrorNotFoundTranslatesToListenerErrorNotFoundEvent() throws Exception {
+    public void skippyIdleErrorNotFoundTranslatesToListenerErrorNotFoundEvent() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -383,7 +383,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void skippyIdlePausedEventAdjustsProgressToDurationBoundsWhenSendingEvent() throws Exception {
+    public void skippyIdlePausedEventAdjustsProgressToDurationBoundsWhenSendingEvent() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.NONE, trackUrn, DURATION, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -392,7 +392,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void returnsLastStateChangeProgressAfterError() throws Exception {
+    public void returnsLastStateChangeProgressAfterError() {
         skippyAdapter.play(track);
         Playa.StateTransition expected = new Playa.StateTransition(PlayaState.IDLE, Playa.Reason.ERROR_NOT_FOUND, trackUrn, PROGRESS, DURATION);
         when(stateChangeHandler.obtainMessage(0, expected)).thenReturn(message);
@@ -401,7 +401,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void doesNotLockLockUtilWhenPlayingIfNotInTestGroup() throws Exception {
+    public void doesNotLockLockUtilWhenPlayingIfNotInTestGroup() {
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
@@ -409,7 +409,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void doesNotLockLockUtilWhenBufferingIfNotInTestGroup() throws Exception {
+    public void doesNotLockLockUtilWhenBufferingIfNotInTestGroup() {
         skippyAdapter.play(track);
         skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
 
@@ -417,7 +417,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void locksLockUtilWhenPlayingIfInTestGroup() throws Exception {
+    public void locksLockUtilWhenPlayingIfInTestGroup() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -427,7 +427,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void locksLockUtilWhenBufferingIfInTestGroup() throws Exception {
+    public void locksLockUtilWhenBufferingIfInTestGroup() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -437,7 +437,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void unlocksLockUtilWhenIdleIfInTestGroup() throws Exception {
+    public void unlocksLockUtilWhenIdleIfInTestGroup() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -447,7 +447,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void unlocksLockUtilOnErrorIfInTestGroup() throws Exception {
+    public void unlocksLockUtilOnErrorIfInTestGroup() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -457,7 +457,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void unlocksLockUtilWhenCompleteIfInTestGroup() throws Exception {
+    public void unlocksLockUtilWhenCompleteIfInTestGroup() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -477,7 +477,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void performanceMetricPublishesTimeToPlayEventEvent() throws Exception {
+    public void performanceMetricPublishesTimeToPlayEventEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_PLAY, 1000L, STREAM_URL, CDN_HOST);
 
@@ -491,7 +491,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void performanceMetricPublishesTimeToBufferEvent() throws Exception {
+    public void performanceMetricPublishesTimeToBufferEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_BUFFER, 1000L, STREAM_URL, CDN_HOST);
 
@@ -505,7 +505,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void performanceMetricPublishesTimeToPlaylistEvent() throws Exception {
+    public void performanceMetricPublishesTimeToPlaylistEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_GET_PLAYLIST, 1000L, STREAM_URL, CDN_HOST);
 
@@ -519,7 +519,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void performanceMetricPublishesTimeToSeekEvent() throws Exception {
+    public void performanceMetricPublishesTimeToSeekEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_SEEK, 1000L, STREAM_URL, CDN_HOST);
 
@@ -533,7 +533,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void performanceMetricPublishesFragmentDownloadRateEvent() throws Exception {
+    public void performanceMetricPublishesFragmentDownloadRateEvent() {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         skippyAdapter.onPerformanceMeasured(PlaybackMetric.FRAGMENT_DOWNLOAD_RATE, 1000L, STREAM_URL, CDN_HOST);
 
@@ -547,7 +547,21 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void onErrorPublishesPlaybackErrorEvent() throws Exception {
+    public void performanceMetricPublishesTimeToLoadEvent() {
+        when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
+        skippyAdapter.onPerformanceMeasured(PlaybackMetric.TIME_TO_LOAD_LIBRARY, 1000L, STREAM_URL, CDN_HOST);
+
+        final PlaybackPerformanceEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_PERFORMANCE);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
+        expect(event.getPlayerType()).toEqual(PlayerType.SKIPPY);
+        expect(event.getProtocol()).toEqual(PlaybackProtocol.HLS);
+        expect(event.getUserUrn()).toEqual(userUrn);
+    }
+
+    @Test
+    public void onErrorPublishesPlaybackErrorEvent() {
         skippyAdapter.onErrorMessage("CODEC_DECODER", "sourceFile", 1, "message", "uri", CDN_HOST);
 
         final PlaybackErrorEvent event = eventBus.lastEventOn(EventQueue.PLAYBACK_ERROR);
@@ -559,7 +573,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void initilizationSuccessPublishesSkippyInitSuccessEvent() throws Exception {
+    public void initilizationSuccessPublishesSkippyInitSuccessEvent() {
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         when(skippy.init(Robolectric.application, configuration)).thenReturn(true);
         skippyAdapter.init(Robolectric.application);
@@ -571,7 +585,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void initilizationSuccessIncrementsSuccessCount() throws Exception {
+    public void initilizationSuccessIncrementsSuccessCount() {
         when(skippyFactory.createConfiguration()).thenReturn(configuration);
         when(skippy.init(Robolectric.application, configuration)).thenReturn(true);
         skippyAdapter.init(Robolectric.application);
@@ -580,7 +594,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void initilizationErrorPublishesSkippyInitErrorEvent() throws Exception {
+    public void initilizationErrorPublishesSkippyInitErrorEvent() {
         skippyAdapter.onInitializationError(new IOException("because"), "some error message");
 
         final SkippyInitilizationFailedEvent event = (SkippyInitilizationFailedEvent) eventBus.lastEventOn(EventQueue.TRACKING);
@@ -592,7 +606,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void initilizationErrorIncrementsFailureCount() throws Exception {
+    public void initilizationErrorIncrementsFailureCount() {
         skippyAdapter.onInitializationError(new IOException(), "some error message");
         verify(sharedPreferencesEditor).putInt(SkippyAdapter.SKIPPY_INIT_ERROR_COUNT_KEY, 1);
         verify(sharedPreferencesEditor).apply();

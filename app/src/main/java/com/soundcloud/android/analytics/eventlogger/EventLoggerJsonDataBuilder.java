@@ -308,6 +308,8 @@ public class EventLoggerJsonDataBuilder {
                 return "seek";
             case PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE:
                 return "fragmentRate";
+            case PlaybackPerformanceEvent.METRIC_TIME_TO_LOAD:
+                return "timeToLoadLibrary";
             default:
                 throw new IllegalArgumentException("Unexpected metric type " + type);
         }
