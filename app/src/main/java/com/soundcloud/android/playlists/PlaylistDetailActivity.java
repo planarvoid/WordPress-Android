@@ -3,8 +3,8 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdPlayerController;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.lightcycle.LightCycle;
@@ -12,7 +12,6 @@ import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.android.view.screen.ScreenPresenter;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -32,7 +31,6 @@ public class PlaylistDetailActivity extends ScActivity {
 
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
-    @Inject ScreenPresenter presenter;
 
     public static void start(Context context, @NotNull Urn playlist, Screen screen) {
         start(context, playlist, screen, false);
@@ -61,10 +59,6 @@ public class PlaylistDetailActivity extends ScActivity {
         return intent.putExtra(EXTRA_AUTO_PLAY, autoPlay)
                 .putExtra(EXTRA_URN, playlistUrn)
                 .putExtra(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
-    }
-
-    public PlaylistDetailActivity() {
-        presenter.attach(this);
     }
 
     @Override

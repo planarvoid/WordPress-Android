@@ -1,15 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <View style="@style/MarginLeft"/>
+    <include layout="@layout/toolbar" />
 
-    <FrameLayout
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View style="@style/MarginLeft" />
+
+        <FrameLayout
             android:id="@+id/container"
-            style="@style/MarginedContent"/>
+            style="@style/MarginedContent" />
 
-    <View style="@style/MarginRight"/>
+        <View style="@style/MarginRight" />
+
+    </LinearLayout>
 </LinearLayout>
-

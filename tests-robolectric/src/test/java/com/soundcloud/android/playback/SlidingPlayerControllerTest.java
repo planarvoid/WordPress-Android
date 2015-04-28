@@ -171,16 +171,6 @@ public class SlidingPlayerControllerTest {
     }
 
     @Test
-    public void hidesActionBarIfExpandingStateStored() {
-        when(slidingPanel.isPanelExpanded()).thenReturn(true);
-
-        controller.onCreate(activity, createBundleWithExpandingCommand());
-        controller.onResume(activity);
-
-        verify(actionBar).hide();
-    }
-
-    @Test
     public void storesExpandingStateInBundle() {
         when(slidingPanel.isPanelExpanded()).thenReturn(true);
         Bundle bundle = new Bundle();
@@ -280,20 +270,6 @@ public class SlidingPlayerControllerTest {
         controller.onResume(activity);
 
         verify(slidingPanel).expandPanel();
-    }
-
-    @Test
-    public void setsCollapsingStateWhenPassingOverThreshold() {
-        collapsePanel();
-
-        verify(actionBar, times(1)).show();
-    }
-
-    @Test
-    public void setsExpandingStateWhenPassingUnderThreshold() {
-        expandPanel();
-
-        verify(actionBar, times(1)).hide();
     }
 
     @Test

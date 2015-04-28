@@ -16,12 +16,10 @@ import rx.subscriptions.Subscriptions;
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -40,7 +38,7 @@ public class NavigationDrawerFragment extends NavigationFragment {
     @Inject EventBus eventBus;
 
     public NavigationDrawerFragment() {
-        // Android needs a default ctor.
+        // Android needs a default constructor.
     }
 
     @VisibleForTesting
@@ -95,6 +93,13 @@ public class NavigationDrawerFragment extends NavigationFragment {
                 getActivity().supportInvalidateOptionsMenu(); // calls onPrepareOptionsMenu()
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_DRAWER));
             }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                if (drawerView != null) { // this removes the drawer icon open-close animation
+                    super.onDrawerSlide(drawerView, 0);
+                }
+            }
         };
 
         // Defer code dependent on restoration of previous instance state.
@@ -133,21 +138,6 @@ public class NavigationDrawerFragment extends NavigationFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // If the drawer is open, show the global app actions in the action bar. See also
-        // showGlobalContextActionBar, which controls the top-left area of the action bar.
-        if (isDrawerOpen()) {
-            showGlobalContextActionBar();
-        }
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    protected boolean shouldSetActionBarTitle() {
-        return !isDrawerOpen();
-    }
-
     public boolean isDrawerOpen() {
         return isAttached() && drawerLayout.isDrawerOpen(getView());
     }
@@ -177,14 +167,13 @@ public class NavigationDrawerFragment extends NavigationFragment {
         actionBar.setHomeButtonEnabled(true);
     }
 
-    /**
-     * Per the navigation drawer design guidelines, updates the action bar to show the global app
-     * 'context', rather than just what's in the current screen.
-     */
-    private void showGlobalContextActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayShowCustomEnabled(false);
-        actionBar.setTitle(R.string.app_name);
+    @Override
+    public boolean handleBackPressed() {
+        if (isDrawerOpen()) {
+            closeDrawer();
+            return true;
+        }
+        return false;
     }
 
     private boolean isAttached() {

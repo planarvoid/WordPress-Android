@@ -48,6 +48,7 @@ public class NavigationFragment extends Fragment {
 
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
+
     private NavigationCallbacks callbacks;
     private ListView listView;
     private int currentSelectedPosition = NavItem.STREAM.ordinal();
@@ -66,12 +67,18 @@ public class NavigationFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        configureLocalContextActionBar();
         try {
             callbacks = (NavigationCallbacks) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException("Activity must implement NavigationCallbacks.");
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        // on attach is a bit too quick the toolbar is not available yet?
+        configureLocalContextActionBar();
     }
 
     @Override
@@ -83,15 +90,16 @@ public class NavigationFragment extends Fragment {
     public boolean handleIntent(Intent intent) {
         final String action = intent.getAction();
         if (ScTextUtils.isNotBlank(action)) {
-            if (Actions.STREAM.equals(action)) {
-                selectItem(NavItem.STREAM.ordinal());
-                return true;
-            } else if (Actions.LIKES.equals(action)) {
-                selectItem(NavItem.LIKES.ordinal());
-                return true;
-            } else if (Actions.EXPLORE.equals(action)) {
-                selectItem(NavItem.EXPLORE.ordinal());
-                return true;
+            switch (action) {
+                case Actions.STREAM:
+                    selectItem(NavItem.STREAM.ordinal());
+                    return true;
+                case Actions.LIKES:
+                    selectItem(NavItem.LIKES.ordinal());
+                    return true;
+                case Actions.EXPLORE:
+                    selectItem(NavItem.EXPLORE.ordinal());
+                    return true;
             }
         }
 
@@ -114,10 +122,14 @@ public class NavigationFragment extends Fragment {
         return false;
     }
 
+    public boolean handleBackPressed() {
+        return false;
+    }
+
     private boolean shouldGoToStream(Uri data) {
         final String host = data.getHost();
         return host != null && (STREAM.equals(host) || STREAM.equals(data.getLastPathSegment()) ||
-                (host.contains(SOUNDCLOUD_COM)&& ScTextUtils.isBlank(data.getPath())));
+                (host.contains(SOUNDCLOUD_COM) && ScTextUtils.isBlank(data.getPath())));
     }
 
     @Override
@@ -175,7 +187,7 @@ public class NavigationFragment extends Fragment {
         adjustSelectionForProfile(position);
 
         if (callbacks != null) {
-            callbacks.onSelectItem(position, shouldSetActionBarTitle());
+            callbacks.onSelectItem(position);
         }
         getActivity().supportInvalidateOptionsMenu();
     }
@@ -184,13 +196,9 @@ public class NavigationFragment extends Fragment {
         adjustSelectionForProfile(position);
 
         if (callbacks != null) {
-            callbacks.onSmoothSelectItem(position, shouldSetActionBarTitle());
+            callbacks.onSmoothSelectItem(position);
         }
         getActivity().supportInvalidateOptionsMenu();
-    }
-
-    protected boolean shouldSetActionBarTitle() {
-        return true;
     }
 
     protected ActionBar getActionBar() {
@@ -216,9 +224,7 @@ public class NavigationFragment extends Fragment {
             data[i++] = navItem;
         }
 
-        listView.setAdapter(new NavigationAdapter(
-                getActionBar().getThemedContext(),
-                R.layout.nav_item, data));
+        listView.setAdapter(new NavigationAdapter(getActivity(), R.layout.nav_item, data));
 
         return listView;
     }
@@ -270,9 +276,9 @@ public class NavigationFragment extends Fragment {
      */
     public static interface NavigationCallbacks {
 
-        void onSmoothSelectItem(int position, boolean setTitle);
+        void onSmoothSelectItem(int position);
 
-        void onSelectItem(int position, boolean setTitle);
+        void onSelectItem(int position);
     }
 
     private static class ProfileViewHolder {

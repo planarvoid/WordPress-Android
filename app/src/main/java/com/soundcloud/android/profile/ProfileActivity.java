@@ -1,23 +1,7 @@
 package com.soundcloud.android.profile;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.ToggleButton;
+import static android.text.TextUtils.isEmpty;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -48,18 +32,31 @@ import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
-import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
-
 import org.jetbrains.annotations.Nullable;
-
-import javax.inject.Inject;
-
 import rx.android.schedulers.AndroidSchedulers;
 
-import static android.text.TextUtils.isEmpty;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.ToggleButton;
+
+import javax.inject.Inject;
 
 @SuppressWarnings("PMD.TooManyFields")
 public class ProfileActivity extends ScActivity implements
@@ -85,7 +82,6 @@ public class ProfileActivity extends ScActivity implements
     @Inject UserStorage userStorage;
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
-    @Inject ScreenPresenter presenter;
     @Inject ProfileFragmentCreator profileListFragmentCreator;
 
     private TextView username, followerCount, followerMessage, location;
@@ -95,10 +91,6 @@ public class ProfileActivity extends ScActivity implements
     private UserInfoFragment userInfoFragment;
     private int initialOtherFollowers;
     private SearchQuerySourceInfo searchQuerySourceInfo;
-
-    public ProfileActivity() {
-        presenter.attach(this);
-    }
 
     @Deprecated
     public static boolean start(Context context, Urn urn) {

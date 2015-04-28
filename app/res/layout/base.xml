@@ -10,24 +10,23 @@
     sothree:dragView="@+id/player_layout">
 
     <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <View android:layout_width="match_parent"
-              android:layout_height="?attr/actionBarSize"
-              android:background="@color/dark_bg" />
+        <include layout="@layout/toolbar" />
 
         <FrameLayout
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+            android:id="@+id/container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
     </LinearLayout>
 
     <fragment
         android:id="@+id/player_root"
+        android:name="com.soundcloud.android.playback.ui.PlayerFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.soundcloud.android.playback.ui.PlayerFragment" />
+        android:layout_height="match_parent" />
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>
