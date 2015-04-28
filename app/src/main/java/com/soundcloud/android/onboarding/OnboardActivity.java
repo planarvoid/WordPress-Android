@@ -897,8 +897,7 @@ public class OnboardActivity extends FragmentActivity
         final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null);
-        //TODO: tracking?
-        //showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupInvalidEmail());
+        //TODO: tracking spec is not ready yet
         if (!isFinishing()) {
             dialogBuilder.create().show();
         }
