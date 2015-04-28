@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 import android.content.Intent;
 
+import java.util.Locale;
+
 public enum Referrer {
     OTHER("other"),
     HOME_BUTTON("home_button"),
@@ -40,7 +42,7 @@ public enum Referrer {
 
     public static Referrer fromOrigin(@NotNull String referrer) {
         try {
-            return Referrer.valueOf(referrer.toUpperCase());
+            return Referrer.valueOf(referrer.toUpperCase(Locale.US));
         } catch (IllegalArgumentException ex) {
             return Referrer.OTHER;
         }
