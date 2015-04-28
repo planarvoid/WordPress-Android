@@ -12,13 +12,13 @@ public class ScrollXAnimator extends ProgressAnimator {
 
     @Override
     protected ObjectAnimator createAnimator(float startX, float endX) {
-        final ObjectAnimator translationX = ObjectAnimator.ofFloat(progressView, "scrollX", startX, endX);
-        translationX.setInterpolator(new LinearInterpolator());
-        return translationX;
+        final ObjectAnimator scrollX = ObjectAnimator.ofInt(progressView, "scrollX", (int) startX, (int) endX);
+        scrollX.setInterpolator(new LinearInterpolator());
+        return scrollX;
     }
 
     @Override
     public float getDifferenceFromCurrentValue(float targetValue) {
-        return (Float) wrappedAnimator.getAnimatedValue() - targetValue;
+        return (int) wrappedAnimator.getAnimatedValue() - targetValue;
     }
 }
