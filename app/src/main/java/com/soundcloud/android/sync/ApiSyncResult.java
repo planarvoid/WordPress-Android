@@ -81,16 +81,30 @@ public class ApiSyncResult {
         return fromUnexpectedResponse(uri, statusCode, new Random());
     }
 
+    public static ApiSyncResult fromServerError(Uri uri) {
+        final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
+        setDelayUntilToRandomDelay(new Random(), apiSyncResult);
+        return apiSyncResult;
+    }
+
+    public static ApiSyncResult fromClientError(Uri uri) {
+        return new ApiSyncResult(uri);
+    }
+
     @VisibleForTesting
     static ApiSyncResult fromUnexpectedResponse(Uri uri, int statusCode, Random random) {
         final ApiSyncResult apiSyncResult = new ApiSyncResult(uri);
 
         if (statusCode >= 500){
-            // http://developer.android.com/reference/android/content/SyncResult.html#delayUntil
-            apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(random, UNEXPECTED_RESPONSE_MINIMUM_DELAY, UNEXPECTED_RESPONSE_DELAY_RANGE);
+            setDelayUntilToRandomDelay(random, apiSyncResult);
         }
 
         return apiSyncResult;
+    }
+
+    private static void setDelayUntilToRandomDelay(Random random, ApiSyncResult apiSyncResult) {
+        // http://developer.android.com/reference/android/content/SyncResult.html#delayUntil
+        apiSyncResult.syncResult.delayUntil = getRandomizedDelayTime(random, UNEXPECTED_RESPONSE_MINIMUM_DELAY, UNEXPECTED_RESPONSE_DELAY_RANGE);
     }
 
     public static ApiSyncResult fromGeneralFailure(Uri uri) {

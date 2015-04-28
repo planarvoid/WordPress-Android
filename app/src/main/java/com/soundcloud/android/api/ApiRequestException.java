@@ -1,5 +1,6 @@
 package com.soundcloud.android.api;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.soundcloud.android.api.ApiRequestException.Reason.AUTH_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.BAD_REQUEST;
 import static com.soundcloud.android.api.ApiRequestException.Reason.MALFORMED_INPUT;
@@ -7,9 +8,11 @@ import static com.soundcloud.android.api.ApiRequestException.Reason.NETWORK_ERRO
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
 import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_FOUND;
 import static com.soundcloud.android.api.ApiRequestException.Reason.RATE_LIMITED;
+import static com.soundcloud.android.api.ApiRequestException.Reason.SERVER_ERROR;
 import static com.soundcloud.android.api.ApiRequestException.Reason.UNEXPECTED_RESPONSE;
 
 import com.soundcloud.api.CloudAPI;
+import org.apache.http.HttpStatus;
 
 import java.io.IOException;
 
@@ -28,10 +31,13 @@ public final class ApiRequestException extends Exception {
         RATE_LIMITED,
         UNEXPECTED_RESPONSE,
         BAD_REQUEST,
-        MALFORMED_INPUT
+        MALFORMED_INPUT,
+        SERVER_ERROR
     }
 
     public static ApiRequestException unexpectedResponse(ApiRequest request, int statusCode) {
+        final boolean isValidStatusCode = statusCode < HttpStatus.SC_OK || (statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode >= HttpStatus.SC_BAD_REQUEST);
+        checkArgument(isValidStatusCode, "Status code must be< 200 or between 400 and 500");
         return new ApiRequestException(UNEXPECTED_RESPONSE, request, "HTTP " + statusCode);
     }
 
@@ -61,6 +67,10 @@ public final class ApiRequestException extends Exception {
 
     public static ApiRequestException malformedInput(ApiRequest request, ApiMapperException e) {
         return new ApiRequestException(MALFORMED_INPUT, request, e);
+    }
+
+    public static ApiRequestException serverError(ApiRequest request) {
+        return new ApiRequestException(SERVER_ERROR, request);
     }
 
     private ApiRequestException(Reason errorReason, ApiRequest request) {
@@ -96,6 +106,7 @@ public final class ApiRequestException extends Exception {
     public boolean loggable() {
         return errorReason == UNEXPECTED_RESPONSE
                 || errorReason == MALFORMED_INPUT
-                || errorReason == RATE_LIMITED;
+                || errorReason == RATE_LIMITED
+                || errorReason == SERVER_ERROR;
     }
 }
