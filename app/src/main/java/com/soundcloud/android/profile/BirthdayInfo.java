@@ -9,26 +9,26 @@ public class BirthdayInfo implements Serializable {
 
     private static final long serialVersionUID = 3051966333050380486L;
 
-    public final int month;
-    public final int year;
+    public final int age;
 
     @Nullable
-    public static BirthdayInfo buildFrom(int month, int year) {
-        if (validMonthAndYear(month, year)) {
-            return new BirthdayInfo(month, year);
-        } else {
-            return null;
-        }
+    public static BirthdayInfo buildFrom(int age) {
+        return new BirthdayInfo(age);
     }
 
-    private BirthdayInfo(int month, int year) {
-        this.month = month;
-        this.year = year;
+    private BirthdayInfo(int age) {
+        this.age = age;
     }
 
-    private static boolean validMonthAndYear(int month, int year) {
-        Calendar cal = Calendar.getInstance();
-        int currentYear = cal.get(Calendar.YEAR);
-        return month > 0 && month <= 12 && year >= (currentYear - 100) && year < (currentYear - 13);
+    public int getMonth(){
+        return Calendar.getInstance().get(Calendar.MONTH);
+    }
+
+    public int getYear(){
+        return Calendar.getInstance().get(Calendar.YEAR) - age;
+    }
+
+    public boolean isValid(){
+        return age >= 13;
     }
 }

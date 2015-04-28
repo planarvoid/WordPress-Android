@@ -1,11 +1,11 @@
 package com.soundcloud.android.tests.auth.signup;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.screens.auth.signup.SignupEmailTakenScreen;
 import com.soundcloud.android.tests.auth.SignUpTest;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class ByEmailShowingEmailTakenDialogTest extends SignUpTest {
 
@@ -19,8 +19,7 @@ public class ByEmailShowingEmailTakenDialogTest extends SignUpTest {
 
         signUpBasicsScreen.typeEmail(generateEmail());
         signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("April");
-        signUpBasicsScreen.typeBirthYear("1984");
+        signUpBasicsScreen.typeAge(21);
 
         signUpBasicsScreen.signup();
         signUpBasicsScreen.acceptTerms();

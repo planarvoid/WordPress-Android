@@ -19,8 +19,7 @@ public class ByEmailAgeOfMajority extends SignUpTest {
 
         signUpBasicsScreen.typeEmail(generateEmail());
         signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("May");
-        signUpBasicsScreen.typeBirthYear("1993");
+        signUpBasicsScreen.typeAge(21);
 
         signUpBasicsScreen.signup();
         signUpBasicsScreen.acceptTerms();

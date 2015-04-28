@@ -24,12 +24,8 @@ public class SignUpBasicsScreen extends Screen {
         return new EditTextElement(testDriver.findElement(With.id(R.id.txt_choose_a_password)));
     }
 
-    private ViewElement birthMonthText() {
-        return testDriver.findElement(With.id(R.id.txt_choose_month));
-    }
-
-    private EditTextElement birthYearInputField() {
-        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_enter_year)));
+    private EditTextElement ageInputField() {
+        return new EditTextElement(testDriver.findElement(With.id(R.id.txt_enter_age)));
     }
 
     private ViewElement genderText() {
@@ -72,21 +68,12 @@ public class SignUpBasicsScreen extends Screen {
         passwordInputField().typeText(password);
     }
 
-    public void chooseBirthMonth(String month) {
-        birthMonthText().click();
-        testDriver.findElement(With.text(month)).click();
+    public void typeAge(int age) {
+        ageInputField().typeText(String.valueOf(age));
     }
 
-    public void typeBirthYear(String year) {
-        birthYearInputField().typeText(year);
-    }
-
-    public void clearBirthYear() {
-        birthYearInputField().clearText();
-    }
-
-    public String getBirthYear() {
-        return birthYearInputField().getText();
+    public void clearAge() {
+        ageInputField().clearText();
     }
 
     public void chooseGender(String genderChoice) {

@@ -36,8 +36,8 @@
               android:layout_marginTop="20dp"
               android:textSize="20sp"/>
 
-    <TextView android:id="@+id/verify_birthday"
-              android:text="@string/age_verify_birthday"
+    <TextView android:id="@+id/verify_age"
+              android:text="@string/age"
               android:layout_height="wrap_content"
               android:layout_width="wrap_content"
               android:layout_alignParentStart="true"
@@ -47,29 +47,18 @@
               android:layout_below="@id/age_verify_info"
               android:textSize="18sp"/>
 
-    <TextView android:id="@+id/verify_month"
+    <EditText android:id="@+id/verify_age_input"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_below="@id/verify_birthday"
-              android:layout_alignParentLeft="true"
-              android:layout_alignParentStart="true"
-              android:hint="@string/select_month"
-              android:minWidth="150dp"
-              android:textSize="18sp"/>
-
-    <EditText android:id="@+id/verify_year_input"
-              android:layout_width="100dp"
-              android:layout_height="wrap_content"
-              android:layout_below="@id/verify_birthday"
-              android:layout_toEndOf="@id/verify_month"
-              android:layout_toRightOf="@id/verify_month"
-              android:layout_alignBaseline="@id/verify_month"
+              android:layout_alignBaseline="@id/verify_age"
+              android:layout_toEndOf="@id/verify_age"
+              android:layout_toRightOf="@id/verify_age"
               android:layout_marginLeft="20dp"
               android:layout_marginStart="20dp"
-              android:hint="@string/age_verify_year_hint"
+              android:hint="@string/enter_age_hint"
               android:textSize="18sp"
               android:inputType="number"
-              android:maxLength="4"/>
+              android:maxLength="3"/>
 
     <Button android:id="@+id/verify_button"
             android:layout_width="wrap_content"
@@ -78,6 +67,6 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            style="@style/btn_default"/>
+            style="?android:attr/borderlessButtonStyle"/>
 
 </RelativeLayout>

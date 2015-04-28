@@ -1,12 +1,5 @@
 package com.soundcloud.android.profile;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentActivity;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -20,14 +13,16 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+
 import javax.inject.Inject;
 
-public class VerifyAgePresenter extends DefaultLightCycleActivity<Activity> implements MonthPickerDialogFragment.Callback {
+public class VerifyAgePresenter extends DefaultLightCycleActivity<Activity> {
 
-    private static final String VERIFY_MONTH_DIALOG_TAG = "verify_month_dialog";
-
-    @InjectView(R.id.verify_month) TextView monthInput;
-    @InjectView(R.id.verify_year_input) EditText yearInput;
+    @InjectView(R.id.verify_age_input) EditText yearInput;
     @InjectView(R.id.verify_button) Button submitButton;
 
     private final UpdateAgeCommand updateAgeCommand;
@@ -52,23 +47,10 @@ public class VerifyAgePresenter extends DefaultLightCycleActivity<Activity> impl
         userToFollowUrn = activity.getIntent().getParcelableExtra(VerifyAgeActivity.EXTRA_USER_TO_FOLLOW_URN);
 
         submitButton.setEnabled(false);
+        yearInput.requestFocus();
     }
 
-    @OnClick(R.id.verify_month)
-    public void monthTextListener() {
-        FragmentActivity fragmentActivity = (FragmentActivity) activity;
-        DialogFragment fragment = MonthPickerDialogFragment.build(getMonth());
-        fragment.show(fragmentActivity.getSupportFragmentManager(), VERIFY_MONTH_DIALOG_TAG);
-    }
-
-    @Override
-    public void onMonthSelected(String monthName, int monthOfYear) {
-        monthInput.setTag(R.id.month_of_year_tag, monthOfYear);
-        monthInput.setText(monthName);
-        maybeEnableSubmitButton();
-    }
-
-    @OnTextChanged(R.id.verify_year_input)
+    @OnTextChanged(R.id.verify_age_input)
     public void yearTextListener() {
         maybeEnableSubmitButton();
     }
@@ -76,19 +58,14 @@ public class VerifyAgePresenter extends DefaultLightCycleActivity<Activity> impl
     @OnClick(R.id.verify_button)
     public void submitButtonListener() {
         submitButton.setEnabled(false);
-        updateAgeCommand.call(BirthdayInfo.buildFrom(getMonth(), getYear()), updateResponseHandler());
+        updateAgeCommand.call(BirthdayInfo.buildFrom(getAge()), updateResponseHandler());
     }
 
     private void maybeEnableSubmitButton() {
-        submitButton.setEnabled(BirthdayInfo.buildFrom(getMonth(), getYear()) != null);
+        submitButton.setEnabled(yearInput.getText().length() > 0);
     }
 
-    private int getMonth() {
-        Integer month = (Integer) monthInput.getTag(R.id.month_of_year_tag);
-        return (month != null) ? month : 0;
-    }
-
-    private int getYear() {
+    private int getAge() {
         return (int) ScTextUtils.safeParseLong(yearInput.getText().toString());
     }
 

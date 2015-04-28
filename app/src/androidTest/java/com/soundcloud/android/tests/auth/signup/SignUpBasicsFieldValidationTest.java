@@ -1,9 +1,9 @@
 package com.soundcloud.android.tests.auth.signup;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class SignUpBasicsFieldValidationTest extends SignUpTest {
@@ -14,11 +14,12 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
 
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
+        signUpBasicsScreen.clearEmail();
         signUpBasicsScreen.typeEmail("slawomir@aol.com");
         signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("March");
-        signUpBasicsScreen.typeBirthYear("1975");
+        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
+        signUpBasicsScreen.typeAge(21);
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
 
         // gender is optional, so done button should stay enabled
@@ -33,36 +34,7 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
     }
 
     public void testDoneButtonNotEnabledWithInvalidInput() throws Exception {
-        signUpMethodScreen = homeScreen.clickSignUpButton();
-        signUpBasicsScreen = signupMethodScreen.clickByEmailButton();
-
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
-
-        // start from a valid set
-        signUpBasicsScreen.typeEmail("slawomir@aol.com");
-        signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("March");
-        signUpBasicsScreen.typeBirthYear("1975");
-
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
-
-        // invalid birth years
-        signUpBasicsScreen.clearBirthYear();
-        signUpBasicsScreen.typeBirthYear("10996");
-        assertThat(signUpBasicsScreen.getBirthYear(), equalTo("1099"));
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
-
-        signUpBasicsScreen.clearBirthYear();
-        signUpBasicsScreen.typeBirthYear("999");
-        assertThat(signUpBasicsScreen.getBirthYear(), equalTo("999"));
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
-
-        signUpBasicsScreen.clearBirthYear();
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
-
-        signUpBasicsScreen.clearBirthYear();
-        signUpBasicsScreen.typeBirthYear("1975");
-        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        startWithValidSignupInput();
 
         // missing email
         signUpBasicsScreen.clearEmail();
@@ -77,5 +49,37 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
 
         signUpBasicsScreen.typePassword("password123");
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+    }
+
+    public void testToastShownForInvalidBirthYears() throws Exception {
+        startWithValidSignupInput();
+
+        // birth year too low
+        signUpBasicsScreen.clearAge();
+        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
+        signUpBasicsScreen.typeAge(12);
+        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+        signUpBasicsScreen.signup();
+        assertTrue(waiter.expectToastWithText(toastObserver, solo.getString(R.string.authentication_error_age_not_valid)));
+    }
+
+    private void startWithValidSignupInput() {
+        signUpMethodScreen = homeScreen.clickSignUpButton();
+        signUpBasicsScreen = signupMethodScreen.clickByEmailButton();
+
+        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
+
+        // start from a valid set
+        signUpBasicsScreen.clearEmail();
+        signUpBasicsScreen.typeEmail("slawomir@aol.com");
+        signUpBasicsScreen.typePassword("password123");
+        signUpBasicsScreen.typeAge(21);
+
+        assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(true));
+    }
+
+    @Override
+    protected void observeToastsHelper() {
+        toastObserver.observe();
     }
 }
