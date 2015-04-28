@@ -15,9 +15,9 @@ public interface PlaybackStrategy {
 
     void playCurrent();
 
-    void playCurrent(long fromPosition);
-
     void playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrn, int initialTrackPosition, PlaySessionSource playSessionSource);
+
+    void reloadAndPlayCurrentQueue(long withProgressPosition);
 
     void seek(long position);
 

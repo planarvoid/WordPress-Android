@@ -2,13 +2,13 @@ package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPosition;
 
-import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.CastException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
@@ -25,6 +25,8 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
+import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -32,6 +34,7 @@ import rx.subscriptions.Subscriptions;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPusher {
@@ -41,8 +44,9 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     private final CastOperations castOperations;
     private final VideoCastManager castManager;
     private final ProgressReporter progressReporter;
-    private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
+    private final AdsOperations adsOperations;
+    private final EventBus eventBus;
 
     private Subscription playCurrentSubscription = Subscriptions.empty();
     private Subscription playNewQueueSubscription = Subscriptions.empty();
@@ -51,13 +55,15 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public CastPlayer(CastOperations castOperations,
                       VideoCastManager castManager,
                       ProgressReporter progressReporter,
-                      EventBus eventBus,
-                      PlayQueueManager playQueueManager) {
+                      PlayQueueManager playQueueManager,
+                      AdsOperations adsOperations,
+                      EventBus eventBus) {
         this.castOperations = castOperations;
         this.castManager = castManager;
         this.progressReporter = progressReporter;
-        this.eventBus = eventBus;
         this.playQueueManager = playQueueManager;
+        this.adsOperations = adsOperations;
+        this.eventBus = eventBus;
 
         castManager.addVideoCastConsumer(this);
         progressReporter.setProgressPusher(this);
@@ -147,43 +153,51 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         }
     }
 
-    public void playCurrent() {
-        playCurrent(0);
+    public void reloadAndPlayCurrentQueue(long withProgressPosition) {
+        playNewQueue(
+                withProgressPosition,
+                getCurrentQueueUrnsWithoutAds(),
+                playQueueManager.getCurrentTrackUrn(),
+                playQueueManager.getCurrentPlaySessionSource());
     }
 
-    public void playCurrent(final long fromPosition) {
-        Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
-        if (isCurrentlyLoadedInPlayer(currentTrackUrn)) {
-            reconnectToExistingSession();
-        } else {
-            playCurrentSubscription.unsubscribe();
-            playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueAsUrnList())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new PlayLocalQueueOnRemote(currentTrackUrn, fromPosition));
-        }
-    }
-
-    public void playNewQueue(List<Urn> unfilteredLocalPlayQueueTracks, Urn initialTrackUrnCandidate, int initialTrackPosition, PlaySessionSource playSessionSource) {
+    public void playNewQueue(long withProgressPosition,
+                              List<Urn> unfilteredLocalPlayQueueTracks,
+                              Urn initialTrackUrnCandidate,
+                              PlaySessionSource playSessionSource) {
+        reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, initialTrackUrnCandidate));
         playNewQueueSubscription.unsubscribe();
         playNewQueueSubscription = castOperations.loadLocalPlayQueueWithoutMonetizableTracks(initialTrackUrnCandidate, unfilteredLocalPlayQueueTracks)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new PlayNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource, 0));
+                .subscribe(new PlayNewLocalQueueOnRemote(initialTrackUrnCandidate, playSessionSource, withProgressPosition));
+    }
+
+    public void playCurrent() {
+        Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
+        if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
+            reconnectToExistingSession();
+        } else {
+            reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, currentTrackUrn));
+            playCurrentSubscription.unsubscribe();
+            playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueAsUrnList())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new PlayLocalQueueOnRemote(currentTrackUrn, 0L));
+        }
     }
 
     private class PlayLocalQueueOnRemote extends DefaultSubscriber<LocalPlayQueue> {
         private final Urn initialTrackUrn;
-        private final long fromPosition;
+        private final long progressPosition;
 
-        private PlayLocalQueueOnRemote(Urn initialTrackUrn, long fromPosition) {
+        private PlayLocalQueueOnRemote(Urn initialTrackUrn, long progressPosition) {
             this.initialTrackUrn = initialTrackUrn;
-            this.fromPosition = fromPosition;
+            this.progressPosition = progressPosition;
         }
 
         @Override
         public void onNext(LocalPlayQueue localPlayQueue) {
-            reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, initialTrackUrn));
             try {
-                castManager.loadMedia(localPlayQueue.mediaInfo, true, (int) fromPosition, localPlayQueue.playQueueTracksJSON);
+                castManager.loadMedia(localPlayQueue.mediaInfo, true, (int) progressPosition, localPlayQueue.playQueueTracksJSON);
             } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
                 Log.e(TAG, "Unable to load track", e);
             }
@@ -213,7 +227,13 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         }
     }
 
-    private boolean isCurrentlyLoadedInPlayer(Urn urn) {
+    private List<Urn> getCurrentQueueUrnsWithoutAds() {
+        List<Urn> queueWithoutAds = playQueueManager.getCurrentQueueAsUrnList();
+        queueWithoutAds.removeAll(adsOperations.getAdUrnsInQueue());
+        return queueWithoutAds;
+    }
+
+    private boolean isCurrentlyLoadedOnRemotePlayer(Urn urn) {
         final Urn currentPlayingUrn = castOperations.getRemoteCurrentTrackUrn();
         return currentPlayingUrn != Urn.NOT_SET && currentPlayingUrn.equals(urn);
     }

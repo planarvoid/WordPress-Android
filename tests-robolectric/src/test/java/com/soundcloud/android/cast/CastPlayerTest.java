@@ -21,11 +21,13 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.ProgressReporter;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -40,6 +42,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CastPlayerTest {
@@ -59,13 +62,14 @@ public class CastPlayerTest {
     @Mock private ProgressReporter progressReporter;
     @Mock private PendingResult<RemoteMediaPlayer.MediaChannelResult> pendingResultCallback;
     @Mock private PlayQueueManager playQueueManager;
+    @Mock private AdsOperations adsOperations;
 
     @Captor private ArgumentCaptor<Playa.StateTransition> transitionArgumentCaptor;
     @Captor private ArgumentCaptor<ProgressReporter.ProgressPusher> progressPusherArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
-        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, eventBus, playQueueManager);
+        castPlayer = new CastPlayer(castOperations, castManager, progressReporter, playQueueManager, adsOperations, eventBus);
     }
 
     @Test
@@ -83,7 +87,7 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithPlayingStateReturnsPlayingNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PLAYING, MediaStatus.IDLE_REASON_NONE);
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.PLAYING);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
     }
@@ -99,7 +103,7 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithPausedStateReturnsIdleNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_PAUSED, MediaStatus.IDLE_REASON_NONE);
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
     }
@@ -115,7 +119,7 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithBufferingStateReturnsBufferingNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_BUFFERING, MediaStatus.IDLE_REASON_NONE);
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.BUFFERING);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
     }
@@ -131,7 +135,7 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithIdleErrorStateReturnsIdleFailed() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_ERROR);
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
     }
@@ -147,7 +151,7 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithIdleFinishedStateReturnsTrackComplete() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_FINISHED);
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.TRACK_COMPLETE);
     }
@@ -163,7 +167,7 @@ public class CastPlayerTest {
     public void onStatusUpdatedWithIdleCancelledStateReturnsIdleNone() throws Exception {
         castPlayer.onMediaPlayerStatusUpdatedListener(MediaStatus.PLAYER_STATE_IDLE, MediaStatus.IDLE_REASON_CANCELED);
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
     }
@@ -208,10 +212,7 @@ public class CastPlayerTest {
 
         castPlayer.playCurrent();
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.PLAYING);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
-        expect(stateTransition.getTrackUrn()).toEqual(TRACK_URN);
+        expectLastStateTransitionToBe(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN);
 
     }
 
@@ -241,7 +242,7 @@ public class CastPlayerTest {
     }
 
     @Test
-    public void playCurrentLoadsMediaWithDefaultPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+    public void playCurrentLoadsMediaWithZeroedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
         when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
@@ -252,28 +253,73 @@ public class CastPlayerTest {
     }
 
     @Test
-    public void playCurrentLoadsMediaWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+    public void playCurrentReportsBufferingEvent() throws Exception {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
         when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
 
-        castPlayer.playCurrent(100);
+        castPlayer.playCurrent();
+
+        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN);
+    }
+
+    @Test
+    public void playCurrentReportsBufferingEventBeforeLoadingFinishes() throws Exception {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
+
+        castPlayer.playCurrent();
+
+        Playa.PlayaState newState = Playa.PlayaState.BUFFERING;
+        Playa.Reason reason = Playa.Reason.NONE;
+        Urn trackUrn = TRACK_URN;
+        expectLastStateTransitionToBe(newState, reason, trackUrn);
+    }
+
+    @Test
+    public void reloadAndPlayCurrentQueueLoadsMediaWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
+
+        castPlayer.reloadAndPlayCurrentQueue(100L);
 
         verify(castManager).loadMedia(any(MediaInfo.class), anyBoolean(), eq(100), any(JSONObject.class));
     }
 
     @Test
-    public void playReportsBufferingEvent() throws Exception {
+    public void reloadAndPlayCurrentQueueReportsBufferingEvent() throws Exception {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
-        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
 
-        castPlayer.playCurrent(100);
+        castPlayer.reloadAndPlayCurrentQueue(100L);
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
-        expect(stateTransition.getNewState()).toBe(Playa.PlayaState.BUFFERING);
-        expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
-        expect(stateTransition.getTrackUrn()).toEqual(TRACK_URN);
+        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN);
+    }
+
+    @Test
+    public void reloadAndPlayCurrentQueueReportsBufferingEventBeforeLoadingFinishes() throws Exception {
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
+
+        castPlayer.reloadAndPlayCurrentQueue(100L);
+
+        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN);
+    }
+
+    @Test
+    public void reloadAndPlayCurrentQueueLoadsQueueWithoutMonetizableTracks() throws TransientNetworkDisconnectionException, NoConnectionException {
+        final LocalPlayQueue localPlayQueue = createLocalPlayQueue();
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(localPlayQueue));
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
+
+        castPlayer.reloadAndPlayCurrentQueue(100L);
+
+        verify(castManager).loadMedia(eq(localPlayQueue.mediaInfo), anyBoolean(), anyInt(), eq(localPlayQueue.playQueueTracksJSON));
     }
 
     @Test
@@ -284,7 +330,7 @@ public class CastPlayerTest {
 
         castPlayer.playCurrent();
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
         expect(stateTransition.getTrackUrn()).toBe(TRACK_URN);
@@ -322,7 +368,7 @@ public class CastPlayerTest {
     public void onDisconnectedBroadcastsIdleState() throws Exception {
         castPlayer.onDisconnected();
 
-        final Playa.StateTransition stateTransition = captureFirstStateTransition();
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.NONE);
     }
@@ -338,7 +384,7 @@ public class CastPlayerTest {
                 .build();
     }
 
-    private Playa.StateTransition captureFirstStateTransition() {
+    private Playa.StateTransition captureLastStateTransition() {
         return eventBus.lastEventOn(EventQueue.PLAYBACK_STATE_CHANGED);
     }
 
@@ -346,5 +392,16 @@ public class CastPlayerTest {
         PlaybackProgress playbackProgress = eventBus.lastEventOn(EventQueue.PLAYBACK_PROGRESS).getPlaybackProgress();
         expect(playbackProgress.getPosition()).toEqual(position);
         expect(playbackProgress.getDuration()).toEqual(duration);
+    }
+
+    private LocalPlayQueue createLocalPlayQueue() {
+        return new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN), createMediaInfo(TRACK_URN), TRACK_URN);
+    }
+
+    private void expectLastStateTransitionToBe(Playa.PlayaState newState, Playa.Reason reason, Urn trackUrn) {
+        final Playa.StateTransition stateTransition = captureLastStateTransition();
+        expect(stateTransition.getNewState()).toBe(newState);
+        expect(stateTransition.getReason()).toBe(reason);
+        expect(stateTransition.getTrackUrn()).toEqual(trackUrn);
     }
 }

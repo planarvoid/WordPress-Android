@@ -9,13 +9,10 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.google.common.collect.Lists;
-import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -32,10 +29,8 @@ import rx.Observable;
 import rx.observers.TestObserver;
 
 import android.content.res.Resources;
-import android.net.Uri;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)

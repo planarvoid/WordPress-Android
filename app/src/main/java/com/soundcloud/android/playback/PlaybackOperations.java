@@ -127,6 +127,10 @@ public class PlaybackOperations {
                 .doOnNext(playNewQueue(0, playSessionSource, Urn.NOT_SET, false));
     }
 
+    public void reloadAndPlayCurrentQueue(long fromLastProgressPosition) {
+        playbackStrategyProvider.get().reloadAndPlayCurrentQueue(fromLastProgressPosition);
+    }
+
     private Observable<List<Urn>> playTracksList(Observable<List<Urn>> trackUrns, final Urn initialTrack,
                                                  final int startPosition, final PlaySessionSource playSessionSource,
                                                  boolean loadRelated) {
@@ -187,10 +191,6 @@ public class PlaybackOperations {
 
     public void playCurrent() {
         playbackStrategyProvider.get().playCurrent();
-    }
-
-    public void playCurrent(long fromPosition) {
-        playbackStrategyProvider.get().playCurrent(fromPosition);
     }
 
     public void setPlayQueuePosition(int position) {

@@ -259,10 +259,10 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playCurrentFromPositoinCallsPlayCurrentOnPlaybackStrategyWithPosition() {
-        playbackOperations.playCurrent(123L);
+    public void reloadAndPlayCurrentQueueRedirectsCallToPlaybackStrategy() {
+        playbackOperations.reloadAndPlayCurrentQueue(123L);
 
-        verify(playbackStrategy).playCurrent(123L);
+        verify(playbackStrategy).reloadAndPlayCurrentQueue(123L);
     }
 
     @Test

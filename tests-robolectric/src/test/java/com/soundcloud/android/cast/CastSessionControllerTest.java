@@ -69,13 +69,13 @@ public class CastSessionControllerTest {
     }
 
     @Test
-    public void onConnectedToReceiverAppDoesNotPlayIfQueueIsEmpty() throws Exception {
+    public void onConnectedToReceiverAppDoesNotReloadAndPlayCurrentQueueIfQueueIsEmpty() throws Exception {
         castSessionController.startListening();
         when(playQueueManager.isQueueEmpty()).thenReturn(true);
 
         callOnConnectedToReceiverApp();
 
-        verify(playbackOperations, never()).playCurrent(anyInt());
+        verify(playbackOperations, never()).reloadAndPlayCurrentQueue(anyInt());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class CastSessionControllerTest {
     }
 
     @Test
-    public void onConnectedToReceiverAppPlaysCurrentTrackFromLastPosition() throws Exception {
+    public void onConnectedToReceiverAppReloadsAndPlaysCurrentTrackFromLastPosition() throws Exception {
         castSessionController.startListening();
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
@@ -97,7 +97,7 @@ public class CastSessionControllerTest {
 
         callOnConnectedToReceiverApp();
 
-        verify(playbackOperations).playCurrent(123);
+        verify(playbackOperations).reloadAndPlayCurrentQueue(123L);
     }
 
     @Test

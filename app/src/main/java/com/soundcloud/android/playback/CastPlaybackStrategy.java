@@ -35,13 +35,13 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public void playCurrent(long fromPosition) {
-        castPlayer.playCurrent(fromPosition);
+    public void playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrnCandidate, int initialTrackPosition, PlaySessionSource playSessionSource) {
+        castPlayer.playNewQueue(0L, playQueueTracks, initialTrackUrnCandidate, playSessionSource);
     }
 
     @Override
-    public void playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrnCandidate, int initialTrackPosition, PlaySessionSource playSessionSource) {
-        castPlayer.playNewQueue(playQueueTracks, initialTrackUrnCandidate, initialTrackPosition, playSessionSource);
+    public void reloadAndPlayCurrentQueue(long withProgressPosition) {
+        castPlayer.reloadAndPlayCurrentQueue(withProgressPosition);
     }
 
     @Override

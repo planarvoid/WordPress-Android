@@ -63,8 +63,8 @@ public class DefaultPlaybackStrategyTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void playCurrentFromPositionThrowsExceptionCauseItIsntUsedByDefault() {
-        defaultPlaybackStrategy.playCurrent(123L);
+    public void reloadAndPlayCurrentQueueThrowsExceptionCauseItIsntUsedByDefault() {
+        defaultPlaybackStrategy.reloadAndPlayCurrentQueue(123L);
     }
 
     @Test

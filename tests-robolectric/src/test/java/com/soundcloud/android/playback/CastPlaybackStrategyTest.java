@@ -3,11 +3,16 @@ package com.soundcloud.android.playback;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.cast.CastPlayer;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CastPlaybackStrategyTest {
@@ -50,10 +55,20 @@ public class CastPlaybackStrategyTest {
     }
 
     @Test
-    public void playCurrentFromPositionCallsPlayCurrentWithPositionOnCastPlayer() {
-        strategy.playCurrent(123L);
+    public void playNewQueueCallsPlayNewQueueWithZeroedProgressPosition() {
+        Urn track = Urn.forTrack(123L);
+        List<Urn> tracks = Arrays.asList(track);
 
-        verify(castPlayer).playCurrent(123L);
+        strategy.playNewQueue(tracks, track, 3, PlaySessionSource.EMPTY);
+
+        verify(castPlayer).playNewQueue(0L, tracks ,track, PlaySessionSource.EMPTY);
+    }
+
+    @Test
+    public void reloadAndPlayCurrentQueueRedirectsCallToCastPlayer() {
+        strategy.reloadAndPlayCurrentQueue(123L);
+
+        verify(castPlayer).reloadAndPlayCurrentQueue(123L);
     }
 
     @Test
