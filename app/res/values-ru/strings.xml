@@ -631,6 +631,9 @@
   <string name="feedback_other_issue">Другая проблема</string>
   <string name="feedback_email_subject">Сообщить:%1$s</string>
   <string name="feedback_action_chooser">Отправить сообщение по электронной почте...</string>
+    <string name="authentication_error_age_not_valid">Вы должны быть старше 13 лет.</string>
+    <string name="age">Возраст</string>
+    <string name="enter_age_hint">Введите ваш возраст</string>
 
 
 </resources>
