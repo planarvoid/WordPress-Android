@@ -1,13 +1,13 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
-import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
+import com.soundcloud.android.screens.EmailOptInScreen;
+import com.soundcloud.android.screens.Screen;
 
 import android.R.id;
 
@@ -79,9 +79,9 @@ public class SuggestedUsersScreen extends Screen {
         return testDriver.findElement(With.id(id.list)).toListView().getItemAt(index);
     }
 
-    public StreamScreen finish() {
+    public EmailOptInScreen finish() {
         testDriver.clickOnActionBarItem(R.id.finish);
-        return new StreamScreen(testDriver);
+        return new EmailOptInScreen(testDriver);
     }
 
     @Override

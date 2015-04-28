@@ -1,9 +1,9 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.main.MainActivity;
 
 public class EmailOptInScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -13,11 +13,11 @@ public class EmailOptInScreen extends Screen {
         waiter.waitForElement(R.id.email_optin_body);
     }
 
-    public HomeScreen clickNo() {
+    public StreamScreen clickNo() {
         String text = testDriver.getCurrentActivity().getString(R.string.optin_no);
         testDriver.findElement(With.text(text)).click();
 
-        return new HomeScreen(testDriver);
+        return new StreamScreen(testDriver);
     }
 
     @Override
