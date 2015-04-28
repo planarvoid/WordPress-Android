@@ -25,8 +25,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
-import rx.Observable;
-import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
@@ -34,7 +32,6 @@ import rx.subscriptions.Subscriptions;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPusher {
@@ -177,12 +174,16 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
             reconnectToExistingSession();
         } else {
-            reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, currentTrackUrn));
-            playCurrentSubscription.unsubscribe();
-            playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueAsUrnList())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new PlayLocalQueueOnRemote(currentTrackUrn, 0L));
+            playCurrentLocalQueueRemotely(currentTrackUrn);
         }
+    }
+
+    private void playCurrentLocalQueueRemotely(Urn currentTrackUrn) {
+        reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, currentTrackUrn));
+        playCurrentSubscription.unsubscribe();
+        playCurrentSubscription = castOperations.loadLocalPlayQueue(currentTrackUrn, playQueueManager.getCurrentQueueAsUrnList())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new PlayLocalQueueOnRemote(currentTrackUrn, 0L));
     }
 
     private class PlayLocalQueueOnRemote extends DefaultSubscriber<LocalPlayQueue> {
