@@ -129,7 +129,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
     }
 
-    private ApiRequest buildUploadRequest(Resources resources, Recording recording) {
+    private ApiRequest buildUploadRequest(Resources resources, final Recording recording) {
         final ApiRequest.Builder request = ApiRequest.post(ApiEndpoints.LEGACY_TRACKS.path()).forPublicApi();
 
         final Map<String, ?> params = buildRecordingParamMap(resources, recording);
@@ -148,6 +148,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         if (recording.artwork_path != null) {
             request.withFormPart(FilePart.from(PARAM_ARTWORK_DATA, recording.artwork_path, FilePart.BLOB_MEDIA_TYPE));
         }
+        request.withProgressListener(new UploadProgressListener(recording));
 
         return request.build();
     }
@@ -270,6 +271,29 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         if (this.recording.equals(recording)) {
             Log.d(TAG, "canceling upload of " + this.recording);
             cancel();
+        }
+    }
+
+    private class UploadProgressListener implements ApiRequest.ProgressListener {
+        private final Recording recording;
+        private long lastPublished;
+
+        public UploadProgressListener(Recording recording) {
+            this.recording = recording;
+        }
+
+        @Override
+        public void update(long bytesWritten, long totalBytes) {
+            if (System.currentTimeMillis() - lastPublished > 1000) {
+                final int progress = (int) Math.min(100, (100 * bytesWritten) / totalBytes);
+                broadcastManager.sendBroadcast(new Intent(UploadService.TRANSFER_PROGRESS)
+                        .putExtra(UploadService.EXTRA_RECORDING, recording)
+                        .putExtra(UploadService.EXTRA_TRANSFERRED, bytesWritten)
+                        .putExtra(UploadService.EXTRA_PROGRESS, progress)
+                        .putExtra(UploadService.EXTRA_TOTAL, totalBytes));
+
+                lastPublished = System.currentTimeMillis();
+            }
         }
     }
 }

@@ -2,6 +2,7 @@ package com.soundcloud.android.api;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ads.AdIdHelper;
+import com.soundcloud.android.api.ApiRequest.ProgressListener;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -293,6 +295,21 @@ public class ApiClientTest {
 
         expect(httpRequestCaptor.getValue().method()).toEqual("POST");
         expect(httpRequestCaptor.getValue().body().contentType().toString()).toStartWith(MultipartBuilder.FORM.toString());
+    }
+
+    @Test
+    public void shouldWrapRequestBodyInProgressRequestBodyWhenProgressListenerSet() throws Exception {
+        ProgressListener progressListener = mock(ProgressListener.class);
+        ApiRequest request = ApiRequest.post(URL)
+                .forPrivateApi(1)
+                .withFormPart(new FilePart("file1.png", new File("/path"), "file1", "image/png"))
+                .withProgressListener(progressListener)
+                .build();
+        mockJsonResponseFor(request, 200, JSON_DATA);
+
+        apiClient.fetchResponse(request);
+
+        expect(httpRequestCaptor.getValue().body()).toBeInstanceOf(ProgressRequestBody.class);
     }
 
     @Test
