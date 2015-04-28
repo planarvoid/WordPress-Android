@@ -57,6 +57,7 @@ public class SignUpBasicsScreen extends Screen {
     }
 
     public void typeEmail(String email) {
+        emailInputField().clearText();
         emailInputField().typeText(email);
     }
 

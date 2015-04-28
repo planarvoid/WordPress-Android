@@ -14,7 +14,6 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
 
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
-        signUpBasicsScreen.clearEmail();
         signUpBasicsScreen.typeEmail("slawomir@aol.com");
         signUpBasicsScreen.typePassword("password123");
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
@@ -70,7 +69,6 @@ public class SignUpBasicsFieldValidationTest extends SignUpTest {
         assertThat(signUpBasicsScreen.isDoneButtonEnabled(), is(false));
 
         // start from a valid set
-        signUpBasicsScreen.clearEmail();
         signUpBasicsScreen.typeEmail("slawomir@aol.com");
         signUpBasicsScreen.typePassword("password123");
         signUpBasicsScreen.typeAge(21);
