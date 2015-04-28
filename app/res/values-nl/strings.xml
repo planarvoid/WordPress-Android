@@ -109,7 +109,6 @@
     <string name="authentication_clear_image">Houd vast om afbeelding te wissen</string>
     <string name="dialog_select_google_account">Selecteer een Google-account om mee aan te melden</string>
     <string name="authentication_login_error_message">Het is niet gelukt om u in te loggen. Probeer het nog eens.</string>
-    <string name="authentication_add_info_error">Het is niet gelukt uw info bij te werken. Probeer het nog eens.</string>
     <string name="authentication_no_google_accounts">Maak eerst een Google-account aan.</string>
     <string name="authentication_log_in_with_google">Meld u aan met Google</string>
     <string name="error_google_sign_in_failed">Het is niet gelukt om u met Google+ aan te melden. Bezoek plus.google.com om uw Google+ account te activeren en probeer het nog eens</string>

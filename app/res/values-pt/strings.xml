@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Segure para excluir a imagem</string>
   <string name="dialog_select_google_account">Selecione uma conta do Google para se conectar</string>
   <string name="authentication_login_error_message">Nós não conseguimos fazer seu login. Tente novamente.</string>
-  <string name="authentication_add_info_error">Não foi possível atualizar suas informações. Tente novamente.</string>
   <string name="authentication_no_google_accounts">Configure uma conta do Google primeiro.</string>
   <string name="authentication_log_in_with_google">Faça login no Google</string>
   <string name="error_google_sign_in_failed">Não conseguimos efetuar seu login com o Google+. Visite plus.google.com para ativar sua conta do Google+ e tente novamente</string>

@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Tahan untuk menghapus gambar</string>
   <string name="dialog_select_google_account">Silakan pilih satu akun Google untuk Masuk</string>
   <string name="authentication_login_error_message">Kami tidak bisa memasukkanmu. Silakan coba lagi.</string>
-  <string name="authentication_add_info_error">Kami tidak bisa memperbarui informasimu. Silakan coba lagi.</string>
   <string name="authentication_no_google_accounts">Silakan buat akun Google terlebih dahulu.</string>
   <string name="authentication_log_in_with_google">Masuk dengan akun Google.</string>
   <string name="error_google_sign_in_failed">Kami tidak bisa memasukkanmu dengan Google+. Kunjungi plus.google.com untuk mengaktifkan akun Google+ kamu dan coba lagi</string>

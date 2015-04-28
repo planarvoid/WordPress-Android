@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Maintenir appuyé pour effacer l\'image</string>
   <string name="dialog_select_google_account">Veuillez sélectionner un compte Google pour vous connecter</string>
   <string name="authentication_login_error_message">Impossible de vous connecter. Veuillez essayer à nouveau.</string>
-  <string name="authentication_add_info_error">Nous n\'avons pas réussi à mettre à jour vos informations. Veuillez essayer à nouveau.</string>
   <string name="authentication_no_google_accounts">Veuillez configurer un compte Google au préalable.</string>
   <string name="authentication_log_in_with_google">Connectez-vous avec Google</string>
   <string name="error_google_sign_in_failed">Impossible de vous connecter avec Google+. Visitez plus.google.com pour activer votre compte Google+ et essayez à nouveau</string>

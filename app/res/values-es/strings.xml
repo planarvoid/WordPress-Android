@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Sostener para borrar la imagen</string>
   <string name="dialog_select_google_account">Por favor, selecciona una cuenta de Google con la cual acceder</string>
   <string name="authentication_login_error_message">No has podido iniciar sesión. Inténtalo de nuevo.</string>
-  <string name="authentication_add_info_error">No hemos podido actualizar tu información. Por favor, inténtalo de nuevo.</string>
   <string name="authentication_no_google_accounts">Por favor, crea una cuenta de Google primero.</string>
   <string name="authentication_log_in_with_google">Conéctate con Google</string>
   <string name="error_google_sign_in_failed">No has podido iniciar sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ y vuelve a intentarlo</string>

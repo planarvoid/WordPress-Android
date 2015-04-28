@@ -110,7 +110,6 @@
   <string name="authentication_clear_image">Удерживайте, чтобы удалить изображение</string>
   <string name="dialog_select_google_account">Чтобы войти, пожалуйста, выберите учетную запись Google</string>
   <string name="authentication_login_error_message">Нам не удалось вас авторизовать. Пожалуйста, повторите попытку.</string>
-  <string name="authentication_add_info_error">Нам не удалось обновить ваши данные. Пожалуйста, повторите попытку.</string>
   <string name="authentication_no_google_accounts">Сначала создайте учетную запись Google.</string>
   <string name="authentication_log_in_with_google">Войти с помощью Google</string>
   <string name="error_google_sign_in_failed">Нам не удалось авторизовать вас с Google+. Посетите plus.google.com и активируйте свою учетную запись Google+, затем повторите попытку</string>

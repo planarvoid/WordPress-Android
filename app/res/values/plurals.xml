@@ -177,12 +177,6 @@
         <item quantity="other">%1$d of %2$d tracks</item>
     </plurals>
 
-    <!-- __OFFLINE_SYNC -->
-    <plurals name="offline_synced_n_tracks">
-        <item quantity="one">1 track was offline synced</item>
-        <item quantity="other">%1$d tracks offline synced</item>
-    </plurals>
-
     <plurals name="offline_dialog_go_online_warning_title">
         <item quantity="one">You have 1 day to go back online</item>
         <item quantity="other">You have %d days to go back online</item>
