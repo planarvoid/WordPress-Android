@@ -248,10 +248,8 @@
   <string name="try_again">Coba Lagi</string>
   <string name="finish">Selesai</string>
   <string name="error_onboarding_fail">Kami masih mengisi streaming-mu. Kami akan terus mencoba sampai berhasil! Sementara itu, kamu dapat mencari dan menemukan musik &amp; audio lainnya.</string>
-  <string name="birthday">Ulang Tahun</string>
   <string name="gender">Jenis Kelamin</string>
   <string name="onboarding_create_account">Buat akun</string>
-  <string name="onboarding_enter_year">Masukkan tahun</string>
   <string name="onboarding_indicate_gender">Sebutkan jenis kelaminmu</string>
   <string name="onboarding_custom_gender_hint">Masukkan jenis kelamin</string>
   <string name="onboarding_gender_option_female">Perempuan</string>
@@ -596,8 +594,6 @@
   <string name="age_verify_title">Harap verifikasi usiamu</string>
   <string name="age_verify_warning">Konten di profil ini mungkin saja tidak cocok bagi yang berusia di bawah usia tertentu.</string>
   <string name="age_verify_info">Informasi ini akan disimpan pada profil Anda.</string>
-  <string name="age_verify_birthday">Ulang tahunmu</string>
-  <string name="age_verify_year_hint">Masukkan tahun</string>
   <string name="age_verify_button">Verifikasi usia</string>
 
   <!-- DEVICE MANAGEMENT -->
@@ -605,23 +601,6 @@
   <string name="device_management_login_message">Langgananmu terbatas pada 3 perangkat. Kamu dapat mendaftarkan perangkat ini dan keluar dari perangkat yang digunakan terakhir dengan memilih melanjutkan.</string>
   <string name="device_management_conflict_message">Langgananmu telah mencapai batas perangkat. Perangkat ini telah keluar dan semua konten offline telah dihapus. Kamu dapat login kembali untuk mendaftar ulang perangkat ini.</string>
   <string name="device_management_continue">Teruskan</string>
-
-  <!-- MONTH PICKER DIALOG -->
-  <string name="select_month">Pilih bulan</string>
-  <string-array name="select_month_options">
-    <item>Januari</item>
-    <item>Februari</item>
-    <item>Maret</item>
-    <item>April</item>
-    <item>Mei</item>
-    <item>Juni</item>
-    <item>Juli</item>
-    <item>Agustus</item>
-    <item>September</item>
-    <item>Oktober</item>
-    <item>November</item>
-    <item>Desember</item>
-  </string-array>
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">Apa yang ingin kamu laporkan?</string>
