@@ -7,12 +7,15 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.Nullable;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class ApiResponse {
 
     private static final String BAD_REQUEST_ERROR_KEY = "error_key";
+    private static final String PUBLIC_API_ERRORS_KEY = "errors";
+    private static final String PUBLIC_API_ERROR_MESSAGE_KEY = "error_message";
     private static final int SC_REQUEST_TOO_MANY_REQUESTS = 429;
 
     private final int statusCode;
@@ -36,7 +39,7 @@ public class ApiResponse {
         } else if (statusCode == HttpStatus.SC_BAD_REQUEST) {
             failure = ApiRequestException.badRequest(request, getErrorKey());
         } else if (statusCode == HttpStatus.SC_UNPROCESSABLE_ENTITY) {
-            failure = ApiRequestException.validationError(request);
+            failure = ApiRequestException.validationError(request, getErrorKey());
         } else if (statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
             failure = ApiRequestException.serverError(request);
         } else if (!isSuccessCode(statusCode)) {
@@ -81,7 +84,15 @@ public class ApiResponse {
 
     private String getErrorKey() {
         try {
-            return new JSONObject(responseBody).getString(BAD_REQUEST_ERROR_KEY);
+            final JSONObject errorJson = new JSONObject(responseBody);
+            if (errorJson.has(PUBLIC_API_ERRORS_KEY)) {
+                // public API error response
+                final JSONArray errors = errorJson.getJSONArray(PUBLIC_API_ERRORS_KEY);
+                return errors.getJSONObject(0).getString(PUBLIC_API_ERROR_MESSAGE_KEY);
+            } else {
+                // api-mobile errors keys
+                return errorJson.getString(BAD_REQUEST_ERROR_KEY);
+            }
         } catch (JSONException e) {
             return ApiRequestException.ERROR_KEY_NONE;
         }

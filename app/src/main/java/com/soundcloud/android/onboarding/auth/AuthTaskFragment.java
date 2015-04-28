@@ -42,6 +42,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
         void onSpam();
         void onBlocked();
         void onEmailInvalid();
+        void onUsernameInvalid(String message);
         void onDeviceConflict(Bundle loginBundle);
     }
 
@@ -156,6 +157,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 listener.onEmailInvalid();
             } else if (result.wasDeviceConflict()) {
                 listener.onDeviceConflict(result.getLoginBundle());
+            } else if (result.wasValidationError()) {
+                listener.onUsernameInvalid(result.getServerErrorMessage());
             } else {
                 listener.onError(getErrorFromResult((Activity) listener, result));
             }

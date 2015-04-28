@@ -71,8 +71,8 @@ public final class ApiRequestException extends Exception {
         return new ApiRequestException(MALFORMED_INPUT, request, e);
     }
 
-    public static ApiRequestException validationError(ApiRequest request) {
-        return new ApiRequestException(VALIDATION_ERROR, request);
+    public static ApiRequestException validationError(ApiRequest request, String errorKey) {
+        return new ApiRequestException(VALIDATION_ERROR, request, errorKey);
     }
 
     public static ApiRequestException serverError(ApiRequest request) {

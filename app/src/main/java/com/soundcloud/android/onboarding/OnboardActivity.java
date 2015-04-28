@@ -893,6 +893,18 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @Override
+    public void onUsernameInvalid(String message) {
+        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null);
+        //TODO: tracking?
+        //showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupInvalidEmail());
+        if (!isFinishing()) {
+            dialogBuilder.create().show();
+        }
+    }
+
+    @Override
     public void onDeviceConflict(final Bundle loginBundle) {
         final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
                 .setMessage(R.string.device_management_login_message)

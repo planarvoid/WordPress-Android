@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
@@ -71,8 +72,10 @@ public class AuthTaskResultTest {
 
     @Test
     public void shouldCreateValidationErrorResultFromApiRequestException() {
-        final AuthTaskResult result = AuthTaskResult.failure(TestApiResponses.validationError().getFailure());
+        final ApiRequestException failure = TestApiResponses.validationError().getFailure();
+        final AuthTaskResult result = AuthTaskResult.failure(failure);
         expect(result.wasSuccess()).toBeFalse();
         expect(result.wasValidationError()).toBeTrue();
+        expect(result.getServerErrorMessage()).toEqual(failure.errorKey());
     }
 }
