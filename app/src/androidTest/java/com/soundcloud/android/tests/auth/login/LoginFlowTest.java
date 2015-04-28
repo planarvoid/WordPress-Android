@@ -146,9 +146,9 @@ public class LoginFlowTest extends LoginTest {
      */
     public void testLoginAndLogout() {
         loginScreen = homeScreen.clickLogInButton();
-        MainScreen mainScreen = loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
+        StreamScreen streamScreen = loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
 
-        assertThat(mainScreen.actionBar()
+        assertThat(streamScreen.actionBar()
                 .clickSettingsOverflowButton()
                 .clickLogoutAndConfirm(), is(visible()));
     }
