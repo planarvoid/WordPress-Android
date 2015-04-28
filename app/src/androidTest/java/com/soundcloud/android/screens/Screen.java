@@ -5,6 +5,7 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.elements.ActionBarElement;
+import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 
 import android.R;
 
@@ -44,6 +45,10 @@ public abstract class Screen {
 
     public ActionBarElement actionBar() {
         return new ActionBarElement(testDriver);
+    }
+
+    public GoBackOnlineDialogElement getGoBackOnlineDialog() {
+        return new GoBackOnlineDialogElement(testDriver);
     }
 
     abstract protected Class getActivity();

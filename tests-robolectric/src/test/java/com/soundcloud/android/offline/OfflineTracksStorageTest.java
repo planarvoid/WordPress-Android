@@ -160,6 +160,53 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
         databaseAssertions().assertTrackIsUnavailable(TRACK_1, now.getTime());
     }
 
+    @Test
+    public void getLastPolicyUpdateDoesNotEmitWhenNoPolicy() {
+        final TestObserver<Long> observer = new TestObserver<>();
+
+        storage.getLastPolicyUpdate().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toBeEmpty();
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
+
+    @Test
+    public void getLastPolicyUpdateDoesNotEmitWhenNoTrackDownloadEntry() {
+        final TestObserver<Long> observer = new TestObserver<>();
+        insertTrackWithPolicy(System.currentTimeMillis());
+
+        storage.getLastPolicyUpdate().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toBeEmpty();
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
+
+    @Test
+    public void getLastPolicyUpdateEmitsTheLatestUpdateDate() {
+        final long today = System.currentTimeMillis();
+        final long yesterday = System.currentTimeMillis() - TimeUnit.DAYS.toMillis(1);
+        final TestObserver<Long> observer = new TestObserver<>();
+
+        insertCompletedDownload(yesterday);
+        insertCompletedDownload(today);
+
+        storage.getLastPolicyUpdate().subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(today);
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+    }
+
+    private void insertCompletedDownload(long policyUpdate) {
+        final ApiTrack track = insertTrackWithPolicy(policyUpdate);
+        testFixtures().insertCompletedTrackDownload(track.getUrn(), System.currentTimeMillis(), System.currentTimeMillis());
+    }
+
+    private ApiTrack insertTrackWithPolicy(long policyUpdate) {
+        final ApiTrack track = testFixtures().insertTrack();
+        testFixtures().insertPolicyAllow(track.getUrn(), policyUpdate);
+        return track;
+    }
+
     private Urn insertOfflinePlaylistTrack(Urn playlist, int position) {
         final ApiTrack track = testFixtures().insertPlaylistTrack(playlist, position);
         testFixtures().insertCompletedTrackDownload(track.getUrn(), 0, 100);

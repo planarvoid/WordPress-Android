@@ -12,13 +12,8 @@ public class ViewPagerElement extends Element {
     private ViewPager viewPager;
 
     public ViewPagerElement(Han solo) {
-        super(solo);
+        super(solo, With.id(R.id.pager));
         viewPager = solo.findElement(With.className(ViewPager.class)).toViewPager();
-    }
-
-    @Override
-    protected int getRootViewId() {
-        return R.id.pager;
     }
 
     /**

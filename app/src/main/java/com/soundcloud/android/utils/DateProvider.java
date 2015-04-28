@@ -12,4 +12,8 @@ public class DateProvider {
     public Date getCurrentDate(){
         return new Date();
     }
+
+    public long getCurrentTime() {
+        return System.currentTimeMillis();
+    }
 }

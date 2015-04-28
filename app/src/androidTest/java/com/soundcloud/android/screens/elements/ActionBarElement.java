@@ -25,17 +25,12 @@ public class ActionBarElement extends Element {
     protected final Han testDriver;
 
     public ActionBarElement(Han solo) {
-        super(solo);
+        super(solo, With.id(R.id.action_bar));
         testDriver = solo;
     }
 
     public String getTitle() {
         return title().getText();
-    }
-
-    @Override
-    protected int getRootViewId() {
-        return R.id.action_bar;
     }
 
     public void clickHomeButton() {

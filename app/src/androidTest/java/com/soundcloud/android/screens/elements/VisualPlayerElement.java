@@ -33,12 +33,7 @@ public class VisualPlayerElement extends Element {
     };
 
     public VisualPlayerElement(Han solo) {
-        super(solo);
-    }
-
-    @Override
-    protected int getRootViewId() {
-        return R.id.player_layout;
+        super(solo, With.id(R.id.player_layout));
     }
 
     public boolean isNextButtonClickable() {

@@ -24,6 +24,7 @@ import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
+import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
 
 import android.content.ContentValues;
@@ -113,6 +114,15 @@ class OfflineTracksStorage {
                 .whereLe(REMOVED_AT, removalDelayedTimestamp))
                 .map(new UrnMapper())
                 .toList();
+    }
+
+    Observable<Long> getLastPolicyUpdate() {
+        return propellerRx.query(Query.from(Table.TrackPolicies.name())
+                .select(Table.TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED))
+                .innerJoin(Table.TrackDownloads.name(), Table.TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID), Table.TrackDownloads.field(_ID))
+                .order(Table.TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), Query.ORDER_DESC))
+                .map(RxResultMapper.scalar(Long.class))
+                .take(1);
     }
 
     WriteResult storeCompletedDownload(DownloadResult downloadResult) {

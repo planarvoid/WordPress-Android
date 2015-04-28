@@ -168,8 +168,6 @@ android {
  */
 configurations {
   all*.exclude group: 'commons-logging', module: 'commons-logging'
-  // need to exclude any support libraries we pull, or they will clash with our repack
-  all*.exclude group: 'com.android.support', module: 'support-v4'
 }
 
 dependencies {

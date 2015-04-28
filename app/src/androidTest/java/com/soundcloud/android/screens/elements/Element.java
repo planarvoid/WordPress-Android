@@ -2,21 +2,26 @@ package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
 public abstract class Element {
 
+    private final With matcher;
     protected Han solo;
     protected Waiter waiter;
 
-    public Element(Han solo) {
+    public Element(Han solo, With matcher) {
         this.solo = solo;
         this.waiter = new Waiter(solo);
+        this.matcher = matcher;
     }
 
     public boolean isVisible() {
-        return solo.findElement(With.id(getRootViewId())).isVisible();
+        return getRootViewElement().isVisible();
     }
 
-    abstract protected int getRootViewId();
+    public ViewElement getRootViewElement() {
+        return solo.findElement(matcher);
+    }
 }
