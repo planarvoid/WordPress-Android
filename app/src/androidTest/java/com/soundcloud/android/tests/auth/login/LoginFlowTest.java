@@ -5,7 +5,7 @@ import static com.soundcloud.android.framework.TestUser.GPlusAccount;
 import static com.soundcloud.android.framework.TestUser.generateEmail;
 import static com.soundcloud.android.framework.TestUser.noGPlusAccount;
 import static com.soundcloud.android.framework.TestUser.scAccount;
-import static com.soundcloud.android.framework.TestUser.scTestAccount;
+import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -43,12 +43,12 @@ public class LoginFlowTest extends LoginTest {
 
     /*
      * As a SoundCloud User
-     * I want to sign in with my SC account
+     * I want to sign in with the email registered to my SC account
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow() {
         loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(scTestAccount.getPermalink(), scTestAccount.getPassword());
+        loginScreen.loginAs(defaultUser.getEmail(), defaultUser.getPassword());
         assertThat(new StreamScreen(solo), visible());
     }
 
@@ -132,7 +132,7 @@ public class LoginFlowTest extends LoginTest {
      */
     public void testLoginWithWrongCredentials() {
         loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(scTestAccount.getPermalink(), "wrong-password", false);
+        loginScreen.loginAs(defaultUser.getEmail(), "wrong-password", false);
         //TODO: DialogElement
         solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
         loginScreen.clickOkButton();

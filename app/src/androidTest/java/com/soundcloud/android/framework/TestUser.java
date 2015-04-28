@@ -78,26 +78,25 @@ public class TestUser {
         return token;
     }
 
-    public static final TestUser defaultUser        = new TestUser("android-testing",       "",                             "android-testing");
-    public static final TestUser adUser             = new TestUser("scandroidad1",          "scandroidtestad1@gmail.com",   "scandtest");
-    public static final TestUser scAccount          = new TestUser("steven-testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
-    public static final TestUser scTestAccount      = new TestUser("android-testing",       "",                             "android-testing");
-    public static final TestUser noGPlusAccount     = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com", "s0undcl0ud");
-    public static final TestUser GPlusAccount       = new TestUser("scandroidtest",         "sccloudandroid@gmail.com",     "s0undcl0ud");
-    public static final TestUser Facebook           = new TestUser("Mike Smiechowy",        "ssmiechowy@gmail.com",         "passwordyeah3");
-    public static final TestUser playlistUser       = new TestUser("mike-smiechowy",        "ssmiechowy@gmail.com",         "passwordyeah");
-    public static final TestUser playerUser         = new TestUser("android-test-player",   "android-test-player@gmail.com","S0undCl0ud");
-    public static final TestUser testUser           = new TestUser("slawomir-smiechowy-2",  "test26-82@wp.pl",              "password");
-    public static final TestUser emptyUser          = new TestUser("scEmpty",               "scemptyuser@gmail.com",        "s0undcl0ud");
-    public static final TestUser followedUser       = new TestUser("android-followed",      "sctestfollowed@gmail.com",     "followed");
-    public static final TestUser streamUser         = new TestUser("sofia-tester",          "scstreamuser@gmail.com",       "s0undcl0ud");
-    public static final TestUser privateUser        = new TestUser("privateTrackUser",      "privatetrackuser@gmail.com",   "S0undCl0ud");
-    public static final TestUser subscribeUser      = new TestUser("scandsubscribe",        "scandsubscribe@gmail.com",     "s0undcl0ud");
-    public static final TestUser likesUser          = new TestUser("sctestlike",            "soundcloudtestlike@gmail.com", "passwordyeah77");
-    public static final TestUser likesActionUser    = new TestUser("scLikesActionUser",     "sclikesactionuser@gmail.com",  "s0undcl0ud");
-    public static final TestUser offlineUser        = new TestUser("sctestoffline",         "sctestoffline@gmail.com",      "passwordyeah88");
-    public static final TestUser offlineUpsellUser  = new TestUser("sctestupsell",          "sctestupsell@gmail.com",       "passwordyeah88");
-    public static final TestUser offlineEmptyUser   = new TestUser("sctestoffline_empty",   "sctestoffline_empty@gmail.com","passwordyeah88");
-    public static final TestUser over21user         = new TestUser("over21userblah",        "over21user@soundcloud.com",    "#s0undcl0ud");
+    public static final TestUser defaultUser        = new TestUser("android-testing",       "jan+android-testing@soundcloud.com",   "android-testing");
+    public static final TestUser adUser             = new TestUser("scandroidad1",          "scandroidtestad1@gmail.com",           "scandtest");
+    public static final TestUser scAccount          = new TestUser("steven-testowy",        "soundcloudtestuser@gmail.com",         "s0undcl0ud");
+    public static final TestUser noGPlusAccount     = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com",         "s0undcl0ud");
+    public static final TestUser GPlusAccount       = new TestUser("scandroidtest",         "sccloudandroid@gmail.com",             "s0undcl0ud");
+    public static final TestUser Facebook           = new TestUser("Mike Smiechowy",        "ssmiechowy@gmail.com",                 "passwordyeah3");
+    public static final TestUser playlistUser       = new TestUser("mike-smiechowy",        "ssmiechowy@gmail.com",                 "passwordyeah");
+    public static final TestUser playerUser         = new TestUser("android-test-player",   "android-test-player@gmail.com",        "S0undCl0ud");
+    public static final TestUser testUser           = new TestUser("slawomir-smiechowy-2",  "test26-82@wp.pl",                      "password");
+    public static final TestUser emptyUser          = new TestUser("scEmpty",               "scemptyuser@gmail.com",                "s0undcl0ud");
+    public static final TestUser followedUser       = new TestUser("android-followed",      "sctestfollowed@gmail.com",             "followed");
+    public static final TestUser streamUser         = new TestUser("sofia-tester",          "scstreamuser@gmail.com",               "s0undcl0ud");
+    public static final TestUser privateUser        = new TestUser("privateTrackUser",      "privatetrackuser@gmail.com",           "S0undCl0ud");
+    public static final TestUser subscribeUser      = new TestUser("scandsubscribe",        "scandsubscribe@gmail.com",             "s0undcl0ud");
+    public static final TestUser likesUser          = new TestUser("sctestlike",            "soundcloudtestlike@gmail.com",         "passwordyeah77");
+    public static final TestUser likesActionUser    = new TestUser("scLikesActionUser",     "sclikesactionuser@gmail.com",          "s0undcl0ud");
+    public static final TestUser offlineUser        = new TestUser("sctestoffline",         "sctestoffline@gmail.com",              "passwordyeah88");
+    public static final TestUser offlineUpsellUser  = new TestUser("sctestupsell",          "sctestupsell@gmail.com",               "passwordyeah88");
+    public static final TestUser offlineEmptyUser   = new TestUser("sctestoffline_empty",   "sctestoffline_empty@gmail.com",        "passwordyeah88");
+    public static final TestUser over21user         = new TestUser("over21userblah",        "over21user@soundcloud.com",            "#s0undcl0ud");
 
 }
