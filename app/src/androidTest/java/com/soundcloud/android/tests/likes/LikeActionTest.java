@@ -1,17 +1,15 @@
 package com.soundcloud.android.tests.likes;
 
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearLikes;
-import static com.soundcloud.android.framework.helpers.TrackItemElementHelper.assertLikeActionOnUnlikedTrack;
-import static com.soundcloud.android.framework.helpers.PlaylistDetailsScreenHelper.assertLikeActionOnUnlikedPlaylist;
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.tests.ActivityTest;
-
-import android.content.Context;
 
 public class LikeActionTest extends ActivityTest<MainActivity> {
 
@@ -21,38 +19,30 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        final Context context = getInstrumentation().getTargetContext();
-        TestUser.likesActionUser.logIn(context);
-        // TODO : this because the network manager does not return turnWifiOff/on when the
-        // TODO : wifi is connected/disconnected but when it is enabled/disabled.
-        // TODO : The side effect is that the following like actions get synced eventually
-        // TODO : which break the following test run.
-        // TODO : Fix the NetworkManager and remove this.
-        clearLikes(context);
+        TestUser.likesActionUser.logIn(getInstrumentation().getTargetContext());
     }
 
     public void testLikedTrackAddedToLikeCollectionWhenLikingFromTrackItemOverflowMenu() throws Exception {
-        final MainScreen mainScreen = new MainScreen(solo);
-        mainScreen
-                .actionBar()
-                .clickSearchButton();
+        final StreamScreen streamScreen = new StreamScreen(solo);
 
-        final TrackItemElement expectedTrack = mainScreen
+        final TrackItemElement expectedTrack = streamScreen
+                .actionBar()
+                .clickSearchButton()
                 .actionBar()
                 .doSearch("Acceptance")
                 .touchTracksTab()
                 .getTracks()
                 .get(0);
 
-        networkManager.switchWifiOff();
-        assertLikeActionOnUnlikedTrack(this, expectedTrack);
+        expectedTrack.clickOverflowButton().toggleLike();
         final String expectedTitle = expectedTrack.getTitle();
 
         solo.goBack();
         solo.goBack();
+        assertThat("Stream should be visible", streamScreen, is(visible()));
 
-        final String actualTitle = menuScreen
-                .open()
+        final String actualTitle = streamScreen
+                .openMenu()
                 .clickLikes()
                 .tracks()
                 .get(0)
@@ -63,12 +53,11 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
     }
 
     public void testLikedPlaylistAddedToLikeCollectionWhenLikingFromPlaylistScreenEngagementBar() throws Exception {
-        final MainScreen mainScreen = new MainScreen(solo);
-        mainScreen
-                .actionBar()
-                .clickSearchButton();
+        final StreamScreen streamScreen = new StreamScreen(solo);
 
-        final PlaylistDetailsScreen playlistScreen = mainScreen
+        final PlaylistDetailsScreen playlistDetailsScreen = streamScreen
+                .actionBar()
+                .clickSearchButton()
                 .actionBar()
                 .doSearch("Acceptance")
                 .touchPlaylistsTab()
@@ -76,18 +65,18 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 .get(0)
                 .click();
 
-        final String expectedTitle = playlistScreen.getTitle();
+        final String expectedTitle = playlistDetailsScreen.getTitle();
 
-        networkManager.switchWifiOff();
-        assertLikeActionOnUnlikedPlaylist(playlistScreen);
+        playlistDetailsScreen.touchToggleLike();
 
         solo.goBack();
         solo.goBack();
         solo.goBack();
         solo.goBack();
+        assertThat("Stream should be visible", streamScreen, is(visible()));
 
-        final String actualTitle = menuScreen
-                .open()
+        final String actualTitle = streamScreen
+                .openMenu()
                 .clickPlaylist()
                 .touchLikedPlaylistsTab()
                 .get(0)
