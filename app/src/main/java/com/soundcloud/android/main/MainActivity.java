@@ -8,12 +8,14 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.UserRepository;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
+import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.campaigns.InAppCampaignController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
@@ -138,12 +140,21 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         refreshStream = intent.getBooleanExtra(EXTRA_REFRESH_STREAM, false);
+
         final boolean setFragmentViaIntent = navigationFragment.handleIntent(intent);
         if (setFragmentViaIntent && isNotBlank(getSupportActionBar().getTitle())) {
             // the title/selection changed as a result of this intent, so store the new title to prevent overwriting
             lastTitle = getSupportActionBar().getTitle();
         }
+
+        trackForegroundEvent(intent);
         setIntent(intent);
+    }
+
+    private void trackForegroundEvent(Intent intent) {
+        if (Referrer.hasReferrer(intent) && Screen.hasScreen(intent)) {
+            eventBus.publish(EventQueue.TRACKING, ForegroundEvent.open(Screen.fromIntent(intent), Referrer.fromIntent(intent)));
+        }
     }
 
     @Override

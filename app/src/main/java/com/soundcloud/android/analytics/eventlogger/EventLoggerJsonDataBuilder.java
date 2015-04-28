@@ -8,6 +8,7 @@ import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.AdTrackingKeys;
+import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
@@ -34,6 +35,7 @@ public class EventLoggerJsonDataBuilder {
     private static final String CLICK_EVENT = "click";
     private static final String IMPRESSION_EVENT = "impression";
     private static final String AUDIO_EVENT = "audio";
+    private static final String FOREGROUND_EVENT = "foreground";
     private static final String AUDIO_PERFORMANCE_EVENT = "audio_performance";
     private static final String AUDIO_ERROR_EVENT = "audio_error";
     private static final String BOOGALOO_VERSION = "v0.0.0";
@@ -209,7 +211,7 @@ public class EventLoggerJsonDataBuilder {
             data.playlistPosition(String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
 
-        if(flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
+        if (flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
             if (trackSourceInfo.isFromSearchQuery()) {
                 SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
                 data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
@@ -254,6 +256,19 @@ public class EventLoggerJsonDataBuilder {
                         .clickName(event.get(SearchEvent.KEY_CLICK_NAME)));
             default:
                 throw new IllegalArgumentException("Unexpected Search Event type " + event);
+        }
+    }
+
+    public String build(ForegroundEvent event) {
+        switch (event.getKind()) {
+            case ForegroundEvent.KIND_OPEN:
+                return transform(buildBaseEvent(FOREGROUND_EVENT, event)
+                        .pageName(event.get(ForegroundEvent.KEY_PAGE_NAME))
+                        .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
+                        .referrer(event.get(ForegroundEvent.KEY_REFERRER)));
+
+            default:
+                throw new IllegalArgumentException("Unexpected Foreground Event type " + event);
         }
     }
 

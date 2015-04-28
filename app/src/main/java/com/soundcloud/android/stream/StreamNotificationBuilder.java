@@ -2,6 +2,8 @@ package com.soundcloud.android.stream;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.propeller.PropertySet;
@@ -66,6 +68,8 @@ public class StreamNotificationBuilder {
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(MainActivity.EXTRA_REFRESH_STREAM, true);
+        Screen.NOTIFICATION.addToIntent(intent);
+        Referrer.NOTIFICATION.addToIntent(intent);
         return intent;
     }
 
@@ -99,8 +103,7 @@ public class StreamNotificationBuilder {
         final Iterator<String> iterator = uniqueUsers.iterator();
         switch (uniqueUsers.size()) {
             case 1:
-
-                return  appContext.getString(R.string.dashboard_notifications_message_incoming, iterator.next());
+                return appContext.getString(R.string.dashboard_notifications_message_incoming, iterator.next());
             case 2:
                 return appContext.getString(R.string.dashboard_notifications_message_incoming_2,
                         iterator.next(), iterator.next());
