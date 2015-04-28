@@ -1,5 +1,6 @@
 package com.soundcloud.android.onboarding.auth.tasks;
 
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 
@@ -11,6 +12,13 @@ public final class AuthTaskResult {
     }
 
     public static AuthTaskResult failure(Exception exception) {
+        return new AuthTaskResult(exception);
+    }
+
+    public static AuthTaskResult failure(ApiRequestException exception) {
+        if (exception.reason() == ApiRequestException.Reason.VALIDATION_ERROR) {
+            return new AuthTaskResult(Kind.VALIDATION_ERROR);
+        }
         return new AuthTaskResult(exception);
     }
 
@@ -51,7 +59,7 @@ public final class AuthTaskResult {
     private final Bundle loginBundle;
 
     private enum Kind {
-        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT
+        SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, VALIDATION_ERROR
     }
 
     private AuthTaskResult(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
@@ -108,6 +116,10 @@ public final class AuthTaskResult {
         return kind == Kind.DEVICE_CONFLICT;
     }
 
+    public boolean wasValidationError() {
+        return kind == Kind.VALIDATION_ERROR;
+    }
+
     public PublicApiUser getUser() {
         return user;
     }
@@ -126,9 +138,5 @@ public final class AuthTaskResult {
 
     public Bundle getLoginBundle() {
         return loginBundle;
-    }
-
-    public String[] getErrors() {
-        return exception instanceof AuthTaskException ? ((AuthTaskException) exception).getErrors() : null;
     }
 }

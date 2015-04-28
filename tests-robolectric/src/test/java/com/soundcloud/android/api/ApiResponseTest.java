@@ -57,6 +57,14 @@ public class ApiResponseTest {
     }
 
     @Test
+    public void shouldFailWithValidationErrorOn422() {
+        final ApiResponse response = new ApiResponse(request, 422, "response");
+        expect(response.isNotSuccess()).toBeTrue();
+        expect(response.getFailure()).toBeInstanceOf(ApiRequestException.class);
+        expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.VALIDATION_ERROR);
+    }
+
+    @Test
     public void shouldFailWithRateLimitExceededOn429() {
         final ApiResponse response = new ApiResponse(request, 429, "response");
         expect(response.isNotSuccess()).toBeTrue();

@@ -16,6 +16,10 @@ public final class TestApiResponses {
         return new ApiResponse(ApiRequestException.networkError(null, new IOException()));
     }
 
+    public static ApiResponse validationError() {
+        return new ApiResponse(ApiRequestException.validationError(null));
+    }
+
     private TestApiResponses() {
         // no instances
     }

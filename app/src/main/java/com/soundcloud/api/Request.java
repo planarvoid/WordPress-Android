@@ -7,25 +7,14 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.HttpMultipartMode;
-import org.apache.http.entity.mime.MIME;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.AbstractContentBody;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,7 +41,6 @@ public class Request implements Iterable<NameValuePair> {
     public static final String UTF_8 = "UTF-8";
 
     private List<NameValuePair> params = new ArrayList<NameValuePair>(); // XXX should probably be lazy
-    private Map<String, Attachment> files;
 
     private HttpEntity entity;
 
@@ -134,9 +122,6 @@ public class Request implements Iterable<NameValuePair> {
         }
         ifNoneMatch = request.ifNoneMatch;
         entity = request.entity;
-        if (request.files != null) {
-            files = new HashMap<String, Attachment>(request.files);
-        }
     }
 
     /**
@@ -284,91 +269,6 @@ public class Request implements Iterable<NameValuePair> {
     }
 
     /**
-     * Registers a file to be uploaded with a POST or PUT request.
-     *
-     * @param name the name of the parameter
-     * @param file the file to be submitted
-     * @return this
-     */
-    public Request withFile(String name, File file) {
-        return file != null ? withFile(name, file, file.getName()) : this;
-    }
-
-    /**
-     * Registers a file to be uploaded with a POST or PUT request.
-     *
-     * @param name     the name of the parameter
-     * @param file     the file to be submitted
-     * @param fileName the name of the uploaded file (over rides file parameter)
-     * @return this
-     */
-    public Request withFile(String name, File file, String fileName) {
-        if (files == null) {
-            files = new HashMap<String, Attachment>();
-        }
-        if (file != null) {
-            files.put(name, new Attachment(file, fileName));
-        }
-        return this;
-    }
-
-    /**
-     * Registers binary data to be uploaded with a POST or PUT request.
-     *
-     * @param name the name of the parameter
-     * @param data the data to be submitted
-     * @return this
-     * @deprecated use {@link #withFile(String, byte[], String)} instead
-     */
-    @Deprecated
-    public Request withFile(String name, byte[] data) {
-        return withFile(name, ByteBuffer.wrap(data));
-    }
-
-    /**
-     * Registers binary data to be uploaded with a POST or PUT request.
-     *
-     * @param name     the name of the parameter
-     * @param data     the data to be submitted
-     * @param fileName the name of the uploaded file
-     * @return this
-     */
-    public Request withFile(String name, byte[] data, String fileName) {
-        return withFile(name, ByteBuffer.wrap(data), fileName);
-    }
-
-    /**
-     * Registers binary data to be uploaded with a POST or PUT request.
-     *
-     * @param name the name of the parameter
-     * @param data the data to be submitted
-     * @return this
-     * @deprecated use {@link #withFile(String, java.nio.ByteBuffer, String)} instead
-     */
-    @Deprecated
-    public Request withFile(String name, ByteBuffer data) {
-        return withFile(name, data, "upload");
-    }
-
-    /**
-     * Registers binary data to be uploaded with a POST or PUT request.
-     *
-     * @param name     the name of the parameter
-     * @param data     the data to be submitted
-     * @param fileName the name of the uploaded file
-     * @return this
-     */
-    public Request withFile(String name, ByteBuffer data, String fileName) {
-        if (files == null) {
-            files = new HashMap<String, Attachment>();
-        }
-        if (data != null) {
-            files.put(name, new Attachment(data, fileName));
-        }
-        return this;
-    }
-
-    /**
      * Adds an arbitrary entity to the request (used with POST/PUT)
      *
      * @param entity the entity to POST/PUT
@@ -413,21 +313,6 @@ public class Request implements Iterable<NameValuePair> {
         return this;
     }
 
-    public boolean isMultipart() {
-        return files != null && !files.isEmpty();
-    }
-
-    /**
-     * Conditional GET
-     *
-     * @param etag the etag to check for (If-None-Match: etag)
-     * @return this
-     */
-    public Request ifNoneMatch(String etag) {
-        ifNoneMatch = etag;
-        return this;
-    }
-
     public Map<String, String> getParams() {
         Map<String, String> params = new HashMap<String, String>();
         for (NameValuePair p : this.params) {
@@ -452,30 +337,7 @@ public class Request implements Iterable<NameValuePair> {
                 HttpEntityEnclosingRequestBase enclosingRequest =
                         (HttpEntityEnclosingRequestBase) request;
 
-                final Charset charSet = java.nio.charset.Charset.forName(UTF_8);
-                if (isMultipart()) {
-                    MultipartEntity multiPart = new MultipartEntity(
-                            HttpMultipartMode.BROWSER_COMPATIBLE,  // XXX change this to STRICT once rack on server is upgraded
-                            null,
-                            charSet);
-
-                    if (files != null) {
-                        for (Map.Entry<String, Attachment> e : files.entrySet()) {
-                            multiPart.addPart(e.getKey(), e.getValue().toContentBody());
-                        }
-                    }
-
-                    for (NameValuePair pair : params) {
-                        multiPart.addPart(pair.getName(), new StringBody(pair.getValue(), "text/plain", charSet));
-                    }
-
-                    enclosingRequest.setEntity(listener == null ? multiPart :
-                            new CountingMultipartEntity(multiPart, listener));
-
-                    request.setURI(URI.create(resource));
-
-                    // form-urlencoded?
-                } else if (entity != null) {
+                if (entity != null) {
                     request.setHeader(entity.getContentType());
                     enclosingRequest.setEntity(entity);
                     request.setURI(URI.create(toUrl())); // include the params
@@ -509,11 +371,7 @@ public class Request implements Iterable<NameValuePair> {
                 request.addHeader(OAuth.createOAuthHeader(token));
             }
             return request;
-        } catch (InstantiationException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (InstantiationException | IllegalAccessException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -550,7 +408,6 @@ public class Request implements Iterable<NameValuePair> {
         return "Request{" +
                 "resource='" + resource + '\'' +
                 ", params=" + params +
-                ", files=" + files +
                 ", entity=" + entity +
                 ", token=" + token +
                 ", listener=" + listener +
@@ -572,110 +429,12 @@ public class Request implements Iterable<NameValuePair> {
     /**
      * Updates about the amount of bytes already transferred.
      */
-    public static interface TransferProgressListener {
+    public interface TransferProgressListener {
         /**
          * @param amount number of bytes already transferred.
          * @throws IOException if the transfer should be cancelled
          */
-        public void transferred(long amount) throws IOException;
-    }
-
-    /* package */ static class ByteBufferBody extends AbstractContentBody {
-        private final ByteBuffer buffer;
-
-        public ByteBufferBody(ByteBuffer buffer) {
-            super("application/octet-stream");
-            this.buffer = buffer;
-        }
-
-        @Override
-        public String getFilename() {
-            return null;
-        }
-
-        public String getTransferEncoding() {
-            return MIME.ENC_BINARY;
-        }
-
-        public String getCharset() {
-            return null;
-        }
-
-        @Override
-        public long getContentLength() {
-            return buffer.capacity();
-        }
-
-        @Override
-        public void writeTo(OutputStream out) throws IOException {
-            if (buffer.hasArray()) {
-                out.write(buffer.array());
-            } else {
-                byte[] dst = new byte[buffer.capacity()];
-                buffer.get(dst);
-                out.write(dst);
-            }
-        }
-    }
-
-    /* package */ static class Attachment {
-        public final File file;
-        public final ByteBuffer data;
-        public final String fileName;
-
-        /**
-         * @noinspection UnusedDeclaration
-         */
-        Attachment(File file) {
-            this(file, file.getName());
-        }
-
-        Attachment(File file, String fileName) {
-            if (file == null) {
-                throw new IllegalArgumentException("file cannot be null");
-            }
-            this.fileName = fileName;
-            this.file = file;
-            this.data = null;
-        }
-
-        /**
-         * @noinspection UnusedDeclaration
-         */
-        Attachment(ByteBuffer data) {
-            this(data, null);
-        }
-
-        Attachment(ByteBuffer data, String fileName) {
-            if (data == null) {
-                throw new IllegalArgumentException("data cannot be null");
-            }
-
-            this.data = data;
-            this.fileName = fileName;
-            this.file = null;
-        }
-
-        public ContentBody toContentBody() {
-            if (file != null) {
-                return new FileBody(file) {
-                    @Override
-                    public String getFilename() {
-                        return fileName;
-                    }
-                };
-            } else if (data != null) {
-                return new ByteBufferBody(data) {
-                    @Override
-                    public String getFilename() {
-                        return fileName;
-                    }
-                };
-            } else {
-                // never happens
-                throw new IllegalStateException("no upload data");
-            }
-        }
+        void transferred(long amount) throws IOException;
     }
 
     /**

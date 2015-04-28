@@ -2,11 +2,15 @@ package com.soundcloud.android.matchers;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Iterables;
+import com.soundcloud.android.api.ApiMultipartRequest;
+import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
+import com.soundcloud.android.api.FormPart;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,20 +21,15 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
     private Map<String, String> expectedQueryParams = new HashMap<>();
     private Map<String, String> expectedHeaders = new HashMap<>();
     private List<String> unExpectedHeaders = new ArrayList<>();
-    private boolean queryMatchError;
+    private boolean queryMatchError, headerMatchError, formMatchError;
     private String expectedMethod, expectedPath;
-    private boolean headerMatchError;
     private ApiRequest request;
     private Object content;
+    private List<FormPart> formParts;
 
     public ApiRequestTo(String expectedMethod, String expectedPath, boolean isMobileApi) {
         this.expectedMethod = expectedMethod;
         this.expectedPath = expectedPath;
-        this.isMobileApi = isMobileApi;
-    }
-
-    public ApiRequestTo(String expectedMethod, boolean isMobileApi) {
-        this.expectedMethod = expectedMethod;
         this.isMobileApi = isMobileApi;
     }
 
@@ -42,6 +41,7 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
             return containsExpectedQueryParams()
                     && containsExpectedHeaders()
                     && contentMatches()
+                    && formPartsMatch()
                     && pathMatches()
                     && methodMatches()
                     && request.isPrivate() == isMobileApi;
@@ -88,20 +88,33 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
     }
 
     private boolean contentMatches() {
-        if (request.getContent() == null) {
-            return content == null;
-
-        } else if (content == null) {
-            return false;
-
-        } else if (content instanceof Iterable) {
-            return request.getContent() instanceof Iterable
-                    && Iterables.elementsEqual((Iterable) content, (Iterable) request.getContent());
-        } else if (content instanceof Map && request.getContent() instanceof Map) {
-            return Iterables.elementsEqual(((Map) content).entrySet(), ((Map) request.getContent()).entrySet());
+        if (request instanceof ApiObjectContentRequest) {
+            Object targetContent = ((ApiObjectContentRequest) request).getContent();
+            if (content instanceof Iterable) {
+                return targetContent instanceof Iterable
+                        && Iterables.elementsEqual((Iterable) content, (Iterable) targetContent);
+            } else if (content instanceof Map && targetContent instanceof Map) {
+                return Iterables.elementsEqual(((Map) content).entrySet(), ((Map) targetContent).entrySet());
+            } else {
+                return Objects.equal(targetContent, content);
+            }
         } else {
-            return Objects.equal(request.getContent(), content);
+            // must not expect a content to exist if target request not a content request
+            return content == null;
         }
+    }
+
+    private boolean formPartsMatch() {
+        if (formParts != null && request instanceof ApiMultipartRequest) {
+            final List<FormPart> matchedParts = ((ApiMultipartRequest) request).getParts();
+            // don't check with equals, as that assumes order, which isn't required here.
+            final boolean matches = formParts.containsAll(matchedParts) && matchedParts.containsAll(formParts);
+            if (!matches) {
+                formMatchError = true;
+            }
+            return matches;
+        }
+        return true;
     }
 
     public ApiRequestTo withQueryParam(String key, String... values) {
@@ -127,6 +140,11 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
         return this;
     }
 
+    public ApiRequestTo withFormParts(FormPart... formParts) {
+        this.formParts = Arrays.asList(formParts);
+        return this;
+    }
+
     @Override
     public void describeTo(Description description) {
         if (queryMatchError) {
@@ -139,6 +157,11 @@ public class ApiRequestTo extends ArgumentMatcher<ApiRequest> {
             description.appendValue(expectedHeaders);
             description.appendText("\nBut found ");
             description.appendValue(request.getHeaders());
+        } else if (formMatchError) {
+            description.appendText("Multipart form parts to equal ");
+            description.appendValue(formParts);
+            description.appendText("\nBut found ");
+            description.appendValue(((ApiMultipartRequest) request).getParts());
         } else {
             super.describeTo(description);
         }

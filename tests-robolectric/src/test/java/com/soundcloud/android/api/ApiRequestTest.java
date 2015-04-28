@@ -8,6 +8,8 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -132,6 +134,42 @@ public class ApiRequestTest {
         final String value = headers.get("sc-udid");
 
         expect(value).toEqual("abc123");
+    }
+
+    @Test
+    public void shouldReturnJsonAcceptMediaTypeForMobileApiRequests() {
+        final ApiRequest request = ApiRequest.get(URI_PATH).forPrivateApi(1).build();
+        expect(request.getAcceptMediaType()).toEqual("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+    }
+
+    @Test
+    public void shouldReturnJsonAcceptMediaTypeForPublicApiRequests() {
+        final ApiRequest request = ApiRequest.get(URI_PATH).forPublicApi().build();
+        expect(request.getAcceptMediaType()).toEqual("application/json");
+    }
+
+    @Test
+    public void shouldCreateObjectContentRequestWhenUsingWithContent() {
+        Map<Object, Object> requestContent = new HashMap<>();
+        ApiRequest request = validRequest(URI_PATH)
+                .withContent(requestContent)
+                .build();
+        expect(request).toBeInstanceOf(ApiObjectContentRequest.class);
+        final ApiObjectContentRequest contentRequest = (ApiObjectContentRequest) request;
+        expect(contentRequest.getContent()).toEqual(requestContent);
+    }
+
+    @Test
+    public void shouldCreateFileContentRequestWhenUsingWithFile() {
+        final FormPart part1 = new FilePart("file1.txt", new File("/path1"), "testFile1", "image/png");
+        final FormPart part2 = new StringPart("param", "value");
+        ApiRequest request = validRequest(URI_PATH)
+                .withFormPart(part1)
+                .withFormPart(part2)
+                .build();
+        expect(request).toBeInstanceOf(ApiMultipartRequest.class);
+        final ApiMultipartRequest contentRequest = (ApiMultipartRequest) request;
+        expect(contentRequest.getParts()).toContainExactly(part1, part2);
     }
 
     private ApiRequest.Builder validRequest(String uri) {

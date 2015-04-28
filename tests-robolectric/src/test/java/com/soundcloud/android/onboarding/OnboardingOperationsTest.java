@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiClientRx;
+import com.soundcloud.android.api.ApiObjectContentRequest;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -49,7 +50,7 @@ public class OnboardingOperationsTest {
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).response(argumentCaptor.capture());
-        EmailOptIn content = (EmailOptIn) argumentCaptor.getValue().getContent();
+        EmailOptIn content = (EmailOptIn) ((ApiObjectContentRequest) argumentCaptor.getValue()).getContent();
         expect(content.newsletter).toBeTrue();
         expect(content.productUpdates).toBeTrue();
         expect(content.surveys).toBeTrue();

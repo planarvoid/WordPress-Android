@@ -19,9 +19,6 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.FiletimeComparator;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Params;
-import com.soundcloud.api.Request;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,13 +39,9 @@ import android.util.Log;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -57,7 +50,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
     public static final File IMAGE_DIR = new File(Consts.EXTERNAL_STORAGE_DIRECTORY, "recordings/images");
     public static final String EXTRA = "recording";
     public static final int MAX_WAVE_CACHE = 100 * 1024 * 1024; // 100 mb
-    public static final String UPLOAD_TYPE = "recording";
     public static final String TAG_SOURCE_ANDROID_RECORD = "soundcloud:source=android-record";
     public static final String TAG_RECORDING_TYPE_DEDICATED = "soundcloud:recording-type=dedicated";
     public static final String TAG_SOURCE_ANDROID_3RDPARTY_UPLOAD = "soundcloud:source=android-3rdparty-upload";
@@ -385,76 +377,6 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         return new Intent(Actions.RECORD);
     }
 
-    public Map<String, ?> toParamsMap(Resources resources) {
-        Map<String, Object> data = new HashMap<>();
-        title = sharingNote(resources);
-
-        data.put(Params.Track.TITLE, title);
-        data.put(Params.Track.TYPE, UPLOAD_TYPE);
-        data.put(Params.Track.SHARING, isPublic() ? Params.Track.PUBLIC : Params.Track.PRIVATE);
-        data.put(Params.Track.DOWNLOADABLE, false);
-        data.put(Params.Track.STREAMABLE, true);
-
-        if (!TextUtils.isEmpty(tagString())) {
-            data.put(Params.Track.TAG_LIST, tagString());
-        }
-        if (!TextUtils.isEmpty(description)) {
-            data.put(Params.Track.DESCRIPTION, description);
-        }
-        if (!TextUtils.isEmpty(genre)) {
-            data.put(Params.Track.GENRE, genre);
-        }
-
-        if (!TextUtils.isEmpty(service_ids)) {
-            List<String> ids = new ArrayList<>();
-            Collections.addAll(ids, service_ids.split(","));
-            data.put(Params.Track.POST_TO, ids);
-            data.put(Params.Track.SHARING_NOTE, title);
-        } else {
-            data.put(Params.Track.POST_TO_EMPTY, "");
-        }
-
-        if (!TextUtils.isEmpty(shared_emails)) {
-            List<String> ids = new ArrayList<>();
-            Collections.addAll(ids, shared_emails.split(","));
-            data.put(Params.Track.SHARED_EMAILS, ids);
-        }
-
-        if (recipient_user_id > 0) {
-            data.put(Params.Track.SHARED_IDS, recipient_user_id);
-        } else if (!TextUtils.isEmpty(shared_ids)) {
-            List<String> ids = new ArrayList<>();
-            Collections.addAll(ids, shared_ids.split(","));
-            data.put(Params.Track.SHARED_IDS, ids);
-        }
-        return data;
-    }
-
-    public Request getRequest(Resources resources, File file, Request.TransferProgressListener listener) {
-        final Request request = new Request(Endpoints.TRACKS);
-        final Map<String, ?> map = toParamsMap(resources);
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            if (entry.getValue() instanceof Iterable) {
-                for (Object o : (Iterable) entry.getValue()) {
-                    request.add(entry.getKey(), o.toString());
-                }
-            } else {
-                request.add(entry.getKey(), entry.getValue().toString());
-            }
-        }
-        final String fileName;
-        if (!external_upload) {
-            String title = map.get(Params.Track.TITLE).toString();
-            final String newTitle = title == null ? "unknown" : title;
-            fileName = String.format("%s.%s", URLEncoder.encode(newTitle.replace(" ", "_")), VorbisReader.EXTENSION);
-        } else {
-            fileName = file.getName();
-        }
-        return request.withFile(Params.Track.ASSET_DATA, file, fileName)
-                .withFile(Params.Track.ARTWORK_DATA, artwork_path)
-                .setProgressListener(listener);
-    }
-
     public boolean isError() {
         return upload_status == Status.ERROR;
     }
@@ -754,7 +676,7 @@ public class Recording extends PublicApiResource implements Comparable<Recording
         }
     }
 
-    private boolean isPublic() {
+    public boolean isPublic() {
         return !is_private && recipient_user_id <= 0;
     }
 

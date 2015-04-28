@@ -17,6 +17,7 @@ import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
+import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.apache.http.HttpResponse;
@@ -225,7 +226,7 @@ public class SuggestionsAdapterTest {
     private void mockPublicApi(String fixture) throws IOException {
         when(mockApi.getMapper()).thenReturn(TestHelper.getObjectMapper());
 
-        final String suggestionsJson = TestHelper.resourceAsString(SearchSuggestions.class, fixture);
+        final String suggestionsJson = JsonFixtures.resourceAsString(SearchSuggestions.class, fixture);
         HttpResponse response = new TestHttpResponse(200, suggestionsJson);
         when(mockApi.get(any(Request.class))).thenReturn(response);
     }

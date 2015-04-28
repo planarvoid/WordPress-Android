@@ -2,6 +2,7 @@ package com.soundcloud.android.onboarding.auth.tasks;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -11,8 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.os.Bundle;
-
-import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AuthTaskResultTest {
@@ -36,7 +35,6 @@ public class AuthTaskResultTest {
         AuthTaskResult result = AuthTaskResult.failure(errorMessage);
 
         expect(result.wasFailure()).toBeTrue();
-        expect(Arrays.equals(result.getErrors(), new String[] { errorMessage })).toBeTrue();
     }
 
     @Test
@@ -71,4 +69,10 @@ public class AuthTaskResultTest {
         expect(result.getLoginBundle()).toBe(loginBundle);
     }
 
+    @Test
+    public void shouldCreateValidationErrorResultFromApiRequestException() {
+        final AuthTaskResult result = AuthTaskResult.failure(TestApiResponses.validationError().getFailure());
+        expect(result.wasSuccess()).toBeFalse();
+        expect(result.wasValidationError()).toBeTrue();
+    }
 }

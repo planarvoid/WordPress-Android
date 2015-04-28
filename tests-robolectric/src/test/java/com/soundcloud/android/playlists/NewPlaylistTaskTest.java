@@ -9,8 +9,8 @@ import static org.junit.Assert.assertNull;
 import com.soundcloud.android.api.legacy.TempEndpoints;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.sync.ApiSyncServiceTest;
+import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
 import org.junit.Test;
@@ -20,7 +20,7 @@ import org.junit.runner.RunWith;
 public class NewPlaylistTaskTest {
     @Test
     public void shouldReturnPlaylist() throws Exception {
-        addPendingHttpResponse(new TestHttpResponse(201, TestHelper.resourceAsBytes(ApiSyncServiceTest.class, "playlist.json")));
+        addPendingHttpResponse(new TestHttpResponse(201, JsonFixtures.resourceAsBytes(ApiSyncServiceTest.class, "playlist.json")));
         NewPlaylistTask task = new NewPlaylistTask(DefaultTestRunner.application.getCloudAPI());
 
         Request r = Request.to(TempEndpoints.PLAYLISTS).add("playlist[title]", "new playlist");

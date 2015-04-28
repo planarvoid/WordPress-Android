@@ -8,8 +8,6 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Arrays;
-
 
 @RunWith(DefaultTestRunner.class)
 public class RecoverPasswordTaskTest {
@@ -31,7 +29,6 @@ public class RecoverPasswordTaskTest {
         RecoverPasswordTask task = new RecoverPasswordTask(DefaultTestRunner.application.getCloudAPI());
         Boolean result = task.doInBackground("foo@gmail.com");
         expect(result).toBeFalse();
-        expect(task.getErrors()).toEqual(Arrays.asList("Unknown Email Address"));
     }
 
     @Test

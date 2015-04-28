@@ -7,7 +7,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -23,13 +22,11 @@ import org.apache.http.auth.AUTH;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.IllegalFormatException;
@@ -130,7 +127,7 @@ public class RequestTest {
         Request p2 = p.newResource("baz");
         assertThat(p, not(sameInstance(p2)));
         assertThat(p2.toString(),
-                equalTo("Request{resource='baz', params=[foo=100, baz=22.3], files=null, entity=null, token=null, listener=null}"));
+                equalTo("Request{resource='baz', params=[foo=100, baz=22.3], entity=null, token=null, listener=null}"));
     }
 
     @Test
@@ -186,97 +183,12 @@ public class RequestTest {
     }
 
     @Test
-    public void shouldCreateMultipartRequestWhenFilesAreAdded() throws Exception {
-        File f = File.createTempFile("testing", "test");
-
-        HttpPost request = Request.to("/foo")
-                .with("key", "value")
-                .withFile("foo", f)
-                .buildRequest(HttpPost.class);
-
-        assertTrue(request.getEntity() instanceof MultipartEntity);
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        request.getEntity().writeTo(os);
-        String encoded = os.toString();
-        assertThat(encoded, containsString("foo"));
-        assertThat(encoded, containsString("key"));
-        assertThat(encoded, containsString("value"));
-        assertThat(encoded, containsString("filename=\"testing"));
-    }
-
-    @Test
-    public void shouldOverrideFilenameInUpload() throws Exception {
-        File f = File.createTempFile("testing", "test");
-
-        HttpPost request = Request.to("/foo")
-                .with("key", "value")
-                .withFile("foo", f, "music.mp3")
-                .buildRequest(HttpPost.class);
-
-        assertTrue(request.getEntity() instanceof MultipartEntity);
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        request.getEntity().writeTo(os);
-        String encoded = os.toString();
-
-        assertThat(encoded, containsString("foo"));
-        assertThat(encoded, containsString("key"));
-        assertThat(encoded, containsString("value"));
-        assertThat(encoded, containsString("filename=\"music.mp3\""));
-    }
-
-    @Test
-    public void shouldDetectMultipartRequests() throws Exception {
-        assertFalse(Request.to("/foo")
-                .with("key", "value").isMultipart());
-
-        assertTrue(Request.to("/foo")
-                .with("key", "value")
-                .withFile("foo", "foo".getBytes()).isMultipart());
-    }
-
-    @Test
-    public void shouldUploadByteDataWithFilename() throws Exception {
-        HttpPost request = Request.to("/foo")
-                .with("key", "value")
-                .withFile("testing", "foo".getBytes(), "music.mp3")
-                .buildRequest(HttpPost.class);
-
-        assertTrue(request.getEntity() instanceof MultipartEntity);
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        request.getEntity().writeTo(os);
-        String encoded = os.toString();
-        assertThat(encoded, containsString("filename=\"music.mp3\""));
-    }
-
-    @Test
     public void shouldPreservePostUri() throws Exception {
         HttpPost request = Request.to("/foo")
                 .buildRequest(HttpPost.class);
 
         assertThat(request.getURI(), notNullValue());
         assertThat(request.getURI().toString(), equalTo("/foo"));
-    }
-
-    @Test
-    public void shouldCreateMultipartRequestWhenFilesAreAddedWithByteArray() throws Exception {
-        HttpPost request = Request.to("/foo")
-                .with("key", "value")
-                .withFile("testing", "foo".getBytes())
-                .buildRequest(HttpPost.class);
-
-        assertTrue(request.getEntity() instanceof MultipartEntity);
-
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        request.getEntity().writeTo(os);
-        String encoded = os.toString();
-
-        assertThat(encoded, containsString("foo"));
-        assertThat(encoded, containsString("key"));
-        assertThat(encoded, containsString("value"));
-        assertThat(encoded, containsString("testing"));
     }
 
     @Test
@@ -332,17 +244,6 @@ public class RequestTest {
         assertThat(post.getFirstHeader("Content-Type").getValue(), equalTo("application/json"));
     }
 
-
-    @Test
-    public void whenAProgressListenerIsSpecifiedShouldHaveCountingMultipart() throws Exception {
-        HttpPost request = Request.to("/foo")
-                .with("key", "value")
-                .withFile("foo", new File("/tmp"))
-                .setProgressListener(mock(Request.TransferProgressListener.class))
-                .buildRequest(HttpPost.class);
-        assertTrue(request.getEntity() instanceof CountingMultipartEntity);
-    }
-
     @Test
     public void shouldDoStringFormattingInFactoryMethod() throws Exception {
         assertThat(Request.to("/resource/%d", 200).toUrl(), equalTo("/resource/200"));
@@ -357,7 +258,7 @@ public class RequestTest {
     public void toStringShouldWork() throws Exception {
         assertThat(
                 new Request("/foo").with("1", "2").toString(),
-                equalTo("Request{resource='/foo', params=[1=2], files=null, entity=null, token=null, listener=null}"));
+                equalTo("Request{resource='/foo', params=[1=2], entity=null, token=null, listener=null}"));
     }
 
     @Test

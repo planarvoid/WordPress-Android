@@ -26,8 +26,8 @@ import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.utils.IOUtils;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowAccountManager;
@@ -85,12 +85,6 @@ public class TestHelper {
         return getObjectMapper().readValue(is, klazz);
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T extends PublicApiResource> List<T> readResourceList(String path) throws IOException {
-        return getObjectMapper().readValue(TestHelper.class.getResourceAsStream(path),
-                PublicApiResource.ResourceHolder.class).collection;
-    }
-
     public static <T> T readJson(Class<T> modelClass, Class<?> lookupClass, String file) throws IOException {
         InputStream is = lookupClass.getResourceAsStream(file);
         expect(is).not.toBeNull();
@@ -100,13 +94,13 @@ public class TestHelper {
     public static void addPendingHttpResponse(Class klazz, String... resources) throws IOException {
         for (String r : resources) {
             Robolectric.getFakeHttpLayer().addPendingHttpResponse(
-                    new TestHttpResponse(200, resourceAsBytes(klazz, r)));
+                    new TestHttpResponse(200, JsonFixtures.resourceAsBytes(klazz, r)));
         }
     }
 
     public static void addCannedResponse(Class klazz, String url, String resource) throws IOException {
         Robolectric.getFakeHttpLayer().addHttpResponseRule(createRegexRequestMatcherForUriWithClientId(HttpGet.METHOD_NAME, url),
-                new TestHttpResponse(200, resourceAsBytes(klazz, resource)));
+                new TestHttpResponse(200, JsonFixtures.resourceAsBytes(klazz, resource)));
     }
 
     public static void addPendingIOException(String path) {
@@ -120,18 +114,6 @@ public class TestHelper {
         }
         Robolectric.getFakeHttpLayer().addHttpResponseRule(
                 new FakeHttpLayer.RequestMatcherResponseRule(builder, new IOException("boom")));
-    }
-
-    public static String resourceAsString(Class klazz, String res) throws IOException {
-        InputStream is = klazz.getResourceAsStream(res);
-        expect(is).not.toBeNull();
-        return IOUtils.readInputStream(is);
-    }
-
-    public static byte[] resourceAsBytes(Class klazz, String res) throws IOException {
-        InputStream is = klazz.getResourceAsStream(res);
-        expect(is).not.toBeNull();
-        return IOUtils.readInputStreamAsBytes(is);
     }
 
     public static void assertFirstIdToBe(Content content, long id) {

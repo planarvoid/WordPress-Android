@@ -37,7 +37,6 @@ ext {
   jacksonRepackVersion = '15.04.14'
   okHttpVersion = '2.3.0'
   httpClientAndroidVersion = '4.3.5'
-  httpmimeVersion = '4.0.3'
   localyticsVersion = '2.71'
   slidingUpPanelVersion = '2.0.2-SC'
   androidCropVersion = '0.9.10'
@@ -87,7 +86,6 @@ ext {
       jacksonRespack:               "com.fasterxml.jackson.core:jackson-repack:${jacksonRepackVersion}",
       okHttp:                       "com.squareup.okhttp:okhttp:${okHttpVersion}",
       httpClientAndroid:            "org.apache.httpcomponents:httpclient-android:${httpClientAndroidVersion}",
-      httpmime:                     "org.apache.httpcomponents:httpmime:${httpmimeVersion}",
       localytics:                   "com.localytics:android-localytics:${localyticsVersion}",
       slidingUpPanel:               "com.sothree.slidinguppanel:library:${slidingUpPanelVersion}@aar",
       androidCrop:                  "com.soundcloud.android:android-crop:${androidCropVersion}@aar",
