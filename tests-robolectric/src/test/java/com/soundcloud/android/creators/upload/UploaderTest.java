@@ -115,7 +115,7 @@ public class UploaderTest {
     public void shouldNotSetSuccessAfterFailedUpload() throws Exception {
         when(apiClient.fetchMappedResponse(
                 argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
-                .thenThrow(ApiRequestException.unexpectedResponse(null, 503));
+                .thenThrow(ApiRequestException.unexpectedResponse(null, 499));
         final Recording recording = RecordingTestHelper.getValidRecording();
         uploader(recording).run();
         expect(actions).toContainExactly(UploadService.TRANSFER_STARTED, UploadService.TRANSFER_ERROR);
