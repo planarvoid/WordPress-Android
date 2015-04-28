@@ -9,6 +9,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.exceptions.Transi
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
+import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -35,12 +36,6 @@ public class CastOperations {
 
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";
-    private static final Func1<List<Urn>, Boolean> FILTER_EMPTY_QUEUE = new Func1<List<Urn>, Boolean>() {
-        @Override
-        public Boolean call(List<Urn> urns) {
-            return !urns.isEmpty();
-        }
-    };
 
     private final VideoCastManager videoCastManager;
     private final TrackRepository trackRepository;
@@ -101,7 +96,7 @@ public class CastOperations {
     private Observable<List<Urn>> filterMonetizableTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
         return Observable.just(unfilteredLocalPlayQueueTracks)
                 .flatMap(filterMonetizableTracks)
-                .filter(FILTER_EMPTY_QUEUE);
+                .filter(RxUtils.<Urn>filterEmptyLists());
     }
 
     private JSONObject createPlayQueueJSON(List<Urn> urns) {
