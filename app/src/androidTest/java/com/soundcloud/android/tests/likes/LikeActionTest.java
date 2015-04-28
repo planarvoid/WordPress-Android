@@ -22,7 +22,8 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
         TestUser.likesActionUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testLikedTrackAddedToLikeCollectionWhenLikingFromTrackItemOverflowMenu() throws Exception {
+    // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
+    public void ignoreLikesSyncing_testLikedTrackAddedToLikeCollectionWhenLikingFromTrackItemOverflowMenu() throws Exception {
         final StreamScreen streamScreen = new StreamScreen(solo);
 
         final TrackItemElement expectedTrack = streamScreen
@@ -52,7 +53,8 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
                 expectedTitle, actualTitle);
     }
 
-    public void testLikedPlaylistAddedToLikeCollectionWhenLikingFromPlaylistScreenEngagementBar() throws Exception {
+    // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
+    public void ignoreLikesSyncing_testLikedPlaylistAddedToLikeCollectionWhenLikingFromPlaylistScreenEngagementBar() throws Exception {
         final StreamScreen streamScreen = new StreamScreen(solo);
 
         final PlaylistDetailsScreen playlistDetailsScreen = streamScreen

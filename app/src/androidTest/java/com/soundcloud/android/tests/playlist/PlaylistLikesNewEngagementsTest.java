@@ -26,10 +26,11 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         playlistsScreen = menuScreen.open().clickPlaylist();
     }
 
+    // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
     // Given I liked a playlist
     // Given I go the liked playlists tab on the playlists screen
     // Then the playlist should the first one
-    public void testLastLikedPlaylistShouldAppearOnTop() {
+    public void ignoreLikesSyncing_testLastLikedPlaylistShouldAppearOnTop() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         final String expectedTitle = playlistsScreen.get(0).getTitle();
         playlistsScreen.get(0).clickOverflow().toggleLike();
@@ -40,7 +41,8 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         playlistsScreen.get(0).clickOverflow().toggleLike();
     }
 
-    public void testLikingAndUnlikingPlaylistFromOverflowMenu() {
+    // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
+    public void ignoreLikesSyncing_testLikingAndUnlikingPlaylistFromOverflowMenu() {
         // assert liked
         final String expectedTitle = playlistsScreen.get(0).getTitle();
         playlistsScreen.get(0).clickOverflow().toggleLike();
