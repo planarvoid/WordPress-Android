@@ -120,6 +120,7 @@ public class OnboardActivity extends FragmentActivity
     private OnboardingState lastAuthState;
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
+    private ActivityResult activityResult = ActivityResult.empty();
     @Nullable private PublicApiUser user;
 
     private View photoBottomBar, photoLogo;
@@ -625,6 +626,21 @@ public class OnboardActivity extends FragmentActivity
         if (currentFacebookSession != null) {
             currentFacebookSession.onActivityResult(this, requestCode, resultCode, intent);
         }
+        activityResult = new ActivityResult(requestCode, resultCode, intent);
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        doSafeActivityResultActions(activityResult);
+        activityResult = ActivityResult.empty();
+    }
+
+    private void doSafeActivityResultActions(ActivityResult activityResult) {
+        final int requestCode = activityResult.requestCode;
+        final int resultCode = activityResult.resultCode;;
+        final Intent intent = activityResult.intent;
+
         switch (requestCode) {
             case RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getSignUpDetailsLayout() != null) {
@@ -684,7 +700,6 @@ public class OnboardActivity extends FragmentActivity
                 onGoogleActivityResult(resultCode);
                 break;
             }
-
         }
     }
 
@@ -918,4 +933,5 @@ public class OnboardActivity extends FragmentActivity
     protected void setBundle(Bundle bundle) {
         this.resultBundle = bundle;
     }
+
 }
