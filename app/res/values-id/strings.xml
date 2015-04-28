@@ -626,6 +626,9 @@
   <string name="feedback_other_issue">Masalah lain</string>
   <string name="feedback_email_subject">Laporan: %1$s</string>
   <string name="feedback_action_chooser">Kirim umpan balik melalui email...</string>
+    <string name="authentication_error_age_not_valid">Anda harus berusia minimal 13 tahun.</string>
+    <string name="age">usia</string>
+    <string name="enter_age_hint">Masukkan usia Anda</string>
 
 
 </resources>

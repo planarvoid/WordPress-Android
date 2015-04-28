@@ -626,6 +626,9 @@
 
   <string name="feedback_email_subject">Informe: %1$s</string>
   <string name="feedback_action_chooser">Enviar comentario por correo electrónico...</string>
+    <string name="authentication_error_age_not_valid">Tienes que tener al menos 13 años</string>
+    <string name="age">Edad</string>
+    <string name="enter_age_hint">Introduce tu edad</string>
 
 
 </resources>

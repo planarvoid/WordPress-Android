@@ -37,6 +37,8 @@ public class ApiResponse {
             failure = ApiRequestException.badRequest(request, getErrorKey());
         } else if (statusCode == HttpStatus.SC_UNPROCESSABLE_ENTITY) {
             failure = ApiRequestException.validationError(request);
+        } else if (statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+            failure = ApiRequestException.serverError(request);
         } else if (!isSuccessCode(statusCode)) {
             failure = ApiRequestException.unexpectedResponse(request, statusCode);
         }

@@ -626,6 +626,9 @@
   <string name="feedback_other_issue">Autre problème</string>
   <string name="feedback_email_subject">Rapport: %1$s</string>
   <string name="feedback_action_chooser">Envoyer vos commentaires par e-mail...</string>
+    <string name="authentication_error_age_not_valid">Vous devez être âgé d\'au moins 13 ans.</string>
+    <string name="age">Âge</string>
+    <string name="enter_age_hint">Entrez votre âge</string>
 
 
 </resources>

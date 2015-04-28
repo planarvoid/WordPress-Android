@@ -1,6 +1,8 @@
 package com.soundcloud.android.tests.whoToFollow;
 
 
+import static com.soundcloud.android.framework.TestUser.generateEmail;
+
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.HomeScreen;
@@ -9,8 +11,6 @@ import com.soundcloud.android.screens.auth.SignUpMethodScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersCategoryScreen;
 import com.soundcloud.android.screens.auth.SuggestedUsersScreen;
 import com.soundcloud.android.tests.ActivityTest;
-
-import static com.soundcloud.android.framework.TestUser.generateEmail;
 
 public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
@@ -76,8 +76,7 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
         // TODO : Re-use the same user
         signUpBasicsScreen.typeEmail(generateEmail());
         signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("April");
-        signUpBasicsScreen.typeBirthYear("1984");
+        signUpBasicsScreen.typeAge(21);
 
         signUpBasicsScreen.signup();
         signUpBasicsScreen.acceptTerms();

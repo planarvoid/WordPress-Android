@@ -48,8 +48,7 @@ public class ByEmailTest extends SignUpTest {
     private void fillForm(String email) {
         signUpBasicsScreen.typeEmail(email);
         signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("May");
-        signUpBasicsScreen.typeBirthYear("1995");
+        signUpBasicsScreen.typeAge(21);
         signUpBasicsScreen.chooseGender("Custom");
         signUpBasicsScreen.typeCustomGender("Genderqueer");
     }

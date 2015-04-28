@@ -1,6 +1,7 @@
 package com.soundcloud.android.sync;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
@@ -101,6 +102,8 @@ public class LegacySyncJob implements SyncJob {
             handleSyncException(ApiSyncResult.fromUnexpectedResponse(contentUri, e.getStatusCode()), e);
         } catch (IOException e) {
             handleSyncException(ApiSyncResult.fromIOException(contentUri), e);
+        } catch (ApiRequestException exception) {
+            handleApiRequestException(exception);
         } catch (Exception e) {
             ErrorUtils.handleSilentException(e);
             handleSyncException(ApiSyncResult.fromGeneralFailure(contentUri), e);
@@ -110,6 +113,32 @@ public class LegacySyncJob implements SyncJob {
         }
 
         Log.d(TAG, "executed sync on " + this);
+    }
+
+    private void handleApiRequestException(ApiRequestException exception) {
+        switch (exception.reason()) {
+            case AUTH_ERROR:
+            case NOT_ALLOWED:
+                handleSyncException(ApiSyncResult.fromAuthException(contentUri), exception);
+                break;
+            case NETWORK_ERROR:
+                handleSyncException(ApiSyncResult.fromIOException(contentUri), exception);
+                break;
+            case SERVER_ERROR:
+                handleSyncException(ApiSyncResult.fromServerError(contentUri), exception);
+                break;
+            case UNEXPECTED_RESPONSE:
+            case BAD_REQUEST:
+            case MALFORMED_INPUT:
+                ErrorUtils.handleSilentException(exception);
+                // do not break
+            case NOT_FOUND:
+            case RATE_LIMITED:
+                handleSyncException(ApiSyncResult.fromClientError(contentUri), exception);
+                break;
+            default:
+                throw new IllegalStateException("Umknown error reason : " + exception.reason());
+        }
     }
 
     private void handleSyncException(ApiSyncResult apiSyncResult, Exception exception) {

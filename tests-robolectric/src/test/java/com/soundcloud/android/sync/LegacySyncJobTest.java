@@ -6,14 +6,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
+import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.LocalCollection;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
+import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.Robolectric;
+import org.apache.http.HttpStatus;
 import org.apache.http.StatusLine;
 import org.junit.Before;
 import org.junit.Test;
@@ -116,10 +120,120 @@ public class LegacySyncJobTest {
 
         verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
         expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(1L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
     }
 
     @Test
-    public void shouldSetSyncStateToIdleAndNotSetStatsForBadResponseException() throws Exception {
+    public void shouldSetSyncStateToIdleAndRecordStatOnApiRequestExceptionFromNetworkError() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.networkError(null, new IOException()));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(1L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsFoUnexpectedResponseException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.unexpectedResponse(null, HttpStatus.SC_CONFLICT));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndSetStatsForAuthException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.authError(null, new CloudAPI.InvalidTokenException(401, "status test")));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(1L);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForNotFoundException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.notFound(null));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForNotAllowedException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.notAllowed(null));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(1L);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForRateLimitException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.rateLimited(null));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForBadRequestException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.badRequest(null, "key test"));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForMalformedInputException() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.malformedInput(null, new ApiMapperException("Test exception")));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleSetDelayAndNotSetStatsForApiExceptionFromServerError() throws Exception {
+        setupExceptionThrowingSync(ApiRequestException.serverError(null));
+
+        legacySyncItem.onQueued();
+        legacySyncItem.run();
+
+        verify(syncStateManager).updateSyncState(1L, LocalCollection.SyncState.IDLE);
+        expect(legacySyncItem.getResult().syncResult.stats.numIoExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.stats.numAuthExceptions).toEqual(0L);
+        expect(legacySyncItem.getResult().syncResult.delayUntil).toBeGreaterThan(0l);
+    }
+
+    @Test
+    public void shouldSetSyncStateToIdleAndNotSetStatsForUnexpectedResponseException() throws Exception {
         final PublicCloudAPI.UnexpectedResponseException unexpectedResponseException = new PublicCloudAPI.UnexpectedResponseException(Mockito.mock(Request.class), Mockito.mock(StatusLine.class));
         setupExceptionThrowingSync(unexpectedResponseException);
 

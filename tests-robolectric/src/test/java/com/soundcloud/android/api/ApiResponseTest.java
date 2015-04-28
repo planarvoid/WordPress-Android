@@ -73,11 +73,19 @@ public class ApiResponseTest {
     }
 
     @Test
-    public void shouldFailWithUnexpectedResponseForOtherErrorCodes() {
-        final ApiResponse response = new ApiResponse(request, 500, "response");
+    public void shouldFailWithUnexpectedResponseForOther4xxCodes() {
+        final ApiResponse response = new ApiResponse(request, 433, "response");
         expect(response.isNotSuccess()).toBeTrue();
         expect(response.getFailure()).toBeInstanceOf(ApiRequestException.class);
         expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.UNEXPECTED_RESPONSE);
+    }
+
+    @Test
+    public void shouldFailWithServerErrorForOther5XXCodes() {
+        final ApiResponse response = new ApiResponse(request, 501, "response");
+        expect(response.isNotSuccess()).toBeTrue();
+        expect(response.getFailure()).toBeInstanceOf(ApiRequestException.class);
+        expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.SERVER_ERROR);
     }
 
     @Test

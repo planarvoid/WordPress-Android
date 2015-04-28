@@ -91,6 +91,7 @@
     <string name="authentication_error_generic">Oops! An unexpected error occurred. Please try again.</string>
     <string name="authentication_error_no_connection_message">There\'s a problem with your data connection. Please check your network settings.</string>
     <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
+    <string name="authentication_error_age_not_valid">You must be at least 13 years old.</string>
     <string name="authentication_error_title">Error</string>
     <string name="authentication_log_in">Log In</string>
     <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
@@ -245,6 +246,8 @@
     <string name="finish">Finish</string>
     <string name="error_onboarding_fail">We\'re still working on filling your stream. We\'ll keep trying until it works! In the meantime, you can search and discover other music &amp; audio.</string>
     <string name="birthday">Birthday</string>
+    <string name="age">Age</string>
+    <string name="enter_age_hint">Enter your age</string>
     <string name="gender">Gender</string>
     <string name="onboarding_create_account">Create an account</string>
     <string name="onboarding_enter_year">Enter year</string>

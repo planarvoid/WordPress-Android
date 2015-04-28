@@ -1,10 +1,10 @@
 package com.soundcloud.android.tests.auth.signup;
 
-import com.soundcloud.android.screens.auth.signup.SignupDomainBlacklistedScreen;
-import com.soundcloud.android.tests.auth.SignUpTest;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+
+import com.soundcloud.android.screens.auth.signup.SignupDomainBlacklistedScreen;
+import com.soundcloud.android.tests.auth.SignUpTest;
 
 public class ByEmailShowingDomainBlacklistedDialogTest extends SignUpTest {
 
@@ -21,8 +21,7 @@ public class ByEmailShowingDomainBlacklistedDialogTest extends SignUpTest {
 
         signUpBasicsScreen.typeEmail(generateEmail());
         signUpBasicsScreen.typePassword("password123");
-        signUpBasicsScreen.chooseBirthMonth("April");
-        signUpBasicsScreen.typeBirthYear("1984");
+        signUpBasicsScreen.typeAge(21);
 
         signUpBasicsScreen.signup();
         signUpBasicsScreen.acceptTerms();

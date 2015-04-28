@@ -5,6 +5,7 @@ import com.soundcloud.android.crypto.CryptoOperations;
 import com.soundcloud.android.playback.CacheConfig;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.skippy.Skippy;
+import com.soundcloud.android.utils.TelphonyBasedCountryProvider;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
@@ -19,11 +20,14 @@ public class SkippyFactory {
 
     private final ApplicationProperties applicationProperties;
     private final CryptoOperations cryptoOperations;
+    private final TelphonyBasedCountryProvider countryProvider;
 
     @Inject
-    SkippyFactory(CryptoOperations cryptoOperations, ApplicationProperties applicationProperties) {
+    SkippyFactory(CryptoOperations cryptoOperations, ApplicationProperties applicationProperties,
+                  TelphonyBasedCountryProvider countryProvider) {
         this.cryptoOperations = cryptoOperations;
         this.applicationProperties = applicationProperties;
+        this.countryProvider = countryProvider;
     }
 
     public Skippy create() {
@@ -38,7 +42,7 @@ public class SkippyFactory {
         return new Skippy.Configuration(
                 PROGRESS_INTERVAL_MS,
                 BUFFER_DURATION_MS,
-                CacheConfig.MAX_SIZE_BYTES,
+                CacheConfig.getCacheSize(countryProvider.getCountryCode()),
                 CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE,
                 Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY.getAbsolutePath(),
                 cryptoOperations.getKeyOrGenerateAndStore(KEY_PREFERENCE_NAME),

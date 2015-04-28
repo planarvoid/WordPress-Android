@@ -5,10 +5,10 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import butterknife.OnEditorAction;
 import butterknife.OnTextChanged;
+import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.profile.MonthPickerDialogFragment;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.NotNull;
@@ -33,19 +33,15 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-public class SignupBasicsLayout extends FrameLayout
-        implements GenderPickerDialogFragment.Callback, MonthPickerDialogFragment.Callback {
+public class SignupBasicsLayout extends FrameLayout implements GenderPickerDialogFragment.Callback {
 
     private static final String BUNDLE_EMAIL = "BUNDLE_EMAIL";
     private static final String BUNDLE_PASSWORD = "BUNDLE_PASSWORD";
-    private static final String BUNDLE_BIRTH_MONTH_NAME = "BUNDLE_BIRTH_MONTH_NAME";
-    private static final String BUNDLE_BIRTH_MONTH_VALUE = "BUNDLE_BIRTH_MONTH_VALUE";
-    private static final String BUNDLE_BIRTH_YEAR = "BUNDLE_BIRTH_YEAR";
+    private static final String BUNDLE_AGE = "BUNDLE_AGE";
     private static final String BUNDLE_GENDER = "BUNDLE_GENDER";
     private static final String BUNDLE_CUSTOM_GENDER = "BUNDLE_CUSTOM_GENDER";
     private static final int MIN_PASSWORD_LENGTH = 6;
 
-    public static final String SELECT_MONTH_DIALOG_TAG = "select_month";
     public static final String INDICATE_GENDER_DIALOG_TAG = "indicate_gender";
 
     @NotNull private SignUpBasicsHandler signUpHandler; // null at creation, but must be populated before using
@@ -53,8 +49,7 @@ public class SignupBasicsLayout extends FrameLayout
     @InjectView(R.id.auto_txt_email_address) AutoCompleteTextView emailField;
     @InjectView(R.id.txt_choose_a_password) EditText passwordField;
     @InjectView(R.id.btn_signup) Button signUpButton;
-    @InjectView(R.id.txt_choose_month) TextView monthOptionTextView;
-    @InjectView(R.id.txt_enter_year) EditText yearEditText;
+    @InjectView(R.id.txt_enter_age) EditText ageEditText;
     @InjectView(R.id.txt_choose_gender) TextView genderOptionTextView;
     @InjectView(R.id.after_enter_gender_vr) View customGenderDivider;
     @InjectView(R.id.txt_enter_custom_gender) EditText customGenderEditText;
@@ -89,9 +84,7 @@ public class SignupBasicsLayout extends FrameLayout
         Bundle bundle = new Bundle();
         bundle.putString(BUNDLE_EMAIL, emailField.getText().toString());
         bundle.putString(BUNDLE_PASSWORD, passwordField.getText().toString());
-        bundle.putString(BUNDLE_BIRTH_MONTH_NAME, monthOptionTextView.getText().toString());
-        bundle.putInt(BUNDLE_BIRTH_MONTH_VALUE, getMonth());
-        bundle.putString(BUNDLE_BIRTH_YEAR, yearEditText.getText().toString());
+        bundle.putString(BUNDLE_AGE, ageEditText.getText().toString());
         bundle.putSerializable(BUNDLE_GENDER, selectedGenderOption);
         bundle.putString(BUNDLE_CUSTOM_GENDER, customGenderEditText.getText().toString());
         return bundle;
@@ -104,9 +97,7 @@ public class SignupBasicsLayout extends FrameLayout
 
         emailField.setText(bundle.getCharSequence(BUNDLE_EMAIL));
         passwordField.setText(bundle.getCharSequence(BUNDLE_PASSWORD));
-        monthOptionTextView.setText(bundle.getString(BUNDLE_BIRTH_MONTH_NAME));
-        monthOptionTextView.setTag(R.id.month_of_year_tag, bundle.getInt(BUNDLE_BIRTH_MONTH_VALUE, 0));
-        yearEditText.setText(bundle.getCharSequence(BUNDLE_BIRTH_YEAR));
+        ageEditText.setText(bundle.getCharSequence(BUNDLE_AGE));
         setCurrentGender((GenderOption) bundle.getSerializable(BUNDLE_GENDER));
         customGenderEditText.setText(bundle.getCharSequence(BUNDLE_CUSTOM_GENDER));
         validateForm();
@@ -125,6 +116,11 @@ public class SignupBasicsLayout extends FrameLayout
         clickifyPrivacy();
 
         validateForm();
+
+        final String[] accounts = AndroidUtils.getAccountsByType(getContext(), GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
+        if (accounts.length >= 1) {
+            emailField.setText(accounts[0]);
+        }
     }
 
     private void clickifyPrivacy() {
@@ -181,21 +177,7 @@ public class SignupBasicsLayout extends FrameLayout
         }
     }
 
-    @OnClick(R.id.txt_choose_month)
-    public void onMonthClick() {
-        final FragmentActivity activity = signUpHandler.getFragmentActivity();
-        DialogFragment fragment = MonthPickerDialogFragment.build(getMonth());
-        fragment.show(activity.getSupportFragmentManager(), SELECT_MONTH_DIALOG_TAG);
-    }
-
-    @Override
-    public void onMonthSelected(String monthName, int monthOfYear) {
-        monthOptionTextView.setTag(R.id.month_of_year_tag, monthOfYear);
-        monthOptionTextView.setText(monthName);
-        validateForm();
-    }
-
-    @OnTextChanged(R.id.txt_enter_year)
+    @OnTextChanged(R.id.txt_enter_age)
     public void yearTextListener() {
         validateForm();
     }
@@ -215,14 +197,17 @@ public class SignupBasicsLayout extends FrameLayout
         } else if (!checkPassword(passwordField.getText())) {
             AndroidUtils.showToast(getContext(), R.string.authentication_error_password_too_short);
         } else {
-            final String email = getEmail();
-            final String password = getPassword();
-            final BirthdayInfo birthday = BirthdayInfo.buildFrom(getMonth(), getYear());
-            final @Nullable String gender = (selectedGenderOption != null) ? selectedGenderOption.getApiValue(getCustomGender()) : null;
+            final BirthdayInfo birthday = BirthdayInfo.buildFrom(getAge());
+            if (birthday.isValid()){
+                final String email = getEmail();
+                final String password = getPassword();
+                final @Nullable String gender = (selectedGenderOption != null) ? selectedGenderOption.getApiValue(getCustomGender()) : null;
+                hideKeyboardOnSignup(emailField, passwordField);
+                signUpHandler.onSignUp(email, password, birthday, gender);
 
-            hideKeyboardOnSignup(emailField, passwordField);
-
-            signUpHandler.onSignUp(email, password, birthday, gender);
+            } else {
+                AndroidUtils.showToast(getContext(), R.string.authentication_error_age_not_valid);
+            }
         }
     }
 
@@ -234,13 +219,12 @@ public class SignupBasicsLayout extends FrameLayout
         return passwordField.getText().toString();
     }
 
-    private int getMonth() {
-        Integer month = (Integer) monthOptionTextView.getTag(R.id.month_of_year_tag);
-        return (month != null) ? month : 0;
+    private int getAge() {
+        return (int) ScTextUtils.safeParseLong(ageEditText.getText().toString());
     }
 
-    private int getYear() {
-        return (int) ScTextUtils.safeParseLong(yearEditText.getText().toString());
+    private boolean hasAge() {
+        return ageEditText.getText().length() > 0;
     }
 
     private String getCustomGender() {
@@ -278,6 +262,7 @@ public class SignupBasicsLayout extends FrameLayout
     private void updateGenderLabel() {
         String label = (selectedGenderOption != null) ? getResources().getString(selectedGenderOption.getResId()) : null;
         genderOptionTextView.setText(label);
+        genderOptionTextView.setHint(ScTextUtils.EMPTY_STRING); // clears the hint, for sizing purposes
     }
 
     private void hideKeyboardOnSignup(AutoCompleteTextView emailField, EditText passwordField) {
@@ -289,7 +274,7 @@ public class SignupBasicsLayout extends FrameLayout
     private void validateForm() {
         boolean isValid = emailValid;
         isValid = isValid && passwordValid;
-        isValid = isValid && (BirthdayInfo.buildFrom(getMonth(), getYear()) != null);
+        isValid = isValid && hasAge();
         signUpButton.setEnabled(isValid);
     }
 

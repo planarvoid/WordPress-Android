@@ -46,7 +46,6 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.profile.MonthPickerDialogFragment;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.UserStorage;
@@ -81,7 +80,7 @@ public class OnboardActivity extends FragmentActivity
         implements AuthTaskFragment.OnAuthResultListener, LoginLayout.LoginHandler,
         SignupMethodLayout.SignUpMethodHandler, SignupDetailsLayout.UserDetailsHandler,
         AcceptTermsLayout.AcceptTermsHandler, SignupBasicsLayout.SignUpBasicsHandler,
-        GenderPickerDialogFragment.CallbackProvider, MonthPickerDialogFragment.CallbackProvider {
+        GenderPickerDialogFragment.CallbackProvider {
 
     protected enum OnboardingState {
         PHOTOS, LOGIN, SIGN_UP_METHOD, SIGN_UP_BASICS, SIGN_UP_DETAILS, ACCEPT_TERMS
@@ -121,6 +120,7 @@ public class OnboardActivity extends FragmentActivity
     private OnboardingState lastAuthState;
     private OnboardingState state = OnboardingState.PHOTOS;
     private String lastGoogleAccountSelected;
+    private ActivityResult activityResult = ActivityResult.empty();
     @Nullable private PublicApiUser user;
 
     private View photoBottomBar, photoLogo;
@@ -626,6 +626,21 @@ public class OnboardActivity extends FragmentActivity
         if (currentFacebookSession != null) {
             currentFacebookSession.onActivityResult(this, requestCode, resultCode, intent);
         }
+        activityResult = new ActivityResult(requestCode, resultCode, intent);
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        doSafeActivityResultActions(activityResult);
+        activityResult = ActivityResult.empty();
+    }
+
+    private void doSafeActivityResultActions(ActivityResult activityResult) {
+        final int requestCode = activityResult.requestCode;
+        final int resultCode = activityResult.resultCode;;
+        final Intent intent = activityResult.intent;
+
         switch (requestCode) {
             case RequestCodes.GALLERY_IMAGE_PICK: {
                 if (getSignUpDetailsLayout() != null) {
@@ -685,7 +700,6 @@ public class OnboardActivity extends FragmentActivity
                 onGoogleActivityResult(resultCode);
                 break;
             }
-
         }
     }
 
@@ -786,11 +800,6 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public GenderPickerDialogFragment.Callback getGenderPickerCallback() {
-        return getSignUpBasicsLayout();
-    }
-
-    @Override
-    public MonthPickerDialogFragment.Callback getMonthPickerCallback() {
         return getSignUpBasicsLayout();
     }
 
@@ -924,4 +933,5 @@ public class OnboardActivity extends FragmentActivity
     protected void setBundle(Bundle bundle) {
         this.resultBundle = bundle;
     }
+
 }
