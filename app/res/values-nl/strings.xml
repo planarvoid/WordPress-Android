@@ -243,10 +243,8 @@
     <string name="try_again">Probeer het nog eens</string>
     <string name="finish">Voltooien</string>
     <string name="error_onboarding_fail">We zijn nog steeds bezig met het vullen van uw stream. We zullen blijven proberen totdat het werkt! In de tussentijd kunt u andere soorten muziek en audio opzoeken en ontdekken.</string>
-    <string name="birthday">Verjaardag</string>
     <string name="gender">Geslacht</string>
     <string name="onboarding_create_account">Een account aanmaken</string>
-    <string name="onboarding_enter_year">Voer jaar in</string>
     <string name="onboarding_indicate_gender">Geef uw geslacht aan</string>
     <string name="onboarding_custom_gender_hint">Geef geslacht aan</string>
     <string name="onboarding_gender_option_female">Vrouwelijk</string>
@@ -591,8 +589,6 @@
     <string name="age_verify_title">Geef a.u.b. uw leeftijd aan</string>
     <string name="age_verify_warning">De inhoud van dit profiel is mogelijk ongeschikt voor personen onder een bepaalde leeftijd.</string>
     <string name="age_verify_info">Deze informatie wordt op uw profiel opgeslagen.</string>
-    <string name="age_verify_birthday">Uw verjaardag</string>
-    <string name="age_verify_year_hint">Voer jaar in</string>
     <string name="age_verify_button">Geef uw leeftijd aan</string>
 
     <!-- DEVICE MANAGEMENT -->
@@ -600,23 +596,6 @@
     <string name="device_management_login_message">Uw abonnement is beperkt tot 3 apparaten. U kunt dit apparaat registreren en u afmelden op het laatste gebruikte apparaat door \"doorgaan\" te selecteren.</string>
     <string name="device_management_conflict_message">Uw abonnement heeft de apparaatlimiet bereikt. Dit apparaat is afgemeld en eventuele offline-inhoud is verwijderd. U kunt opnieuw inloggen om dit apparaat opnieuw te registreren.</string>
     <string name="device_management_continue">Doorgaan</string>
-
-    <!-- MONTH PICKER DIALOG -->
-    <string name="select_month">Kies een maand</string>
-    <string-array name="select_month_options">
-        <item>Januari</item>
-        <item>Februari</item>
-        <item>Maart</item>
-        <item>April</item>
-        <item>Mei</item>
-        <item>Juni</item>
-        <item>Juli</item>
-        <item>Augustus</item>
-        <item>September</item>
-        <item>Oktober</item>
-        <item>November</item>
-        <item>December</item>
-    </string-array>
 
     <!-- DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Wat zou u graag willen rapporteren?</string>
