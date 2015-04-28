@@ -14,7 +14,7 @@ ext {
   androidBuildToolsVersion = '22.0.1'
 
   //Google Android
-  androidSupportLibraryVersion = '22.0.0-15.04.23'
+  androidSupportLibraryVersion = '22.0.0'
   androidAppCompatLibraryVersion = '22.0.0'
   androidMediaRouterLibraryVersion = '22.0.0'
   androidPlayServicesBaseVersion = '6.5.87'
@@ -101,7 +101,7 @@ ext {
       butterKnife:                  "com.jakewharton:butterknife:${butterKnifeVersion}",
       castCompanionLibrary:         "com.google.android.cast:castcompanionlibrary:${castCompanionLibraryVersion}@aar",
       undoBar:                      "com.cocosw:undobar:${undoBarVersion}@aar",
-      androidSupportLibrary:        "com.android.support:support-v4-repack:${androidSupportLibraryVersion}",
+      androidSupportLibrary:        "com.android.support:support-v4:${androidSupportLibraryVersion}",
       androidAppCompatLibrary:      "com.android.support:appcompat-v7:${androidAppCompatLibraryVersion}",
       androidMediaRouterLibrary:    "com.android.support:mediarouter-v7:${androidMediaRouterLibraryVersion}",
       androidPlayServicesBase:      "com.google.android.gms:play-services-base:${androidPlayServicesBaseVersion}@aar",
