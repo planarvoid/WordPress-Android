@@ -7,12 +7,12 @@ import static org.hamcrest.Matchers.is;
 
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class ItemOverflowTest extends ActivityTest<MainActivity> {
-    private TrackLikesScreen screen;
+    private TrackLikesScreen trackLikesScreen;
 
     public ItemOverflowTest() {
         super(MainActivity.class);
@@ -27,18 +27,17 @@ public class ItemOverflowTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
-        screen = menuScreen.open().clickLikes();
+        trackLikesScreen = new StreamScreen(solo)
+                .openMenu()
+                .clickLikes();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    // temporarily ignore this test while likes syncing is flaky
-    public void ignoreLikes_testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
-        screen
+    public void testClickingAddToPlaylistOverflowMenuItemOpensDialog() {
+        final AddToPlaylistScreen addToPlaylistScreen = trackLikesScreen
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist();
 
-        final AddToPlaylistScreen addToPlaylistScreen = new AddToPlaylistScreen(solo);
         assertThat(addToPlaylistScreen, is(visible()));
     }
 
