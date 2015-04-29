@@ -580,7 +580,6 @@
   <string name="offline_update_in_progress">Menyinkronkan trekmu</string>
   <string name="offline_likes_dialog_title">Buat menjadi tersedia secara offline</string>
   <string name="offline_likes_dialog_message">Tindakan ini akan membuat semua yang kamu Suka tetap dapat didengarkan secara offline, termasuk trek yang kamu sukai di masa mendatang.</string>
-  <string name="offline_likes_dialog_accept">Buat agar tetap tersedia secara offline</string>
   <string name="make_offline_available">Buat menjadi tersedia secara offline</string>
   <string name="make_offline_unavailable">Hapus dari mendengarkan secara offline</string>
 

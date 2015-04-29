@@ -580,7 +580,6 @@
   <string name="offline_update_in_progress">Sincronizando suas músicas</string>
   <string name="offline_likes_dialog_title">Disponibilizar offline</string>
   <string name="offline_likes_dialog_message">Isso deixará todas as suas músicas \"Curtidas\" disponíveis para ouvir offline, inclusive músicas que pode gostar no futuro.</string>
-  <string name="offline_likes_dialog_accept">Disponibilizar offline</string>
   <string name="make_offline_available">Disponibilizar offline</string>
   <string name="make_offline_unavailable">Remover permissão de ouvir offline</string>
 

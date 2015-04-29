@@ -579,7 +579,6 @@
   <string name="offline_update_in_progress">Sincronizando tus pistas</string>
   <string name="offline_likes_dialog_title">Disponible sin conexión</string>
   <string name="offline_likes_dialog_message">Esto mantendrá todos tus Me gusta disponibles para escuchar sin conexión, incluyendo cualquier pista que te guste en el futuro.</string>
-  <string name="offline_likes_dialog_accept">Mantener disponible sin conexión</string>
   <string name="make_offline_available">Poner disponible sin conexión</string>
   <string name="make_offline_unavailable">Eliminar de la escucha sin conexión</string>
 

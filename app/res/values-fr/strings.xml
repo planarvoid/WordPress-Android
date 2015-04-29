@@ -580,7 +580,6 @@
   <string name="offline_update_in_progress">Synchronisation des pistes en cours</string>
   <string name="offline_likes_dialog_title">Rendre disponible hors connexion</string>
   <string name="offline_likes_dialog_message">Ceci rendra vos Favoris accessibles pour une écoute hors connexion, y compris vos futures pistes préférées.</string>
-  <string name="offline_likes_dialog_accept">Rendre disponible hors connexion</string>
   <string name="make_offline_available">Rendre disponible hors connexion</string>
   <string name="make_offline_unavailable">Retirer de l\'écoute hors connexion</string>
 

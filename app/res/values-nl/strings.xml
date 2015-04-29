@@ -580,7 +580,6 @@
     <string name="offline_update_in_progress">Uw tracks zijn aan het synchroniseren</string>
     <string name="offline_likes_dialog_title">Maak offline beschikbaar</string>
     <string name="offline_likes_dialog_message">Dit maakt al je likes beschikbaar voor offline luisteren, ook alle tracks die u in de toekomst liket.</string>
-    <string name="offline_likes_dialog_accept">Houd offline beschikbaar</string>
     <string name="make_offline_available">Maak offline beschikbaar</string>
     <string name="make_offline_unavailable">Verwijderen uit offline luisteren</string>
 

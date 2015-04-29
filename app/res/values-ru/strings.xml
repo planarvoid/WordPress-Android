@@ -581,7 +581,6 @@
   <string name="offline_update_in_progress">Синхронизация ваших треков</string>
   <string name="offline_likes_dialog_title">Сделать доступным в режиме оффлайн</string>
   <string name="offline_likes_dialog_message">Это позволит сохранить все, что Вам понравилось, для  прослушивания в режиме оффлайн, включая треки, которые вы хотели бы прослушать в будущем.</string>
-  <string name="offline_likes_dialog_accept">Оставить доступным в режиме оффлайн</string>
   <string name="make_offline_available">Сделать доступным в автономном режиме</string>
   <string name="make_offline_unavailable">Удалить из списка для автономного прослушивания</string>
 
