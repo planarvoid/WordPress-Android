@@ -5,8 +5,8 @@ import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.SettingsScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.SubscribeSuccessScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -28,7 +28,7 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
         setDependsOn(Flag.PAYMENTS_TEST);
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
-        settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
+        settingsScreen = new StreamScreen(solo).actionBar().clickSettingsOverflowButton();
     }
 
     @PaymentTest

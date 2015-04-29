@@ -16,7 +16,7 @@ import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.networkmanager.NetworkManager;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.StreamScreen;
 
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
@@ -73,9 +73,9 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         }
     }
 
-    private MainScreen startMainActivity() {
+    private StreamScreen startMainActivity() {
         getActivity();
-        return new MainScreen(testDriver);
+        return new StreamScreen(testDriver);
     }
 
     public void testDisplaysGoBackOnline() throws Exception {
@@ -84,10 +84,10 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         insertOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         enableOfflineContent(context);
 
-        final MainScreen mainScreen = startMainActivity();
-        assertThat(mainScreen.getGoBackOnlineDialog(), visible());
-        mainScreen.getGoBackOnlineDialog().clickContinue();
-        assertThat(mainScreen.getGoBackOnlineDialog(), not(visible()));
+        final StreamScreen streamScreen = startMainActivity();
+        assertThat(streamScreen.getGoBackOnlineDialog(), visible());
+        streamScreen.getGoBackOnlineDialog().clickContinue();
+        assertThat(streamScreen.getGoBackOnlineDialog(), not(visible()));
     }
 
     public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() throws Exception {

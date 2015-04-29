@@ -5,13 +5,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistResultsScreen;
-import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
+import com.soundcloud.android.screens.PlaylistResultsScreen;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 import java.util.List;
@@ -32,9 +32,7 @@ public class PlaylistDiscoveryTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        MainScreen mainScreen = new MainScreen(solo);
-        playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
+        playlistTagsScreen = new StreamScreen(solo).actionBar().clickSearchButton();
     }
 
     public void testTagsAreDisplayedWhenSearchScreenIsOpened() {

@@ -5,19 +5,18 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.TestUser;
 
 public class SearchTest extends ActivityTest<MainActivity> {
-
-    private MainScreen mainScreen;
+    private StreamScreen streamScreen;
     private PlaylistTagsScreen playlistTagsScreen;
 
     public SearchTest() {
@@ -33,8 +32,8 @@ public class SearchTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
 
-        mainScreen = new MainScreen(solo);
-        playlistTagsScreen = mainScreen.actionBar().clickSearchButton();
+        streamScreen = new StreamScreen(solo);
+        playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
     }
 
     public void testTappingSearchIconOpensFullPageSearch() {
@@ -67,8 +66,8 @@ public class SearchTest extends ActivityTest<MainActivity> {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
         resultsScreen.pressBack();
         playlistTagsScreen = new PlaylistTagsScreen(solo);
-        mainScreen = playlistTagsScreen.pressBack();
-        assertEquals("Main screen should be visible", true, mainScreen.isVisible());
+        streamScreen = playlistTagsScreen.pressBack();
+        assertEquals("Main screen should be visible", true, streamScreen.isVisible());
     }
 
     public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() {

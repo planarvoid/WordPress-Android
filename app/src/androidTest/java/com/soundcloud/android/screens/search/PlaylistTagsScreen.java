@@ -3,14 +3,14 @@ package com.soundcloud.android.screens.search;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
-import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.PlaylistResultsScreen;
-import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.PlaylistResultsScreen;
+import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.search.SearchActivity;
 
 import android.widget.TextView;
 
@@ -70,9 +70,9 @@ public class PlaylistTagsScreen extends Screen {
         return recentTagsContainer().findElements(With.className(TextView.class));
     }
 
-    public MainScreen pressBack() {
+    public StreamScreen pressBack() {
         testDriver.goBack();
-        return new MainScreen(testDriver);
+        return new StreamScreen(testDriver);
     }
 
     private ViewElement tagsContainer() {

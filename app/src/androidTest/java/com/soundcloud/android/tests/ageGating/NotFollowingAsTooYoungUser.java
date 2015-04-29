@@ -5,8 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.ProfileScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -26,7 +26,7 @@ public class NotFollowingAsTooYoungUser extends ActivityTest<LauncherActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        playlistTagsScreen = new MainScreen(solo).actionBar().clickSearchButton();
+        playlistTagsScreen = new StreamScreen(solo).actionBar().clickSearchButton();
     }
 
     // *** Disabling until Github Issue #2877 is fixed ***/

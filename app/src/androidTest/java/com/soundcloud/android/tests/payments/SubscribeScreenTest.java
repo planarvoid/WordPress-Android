@@ -4,15 +4,15 @@ import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
-import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.SubscribeScreen;
 import com.soundcloud.android.screens.SettingsScreen;
+import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.SubscribeScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.TestUser;
 
 public class SubscribeScreenTest extends ActivityTest<MainActivity> {
 
@@ -32,7 +32,7 @@ public class SubscribeScreenTest extends ActivityTest<MainActivity> {
         setDependsOn(Flag.PAYMENTS_TEST);
         super.setUp();
         ConfigurationHelper.enableUpsell(getInstrumentation().getTargetContext());
-        settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
+        settingsScreen = new StreamScreen(solo).actionBar().clickSettingsOverflowButton();
     }
 
     @PaymentTest

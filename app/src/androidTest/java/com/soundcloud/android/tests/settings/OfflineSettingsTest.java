@@ -4,9 +4,9 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enabl
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.OfflineSettingsScreen;
 import com.soundcloud.android.screens.SettingsScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class OfflineSettingsTest extends ActivityTest<MainActivity> {
@@ -26,7 +26,7 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         enableOfflineContent(getInstrumentation().getTargetContext());
-        settingsScreen = new MainScreen(solo).actionBar().clickSettingsOverflowButton();
+        settingsScreen = new StreamScreen(solo).actionBar().clickSettingsOverflowButton();
         offlineSettingsScreen = settingsScreen.clickOfflineSettings();
     }
 

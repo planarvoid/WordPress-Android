@@ -5,7 +5,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.StreamScreen;
 
 import android.webkit.WebView;
 
@@ -39,7 +39,7 @@ public class FBWebViewScreen {
         solo.typeTextInWebElement(passwordField(), text);
     }
 
-    public MainScreen submit() {
+    public StreamScreen submit() {
         solo.waitForWebElement(loginField());
         solo.clickOnWebElement(loginField());
         if (solo.findElement(With.text("Do you want the browser to remember this password?")).isVisible()) {
@@ -47,7 +47,7 @@ public class FBWebViewScreen {
         }
         solo.clickOnWebElement(By.textContent("OK")); // confirm permissions
         waiter.waitForDialogToClose();
-        return new MainScreen(solo);
+        return new StreamScreen(solo);
 
     }
 
