@@ -73,7 +73,7 @@ public class TestUser {
 
     protected Token getToken(Context context, ApiWrapper apiWrapper) throws IOException {
         if (token == null){
-            token = AccountAssistant.getToken(context, apiWrapper, permalink, password);
+            token = AccountAssistant.getToken(context, apiWrapper, email, password);
         }
         return token;
     }
