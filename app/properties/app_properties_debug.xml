@@ -24,8 +24,8 @@
     <bool name="feature_google_cast">true</bool>
     <bool name="feature_reload_last_playqueue">true</bool>
     <bool name="feature_eventlogger_search">true</bool>
+    <bool name="feature_offline_sync">true</bool>
 
     <!-- Feature flags (disabled) -->
-    <bool name="feature_offline_sync">false</bool>
     <bool name="feature_payments_test">false</bool>
 </resources>
