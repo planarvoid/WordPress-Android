@@ -5,7 +5,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropertySet;
 
-public class LikedPlaylistMapper extends PlaylistMapper {
+public class LikedPlaylistMapper extends OfflinePlaylistMapper {
 
     @Override
     public PropertySet map(CursorReader cursorReader) {

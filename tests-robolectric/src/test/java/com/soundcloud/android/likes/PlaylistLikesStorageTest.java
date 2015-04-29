@@ -4,7 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -27,55 +30,84 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
 
     private PlaylistLikesStorage playlistLikesStorage;
 
-    private PropertySet playlist1;
-    private PropertySet playlist2;
+    private PropertySet playlist1PropertySet;
+    private PropertySet playlist2PropertySet;
+    private ApiPlaylist playlist1;
+    private TestObserver<List<PropertySet>> testListObserver;
 
     @Before
     public void setUp() throws Exception {
+        testListObserver = new TestObserver<>();
         playlistLikesStorage = new PlaylistLikesStorage(propellerRx());
-        playlist1 = testFixtures().insertLikedPlaylist(LIKED_DATE_1).toPropertySet();
-        playlist2 = testFixtures().insertLikedPlaylist(LIKED_DATE_2).toPropertySet();
+
+        playlist1 = testFixtures().insertLikedPlaylist(LIKED_DATE_1);
+        playlist1PropertySet = playlist1.toPropertySet();
+        playlist2PropertySet = testFixtures().insertLikedPlaylist(LIKED_DATE_2).toPropertySet();
     }
 
     @Test
     public void loadAllLikedPlaylists() throws Exception {
-        TestObserver<List<PropertySet>> observer = new TestObserver<>();
-        
-        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(observer);
+        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListObserver);
 
         final List<PropertySet> propertySets = Lists.newArrayList(
-                expectedLikedPlaylistFor(playlist2, LIKED_DATE_2),
-                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
+                expectedLikedPlaylistFor(playlist1PropertySet, LIKED_DATE_1));
 
-        expect(observer.getOnNextEvents()).toContainExactly(propertySets);
+        expect(testListObserver.getOnNextEvents()).toContainExactly(propertySets);
     }
 
     @Test
     public void loadLikedPlaylistsAdhereToLimit() throws Exception {
-        TestObserver<List<PropertySet>> observer = new TestObserver<>();
-        
-        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE).subscribe(observer);
+        playlistLikesStorage.loadLikedPlaylists(1, Long.MAX_VALUE).subscribe(testListObserver);
 
         final List<PropertySet> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist2, LIKED_DATE_2));
+                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2));
 
-        expect(observer.getOnNextEvents()).toContainExactly(propertySets);
+        expect(testListObserver.getOnNextEvents()).toContainExactly(propertySets);
     }
 
     @Test
     public void loadLikedPlaylistsAdhereToTimestamp() throws Exception {
-        TestObserver<List<PropertySet>> observer = new TestObserver<>();
-        
-        playlistLikesStorage.loadLikedPlaylists(1, LIKED_DATE_2.getTime()).subscribe(observer);
+        playlistLikesStorage.loadLikedPlaylists(1, LIKED_DATE_2.getTime()).subscribe(testListObserver);
 
         final List<PropertySet> propertySets = Arrays.asList(
-                expectedLikedPlaylistFor(playlist1, LIKED_DATE_1));
+                expectedLikedPlaylistFor(playlist1PropertySet, LIKED_DATE_1));
 
-        expect(observer.getOnNextEvents()).toContainExactly(propertySets);
+        expect(testListObserver.getOnNextEvents()).toContainExactly(propertySets);
     }
 
     @Test
-    public void loadLikedPlaylistShouldEmitEmptyPropertySetIfLikeDoesNotExist() throws Exception {
+    public void loadsRequestedDownloadStateForPlaylistMarkedForOffline() {
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1, 0);
+        testFixtures().insertPlaylistMarkedForOfflineSync(playlist1);
+        testFixtures().insertTrackPendingDownload(apiTrack.getUrn(), LIKED_DATE_1.getTime());
+
+        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListObserver);
+
+        final List<PropertySet> propertySets = Lists.newArrayList(
+                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
+                expectedDownloadRequestedPlaylistFor(playlist1, LIKED_DATE_1));
+
+        expect(testListObserver.getOnNextEvents()).toContainExactly(propertySets);
+    }
+
+    @Test
+    public void loadsDownloadedStateForPlaylistMarkedForOffline() {
+        final ApiTrack apiTrack = testFixtures().insertPlaylistTrack(playlist1, 0);
+        testFixtures().insertPlaylistMarkedForOfflineSync(playlist1);
+        testFixtures().insertCompletedTrackDownload(apiTrack.getUrn(), LIKED_DATE_1.getTime(), LIKED_DATE_1.getTime());
+
+        playlistLikesStorage.loadLikedPlaylists(2, Long.MAX_VALUE).subscribe(testListObserver);
+
+        final List<PropertySet> propertySets = Lists.newArrayList(
+                expectedLikedPlaylistFor(playlist2PropertySet, LIKED_DATE_2),
+                expectedDownloadedPlaylistFor(playlist1, LIKED_DATE_1));
+
+        expect(testListObserver.getOnNextEvents()).toContainExactly(propertySets);
+    }
+
+    @Test
+    public void loadLikedPlaylistShouldEmitEmptyPropertySetIfLikeDoesNotExist() {
         TestObserver<PropertySet> observer = new TestObserver<>();
         ApiPlaylist playlist = testFixtures().insertPlaylist();
 
@@ -95,7 +127,7 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void loadsPlaylistLikeWithTrackCountAsMaximumOfLocalAndRemoteFromDatabase() throws Exception {
+    public void loadsPlaylistLikeWithTrackCountAsMaximumOfLocalAndRemoteFromDatabase() {
         TestObserver<PropertySet> observer = new TestObserver<>();
         ApiPlaylist playlist = testFixtures().insertLikedPlaylist(LIKED_DATE_1);
 
@@ -121,6 +153,22 @@ public class PlaylistLikesStorageTest extends StorageIntegrationTest {
                 PlaylistProperty.LIKES_COUNT.bind(playlist.get(PlaylistProperty.LIKES_COUNT)),
                 LikeProperty.CREATED_AT.bind((likedAt)),
                 PlaylistProperty.IS_PRIVATE.bind(playlist.get(PlaylistProperty.IS_PRIVATE)),
-                PlaylistProperty.IS_LIKED.bind(true));
+                PlaylistProperty.IS_LIKED.bind(true),
+                OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(false));
     }
+
+    private PropertySet expectedDownloadRequestedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
+        return expectedLikedPlaylistFor(playlist.toPropertySet(), likedAt)
+                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.REQUESTED);
+
+    }
+
+    private PropertySet expectedDownloadedPlaylistFor(ApiPlaylist playlist, Date likedAt) {
+        return expectedLikedPlaylistFor(playlist.toPropertySet(), likedAt)
+                .put(OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE, true)
+                .put(OfflineProperty.DOWNLOAD_STATE, DownloadState.DOWNLOADED);
+
+    }
+
 }

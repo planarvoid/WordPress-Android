@@ -30,7 +30,6 @@ public class PlaylistPostsAdapter extends PagingItemAdapter<PlaylistItem>
                                 final EventBus eventBus) {
         super(playlistPresenter);
         this.lifeCycleHandler = createLifeCycleHandler(eventBus);
-        playlistPresenter.allowOfflineOptions();
     }
 
     private DefaultSupportFragmentLightCycle createLifeCycleHandler(final EventBus eventBus) {
