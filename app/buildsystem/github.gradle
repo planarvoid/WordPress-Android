@@ -16,7 +16,6 @@ task uploadGithub << {
   def result = ['curl', '-vs', '--data', json, url].execute()
   def jsonResult = new JsonSlurper().parseText(result.text)
   def releaseId = jsonResult.get('id')
-  println result.text
 
   // upload apk -> .zip to github release
   def uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
