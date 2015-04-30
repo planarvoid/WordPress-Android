@@ -29,7 +29,10 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
         playlistTagsScreen = new StreamScreen(solo).actionBar().clickSearchButton();
     }
 
-    public void testAbove21UsersAreAbleToFollowAgeGatedUsers() {
+    // *** Disable until we come up with a way to prevent syncing of certain events ***
+    // This test is failing periodically because the unfollow action at the end of the test does not always get
+    // synced, thus the next time this test is run, the user is still listed as being followed.
+    public void ignore_testAbove21UsersAreAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = playlistTagsScreen
                 .actionBar()
                 .doSearch("annoymouse")
