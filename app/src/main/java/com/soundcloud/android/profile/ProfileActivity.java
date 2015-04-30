@@ -54,6 +54,7 @@ import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -507,17 +508,26 @@ public class ProfileActivity extends ScActivity implements
                     content = currentTab.youContent;
                     contentUri = content.uri;
                     screen = currentTab.youScreen;
+                    return createScListFragment(currentTab, contentUri, screen);
+
+
                 } else {
                     content = currentTab.userContent;
                     contentUri = content.forId(user.getId());
                     screen = currentTab.userScreen;
+                    return createScListFragment(currentTab, contentUri, screen);
                 }
 
-                ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(),
-                        screen, searchQuerySourceForTab(currentTab));
-                listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, user));
-                return listFragment;
+
             }
+        }
+
+        @NotNull
+        private Fragment createScListFragment(Tab currentTab, Uri contentUri, Screen screen) {
+            ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(),
+                    screen, searchQuerySourceForTab(currentTab));
+            listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, user));
+            return listFragment;
         }
 
         @Override
