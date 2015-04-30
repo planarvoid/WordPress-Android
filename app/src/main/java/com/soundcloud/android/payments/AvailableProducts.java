@@ -37,7 +37,7 @@ class AvailableProducts {
         public final String planId;
 
         @JsonCreator
-        public Product(@JsonProperty("id") String id, @JsonProperty("client_product_id") String planId) {
+        public Product(@JsonProperty("id") String id, @JsonProperty("plan_id") String planId) {
             this.id = id;
             this.planId = planId;
         }
