@@ -1,5 +1,6 @@
 package com.soundcloud.android.configuration;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.crypto.Obfuscator;
 import com.soundcloud.android.storage.StorageModule;
 
@@ -8,7 +9,8 @@ import android.content.SharedPreferences;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-class PlanStorage {
+@VisibleForTesting
+public class PlanStorage {
 
     private final SharedPreferences sharedPreferences;
     private final Obfuscator obfuscator;

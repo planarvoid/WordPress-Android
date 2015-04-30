@@ -2,6 +2,7 @@ package com.soundcloud.android.framework.helpers;
 
 import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
 
+import com.soundcloud.android.configuration.PlanStorage;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.crypto.Obfuscator;
 import rx.functions.Action1;
@@ -11,17 +12,21 @@ import android.content.SharedPreferences;
 
 public class ConfigurationHelper {
 
-    private final static String PREFS_OFFLINE_SETTINGS = "offline_settings";
-    private final static String OFFLINE_CONTENT = "offline_sync";
-    private final static String OFFLINE_UPSELL = "offline_sync_upsell";
-    private final static String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
+    // Features
+    private static final String PREFS_OFFLINE_SETTINGS = "offline_settings";
+    private static final String OFFLINE_CONTENT = "offline_sync";
+    private static final String LAST_POLICY_UPDATE_CHECK = "last_policy_update_check";
+
+    // Plan
+    private static final String PLAN_UPSELL = "upsell";
+    private static final String PLAN_MID_TIER = "mid-tier";
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, OFFLINE_CONTENT);
     }
 
     public static void enableUpsell(Context context) {
-        enableFeature(context, OFFLINE_UPSELL);
+        getPlanStorage(context).update(PLAN_UPSELL, PLAN_MID_TIER);
     }
     
     public static void disableOfflineContent(Context context) {
@@ -53,6 +58,11 @@ public class ConfigurationHelper {
     private static FeatureStorage getFeatureStorage(Context context) {
         final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
         return new FeatureStorage(sharedPreferences, new Obfuscator());
+    }
+
+    private static PlanStorage getPlanStorage(Context context) {
+        final SharedPreferences sharedPreferences = context.getSharedPreferences("features_settings", Context.MODE_PRIVATE);
+        return new PlanStorage(sharedPreferences, new Obfuscator());
     }
 
     private static SharedPreferences getOfflineSettingsPreferences(Context context) {
