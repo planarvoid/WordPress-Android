@@ -69,7 +69,7 @@ public class StreamNotificationBuilder {
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(MainActivity.EXTRA_REFRESH_STREAM, true);
         Screen.NOTIFICATION.addToIntent(intent);
-        Referrer.NOTIFICATION.addToIntent(intent);
+        Referrer.STREAM_NOTIFICATION.addToIntent(intent);
         return intent;
     }
 

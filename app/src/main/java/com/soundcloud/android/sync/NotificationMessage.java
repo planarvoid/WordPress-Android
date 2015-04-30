@@ -183,7 +183,7 @@ class NotificationMessage {
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         Screen.NOTIFICATION.addToIntent(intent);
-        Referrer.NOTIFICATION.addToIntent(intent);
+        Referrer.ACTIVITIES_NOTIFICATION.addToIntent(intent);
         return intent;
     }
 }

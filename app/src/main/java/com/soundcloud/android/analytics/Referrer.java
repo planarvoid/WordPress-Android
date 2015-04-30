@@ -10,13 +10,15 @@ import java.util.Locale;
 public enum Referrer {
     OTHER("other"),
     HOME_BUTTON("home_button"),
-    PLAYER("player"),
     FACEBOOK("facebook"),
     TWITTER("twitter"),
     MOBI("mobi"),
     GOOGLE("google"),
     GOOGLE_PLUS("google_plus"),
-    NOTIFICATION("notification");
+    STREAM_NOTIFICATION("stream_notification"),
+    ACTIVITIES_NOTIFICATION("activities_notification"),
+    PLAYBACK_NOTIFICATION("playback_notification"),
+    PLAYBACK_WIDGET("playback_widget");
 
     private static final String HOST_GOOGLE = "google.com";
     private static final String HOST_FACEBOOK = "facebook.com";

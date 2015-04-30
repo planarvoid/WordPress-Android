@@ -53,7 +53,7 @@ public class PlaybackNotificationPresenter {
                 .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true);
 
         Screen.NOTIFICATION.addToIntent(intent);
-        Referrer.PLAYER.addToIntent(intent);
+        Referrer.PLAYBACK_NOTIFICATION.addToIntent(intent);
 
         return PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
     }
