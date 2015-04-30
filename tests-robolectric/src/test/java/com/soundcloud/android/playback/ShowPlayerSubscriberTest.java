@@ -22,7 +22,7 @@ public class ShowPlayerSubscriberTest {
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        subscriber = new ShowPlayerSubscriber(eventBus, playbackToastHelper);
+        subscriber = new ShowPlayerSubscriber(playbackToastHelper);
     }
 
     @Test

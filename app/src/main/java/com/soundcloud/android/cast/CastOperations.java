@@ -63,7 +63,7 @@ public class CastOperations {
         this.resources = resources;
     }
 
-    public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableTracks(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
+    public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableTracks(final Urn currentTrackUrn, Observable<List<Urn>> unfilteredLocalPlayQueueTracks) {
         return filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
                 .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
                     @Override
@@ -93,8 +93,8 @@ public class CastOperations {
                 });
     }
 
-    private Observable<List<Urn>> filterMonetizableTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
-        return Observable.just(unfilteredLocalPlayQueueTracks)
+    private Observable<List<Urn>> filterMonetizableTracks(Observable<List<Urn>> unfilteredLocalPlayQueueTracks) {
+        return unfilteredLocalPlayQueueTracks
                 .flatMap(filterMonetizableTracks)
                 .filter(RxUtils.<Urn>filterEmptyLists());
     }

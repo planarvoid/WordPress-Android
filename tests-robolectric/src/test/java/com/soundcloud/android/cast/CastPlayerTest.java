@@ -43,6 +43,7 @@ import rx.Observable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class CastPlayerTest {
@@ -292,7 +293,7 @@ public class CastPlayerTest {
     public void reloadAndPlayCurrentQueueReportsBufferingEvent() throws Exception {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), any(Observable.class))).thenReturn(Observable.just(createLocalPlayQueue()));
 
         castPlayer.reloadAndPlayCurrentQueue(100L);
 

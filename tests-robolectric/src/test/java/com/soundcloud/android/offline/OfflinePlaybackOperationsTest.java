@@ -12,6 +12,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -103,7 +104,7 @@ public class OfflinePlaybackOperationsTest {
         when(likeOperations.likedTrackUrns()).thenReturn(tracksObservable);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(playbackOperations.playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource))
-                .thenReturn(Observable.<List<Urn>>empty());
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playLikes(trackUrns.get(0), 0, playSessionSource).subscribe();
 
@@ -123,7 +124,7 @@ public class OfflinePlaybackOperationsTest {
 
     @Test
     public void shouldThrowExceptionWhenLikedTrackIsNotAvailableOffline() {
-        final TestObserver<List<Urn>> observer = new TestObserver<>();
+        final TestObserver<PlaybackResult> observer = new TestObserver<>();
         final Urn trackNotAvailableOffline = Urn.forTrack(888L);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
@@ -141,7 +142,7 @@ public class OfflinePlaybackOperationsTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(offlineTracksStorage.likesUrns()).thenReturn(tracksObservable);
         when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
-                .thenReturn(Observable.<List<Urn>>empty());
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
 
@@ -153,7 +154,7 @@ public class OfflinePlaybackOperationsTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(likeOperations.likedTrackUrns()).thenReturn(tracksObservable);
         when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
-                .thenReturn(Observable.<List<Urn>>empty());
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playLikedTracksShuffled(playSessionSource).subscribe();
 
@@ -166,7 +167,7 @@ public class OfflinePlaybackOperationsTest {
         when(connectionHelper.isNetworkConnected()).thenReturn(false);
         when(offlineTracksStorage.playlistTrackUrns(playlistUrn)).thenReturn(tracksObservable);
         when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
-                .thenReturn(Observable.<List<Urn>>empty());
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
 
@@ -178,7 +179,7 @@ public class OfflinePlaybackOperationsTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(tracksObservable);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(playbackOperations.playTracksShuffled(playedTracksCaptor.capture(), refEq(playSessionSource)))
-                .thenReturn(Observable.<List<Urn>>empty());
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playPlaylistShuffled(playlistUrn, playSessionSource).subscribe();
 
@@ -190,7 +191,7 @@ public class OfflinePlaybackOperationsTest {
         when(playlistOperations.trackUrnsForPlayback(playlistUrn)).thenReturn(tracksObservable);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(playbackOperations.playTracks(tracksObservable, trackUrns.get(0), 0, playSessionSource))
-                .thenReturn(Observable.<List<Urn>>empty());
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         operations.playPlaylist(playlistUrn, trackUrns.get(0), 0, playSessionSource).subscribe();
 
@@ -210,7 +211,7 @@ public class OfflinePlaybackOperationsTest {
 
     @Test
     public void shouldThrowExceptionWhenPlaylistTrackIsNotAvailableOffline() {
-        final TestObserver<List<Urn>> observer = new TestObserver<>();
+        final TestObserver<PlaybackResult> observer = new TestObserver<>();
         final Urn trackNotAvailableOffline = Urn.forTrack(888L);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(connectionHelper.isNetworkConnected()).thenReturn(false);

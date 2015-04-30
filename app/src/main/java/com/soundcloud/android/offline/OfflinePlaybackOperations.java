@@ -6,6 +6,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.likes.TrackLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.PlaybackUtils;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistOperations;
@@ -52,7 +53,7 @@ public class OfflinePlaybackOperations {
                 && track.getOrElse(OfflineProperty.DOWNLOAD_STATE, DownloadState.NO_OFFLINE) == DownloadState.DOWNLOADED;
     }
 
-    public Observable<List<Urn>> playLikes(final Urn trackUrn, final int position, final PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> playLikes(final Urn trackUrn, final int position, final PlaySessionSource playSessionSource) {
         if (shouldCreateOfflinePlayQueue()) {
             return offlineTracksStorage.likesUrns()
                     .subscribeOn(scheduler)
@@ -62,7 +63,7 @@ public class OfflinePlaybackOperations {
         return playbackOperations.playTracks(likeOperations.likedTrackUrns(), trackUrn, position, playSessionSource);
     }
 
-    public Observable<List<Urn>> playPlaylist(Urn playlistUrn, Urn initialTrack, int position, PlaySessionSource sessionSource) {
+    public Observable<PlaybackResult> playPlaylist(Urn playlistUrn, Urn initialTrack, int position, PlaySessionSource sessionSource) {
         if (shouldCreateOfflinePlayQueue()) {
             return offlineTracksStorage.playlistTrackUrns(playlistUrn)
                     .subscribeOn(scheduler)
@@ -73,7 +74,7 @@ public class OfflinePlaybackOperations {
                 .playTracks(playlistOperations.trackUrnsForPlayback(playlistUrn), initialTrack, position, sessionSource);
     }
 
-    public Observable<List<Urn>> playPlaylistShuffled(Urn playlistUrn, final PlaySessionSource sessionSource) {
+    public Observable<PlaybackResult> playPlaylistShuffled(Urn playlistUrn, final PlaySessionSource sessionSource) {
         final Observable<List<Urn>> trackUrnsObservable = shouldCreateOfflinePlayQueue()
                 ? offlineTracksStorage.playlistTrackUrns(playlistUrn)
                 : playlistOperations.trackUrnsForPlayback(playlistUrn);
@@ -81,10 +82,10 @@ public class OfflinePlaybackOperations {
         return playbackOperations.playTracksShuffled(trackUrnsObservable.subscribeOn(scheduler), sessionSource);
     }
 
-    private Func1<List<Urn>, Observable<List<Urn>>> playIfAvailableOffline(final Urn trackUrn, final int position, final PlaySessionSource sessionSource) {
-        return new Func1<List<Urn>, Observable<List<Urn>>>() {
+    private Func1<List<Urn>, Observable<PlaybackResult>> playIfAvailableOffline(final Urn trackUrn, final int position, final PlaySessionSource sessionSource) {
+        return new Func1<List<Urn>, Observable<PlaybackResult>>() {
             @Override
-            public Observable<List<Urn>> call(List<Urn> urns) {
+            public Observable<PlaybackResult> call(List<Urn> urns) {
                 int corrected = PlaybackUtils.correctInitialPosition(urns, position, trackUrn);
                 if (corrected < 0) {
                     throw new TrackNotAvailableOffline();
@@ -94,7 +95,7 @@ public class OfflinePlaybackOperations {
         };
     }
 
-    public Observable<List<Urn>> playLikedTracksShuffled(PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> playLikedTracksShuffled(PlaySessionSource playSessionSource) {
         final Observable<List<Urn>> likedTracks = shouldCreateOfflinePlayQueue()
                 ? offlineTracksStorage.likesUrns()
                 : likeOperations.likedTrackUrns();

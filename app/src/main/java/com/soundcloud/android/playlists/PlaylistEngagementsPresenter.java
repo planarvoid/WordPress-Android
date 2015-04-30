@@ -230,7 +230,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
             offlinePlaybackOperations
                     .playPlaylistShuffled(playlistWithTracks.getUrn(), playSessionSourceInfo)
                     .doOnCompleted(publishAnalyticsEventForShuffle())
-                    .subscribe(new ShowPlayerSubscriber(eventBus, playbackToastHelper));
+                    .subscribe(new ShowPlayerSubscriber(eventBus));
         }
     }
 

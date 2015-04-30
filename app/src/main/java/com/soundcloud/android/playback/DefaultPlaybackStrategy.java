@@ -1,12 +1,13 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.PlaybackUtils.correctStartPositionAndDeduplicateList;
-
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -45,11 +46,26 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public void playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrn, int initialTrackPosition, PlaySessionSource playSessionSource) {
-        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueueTracks, initialTrackPosition, initialTrackUrn);
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(playQueueTracks, playSessionSource);
-        playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
-        playCurrent();
+    public Observable<PlaybackResult> playNewQueue(Observable<List<Urn>> playQueueTracks,
+                                                   final Urn initialTrackUrn,
+                                                   final int initialTrackPosition,
+                                                   final boolean loadRelated,
+                                                   final PlaySessionSource playSessionSource) {
+        return playQueueTracks
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(new Func1<List<Urn>, Observable<PlaybackResult>>() {
+                    @Override
+                    public Observable<PlaybackResult> call(List<Urn> urns) {
+                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(urns, initialTrackPosition, initialTrackUrn);
+                        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource);
+                        playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
+                        playCurrent();
+                        if (loadRelated) {
+                            playQueueManager.fetchTracksRelatedToCurrentTrack();
+                        }
+                        return Observable.just(PlaybackResult.SUCCESS);
+                    }
+                });
     }
 
     @Override
