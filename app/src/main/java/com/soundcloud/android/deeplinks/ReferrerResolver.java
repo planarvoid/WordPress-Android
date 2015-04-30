@@ -10,10 +10,11 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 
-public class ReferrerResolver {
+class ReferrerResolver {
     private static final String FACEBOOK_PKG_NAME = "com.facebook.application.";
     private static final String TWITTER_PKG_NAME = "com.twitter.android";
     private static final String GOOGLE_PLUS_PKG_NAME = "com.google.android.apps.plus";
@@ -27,7 +28,7 @@ public class ReferrerResolver {
     private static final String PARAM_ORIGIN = "origin";
 
     @Inject
-    public ReferrerResolver() {
+    ReferrerResolver() {
         // for dagger
     }
 
@@ -47,21 +48,33 @@ public class ReferrerResolver {
         }
     }
 
+    public boolean isFacebookAction(Intent intent, Resources resources) {
+        return getActionForSoundCloud(resources).equals(intent.getAction());
+    }
+
     private boolean isOriginIntent(Intent intent) {
         return ScTextUtils.isNotBlank(getOrigin(intent));
     }
 
     private Referrer referrerFromOrigin(Intent intent) {
-        return Referrer.fromOrigin(getOrigin(intent));
+        String origin = getOrigin(intent);
+
+        if (origin != null) {
+            return Referrer.fromOrigin(origin);
+        } else {
+            return Referrer.OTHER;
+        }
     }
 
-    public boolean isFacebookAction(Intent intent, Resources resources) {
-        return getActionForSoundCloud(resources).equals(intent.getAction());
-    }
-
+    @Nullable
     private String getOrigin(Intent intent) {
         Uri data = intent.getData();
-        return data == null ? null : data.getQueryParameter(PARAM_ORIGIN);
+
+        if (data != null) {
+            return data.getQueryParameter(PARAM_ORIGIN);
+        } else {
+            return null;
+        }
     }
 
     private boolean isFacebookIntent(Intent intent, Resources resources) {
@@ -75,8 +88,10 @@ public class ReferrerResolver {
         }
     }
 
+    @Nullable
     private String getBrowserReferrer(Intent intent) {
         Object maybeBundle = intent.getExtras().get(EXTRA_ANDROID_BROWSER_HEADERS);
+
         if (maybeBundle instanceof Bundle) {
             return ((Bundle) maybeBundle).getString(EXTRA_BROWSER_REFERER);
         } else {
@@ -112,19 +127,23 @@ public class ReferrerResolver {
                 }
             }
         }
+
         return false;
     }
 
     private boolean isTwitterIntent(Intent intent) {
         ComponentName ancestorComponent = getAncestorComponent(intent);
+
         if (ancestorComponent != null) {
             if (TWITTER_PKG_NAME.equals(ancestorComponent.getPackageName())) {
                 return true;
             }
         }
+
         return false;
     }
 
+    @Nullable
     private ComponentName getAncestorComponent(Intent intent) {
         if (intent.hasExtra(EXTRA_INTENT_ANCESTOR)) {
             Object maybeIntent = intent.getExtras().get(EXTRA_INTENT_ANCESTOR);
@@ -132,6 +151,7 @@ public class ReferrerResolver {
                 return ((Intent) maybeIntent).getComponent();
             }
         }
+
         return null;
     }
 
