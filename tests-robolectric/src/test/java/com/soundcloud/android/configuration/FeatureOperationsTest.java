@@ -50,7 +50,7 @@ public class FeatureOperationsTest {
 
     @Test
     public void clearsStoredUpsellIfNoneIsReturned() {
-        featureOperations.updatePlan("free", null);
+        featureOperations.updatePlan("none", null);
 
         verify(planStorage).remove("upsell");
     }

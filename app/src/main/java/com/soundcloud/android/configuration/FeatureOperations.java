@@ -13,7 +13,7 @@ import java.util.Map;
 
 public class FeatureOperations {
 
-    private static final String FREE_PLAN = "free";
+    private static final String NO_PLAN = "none";
     private static final String MID_TIER = "mid_tier";
 
     // Features
@@ -61,7 +61,7 @@ public class FeatureOperations {
     }
 
     public String getPlan() {
-        return planStorage.get(PLAN, FREE_PLAN);
+        return planStorage.get(PLAN, NO_PLAN);
     }
 
     public boolean isOfflineContentEnabled() {
