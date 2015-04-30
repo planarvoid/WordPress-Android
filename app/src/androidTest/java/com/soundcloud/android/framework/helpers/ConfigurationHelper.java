@@ -19,7 +19,7 @@ public class ConfigurationHelper {
 
     // Plan
     private static final String PLAN_UPSELL = "upsell";
-    private static final String PLAN_MID_TIER = "mid-tier";
+    private static final String PLAN_MID_TIER = "mid_tier";
 
     public static void enableOfflineContent(Context context) {
         enableFeature(context, OFFLINE_CONTENT);
