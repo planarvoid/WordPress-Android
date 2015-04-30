@@ -2,8 +2,8 @@ package com.soundcloud.android.view;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
@@ -41,7 +41,7 @@ public class EmptyViewBuilder {
     // we can remove this method once we lose ScListFragment
     @Deprecated
     @SuppressWarnings("PMD.CyclomaticComplexity")
-    public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final PublicApiUser user) {
+    public EmptyViewBuilder forContent(final Context context, final Uri contentUri, @Nullable final String username) {
 
         switch (Content.match(contentUri)) {
 
@@ -51,7 +51,7 @@ public class EmptyViewBuilder {
                 secondaryText = context.getString(R.string.list_empty_activity_secondary);
                 break;
 
-            // user browser specific
+            // profile specific
             case ME_SOUNDS:
                 image = R.drawable.empty_sounds;
                 messageText = context.getString(R.string.list_empty_user_sounds_message);
@@ -59,7 +59,7 @@ public class EmptyViewBuilder {
 
             case USER_SOUNDS:
                 image = R.drawable.empty_sounds;
-                messageText = getTextForUser(context, R.string.empty_user_tracks_text, user);
+                messageText = getTextForUser(context, R.string.empty_user_tracks_text, username);
                 break;
 
             case ME_PLAYLISTS:
@@ -69,7 +69,7 @@ public class EmptyViewBuilder {
 
             case USER_PLAYLISTS:
                 image = R.drawable.empty_playlists;
-                messageText = getTextForUser(context, R.string.list_empty_user_playlists_message, user);
+                messageText = getTextForUser(context, R.string.list_empty_user_playlists_message, username);
                 break;
 
             case ME_LIKES:
@@ -79,7 +79,7 @@ public class EmptyViewBuilder {
 
             case USER_LIKES:
                 image = R.drawable.empty_like;
-                messageText = getTextForUser(context, R.string.empty_user_likes_text, user);
+                messageText = getTextForUser(context, R.string.empty_user_likes_text, username);
                 break;
 
             case ME_FOLLOWERS:
@@ -90,7 +90,7 @@ public class EmptyViewBuilder {
 
             case USER_FOLLOWERS:
                 image = R.drawable.empty_followers;
-                messageText = getTextForUser(context, R.string.empty_user_followers_text, user);
+                messageText = getTextForUser(context, R.string.empty_user_followers_text, username);
                 break;
 
             case ME_FOLLOWINGS:
@@ -102,7 +102,7 @@ public class EmptyViewBuilder {
 
             case USER_FOLLOWINGS:
                 image = R.drawable.empty_following;
-                messageText = getTextForUser(context, R.string.empty_user_followings_text, user);
+                messageText = getTextForUser(context, R.string.empty_user_followings_text, username);
                 break;
 
             default:
@@ -133,10 +133,9 @@ public class EmptyViewBuilder {
         emptyView.setSecondaryText(R.string.search_empty_subtext);
     }
 
-    private String getTextForUser(Context context, int userBasedText, @Nullable PublicApiUser user) {
+    private String getTextForUser(Context context, int userBasedText, @Nullable String username) {
         return context.getString(userBasedText,
-                user == null || user.username == null ? context.getString(R.string.this_user)
-                        : user.username
+                ScTextUtils.isBlank(username) ? context.getString(R.string.this_user) : username
         );
     }
 }

@@ -30,7 +30,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.associations.ToggleFollowSubscriber;
-import com.soundcloud.android.collections.ScListFragment;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
@@ -47,14 +46,12 @@ import com.soundcloud.android.tasks.FetchModelTask;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.UriUtils;
-import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.FullImageDialog;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
@@ -89,6 +86,7 @@ public class ProfileActivity extends ScActivity implements
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject ScreenPresenter presenter;
+    @Inject ProfileFragmentCreator profileListFragmentCreator;
 
     private TextView username, followerCount, followerMessage, location;
     private ToggleButton toggleFollow;
@@ -500,34 +498,12 @@ public class ProfileActivity extends ScActivity implements
             if (currentTab == Tab.details) {
                 return userInfoFragment;
             } else {
-                Content content;
-                Uri contentUri;
-                Screen screen;
-
-                if (isLoggedInUser()) {
-                    content = currentTab.youContent;
-                    contentUri = content.uri;
-                    screen = currentTab.youScreen;
-                    return createScListFragment(currentTab, contentUri, screen);
-
-
-                } else {
-                    content = currentTab.userContent;
-                    contentUri = content.forId(user.getId());
-                    screen = currentTab.userScreen;
-                    return createScListFragment(currentTab, contentUri, screen);
-                }
-
-
+                final SearchQuerySourceInfo searchQuerySourceForTab = searchQuerySourceForTab(currentTab);
+                final Uri uri = isLoggedInUser() ? currentTab.youContent.uri : currentTab.userContent.forId(user.getId());
+                final Screen youScreen = isLoggedInUser() ? currentTab.youScreen : currentTab.userScreen;
+                final String username = user == null ? ScTextUtils.EMPTY_STRING : user.username;
+                return profileListFragmentCreator.create(ProfileActivity.this, username, uri, youScreen, searchQuerySourceForTab);
             }
-        }
-
-        @NotNull
-        private Fragment createScListFragment(Tab currentTab, Uri contentUri, Screen screen) {
-            ScListFragment listFragment = ScListFragment.newInstance(contentUri, user.getUsername(),
-                    screen, searchQuerySourceForTab(currentTab));
-            listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(ProfileActivity.this, contentUri, user));
-            return listFragment;
         }
 
         @Override
