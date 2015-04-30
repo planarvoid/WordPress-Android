@@ -7,6 +7,18 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import android.os.Bundle;
 
 public final class AuthTaskResult {
+
+    private final Kind kind;
+    private final PublicApiUser user;
+    private final SignupVia signupVia;
+    private final Exception exception;
+
+    private final boolean showFacebookSuggestions;
+    private final Bundle loginBundle;
+
+    // Can be dropped once we move away from public API for signups
+    @Deprecated private String serverErrorMessage;
+
     public static AuthTaskResult success(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
         return new AuthTaskResult(user, signupVia, showFacebookSuggestions);
     }
@@ -50,17 +62,6 @@ public final class AuthTaskResult {
     public static AuthTaskResult deviceConflict(Bundle loginBundle) {
         return new AuthTaskResult(Kind.DEVICE_CONFLICT, null, null, null, false, loginBundle, null);
     }
-
-    private final Kind kind;
-    private final PublicApiUser user;
-    private final SignupVia signupVia;
-    private final Exception exception;
-
-    private final boolean showFacebookSuggestions;
-    private final Bundle loginBundle;
-
-    // Can be dropped once we move away from public API for signups
-    @Deprecated private String serverErrorMessage;
 
     private enum Kind {
         SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, VALIDATION_ERROR

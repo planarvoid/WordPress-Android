@@ -638,7 +638,7 @@ public class OnboardActivity extends FragmentActivity
 
     private void doSafeActivityResultActions(ActivityResult activityResult) {
         final int requestCode = activityResult.requestCode;
-        final int resultCode = activityResult.resultCode;;
+        final int resultCode = activityResult.resultCode;
         final Intent intent = activityResult.intent;
 
         switch (requestCode) {

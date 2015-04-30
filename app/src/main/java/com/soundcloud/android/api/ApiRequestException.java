@@ -38,7 +38,7 @@ public final class ApiRequestException extends Exception {
     }
 
     public static ApiRequestException unexpectedResponse(ApiRequest request, int statusCode) {
-        final boolean isValidStatusCode = statusCode < HttpStatus.SC_OK || (statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode >= HttpStatus.SC_BAD_REQUEST);
+        final boolean isValidStatusCode = statusCode < HttpStatus.SC_OK || statusCode < HttpStatus.SC_INTERNAL_SERVER_ERROR && statusCode >= HttpStatus.SC_BAD_REQUEST;
         checkArgument(isValidStatusCode, "Status code must be< 200 or between 400 and 500");
         return new ApiRequestException(UNEXPECTED_RESPONSE, request, "HTTP " + statusCode);
     }

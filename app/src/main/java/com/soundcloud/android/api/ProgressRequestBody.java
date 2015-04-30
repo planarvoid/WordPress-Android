@@ -34,7 +34,7 @@ class ProgressRequestBody extends RequestBody {
     public void writeTo(BufferedSink sink) throws IOException {
         final long totalBytes = contentLength();
         final BufferedSink progressSink = Okio.buffer(new ForwardingSink(sink) {
-            private long bytesWritten = 0L;
+            private long bytesWritten;
 
             @Override
             public void write(Buffer source, long byteCount) throws IOException {
