@@ -65,9 +65,8 @@ public class CastOperationsTest {
 
     @Test
     public void loadsLocalPlayQueue() throws JSONException {
-        PropertySet currentTrack = createTrack(TRACK1);
+        PropertySet currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> playQueueTracks = Arrays.asList(TRACK1, TRACK2);
-        when(trackRepository.track(TRACK1)).thenReturn(Observable.just(currentTrack));
 
         castOperations.loadLocalPlayQueue(TRACK1, playQueueTracks).subscribe(observer);
 
@@ -77,31 +76,60 @@ public class CastOperationsTest {
 
     @Test
     public void loadsLocalPlayQueueWithoutMonetizableTracks() throws JSONException {
-        PropertySet currentTrack = createTrack(TRACK1);
+        createAndSetupPublicTrack(TRACK2);
+        PropertySet currentTrack = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
-        List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
-        when(trackRepository.track(TRACK1)).thenReturn(Observable.just(currentTrack));
+        List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1);
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(filteredPlayQueueTracks));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrack, filteredPlayQueueTracks);
     }
 
     @Test
+    public void loadsLocalPlayQueueWithoutPrivateTracks() throws JSONException {
+        createAndSetupPrivateTrack(TRACK2);
+        PropertySet currentTrack = createAndSetupPublicTrack(TRACK1);
+        List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(unfilteredPlayQueueTracks));
+
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1);
+        expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrack, expectedFilteredPlayQueueTracks);
+    }
+
+    @Test
     public void loadLocalPlayQueueWithoutMonetizableTracksCorrectsCurrentTrackWhenItIsFilteredOut() throws JSONException {
-        PropertySet currentTrackBeforeFiltering = createTrack(TRACK3);
-        PropertySet currentTrackAfterFiltering = createTrack(TRACK1);
+        createAndSetupPublicTrack(TRACK2);
+        PropertySet currentTrackBeforeFiltering = createAndSetupPublicTrack(TRACK3);
+        PropertySet currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
         List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2, TRACK3);
         List<Urn> filteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
         when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(filteredPlayQueueTracks));
-        when(trackRepository.track(TRACK1)).thenReturn(Observable.just(currentTrackAfterFiltering));
 
-        castOperations.loadLocalPlayQueueWithoutMonetizableTracks(currentTrackBeforeFiltering.get(TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrackAfterFiltering, filteredPlayQueueTracks);
+    }
+
+    @Test
+    public void loadLocalPlayQueueWithoutPrivateTracksCorrectsCurrentTrackWhenItIsFilteredOut() throws JSONException {
+        PropertySet currentTrackBeforeFiltering = createAndSetupPrivateTrack(TRACK3);
+        createAndSetupPublicTrack(TRACK2);
+        PropertySet currentTrackAfterFiltering = createAndSetupPublicTrack(TRACK1);
+        List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2, TRACK3);
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(unfilteredPlayQueueTracks));
+
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(currentTrackBeforeFiltering.get(TrackProperty.URN), unfilteredPlayQueueTracks).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
+        expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrackAfterFiltering, expectedFilteredPlayQueueTracks);
     }
 
     @Test
@@ -150,11 +178,20 @@ public class CastOperationsTest {
                 .build();
     }
 
-    public static PropertySet createTrack(Urn urn) {
-        return PropertySet.from(
+    private PropertySet createAndSetupPrivateTrack(Urn urn) {
+        PropertySet track = createAndSetupPublicTrack(urn);
+        track.put(TrackProperty.IS_PRIVATE, true);
+        return track;
+    }
+
+    private PropertySet createAndSetupPublicTrack(Urn urn) {
+        PropertySet track = PropertySet.from(
                 TrackProperty.URN.bind(urn),
                 TrackProperty.TITLE.bind("Title " + urn),
-                TrackProperty.CREATOR_NAME.bind("Creator " + urn));
+                TrackProperty.CREATOR_NAME.bind("Creator " + urn),
+                TrackProperty.IS_PRIVATE.bind(false));
+        when(trackRepository.track(urn)).thenReturn(Observable.just(track));
+        return track;
     }
 
     private void expectLocalPlayQueue(LocalPlayQueue localPlayQueue,

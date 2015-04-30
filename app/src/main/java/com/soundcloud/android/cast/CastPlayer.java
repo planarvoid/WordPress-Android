@@ -164,7 +164,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                                                    final Urn initialTrackUrnCandidate,
                                                    final long withProgressPosition,
                                                    final PlaySessionSource playSessionSource) {
-        return castOperations.loadLocalPlayQueueWithoutMonetizableTracks(initialTrackUrnCandidate, unfilteredLocalPlayQueueTracks)
+        return castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(initialTrackUrnCandidate, unfilteredLocalPlayQueueTracks)
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(playNewLocalQueueOnRemote(initialTrackUrnCandidate, withProgressPosition, playSessionSource))
                 .doOnError(reportPlaybackError(initialTrackUrnCandidate));
