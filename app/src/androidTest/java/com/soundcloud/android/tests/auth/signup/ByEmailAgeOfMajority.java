@@ -25,9 +25,8 @@ public class ByEmailAgeOfMajority extends SignUpTest {
         signUpBasicsScreen.acceptTerms();
         signUpBasicsScreen.skipSignUpDetails();
         suggestedUsersScreen = signUpBasicsScreen.waitForSuggestedUsers();
-        final StreamScreen streamScreen = suggestedUsersScreen.finish();
-        final EmailOptInScreen optInScreen = new EmailOptInScreen(solo);
-        optInScreen.clickNo();
+        final EmailOptInScreen optInScreen = suggestedUsersScreen.finish();
+        final StreamScreen streamScreen = optInScreen.clickNo();
 
         final PlaylistTagsScreen playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
         final SearchResultsScreen searchResult = playlistTagsScreen.actionBar().doSearch("annoymouse");

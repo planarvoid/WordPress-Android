@@ -110,7 +110,6 @@
   <string name="authentication_clear_image">Удерживайте, чтобы удалить изображение</string>
   <string name="dialog_select_google_account">Чтобы войти, пожалуйста, выберите учетную запись Google</string>
   <string name="authentication_login_error_message">Нам не удалось вас авторизовать. Пожалуйста, повторите попытку.</string>
-  <string name="authentication_add_info_error">Нам не удалось обновить ваши данные. Пожалуйста, повторите попытку.</string>
   <string name="authentication_no_google_accounts">Сначала создайте учетную запись Google.</string>
   <string name="authentication_log_in_with_google">Войти с помощью Google</string>
   <string name="error_google_sign_in_failed">Нам не удалось авторизовать вас с Google+. Посетите plus.google.com и активируйте свою учетную запись Google+, затем повторите попытку</string>
@@ -245,10 +244,8 @@
   <string name="try_again">Повторите попытку</string>
   <string name="finish">Завершить</string>
   <string name="error_onboarding_fail">Мы все еще заполняем вашу ленту. Мы будем продолжать, пока все не заработает! Тем временем, вы можете поискать и открыть для себя другую музыку или аудиозаписи.</string>
-  <string name="birthday">День рождения</string>
   <string name="gender">Пол</string>
   <string name="onboarding_create_account">Создать учетную запись</string>
-  <string name="onboarding_enter_year">Введите год</string>
   <string name="onboarding_indicate_gender">Укажите свой пол</string>
   <string name="onboarding_custom_gender_hint">Введите пол</string>
   <string name="onboarding_gender_option_female">Женский</string>
@@ -584,7 +581,6 @@
   <string name="offline_update_in_progress">Синхронизация ваших треков</string>
   <string name="offline_likes_dialog_title">Сделать доступным в режиме оффлайн</string>
   <string name="offline_likes_dialog_message">Это позволит сохранить все, что Вам понравилось, для  прослушивания в режиме оффлайн, включая треки, которые вы хотели бы прослушать в будущем.</string>
-  <string name="offline_likes_dialog_accept">Оставить доступным в режиме оффлайн</string>
   <string name="make_offline_available">Сделать доступным в автономном режиме</string>
   <string name="make_offline_unavailable">Удалить из списка для автономного прослушивания</string>
 
@@ -593,8 +589,6 @@
   <string name="age_verify_title">Пожалуйста, подтвердите ваш возраст</string>
   <string name="age_verify_warning">Содержимое этого профиля может быть неуместным для лиц, не достигших определенного возраста</string>
   <string name="age_verify_info">Эта информация будет сохранена в вашем профиле.</string>
-  <string name="age_verify_birthday">Ваш день рождения</string>
-  <string name="age_verify_year_hint">Введите год</string>
   <string name="age_verify_button">Подтвердите возраст</string>
 
   <!-- DEVICE MANAGEMENT -->
@@ -602,23 +596,6 @@
   <string name="device_management_login_message">Ваша подписка ограничена 3 устройствами. Вы можете зарегистрировать это устройство и исключить из подписки последнее использованное вами устройство, выбрав \"Продолжить\".</string>
   <string name="device_management_conflict_message">Вы достигли лимита зарегистрированных устройств, предусмотренного вашей подпиской. Это устройство было исключено из подписки, а все автономные данные удалены. Вы можете выполнить вход снова и повторно зарегистрировать это устройство.</string>
   <string name="device_management_continue">Продолжить</string>
-
-  <!-- MONTH PICKER DIALOG -->
-  <string name="select_month">Выберите месяц</string>
-  <string-array name="select_month_options">
-    <item>январь</item>
-    <item>февраль</item>
-    <item>март</item>
-    <item>апрель</item>
-    <item>май</item>
-    <item>июнь</item>
-    <item>июль</item>
-    <item>август</item>
-    <item>сентябрь</item>
-    <item>октябрь</item>
-    <item>ноябрь</item>
-    <item>декабрь</item>
-  </string-array>
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">О чём вы желаете сообщить?</string>

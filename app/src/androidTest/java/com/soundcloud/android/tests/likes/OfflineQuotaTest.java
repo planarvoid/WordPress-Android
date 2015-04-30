@@ -6,7 +6,7 @@ import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clea
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -33,7 +33,7 @@ public class OfflineQuotaTest extends ActivityTest<MainActivity> {
     }
 
     public void testOfflineStateRequestedWhenNotEnoughSpace() {
-        new MainScreen(solo)
+        new StreamScreen(solo)
                 .actionBar()
                 .clickSettingsOverflowButton()
                 .clickOfflineSettings()

@@ -13,14 +13,22 @@ task uploadGithub << {
           "\"name\" : \"$project.ext.releaseName\", " +
           "\"body\" : \"$project.ext.releaseBody\"}"
   def url = "https://api.github.com/repos/$owner/$repo/releases?access_token=$token"
-  def result = ['curl', '-vs', '--data', json, url].execute()
-  def jsonResult = new JsonSlurper().parseText(result.text)
+  def result = ['curl', '-vsi', '--data', json, url].execute().text
+  if (!result.contains("Status: 201 Created")) {
+    throw new GradleException("Could not create a new github release: $result")
+  }
+
+  def jsonIndex = result.indexOf("{")
+  def jsonizableResult = result.substring(jsonIndex)
+  def jsonResult = new JsonSlurper().parseText(jsonizableResult)
   def releaseId = jsonResult.get('id')
 
   // upload apk -> .zip to github release
   def uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
           "soundcloud-android.zip&access_token=$token"
-  def cmd = ['curl', '-vs', '-H', 'Content-Type: application/zip', '--data-binary', "@$project.ext.apkPath", uploadUrl]
-  def uploadResult = cmd.execute()
-  println uploadResult.text
+  def cmd = ['curl', '-vsi', '-H', 'Content-Type: application/zip', '--data-binary', "@$project.ext.apkPath", uploadUrl]
+  def uploadResult = cmd.execute().text
+  if (!uploadResult.contains("HTTP/1.1 201 Created")) {
+    throw new GradleException("Could not upload APK to github release: $uploadResult")
+  }
 }

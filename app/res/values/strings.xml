@@ -249,7 +249,6 @@
     <string name="enter_age_hint">Enter your age</string>
     <string name="gender">Gender</string>
     <string name="onboarding_create_account">Create an account</string>
-    <string name="onboarding_enter_year">Enter year</string>
     <string name="onboarding_indicate_gender">Indicate your gender</string>
     <string name="onboarding_custom_gender_hint">Enter gender</string>
     <string name="onboarding_gender_option_female">Female</string>
@@ -608,9 +607,8 @@
     <string name="offline_update_storage_limit_reached_title">Storage limit reached</string>
     <string name="offline_update_storage_limit_reached_message">Tap here to view storage settings</string>
     <string name="offline_update_in_progress">Syncing your tracks</string>
-    <string name="offline_likes_dialog_title">Make available offline</string>
-    <string name="offline_likes_dialog_message">This will keep all your Likes available for offline listening including any tracks you like in the future.</string>
-    <string name="offline_likes_dialog_accept">Keep available offline</string>
+    <string name="offline_likes_dialog_title">Make your Likes available offline</string>
+    <string name="offline_likes_dialog_message">This will keep your current and future Likes available offline so you can listen without an Internet or data connection.</string>
     <string name="make_offline_available">Make available offline</string>
     <string name="make_offline_unavailable">Remove from offline listening</string>
     <string name="offline_dialog_go_online_continue">Continue</string>
@@ -625,8 +623,6 @@
     <string name="age_verify_title">Please verify your age</string>
     <string name="age_verify_warning">Content on this profile may be inappropriate for those under a certain age.</string>
     <string name="age_verify_info">This information will be saved on your profile.</string>
-    <string name="age_verify_birthday">Your birthday</string>
-    <string name="age_verify_year_hint">Enter year</string>
     <string name="age_verify_button">Verify age</string>
 
     <!-- __DEVICE MANAGEMENT -->
@@ -634,23 +630,6 @@
     <string name="device_management_login_message">Your subscription is limited to 3 devices. You can register this device and sign out of the device you used last by selecting continue.</string>
     <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
     <string name="device_management_continue">Continue</string>
-
-    <!-- __MONTH PICKER DIALOG -->
-    <string name="select_month">Select month</string>
-    <string-array name="select_month_options">
-        <item>January</item>
-        <item>February</item>
-        <item>March</item>
-        <item>April</item>
-        <item>May</item>
-        <item>June</item>
-        <item>July</item>
-        <item>August</item>
-        <item>September</item>
-        <item>October</item>
-        <item>November</item>
-        <item>December</item>
-    </string-array>
 
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>

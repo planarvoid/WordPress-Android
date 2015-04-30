@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Segure para excluir a imagem</string>
   <string name="dialog_select_google_account">Selecione uma conta do Google para se conectar</string>
   <string name="authentication_login_error_message">Nós não conseguimos fazer seu login. Tente novamente.</string>
-  <string name="authentication_add_info_error">Não foi possível atualizar suas informações. Tente novamente.</string>
   <string name="authentication_no_google_accounts">Configure uma conta do Google primeiro.</string>
   <string name="authentication_log_in_with_google">Faça login no Google</string>
   <string name="error_google_sign_in_failed">Não conseguimos efetuar seu login com o Google+. Visite plus.google.com para ativar sua conta do Google+ e tente novamente</string>
@@ -244,10 +243,8 @@
   <string name="try_again">Tente novamente</string>
   <string name="finish">Finalizar</string>
   <string name="error_onboarding_fail">Ainda estamos trabalhando para preencher sua transmissão. Vamos continuar tentando até que funcione! Enquanto isso, você pode pesquisar e descobrir outro tipo de música e áudio.</string>
-  <string name="birthday">Aniversário</string>
   <string name="gender">Sexo</string>
   <string name="onboarding_create_account">Criar uma conta</string>
-  <string name="onboarding_enter_year">Insira o ano</string>
   <string name="onboarding_indicate_gender">Indique seu sexo</string>
   <string name="onboarding_custom_gender_hint">Insira o sexo</string>
   <string name="onboarding_gender_option_female">Feminino</string>
@@ -583,7 +580,6 @@
   <string name="offline_update_in_progress">Sincronizando suas músicas</string>
   <string name="offline_likes_dialog_title">Disponibilizar offline</string>
   <string name="offline_likes_dialog_message">Isso deixará todas as suas músicas \"Curtidas\" disponíveis para ouvir offline, inclusive músicas que pode gostar no futuro.</string>
-  <string name="offline_likes_dialog_accept">Disponibilizar offline</string>
   <string name="make_offline_available">Disponibilizar offline</string>
   <string name="make_offline_unavailable">Remover permissão de ouvir offline</string>
 
@@ -592,8 +588,6 @@
   <string name="age_verify_title">Por favor, confira a sua idade</string>
   <string name="age_verify_warning">O conteúdo deste perfil pode ser inapropriado para menores de uma certa idade.</string>
   <string name="age_verify_info">Esta informação será salva no seu perfil.</string>
-  <string name="age_verify_birthday">Seu aniversário</string>
-  <string name="age_verify_year_hint">Digite o ano</string>
   <string name="age_verify_button">Confira a idade</string>
 
   <!-- DEVICE MANAGEMENT -->
@@ -601,23 +595,6 @@
   <string name="device_management_login_message">Sua assinatura é limitada a 3 dispositivos. Você pode registrar este dispositivo e sair do dispositivo utilizado pela última vez selecionando continuar.</string>
   <string name="device_management_conflict_message">Sua assinatura atingiu o limite de dispositivos. Este dispositivo foi desconectado e todo o conteúdo offline foi removido. Você pode entrar e registrar este dispositivo novamente.</string>
   <string name="device_management_continue">Continuar</string>
-
-  <!-- MONTH PICKER DIALOG -->
-  <string name="select_month">Selecione o mês</string>
-  <string-array name="select_month_options">
-    <item>Janeiro</item>
-    <item>Fevereiro</item>
-    <item>Março</item>
-    <item>Abril</item>
-    <item>Maio</item>
-    <item>Junho</item>
-    <item>Julho</item>
-    <item>Agosto</item>
-    <item>Setembro</item>
-    <item>Outubro</item>
-    <item>Novembro</item>
-    <item>Dezembro</item>
-  </string-array>
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">O que você gostaria de informar?</string>

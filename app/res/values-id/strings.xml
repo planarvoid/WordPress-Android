@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Tahan untuk menghapus gambar</string>
   <string name="dialog_select_google_account">Silakan pilih satu akun Google untuk Masuk</string>
   <string name="authentication_login_error_message">Kami tidak bisa memasukkanmu. Silakan coba lagi.</string>
-  <string name="authentication_add_info_error">Kami tidak bisa memperbarui informasimu. Silakan coba lagi.</string>
   <string name="authentication_no_google_accounts">Silakan buat akun Google terlebih dahulu.</string>
   <string name="authentication_log_in_with_google">Masuk dengan akun Google.</string>
   <string name="error_google_sign_in_failed">Kami tidak bisa memasukkanmu dengan Google+. Kunjungi plus.google.com untuk mengaktifkan akun Google+ kamu dan coba lagi</string>
@@ -244,10 +243,8 @@
   <string name="try_again">Coba Lagi</string>
   <string name="finish">Selesai</string>
   <string name="error_onboarding_fail">Kami masih mengisi streaming-mu. Kami akan terus mencoba sampai berhasil! Sementara itu, kamu dapat mencari dan menemukan musik &amp; audio lainnya.</string>
-  <string name="birthday">Ulang Tahun</string>
   <string name="gender">Jenis Kelamin</string>
   <string name="onboarding_create_account">Buat akun</string>
-  <string name="onboarding_enter_year">Masukkan tahun</string>
   <string name="onboarding_indicate_gender">Sebutkan jenis kelaminmu</string>
   <string name="onboarding_custom_gender_hint">Masukkan jenis kelamin</string>
   <string name="onboarding_gender_option_female">Perempuan</string>
@@ -583,7 +580,6 @@
   <string name="offline_update_in_progress">Menyinkronkan trekmu</string>
   <string name="offline_likes_dialog_title">Buat menjadi tersedia secara offline</string>
   <string name="offline_likes_dialog_message">Tindakan ini akan membuat semua yang kamu Suka tetap dapat didengarkan secara offline, termasuk trek yang kamu sukai di masa mendatang.</string>
-  <string name="offline_likes_dialog_accept">Buat agar tetap tersedia secara offline</string>
   <string name="make_offline_available">Buat menjadi tersedia secara offline</string>
   <string name="make_offline_unavailable">Hapus dari mendengarkan secara offline</string>
 
@@ -592,8 +588,6 @@
   <string name="age_verify_title">Harap verifikasi usiamu</string>
   <string name="age_verify_warning">Konten di profil ini mungkin saja tidak cocok bagi yang berusia di bawah usia tertentu.</string>
   <string name="age_verify_info">Informasi ini akan disimpan pada profil Anda.</string>
-  <string name="age_verify_birthday">Ulang tahunmu</string>
-  <string name="age_verify_year_hint">Masukkan tahun</string>
   <string name="age_verify_button">Verifikasi usia</string>
 
   <!-- DEVICE MANAGEMENT -->
@@ -601,23 +595,6 @@
   <string name="device_management_login_message">Langgananmu terbatas pada 3 perangkat. Kamu dapat mendaftarkan perangkat ini dan keluar dari perangkat yang digunakan terakhir dengan memilih melanjutkan.</string>
   <string name="device_management_conflict_message">Langgananmu telah mencapai batas perangkat. Perangkat ini telah keluar dan semua konten offline telah dihapus. Kamu dapat login kembali untuk mendaftar ulang perangkat ini.</string>
   <string name="device_management_continue">Teruskan</string>
-
-  <!-- MONTH PICKER DIALOG -->
-  <string name="select_month">Pilih bulan</string>
-  <string-array name="select_month_options">
-    <item>Januari</item>
-    <item>Februari</item>
-    <item>Maret</item>
-    <item>April</item>
-    <item>Mei</item>
-    <item>Juni</item>
-    <item>Juli</item>
-    <item>Agustus</item>
-    <item>September</item>
-    <item>Oktober</item>
-    <item>November</item>
-    <item>Desember</item>
-  </string-array>
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">Apa yang ingin kamu laporkan?</string>

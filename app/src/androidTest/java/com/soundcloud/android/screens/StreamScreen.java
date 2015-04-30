@@ -1,14 +1,14 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.StreamList;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.R;
-import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.framework.with.With;
 
 public class StreamScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -56,6 +56,10 @@ public class StreamScreen extends Screen {
     private StreamList streamList() {
         ViewElement list = testDriver.findElement(With.id(android.R.id.list));
         return new StreamList(list);
+    }
+
+    public MenuScreen openMenu() {
+        return menuScreen.open();
     }
 
     public ExploreScreen openExploreFromMenu() {

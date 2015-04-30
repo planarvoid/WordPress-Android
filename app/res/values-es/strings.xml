@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Sostener para borrar la imagen</string>
   <string name="dialog_select_google_account">Por favor, selecciona una cuenta de Google con la cual acceder</string>
   <string name="authentication_login_error_message">No has podido iniciar sesión. Inténtalo de nuevo.</string>
-  <string name="authentication_add_info_error">No hemos podido actualizar tu información. Por favor, inténtalo de nuevo.</string>
   <string name="authentication_no_google_accounts">Por favor, crea una cuenta de Google primero.</string>
   <string name="authentication_log_in_with_google">Conéctate con Google</string>
   <string name="error_google_sign_in_failed">No has podido iniciar sesión con Google+. Visita plus.google.com para activar tu cuenta de Google+ y vuelve a intentarlo</string>
@@ -244,10 +243,8 @@
   <string name="try_again">Inténtalo de nuevo</string>
   <string name="finish">Finalizar</string>
   <string name="error_onboarding_fail">Todavía estamos trabajando en llenar tu flujo de datos. ¡Vamos a seguir intentando hasta que funcione! Mientras tanto, puedes buscar y descubrir otro tipo de música y audio.</string>
-  <string name="birthday">Cumpleaños</string>
   <string name="gender">Sexo</string>
   <string name="onboarding_create_account">Crear una cuenta</string>
-  <string name="onboarding_enter_year">Ingresar año</string>
   <string name="onboarding_indicate_gender">Indica tu sexo</string>
   <string name="onboarding_custom_gender_hint">Ingresar sexo</string>
   <string name="onboarding_gender_option_female">Femenino</string>
@@ -582,7 +579,6 @@
   <string name="offline_update_in_progress">Sincronizando tus pistas</string>
   <string name="offline_likes_dialog_title">Disponible sin conexión</string>
   <string name="offline_likes_dialog_message">Esto mantendrá todos tus Me gusta disponibles para escuchar sin conexión, incluyendo cualquier pista que te guste en el futuro.</string>
-  <string name="offline_likes_dialog_accept">Mantener disponible sin conexión</string>
   <string name="make_offline_available">Poner disponible sin conexión</string>
   <string name="make_offline_unavailable">Eliminar de la escucha sin conexión</string>
 
@@ -591,8 +587,6 @@
   <string name="age_verify_title">Por favor, verifica tu edad</string>
   <string name="age_verify_warning">El contenido de este perfil puede ser inapropiado para los menores de cierta edad.</string>
   <string name="age_verify_info">Esta información se guardará en tu perfil.</string>
-  <string name="age_verify_birthday">Tu cumpleaños</string>
-  <string name="age_verify_year_hint">Introducir año</string>
   <string name="age_verify_button">Verificar edad</string>
 
   <!-- DEVICE MANAGEMENT -->
@@ -600,23 +594,6 @@
   <string name="device_management_login_message">Tu suscripción se limita a 3 dispositivos. Puedes registrar este dispositivo y cerrar la sesión del último dispositivo que utilizaste seleccionando continuar.</string>
   <string name="device_management_conflict_message">Tu suscripción ha alcanzado el límite del dispositivo. La sesión de este dispositivo fue cerrada y todo el contenido sin conexión se ha eliminado. Puedes volver a iniciar sesión para volver a registrar este dispositivo.</string>
   <string name="device_management_continue">Continuar</string>
-
-  <!-- MONTH PICKER DIALOG -->
-  <string name="select_month">Seleccionar mes</string>
-  <string-array name="select_month_options">
-    <item>Enero</item>
-    <item>Febrero</item>
-    <item>Marzo</item>
-    <item>Abril</item>
-    <item>Mayo</item>
-    <item>Junio</item>
-    <item>Julio</item>
-    <item>Agosto</item>
-    <item>Septiembre</item>
-    <item>Octubre</item>
-    <item>Noviembre</item>
-    <item>Diciembre</item>
-  </string-array>
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">¿Qué desearías informar?</string>

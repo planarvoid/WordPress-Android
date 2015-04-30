@@ -18,7 +18,7 @@ public class SyncYourLikesScreen extends Screen {
     }
 
     public TrackLikesScreen clickKeepLikesSynced() {
-        testDriver.findElement(text(testDriver.getString(R.string.offline_likes_dialog_accept))).click();
+        testDriver.findElement(text(testDriver.getString(R.string.make_offline_available))).click();
         return new TrackLikesScreen(testDriver);
     }
 

@@ -106,7 +106,6 @@
     <string name="authentication_clear_image">اضغط مع الاستمرار لمسح الصورة</string>
     <string name="dialog_select_google_account">يرجى تحديد حساب Google لتسجيل الدخول مع</string>
     <string name="authentication_login_error_message">لم نتمكن من تسجيل دخولك. يرجى المحاولة مرة أخرى.</string>
-    <string name="authentication_add_info_error">لم نتمكن من تحديث المعلومات الخاصة بك. يرجى المحاولة مرة أخرى.</string>
     <string name="authentication_no_google_accounts">يرجى إعداد حساب google أولا.</string>
     <string name="authentication_log_in_with_google">تسجيل الدخول مع Google</string>
     <string name="error_google_sign_in_failed">لم نتمكن من تسجيل دخولك في مع Google+. تفضل بزيارة plus.google.com لتفعيل حسابك في + Google وحاول مرة أخرى</string>

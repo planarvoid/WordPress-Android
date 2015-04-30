@@ -1,12 +1,17 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.android.playlists.OfflinePlaylistMapper.HAS_PENDING_DOWNLOAD_REQUEST;
+import static com.soundcloud.android.playlists.PlaylistQueries.HAS_PENDING_DOWNLOAD_REQUEST_QUERY;
+import static com.soundcloud.android.playlists.PlaylistQueries.IS_MARKED_FOR_OFFLINE_QUERY;
 import static com.soundcloud.propeller.query.ColumnFunctions.count;
+import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.LikedPlaylistMapper;
 import com.soundcloud.android.playlists.PlaylistMapper;
+import com.soundcloud.android.playlists.PostedPlaylistMapper;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropertySet;
@@ -45,24 +50,26 @@ class PlaylistLikesStorage {
         return propellerRx.query(query).map(PLAYLIST_MAPPER).defaultIfEmpty(PropertySet.create());
     }
 
-    static Query playlistLikeQuery() {
+    Query playlistLikeQuery() {
         final Where likesSoundViewJoin = filter()
                 .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), Table.SoundView.field(TableColumns.SoundView._TYPE))
                 .whereEq(Table.Likes.field(TableColumns.Likes._ID), Table.SoundView.field(TableColumns.SoundView._ID));
 
         return Query.from(Table.Likes.name())
                 .select(
-                        field(Table.SoundView + "." + TableColumns.SoundView._ID).as(BaseColumns._ID),
+                        field(Table.SoundView.field(TableColumns.SoundView._ID)).as(BaseColumns._ID),
                         TableColumns.SoundView.TITLE,
                         TableColumns.SoundView.USERNAME,
                         TableColumns.SoundView.TRACK_COUNT,
                         TableColumns.SoundView.LIKES_COUNT,
                         TableColumns.SoundView.SHARING,
                         count(TableColumns.PlaylistTracks.PLAYLIST_ID).as(PlaylistMapper.LOCAL_TRACK_COUNT),
-                        field(Table.Likes + "." + TableColumns.Likes.CREATED_AT).as(TableColumns.Likes.CREATED_AT))
+                        field(Table.Likes.field(TableColumns.Likes.CREATED_AT)).as(TableColumns.Likes.CREATED_AT),
+                        exists(HAS_PENDING_DOWNLOAD_REQUEST_QUERY).as(HAS_PENDING_DOWNLOAD_REQUEST),
+                        exists(IS_MARKED_FOR_OFFLINE_QUERY).as(PostedPlaylistMapper.IS_MARKED_FOR_OFFLINE))
                 .innerJoin(Table.SoundView.name(), likesSoundViewJoin)
                 .leftJoin(Table.PlaylistTracks.name(), Table.SoundView.field(TableColumns.SoundView._ID), TableColumns.PlaylistTracks.PLAYLIST_ID)
-                .whereEq(Table.Likes + "." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_PLAYLIST)
+                .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), TableColumns.Sounds.TYPE_PLAYLIST)
                 .whereNull(Table.Likes.field(TableColumns.Likes.REMOVED_AT))
                 .groupBy(Table.SoundView.field(TableColumns.SoundView._ID));
     }

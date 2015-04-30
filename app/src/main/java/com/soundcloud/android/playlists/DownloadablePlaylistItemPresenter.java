@@ -24,6 +24,7 @@ public class DownloadablePlaylistItemPresenter extends PlaylistItemPresenter {
                                              FeatureOperations featureOperations) {
         super(resources, imageOperations, playlistItemMenuPresenter);
         this.featureOperations = featureOperations;
+        allowOfflineOptions();
     }
 
     @Override

@@ -52,51 +52,60 @@ public class SignUpBasicsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.btn_accept_terms));
     }
 
-    public void clearEmail() {
+    public SignUpBasicsScreen clearEmail() {
         emailInputField().clearText();
+        return this;
     }
 
-    public void typeEmail(String email) {
+    public SignUpBasicsScreen typeEmail(String email) {
         emailInputField().clearText();
         emailInputField().typeText(email);
+        return this;
     }
 
-    public void clearPassword() {
+    public SignUpBasicsScreen clearPassword() {
         passwordInputField().clearText();
+        return this;
     }
 
-    public void typePassword(String password) {
+    public SignUpBasicsScreen typePassword(String password) {
         passwordInputField().typeText(password);
+        return this;
     }
 
-    public void typeAge(int age) {
+    public SignUpBasicsScreen typeAge(int age) {
         ageInputField().typeText(String.valueOf(age));
+        return this;
     }
 
     public void clearAge() {
         ageInputField().clearText();
     }
 
-    public void chooseGender(String genderChoice) {
+    public SignUpBasicsScreen chooseGender(String genderChoice) {
         genderText().click();
         testDriver.findElement(With.text(genderChoice)).click();
+        return this;
     }
 
-    public void typeCustomGender(String customGender) {
+    public SignUpBasicsScreen typeCustomGender(String customGender) {
         customGenderInputField().typeText(customGender);
+        return this;
     }
 
     public boolean isDoneButtonEnabled() {
         return doneButton().isEnabled();
     }
 
-    public void signup() {
+    public SignUpBasicsScreen signup() {
         doneButton().click();
+        return this;
     }
 
-    public void acceptTerms() {
+    public SignUpBasicsScreen acceptTerms() {
         acceptTermsButton().click();
         waiter.waitForElement(R.id.btn_skip);
+        return this;
     }
 
     public void closeSpamDialog() {
@@ -106,8 +115,9 @@ public class SignUpBasicsScreen extends Screen {
         testDriver.findElement(With.text(testDriver.getString(R.string.close))).click();
     }
 
-    public void skipSignUpDetails() {
+    public SignUpBasicsScreen skipSignUpDetails() {
         skipButton().click();
+        return this;
     }
 
     public SuggestedUsersScreen waitForSuggestedUsers() {

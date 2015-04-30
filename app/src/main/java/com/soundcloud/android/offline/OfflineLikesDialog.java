@@ -40,7 +40,7 @@ public class OfflineLikesDialog extends DialogFragment {
                 .setTitle(R.string.offline_likes_dialog_title)
                 .setMessage(R.string.offline_likes_dialog_message)
                 .setNegativeButton(R.string.cancel, null)
-                .setPositiveButton(R.string.offline_likes_dialog_accept, listener)
+                .setPositiveButton(R.string.make_offline_available, listener)
                 .create();
     }
 

@@ -1,13 +1,13 @@
 package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.onboarding.OnboardActivity;
-import com.soundcloud.android.screens.MainScreen;
-import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.onboarding.OnboardActivity;
+import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.screens.StreamScreen;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -66,13 +66,13 @@ public class LoginScreen extends Screen {
         testDriver.clickOnButton(R.string.btn_continue);
         waiter.waitForTextToDisappear("Logging you in");
     }
-    public MainScreen loginAs(String username, String password) {
+    public StreamScreen loginAs(String username, String password) {
         emailInputField().clearText();
 
         passwordInputField().typeText(password);
         emailInputField().typeText(username);
         loginButton().click();
-        return new MainScreen(testDriver);
+        return new StreamScreen(testDriver);
     }
 
     public Screen loginAs(String username, String password, boolean validCredentials) {
@@ -83,7 +83,7 @@ public class LoginScreen extends Screen {
 
         loginButton().click();
         if (validCredentials) {
-            return new MainScreen(testDriver);
+            return new StreamScreen(testDriver);
         }
         return this;
     }

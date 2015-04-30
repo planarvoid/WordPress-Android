@@ -1,7 +1,5 @@
 package com.soundcloud.android.tests.playlist;
 
-import static com.soundcloud.android.framework.helpers.PlaylistItemElementHelper.assertLikeActionOnPlaylist;
-import static com.soundcloud.android.framework.helpers.PlaylistItemElementHelper.assertUnlikeActionOnLikedPlaylistWithoutVerification;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
@@ -28,18 +26,14 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         playlistsScreen = menuScreen.open().clickPlaylist();
     }
 
-    // **** Disabling until DROID-953 is fixed ***
+    // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
     // Given I liked a playlist
     // Given I go the liked playlists tab on the playlists screen
-    // Then the playlists should the first one
-
-    /**
-     * Re-enabling, as I fixed 2 bugs, and want to see if its still flaky - JS
-     */
-    public void testLastLikedPlaylistShouldAppearOnTop() {
+    // Then the playlist should the first one
+    public void ignoreLikesSyncing_testLastLikedPlaylistShouldAppearOnTop() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         final String expectedTitle = playlistsScreen.get(0).getTitle();
-        assertLikeActionOnPlaylist(this, playlistsScreen.get(0));
+        playlistsScreen.get(0).clickOverflow().toggleLike();
 
         playlistsScreen.touchLikedPlaylistsTab();
 
@@ -47,17 +41,18 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
         playlistsScreen.get(0).clickOverflow().toggleLike();
     }
 
-    public void testLikingAndUnlikingPlaylistFromOverflowMenu() {
+    // *** Ignore until we come up with a good way to prevent like actions from getting synced ***
+    public void ignoreLikesSyncing_testLikingAndUnlikingPlaylistFromOverflowMenu() {
         // assert liked
         final String expectedTitle = playlistsScreen.get(0).getTitle();
-        assertLikeActionOnPlaylist(this, playlistsScreen.get(0));
+        playlistsScreen.get(0).clickOverflow().toggleLike();
 
         playlistsScreen.touchLikedPlaylistsTab();
         assertEquals(expectedTitle, playlistsScreen.get(0).getTitle());
         int initialLikedPlaylistsCount = playlistsScreen.getPlaylistItemCount();
 
         // unlike and assert item now gone
-        assertUnlikeActionOnLikedPlaylistWithoutVerification(this, playlistsScreen.get(0));
+        playlistsScreen.get(0).clickOverflow().toggleLike();
         assertThat(playlistsScreen.getPlaylistItemCount(), is(initialLikedPlaylistsCount - 1));
 
         // assert item has been unliked on posted playlists tab

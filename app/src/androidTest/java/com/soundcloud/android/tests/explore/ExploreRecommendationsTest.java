@@ -4,16 +4,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.MainScreen;
+import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreGenreCategoryScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.TestUser;
 
 public class ExploreRecommendationsTest extends ActivityTest<MainActivity> {
-    private MainScreen mainScreen;
     private ExploreScreen exploreScreen;
     private ExploreGenreCategoryScreen categoryScreen;
 
@@ -31,9 +30,7 @@ public class ExploreRecommendationsTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-
-        mainScreen = new MainScreen(solo);
-        exploreScreen = mainScreen.openExploreFromMenu();
+        exploreScreen = new StreamScreen(solo).openExploreFromMenu();
     }
 
     public void testPlayingTrendingMusicTrack() {

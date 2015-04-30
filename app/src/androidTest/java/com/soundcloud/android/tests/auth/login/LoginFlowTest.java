@@ -2,10 +2,10 @@ package com.soundcloud.android.tests.auth.login;
 
 
 import static com.soundcloud.android.framework.TestUser.GPlusAccount;
+import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.TestUser.generateEmail;
 import static com.soundcloud.android.framework.TestUser.noGPlusAccount;
 import static com.soundcloud.android.framework.TestUser.scAccount;
-import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -14,7 +14,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.screens.HomeScreen;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.FBWebViewScreen;
@@ -146,9 +145,9 @@ public class LoginFlowTest extends LoginTest {
      */
     public void testLoginAndLogout() {
         loginScreen = homeScreen.clickLogInButton();
-        MainScreen mainScreen = loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
+        StreamScreen streamScreen = loginScreen.loginAs(scAccount.getEmail(), scAccount.getPassword());
 
-        assertThat(mainScreen.actionBar()
+        assertThat(streamScreen.actionBar()
                 .clickSettingsOverflowButton()
                 .clickLogoutAndConfirm(), is(visible()));
     }

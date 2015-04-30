@@ -4,6 +4,7 @@ import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
@@ -13,6 +14,7 @@ import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
+import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -30,7 +32,7 @@ public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PlaylistI
         implements AdapterView.OnItemClickListener {
 
     private final PlaylistLikeOperations likeOperations;
-    private final PagedPlaylistsAdapter adapter;
+    private final PlaylistLikesAdapter adapter;
     private final EventBus eventBus;
 
     private CompositeSubscription viewLifeCycle;
@@ -39,7 +41,7 @@ public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PlaylistI
     public PlaylistLikesPresenter(ImageOperations imageOperations,
                                   PullToRefreshWrapper pullToRefreshWrapper,
                                   PlaylistLikeOperations likeOperations,
-                                  PagedPlaylistsAdapter adapter,
+                                  PlaylistLikesAdapter adapter,
                                   EventBus eventBus) {
         super(imageOperations, pullToRefreshWrapper);
         this.likeOperations = likeOperations;
@@ -62,13 +64,17 @@ public class PlaylistLikesPresenter extends ListPresenter<PropertySet, PlaylistI
 
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+
                 likeOperations.onPlaylistLiked()
                         .map(PlaylistItem.fromPropertySet())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new PrependItemToListSubscriber<>(adapter)),
+
                 likeOperations.onPlaylistUnliked()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RemoveEntityListSubscriber(adapter))
+                        .subscribe(new RemoveEntityListSubscriber(adapter)),
+
+                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter))
         );
     }
 

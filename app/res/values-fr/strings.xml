@@ -109,7 +109,6 @@
   <string name="authentication_clear_image">Maintenir appuyé pour effacer l\'image</string>
   <string name="dialog_select_google_account">Veuillez sélectionner un compte Google pour vous connecter</string>
   <string name="authentication_login_error_message">Impossible de vous connecter. Veuillez essayer à nouveau.</string>
-  <string name="authentication_add_info_error">Nous n\'avons pas réussi à mettre à jour vos informations. Veuillez essayer à nouveau.</string>
   <string name="authentication_no_google_accounts">Veuillez configurer un compte Google au préalable.</string>
   <string name="authentication_log_in_with_google">Connectez-vous avec Google</string>
   <string name="error_google_sign_in_failed">Impossible de vous connecter avec Google+. Visitez plus.google.com pour activer votre compte Google+ et essayez à nouveau</string>
@@ -244,10 +243,8 @@
   <string name="try_again">Essayer à nouveau</string>
   <string name="finish">Terminer</string>
   <string name="error_onboarding_fail">Nous travaillons toujours à remplir le flot de donneés. Nous continuerons jusqu\'à ce que cela fonctionne ! En attendant, vous pouvez rechercher et découvrir d\'autres musiques et audio.</string>
-  <string name="birthday">Date de naissance</string>
   <string name="gender">Sexe</string>
   <string name="onboarding_create_account">Créer un compte</string>
-  <string name="onboarding_enter_year">Entrer l\'année</string>
   <string name="onboarding_indicate_gender">Indiquer votre sexe</string>
   <string name="onboarding_custom_gender_hint">Indiquer votre sexe</string>
   <string name="onboarding_gender_option_female">Féminin</string>
@@ -583,7 +580,6 @@
   <string name="offline_update_in_progress">Synchronisation des pistes en cours</string>
   <string name="offline_likes_dialog_title">Rendre disponible hors connexion</string>
   <string name="offline_likes_dialog_message">Ceci rendra vos Favoris accessibles pour une écoute hors connexion, y compris vos futures pistes préférées.</string>
-  <string name="offline_likes_dialog_accept">Rendre disponible hors connexion</string>
   <string name="make_offline_available">Rendre disponible hors connexion</string>
   <string name="make_offline_unavailable">Retirer de l\'écoute hors connexion</string>
 
@@ -592,8 +588,6 @@
   <string name="age_verify_title">Veuillez valider votre âge</string>
   <string name="age_verify_warning">Le contenu de ce profil pourrait être inapproprié pour un public sous la limite d\'âge</string>
   <string name="age_verify_info">Cette information sera sauvegardée sur votre profil.</string>
-  <string name="age_verify_birthday">Votre date de naissance</string>
-  <string name="age_verify_year_hint">Entrer l\'année</string>
   <string name="age_verify_button">Vérifier votre âge</string>
 
   <!-- DEVICE MANAGEMENT -->
@@ -601,23 +595,6 @@
   <string name="device_management_login_message">Votre abonnement est limité à trois appareils. Vous pouvez enregistrer cet appareil et vous déconnecter de l\'appareil que vous avez utilisé en dernier en sélectionnant continuer.</string>
   <string name="device_management_conflict_message">Votre abonnement a atteint la limite d\'appareil. Cet appareil a été déconnecté et tout le contenu hors connexion a été supprimé. Vous pouvez vous connecter avant de ré-enregistrer cet appareil.</string>
   <string name="device_management_continue">Continuer</string>
-
-  <!-- MONTH PICKER DIALOG -->
-  <string name="select_month">Sélectionner le mois</string>
-  <string-array name="select_month_options">
-    <item>Janvier</item>
-    <item>Février</item>
-    <item>Mars</item>
-    <item>Avril</item>
-    <item>Mai</item>
-    <item>Juin</item>
-    <item>Juillet</item>
-    <item>Août</item>
-    <item>Septembre</item>
-    <item>Octobre</item>
-    <item>Novembre</item>
-    <item>Décembre</item>
-  </string-array>
 
   <!-- DEBUG LOGS/FEEDBACK -->
   <string name="select_feedback_category">Que voulez-vous signaler ?</string>
