@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
@@ -19,6 +18,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
 
@@ -69,10 +69,10 @@ class AdPageListener extends PageListener {
     }
 
     public void onAboutAds(FragmentActivity activity) {
-        new MaterialDialog.Builder(activity)
-                .title(R.string.why_ads)
-                .content(R.string.why_ads_dialog_message)
-                .positiveText(android.R.string.ok)
+        new AlertDialog.Builder(activity)
+                .setTitle(R.string.why_ads)
+                .setMessage(R.string.why_ads_dialog_message)
+                .setPositiveButton(android.R.string.ok, null)
                 .show();
     }
 

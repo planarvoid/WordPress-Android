@@ -2,7 +2,6 @@ package com.soundcloud.android.comments;
 
 import static rx.android.observables.AndroidObservable.bindActivity;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.cocosw.undobar.UndoBarController;
 import com.cocosw.undobar.UndoBarController.UndoBar;
 import com.cocosw.undobar.UndoBarStyle;
@@ -25,11 +24,15 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
 import android.view.animation.AnimationUtils;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import javax.inject.Inject;
@@ -62,11 +65,17 @@ public class AddCommentDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final PropertySet track = getArguments().getParcelable(EXTRA_TRACK);
         final String timeFormatted = ScTextUtils.formatTimestamp(getArguments().getLong(EXTRA_POSITION), TimeUnit.MILLISECONDS);
-        return new MaterialDialog.Builder(getActivity())
-                .title(getString(R.string.comment_on, track.get(TrackProperty.TITLE)))
-                .input(getString(R.string.comment_at, timeFormatted), ScTextUtils.EMPTY_STRING, new MaterialDialog.InputCallback() {
+
+        final View dialogView = View.inflate(getActivity(), R.layout.comment_input, null);
+        final EditText input = (EditText) dialogView.findViewById(R.id.comment_input);
+        input.setHint(getString(R.string.comment_at, timeFormatted));
+
+        return new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.comment_on, track.get(TrackProperty.TITLE)))
+                .setView(dialogView)
+                .setPositiveButton(R.string.post, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onInput(MaterialDialog dialog, CharSequence input) {
+                    public void onClick(DialogInterface dialog, int which) {
                         final String commentText = input.toString();
                         if (ScTextUtils.isNotBlank(commentText)) {
                             onAddComment(commentText);
@@ -74,9 +83,8 @@ public class AddCommentDialogFragment extends DialogFragment {
                         }
                     }
                 })
-                .positiveText(R.string.post)
-                .negativeText(R.string.cancel)
-                .build();
+                .setNegativeButton(R.string.cancel, null)
+                .create();
     }
 
     private void onAddComment(String commentText){

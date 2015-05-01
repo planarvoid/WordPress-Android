@@ -5,7 +5,6 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -28,7 +27,9 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -99,27 +100,22 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         adapter = new MyPlaylistsAdapter(getActivity(), featureOperations);
         loadPlaylistSubscription = loadPlaylists.subscribe(new PlaylistsLoadedSubscriber());
 
-        return new MaterialDialog.Builder(getActivity())
-                .title(R.string.add_track_to_playlist)
-                .adapter(adapter, getPlaylistCallback())
-                .positiveText(R.string.cancel)
-                .itemsCallback(getPlaylistCallback())
-                .build();
-    }
-
-    private MaterialDialog.ListCallback getPlaylistCallback() {
-        return new MaterialDialog.ListCallback() {
-            @Override
-            public void onSelection(MaterialDialog materialDialog, View view, int position, CharSequence charSequence) {
-                final long rowId = adapter.getItemId(position);
-                if (rowId == Urn.NOT_SET.getNumericId()) {
-                    showPlaylistCreationScreen();
-                    getDialog().dismiss();
-                } else if (getActivity() != null) {
-                    onAddTrackToSet(rowId, view);
-                }
-            }
-        };
+        return new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.add_track_to_playlist)
+                .setAdapter(adapter, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int position) {
+                        final long rowId = adapter.getItemId(position);
+                        if (rowId == Urn.NOT_SET.getNumericId()) {
+                            showPlaylistCreationScreen();
+                            getDialog().dismiss();
+                        } else if (getActivity() != null) {
+                            onAddTrackToSet(rowId, adapter.getView(position, null, null));
+                        }
+                    }
+                })
+                .setPositiveButton(R.string.cancel, null)
+                .create();
     }
 
     private void showPlaylistCreationScreen() {

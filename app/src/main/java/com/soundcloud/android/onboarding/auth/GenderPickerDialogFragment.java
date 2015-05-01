@@ -1,6 +1,5 @@
 package com.soundcloud.android.onboarding.auth;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
 
 import android.app.Dialog;
@@ -8,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 
 public class GenderPickerDialogFragment extends DialogFragment {
 
@@ -24,7 +24,7 @@ public class GenderPickerDialogFragment extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialogWrapper.Builder(getActivity())
+        return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.onboarding_indicate_gender)
                 .setSingleChoiceItems(genderOptions(), currentGenderIndex(), new OnGenderSelected())
                 .create();

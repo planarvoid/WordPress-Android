@@ -6,7 +6,6 @@ import static com.soundcloud.android.onboarding.FacebookSessionCallback.DEFAULT_
 import static com.soundcloud.android.utils.AnimUtils.hideView;
 import static com.soundcloud.android.utils.AnimUtils.showView;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.facebook.NonCachingTokenCachingStrategy;
 import com.facebook.Session;
 import com.facebook.SessionLoginBehavior;
@@ -64,6 +63,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextThemeWrapper;
@@ -236,7 +236,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void showDeviceConflictDialog() {
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
                 .setMessage(R.string.device_management_conflict_message)
                 .setPositiveButton(R.string.device_management_continue, null);
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflictLoggedOut());
@@ -454,7 +454,7 @@ public class OnboardActivity extends FragmentActivity
             onGoogleAccountSelected(names[0]);
         } else {
             ContextThemeWrapper cw = new ContextThemeWrapper(this, R.style.Theme_ScDialog);
-            final AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(cw).setTitle(R.string.dialog_select_google_account);
+            final AlertDialog.Builder builder = new AlertDialog.Builder(cw).setTitle(R.string.dialog_select_google_account);
             builder.setItems(names, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -852,7 +852,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onError(String message) {
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(TextUtils.isEmpty(message) ? getString(R.string.authentication_signup_error_message) : message)
                 .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupGeneralError());
@@ -860,7 +860,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onEmailTaken() {
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(R.string.authentication_email_taken_message)
                 .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupExistingEmail());
@@ -869,7 +869,7 @@ public class OnboardActivity extends FragmentActivity
     @Override
     public void onSpam() {
         final SpamDialogOnClickListener spamDialogOnClickListener = new SpamDialogOnClickListener(this, oauth);
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(R.string.authentication_captcha_message)
                 .setPositiveButton(getString(R.string.try_again), spamDialogOnClickListener)
                 .setNeutralButton(getString(R.string.cancel), spamDialogOnClickListener);
@@ -878,7 +878,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onBlocked() {
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_blocked_title)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_blocked_title)
                 .setMessage(R.string.authentication_blocked_message)
                 .setPositiveButton(R.string.close, null);
         showDialogWithHyperlinksAndTrackEvent(dialogBuilder, OnboardingEvent.signupDenied());
@@ -886,7 +886,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onEmailInvalid() {
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(R.string.authentication_email_invalid_message)
                 .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupInvalidEmail());
@@ -894,7 +894,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onDeviceConflict(final Bundle loginBundle) {
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
                 .setMessage(R.string.device_management_login_message)
                 .setPositiveButton(R.string.device_management_continue, new DialogInterface.OnClickListener() {
                     @Override
@@ -906,7 +906,7 @@ public class OnboardActivity extends FragmentActivity
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflictOnLogin());
     }
 
-    private void showDialogAndTrackEvent(AlertDialogWrapper.Builder dialogBuilder, OnboardingEvent event) {
+    private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
         if (!isFinishing()) {
             dialogBuilder
                     .create()
@@ -915,7 +915,7 @@ public class OnboardActivity extends FragmentActivity
         }
     }
 
-    private void showDialogWithHyperlinksAndTrackEvent(AlertDialogWrapper.Builder dialogBuilder, OnboardingEvent event) {
+    private void showDialogWithHyperlinksAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
         if (!isFinishing()) {
             final Dialog alertDialog = dialogBuilder.create();
             alertDialog.show();
@@ -924,8 +924,8 @@ public class OnboardActivity extends FragmentActivity
         }
     }
 
-    private AlertDialogWrapper.Builder createDefaultAuthErrorDialogBuilder(int title) {
-        return new AlertDialogWrapper.Builder(OnboardActivity.this)
+    private AlertDialog.Builder createDefaultAuthErrorDialogBuilder(int title) {
+        return new AlertDialog.Builder(OnboardActivity.this)
                 .setTitle(getString(title))
                 .setIconAttribute(android.R.attr.alertDialogIcon);
     }

@@ -209,9 +209,6 @@ dependencies {
   compile libraries.rxJavaAsyncUtil
   compile libraries.rxJavaDebug
   compile libraries.universalImageLoader
-  compile (libraries.materialDialogs) {
-    transitive = true
-  }
   compile libraries.facebookRebound
   compile(libraries.facebookAndroidSdk) {
       // see https://github.com/mente/facebook-api-android-aar/issues/11

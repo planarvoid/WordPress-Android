@@ -1,7 +1,6 @@
 allprojects {
   repositories {
     mavenLocal()
-    jcenter()
     maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
     maven { url 'http://maven.int.s-cloud.net/content/repositories/thirdparty_releases' }
     maven { url 'https://maven.fabric.io/public' }
@@ -14,9 +13,9 @@ ext {
   androidBuildToolsVersion = '22.0.1'
 
   //Google Android
-  androidSupportLibraryVersion = '22.0.0'
-  androidAppCompatLibraryVersion = '22.0.0'
-  androidMediaRouterLibraryVersion = '22.0.0'
+  androidSupportLibraryVersion = '22.1.0'
+  androidAppCompatLibraryVersion = '22.1.0'
+  androidMediaRouterLibraryVersion = '22.1.0'
   androidPlayServicesBaseVersion = '6.5.87'
   androidPlayServicesCastVersion = '6.5.87'
 
@@ -41,7 +40,6 @@ ext {
   slidingUpPanelVersion = '2.0.2-SC'
   androidCropVersion = '0.9.10'
   universalImageLoaderVersion = '1.9.2'
-  materialDialogsVersion = '0.7.1.3'
   facebookReboundVersion = '0.3.4'
   facebookAndroidSdkVersion = '3.20.0'
   castCompanionLibraryVersion = '2.0-SOUNDCLOUD'
@@ -95,7 +93,6 @@ ext {
       rxJavaAsyncUtil:              "io.reactivex:rxjava-async-util:${rxJavaAsyncUtilVersion}",
       rxJavaDebug:                  "io.reactivex:rxjava-debug:${rxJavaDebugVersion}",
       universalImageLoader:         "com.nostra13.universalimageloader:universal-image-loader:${universalImageLoaderVersion}",
-      materialDialogs:              "com.afollestad:material-dialogs:${materialDialogsVersion}@aar",
       facebookRebound:              "com.facebook.rebound:rebound:${facebookReboundVersion}",
       facebookAndroidSdk:           "com.facebook.android:facebook-android-sdk:${facebookAndroidSdkVersion}@aar",
       butterKnife:                  "com.jakewharton:butterknife:${butterKnifeVersion}",

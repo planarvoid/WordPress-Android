@@ -3,12 +3,12 @@ package com.soundcloud.android.offline;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
 
@@ -36,7 +36,7 @@ public class OfflineLikesDialog extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return new AlertDialogWrapper.Builder(getActivity())
+        return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.offline_likes_dialog_title)
                 .setMessage(R.string.offline_likes_dialog_message)
                 .setNegativeButton(R.string.cancel, null)

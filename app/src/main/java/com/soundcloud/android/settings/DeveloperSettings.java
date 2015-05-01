@@ -10,7 +10,6 @@ import static com.soundcloud.android.settings.SettingKey.DEV_RECORDING_TYPE;
 import static com.soundcloud.android.settings.SettingKey.DEV_REWIND_NOTIFICATIONS;
 import static com.soundcloud.android.settings.SettingKey.DEV_SYNC_NOW;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
@@ -29,6 +28,7 @@ import android.os.Handler;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.widget.Toast;
 
@@ -125,7 +125,7 @@ class DeveloperSettings implements OnPreferenceClickListener {
     }
 
     private void showClearRecordingsDialog(final Activity parent) {
-        new AlertDialogWrapper.Builder(parent)
+        new AlertDialog.Builder(parent)
                 .setMessage(R.string.dev_clear_recordings)
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override

@@ -1,6 +1,5 @@
 package com.soundcloud.android.creators.upload;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.LogoutActivity;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -12,6 +11,7 @@ import com.soundcloud.android.utils.ScTextUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -43,7 +43,7 @@ public class ShareUserHeaderLayout extends RelativeLayout {
     }
 
     private void showLogoutDialog(final Activity activity) {
-        new AlertDialogWrapper.Builder(activity)
+        new AlertDialog.Builder(activity)
                 .setTitle(R.string.menu_clear_user_title)
                 .setMessage(R.string.menu_clear_user_desc)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
