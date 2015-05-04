@@ -1,4 +1,4 @@
-package com.soundcloud.android.backdoor;
+package com.soundcloud.android.framework;
 
 import static android.provider.BaseColumns._ID;
 import static com.soundcloud.android.storage.TableColumns.OfflineContent._TYPE;
@@ -12,78 +12,34 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.sqlite.SQLiteDatabase;
 
-import javax.inject.Inject;
-
-public class IntegrationTestsBroadcastReceiver extends BroadcastReceiver {
-
-    public static final String PLAYLIST = "playlist";
-    public static final String TRACK = "track";
-    public static final String TIME = "time";
-
-    public enum Action {
-        ADD_LOCAL_PLAYLIST_WITH_TRACK,
-        SET_PLAYLIST_OFFLINE,
-        SET_TRACK_OFFLINE,
-        SET_LAST_POLICY_UPDATE
-
-    }
-
-    @Inject
-    public IntegrationTestsBroadcastReceiver() {
-        // Required by Dagger
-    }
-
-    IntentFilter getIntentFilter() {
-        final IntentFilter intentFilter = new IntentFilter();
-        for (Action action : Action.values()) {
-            intentFilter.addAction(action.name());
-        }
-        return intentFilter;
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        switch (Action.valueOf(intent.getAction())) {
-            case ADD_LOCAL_PLAYLIST_WITH_TRACK:
-                addLocalPlaylistWithTrack(context, intent);
-                break;
-            case SET_PLAYLIST_OFFLINE:
-                setOfflinePlaylist(context, intent);
-                break;
-            case SET_TRACK_OFFLINE:
-                setOfflineTrack(context, intent);
-                break;
-            case SET_LAST_POLICY_UPDATE:
-                setLastPolicyUpdateTime(context, intent);
-                break;
-            default:
-                throw new UnsupportedOperationException("Unknown intent action: " + intent);
-        }
-    }
-
-    private void addLocalPlaylistWithTrack(Context context, Intent intent) {
-        Urn playlist = intent.getParcelableExtra(PLAYLIST);
-        Urn track = intent.getParcelableExtra(TRACK);
-
+public class IntegrationTestsFixtures {
+    public void insertLocalPlaylistWithTrack(Context context, Urn playlist, Urn track) {
         insert(context, Table.PlaylistTracks, buildPlaylistTrackValues(playlist, track, System.currentTimeMillis()));
     }
 
-    private void setOfflinePlaylist(Context context, Intent intent) {
-        insert(context, Table.OfflineContent, buildOfflineContentValues(intent.<Urn>getParcelableExtra(PLAYLIST)));
+    public void insertOfflinePlaylist(Context context, Urn parcelableExtra) {
+        insert(context, Table.OfflineContent, buildOfflineContentValues(parcelableExtra));
     }
 
-    private void setOfflineTrack(Context context, Intent intent) {
-        Urn track = intent.getParcelableExtra(TRACK);
+    public void insertOfflineTrack(Context context, Urn track) {
 
         insert(context, Table.TrackDownloads, buildTrackDownloadValues(track, System.currentTimeMillis()));
         insert(context, Table.TrackPolicies, buildTrackPoliciesValues(track, System.currentTimeMillis()));
+    }
+
+    public void clearLikes(Context context) {
+        final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
+        Table.Likes.recreate(db);
+    }
+
+    public void clearOfflineContent(Context context) {
+        final SQLiteDatabase db = DatabaseManager.getInstance(context).getWritableDatabase();
+        db.delete(Table.TrackDownloads.name(), null, null);
+        db.delete(Table.OfflineContent.name(), null, null);
     }
 
     private ContentValues buildTrackPoliciesValues(Urn track, long date) {
@@ -96,8 +52,7 @@ public class IntegrationTestsBroadcastReceiver extends BroadcastReceiver {
                 .get();
     }
 
-    private void setLastPolicyUpdateTime(Context context, Intent intent) {
-        long time = intent.getLongExtra(TIME, 0);
+    public void updateLastPolicyUpdateTime(Context context, long time) {
         update(context, buildTrackPoliciesValues(time));
     }
 
@@ -127,7 +82,7 @@ public class IntegrationTestsBroadcastReceiver extends BroadcastReceiver {
                 .get();
     }
 
-    public static ContentValues buildTrackDownloadValues(Urn track, long date) {
+    private static ContentValues buildTrackDownloadValues(Urn track, long date) {
         return ContentValuesBuilder.values(2)
                 .put(_ID, track.getNumericId())
                 .put(REQUESTED_AT, date)
@@ -135,7 +90,7 @@ public class IntegrationTestsBroadcastReceiver extends BroadcastReceiver {
                 .get();
     }
 
-    public static ContentValues buildTrackPoliciesValues(long date) {
+    private static ContentValues buildTrackPoliciesValues(long date) {
         return ContentValuesBuilder.values()
                 .put(TableColumns.TrackPolicies.LAST_UPDATED, date)
                 .get();

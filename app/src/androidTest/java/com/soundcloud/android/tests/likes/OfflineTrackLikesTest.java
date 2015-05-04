@@ -2,13 +2,13 @@ package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.offlineFilesCount;
 import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -17,10 +17,12 @@ import android.content.Context;
 
 public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
 
+    private final OfflineContentHelper offlineContentHelper;
     private Context context;
 
     public OfflineTrackLikesTest() {
         super(MainActivity.class);
+        offlineContentHelper = new OfflineContentHelper();
     }
 
     @Override
@@ -59,7 +61,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
                         .clickMakeAvailableOffline()
                         .clickKeepLikesSyncedAndWaitToFinish();
 
-        assertEquals(offlineFilesCount(), likesScreen.getTotalLikesCount());
+        assertEquals(offlineContentHelper.offlineFilesCount(), likesScreen.getTotalLikesCount());
         assertTrue(likesScreen.isLikedTracksTextVisible());
     }
 
