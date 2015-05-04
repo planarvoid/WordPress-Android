@@ -22,7 +22,7 @@ import com.soundcloud.android.tests.ActivityTest;
 
 public class PlayerTest extends ActivityTest<MainActivity> {
 
-    private VisualPlayerElement playerElement;
+    private VisualPlayerElement visualPlayerElement;
     private StreamScreen streamScreen;
 
     public PlayerTest() {
@@ -37,38 +37,38 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        playerElement = null;
+        visualPlayerElement = null;
         streamScreen = new StreamScreen(solo);
     }
 
     public void testPlayerShouldNotBeVisibleWhenPlayQueueIsEmpty() {
-        playerElement = new VisualPlayerElement(solo);
-        assertThat(playerElement.isVisible(), is(false));
+        visualPlayerElement = new VisualPlayerElement(solo);
+        assertThat(visualPlayerElement.isVisible(), is(false));
     }
 
     public void testPlayerCollapsesWhenBackButtonIsPressed() {
         playExploreTrack();
-        playerElement.pressBackToCollapse();
-        assertThat(playerElement.isCollapsed(), is(true));
+        visualPlayerElement.pressBackToCollapse();
+        assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
     public void testPlayerCollapsesWhenCloseButtonIsPressed() {
         playExploreTrack();
-        playerElement.pressCloseButton();
-        assertThat(playerElement.isCollapsed(), is(true));
+        visualPlayerElement.pressCloseButton();
+        assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
     public void testPlayerCollapsesWhenSwipingDown() {
         playExploreTrack();
         solo.swipeDown();
-        assertThat(playerElement.isCollapsed(), is(true));
+        assertThat(visualPlayerElement.isCollapsed(), is(true));
     }
 
     public void testPlayerExpandsOnFooterTap() {
         playExploreTrack();
-        playerElement.pressBackToCollapse();
-        playerElement.tapFooter();
-        assertThat(playerElement.isExpanded(), is(true));
+        visualPlayerElement.pressBackToCollapse();
+        visualPlayerElement.tapFooter();
+        assertThat(visualPlayerElement.isExpanded(), is(true));
     }
 
     public void testPlayerCanBeStartedFromProfiles() {
@@ -81,70 +81,70 @@ public class PlayerTest extends ActivityTest<MainActivity> {
 
     public void testPlayStateCanBeToggledFromPlayerFooter() {
         playExploreTrack();
-        playerElement.pressBackToCollapse();
-        assertThat(playerElement, is(collapsed()));
-        assertThat(playerElement, is(playing()));
+        visualPlayerElement.pressBackToCollapse();
+        assertThat(visualPlayerElement, is(collapsed()));
+        assertThat(visualPlayerElement, is(playing()));
 
-        playerElement.toggleFooterPlay();
-        assertThat(playerElement, is(not(playing())));
+        visualPlayerElement.toggleFooterPlay();
+        assertThat(visualPlayerElement, is(not(playing())));
     }
 
     public void testPlayStateCanBeToggledFromFullPlayer() {
         playExploreTrack();
-        assertThat(playerElement, is(playing()));
-        playerElement.clickArtwork();
-        assertThat(playerElement, is(not(playing())));
+        assertThat(visualPlayerElement, is(playing()));
+        visualPlayerElement.clickArtwork();
+        assertThat(visualPlayerElement, is(not(playing())));
     }
 
     public void testPlayerIsExpandedAfterClickingTrack() {
         playExploreTrack();
-        assertThat(playerElement.isExpanded(), is(true));
+        assertThat(visualPlayerElement.isExpanded(), is(true));
     }
 
     public void testSkippingWithNextAndPreviousChangesTrack() {
-        playerElement = streamScreen.clickFirstTrack();
-        String originalTrack = playerElement.getTrackTitle();
-        playerElement.clickArtwork();
+        visualPlayerElement = streamScreen.clickFirstTrack();
+        String originalTrack = visualPlayerElement.getTrackTitle();
+        visualPlayerElement.clickArtwork();
 
-        playerElement.tapNext();
-        assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
-        playerElement.tapPrevious();
-        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
+        visualPlayerElement.tapNext();
+        assertThat(originalTrack, is(not(equalTo(visualPlayerElement.getTrackTitle()))));
+        visualPlayerElement.tapPrevious();
+        assertThat(originalTrack, is(equalTo(visualPlayerElement.getTrackTitle())));
     }
 
     public void testSwipingNextAndPreviousChangesTrack() {
         playTrackFromStream();
-        String originalTrack = playerElement.getTrackTitle();
+        String originalTrack = visualPlayerElement.getTrackTitle();
 
-        playerElement.swipeNext();
-        assertThat(originalTrack, is(not(equalTo(playerElement.getTrackTitle()))));
-        playerElement.swipePrevious();
-        assertThat(originalTrack, is(equalTo(playerElement.getTrackTitle())));
+        visualPlayerElement.swipeNext();
+        assertThat(originalTrack, is(not(equalTo(visualPlayerElement.getTrackTitle()))));
+        visualPlayerElement.swipePrevious();
+        assertThat(originalTrack, is(equalTo(visualPlayerElement.getTrackTitle())));
     }
 
     public void testPlayerRemainsPausedWhenSkipping() {
         playExploreTrack();
 
-        playerElement.clickArtwork();
-        playerElement.tapNext();
+        visualPlayerElement.clickArtwork();
+        visualPlayerElement.tapNext();
 
-        assertThat(playerElement, is(not(playing())));
+        assertThat(visualPlayerElement, is(not(playing())));
     }
 
     public void testUserButtonGoesToUserProfile() {
         playSingleTrack();
-        String originalUser = playerElement.getTrackCreator();
-        ProfileScreen profileScreen = playerElement.clickCreator();
+        String originalUser = visualPlayerElement.getTrackCreator();
+        ProfileScreen profileScreen = visualPlayerElement.clickCreator();
 
-        assertThat(playerElement, is(collapsed()));
+        assertThat(visualPlayerElement, is(collapsed()));
         assertThat(profileScreen.getUserName(), is(equalTo(originalUser)));
     }
 
     public void testPlayerShowTheTrackDescription() throws Exception {
         playExploreTrack();
 
-        String originalTitle = playerElement.getTrackTitle();
-        TrackCommentsScreen trackInfoScreen = playerElement
+        String originalTitle = visualPlayerElement.getTrackTitle();
+        TrackCommentsScreen trackInfoScreen = visualPlayerElement
                 .clickMenu()
                 .clickInfo()
                 .clickComments();
@@ -155,8 +155,8 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     public void testPlayerTrackInfoLinksToComments() throws Exception {
         playTrackFromStream();
 
-        String originalTitle = playerElement.getTrackTitle();
-        TrackCommentsScreen trackCommentsScreen = playerElement
+        String originalTitle = visualPlayerElement.getTrackTitle();
+        TrackCommentsScreen trackCommentsScreen = visualPlayerElement
                 .clickMenu()
                 .clickInfo()
                 .clickComments();
@@ -165,12 +165,21 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testListOfCommentsCanBePaged() throws Exception {
-        playTrackFromStream();
+        visualPlayerElement = streamScreen
+                .actionBar()
+                .clickSearchButton()
+                .actionBar()
+                .doSearch("lots o' comments")
+                .touchTracksTab()
+                .getTracks()
+                .get(0)
+                .click();
 
-        TrackCommentsScreen trackCommentsScreen = playerElement
+        TrackCommentsScreen trackCommentsScreen = visualPlayerElement
                 .clickMenu()
                 .clickInfo()
                 .clickComments();
+
         int initialCommentsCount = trackCommentsScreen.getCommentsCount();
         trackCommentsScreen.scrollToBottomOfComments();
         int nextCommentsCount = trackCommentsScreen.getCommentsCount();
@@ -181,8 +190,8 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     public void testPlayerTrackMakeComment() throws Exception {
         playTrackFromStream();
 
-        String originalTitle = playerElement.getTrackTitle();
-        final AddCommentScreen addCommentScreen = playerElement
+        String originalTitle = visualPlayerElement.getTrackTitle();
+        final AddCommentScreen addCommentScreen = visualPlayerElement
                 .clickMenu()
                 .clickComment();
 
@@ -191,19 +200,18 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void playExploreTrack() {
-        final StreamScreen streamScreen = new StreamScreen(solo);
-        playerElement = PlayerHelper.openPlayer(this, streamScreen.openExploreFromMenu());
+        visualPlayerElement = PlayerHelper.openPlayer(this, streamScreen.openExploreFromMenu());
     }
 
     private void playSingleTrack() {
         final ExploreScreen exploreScreen = menuScreen.open().clickExplore();
         exploreScreen.touchTrendingAudioTab();
         exploreScreen.playFirstTrack();
-        playerElement = new VisualPlayerElement(solo);
+        visualPlayerElement = new VisualPlayerElement(solo);
     }
 
     private void playTrackFromStream() {
-        playerElement = streamScreen.clickFirstTrack();
-        playerElement.waitForExpandedPlayer();
+        visualPlayerElement = streamScreen.clickFirstTrack();
+        visualPlayerElement.waitForExpandedPlayer();
     }
 }
