@@ -17,7 +17,7 @@ public final class TestApiResponses {
     }
 
     public static ApiResponse validationError() {
-        return new ApiResponse(ApiRequestException.validationError(null));
+        return new ApiResponse(ApiRequestException.validationError(null, "validation_failed"));
     }
 
     private TestApiResponses() {

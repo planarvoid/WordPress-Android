@@ -7,6 +7,18 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import android.os.Bundle;
 
 public final class AuthTaskResult {
+
+    private final Kind kind;
+    private final PublicApiUser user;
+    private final SignupVia signupVia;
+    private final Exception exception;
+
+    private final boolean showFacebookSuggestions;
+    private final Bundle loginBundle;
+
+    // Can be dropped once we move away from public API for signups
+    @Deprecated private String serverErrorMessage;
+
     public static AuthTaskResult success(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
         return new AuthTaskResult(user, signupVia, showFacebookSuggestions);
     }
@@ -17,7 +29,8 @@ public final class AuthTaskResult {
 
     public static AuthTaskResult failure(ApiRequestException exception) {
         if (exception.reason() == ApiRequestException.Reason.VALIDATION_ERROR) {
-            return new AuthTaskResult(Kind.VALIDATION_ERROR);
+            // TODO: going forward, the key should be mapped to individual Reasons
+            return new AuthTaskResult(Kind.VALIDATION_ERROR, exception.errorKey());
         }
         return new AuthTaskResult(exception);
     }
@@ -47,41 +60,39 @@ public final class AuthTaskResult {
     }
 
     public static AuthTaskResult deviceConflict(Bundle loginBundle) {
-        return new AuthTaskResult(Kind.DEVICE_CONFLICT, null, null, null, false, loginBundle);
+        return new AuthTaskResult(Kind.DEVICE_CONFLICT, null, null, null, false, loginBundle, null);
     }
-
-    private final Kind kind;
-    private final PublicApiUser user;
-    private final SignupVia signupVia;
-    private final Exception exception;
-
-    private final boolean showFacebookSuggestions;
-    private final Bundle loginBundle;
 
     private enum Kind {
         SUCCESS, FAILURE, EMAIL_TAKEN, SPAM, DENIED, EMAIL_INVALID, FLAKY_SIGNUP_ERROR, DEVICE_CONFLICT, VALIDATION_ERROR
     }
 
     private AuthTaskResult(PublicApiUser user, SignupVia signupVia, boolean showFacebookSuggestions) {
-        this(Kind.SUCCESS, user, signupVia, null, showFacebookSuggestions, null);
+        this(Kind.SUCCESS, user, signupVia, null, showFacebookSuggestions, null, null);
     }
 
     private AuthTaskResult(Exception exception) {
-        this(Kind.FAILURE, null, null, exception, false, null);
+        this(Kind.FAILURE, null, null, exception, false, null, null);
     }
 
     private AuthTaskResult(Kind kind) {
-        this(kind, null, null, null, false, null);
+        this(kind, null, null, null, false, null, null);
+    }
+
+    private AuthTaskResult(Kind kind, String serverErrorMessage) {
+        this(kind, null, null, null, false, null, serverErrorMessage);
     }
 
     private AuthTaskResult(Kind kind, PublicApiUser user, SignupVia signupVia,
-                           Exception exception, boolean showFacebookSuggestions, Bundle loginBundle) {
+                           Exception exception, boolean showFacebookSuggestions, Bundle loginBundle,
+                           String serverErrorMessage) {
         this.kind = kind;
         this.user = user;
         this.signupVia = signupVia;
         this.exception = exception;
         this.showFacebookSuggestions = showFacebookSuggestions;
         this.loginBundle = loginBundle;
+        this.serverErrorMessage = serverErrorMessage;
     }
 
     public boolean wasSuccess() {
@@ -138,5 +149,10 @@ public final class AuthTaskResult {
 
     public Bundle getLoginBundle() {
         return loginBundle;
+    }
+
+    @Deprecated
+    public String getServerErrorMessage() {
+        return serverErrorMessage;
     }
 }

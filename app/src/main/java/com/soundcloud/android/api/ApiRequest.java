@@ -33,8 +33,8 @@ public class ApiRequest {
     private final String httpMethod;
     private final int endpointVersion;
     private final Boolean isPrivate;
-    @NotNull private final Multimap<String, String> queryParams;
-    @NotNull private final Map<String, String> headers;
+    private final Multimap<String, String> queryParams;
+    private final Map<String, String> headers;
 
     public static Builder get(String uri) {
         return new Builder(uri, HTTP_GET);
@@ -53,8 +53,8 @@ public class ApiRequest {
     }
 
     ApiRequest(Uri uri, String method, int endpointVersion,
-               Boolean isPrivate, @NotNull Multimap<String, String> queryParams,
-               @NotNull Map<String, String> headers) {
+               Boolean isPrivate, Multimap<String, String> queryParams,
+               Map<String, String> headers) {
         this.uri = uri;
         this.httpMethod = method;
         this.endpointVersion = endpointVersion;
@@ -115,6 +115,10 @@ public class ApiRequest {
         }
     }
 
+    public interface ProgressListener {
+        void update(long bytesWritten, long totalBytes);
+    }
+
     public static class Builder {
         private final Uri uri;
         private final String httpMethod;
@@ -124,6 +128,7 @@ public class ApiRequest {
         private final Map<String, String> headers;
         private Object content;
         private List<FormPart> formParts;
+        private ProgressListener progressListener;
 
         public Builder(String uri, String methodName) {
             this.parameters = UriUtils.getQueryParameters(uri);
@@ -140,7 +145,8 @@ public class ApiRequest {
             if (content != null) {
                 return new ApiObjectContentRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, content);
             } else if (formParts != null) {
-                return new ApiMultipartRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers, formParts);
+                return new ApiMultipartRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers,
+                        formParts, progressListener);
             } else {
                 return new ApiRequest(uri, httpMethod, endpointVersion, isPrivate, parameters, headers);
             }
@@ -186,6 +192,10 @@ public class ApiRequest {
             return this;
         }
 
+        public Builder withProgressListener(ProgressListener progressListener) {
+            this.progressListener = progressListener;
+            return this;
+        }
     }
 
     @Override

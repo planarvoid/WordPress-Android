@@ -638,7 +638,7 @@ public class OnboardActivity extends FragmentActivity
 
     private void doSafeActivityResultActions(ActivityResult activityResult) {
         final int requestCode = activityResult.requestCode;
-        final int resultCode = activityResult.resultCode;;
+        final int resultCode = activityResult.resultCode;
         final Intent intent = activityResult.intent;
 
         switch (requestCode) {
@@ -890,6 +890,17 @@ public class OnboardActivity extends FragmentActivity
                 .setMessage(R.string.authentication_email_invalid_message)
                 .setPositiveButton(android.R.string.ok, null);
         showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.signupInvalidEmail());
+    }
+
+    @Override
+    public void onUsernameInvalid(String message) {
+        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null);
+        //TODO: tracking spec is not ready yet
+        if (!isFinishing()) {
+            dialogBuilder.create().show();
+        }
     }
 
     @Override

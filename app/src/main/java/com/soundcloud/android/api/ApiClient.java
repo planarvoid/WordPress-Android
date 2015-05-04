@@ -165,7 +165,11 @@ public class ApiClient {
                 builder.addFormDataPart(filePart.getPartName(), filePart.getFileName(), requestBody);
             }
         }
-        return builder.build();
+        RequestBody multipartBody = builder.build();
+        if (request.hasProgressListener()) {
+            multipartBody = new ProgressRequestBody(multipartBody, request.getProgressListener());
+        }
+        return multipartBody;
     }
 
     public <ResourceType> ResourceType fetchMappedResponse(ApiRequest request, TypeToken<ResourceType> resourceType)

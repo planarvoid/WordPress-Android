@@ -116,4 +116,10 @@ public class ApiResponseTest {
         expect(response.getFailure().errorKey()).toEqual(ApiRequestException.ERROR_KEY_NONE);
     }
 
+    // this is only done temporary until we move this to api-mobile, where we will use keys on the server side
+    @Test
+    public void shouldWritePublicApiValidationErrorToErrorKey() {
+        final ApiResponse response = new ApiResponse(request, 422, "{\"errors\":[{\"error_message\":\"Username cannot contain 'soundcloud'\"}]}");
+        expect(response.getFailure().errorKey()).toEqual("Username cannot contain 'soundcloud'");
+    }
 }
