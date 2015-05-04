@@ -21,7 +21,7 @@ class MrLoggaLoggaClient {
     private static final String PARAM_ANONYMOUS_ID = "anonymous_id";
     private static final String PARAM_SCENARIO_ID = "scenario_id";
 
-    private static final String recordingEndpoint = "http://localhost:4568/";
+    private static final String recordingEndpoint = "http://localhost:4567/";
 
     private static final String ACTION_START_LOGGING = "start_logging";
     private static final String ACTION_FINISH_LOGGING = "finish_logging";
