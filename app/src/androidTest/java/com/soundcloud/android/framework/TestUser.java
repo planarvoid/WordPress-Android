@@ -99,5 +99,6 @@ public class TestUser {
     public static final TestUser offlineEmptyUser   = new TestUser("sctestoffline_empty",   "sctestoffline_empty@gmail.com",        "passwordyeah88");
     public static final TestUser over21user         = new TestUser("over21userblah",        "over21user@soundcloud.com",            "#s0undcl0ud");
     public static final TestUser childUser          = new TestUser("childuserblah",         "childuserblah@soundcloud.com",         "passwordyeah88"); // 13 years in 2015
+    public static final TestUser playlistLikesUser  = new TestUser("playlist-likes-user",   "playlist-likes-user@soundcloud.com",   "passwordyeah");
 
 }

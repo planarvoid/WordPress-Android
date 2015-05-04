@@ -18,7 +18,7 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.likesUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.playlistLikesUser.logIn(getInstrumentation().getTargetContext());
     }
 
     public void testDrawerShowsPlaylists() {
