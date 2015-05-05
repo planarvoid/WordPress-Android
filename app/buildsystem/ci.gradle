@@ -78,11 +78,18 @@ task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard', 'staticAn
 }
 buildReleaseNoProguardCI.mustRunAfter('updateVersion')
 
-task buildAndDeployRelease(dependsOn: ['renameApk', 'commitVersionBump', 'assembleRelease', 'uploadStoreBeta',
-                                       'uploadGithub' ]) {
-  description = 'Builds and deploys Release build to playstore and github.'
+task buildReleaseCI(dependsOn: ['assembleRelease']) {
+  description = 'Assembles Release build for CI.'
 }
-assembleRelease.mustRunAfter('renameApk', 'commitVersionBump')
+buildReleaseCI.mustRunAfter('updateVersion')
+
+// NOTE: Uploading to Play Store's beta track is the expected operation here, due to differences in the way we version
+// releases versus how Google versions releases. We must upload the release apk (with a version code bump!) to the beta
+// track and then manually bump that apk to the release track in the play store.
+task deployReleaseCI(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+  description = 'Deploy Release build to playstore and github.'
+}
+deployReleaseCI.mustRunAfter('buildReleaseCI')
 
 task buildReleaseNonPlayStore(dependsOn: ['assembleRelease_non_play_store']) {
   description = 'Assembles Release for Non Google Play Stores.'
