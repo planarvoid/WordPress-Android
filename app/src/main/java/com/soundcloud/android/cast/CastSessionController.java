@@ -9,7 +9,6 @@ import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -53,10 +52,14 @@ public class CastSessionController extends VideoCastConsumerImpl {
         Log.d(CastOperations.TAG, "On Application Connected, launched: " + wasLaunched);
         playbackOperations.stopService();
         if (wasLaunched && !playQueueManager.isQueueEmpty()) {
-            Log.d(CastOperations.TAG, "Sending current track to cast device");
-            final PlaybackProgress lastProgressByUrn = playSessionStateProvider.getLastProgressByUrn(playQueueManager.getCurrentTrackUrn());
-            playbackOperations.playCurrent(lastProgressByUrn.getPosition());
+            playLocalPlayQueueOnRemote();
         }
+    }
+
+    private void playLocalPlayQueueOnRemote() {
+        Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
+        final long fromLastProgressPosition = playSessionStateProvider.getLastProgressByUrn(playQueueManager.getCurrentTrackUrn()).getPosition();
+        playbackOperations.reloadAndPlayCurrentQueue(fromLastProgressPosition);
     }
 
     @Override

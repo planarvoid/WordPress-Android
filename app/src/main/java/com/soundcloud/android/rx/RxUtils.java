@@ -1,8 +1,12 @@
 package com.soundcloud.android.rx;
 
+import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Observer;
 import rx.functions.Func1;
+
+import java.util.Collection;
+import java.util.List;
 
 public final class RxUtils {
 
@@ -26,6 +30,15 @@ public final class RxUtils {
         }
     }
 
+    public static <T> Func1<Collection<T>, Observable<T>> emitCollectionItems() {
+        return new Func1<Collection<T>, Observable<T>>() {
+            @Override
+            public Observable<T> call(Collection<T> items) {
+                return Observable.from(items);
+            }
+        };
+    }
+
     public static <T> Func1<Object, T> returning(final T obj) {
         return new Func1<Object, T>() {
             @Override
@@ -40,6 +53,15 @@ public final class RxUtils {
             @Override
             public Observable<T> call(Object o) {
                 return continuation;
+            }
+        };
+    }
+
+    public static <T> Func1<List<T>, Boolean> filterEmptyLists() {
+        return new Func1<List<T>, Boolean>() {
+            @Override
+            public Boolean call(List<T> list) {
+                return !list.isEmpty();
             }
         };
     }

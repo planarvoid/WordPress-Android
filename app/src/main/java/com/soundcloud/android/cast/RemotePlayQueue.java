@@ -2,6 +2,7 @@ package com.soundcloud.android.cast;
 
 import com.soundcloud.android.model.Urn;
 
+import java.util.Collections;
 import java.util.List;
 
 public class RemotePlayQueue {
@@ -10,7 +11,7 @@ public class RemotePlayQueue {
     private final Urn currentTrackUrn;
 
     public RemotePlayQueue(List<Urn> trackList, Urn currentTrackUrn) {
-        this.trackList = trackList;
+        this.trackList = Collections.unmodifiableList(trackList);
         this.currentTrackUrn = currentTrackUrn;
     }
 
