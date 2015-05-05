@@ -60,10 +60,6 @@
     <string name="accessibility_stats_user_liked">Liked by you</string>
     <string name="accessibility_like_action">Like</string>
 
-    <!-- __ACCESSIBILITY OFFLINE SYNC -->
-    <string name="accessibility_start_offline_update">Start Sync</string>
-    <string name="accessibility_remove_offline_likes">Remove from Offline Sync</string>
-
     <!-- __ACTIVITIES -->
     <string name="liked">liked %s</string>
     <string name="reposted">reposted %s</string>

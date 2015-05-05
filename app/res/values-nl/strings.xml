@@ -59,10 +59,6 @@
     <string name="accessibility_stats_user_liked">Door u geliked</string>
     <string name="accessibility_like_action">Like</string>
 
-    <!-- __ACCESSIBILITY OFFLINE SYNC -->
-    <string name="accessibility_start_offline_update">Synchronisatie starten</string>
-    <string name="accessibility_remove_offline_likes">Uit Offline Sync verwijderen</string>
-
     <!-- __ACTIVITIES -->
     <string name="liked">vond %s leuk</string>
     <string name="reposted">gedeeld %s</string>
