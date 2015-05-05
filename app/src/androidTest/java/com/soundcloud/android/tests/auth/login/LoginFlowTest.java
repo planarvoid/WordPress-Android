@@ -26,8 +26,6 @@ import com.soundcloud.android.tests.auth.LoginTest;
  * So that I can listen to my favourite tracks
  */
 public class LoginFlowTest extends LoginTest {
-    private RecoverPasswordScreen recoveryScreen;
-    private FBWebViewScreen FBWebViewScreen;
     private HomeScreen homeScreen;
     private Waiter waiter;
 
@@ -106,11 +104,11 @@ public class LoginFlowTest extends LoginTest {
 
         loginScreen.clickOnContinueButton();
 
-        FBWebViewScreen = new FBWebViewScreen(solo);
+        FBWebViewScreen facebookWebView = new FBWebViewScreen(solo);
 
-        FBWebViewScreen.typePassword(scAccount.getPassword());
-        FBWebViewScreen.typeEmail(scAccount.getEmail());
-        FBWebViewScreen.submit();
+        facebookWebView.typePassword(scAccount.getPassword());
+        facebookWebView.typeEmail(scAccount.getEmail());
+        facebookWebView.submit();
         assertThat(new StreamScreen(solo), visible());
     }
 
@@ -130,11 +128,15 @@ public class LoginFlowTest extends LoginTest {
      * So that I can correct myself
      */
     public void testLoginWithWrongCredentials() {
-        loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(defaultUser.getEmail(), "wrong-password", false);
-        //TODO: DialogElement
-        solo.assertText(R.string.authentication_login_error_password_message, "We could not log you in");
-        loginScreen.clickOkButton();
+        LoginErrorScreen loginErrorScreen = homeScreen
+                .clickLogInButton()
+                .failToLoginAs(defaultUser.getEmail(), "wrong-password");
+
+        String message = solo.getString(R.string.authentication_login_error_password_message);
+        assertThat(loginErrorScreen, is(visible()));
+        assertEquals(loginErrorScreen.errorMessage(), message);
+
+        loginErrorScreen.clickOk();
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
     }
 
@@ -159,7 +161,7 @@ public class LoginFlowTest extends LoginTest {
     */
     public void testRecoverPassword() throws Throwable {
         loginScreen = homeScreen.clickLogInButton();
-        recoveryScreen = loginScreen.clickForgotPassword();
+        RecoverPasswordScreen recoveryScreen = loginScreen.clickForgotPassword();
         recoveryScreen.typeEmail(generateEmail());
         recoveryScreen.clickOkButton();
 
