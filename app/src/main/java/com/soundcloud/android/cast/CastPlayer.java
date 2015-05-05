@@ -192,15 +192,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         };
     }
 
-    private Action1<Throwable> reportPlaybackError(final Urn initialTrackUrnCandidate) {
-        return new Action1<Throwable>() {
-            @Override
-            public void call(Throwable throwable) {
-                reportStateChange(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, initialTrackUrnCandidate));
-            }
-        };
-    }
-
     public void playCurrent() {
         Urn currentTrackUrn = playQueueManager.getCurrentTrackUrn();
         if (isCurrentlyLoadedOnRemotePlayer(currentTrackUrn)) {
@@ -243,6 +234,15 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
             Log.e(TAG, "Unable to load track", e);
         }
+    }
+
+    private Action1<Throwable> reportPlaybackError(final Urn initialTrackUrnCandidate) {
+        return new Action1<Throwable>() {
+            @Override
+            public void call(Throwable throwable) {
+                reportStateChange(new StateTransition(PlayaState.IDLE, Reason.ERROR_FAILED, initialTrackUrnCandidate));
+            }
+        };
     }
 
     private List<Urn> getCurrentQueueUrnsWithoutAds() {
