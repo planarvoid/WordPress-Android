@@ -183,7 +183,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                 if (!initialTrackUrnCandidate.equals(localPlayQueue.currentTrackUrn)) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_CAST));
                 } else {
-                    // TODO: This should happen BEFORE the load is made (But can it actually???)
                     reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, localPlayQueue.currentTrackUrn));
                     setNewPlayQueue(localPlayQueue, playSessionSource);
                     playLocalQueueOnRemote(localPlayQueue, withProgressPosition);
