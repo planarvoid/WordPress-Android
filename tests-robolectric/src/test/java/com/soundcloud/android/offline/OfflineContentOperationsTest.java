@@ -238,7 +238,7 @@ public class OfflineContentOperationsTest {
         final TestObservables.MockObservable<Void> fetchingObservable = TestObservables.just(null);
 
         when(offlineTracksStorage.getLastPolicyUpdate()).thenReturn(Observable.<Long>empty());
-        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(fetchingObservable);
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(fetchingObservable);
 
         operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
 
@@ -249,7 +249,7 @@ public class OfflineContentOperationsTest {
     public void tryToUpdateAndLoadLastPoliciesUpdateTimeReturnsLastUpdateWhenFetchFailed() {
         final TestObserver<Long> observer = new TestObserver<>();
         when(offlineTracksStorage.getLastPolicyUpdate()).thenReturn(Observable.just(12344567L));
-        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
 
         operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
 
@@ -261,7 +261,7 @@ public class OfflineContentOperationsTest {
     public void tryToUpdateAndLoadLastPoliciesUpdateTimeReturnsLastUpdateWhenFetchSucceeded() {
         final TestObserver<Long> observer = new TestObserver<>();
         when(offlineTracksStorage.getLastPolicyUpdate()).thenReturn(Observable.just(12344567L));
-        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
 
         operations.tryToUpdateAndLoadLastPoliciesUpdateTime().subscribe(observer);
 
