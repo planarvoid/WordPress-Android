@@ -3,6 +3,10 @@ package com.soundcloud.android.main;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
 import android.content.Intent;
@@ -25,6 +29,7 @@ public class LauncherActivity extends TrackedActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launch);
+        getEventBus().publish(EventQueue.TRACKING, ForegroundEvent.open(Screen.UNKNOWN, Referrer.HOME_BUTTON));
     }
 
     @Override

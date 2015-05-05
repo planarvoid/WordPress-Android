@@ -1,6 +1,8 @@
 package com.soundcloud.android.sync;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Referrer;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
@@ -176,8 +178,12 @@ class NotificationMessage {
 
     /* package */
     static Intent createNotificationIntent(String action) {
-        return new Intent(action)
+        Intent intent = new Intent(action)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        Screen.NOTIFICATION.addToIntent(intent);
+        Referrer.ACTIVITIES_NOTIFICATION.addToIntent(intent);
+        return intent;
     }
 }

@@ -6,6 +6,7 @@ import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
+import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
@@ -48,13 +49,16 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {}
+    public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
+    }
 
     @Override
-    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {}
+    public void handleActivityLifeCycleEvent(ActivityLifeCycleEvent event) {
+    }
 
     @Override
-    public void handleOnboardingEvent(OnboardingEvent event) {}
+    public void handleOnboardingEvent(OnboardingEvent event) {
+    }
 
     @Override
     public void handleTrackingEvent(TrackingEvent event) {
@@ -70,7 +74,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleScreenEvent((ScreenEvent) event);
         } else if (event instanceof SearchEvent) {
             handleSearchEvent((SearchEvent) event);
+        } else if (event instanceof ForegroundEvent) {
+            handleForegroundEvent((ForegroundEvent) event);
         }
+    }
+
+    private void handleForegroundEvent(ForegroundEvent event) {
+        trackEvent(event.getTimeStamp(), dataBuilder.build(event));
     }
 
     private void handleScreenEvent(ScreenEvent event) {
@@ -78,7 +88,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     @Override
-    public void handleUserSessionEvent(UserSessionEvent event) {}
+    public void handleUserSessionEvent(UserSessionEvent event) {
+    }
 
     private void handleLeaveBehindTracking(AdOverlayTrackingEvent event) {
         final String url = dataBuilder.build(event);
@@ -109,7 +120,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleSearchEvent(SearchEvent event) {
-        if(flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
+        if (flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
             switch (event.getKind()) {
                 case SearchEvent.KIND_RESULTS:
                 case SearchEvent.KIND_SUBMIT:
@@ -147,9 +158,8 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void trackEvent(long timeStamp, String data) {
         eventTracker.trackEvent(new TrackingRecord(timeStamp, BATCH_BACKEND_NAME, data));
-        if (sharedPreferences.getBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)){
+        if (sharedPreferences.getBoolean(SettingKey.DEV_FLUSH_EVENTLOGGER_INSTANTLY, false)) {
             eventTracker.flush(BATCH_BACKEND_NAME);
         }
     }
-
 }

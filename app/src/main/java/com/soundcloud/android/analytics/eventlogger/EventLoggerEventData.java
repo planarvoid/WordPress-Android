@@ -21,6 +21,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.MONETIZED_OBJECT;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.OS;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_NAME;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
@@ -28,6 +29,7 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROT
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REASON;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REFERRER;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOUND;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.SOURCE_VERSION;
@@ -61,6 +63,11 @@ final class EventLoggerEventData {
 
     public EventLoggerEventData pageName(String pageName) {
         addToPayload(PAGE_NAME, pageName);
+        return this;
+    }
+
+    public EventLoggerEventData pageUrn(String pageUrn) {
+        addToPayload(PAGE_URN, pageUrn);
         return this;
     }
 
@@ -216,6 +223,11 @@ final class EventLoggerEventData {
 
     public EventLoggerEventData reason(String stopReason) {
         addToPayload(REASON, stopReason);
+        return this;
+    }
+
+    public EventLoggerEventData referrer(String referrer) {
+        addToPayload(REFERRER, referrer);
         return this;
     }
 

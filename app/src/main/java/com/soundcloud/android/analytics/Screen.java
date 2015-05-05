@@ -92,7 +92,8 @@ public enum Screen {
     SUBSCRIBE_SUCCESS("subscribe_success"),
     SUGGESTED_USERS("suggested_users"),
     VOICE_COMMAND("voice:command"), // context when we play from voice search
-    DEEPLINK("deeplink"); // context provided when we intercept a track
+    DEEPLINK("deeplink"), // context provided when we intercept a track
+    NOTIFICATION("notification");
 
     private static final String ORDINAL_EXTRA = "ScreenOrdinal";
 
@@ -126,4 +127,7 @@ public enum Screen {
         return values()[bundle.getInt(Screen.ORDINAL_EXTRA, -1)];
     }
 
+    public static boolean hasScreen(Intent intent) {
+        return intent.hasExtra(Screen.ORDINAL_EXTRA);
+    }
 }

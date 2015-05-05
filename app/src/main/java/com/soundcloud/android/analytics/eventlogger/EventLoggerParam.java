@@ -43,4 +43,7 @@ class EventLoggerParam {
     // search tracking
     static final String QUERY_URN = "query_urn";
     static final String QUERY_POSITION = "query_position";
+    // foreground
+    static final String PAGE_URN = "page_urn";
+    static final String REFERRER = "referrer";
 }
