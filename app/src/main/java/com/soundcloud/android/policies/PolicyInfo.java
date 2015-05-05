@@ -7,6 +7,13 @@ import com.soundcloud.android.model.Urn;
 
 class PolicyInfo {
 
+    // For more information about the possible policies, consult:
+    // https://github.com/soundcloud/jvmkit/blob/master/jvmkit/src/main/java/com/soundcloud/jvmkit/policies/ContentPolicy.java
+    public static final String ALLOW = "ALLOW";
+    public static final String MONETIZE = "MONETIZE";
+    public static final String BLOCK = "BLOCK";
+    public static final String SNIP = "SNIP";
+
     private final Urn trackUrn;
     private final boolean monetizable;
     private final String policy;

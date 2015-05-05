@@ -24,6 +24,7 @@ import android.util.Log;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Arrays;
+import java.util.List;
 
 public class AdsOperations {
 
@@ -166,6 +167,10 @@ public class AdsOperations {
 
     public void clearAllAds() {
         playQueueManager.removeTracksWithMetaData(hasAdUrn, PlayQueueEvent.fromAudioAdRemoved());
+    }
+
+    public List<Urn> getAdUrnsInQueue() {
+        return playQueueManager.filterTrackUrnsWithMetadata(hasAdUrn);
     }
 
     public PropertySet getMonetizableTrackMetaData() {

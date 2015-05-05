@@ -22,6 +22,7 @@ import com.soundcloud.android.playback.notification.BigNotificationBuilder;
 import com.soundcloud.android.playback.notification.MediaStyleNotificationBuilder;
 import com.soundcloud.android.playback.notification.NotificationBuilder;
 import com.soundcloud.android.playback.notification.RichNotificationBuilder;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.managers.FallbackRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.playback.service.managers.RemoteAudioManager;
@@ -221,11 +222,14 @@ public class ApplicationModule {
     }
 
     @Provides
-    public PlaybackStrategy providePlaybackStrategy(Context context, CastConnectionHelper castConnectionHelper, Lazy<CastPlayer> castPlayer) {
+    public PlaybackStrategy providePlaybackStrategy(Context context,
+                                                    CastConnectionHelper castConnectionHelper,
+                                                    PlayQueueManager playQueueManager,
+                                                    Lazy<CastPlayer> castPlayer) {
         if (castConnectionHelper.isConnected()){
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
-            return new DefaultPlaybackStrategy(context);
+            return new DefaultPlaybackStrategy(context, playQueueManager);
         }
     }
 

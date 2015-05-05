@@ -34,6 +34,7 @@ import android.content.Intent;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -102,7 +103,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         saveQueue();
         saveCurrentProgress(0L);
 
-        fireAndForget(policyOperations.fetchAndStorePolicies(playQueue.getTrackUrns()));
+        fireAndForget(policyOperations.updatePolicies(playQueue.getTrackUrns()));
     }
 
     @Deprecated
@@ -308,6 +309,10 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         return trackSourceInfo;
     }
 
+    public PlaySessionSource getCurrentPlaySessionSource() {
+        return playSessionSource;
+    }
+
     private String getCurrentTrackSource() {
         return playQueue.getTrackSource(currentPosition);
     }
@@ -390,6 +395,16 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         if (queueUpdated) {
             eventBus.publish(EventQueue.PLAY_QUEUE, updateEvent);
         }
+    }
+
+    public List<Urn> filterTrackUrnsWithMetadata(Predicate<PropertySet> predicate) {
+        List<Urn> trackUrns = new ArrayList<>();
+        for (PlayQueueItem playQueueItem : playQueue) {
+            if (predicate.apply(playQueueItem.getMetaData())) {
+                trackUrns.add(playQueueItem.getTrackUrn());
+            }
+        }
+        return trackUrns;
     }
 
     private void loadRecommendedTracks() {
