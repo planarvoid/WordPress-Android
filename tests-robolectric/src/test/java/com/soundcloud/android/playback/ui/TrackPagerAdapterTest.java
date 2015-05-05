@@ -372,7 +372,7 @@ public class TrackPagerAdapterTest {
 
     @Test
     public void bindingTrackViewSetsCastDeviceNameOnPresenter() {
-        final String castDeviceName = "the google cast device name";
+        final String castDeviceName = "the chromecast device name";
         when(castConnectionHelper.getDeviceName()).thenReturn(castDeviceName);
 
         final View pageView = getPageView(1, TRACK2_URN);

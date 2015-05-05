@@ -29,7 +29,7 @@ public class PlayQueue implements Iterable<PlayQueueItem> {
     }
 
     public PlayQueue copy() {
-        return new PlayQueue(new ArrayList<>(playQueueItems));
+        return new PlayQueue(new ArrayList<PlayQueueItem>(playQueueItems));
     }
 
     public PlayQueue(List<PlayQueueItem> playQueueItems) {

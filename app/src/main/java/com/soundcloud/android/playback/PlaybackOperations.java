@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlaybackUtils.correctStartPositionAndDeduplicateList;
+
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
@@ -11,6 +13,7 @@ import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
@@ -124,11 +127,7 @@ public class PlaybackOperations {
                 .filter(FILTER_EMPTY_TRACK_LIST)
                 .map(SHUFFLE_TRACKS)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(playNewQueue(0, playSessionSource, Urn.NOT_SET, false));
-    }
-
-    public void reloadAndPlayCurrentQueue(long fromLastProgressPosition) {
-        playbackStrategyProvider.get().reloadAndPlayCurrentQueue(fromLastProgressPosition);
+                .doOnNext(playNewQueueAction(0, playSessionSource, Urn.NOT_SET, false));
     }
 
     private Observable<List<Urn>> playTracksList(Observable<List<Urn>> trackUrns, final Urn initialTrack,
@@ -141,25 +140,34 @@ public class PlaybackOperations {
         return trackUrns
                 .filter(FILTER_EMPTY_TRACK_LIST)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(playNewQueue(startPosition, playSessionSource, initialTrack, loadRelated));
+                .doOnNext(playNewQueueAction(startPosition, playSessionSource, initialTrack, loadRelated));
     }
 
-    private Action1<List<Urn>> playNewQueue(final int initialTrackPosition,
-                                            final PlaySessionSource playSessionSource,
-                                            final Urn initialTrackUrn,
-                                            final boolean loadRecommended) {
+    private Action1<List<Urn>> playNewQueueAction(final int startPosition,
+                                                  final PlaySessionSource playSessionSource,
+                                                  final Urn initialTrackUrn,
+                                                  final boolean loadRecommended) {
         return new Action1<List<Urn>>() {
             @Override
             public void call(List<Urn> trackUrns) {
-                if (shouldDisableSkipping()) {
-                    throw new UnskippablePeriodException();
-                }
-                playbackStrategyProvider.get().playNewQueue(trackUrns, initialTrackUrn, initialTrackPosition, playSessionSource);
+                final int updatedPosition = correctStartPositionAndDeduplicateList(
+                        trackUrns, startPosition, initialTrackUrn);
+                playNewQueue(trackUrns, updatedPosition, playSessionSource);
                 if (loadRecommended) {
                     playQueueManager.fetchTracksRelatedToCurrentTrack();
                 }
             }
         };
+    }
+
+    private void playNewQueue(List<Urn> trackUrns, int startPosition, PlaySessionSource playSessionSource) {
+        if (shouldDisableSkipping()) {
+            throw new UnskippablePeriodException();
+        }
+
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(trackUrns, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, startPosition, playSessionSource);
+        playCurrent();
     }
 
     public Observable<List<Urn>> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
@@ -191,6 +199,10 @@ public class PlaybackOperations {
 
     public void playCurrent() {
         playbackStrategyProvider.get().playCurrent();
+    }
+
+    public void playCurrent(long fromPosition) {
+        playbackStrategyProvider.get().playCurrent(fromPosition);
     }
 
     public void setPlayQueuePosition(int position) {

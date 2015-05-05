@@ -75,7 +75,7 @@ public class AdsController {
         }
     };
 
-    private final Func1<Object, Boolean> shouldFetchInterstitialForCurrentTrack = new Func1<Object, Boolean>() {
+    private final Func1<Object, Boolean> shouldFetchAudioAdForCurrentTrack = new Func1<Object, Boolean>() {
         @Override
         public Boolean call(Object event) {
             return !adsOperations.isCurrentTrackAudioAd() &&
@@ -158,7 +158,7 @@ public class AdsController {
         );
 
         queueChangeForAd
-                .filter(shouldFetchInterstitialForCurrentTrack)
+                .filter(shouldFetchAudioAdForCurrentTrack)
                 .subscribe(new FetchAdForCurrentTrackSubscriber());
 
         queueChangeForAd

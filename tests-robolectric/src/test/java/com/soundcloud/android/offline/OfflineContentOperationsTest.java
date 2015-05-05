@@ -67,7 +67,7 @@ public class OfflineContentOperationsTest {
         subscriber = new TestSubscriber<>();
 
         when(loadTracksWithStalePolicies.toObservable()).thenReturn(Observable.just(LIKED_TRACKS));
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
+        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>just(null));
         when(changeResult.success()).thenReturn(true);
 
         operations = new OfflineContentOperations(
@@ -100,7 +100,7 @@ public class OfflineContentOperationsTest {
 
         operations.updateOfflineContentStalePolicies().subscribe();
 
-        verify(policyOperations).updatePolicies(tracks);
+        verify(policyOperations).fetchAndStorePolicies(tracks);
     }
 
     @Test

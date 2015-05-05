@@ -46,7 +46,7 @@ public class OfflineContentOperations {
             if (urns.isEmpty()) {
                 return Observable.just(null);
             }
-            return policyOperations.updatePolicies(urns);
+            return policyOperations.fetchAndStorePolicies(urns);
         }
     };
 

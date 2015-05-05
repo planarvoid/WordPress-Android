@@ -84,7 +84,7 @@ public class PlayQueueManagerTest {
         when(playQueue.isEmpty()).thenReturn(true);
         when(playQueue.copy()).thenReturn(playQueue);
         when(playQueue.getTrackUrns()).thenReturn(queueUrns);
-        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
+        when(policyOperations.fetchAndStorePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>empty());
 
         when(playQueue.getUrn(3)).thenReturn(Urn.forTrack(369L));
 
@@ -108,7 +108,7 @@ public class PlayQueueManagerTest {
     @Test
     public void shouldUpdateTrackPoliciesOnNewQueue() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
-        verify(policyOperations).updatePolicies(queueUrns);
+        verify(policyOperations).fetchAndStorePolicies(queueUrns);
     }
 
     @Test
@@ -618,25 +618,6 @@ public class PlayQueueManagerTest {
         });
 
         expect(eventBus.lastEventOn(EventQueue.PLAY_QUEUE)).toBe(lastEvent);
-    }
-
-    @Test
-    public void filtersTrackUrnsWithMetadata() {
-        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(123L, 456L), playSessionSource);
-        final PropertySet metaDataToSelect = PropertySet.create();
-        final Urn expectedSelectedTrackUrn = Urn.forTrack(789L);
-        playQueue.insertTrack(1, expectedSelectedTrackUrn, metaDataToSelect, true);
-        playQueueManager.setNewPlayQueue(playQueue, 3, playSessionSource);
-
-        List<Urn> urns = playQueueManager.filterTrackUrnsWithMetadata(new Predicate<PropertySet>() {
-            @Override
-            public boolean apply(@Nullable PropertySet input) {
-                return input == metaDataToSelect;
-            }
-        });
-
-        expect(urns).toNumber(1);
-        expect(urns).toContainExactly(expectedSelectedTrackUrn);
     }
 
     @Test

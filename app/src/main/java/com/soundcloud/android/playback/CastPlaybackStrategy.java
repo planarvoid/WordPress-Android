@@ -1,10 +1,6 @@
 package com.soundcloud.android.playback;
 
 import com.soundcloud.android.cast.CastPlayer;
-import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlaySessionSource;
-
-import java.util.List;
 
 public class CastPlaybackStrategy implements PlaybackStrategy {
 
@@ -35,13 +31,8 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public void playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrnCandidate, int initialTrackPosition, PlaySessionSource playSessionSource) {
-        castPlayer.playNewQueue(0L, playQueueTracks, initialTrackUrnCandidate, playSessionSource);
-    }
-
-    @Override
-    public void reloadAndPlayCurrentQueue(long withProgressPosition) {
-        castPlayer.reloadAndPlayCurrentQueue(withProgressPosition);
+    public void playCurrent(long fromPosition) {
+        castPlayer.playCurrent(fromPosition);
     }
 
     @Override
