@@ -27,7 +27,6 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -293,8 +292,7 @@ public final class ImageUtils {
                     public void onClick(DialogInterface dialog, int which) {
                         ImageUtils.startPickImageIntent(activity, Consts.RequestCodes.GALLERY_IMAGE_PICK);
                     }
-                })
-                .show();
+                }).show();
     }
 
     public static void startTakeNewPictureIntent(Activity activity, File destinationFile, int requestCode) {

@@ -14,12 +14,11 @@ import java.util.concurrent.TimeUnit;
 class GoBackOnlineDialogPresenter {
 
     @Inject
-    public GoBackOnlineDialogPresenter() {
-    }
+    public GoBackOnlineDialogPresenter() {}
 
     public void show(Activity activity, long lastOnlineStatusDate) {
         final int remainingDaysToGoOnline = getRemainingDaysToGoOnline(lastOnlineStatusDate);
-        final View dialogView = View.inflate(activity, R.layout.dialog_go_back_offline, null);
+        final View dialogView = View.inflate(activity, R.layout.dialog_go_back_online, null);
 
         setTitle(activity, dialogView, remainingDaysToGoOnline);
         setContent(activity, dialogView, remainingDaysToGoOnline);

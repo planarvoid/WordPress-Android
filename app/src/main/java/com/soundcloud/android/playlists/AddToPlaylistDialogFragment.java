@@ -15,12 +15,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
-import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
-import rx.schedulers.Schedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Dialog;
@@ -38,7 +36,6 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class AddToPlaylistDialogFragment extends DialogFragment {
 
@@ -48,8 +45,6 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
     private static final String KEY_TRACK_ID = "TRACK_ID";
     private static final String KEY_TRACK_TITLE = "TRACK_TITLE";
     private static final String KEY_INVOKER_SCREEN = "INVOKER_LOCATION";
-
-    private static final int CLOSE_DELAY_MILLIS = 500;
 
     @Inject PlaylistOperations playlistOperations;
     @Inject FeatureOperations featureOperations;
@@ -110,7 +105,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
                             showPlaylistCreationScreen();
                             getDialog().dismiss();
                         } else if (getActivity() != null) {
-                            onAddTrackToSet(rowId, adapter.getView(position, null, null));
+                            onAddTrackToSet(rowId);
                         }
                     }
                 })
@@ -129,18 +124,13 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         show(fragmentManager, PLAYLIST_DIALOG_TAG);
     }
 
-    private void onAddTrackToSet(long playlistId, View trackRowView) {
+    private void onAddTrackToSet(long playlistId) {
         long trackId = getArguments().getLong(KEY_TRACK_ID);
-
-        final TextView txtTrackCount = (TextView) trackRowView.findViewById(R.id.trackCount);
-        long newTracksCount = ScTextUtils.safeParseLong(String.valueOf(txtTrackCount.getText())) + 1;
-        txtTrackCount.setText(String.valueOf(newTracksCount));
 
         addTrackSubscription = bindFragment(this,
                 playlistOperations
-                        .addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId))
-                        .delay(CLOSE_DELAY_MILLIS, TimeUnit.MILLISECONDS, Schedulers.immediate())
-        ).subscribe(new TrackAddedSubscriber());
+                        .addTrackToPlaylist(Urn.forPlaylist(playlistId), Urn.forTrack(trackId)))
+                        .subscribe(new TrackAddedSubscriber());
 
         trackAddingToPlaylistEvent(trackId);
     }

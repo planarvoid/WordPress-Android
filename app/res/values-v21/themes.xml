@@ -1,12 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.SoundCloud" parent="BaseTheme">
-        <item name="android:dialogTheme">@style/LollipopDialogStyle</item>
-        <item name="android:alertDialogTheme">@style/LollipopDialogStyle</item>
-    </style>
-    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat" />
-
-    <style name="LollipopDialogStyle" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:colorAccent">@color/sc_orange</item>
-    </style>
+    <style name="Theme.SoundCloud.Widget" parent="@style/Theme.AppCompat" /> <!-- Lollipop popup menu styles -->
 </resources>

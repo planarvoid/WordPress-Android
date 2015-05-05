@@ -196,9 +196,9 @@
     <string name="add_image">Add\nImage</string>
     <string name="image_load_error">There was a problem loading the image</string>
     <string name="image_where">How would you like to add an image?</string>
-    <string name="take_new_picture">Take a new picture</string>
+    <string name="take_new_picture">New picture</string>
     <string name="take_new_picture_error">Could not take picture</string>
-    <string name="use_existing_image">Use existing image</string>
+    <string name="use_existing_image">Existing image</string>
     <string name="use_existing_image_error">Could not use existing image</string>
 
     <!-- __NAVIGATION -->

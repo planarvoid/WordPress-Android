@@ -20,6 +20,12 @@
     <style name="Theme.SoundCloud" parent="BaseTheme">
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
         <item name="actionDropDownStyle">@style/DropDownNav</item>
+        <item name="dialogTheme">@style/LollipopDialogStyle</item>
+        <item name="alertDialogTheme">@style/LollipopDialogStyle</item>
+    </style>
+
+    <style name="LollipopDialogStyle" parent="Theme.AppCompat.Light.Dialog">
+        <item name="colorAccent">@color/sc_orange</item>
     </style>
 
     <style name="SearchView.SoundCloud" parent="Widget.AppCompat.SearchView">

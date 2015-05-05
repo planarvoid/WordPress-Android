@@ -15,7 +15,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatDialog;
 
 import javax.inject.Inject;
 
@@ -43,10 +42,6 @@ public class EmailOptInDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AppCompatDialog dialog = new AppCompatDialog(getActivity());
-        dialog.setTitle(R.string.optin_title);
-        dialog.setContentView(R.layout.email_optin_fragment);
-
         return new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.optin_title)
                 .setView(R.layout.email_optin_fragment)

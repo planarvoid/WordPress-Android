@@ -899,6 +899,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                     }
                 })
                 .setNegativeButton(R.string.no, null)
+                .create()
                 .show();
     }
 
@@ -913,6 +914,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
                     }
                 })
                 .setNegativeButton(R.string.no, null)
+                .create()
                 .show();
     }
 

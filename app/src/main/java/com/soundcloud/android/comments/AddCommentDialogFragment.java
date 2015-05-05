@@ -76,7 +76,7 @@ public class AddCommentDialogFragment extends DialogFragment {
                 .setPositiveButton(R.string.post, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        final String commentText = input.toString();
+                        final String commentText = input.getText().toString();
                         if (ScTextUtils.isNotBlank(commentText)) {
                             onAddComment(commentText);
                             dismiss();

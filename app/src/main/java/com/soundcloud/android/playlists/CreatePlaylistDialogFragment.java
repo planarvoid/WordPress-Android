@@ -85,11 +85,11 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                         } else {
                             createPlaylist(playlistTitle, privacy.isChecked(), offline.isChecked());
                             Toast.makeText(CreatePlaylistDialogFragment.this.getActivity(), R.string.added_to_playlist, Toast.LENGTH_SHORT).show();
-                            getDialog().dismiss();
+                            dismiss();
                         }
                     }
                 })
-                .setNegativeButton(R.string.no, null)
+                .setNegativeButton(R.string.cancel, null)
                 .create();
     }
 

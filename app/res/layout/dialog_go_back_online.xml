@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-    android:id="@+id/goBackOnlineDialog"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/go_back_online_dialog"
+    style="@style/DialogContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
