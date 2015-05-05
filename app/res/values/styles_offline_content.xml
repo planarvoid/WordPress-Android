@@ -2,11 +2,6 @@
 
 <resources>
 
-    <style name="DownloadHeader">
-        <item name="downloaded">@drawable/header_downloaded</item>
-        <item name="downloading">@drawable/header_syncing</item>
-    </style>
-
     <style name="DownloadItem">
         <item name="downloaded">@drawable/entity_downloaded</item>
         <item name="downloading">@drawable/entity_downloading</item>

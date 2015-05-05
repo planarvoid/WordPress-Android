@@ -3,7 +3,7 @@
 
     <com.soundcloud.android.offline.DownloadImageView
         android:id="@+id/header_download_state"
-        style="@style/DownloadHeader"
+        style="@style/DownloadItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/collection_download_state_margin_right" />
