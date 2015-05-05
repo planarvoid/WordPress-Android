@@ -22,6 +22,13 @@ public class SyncYourLikesScreen extends Screen {
         return new TrackLikesScreen(testDriver);
     }
 
+    public TrackLikesScreen clickKeepLikesSyncedAndWaitToFinish() {
+        testDriver.findElement(text(testDriver.getString(R.string.make_offline_available))).click();
+        TrackLikesScreen trackLikesScreen = new TrackLikesScreen(testDriver);
+        trackLikesScreen.waitForLikesDownloadToFinish();
+        return trackLikesScreen;
+    }
+
     @Override
     protected Class getActivity() {
         return MainActivity.class;
