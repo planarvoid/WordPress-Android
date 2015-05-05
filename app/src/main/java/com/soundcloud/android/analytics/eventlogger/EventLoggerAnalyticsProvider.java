@@ -125,7 +125,9 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(final PlaybackPerformanceEvent eventData) {
-        trackEvent(eventData.getTimeStamp(), dataBuilder.build(eventData));
+        if (eventData.getMetric() != PlaybackPerformanceEvent.METRIC_FRAGMENT_DOWNLOAD_RATE) {
+            trackEvent(eventData.getTimeStamp(), dataBuilder.build(eventData));
+        }
     }
 
     @Override
