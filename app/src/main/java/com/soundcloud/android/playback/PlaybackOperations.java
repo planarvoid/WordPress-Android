@@ -1,5 +1,8 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.*;
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST;
+
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
@@ -118,41 +121,48 @@ public class PlaybackOperations {
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
-                                                    PlaySessionSource playSessionSource) {
+                                                    final PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
-            return Observable.just(PlaybackResult.UNSKIPPABLE);
+            return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         }
 
-        Observable<List<Urn>> shuffledTracks = trackUrnsObservable
+        return trackUrnsObservable
                 .filter(FILTER_EMPTY_TRACK_LIST)
-                .map(SHUFFLE_TRACKS);
-
-        return playbackStrategyProvider.get().playNewQueue(shuffledTracks, Urn.NOT_SET, 0, false, playSessionSource)
-                .observeOn(AndroidSchedulers.mainThread());
+                .map(SHUFFLE_TRACKS)
+                .flatMap(new Func1<List<Urn>, Observable<PlaybackResult>>() {
+                    @Override
+                    public Observable<PlaybackResult> call(List<Urn> urns) {
+                        return playbackStrategyProvider.get().playNewQueue(urns, Urn.NOT_SET, 0, false, playSessionSource);
+                    }
+                });
     }
 
-    public void reloadAndPlayCurrentQueue(long fromLastProgressPosition) {
-        playbackStrategyProvider.get().reloadAndPlayCurrentQueue(fromLastProgressPosition);
+    public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long fromLastProgressPosition) {
+        return playbackStrategyProvider.get().reloadAndPlayCurrentQueue(fromLastProgressPosition);
     }
 
     private Observable<PlaybackResult> playTracksList(Observable<List<Urn>> trackUrns,
                                                       final Urn initialTrack,
                                                       final int startPosition,
                                                       final PlaySessionSource playSessionSource,
-                                                      boolean loadRelated) {
+                                                      final boolean loadRelated) {
         if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            return Observable.just(PlaybackResult.SUCCESS);
+            return Observable.just(PlaybackResult.success());
         }
 
         if (shouldDisableSkipping()) {
-            return Observable.just(PlaybackResult.UNSKIPPABLE);
+            return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         }
 
-        Observable<List<Urn>> tracksToLoad = trackUrns
-                .filter(FILTER_EMPTY_TRACK_LIST);
+        return trackUrns
+                .filter(FILTER_EMPTY_TRACK_LIST)
+                .flatMap(new Func1<List<Urn>, Observable<PlaybackResult>>() {
+                    @Override
+                    public Observable<PlaybackResult> call(List<Urn> urns) {
+                        return playbackStrategyProvider.get().playNewQueue(urns, initialTrack, startPosition, loadRelated, playSessionSource);
+                    }
+                });
 
-        return playbackStrategyProvider.get().playNewQueue(tracksToLoad, initialTrack, startPosition, loadRelated, playSessionSource)
-                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<PlaybackResult> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {

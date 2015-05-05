@@ -1,5 +1,37 @@
 package com.soundcloud.android.playback;
 
-public enum PlaybackResult {
-    SUCCESS, UNSKIPPABLE, TRACK_UNAVAILABLE_OFFLINE, TRACK_UNAVAILABLE_CAST, TRACK_NOT_FOUND;
+public class PlaybackResult {
+
+    private final boolean isSuccess;
+    private final ErrorReason errorReason;
+
+    public static enum ErrorReason {
+        NONE,
+        UNSKIPPABLE,
+        TRACK_UNAVAILABLE_OFFLINE,
+        TRACK_UNAVAILABLE_CAST,
+        TRACK_NOT_FOUND
+    }
+
+    public static PlaybackResult success() {
+        return new PlaybackResult(true, ErrorReason.NONE);
+    }
+
+    public static PlaybackResult error(ErrorReason reason) {
+        return new PlaybackResult(false, reason);
+    }
+
+    public boolean isSuccess() {
+        return isSuccess;
+    }
+
+    public ErrorReason getErrorReason() {
+        return errorReason;
+    }
+
+    private PlaybackResult(boolean isSuccess, ErrorReason errorReason) {
+        this.isSuccess = isSuccess;
+        this.errorReason = errorReason;
+    }
+
 }

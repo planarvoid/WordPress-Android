@@ -427,7 +427,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
 
         public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus) {
-            super(eventBus);
+            super(eventBus, playbackToastHelper);
         }
 
         @Override

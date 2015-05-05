@@ -35,23 +35,18 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
         castPlayer.playCurrent();
     }
 
-//    @Override
-//    public void playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrnCandidate, int initialTrackPosition, PlaySessionSource playSessionSource) {
-//        castPlayer.playNewQueue(0L, playQueueTracks, initialTrackUrnCandidate, playSessionSource);
-//    }
-
     @Override
-    public Observable<PlaybackResult> playNewQueue(Observable<List<Urn>> playQueueTracks,
+    public Observable<PlaybackResult> playNewQueue(List<Urn> playQueueTracks,
                                                    Urn initialTrackUrn,
                                                    int initialTrackPosition,
                                                    boolean loadRelated,
                                                    PlaySessionSource playSessionSource) {
-        return castPlayer.playNewQueueOBS(playQueueTracks, initialTrackUrn, 0L, playSessionSource);
+        return castPlayer.playNewQueue(playQueueTracks, initialTrackUrn, 0L, playSessionSource);
     }
 
     @Override
-    public void reloadAndPlayCurrentQueue(long withProgressPosition) {
-        castPlayer.reloadAndPlayCurrentQueue(withProgressPosition);
+    public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition) {
+        return castPlayer.reloadAndPlayCurrentQueue(withProgressPosition);
     }
 
     @Override

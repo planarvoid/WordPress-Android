@@ -23,6 +23,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
@@ -107,7 +108,7 @@ public class PlaylistDetailFragmentTest {
         when(controllerProvider.create()).thenReturn(controller);
         when(controller.getAdapter()).thenReturn(adapter);
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(Observable.just(playlistWithTracks));
-        when(offlinePlaybackOperations.playPlaylist(any(Urn.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
+        when(offlinePlaybackOperations.playPlaylist(any(Urn.class), any(Urn.class), anyInt(), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(312L));
 
         fragment.onAttach(activity);

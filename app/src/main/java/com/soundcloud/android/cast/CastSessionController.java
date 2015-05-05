@@ -7,6 +7,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCa
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueue;
@@ -16,6 +17,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.Log;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.inject.Singleton;
 import java.util.Arrays;
 import java.util.List;
@@ -29,18 +31,22 @@ public class CastSessionController extends VideoCastConsumerImpl {
     private final VideoCastManager videoCastManager;
     private final EventBus eventBus;
     private final PlaySessionStateProvider playSessionStateProvider;
+    private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriber;
 
     @Inject
     public CastSessionController(CastOperations castOperations,
-                                 PlaybackOperations playbackOperations, PlayQueueManager playQueueManager,
+                                 PlaybackOperations playbackOperations,
+                                 PlayQueueManager playQueueManager,
                                  VideoCastManager videoCastManager, EventBus eventBus,
-                                 PlaySessionStateProvider playSessionStateProvider) {
+                                 PlaySessionStateProvider playSessionStateProvider,
+                                 Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.castOperations = castOperations;
         this.playbackOperations = playbackOperations;
         this.playQueueManager = playQueueManager;
         this.videoCastManager = videoCastManager;
         this.eventBus = eventBus;
         this.playSessionStateProvider = playSessionStateProvider;
+        this.expandPlayerSubscriber = expandPlayerSubscriberProvider;
     }
 
     public void startListening() {
@@ -59,7 +65,7 @@ public class CastSessionController extends VideoCastConsumerImpl {
     private void playLocalPlayQueueOnRemote() {
         Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
         final long fromLastProgressPosition = playSessionStateProvider.getLastProgressByUrn(playQueueManager.getCurrentTrackUrn()).getPosition();
-        playbackOperations.reloadAndPlayCurrentQueue(fromLastProgressPosition);
+        playbackOperations.reloadAndPlayCurrentQueue(fromLastProgressPosition).subscribe(expandPlayerSubscriber.get());
     }
 
     @Override

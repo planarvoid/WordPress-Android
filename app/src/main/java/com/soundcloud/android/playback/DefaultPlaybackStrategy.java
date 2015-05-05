@@ -6,8 +6,8 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import rx.Observable;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Func1;
 
 import android.content.Context;
 import android.content.Intent;
@@ -46,30 +46,31 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public Observable<PlaybackResult> playNewQueue(Observable<List<Urn>> playQueueTracks,
+    public Observable<PlaybackResult> playNewQueue(final List<Urn> playQueueTracks,
                                                    final Urn initialTrackUrn,
                                                    final int initialTrackPosition,
                                                    final boolean loadRelated,
                                                    final PlaySessionSource playSessionSource) {
-        return playQueueTracks
-                .observeOn(AndroidSchedulers.mainThread())
-                .flatMap(new Func1<List<Urn>, Observable<PlaybackResult>>() {
+        return Observable
+                .create(new Observable.OnSubscribe<PlaybackResult>() {
                     @Override
-                    public Observable<PlaybackResult> call(List<Urn> urns) {
-                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(urns, initialTrackPosition, initialTrackUrn);
-                        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(urns, playSessionSource);
+                    public void call(Subscriber<? super PlaybackResult> subscriber) {
+                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueueTracks, initialTrackPosition, initialTrackUrn);
+                        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(playQueueTracks, playSessionSource);
                         playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
                         playCurrent();
                         if (loadRelated) {
                             playQueueManager.fetchTracksRelatedToCurrentTrack();
                         }
-                        return Observable.just(PlaybackResult.SUCCESS);
+                        subscriber.onNext(PlaybackResult.success());
+                        subscriber.onCompleted();
                     }
-                });
+                })
+                .subscribeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
-    public void reloadAndPlayCurrentQueue(long withProgressPosition) {
+    public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition) {
         throw new IllegalStateException("Reloading current queue and playing track from position not yet supported when not casting");
     }
 

@@ -59,9 +59,9 @@ public class CastPlaybackStrategyTest {
         Urn track = Urn.forTrack(123L);
         List<Urn> tracks = Arrays.asList(track);
 
-        strategy.playNewQueue(tracks, track, 3, PlaySessionSource.EMPTY);
+        strategy.playNewQueue(tracks, track, 3, false, PlaySessionSource.EMPTY);
 
-        verify(castPlayer).playNewQueue(0L, tracks ,track, PlaySessionSource.EMPTY);
+        verify(castPlayer).playNewQueue(tracks, track, 0L, PlaySessionSource.EMPTY);
     }
 
     @Test

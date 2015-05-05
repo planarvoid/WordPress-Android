@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
@@ -31,7 +32,7 @@ public class PlaybackToastHelperTest {
     public void showsAdInProgressIfIsPlaying() {
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
 
-        toastHelper.showUnskippableAdToast();
+        toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.UNSKIPPABLE);
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_in_progress);
     }
@@ -40,29 +41,29 @@ public class PlaybackToastHelperTest {
     public void showsResumePlayingIfIsNotPlaying() {
         when(playSessionStateProvider.isPlaying()).thenReturn(false);
 
-        toastHelper.showUnskippableAdToast();
+        toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.UNSKIPPABLE);
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_resume_playing_to_continue);
     }
 
     @Test
-    public void showsTrackNotAvailableOfflineOnPlaybackError() {
-        toastHelper.showToastOnPlaybackError(new TrackNotAvailableOffline());
+    public void showsTrackNotAvailableOffline() {
+        toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE);
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.offline_track_not_available);
     }
 
     @Test
-    public void showAdToastOnPlaybackError() {
-        toastHelper.showToastOnPlaybackError(new UnskippablePeriodException());
+    public void showsTrackNotFound() {
+        toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.TRACK_NOT_FOUND);
 
-        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.ad_resume_playing_to_continue);
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.playback_missing_playable_tracks);
     }
 
     @Test
-    public void returnsTrueIfExceptionWasHandledFalseOtherwise() throws Exception {
-        expect(toastHelper.showToastOnPlaybackError(new TrackNotAvailableOffline())).toBeTrue();
-        expect(toastHelper.showToastOnPlaybackError(new UnskippablePeriodException())).toBeTrue();
-        expect(toastHelper.showToastOnPlaybackError(new RuntimeException())).toBeFalse();
+    public void showsUnableToCastTrack() {
+        toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
+
+        expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.cast_unable_play_track);
     }
 }

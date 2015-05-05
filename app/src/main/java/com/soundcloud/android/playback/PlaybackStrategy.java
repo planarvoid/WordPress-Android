@@ -16,9 +16,9 @@ public interface PlaybackStrategy {
 
     void playCurrent();
 
-    Observable<PlaybackResult> playNewQueue(Observable<List<Urn>> playQueueTracks, Urn initialTrackUrn, int initialTrackPosition, boolean loadRelated, PlaySessionSource playSessionSource);
+    Observable<PlaybackResult> playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrn, int initialTrackPosition, boolean loadRelated, PlaySessionSource playSessionSource);
 
-    void reloadAndPlayCurrentQueue(long withProgressPosition);
+    Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition);
 
     void seek(long position);
 
