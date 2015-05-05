@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import android.net.Uri;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -116,7 +117,7 @@ public class ApiRequest {
     }
 
     public interface ProgressListener {
-        void update(long bytesWritten, long totalBytes);
+        void update(long bytesWritten, long totalBytes) throws IOException;
     }
 
     public static class Builder {

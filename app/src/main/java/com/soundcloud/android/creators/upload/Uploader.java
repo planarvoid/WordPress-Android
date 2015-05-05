@@ -122,10 +122,12 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             final ApiRequest request = buildUploadRequest(resources, recording);
             onUploadFinished(apiClient.fetchMappedResponse(request, PublicApiTrack.class));
 
-        } catch (UserCanceledException e) {
-            onUploadCancelled();
         } catch (IOException | ApiMapperException | ApiRequestException e) {
-            onUploadFailed(e);
+            if(isCancelled()) {
+                onUploadCancelled();
+            } else {
+                onUploadFailed(e);
+            }
         }
     }
 
@@ -283,7 +285,11 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
 
         @Override
-        public void update(long bytesWritten, long totalBytes) {
+        public void update(long bytesWritten, long totalBytes) throws IOException {
+            if(isCancelled()) {
+                throw new UserCanceledException();
+            }
+
             if (System.currentTimeMillis() - lastPublished > 1000) {
                 final int progress = (int) Math.min(100, (100 * bytesWritten) / totalBytes);
                 broadcastManager.sendBroadcast(new Intent(UploadService.TRANSFER_PROGRESS)
