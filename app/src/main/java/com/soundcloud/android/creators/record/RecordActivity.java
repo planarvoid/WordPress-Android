@@ -257,7 +257,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
-        setContentView(R.layout.sc_create);
+
         recorder = SoundRecorder.getInstance(this);
         txtInstructions = (TextView) findViewById(R.id.txt_instructions);
         txtRecordMessage = (RecordMessageView) findViewById(R.id.txt_record_message);
@@ -286,6 +286,12 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
         savedMessageLayout = (ViewGroup) findViewById(R.id.saved_message_layout);
         updateUi(CreateState.IDLE_RECORD, false);
         handleIntent();
+    }
+
+    @Override
+    protected void setContentView() {
+        super.setContentView(R.layout.sc_create);
+        presenter.setToolBar();
     }
 
     @Override
