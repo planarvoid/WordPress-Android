@@ -16,7 +16,7 @@ import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -143,7 +143,7 @@ class PlaylistDiscoveryOperations {
         return Collections2.filter(list, Predicates.containsPattern("(?i)^(?!" + itemToRemove + "$).*$"));
     }
 
-    class PlaylistPager extends Pager<ApiPlaylistCollection> {
+    class PlaylistPager extends LegacyPager<ApiPlaylistCollection> {
 
         private final String query;
 
@@ -157,7 +157,7 @@ class PlaylistDiscoveryOperations {
             if (nextLink.isPresent()) {
                 return getPlaylistResultsNextPage(query, nextLink.get().getHref());
             } else {
-                return Pager.finish();
+                return LegacyPager.finish();
             }
         }
     }

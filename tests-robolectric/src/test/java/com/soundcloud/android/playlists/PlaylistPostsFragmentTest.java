@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 
 import android.app.Application;
 import android.content.Intent;
@@ -44,7 +44,7 @@ public class PlaylistPostsFragmentTest {
     @Mock private ListViewController listViewController;
     @Mock private PullToRefreshController pullToRefreshController;
     @Mock private Subscription subscription;
-    @Mock private Pager<List<PropertySet>> pager;
+    @Mock private LegacyPager<List<PropertySet>> pager;
 
     private AdapterView adapterView;
     private Application context;

@@ -27,8 +27,8 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.android.NewPager;
-import rx.android.NewPager.PagingFunction;
+import rx.android.Pager;
+import rx.android.Pager.PagingFunction;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
@@ -159,7 +159,7 @@ public class TrackLikeOperationsTest {
 
         final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
 
-        expect(listPager.call(firstPage)).toBe(NewPager.<List<PropertySet>>finish());
+        expect(listPager.call(firstPage)).toBe(Pager.<List<PropertySet>>finish());
     }
 
     @Test

@@ -29,7 +29,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.android.NewPager;
+import rx.android.Pager;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
@@ -82,7 +82,7 @@ public class PlaylistLikeOperationsTest {
         final PublishSubject<SyncResult> syncObservable = PublishSubject.create();
         when(syncInitiator.syncPlaylistLikes()).thenReturn(syncObservable);
 
-        final NewPager.PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
+        final Pager.PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
         listPager.call(firstPage).subscribe(observer);
 
         expect(syncObservable.hasObservers()).toBeFalse();
@@ -151,7 +151,7 @@ public class PlaylistLikeOperationsTest {
         when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
-        expect(operations.pagingFunction().call(firstPage)).toBe(NewPager.<List<PropertySet>>finish());
+        expect(operations.pagingFunction().call(firstPage)).toBe(Pager.<List<PropertySet>>finish());
     }
 
     @Test

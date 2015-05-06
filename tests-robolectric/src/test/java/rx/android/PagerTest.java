@@ -32,7 +32,7 @@ public class PagerTest {
 
     private final Stack<Observable<List<String>>> remainingPages = new Stack<>();
 
-    private Pager<List<String>> pager = new Pager<List<String>>() {
+    private Pager<List<String>, List<String>> pager = Pager.create(new Pager.PagingFunction<List<String>>() {
         @Override
         public Observable<List<String>> call(List<String> page) {
             if (page == lastPage) {
@@ -41,7 +41,7 @@ public class PagerTest {
                 return remainingPages.pop(); // return the following page
             }
         }
-    };
+    });
 
     @Mock Observer<List<String>> observer;
 

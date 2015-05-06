@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class NewPagerTest {
+public class LegacyPagerTest {
 
     private final List<String> firstPage = Arrays.asList("item1", "item2", "item3");
     private final List<String> secondPage = Arrays.asList("item4", "item5", "item6");
@@ -32,16 +32,16 @@ public class NewPagerTest {
 
     private final Stack<Observable<List<String>>> remainingPages = new Stack<>();
 
-    private NewPager<List<String>, List<String>> pager = NewPager.create(new NewPager.PagingFunction<List<String>>() {
+    private LegacyPager<List<String>> pager = new LegacyPager<List<String>>() {
         @Override
         public Observable<List<String>> call(List<String> page) {
             if (page == lastPage) {
-                return NewPager.finish(); // no next page
+                return LegacyPager.finish(); // no next page
             } else {
                 return remainingPages.pop(); // return the following page
             }
         }
-    });
+    };
 
     @Mock Observer<List<String>> observer;
 

@@ -8,8 +8,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.NewListBinding;
-import com.soundcloud.android.presentation.NewListPresenter;
+import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
@@ -27,7 +27,7 @@ import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
-public class PlaylistLikesPresenter extends NewListPresenter<PlaylistItem>
+public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
         implements AdapterView.OnItemClickListener {
 
     private final PlaylistLikeOperations likeOperations;
@@ -84,23 +84,23 @@ public class PlaylistLikesPresenter extends NewListPresenter<PlaylistItem>
     }
 
     @Override
-    protected NewListBinding<PlaylistItem> onBuildListBinding(Bundle fragmentArgs) {
-        return NewListBinding.from(likeOperations.likedPlaylists(), PlaylistItem.fromPropertySets())
+    protected ListBinding<PlaylistItem> onBuildListBinding(Bundle fragmentArgs) {
+        return ListBinding.from(likeOperations.likedPlaylists(), PlaylistItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected NewListBinding<PlaylistItem> onBuildRefreshBinding() {
-        return NewListBinding.from(likeOperations.updatedLikedPlaylists(), PlaylistItem.fromPropertySets())
+    protected ListBinding<PlaylistItem> onBuildRefreshBinding() {
+        return ListBinding.from(likeOperations.updatedLikedPlaylists(), PlaylistItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected void onSubscribeListBinding(NewListBinding<PlaylistItem> listBinding) {
+    protected void onSubscribeListBinding(ListBinding<PlaylistItem> listBinding) {
         // No-op
     }
 

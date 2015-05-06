@@ -10,7 +10,7 @@ import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -21,14 +21,14 @@ class ExploreTracksOperations {
     private final ApiClientRx apiClientRx;
     private final Scheduler scheduler;
 
-    private final Pager<SuggestedTracksCollection> pager = new Pager<SuggestedTracksCollection>() {
+    private final LegacyPager<SuggestedTracksCollection> pager = new LegacyPager<SuggestedTracksCollection>() {
         @Override
         public Observable<SuggestedTracksCollection> call(SuggestedTracksCollection apiTracks) {
             final Optional<Link> nextLink = apiTracks.getNextLink();
             if (nextLink.isPresent()) {
                 return getSuggestedTracks(nextLink.get().getHref());
             } else {
-                return Pager.finish();
+                return LegacyPager.finish();
             }
         }
     };
@@ -58,7 +58,7 @@ class ExploreTracksOperations {
         }
     }
 
-    Pager<SuggestedTracksCollection> pager() {
+    LegacyPager<SuggestedTracksCollection> pager() {
         return pager;
     }
 

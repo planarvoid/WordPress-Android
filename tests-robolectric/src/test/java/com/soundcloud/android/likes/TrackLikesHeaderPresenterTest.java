@@ -22,7 +22,7 @@ import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.NewListBinding;
+import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -94,7 +94,7 @@ public class TrackLikesHeaderPresenterTest {
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
         presenter.onViewCreated(layoutView, listView);
 
-        NewListBinding<TrackItem> listBinding = NewListBinding.from(
+        ListBinding<TrackItem> listBinding = ListBinding.from(
                 Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
                 .withAdapter(adapter).build();
         presenter.onSubscribeListObservers(listBinding);
@@ -110,7 +110,7 @@ public class TrackLikesHeaderPresenterTest {
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
 
         presenter.onViewCreated(layoutView, listView);
-        presenter.onSubscribeListObservers(NewListBinding.from(
+        presenter.onSubscribeListObservers(ListBinding.from(
                 Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
                 .withAdapter(adapter).build());
         presenter.onDestroyView(fragment);

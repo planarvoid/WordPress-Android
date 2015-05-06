@@ -30,7 +30,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 import rx.observables.ConnectableObservable;
 
 import android.os.Bundle;
@@ -193,7 +193,7 @@ public class PullToRefreshControllerTest {
     public void shouldUnsubscribeItselfAfterRefreshingSoThatSubsequentPagesDoNotTriggerRefreshLogic() {
         controller.setRefreshListener(fragment, adapter);
 
-        Pager<List<String>> pager = pagerWithNextPage(Observable.just(Arrays.asList("page2")));
+        LegacyPager<List<String>> pager = pagerWithNextPage(Observable.just(Arrays.asList("page2")));
         observable = pager.page(Observable.just(Arrays.asList("page1"))).publish();
         triggerRefresh();
 

@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class NewListBindingTest {
+public class ListBindingTest {
 
     @Mock private ItemAdapter<String> adapter;
     @Mock private PagingItemAdapter<String> pagingAdapter;
@@ -28,7 +28,7 @@ public class NewListBindingTest {
     public void shouldBuildUnpagedListBinding() {
         Observable<Iterable<String>> source = Observable.<Iterable<String>>just(Collections.singleton("item"));
 
-        NewListBinding<String> binding = NewListBinding.from(source)
+        ListBinding<String> binding = ListBinding.from(source)
                 .withAdapter(adapter)
                 .build();
 
@@ -40,14 +40,14 @@ public class NewListBindingTest {
     public void shouldThrowIfNoAdapterSuppliedInBuilder() {
         Observable<Iterable<String>> source = Observable.<Iterable<String>>just(Collections.singleton("item"));
 
-        NewListBinding.from(source).build();
+        ListBinding.from(source).build();
     }
 
     @Test
     public void shouldBuildPagedListBinding() {
         Observable<Iterable<String>> source = Observable.<Iterable<String>>just(Collections.singleton("item"));
 
-        NewListBinding binding = NewListBinding.from(source)
+        ListBinding binding = ListBinding.from(source)
                 .withPager(TestPager.<Iterable<String>>singlePageFunction())
                 .withAdapter(pagingAdapter)
                 .build();
@@ -63,7 +63,7 @@ public class NewListBindingTest {
     public void shouldThrowIfAdapterNotPagedAdapterWhenBuildingPagedBinding() {
         Observable<Iterable<String>> source = Observable.<Iterable<String>>just(Collections.singleton("item"));
 
-        NewListBinding.from(source)
+        ListBinding.from(source)
                 .withAdapter(adapter)
                 .withPager(TestPager.<Iterable<String>>singlePageFunction())
                 .build();
@@ -71,7 +71,7 @@ public class NewListBindingTest {
 
     public void shouldReplaySourceSequence() {
         final List<String> listItems = Collections.singletonList("item");
-        NewListBinding<String> binding = new NewListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
+        ListBinding<String> binding = new ListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
         binding.connect();
 
         TestSubscriber<Iterable<String>> observer = new TestSubscriber<>();
@@ -84,7 +84,7 @@ public class NewListBindingTest {
     @Test
     public void shouldSubscribeViewObserversThatWereAddedBefore() {
         final List<String> listItems = Collections.singletonList("item");
-        NewListBinding<String> binding = new NewListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
+        ListBinding<String> binding = new ListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
         binding.connect();
 
         TestSubscriber<Iterable<String>> observer = new TestSubscriber<>();
@@ -97,7 +97,7 @@ public class NewListBindingTest {
     @Test
     public void shouldAttachViewObserversToViewSubscription() {
         final PublishSubject<Iterable<String>> observable = PublishSubject.create();
-        NewListBinding<String> binding = new NewListBinding<>(observable, adapter);
+        ListBinding<String> binding = new ListBinding<>(observable, adapter);
         binding.connect();
 
         observable.onNext(singleton("event 1"));
@@ -118,7 +118,7 @@ public class NewListBindingTest {
     @Test
     public void shouldDisconnectFromSourceSequence() {
         final List<String> listItems = Collections.singletonList("item");
-        NewListBinding<String> binding = new NewListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
+        ListBinding<String> binding = new ListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
         final Subscription subscription = binding.connect();
         binding.disconnect();
 

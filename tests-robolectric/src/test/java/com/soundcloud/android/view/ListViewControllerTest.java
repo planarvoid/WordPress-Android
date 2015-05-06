@@ -16,7 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 import rx.observables.ConnectableObservable;
 
 import android.os.Bundle;
@@ -48,7 +48,7 @@ public class ListViewControllerTest {
     @Mock private EmptyView emptyView;
     @Mock private ListView listView;
     @Mock private AbsListView.OnScrollListener scrollListener;
-    @Mock private Pager pager;
+    @Mock private LegacyPager pager;
     @Mock private PagingItemAdapter pagedAdapter;
 
     @Before

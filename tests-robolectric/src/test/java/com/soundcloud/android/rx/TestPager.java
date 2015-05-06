@@ -1,13 +1,14 @@
 package com.soundcloud.android.rx;
 
 import rx.Observable;
-import rx.android.NewPager;
 import rx.android.Pager;
+import rx.android.LegacyPager;
 
 public class TestPager {
 
-    public static <T> Pager<T> pagerWithNextPage(final Observable<T> nextPage) {
-        return new Pager<T>() {
+    @Deprecated
+    public static <T> LegacyPager<T> pagerWithNextPage(final Observable<T> nextPage) {
+        return new LegacyPager<T>() {
             @Override
             public Observable<T> call(T t) {
                 return nextPage;
@@ -15,15 +16,16 @@ public class TestPager {
         };
     }
 
-    public static <T> Pager<T> pagerWithSinglePage() {
-        return pagerWithNextPage(Pager.<T>finish());
+    @Deprecated
+    public static <T> LegacyPager<T> pagerWithSinglePage() {
+        return pagerWithNextPage(LegacyPager.<T>finish());
     }
 
-    public static <T> NewPager.PagingFunction<T> singlePageFunction() {
-        return new NewPager.PagingFunction<T>() {
+    public static <T> Pager.PagingFunction<T> singlePageFunction() {
+        return new Pager.PagingFunction<T>() {
             @Override
             public Observable<T> call(T t) {
-                return NewPager.finish();
+                return Pager.finish();
             }
         };
     }

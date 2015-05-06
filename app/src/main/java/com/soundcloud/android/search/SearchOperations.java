@@ -27,7 +27,7 @@ import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -134,7 +134,7 @@ class SearchOperations {
         }
     }
 
-    class SearchResultPager extends Pager<SearchResult> {
+    class SearchResultPager extends LegacyPager<SearchResult> {
         private final int searchType;
         private final List<Urn> allUrns = new ArrayList<>();
         private Urn queryUrn = Urn.NOT_SET;
@@ -166,7 +166,7 @@ class SearchOperations {
             if (nextHref.isPresent()) {
                 return nextResultPage(nextHref.get(), searchType);
             } else {
-                return Pager.finish();
+                return LegacyPager.finish();
             }
         }
     }

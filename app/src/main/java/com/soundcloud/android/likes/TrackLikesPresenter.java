@@ -12,8 +12,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.NewListBinding;
-import com.soundcloud.android.presentation.NewListPresenter;
+import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItem;
@@ -38,7 +38,7 @@ import android.widget.ListView;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class TrackLikesPresenter extends NewListPresenter<TrackItem>
+class TrackLikesPresenter extends ListPresenter<TrackItem>
         implements AdapterView.OnItemClickListener {
 
     final @LightCycle TrackLikesActionMenuController actionMenuController;
@@ -79,23 +79,23 @@ class TrackLikesPresenter extends NewListPresenter<TrackItem>
     }
 
     @Override
-    protected NewListBinding<TrackItem> onBuildListBinding(Bundle fragmentArgs) {
-        return NewListBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
+    protected ListBinding<TrackItem> onBuildListBinding(Bundle fragmentArgs) {
+        return ListBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected NewListBinding<TrackItem> onBuildRefreshBinding() {
-        return NewListBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
+    protected ListBinding<TrackItem> onBuildRefreshBinding() {
+        return ListBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected void onSubscribeListBinding(NewListBinding<TrackItem> listBinding) {
+    protected void onSubscribeListBinding(ListBinding<TrackItem> listBinding) {
         headerPresenter.onSubscribeListObservers(listBinding);
     }
 

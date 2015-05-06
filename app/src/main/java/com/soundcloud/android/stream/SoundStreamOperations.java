@@ -14,8 +14,8 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.NewPager;
-import rx.android.NewPager.PagingFunction;
+import rx.android.Pager;
+import rx.android.Pager.PagingFunction;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -46,7 +46,7 @@ class SoundStreamOperations {
             // even after doing a backfill sync. This is different from list.isEmpty, since this may be true for
             // a local result set, but there are more items on the server.
             if (result == NO_MORE_PAGES) {
-                return NewPager.finish();
+                return Pager.finish();
             } else {
                 // to implement paging, we move the timestamp down reverse chronologically
                 final long nextTimestamp = getLast(result).get(PlayableProperty.CREATED_AT).getTime();

@@ -12,7 +12,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.NewListBinding;
+import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -83,7 +83,7 @@ public class TrackLikesPresenterTest {
     public void shouldOnSubscribeListObserversToHeaderPresenter() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        verify(headerPresenter).onSubscribeListObservers(any(NewListBinding.class));
+        verify(headerPresenter).onSubscribeListObservers(any(ListBinding.class));
     }
 
     @Test
