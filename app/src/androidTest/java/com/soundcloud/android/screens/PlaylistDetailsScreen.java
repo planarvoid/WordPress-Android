@@ -65,6 +65,17 @@ public class PlaylistDetailsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.toggle_play_pause));
     }
 
+    public boolean containsTrack(String title) {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        tracksListElement().scrollToBottom();
+        for (TrackItemElement trackItemElement: trackItemElements()) {
+            if (trackItemElement.getTitle().equals(title)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private ViewElement likeToggle() {
         return testDriver.findElement(With.id(R.id.toggle_like));
@@ -109,11 +120,25 @@ public class PlaylistDetailsScreen extends Screen {
         return this;
     }
 
+    public PlaylistDetailsScreen scrollToLastTrackItem() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        testDriver.scrollListToLine(tracksListElement().getItemCount() - 1);
+        return this;
+    }
+
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return scrollToFirstTrackItem()
                 .trackItemElements()
                 .get(0)
+                .clickOverflowButton();
+    }
+
+    public TrackItemMenuElement clickLastTrackOverflowButton() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return scrollToLastTrackItem()
+                .trackItemElements()
+                .get(trackItemElements().size() - 1)
                 .clickOverflowButton();
     }
 
