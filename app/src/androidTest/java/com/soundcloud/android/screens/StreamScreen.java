@@ -6,9 +6,11 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.StreamList;
+import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
+import com.soundcloud.android.tracks.TrackItem;
 
 public class StreamScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -34,12 +36,15 @@ public class StreamScreen extends Screen {
         return ACTIVITY;
     }
 
+    public TrackItemElement firstTrack() {
+        waitForTracksLoading();
+        return new TrackItemElement(testDriver,
+                testDriver.findElements(With.id(R.id.track_list_item)).get(0));
+    }
+
     public VisualPlayerElement clickFirstTrack() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        waiter.waitForElements(R.id.track_list_item);
-        testDriver
-                .findElements(With.id(R.id.track_list_item))
-                .get(0).click();
+        waitForTracksLoading();
+        getViewElementWithId(R.id.track_list_item).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
@@ -47,15 +52,22 @@ public class StreamScreen extends Screen {
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        testDriver
-                .findElements(With.id(R.id.overflow_button))
-                .get(0).click();
+        getViewElementWithId(R.id.overflow_button).click();
         return new TrackItemMenuElement(testDriver);
+    }
+
+    private void waitForTracksLoading() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        waiter.waitForElements(R.id.track_list_item);
     }
 
     private StreamList streamList() {
         ViewElement list = testDriver.findElement(With.id(android.R.id.list));
         return new StreamList(list);
+    }
+
+    private ViewElement getViewElementWithId(int viewId) {
+        return testDriver.findElements(With.id(viewId)).get(0);
     }
 
     public MenuScreen openMenu() {
