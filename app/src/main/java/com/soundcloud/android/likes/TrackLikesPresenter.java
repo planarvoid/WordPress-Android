@@ -12,8 +12,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.ListBinding;
-import com.soundcloud.android.presentation.ListPresenter;
+import com.soundcloud.android.presentation.NewListBinding;
+import com.soundcloud.android.presentation.NewListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItem;
@@ -23,8 +23,8 @@ import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.android.NewPager;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -39,7 +39,7 @@ import android.widget.ListView;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
+class TrackLikesPresenter extends NewListPresenter<TrackItem>
         implements AdapterView.OnItemClickListener {
 
     final @LightCycle TrackLikesActionMenuController actionMenuController;
@@ -80,25 +80,23 @@ class TrackLikesPresenter extends ListPresenter<PropertySet, TrackItem>
     }
 
     @Override
-    protected ListBinding<PropertySet, TrackItem> onBuildListBinding() {
-        return ListBinding.pagedList(
+    protected NewListBinding<TrackItem> onBuildListBinding(Bundle fragmentArgs) {
+        return NewListBinding.paged(
                 likeOperations.likedTracks(),
                 adapter,
-                likeOperations.likedTracksPager(),
-                TrackItem.fromPropertySets());
+                NewPager.create(likeOperations.pagingFunction(), TrackItem.fromPropertySets()));
     }
 
     @Override
-    protected ListBinding<PropertySet, TrackItem> onBuildRefreshBinding() {
-        return ListBinding.pagedList(
+    protected NewListBinding<TrackItem> onBuildRefreshBinding() {
+        return NewListBinding.paged(
                 likeOperations.updatedLikedTracks(),
                 adapter,
-                likeOperations.likedTracksPager(),
-                TrackItem.fromPropertySets());
+                NewPager.create(likeOperations.pagingFunction(), TrackItem.fromPropertySets()));
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<PropertySet, TrackItem> listBinding) {
+    protected void onSubscribeListBinding(NewListBinding<TrackItem> listBinding) {
         headerPresenter.onSubscribeListObservers(listBinding);
     }
 

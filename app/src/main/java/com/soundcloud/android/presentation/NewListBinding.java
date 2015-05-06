@@ -23,6 +23,10 @@ public class NewListBinding<T> {
     private final ItemAdapter<T> adapter;
     private NewPager<?, ?> pager;
 
+    public static <T> NewListBinding<T> create(Observable<? extends Iterable<T>> source, ItemAdapter<T> adapter) {
+        return new NewListBinding<>(source, adapter);
+    }
+
     public static <T, S, CollS extends Iterable<S>, CollT extends Iterable<T>> NewListBinding<T> paged(Observable<CollS> source, PagingItemAdapter<T> adapter,
                                                                                                        NewPager<CollS, CollT> pager) {
         final Observable<CollT> pagedSource = pager.page(source);

@@ -15,15 +15,15 @@ public class NewPager<I, O> {
     private Observable<I> nextPage = FINISH_SEQUENCE;
     private Subscription subscription = Subscriptions.empty();
 
-    private final Func1<I, Observable<I>> nextPageFunction;
+    private final PagingFunction<I> pagingFunction;
     private final Func1<I, O> pageTransformer;
 
-    public static <I, O> NewPager<I, O> create(Func1<I, Observable<I>> nextPageFunction, Func1<I, O> pageTransformer) {
-        return new NewPager<>(nextPageFunction, pageTransformer);
+    public static <I, O> NewPager<I, O> create(PagingFunction<I> pagingFunction, Func1<I, O> pageTransformer) {
+        return new NewPager<>(pagingFunction, pageTransformer);
     }
 
-    NewPager(Func1<I, Observable<I>> nextPageFunction, Func1<I, O> pageTransformer) {
-        this.nextPageFunction = nextPageFunction;
+    NewPager(PagingFunction<I> pagingFunction, Func1<I, O> pageTransformer) {
+        this.pagingFunction = pagingFunction;
         this.pageTransformer = pageTransformer;
     }
 
@@ -63,7 +63,7 @@ public class NewPager<I, O> {
 
                     @Override
                     public void onNext(I result) {
-                        nextPage = nextPageFunction.call(result);
+                        nextPage = pagingFunction.call(result);
                         subscriber.onNext(pageTransformer.call(result));
                         if (nextPage == FINISH_SEQUENCE) {
                             pages.onCompleted();
@@ -99,6 +99,9 @@ public class NewPager<I, O> {
         if (!subscription.isUnsubscribed() && hasNext()) {
             pages.onNext(nextPage);
         }
+    }
+
+    public interface PagingFunction<T> extends Func1<T, Observable<T>> {
     }
 }
 

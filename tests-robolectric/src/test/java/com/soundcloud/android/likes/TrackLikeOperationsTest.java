@@ -27,7 +27,8 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 import rx.Scheduler;
-import rx.android.Pager;
+import rx.android.NewPager;
+import rx.android.NewPager.PagingFunction;
 import rx.functions.Action0;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
@@ -86,9 +87,8 @@ public class TrackLikeOperationsTest {
         final PublishSubject<SyncResult> syncObservable = PublishSubject.create();
         when(syncInitiator.syncTrackLikes()).thenReturn(syncObservable);
 
-        final Pager<List<PropertySet>> listPager = operations.likedTracksPager();
-        listPager.page(operations.likedTracks()).subscribe(observer);
-        listPager.next();
+        final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
+        listPager.call(Collections.<PropertySet>emptyList()).subscribe(observer);
 
         expect(syncObservable.hasObservers()).toBeFalse();
     }
@@ -144,8 +144,8 @@ public class TrackLikeOperationsTest {
         when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
-        operations.likedTracksPager().page(operations.likedTracks()).subscribe(observer);
-        operations.likedTracksPager().next();
+        final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
+        listPager.call(firstPage).subscribe(observer);
 
         final ChronologicalQueryParams params = loadLikedTracksCommand.getInput();
         expect(params.getTimestamp()).toEqual(firstPage.get(PAGE_SIZE - 1).get(LikeProperty.CREATED_AT).getTime());
@@ -153,17 +153,13 @@ public class TrackLikeOperationsTest {
 
     @Test
     public void trackPagerFinishesIfLastPageIncomplete() throws Exception {
-
         final List<PropertySet> firstPage = Arrays.asList(TestPropertySets.expectedLikedTrackForLikesScreen());
         when(loadLikedTracksCommand.toObservable()).thenReturn(Observable.just(firstPage));
         when(syncInitiator.syncTrackLikes()).thenReturn(Observable.<SyncResult>empty());
 
-        operations.likedTracksPager().page(operations.likedTracks()).subscribe(observer);
-        operations.likedTracksPager().next();
+        final PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
 
-        InOrder inOrder = inOrder(observer);
-        inOrder.verify(observer).onNext(firstPage);
-        inOrder.verify(observer).onCompleted();
+        expect(listPager.call(firstPage)).toBe(NewPager.<List<PropertySet>>finish());
     }
 
     @Test
