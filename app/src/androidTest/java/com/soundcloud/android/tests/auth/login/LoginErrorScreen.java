@@ -1,6 +1,5 @@
 package com.soundcloud.android.tests.auth.login;
 
-import com.afollestad.materialdialogs.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -17,7 +16,7 @@ public class LoginErrorScreen extends Screen {
     }
 
     public String errorMessage() {
-        return new TextElement(testDriver.findElement(With.id(R.id.content))).getText();
+        return new TextElement(testDriver.findElement(With.id(android.R.id.message))).getText();
     }
 
     public LoginScreen clickOk() {
