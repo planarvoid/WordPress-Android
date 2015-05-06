@@ -95,70 +95,51 @@ public class SoundStreamOperationsTest {
 
     @Test
     public void pagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
-        // 1st page is full page of items
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
-        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
-                .thenReturn(Observable.from(items));
-        // stop call chain for test
         when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>never());
 
-        operations.pager().page(operations.initialStreamItems()).subscribe(observer);
-        operations.pager().next();
+        operations.pagingFunction().call(items);
 
-        InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
-        inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
-        inOrder.verify(observer).onNext(items);
-        inOrder.verifyNoMoreInteractions();
+        verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
     }
 
     @Test
     public void whenItLoadsAnEmptyPageOfItemsBeyondPageOneThenItRunsABackfillSyncAndReloads() {
         // 1st page is full page of items
         final List<PropertySet> firstPage = createItems(PAGE_SIZE, 123L);
-        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
-                .thenReturn(Observable.from(firstPage));
         // 2nd page is blank on first attempt, then filled with items from backfill
         final List<PropertySet> secondPage = createItems(PAGE_SIZE, 456L);
         when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(secondPage));
-        // stop call chain for test
-        when(soundStreamStorage.streamItemsBefore(456L, PAGE_SIZE))
-                .thenReturn(Observable.<PropertySet>never());
         // returning true means new items have been added to local storage
-        when(syncInitiator.backfillSoundStream())
-                .thenReturn(Observable.just(true));
+        when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(true));
 
-        operations.pager().page(operations.initialStreamItems()).subscribe(observer);
-        operations.pager().next();
+        operations.pagingFunction().call(firstPage).subscribe(observer);
 
         InOrder inOrder = inOrder(observer, syncInitiator, soundStreamStorage);
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
-        inOrder.verify(observer).onNext(firstPage);
         inOrder.verify(syncInitiator).backfillSoundStream();
         inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(observer).onNext(secondPage);
+        inOrder.verify(observer).onCompleted();
         inOrder.verifyNoMoreInteractions();
     }
 
     @Test
     public void shouldStopPaginationIfBackfillSyncReportsNoNewItemsSynced() {
         // 1st page is full page of items
-        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
-                .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         // 2nd page is blank, will trigger backfill
         when(soundStreamStorage.streamItemsBefore(123L, PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty());
         // returning false means no new items have been added to local storage
-        when(syncInitiator.backfillSoundStream())
-                .thenReturn(Observable.just(false));
+        when(syncInitiator.backfillSoundStream()).thenReturn(Observable.just(false));
 
-        operations.pager().page(operations.initialStreamItems()).subscribe(observer);
-        operations.pager().next();
+        operations.pagingFunction().call(items).subscribe(observer);
 
         InOrder inOrder = inOrder(soundStreamStorage, syncInitiator, observer);
-        inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
+        inOrder.verify(soundStreamStorage).streamItemsBefore(123L, PAGE_SIZE);
         inOrder.verify(syncInitiator).backfillSoundStream();
         inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
         inOrder.verify(observer).onCompleted();

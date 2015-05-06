@@ -72,7 +72,7 @@ public class SoundStreamPresenterTest {
         presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imageOperations,
                 pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
-        when(streamOperations.pager()).thenReturn(TestPager.<List<PropertySet>>pagerWithSinglePage());
+        when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(adapter.getTrackPresenter()).thenReturn(trackPresenter);

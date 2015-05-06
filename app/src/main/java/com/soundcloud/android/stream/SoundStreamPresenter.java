@@ -13,9 +13,9 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.ListPresenter;
+import com.soundcloud.android.presentation.NewListBinding;
+import com.soundcloud.android.presentation.NewListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -41,7 +41,7 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableItem>
+public class SoundStreamPresenter extends NewListPresenter<PlayableItem>
         implements AdapterView.OnItemClickListener {
 
     @VisibleForTesting
@@ -108,27 +108,23 @@ public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableIte
     }
 
     @Override
-    protected ListBinding<PropertySet, PlayableItem> onBuildListBinding() {
-        return ListBinding.pagedList(
-                streamOperations.initialStreamItems(),
-                adapter,
-                streamOperations.pager(),
-                PAGE_TRANSFORMER
-        );
+    protected NewListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
+        return NewListBinding.from(streamOperations.initialStreamItems(), PAGE_TRANSFORMER)
+                .withAdapter(adapter)
+                .withPager(streamOperations.pagingFunction())
+                .build();
     }
 
     @Override
-    protected ListBinding<PropertySet, PlayableItem> onBuildRefreshBinding() {
-        return ListBinding.pagedList(
-                streamOperations.updatedStreamItems(),
-                adapter,
-                streamOperations.pager(),
-                PAGE_TRANSFORMER
-        );
+    protected NewListBinding<PlayableItem> onBuildRefreshBinding() {
+        return NewListBinding.from(streamOperations.updatedStreamItems(), PAGE_TRANSFORMER)
+                .withAdapter(adapter)
+                .withPager(streamOperations.pagingFunction())
+                .build();
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<PropertySet, PlayableItem> listBinding) {
+    protected void onSubscribeListBinding(NewListBinding<PlayableItem> listBinding) {
         // Nothing
     }
 
