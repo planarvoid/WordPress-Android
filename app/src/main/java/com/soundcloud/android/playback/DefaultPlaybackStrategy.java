@@ -55,18 +55,26 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
                 .create(new Observable.OnSubscribe<PlaybackResult>() {
                     @Override
                     public void call(Subscriber<? super PlaybackResult> subscriber) {
-                        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueueTracks, initialTrackPosition, initialTrackUrn);
-                        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(playQueueTracks, playSessionSource);
-                        playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
-                        playCurrent();
-                        if (loadRelated) {
-                            playQueueManager.fetchTracksRelatedToCurrentTrack();
-                        }
+                        setAndPlayNewQueue(playQueueTracks, initialTrackPosition, initialTrackUrn, playSessionSource);
+                        fetchRelatedTracks(loadRelated);
                         subscriber.onNext(PlaybackResult.success());
                         subscriber.onCompleted();
                     }
                 })
                 .subscribeOn(AndroidSchedulers.mainThread());
+    }
+
+    private void setAndPlayNewQueue(List<Urn> playQueueTracks, int initialTrackPosition, Urn initialTrackUrn, PlaySessionSource playSessionSource) {
+        final int updatedPosition = PlaybackUtils.correctStartPositionAndDeduplicateList(playQueueTracks, initialTrackPosition, initialTrackUrn);
+        final PlayQueue playQueue = PlayQueue.fromTrackUrnList(playQueueTracks, playSessionSource);
+        playQueueManager.setNewPlayQueue(playQueue, updatedPosition, playSessionSource);
+        playCurrent();
+    }
+
+    private void fetchRelatedTracks(boolean loadRelated) {
+        if (loadRelated) {
+            playQueueManager.fetchTracksRelatedToCurrentTrack();
+        }
     }
 
     @Override
