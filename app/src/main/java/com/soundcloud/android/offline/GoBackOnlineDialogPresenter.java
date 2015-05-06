@@ -1,10 +1,10 @@
 package com.soundcloud.android.offline;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.util.VisibleForTesting;
 
 import android.app.Activity;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,21 +14,20 @@ import java.util.concurrent.TimeUnit;
 class GoBackOnlineDialogPresenter {
 
     @Inject
-    public GoBackOnlineDialogPresenter() {
-    }
+    public GoBackOnlineDialogPresenter() {}
 
     public void show(Activity activity, long lastOnlineStatusDate) {
-        final MaterialDialog dialog = new MaterialDialog.Builder(activity)
-                .customView(R.layout.dialog_go_back_offline, true)
-                .positiveText(R.string.offline_dialog_go_online_continue)
-                .build();
-
         final int remainingDaysToGoOnline = getRemainingDaysToGoOnline(lastOnlineStatusDate);
-        final View view = dialog.getCustomView();
-        setTitle(activity, view, remainingDaysToGoOnline);
-        setContent(activity, view, remainingDaysToGoOnline);
+        final View dialogView = View.inflate(activity, R.layout.dialog_go_back_online, null);
 
-        dialog.show();
+        setTitle(activity, dialogView, remainingDaysToGoOnline);
+        setContent(activity, dialogView, remainingDaysToGoOnline);
+
+        new AlertDialog.Builder(activity)
+                .setView(dialogView)
+                .setPositiveButton(R.string.offline_dialog_go_online_continue, null)
+                .create()
+                .show();
     }
 
     private void setContent(Activity activity, View view, int remainingDays) {

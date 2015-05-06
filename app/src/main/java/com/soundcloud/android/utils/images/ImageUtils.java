@@ -1,7 +1,6 @@
 package com.soundcloud.android.utils.images;
 
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.crop.Crop;
@@ -11,6 +10,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -26,6 +26,7 @@ import android.graphics.drawable.TransitionDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -278,18 +279,17 @@ public final class ImageUtils {
     }
 
     public static void showImagePickerDialog(final Activity activity, final File newImageLocation) {
-        new MaterialDialog.Builder(activity)
-                .content(R.string.image_where)
-                .positiveText(R.string.take_new_picture)
-                .negativeText(R.string.use_existing_image)
-                .callback(new MaterialDialog.ButtonCallback() {
+        new AlertDialog.Builder(activity)
+                .setMessage(R.string.image_where)
+                .setPositiveButton(R.string.take_new_picture, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onPositive(MaterialDialog dialog) {
+                    public void onClick(DialogInterface dialog, int which) {
                         ImageUtils.startTakeNewPictureIntent(activity, newImageLocation, Consts.RequestCodes.GALLERY_IMAGE_TAKE);
                     }
-
+                })
+                .setNegativeButton(R.string.use_existing_image, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onNegative(MaterialDialog dialog) {
+                    public void onClick(DialogInterface dialog, int which) {
                         ImageUtils.startPickImageIntent(activity, Consts.RequestCodes.GALLERY_IMAGE_PICK);
                     }
                 }).show();

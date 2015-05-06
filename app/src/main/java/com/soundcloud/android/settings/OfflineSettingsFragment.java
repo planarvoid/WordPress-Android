@@ -7,7 +7,6 @@ import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
 import static com.soundcloud.android.settings.SettingKey.SUBSCRIBE;
 import static com.soundcloud.android.settings.SettingKey.WIFI_ONLY;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -30,6 +29,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.TwoStatePreference;
+import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
 
@@ -137,7 +137,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     private void showRemoveAllOfflineContentDialog() {
-        new AlertDialogWrapper.Builder(getActivity())
+        new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.pref_offline_remove_all_offline_content)
                 .setMessage(R.string.pref_offline_remove_all_offline_content_description)
                 .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {

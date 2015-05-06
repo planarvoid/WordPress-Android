@@ -12,7 +12,6 @@ import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.utils.images.ImageUtils;
 import com.soundcloud.android.view.ButtonBar;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,6 +19,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
@@ -303,7 +303,7 @@ public class UploadMonitorActivity extends TrackedActivity {
     }
 
     private void confirmCancel() {
-        new AlertDialogWrapper.Builder(this)
+        new AlertDialog.Builder(this)
                 .setTitle(null)
                 .setMessage(R.string.dialog_cancel_upload_message)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {

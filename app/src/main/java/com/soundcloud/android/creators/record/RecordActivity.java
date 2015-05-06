@@ -1,7 +1,5 @@
 package com.soundcloud.android.creators.record;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
@@ -31,6 +29,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.View;
@@ -891,33 +890,31 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
     }
 
     private void showRemoveRecordingDialog(int message) {
-        new MaterialDialog.Builder(this)
-                .content(message)
-                .positiveText(R.string.yes)
-                .negativeText(R.string.no)
-                .callback(new MaterialDialog.ButtonCallback(){
+        new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onPositive(MaterialDialog dialog) {
+                    public void onClick(DialogInterface dialog, int which) {
                         reset(true);
                     }
                 })
-                .build()
+                .setNegativeButton(R.string.no, null)
+                .create()
                 .show();
     }
 
     private void showRevertRecordingDialog() {
-        new MaterialDialog.Builder(this)
-                .content(R.string.dialog_revert_recording_message)
-                .positiveText(R.string.yes)
-                .negativeText(R.string.no)
-                .callback(new MaterialDialog.ButtonCallback(){
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.dialog_revert_recording_message)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onPositive(MaterialDialog dialog) {
+                    public void onClick(DialogInterface dialog, int which) {
                         recorder.revertFile();
                         updateUi(isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                     }
                 })
-                .build()
+                .setNegativeButton(R.string.no, null)
+                .create()
                 .show();
     }
 
@@ -934,7 +931,7 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
             checked[i] = true;
         }
 
-        return new AlertDialogWrapper.Builder(this)
+        return new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_unsaved_recordings_message)
                 .setMultiChoiceItems(fileIds, checked,
                         new DialogInterface.OnMultiChoiceClickListener() {

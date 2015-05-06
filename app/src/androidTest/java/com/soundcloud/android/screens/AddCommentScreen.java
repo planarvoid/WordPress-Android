@@ -21,8 +21,7 @@ public class AddCommentScreen extends Screen {
     }
 
     public String getTitle() {
-        return new TextElement(testDriver.findElement(With.id(com.afollestad.materialdialogs.R.id.title)))
-                .getText();
+        return new TextElement(testDriver.findElement(With.id(android.R.id.title))).getText();
     }
 
 }
