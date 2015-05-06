@@ -64,6 +64,12 @@ public class ReferrerResolverTest {
     }
 
     @Test
+    public void shouldNotDetectOriginParametersOnOpaqueUris() throws Exception {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud:sounds:1234?origin=mobi"));
+        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
+    }
+
+    @Test
     public void shouldNotDetectMissingOrigin() throws Exception {
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
         expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);

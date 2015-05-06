@@ -70,7 +70,7 @@ class ReferrerResolver {
     private String getOrigin(Intent intent) {
         Uri data = intent.getData();
 
-        if (data != null) {
+        if (data != null && !data.isOpaque()) {
             return data.getQueryParameter(PARAM_ORIGIN);
         } else {
             return null;
