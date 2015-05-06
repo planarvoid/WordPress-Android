@@ -71,7 +71,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldCreateListBindingWhenCreated() {
-        NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding);
 
         listPresenter.onCreate(fragment, null);
@@ -81,7 +81,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldSubscribeAdapterWhenCreated() {
-        NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding);
 
         listPresenter.onCreate(fragment, null);
@@ -94,7 +94,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldSubscribeViewObserversToListBindingInOnViewCreated() {
-        NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding, testSubscriber);
 
         listPresenter.onCreate(fragment, null);
@@ -108,7 +108,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldSetAdapterForListView() {
-        NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding);
 
         listPresenter.onCreate(fragment, null);
@@ -121,7 +121,7 @@ public class NewListPresenterTest {
     public void shouldRegisterDefaultScrollListener() {
         when(imageOperations.createScrollPauseListener(false, true)).thenReturn(scrollListener);
 
-        NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding);
 
         listPresenter.onCreate(fragment, null);
@@ -132,7 +132,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldWrapCustomScrollListenerInDefaultScrollListener() {
-        NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding);
         AbsListView.OnScrollListener existingListener = mock(AbsListView.OnScrollListener.class);
         listPresenter.setScrollListener(existingListener);
@@ -146,7 +146,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldWrapScrollListenerInPagingScrollListenerIfListBindingIsPaged() {
-        createPresenterWithBinding(NewListBinding.paged(source, adapter, RxTestHelper.<List<String>>newPagerWithSinglePage()));
+        createPresenterWithBinding(new PagedListBinding<>(source, adapter, RxTestHelper.<List<String>>newPagerWithSinglePage()));
 
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
@@ -156,7 +156,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldAddRetryHandlerToPagingAdapterIfPageLoadFails() {
-        final PagedListBinding listBinding = NewListBinding.paged(source, adapter, RxTestHelper.<List<String>>newPagerWithSinglePage());
+        final PagedListBinding listBinding = new PagedListBinding<>(source, adapter, RxTestHelper.<List<String>>newPagerWithSinglePage());
         createPresenterWithBinding(listBinding);
 
         createPresenterWithBinding(listBinding);
@@ -169,7 +169,7 @@ public class NewListPresenterTest {
 
         retryCaptor.getValue().onClick(view);
 
-        List<String> items = Arrays.asList("item");
+        List<String> items = Collections.singletonList("item");
         source.onNext(items);
 
         verify(adapter).setLoading();
@@ -178,7 +178,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldAttachPullToRefreshListener() {
-        NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding);
 
         listPresenter.onCreate(fragment, null);
@@ -189,8 +189,8 @@ public class NewListPresenterTest {
 
     @Test
     public void pullToRefreshListenerConnectsRefreshBindingOnRefresh() {
-        NewListBinding<String> refreshBinding = NewListBinding.create(source, adapter);
-        createPresenterWithBinding(NewListBinding.create(Observable.<List<String>>never(), adapter), refreshBinding);
+        NewListBinding<String> refreshBinding = defaultBinding();
+        createPresenterWithBinding(new NewListBinding<>(Observable.<List<String>>never(), adapter), refreshBinding);
 
         triggerPullToRefresh();
         refreshBinding.getListItems().subscribe(testSubscriber);
@@ -202,8 +202,8 @@ public class NewListPresenterTest {
 
     @Test
     public void pullToRefreshStopsRefreshingIfRefreshFails() {
-        NewListBinding<String> refreshBinding = NewListBinding.create(Observable.<List<String>>error(new Exception("refresh failed")), adapter);
-        createPresenterWithBinding(NewListBinding.create(source, adapter), refreshBinding);
+        NewListBinding<String> refreshBinding = new NewListBinding<>(Observable.<List<String>>error(new Exception("refresh failed")), adapter);
+        createPresenterWithBinding(defaultBinding(), refreshBinding);
 
         triggerPullToRefresh();
 
@@ -212,8 +212,8 @@ public class NewListPresenterTest {
 
     @Test
     public void pullToRefreshStopsRefreshingIfRefreshSuccessful() {
-        final NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
-        final NewListBinding<String> refreshBinding = NewListBinding.create(source, adapter);
+        final NewListBinding<String> listBinding = defaultBinding();
+        final NewListBinding<String> refreshBinding = defaultBinding();
         createPresenterWithBinding(listBinding, refreshBinding);
 
         triggerPullToRefresh();
@@ -224,8 +224,8 @@ public class NewListPresenterTest {
 
     @Test
     public void pullToRefreshClearsListAdapterIfRefreshSuccessful() {
-        final NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
-        final NewListBinding<String> refreshBinding = NewListBinding.create(source, adapter);
+        final NewListBinding<String> listBinding = defaultBinding();
+        final NewListBinding<String> refreshBinding = defaultBinding();
         createPresenterWithBinding(listBinding, refreshBinding);
 
         triggerPullToRefresh();
@@ -236,8 +236,8 @@ public class NewListPresenterTest {
 
     @Test
     public void pullToRefreshSwapsOutPreviousListBindingWithRefreshedBindingIfRefreshSuccessful() {
-        final NewListBinding<String> refreshBinding = NewListBinding.create(source, adapter);
-        createPresenterWithBinding(NewListBinding.create(source, adapter), refreshBinding);
+        final NewListBinding<String> refreshBinding = defaultBinding();
+        createPresenterWithBinding(defaultBinding(), refreshBinding);
 
         triggerPullToRefresh();
         source.onNext(Collections.singletonList("item"));
@@ -247,7 +247,7 @@ public class NewListPresenterTest {
 
     @Test
     public void pullToRefreshResubscribesListAdapterIfRefreshSuccessful() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter), NewListBinding.create(source, adapter));
+        createPresenterWithBinding(defaultBinding(), defaultBinding());
 
         final List<String> items = Collections.singletonList("item");
         triggerPullToRefresh();
@@ -258,7 +258,8 @@ public class NewListPresenterTest {
 
     @Test
     public void pullToRefreshResubscribesViewObserversToNewListBindingIfRefreshSuccessful() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter), NewListBinding.create(source, adapter), testSubscriber);
+        createPresenterWithBinding(defaultBinding(),
+                defaultBinding(), testSubscriber);
 
         triggerPullToRefresh();
         final List<String> listContent = Collections.singletonList("items");
@@ -269,7 +270,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldDetachPullToRefreshWrapperWhenViewsDestroyed() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter));
+        createPresenterWithBinding(defaultBinding());
 
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
@@ -280,7 +281,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldDetachListAdapterFromListViewWhenViewsDestroyed() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter));
+        createPresenterWithBinding(defaultBinding());
 
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
@@ -291,7 +292,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldDisconnectListBindingInOnDestroy() {
-        final NewListBinding<String> listBinding = NewListBinding.create(source, adapter);
+        final NewListBinding<String> listBinding = defaultBinding();
         createPresenterWithBinding(listBinding);
         listPresenter.onCreate(fragment, null);
         Subscription subscription = listBinding.connect();
@@ -303,8 +304,8 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldRebuildListBinding() {
-        final NewListBinding<String> firstBinding = NewListBinding.create(source, adapter);
-        final NewListBinding<String> secondBinding = NewListBinding.create(source, adapter);
+        final NewListBinding<String> firstBinding = defaultBinding();
+        final NewListBinding<String> secondBinding = defaultBinding();
         createPresenterWithPendingBindings(firstBinding, secondBinding);
 
         listPresenter.onCreate(fragment, null);
@@ -316,7 +317,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldConnectEmptyViewOnViewCreated() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter));
+        createPresenterWithBinding(defaultBinding());
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
         Mockito.reset(emptyView);
@@ -329,7 +330,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldConnectEmptyViewOnRetry() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter));
+        createPresenterWithBinding(defaultBinding());
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
         Mockito.reset(emptyView);
@@ -342,8 +343,8 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldConnectEmptyViewOnRefresh() {
-        NewListBinding<String> refreshBinding = NewListBinding.create(source, adapter);
-        createPresenterWithBinding(NewListBinding.create(Observable.<List<String>>empty(), adapter), refreshBinding);
+        NewListBinding<String> refreshBinding = defaultBinding();
+        createPresenterWithBinding(new NewListBinding<>(Observable.<List<String>>empty(), adapter), refreshBinding);
         triggerPullToRefresh();
         Mockito.reset(emptyView);
 
@@ -354,7 +355,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldSetEmptyViewOnListOnViewCreated() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter));
+        createPresenterWithBinding(defaultBinding());
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
         verify(listView).setEmptyView(emptyView);
@@ -362,7 +363,7 @@ public class NewListPresenterTest {
 
     @Test
     public void shouldForwardViewCreatedEventToHeaderPresenter() {
-        createPresenterWithBinding(NewListBinding.create(source, adapter));
+        createPresenterWithBinding(defaultBinding());
         listPresenter.setHeaderPresenter(headerPresenter);
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
@@ -375,6 +376,10 @@ public class NewListPresenterTest {
         verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture());
         OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
+    }
+
+    private NewListBinding<String> defaultBinding() {
+        return new NewListBinding<>(source, adapter);
     }
 
     private void createPresenterWithBinding(final NewListBinding listBinding, final Observer... listObservers) {

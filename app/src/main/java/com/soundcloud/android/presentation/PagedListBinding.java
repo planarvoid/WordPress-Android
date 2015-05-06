@@ -4,13 +4,12 @@ import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Observable;
 import rx.android.NewPager;
 
-public class PagedListBinding<ItemT, CollT extends Iterable<ItemT>> extends NewListBinding<ItemT> {
+public class PagedListBinding<ItemT, Items extends Iterable<ItemT>> extends NewListBinding<ItemT> {
 
     private final PagingItemAdapter<ItemT> adapter;
-    private final NewPager<?, CollT> pager;
+    private final NewPager<?, Items> pager;
 
-    PagedListBinding(Observable<CollT> listItems, PagingItemAdapter<ItemT> adapter,
-                     NewPager<?, CollT> pager) {
+    PagedListBinding(Observable<Items> listItems, PagingItemAdapter<ItemT> adapter, NewPager<?, Items> pager) {
         super(listItems, adapter);
         this.adapter = adapter;
         this.pager = pager;
@@ -25,7 +24,7 @@ public class PagedListBinding<ItemT, CollT extends Iterable<ItemT>> extends NewL
         return pager;
     }
 
-    PagedListBinding<ItemT, CollT> fromCurrentPage() {
+    PagedListBinding<ItemT, Items> fromCurrentPage() {
         return new PagedListBinding<>(pager.currentPage(), adapter, pager);
     }
 }

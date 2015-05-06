@@ -94,9 +94,9 @@ public class TrackLikesHeaderPresenterTest {
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
         presenter.onViewCreated(layoutView, listView);
 
-        NewListBinding<TrackItem> listBinding = NewListBinding.create(
-                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList(),
-                adapter);
+        NewListBinding<TrackItem> listBinding = NewListBinding.from(
+                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
+                .withAdapter(adapter).build();
         presenter.onSubscribeListObservers(listBinding);
         listBinding.connect();
 
@@ -110,9 +110,9 @@ public class TrackLikesHeaderPresenterTest {
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
 
         presenter.onViewCreated(layoutView, listView);
-        presenter.onSubscribeListObservers(NewListBinding.create(
-                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList(),
-                adapter));
+        presenter.onSubscribeListObservers(NewListBinding.from(
+                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
+                .withAdapter(adapter).build());
         presenter.onDestroyView(fragment);
         likedTrackUrnsObservable.onNext(likedTrackUrns);
 

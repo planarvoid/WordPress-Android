@@ -24,7 +24,6 @@ import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;
-import rx.android.NewPager;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -81,18 +80,18 @@ class TrackLikesPresenter extends NewListPresenter<TrackItem>
 
     @Override
     protected NewListBinding<TrackItem> onBuildListBinding(Bundle fragmentArgs) {
-        return NewListBinding.paged(
-                likeOperations.likedTracks(),
-                adapter,
-                NewPager.create(likeOperations.pagingFunction(), TrackItem.fromPropertySets()));
+        return NewListBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
+                .withAdapter(adapter)
+                .withPager(likeOperations.pagingFunction())
+                .build();
     }
 
     @Override
     protected NewListBinding<TrackItem> onBuildRefreshBinding() {
-        return NewListBinding.paged(
-                likeOperations.updatedLikedTracks(),
-                adapter,
-                NewPager.create(likeOperations.pagingFunction(), TrackItem.fromPropertySets()));
+        return NewListBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
+                .withAdapter(adapter)
+                .withPager(likeOperations.pagingFunction())
+                .build();
     }
 
     @Override
