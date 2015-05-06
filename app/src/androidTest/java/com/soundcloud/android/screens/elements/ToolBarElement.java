@@ -18,14 +18,14 @@ import android.view.KeyEvent;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
-public class ActionBarElement extends Element {
+public class ToolBarElement extends Element {
 
     private static final int SEARCH_SELECTOR = R.id.action_search;
-    private static final int CONTAINER = R.id.action_bar_container;
+    private static final int CONTAINER = R.id.toolbar;
     protected final Han testDriver;
 
-    public ActionBarElement(Han solo) {
-        super(solo, With.id(R.id.action_bar));
+    public ToolBarElement(Han solo) {
+        super(solo, With.id(CONTAINER));
         testDriver = solo;
     }
 
@@ -84,10 +84,10 @@ public class ActionBarElement extends Element {
     }
 
     private TextElement title() {
-        return new TextElement(actionBarContainer().findElement(With.id(R.id.action_bar)).findElement(With.className(TextView.class)));
+        return new TextElement(toolbar().findElement(With.className(TextView.class)));
     }
 
-    private ViewElement actionBarContainer() {
+    private ViewElement toolbar() {
         return testDriver.findElement(With.id(CONTAINER));
     }
 

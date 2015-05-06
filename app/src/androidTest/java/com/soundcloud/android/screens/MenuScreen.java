@@ -6,21 +6,21 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.elements.ActionBarElement;
+import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 
 import java.util.List;
 
 public class MenuScreen {
-    private final ActionBarElement actionBar;
+    private final ToolBarElement toolBar;
     protected Han testDriver;
     protected Waiter waiter;
     protected final int username_selector = R.id.username;
 
     public MenuScreen(Han solo) {
         this.testDriver = solo;
-        this.actionBar = new ActionBarElement(solo);
+        this.toolBar = new ToolBarElement(solo);
         this.waiter = new Waiter(solo);
     }
 
@@ -60,7 +60,7 @@ public class MenuScreen {
 
     //TODO: move this to ActionBarScreen
     public MenuScreen open() {
-        actionBar.clickHomeButton();
+        toolBar.clickHomeButton();
 
         waiter.waitForDrawerToOpen();
         return new MenuScreen(testDriver);

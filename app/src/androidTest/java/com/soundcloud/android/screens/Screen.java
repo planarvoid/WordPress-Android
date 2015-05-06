@@ -4,7 +4,7 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.elements.ActionBarElement;
+import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 
 import android.R;
@@ -43,8 +43,8 @@ public abstract class Screen {
         return getActivity().getSimpleName().equals(testDriver.getCurrentActivity().getClass().getSimpleName());
     }
 
-    public ActionBarElement actionBar() {
-        return new ActionBarElement(testDriver);
+    public ToolBarElement actionBar() {
+        return new ToolBarElement(testDriver);
     }
 
     public GoBackOnlineDialogElement getGoBackOnlineDialog() {
