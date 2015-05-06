@@ -33,4 +33,13 @@ public class RxTestHelper {
     public static <T> NewPager<T, T> newPagerWithSinglePage() {
         return newPagerWithNextPage(NewPager.<T>finish());
     }
+
+    public static <T> NewPager.PagingFunction<T> singlePageFunction() {
+        return new NewPager.PagingFunction<T>() {
+            @Override
+            public Observable<T> call(T t) {
+                return NewPager.finish();
+            }
+        };
+    }
 }

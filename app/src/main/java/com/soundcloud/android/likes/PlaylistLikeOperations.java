@@ -16,7 +16,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
+import rx.android.NewPager;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -102,12 +102,12 @@ public class PlaylistLikeOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Pager<List<PropertySet>> likedPlaylistsPager() {
-        return new Pager<List<PropertySet>>() {
+    public NewPager.PagingFunction<List<PropertySet>> pagingFunction() {
+        return new NewPager.PagingFunction<List<PropertySet>>() {
             @Override
             public Observable<List<PropertySet>> call(List<PropertySet> result) {
                 if (result.size() < PAGE_SIZE) {
-                    return Pager.finish();
+                    return NewPager.finish();
                 } else {
                     return loadLikedPlaylistsInternal(getLast(result).get(LikeProperty.CREATED_AT).getTime());
                 }

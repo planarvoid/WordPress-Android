@@ -63,7 +63,7 @@ public class PlaylistLikesPresenterTest {
         when(fragmentView.findViewById(android.R.id.list)).thenReturn(listView);
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedPlaylists()).thenReturn(Observable.<List<PropertySet>>empty());
-        when(likeOperations.likedPlaylistsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(likeOperations.pagingFunction()).thenReturn(RxTestHelper.<List<PropertySet>>singlePageFunction());
         when(likeOperations.onPlaylistLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
         when(listView.getContext()).thenReturn(Robolectric.application);

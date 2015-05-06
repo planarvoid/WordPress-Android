@@ -13,7 +13,7 @@ public class NewPager<I, O> {
     private static final Observable FINISH_SEQUENCE = Observable.never();
 
     private PublishSubject<Observable<I>> pages;
-    private Observable<I> nextPage = FINISH_SEQUENCE;
+    private Observable<I> nextPage = finish();
     private Subscription subscription = Subscriptions.empty();
 
     private final PagingFunction<I> pagingFunction;
@@ -38,6 +38,7 @@ public class NewPager<I, O> {
      *
      * @return the finish token
      */
+    @SuppressWarnings("unchecked")
     public static <T> Observable<T> finish() {
         return FINISH_SEQUENCE;
     }
