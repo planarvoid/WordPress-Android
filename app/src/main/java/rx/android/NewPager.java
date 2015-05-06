@@ -4,6 +4,7 @@ import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.functions.Func1;
+import rx.internal.util.UtilityFunctions;
 import rx.subjects.PublishSubject;
 import rx.subscriptions.Subscriptions;
 
@@ -17,6 +18,10 @@ public class NewPager<I, O> {
 
     private final PagingFunction<I> pagingFunction;
     private final Func1<I, O> pageTransformer;
+
+    public static <T> NewPager<T, T> create(PagingFunction<T> pagingFunction) {
+        return new NewPager<>(pagingFunction, UtilityFunctions.<T>identity());
+    }
 
     public static <I, O> NewPager<I, O> create(PagingFunction<I> pagingFunction, Func1<I, O> pageTransformer) {
         return new NewPager<>(pagingFunction, pageTransformer);

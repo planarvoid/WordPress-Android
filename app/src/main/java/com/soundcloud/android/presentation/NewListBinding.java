@@ -14,42 +14,35 @@ import rx.subscriptions.Subscriptions;
 import java.util.LinkedList;
 import java.util.List;
 
-public class NewListBinding<T> {
+public class NewListBinding<ItemT> {
 
-    private final ConnectableObservable<? extends Iterable<T>> source;
-    private final List<Observer<? super Iterable<T>>> observers = new LinkedList<>();
+    private final ConnectableObservable<? extends Iterable<ItemT>> listItems;
+    private final List<Observer<? super Iterable<ItemT>>> observers = new LinkedList<>();
     private Subscription sourceSubscription = Subscriptions.empty();
 
-    private final ItemAdapter<T> adapter;
-    private NewPager<?, ?> pager;
+    private final ItemAdapter<ItemT> adapter;
 
     public static <T> NewListBinding<T> create(Observable<? extends Iterable<T>> source, ItemAdapter<T> adapter) {
         return new NewListBinding<>(source, adapter);
     }
 
-    public static <T, S, CollS extends Iterable<S>, CollT extends Iterable<T>> NewListBinding<T> paged(Observable<CollS> source, PagingItemAdapter<T> adapter,
-                                                                                                       NewPager<CollS, CollT> pager) {
+    public static <T, S, CollS extends Iterable<S>, CollT extends Iterable<T>> PagedListBinding<T, CollT> paged(
+            Observable<CollS> source, PagingItemAdapter<T> adapter, NewPager<CollS, CollT> pager) {
         final Observable<CollT> pagedSource = pager.page(source);
-        return new NewListBinding<>(pagedSource, adapter, pager);
+        return new PagedListBinding<>(pagedSource, adapter, pager);
     }
 
-    NewListBinding(Observable<? extends Iterable<T>> source, ItemAdapter<T> adapter) {
-        this.source = source.observeOn(AndroidSchedulers.mainThread()).replay();
+    NewListBinding(Observable<? extends Iterable<ItemT>> listItems, ItemAdapter<ItemT> adapter) {
+        this.listItems = listItems.observeOn(AndroidSchedulers.mainThread()).replay();
         this.adapter = adapter;
     }
 
-    <CollT extends Iterable<T>> NewListBinding(Observable<CollT> source, PagingItemAdapter<T> adapter,
-                                               NewPager<?, CollT> pager) {
-        this(source, adapter);
-        this.pager = pager;
-    }
-
-    public void addViewObserver(Observer<? super Iterable<T>> observer) {
+    public void addViewObserver(Observer<? super Iterable<ItemT>> observer) {
         observers.add(observer);
     }
 
     public Subscription connect() {
-        sourceSubscription = source.connect();
+        sourceSubscription = listItems.connect();
         return sourceSubscription;
     }
 
@@ -58,14 +51,14 @@ public class NewListBinding<T> {
         clearViewObservers();
     }
 
-    public Observable<? extends Iterable<T>> getSource() {
-        return source;
+    public Observable<? extends Iterable<ItemT>> getListItems() {
+        return listItems;
     }
 
     Subscription subscribeViewObservers() {
         final CompositeSubscription viewSubscriptions = new CompositeSubscription();
-        for (Observer<? super Iterable<T>> observer : observers) {
-            viewSubscriptions.add(source.subscribe(observer));
+        for (Observer<? super Iterable<ItemT>> observer : observers) {
+            viewSubscriptions.add(listItems.subscribe(observer));
         }
         return viewSubscriptions;
     }
@@ -74,20 +67,7 @@ public class NewListBinding<T> {
         observers.clear();
     }
 
-
-    public ItemAdapter<T> getAdapter() {
+    public ItemAdapter<ItemT> getAdapter() {
         return adapter;
-    }
-
-    public NewPager<?, ?> getPager() {
-        return pager;
-    }
-
-    boolean isPaged() {
-        return pager != null;
-    }
-
-    NewListBinding<T> resetFromCurrentPage() {
-        return new NewListBinding(pager.currentPage(), (PagingItemAdapter) adapter, pager);
     }
 }

@@ -73,7 +73,7 @@ public abstract class NewListPresenter<ItemT> extends EmptyViewPresenter {
 
     private void resetListBindingTo(NewListBinding<ItemT> listBinding) {
         this.listBinding = listBinding;
-        this.listBinding.getSource().subscribe(listBinding.getAdapter());
+        this.listBinding.getListItems().subscribe(listBinding.getAdapter());
     }
 
     @Override
@@ -140,21 +140,21 @@ public abstract class NewListPresenter<ItemT> extends EmptyViewPresenter {
         } else {
             scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         }
-        if (getListBinding().isPaged()) {
-            configurePagedListAdapter();
+        if (listBinding instanceof PagedListBinding) {
+            configurePagedListAdapter((PagedListBinding<ItemT, ?>) listBinding);
         }
 
         listView.setOnScrollListener(scrollListener);
     }
 
-    private void configurePagedListAdapter() {
-        final PagingItemAdapter adapter = (PagingItemAdapter) listBinding.getAdapter();
+    private void configurePagedListAdapter(final PagedListBinding<ItemT, ?> binding) {
+        final PagingItemAdapter<ItemT> adapter = binding.getAdapter();
         scrollListener = new NewPagingScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 adapter.setLoading();
-                retryWith(listBinding.resetFromCurrentPage());
+                retryWith(binding.fromCurrentPage());
             }
         });
     }
@@ -185,7 +185,7 @@ public abstract class NewListPresenter<ItemT> extends EmptyViewPresenter {
         @Override
         public void onRefresh() {
             refreshBinding = onBuildRefreshBinding();
-            refreshBinding.getSource().subscribe(new ListRefreshSubscriber());
+            refreshBinding.getListItems().subscribe(new ListRefreshSubscriber());
             refreshBinding.connect();
         }
     }
