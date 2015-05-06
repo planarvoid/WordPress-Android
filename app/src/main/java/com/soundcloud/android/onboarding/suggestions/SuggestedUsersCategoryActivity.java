@@ -26,7 +26,6 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        setContentView(R.layout.container_layout);
         if (!getIntent().hasExtra(Category.EXTRA)) {
             finish();
         } else {

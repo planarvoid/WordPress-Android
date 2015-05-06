@@ -58,9 +58,10 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
         suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
         suggestedUsersCategoryScreen.waitForUsers();
         suggestedUsersCategoryScreen.selectAll();
-        assertTrue(suggestedUsersCategoryScreen.hasAllUsersSelected());
+        assertTrue("All users should be selected", suggestedUsersCategoryScreen.hasAllUsersSelected());
+
         suggestedUsersCategoryScreen.deselectAll();
-        assertTrue(suggestedUsersCategoryScreen.hasNoUsersSelected());
+        assertTrue("All users should not be selected", suggestedUsersCategoryScreen.hasNoUsersSelected());
     }
 
     @Override
