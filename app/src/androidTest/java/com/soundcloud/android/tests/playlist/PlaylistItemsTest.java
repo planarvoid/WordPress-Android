@@ -47,6 +47,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         String trackAddedTitle = streamScreen.firstTrack().getTitle();
 
         VisualPlayerElement player = streamScreen.clickFirstTrack();
+        assertTrue("Player did not expand", player.waitForExpandedPlayer());
         player.clickMenu()
               .clickAddToPlaylist()
               .clickPlaylistWithTitle(TEST_PLAYLIST);
@@ -57,8 +58,6 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
     }
 
     private void assertPlaylistContainsTrack(String trackTitle) {
-        assertThat(getSolo().getToast().getText(), is("Added to playlist"));
-
         PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
         waiter.waitForContentAndRetryIfLoadingFailed();
         PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
