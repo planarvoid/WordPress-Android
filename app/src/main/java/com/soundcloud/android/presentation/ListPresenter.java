@@ -78,7 +78,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
 
     private void resetListBindingTo(ListBinding<ItemT> listBinding) {
         this.listBinding = listBinding;
-        this.listBinding.items().subscribe(listBinding.getAdapter());
+        this.listBinding.items().subscribe(listBinding.adapter());
     }
 
     @Override
@@ -118,7 +118,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
         if (headerPresenter != null) {
             headerPresenter.onViewCreated(view, (ListView) listView);
         }
-        listView.setAdapter(getListBinding().getAdapter());
+        listView.setAdapter(getListBinding().adapter());
 
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
         refreshWrapper.attach(refreshLayout, new PullToRefreshListener());
@@ -158,7 +158,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
     }
 
     private void configurePagedListAdapter(final PagedListBinding<ItemT, ?> binding) {
-        final PagingItemAdapter<ItemT> adapter = binding.getAdapter();
+        final PagingItemAdapter<ItemT> adapter = binding.adapter();
         scrollListener = new PagingScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
@@ -174,7 +174,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
         @Override
         public void onNext(Iterable<ItemT> collection) {
             Log.d(TAG, "refresh complete");
-            final ItemAdapter<ItemT> adapter = listBinding.getAdapter();
+            final ItemAdapter<ItemT> adapter = listBinding.adapter();
             adapter.clear();
 
             resetListBindingTo(refreshBinding);

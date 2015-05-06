@@ -16,11 +16,11 @@ public class PagedListBinding<ItemT, Items extends Iterable<ItemT>> extends List
     }
 
     @Override
-    public PagingItemAdapter<ItemT> getAdapter() {
+    public PagingItemAdapter<ItemT> adapter() {
         return adapter;
     }
 
-    public Pager<?, ? extends Iterable<ItemT>> getPager() {
+    public Pager<?, ? extends Iterable<ItemT>> pager() {
         return pager;
     }
 

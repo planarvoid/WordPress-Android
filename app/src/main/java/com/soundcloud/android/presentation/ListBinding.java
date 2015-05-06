@@ -72,7 +72,7 @@ public class ListBinding<Item> {
         observers.clear();
     }
 
-    public ItemAdapter<Item> getAdapter() {
+    public ItemAdapter<Item> adapter() {
         return adapter;
     }
 
