@@ -157,7 +157,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     public void onSubscribeListObservers(ListBinding<TrackItem> listBinding) {
-        ConnectableObservable<List<Urn>> allLikedTrackUrns = listBinding.getListItems()
+        ConnectableObservable<List<Urn>> allLikedTrackUrns = listBinding.items()
                 .first()
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())

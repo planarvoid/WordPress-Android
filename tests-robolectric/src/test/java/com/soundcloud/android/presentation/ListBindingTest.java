@@ -33,7 +33,7 @@ public class ListBindingTest {
                 .build();
 
         expect(binding.getAdapter()).toBe(adapter);
-        expect(binding.getListItems()).not.toBeNull();
+        expect(binding.items()).not.toBeNull();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -55,7 +55,7 @@ public class ListBindingTest {
         expect(binding).toBeInstanceOf(PagedListBinding.class);
         PagedListBinding pagedListBinding = (PagedListBinding) binding;
         expect(pagedListBinding.getAdapter()).toBe(pagingAdapter);
-        expect(pagedListBinding.getListItems()).not.toBeNull();
+        expect(pagedListBinding.items()).not.toBeNull();
         expect(pagedListBinding.getPager()).not.toBeNull();
     }
 
@@ -75,8 +75,8 @@ public class ListBindingTest {
         binding.connect();
 
         TestSubscriber<Iterable<String>> observer = new TestSubscriber<>();
-        binding.getListItems().subscribe(observer);
-        binding.getListItems().subscribe(observer);
+        binding.items().subscribe(observer);
+        binding.items().subscribe(observer);
 
         expect(observer.getOnNextEvents()).toContainExactly(listItems, listItems);
     }

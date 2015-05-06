@@ -78,7 +78,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
 
     private void resetListBindingTo(ListBinding<ItemT> listBinding) {
         this.listBinding = listBinding;
-        this.listBinding.getListItems().subscribe(listBinding.getAdapter());
+        this.listBinding.items().subscribe(listBinding.getAdapter());
     }
 
     @Override
@@ -198,7 +198,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
         public void onRefresh() {
             Log.d(TAG, "refreshing list");
             refreshBinding = onBuildRefreshBinding();
-            refreshBinding.getListItems().subscribe(new ListRefreshSubscriber());
+            refreshBinding.items().subscribe(new ListRefreshSubscriber());
             refreshBinding.connect();
         }
     }

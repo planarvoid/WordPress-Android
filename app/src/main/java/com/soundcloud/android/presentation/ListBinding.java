@@ -21,7 +21,7 @@ import java.util.List;
 
 public class ListBinding<Item> {
 
-    private final ConnectableObservable<? extends Iterable<Item>> listItems;
+    private final ConnectableObservable<? extends Iterable<Item>> items;
     private final List<Observer<? super Iterable<Item>>> observers = new LinkedList<>();
     private Subscription sourceSubscription = Subscriptions.empty();
 
@@ -36,9 +36,9 @@ public class ListBinding<Item> {
         return new Builder<>(source, transformer);
     }
 
-    ListBinding(Observable<? extends Iterable<Item>> listItems, ItemAdapter<Item> adapter) {
+    ListBinding(Observable<? extends Iterable<Item>> items, ItemAdapter<Item> adapter) {
         checkArgument(adapter != null, "adapter can't be null");
-        this.listItems = listItems.observeOn(AndroidSchedulers.mainThread()).replay();
+        this.items = items.observeOn(AndroidSchedulers.mainThread()).replay();
         this.adapter = adapter;
     }
 
@@ -47,7 +47,7 @@ public class ListBinding<Item> {
     }
 
     public Subscription connect() {
-        sourceSubscription = listItems.connect();
+        sourceSubscription = items.connect();
         return sourceSubscription;
     }
 
@@ -56,14 +56,14 @@ public class ListBinding<Item> {
         clearViewObservers();
     }
 
-    public Observable<? extends Iterable<Item>> getListItems() {
-        return listItems;
+    public Observable<? extends Iterable<Item>> items() {
+        return items;
     }
 
     Subscription subscribeViewObservers() {
         final CompositeSubscription viewSubscriptions = new CompositeSubscription();
         for (Observer<? super Iterable<Item>> observer : observers) {
-            viewSubscriptions.add(listItems.subscribe(observer));
+            viewSubscriptions.add(items.subscribe(observer));
         }
         return viewSubscriptions;
     }

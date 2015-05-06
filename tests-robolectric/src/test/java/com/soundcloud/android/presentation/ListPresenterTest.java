@@ -200,7 +200,7 @@ public class ListPresenterTest {
         createPresenterWithBinding(new ListBinding<>(Observable.<List<String>>never(), adapter), refreshBinding);
 
         triggerPullToRefresh();
-        refreshBinding.getListItems().subscribe(testSubscriber);
+        refreshBinding.items().subscribe(testSubscriber);
 
         final List<String> listContent = singletonList("item");
         source.onNext(listContent);
