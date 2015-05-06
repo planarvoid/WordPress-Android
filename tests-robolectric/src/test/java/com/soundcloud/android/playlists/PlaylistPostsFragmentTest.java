@@ -10,7 +10,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.ListViewController;
@@ -53,7 +53,7 @@ public class PlaylistPostsFragmentTest {
     public void setUp() throws Exception {
         Observable<List<PropertySet>> postedPlaylists = withSubscription(subscription, just(PropertySet.create())).toList();
         when(playlistPostOperations.postedPlaylists()).thenReturn(postedPlaylists);
-        when(playlistPostOperations.postedPlaylistsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(playlistPostOperations.postedPlaylistsPager()).thenReturn(TestPager.<List<PropertySet>>pagerWithSinglePage());
         context = Robolectric.application;
         when(listViewController.getEmptyView()).thenReturn(new EmptyView(context));
         fragment = new PlaylistPostsFragment(adapter, playlistPostOperations, listViewController, pullToRefreshController);

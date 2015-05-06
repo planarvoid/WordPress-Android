@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static java.util.Collections.singleton;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.junit.Test;
@@ -12,11 +12,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
-import rx.internal.util.UtilityFunctions;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +48,7 @@ public class NewListBindingTest {
         Observable<Iterable<String>> source = Observable.<Iterable<String>>just(Collections.singleton("item"));
 
         NewListBinding binding = NewListBinding.from(source)
-                .withPager(RxTestHelper.<Iterable<String>>singlePageFunction())
+                .withPager(TestPager.<Iterable<String>>singlePageFunction())
                 .withAdapter(pagingAdapter)
                 .build();
 
@@ -67,7 +65,7 @@ public class NewListBindingTest {
 
         NewListBinding.from(source)
                 .withAdapter(adapter)
-                .withPager(RxTestHelper.<Iterable<String>>singlePageFunction())
+                .withPager(TestPager.<Iterable<String>>singlePageFunction())
                 .build();
     }
 

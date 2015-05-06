@@ -1,6 +1,6 @@
 package com.soundcloud.android.actionbar;
 
-import static com.soundcloud.android.rx.RxTestHelper.pagerWithNextPage;
+import static com.soundcloud.android.rx.TestPager.pagerWithNextPage;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;

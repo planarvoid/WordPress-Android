@@ -12,7 +12,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -141,7 +141,7 @@ public class ListPresenterTest {
 
     @Test
     public void shouldWrapScrollListenerInPagingScrollListenerIfListBindingIsPaged() {
-        createPresenterWithBinding(DataBinding.pagedList(source, adapter, RxTestHelper.<List<String>>pagerWithSinglePage()));
+        createPresenterWithBinding(DataBinding.pagedList(source, adapter, TestPager.<List<String>>pagerWithSinglePage()));
 
         listPresenter.onCreate(fragment, null);
         listPresenter.onViewCreated(fragment, view, null);
@@ -152,7 +152,7 @@ public class ListPresenterTest {
     @Test
     public void shouldAddRetryHandlerToPagingAdapterIfPageLoadFails() {
         ListBinding<String, String> listBinding = DataBinding.pagedList(source, adapter,
-                RxTestHelper.<List<String>>pagerWithSinglePage());
+                TestPager.<List<String>>pagerWithSinglePage());
 
         createPresenterWithBinding(listBinding);
         listPresenter.onCreate(fragment, null);
