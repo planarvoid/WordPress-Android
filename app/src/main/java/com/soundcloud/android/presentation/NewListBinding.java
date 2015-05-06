@@ -23,9 +23,10 @@ public class NewListBinding<T> {
     private final ItemAdapter<T> adapter;
     private NewPager<?, ?> pager;
 
-    public static <T, S, CollS extends Iterable<S>> NewListBinding<T> paged(Observable<CollS> source, PagingItemAdapter<T> adapter,
-                                                                            NewPager<CollS, ? extends Iterable<T>> pager) {
-        return new NewListBinding<T>(source, adapter, pager);
+    public static <T, S, CollS extends Iterable<S>, CollT extends Iterable<T>> NewListBinding<T> paged(Observable<CollS> source, PagingItemAdapter<T> adapter,
+                                                                                                       NewPager<CollS, CollT> pager) {
+        final Observable<CollT> pagedSource = pager.page(source);
+        return new NewListBinding<>(pagedSource, adapter, pager);
     }
 
     NewListBinding(Observable<? extends Iterable<T>> source, ItemAdapter<T> adapter) {
@@ -33,9 +34,9 @@ public class NewListBinding<T> {
         this.adapter = adapter;
     }
 
-    <S, CollS extends Iterable<S>> NewListBinding(Observable<CollS> source, PagingItemAdapter<T> adapter,
-                                                         NewPager<CollS, ? extends Iterable<T>> pager) {
-        this(pager.page(source), adapter);
+    <CollT extends Iterable<T>> NewListBinding(Observable<CollT> source, PagingItemAdapter<T> adapter,
+                                               NewPager<?, CollT> pager) {
+        this(source, adapter);
         this.pager = pager;
     }
 
@@ -83,7 +84,6 @@ public class NewListBinding<T> {
     }
 
     NewListBinding<T> resetFromCurrentPage() {
-        final Observable<?> currentPage = pager.currentPage();
-        return new NewListBinding(currentPage, (PagingItemAdapter) adapter, pager);
+        return new NewListBinding(pager.currentPage(), (PagingItemAdapter) adapter, pager);
     }
 }

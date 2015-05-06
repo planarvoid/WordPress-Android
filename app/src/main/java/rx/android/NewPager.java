@@ -80,8 +80,8 @@ public class NewPager<I, O> {
      * Returns the last page received from the pager. You may use this to
      * retry that observable in case it failed the first time around.
      */
-    public Observable<I> currentPage() {
-        return (Observable<I>) page(nextPage);
+    public Observable<O> currentPage() {
+        return page(nextPage);
     }
 
     /**
