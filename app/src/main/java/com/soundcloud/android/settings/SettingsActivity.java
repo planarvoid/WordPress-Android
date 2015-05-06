@@ -1,6 +1,7 @@
 package com.soundcloud.android.settings;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
@@ -12,9 +13,11 @@ import android.os.Bundle;
 public class SettingsActivity extends ScActivity {
 
     @Override
-    public void onCreate(Bundle bundle) {
+    protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentFragment(SettingsFragment.create());
+
+        setTitle(R.string.title_settings);
     }
 
     @Override

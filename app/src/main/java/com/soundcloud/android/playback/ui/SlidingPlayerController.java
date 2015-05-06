@@ -19,7 +19,6 @@ import rx.subscriptions.Subscriptions;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -29,7 +28,6 @@ import javax.inject.Inject;
 public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBarActivity> implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
-    private static final float EXPAND_THRESHOLD = 0.5f;
 
     private final EventBus eventBus;
     private final PlayQueueManager playQueueManager;
@@ -39,10 +37,8 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
 
     private Subscription subscription = Subscriptions.empty();
 
-    private boolean isExpanding;
     private boolean expandOnResume;
     private boolean wasDragged;
-    private ActionBar actionBar;
 
     @Inject
     public SlidingPlayerController(PlayQueueManager playQueueManager, EventBus eventBus) {
@@ -52,7 +48,6 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
 
     @Override
     public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
-        actionBar = activity.getSupportActionBar();
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
@@ -71,22 +66,18 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
 
     private void expand() {
         slidingPanel.expandPanel();
-        toggleActionBarAndSysBarVisibility();
     }
 
     private void collapse() {
         slidingPanel.collapsePanel();
-        toggleActionBarAndSysBarVisibility();
     }
 
     private void show() {
         slidingPanel.showPanel();
-        toggleActionBarAndSysBarVisibility();
     }
 
     private void hide() {
         slidingPanel.hidePanel();
-        toggleActionBarAndSysBarVisibility();
     }
 
     public boolean handleBackPressed() {
@@ -136,7 +127,6 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
             restoreExpanded();
         } else {
             notifyCurrentState();
-            toggleActionBarAndSysBarVisibility();
         }
     }
 
@@ -159,15 +149,6 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
         }
     }
 
-    private void toggleActionBarAndSysBarVisibility() {
-        boolean panelExpanded = !slidingPanel.isPanelHidden() && slidingPanel.isPanelExpanded();
-        if (!panelExpanded) {
-            actionBar.show();
-        } else {
-            actionBar.hide();
-        }
-    }
-
     @Override
     public void onPause(ActionBarActivity activity) {
         subscription.unsubscribe();
@@ -181,14 +162,6 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
     @Override
     public void onPanelSlide(View panel, float slideOffset) {
         playerFragment.onPlayerSlide(slideOffset);
-
-        if (slideOffset > EXPAND_THRESHOLD && !isExpanding) {
-            actionBar.hide();
-            isExpanding = true;
-        } else if (slideOffset < EXPAND_THRESHOLD && isExpanding) {
-            actionBar.show();
-            isExpanding = false;
-        }
     }
 
     private class PlayerCommandSubscriber extends DefaultSubscriber<PlayerUICommand> {

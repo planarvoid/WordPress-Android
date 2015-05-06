@@ -16,7 +16,6 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.screen.ScreenPresenter;
 import com.soundcloud.propeller.PropertySet;
 
 import android.os.Bundle;
@@ -35,13 +34,8 @@ public class TrackCommentsActivity extends ScActivity {
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle ActionBarController actionBarController;
 
-    @Inject ScreenPresenter presenter;
     @Inject FeatureFlags featureFlags;
     @Inject ImageOperations imageOperations;
-
-    public TrackCommentsActivity() {
-        presenter.attach(this);
-    }
 
     @Override
     public void onCreate(Bundle bundle) {

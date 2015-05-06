@@ -12,7 +12,6 @@ import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.view.screen.ScreenPresenter;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,11 +23,6 @@ public class ActivitiesActivity extends ScActivity {
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject @LightCycle ActionBarController actionBarController;
-    @Inject ScreenPresenter presenter;
-
-    public ActivitiesActivity() {
-        presenter.attach(this);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

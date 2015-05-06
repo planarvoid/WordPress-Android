@@ -14,6 +14,7 @@ import com.soundcloud.android.offline.PolicyUpdateController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.view.screen.ScreenPresenter;
 
 import android.app.Fragment;
 import android.content.Intent;
@@ -38,12 +39,13 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
     @Inject @LightCycle ScreenStateProvider screenStateProvider;
     @Inject @LightCycle PolicyUpdateController policyUpdateController;
     @Inject ApplicationProperties applicationProperties;
-
+    @Inject protected ScreenPresenter presenter;
     @Inject protected EventBus eventBus;
     @Inject protected AccountOperations accountOperations;
 
     public ScActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
+        presenter.attach(this);
     }
 
     @Override
@@ -99,7 +101,7 @@ public abstract class ScActivity extends LightCycleActionBarActivity {
 
     // Override this in activities with custom content views
     protected void setContentView() {
-        setContentView(R.layout.container_layout);
+        presenter.setContainerLayout();
     }
 
     protected void setContentFragment(final Fragment f) {

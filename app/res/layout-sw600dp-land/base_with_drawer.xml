@@ -9,38 +9,47 @@
     sothree:dragView="@+id/player_layout">
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include layout="@layout/toolbar" />
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="?attr/actionBarSize">
+            android:orientation="horizontal">
 
-        <fragment android:id="@id/fixed_navigation_fragment_id"
-                  android:layout_width="0dp"
-                  android:layout_height="match_parent"
-                  android:layout_gravity="start"
-                  android:layout_weight="0.1"
-                  android:name="com.soundcloud.android.main.NavigationFragment" />
+            <fragment
+                android:id="@id/fixed_navigation_fragment_id"
+                android:name="com.soundcloud.android.main.NavigationFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="start"
+                android:layout_weight="0.1" />
 
-        <RelativeLayout
+            <RelativeLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="0.2">
 
-            <FrameLayout
-                android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                <FrameLayout
+                    android:id="@+id/container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-            <View
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@drawable/shadow_right"/>
-        </RelativeLayout>
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/shadow_right" />
+            </RelativeLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <fragment
-            android:id="@+id/player_root"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:name="com.soundcloud.android.playback.ui.PlayerFragment" />
+        android:id="@+id/player_root"
+        android:name="com.soundcloud.android.playback.ui.PlayerFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </com.sothree.slidinguppanel.SlidingUpPanelLayout>

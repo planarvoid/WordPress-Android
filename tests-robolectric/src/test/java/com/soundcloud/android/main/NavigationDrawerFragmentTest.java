@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -20,14 +21,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
 import android.content.res.Resources;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -69,19 +67,27 @@ public class NavigationDrawerFragmentTest {
 
     @Test
     public void shouldTryToCloseDrawerIfCloseIsCalledAndOpen() throws Exception {
-        fragment.onActivityCreated(null);
-        when(drawerLayout.isDrawerOpen(view)).thenReturn(true);
+        createActivityWithOpenedDrawer();
+
         fragment.closeDrawer();
         verify(drawerLayout).closeDrawer(view);
     }
 
     @Test
-    public void shouldSetupGlobalContextActionBarWhenDrawerOpened() throws Exception {
-        fragment.onActivityCreated(null);
-        when(drawerLayout.isDrawerOpen(view)).thenReturn(true);
-        fragment.onCreateOptionsMenu(Mockito.mock(Menu.class), Mockito.mock(MenuInflater.class));
-        verify(actionBar).setDisplayShowCustomEnabled(false);
-        verify(actionBar).setTitle(R.string.app_name);
+    public void handleBackPressedClosesDrawerWhenOpened() {
+        createActivityWithOpenedDrawer();
+
+        boolean drawerClosed = fragment.handleBackPressed();
+
+        expect(drawerClosed).toBeTrue();
+        verify(drawerLayout).closeDrawer(view);
+    }
+
+    @Test
+    public void handleBackPressedDoesNothingWhenDrawerClosed() {
+        expect(fragment.handleBackPressed()).toBeFalse();
+
+        verify(drawerLayout, never()).closeDrawer(view);
     }
 
     @Test
@@ -119,6 +125,11 @@ public class NavigationDrawerFragmentTest {
         fragment.onViewCreated(view, null);
         fragment.onDestroyView();
         eventBus.verifyUnsubscribed();
+    }
+
+    private void createActivityWithOpenedDrawer() {
+        fragment.onActivityCreated(null);
+        when(drawerLayout.isDrawerOpen(view)).thenReturn(true);
     }
 
 }

@@ -30,7 +30,6 @@ import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.SoundStreamFragment;
-import com.soundcloud.android.view.screen.ScreenPresenter;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
@@ -62,7 +61,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private int lastSelection = NO_SELECTION;
     private boolean refreshStream;
 
-    @Inject ScreenPresenter presenter;
     @Inject UserRepository userRepository;
     @Inject FeatureFlags featureFlags;
     @Inject PlayQueueManager playQueueManager;
@@ -72,10 +70,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject @LightCycle AdPlayerController adPlayerController;
     @Inject @LightCycle InAppCampaignController inAppCampaignController;
     @Inject @LightCycle ActionBarController actionBarController;
-
-    public MainActivity() {
-        presenter.attach(this);
-    }
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,7 +111,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     public void onBackPressed() {
-        if (!playerController.handleBackPressed()) {
+        if (!(playerController.handleBackPressed() || navigationFragment.handleBackPressed())) {
             super.onBackPressed();
         }
     }
@@ -228,20 +222,20 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     @Override
-    public void onSmoothSelectItem(final int position, final boolean setTitle) {
+    public void onSmoothSelectItem(final int position) {
         if (position == lastSelection) {
             return;
         }
 
-        displayContentDelayed(position, setTitle);
+        displayContentDelayed(position);
     }
 
     @Override
-    public void onSelectItem(int position, boolean setTitle) {
-        displayFragment(position, setTitle);
+    public void onSelectItem(int position) {
+        displayFragment(position);
     }
 
-    private void displayContentDelayed(final int position, final boolean setTitle) {
+    private void displayContentDelayed(final int position) {
         drawerHandler.removeCallbacksAndMessages(null);
         drawerHandler.postDelayed(new Runnable() {
             @Override
@@ -253,7 +247,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                     }
                 }
 
-                displayFragment(position, setTitle);
+                displayFragment(position);
             }
         }, DRAWER_SELECT_DELAY_MILLIS);
     }
@@ -262,7 +256,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         return NavigationFragment.NavItem.values()[position] == NavigationFragment.NavItem.PROFILE;
     }
 
-    protected void displayFragment(int position, boolean setTitle) {
+    protected void displayFragment(int position) {
         final NavigationFragment.NavItem navItem = NavigationFragment.NavItem.values()[position];
         switch (navItem) {
             case PROFILE:
@@ -286,13 +280,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                 throw new IllegalArgumentException("Unknown navItem: " + navItem);
         }
 
-        if (setTitle) {
-            /**
-             * In this case, restoreActionBar will not be called since it is already closed.
-             * This probably came from {@link NavigationFragment#handleIntent(android.content.Intent)}
-             */
-            getSupportActionBar().setTitle(lastTitle);
-        }
+        getSupportActionBar().setTitle(lastTitle);
+
         if (lastSelection != NO_SELECTION) {
             // only publish content change events here that were user initiated, not those coming from rotation changes
             // and stuff.

@@ -1,38 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:sothree="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/drawer_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <com.sothree.slidinguppanel.SlidingUpPanelLayout
-            android:id="@+id/sliding_layout"
+        android:id="@+id/sliding_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        sothree:dragView="@+id/player_layout"
+        sothree:panelHeight="@dimen/player_footer">
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="bottom"
-            sothree:panelHeight="@dimen/player_footer"
-            sothree:dragView="@+id/player_layout">
+            android:orientation="vertical">
 
-        <FrameLayout
+            <include layout="@layout/toolbar" />
+
+            <FrameLayout
                 android:id="@+id/container"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingTop="?attr/actionBarSize" />
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
 
         <fragment
-                android:id="@+id/player_root"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:name="com.soundcloud.android.playback.ui.PlayerFragment" />
+            android:id="@+id/player_root"
+            android:name="com.soundcloud.android.playback.ui.PlayerFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
-    <fragment android:id="@id/navigation_fragment_id"
-              android:layout_width="@dimen/navigation_drawer_width"
-              android:layout_height="match_parent"
-              android:layout_gravity="start"
-              android:name="com.soundcloud.android.main.NavigationDrawerFragment"
-              android:layout_marginTop="?attr/actionBarSize" />
+    <fragment
+        android:id="@id/navigation_fragment_id"
+        android:name="com.soundcloud.android.main.NavigationDrawerFragment"
+        android:layout_width="@dimen/navigation_drawer_width"
+        android:layout_height="match_parent"
+        android:layout_gravity="start" />
 
 </android.support.v4.widget.DrawerLayout>
