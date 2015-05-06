@@ -31,4 +31,5 @@
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_offline_sync">false</bool>
     <bool name="feature_eventlogger_search">false</bool>
+    <bool name="feature_promoted_in_stream">false</bool>
 </resources>

@@ -5,10 +5,12 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import org.jetbrains.annotations.NotNull;
 
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,7 +87,9 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
 
     private void showRelevantAdditionalInformation(View itemView, TrackItem track) {
         hideAllAdditionalInformation(itemView);
-        if (track.getEntityUrn().equals(playingTrack)) {
+        if (track instanceof PromotedTrackItem) {
+            showPromoted(itemView, (PromotedTrackItem) track);
+        } else if (track.getEntityUrn().equals(playingTrack)) {
             showNowPlaying(itemView);
         } else if (track.isPrivate()) {
             showPrivateIndicator(itemView);
@@ -98,6 +102,28 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
         getTextView(itemView, R.id.list_item_counter).setVisibility(View.INVISIBLE);
         getTextView(itemView, R.id.now_playing).setVisibility(View.INVISIBLE);
         getTextView(itemView, R.id.private_indicator).setVisibility(View.GONE);
+
+        TextView promoted = getTextView(itemView, R.id.promoted_track);
+        promoted.setVisibility(View.GONE);
+        promoted.setClickable(false);
+    }
+
+    private void showPromoted(View itemView, final PromotedTrackItem track) {
+        TextView promoted = getTextView(itemView, R.id.promoted_track);
+        promoted.setVisibility(View.VISIBLE);
+        if (track.hasPromoter()) {
+            final Context context = itemView.getContext();
+            promoted.setText(context.getString(R.string.promoted_by_label, track.getPromoterName()));
+            promoted.setClickable(true);
+            promoted.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    context.startActivity(ProfileActivity.getIntent(context, track.getPromoterUrn()));
+                }
+            });
+        } else {
+            promoted.setText(R.string.promoted_label);
+        }
     }
 
     private void showNowPlaying(View itemView) {

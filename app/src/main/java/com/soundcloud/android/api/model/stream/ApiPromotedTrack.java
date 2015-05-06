@@ -3,7 +3,6 @@ package com.soundcloud.android.api.model.stream;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.model.Urn;
 
 import java.util.List;
 
@@ -11,7 +10,7 @@ public class ApiPromotedTrack {
 
     private final ApiTrack apiTrack;
     private final ApiUser promoter;
-    private final Urn urn;
+    private final String adUrn;
     private final List<String> trackingTrackClickedUrls;
     private final List<String> trackingProfileClickedUrls;
     private final List<String> trackingPromoterClickedUrls;
@@ -20,7 +19,7 @@ public class ApiPromotedTrack {
 
     public ApiPromotedTrack(@JsonProperty("track") ApiTrack apiTrack,
                             @JsonProperty("promoter") ApiUser promoter,
-                            @JsonProperty("urn") Urn urn,
+                            @JsonProperty("urn") String adUrn,
                             @JsonProperty("tracking_track_clicked_urls") List<String> trackingTrackClickedUrls,
                             @JsonProperty("tracking_profile_clicked_urls") List<String> trackingProfileClickedUrls,
                             @JsonProperty("tracking_promoter_clicked_urls") List<String> trackingPromoterClickedUrls,
@@ -28,7 +27,7 @@ public class ApiPromotedTrack {
                             @JsonProperty("tracking_track_impression_urls") List<String> trackingTrackImpressionUrls) {
         this.apiTrack = apiTrack;
         this.promoter = promoter;
-        this.urn = urn;
+        this.adUrn = adUrn;
         this.trackingTrackClickedUrls = trackingTrackClickedUrls;
         this.trackingProfileClickedUrls = trackingProfileClickedUrls;
         this.trackingPromoterClickedUrls = trackingPromoterClickedUrls;
@@ -40,8 +39,8 @@ public class ApiPromotedTrack {
         return promoter;
     }
 
-    public Urn getUrn() {
-        return urn;
+    public String getAdUrn() {
+        return adUrn;
     }
 
     public ApiTrack getApiTrack() {
@@ -60,7 +59,6 @@ public class ApiPromotedTrack {
         return trackingTrackImpressionUrls;
     }
 
-
     public List<String> getTrackingProfileClickedUrls() {
         return trackingProfileClickedUrls;
     }
@@ -68,4 +66,5 @@ public class ApiPromotedTrack {
     public List<String> getTrackingPromoterClickedUrls() {
         return trackingPromoterClickedUrls;
     }
+
 }

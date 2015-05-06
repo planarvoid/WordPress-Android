@@ -1,16 +1,20 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.storage.TableColumns.PromotedTracks;
 import static com.soundcloud.android.storage.TableColumns.SoundStreamView;
 import static com.soundcloud.android.storage.TableColumns.SoundView;
 import static com.soundcloud.android.storage.TableColumns.Sounds;
 import static com.soundcloud.propeller.query.ColumnFunctions.exists;
+import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -27,6 +31,40 @@ import java.util.List;
 
 class SoundStreamStorage {
 
+    private static final Object[] STREAM_SELECTION = new Object[] {
+            SoundStreamView.SOUND_ID,
+            SoundStreamView.SOUND_TYPE,
+            SoundView.TITLE,
+            SoundView.USERNAME,
+            SoundView.DURATION,
+            SoundView.PLAYBACK_COUNT,
+            SoundView.TRACK_COUNT,
+            SoundView.LIKES_COUNT,
+            SoundView.SHARING,
+            SoundStreamView.CREATED_AT,
+            SoundStreamView.REPOSTER_USERNAME,
+            exists(likeQuery()).as(SoundView.USER_LIKE),
+            exists(repostQuery()).as(SoundView.USER_REPOST),
+    };
+
+    private static final Object[] PROMOTED_EXTRAS = new Object[] {
+            field(Table.PromotedTracks.field(PromotedTracks.AD_URN)).as(PromotedTracks.AD_URN),
+            PromotedTracks.PROMOTER_ID,
+            PromotedTracks.PROMOTER_NAME,
+            PromotedTracks.TRACKING_TRACK_CLICKED_URLS,
+            PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS,
+            PromotedTracks.TRACKING_TRACK_PLAYED_URLS,
+            PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS
+    };
+
+    private static final Object[] PROMOTED_STREAM_SELECTION = buildPromotedSelection();
+    private static Object[] buildPromotedSelection() {
+        Object[] promotedSelection = new Object[STREAM_SELECTION.length + PROMOTED_EXTRAS.length];
+        System.arraycopy(STREAM_SELECTION, 0, promotedSelection, 0, STREAM_SELECTION.length);
+        System.arraycopy(PROMOTED_EXTRAS, 0, promotedSelection, STREAM_SELECTION.length, PROMOTED_EXTRAS.length);
+        return promotedSelection;
+    }
+
     private final PropellerRx propellerRx;
     private final PropellerDatabase database;
 
@@ -36,10 +74,24 @@ class SoundStreamStorage {
         this.database = database;
     }
 
+    public Observable<PropertySet> initialStreamItems(final int limit) {
+        final Query query = Query.from(Table.SoundStreamView.name())
+                .select(PROMOTED_STREAM_SELECTION)
+                .leftJoin(Table.PromotedTracks.name(),
+                        Table.PromotedTracks.field(PromotedTracks._ID),
+                        TableColumns.SoundStream.PROMOTED_ID)
+                .whereLe(SoundStreamView.CREATED_AT, Long.MAX_VALUE)
+                .whereNotNull(SoundView.TITLE)
+                .limit(limit);
+
+        return propellerRx.query(query).map(new PromotedStreamItemMapper());
+    }
+
     public Observable<PropertySet> streamItemsBefore(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(soundStreamSelection())
+                .select(STREAM_SELECTION)
                 .whereLt(SoundStreamView.CREATED_AT, timestamp)
+                .whereNull(SoundStreamView.PROMOTED_ID)
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
@@ -48,28 +100,13 @@ class SoundStreamStorage {
 
     public List<PropertySet> loadStreamItemsSince(final long timestamp, final int limit) {
         final Query query = Query.from(Table.SoundStreamView.name())
-                .select(soundStreamSelection())
+                .select(STREAM_SELECTION)
                 .whereGt(SoundStreamView.CREATED_AT, timestamp)
+                .whereNull(SoundStreamView.PROMOTED_ID)
                 .whereNotNull(SoundView.TITLE)
                 .limit(limit);
 
         return database.query(query).toList(new StreamItemMapper());
-    }
-
-    private Object[] soundStreamSelection() {
-        return new Object[]{SoundStreamView.SOUND_ID,
-                SoundStreamView.SOUND_TYPE,
-                SoundView.TITLE,
-                SoundView.USERNAME,
-                SoundView.DURATION,
-                SoundView.PLAYBACK_COUNT,
-                SoundView.TRACK_COUNT,
-                SoundView.LIKES_COUNT,
-                SoundView.SHARING,
-                SoundStreamView.CREATED_AT,
-                SoundStreamView.REPOSTER_USERNAME,
-                exists(likeQuery()).as(SoundView.USER_LIKE),
-                exists(repostQuery()).as(SoundView.USER_REPOST)};
     }
 
     public Observable<Urn> trackUrns() {
@@ -79,20 +116,6 @@ class SoundStreamStorage {
         return propellerRx.query(query).map(new TrackUrnMapper());
     }
 
-    private Query likeQuery() {
-        return Query.from(Table.Likes.name(), Table.Sounds.name())
-                .joinOn(SoundStreamView.SOUND_ID, Table.Likes.name() + "." + TableColumns.Likes._ID)
-                .joinOn(SoundStreamView.SOUND_TYPE, Table.Likes.name() + "." + TableColumns.Likes._TYPE)
-                .whereNull(TableColumns.Likes.REMOVED_AT);
-    }
-
-    private Query repostQuery() {
-        return Query.from(Table.Posts.name(), Table.Sounds.name())
-                .joinOn(SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
-                .joinOn(SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
-                .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
-    }
-
     private static final class TrackUrnMapper extends RxResultMapper<Urn> {
         @Override
         public Urn map(CursorReader cursorReader) {
@@ -100,7 +123,7 @@ class SoundStreamStorage {
         }
     }
 
-    private static final class StreamItemMapper extends RxResultMapper<PropertySet> {
+    private static class StreamItemMapper extends RxResultMapper<PropertySet> {
 
         @Override
         public PropertySet map(CursorReader cursorReader) {
@@ -132,7 +155,6 @@ class SoundStreamStorage {
                 propertySet.put(PlayableProperty.TITLE, string);
             }
         }
-
 
         private void addOptionalPlaylistLike(CursorReader cursorReader, PropertySet propertySet) {
             if (getSoundType(cursorReader) == Sounds.TYPE_PLAYLIST) {
@@ -169,9 +191,48 @@ class SoundStreamStorage {
             final int soundId = cursorReader.getInt(SoundStreamView.SOUND_ID);
             return getSoundType(cursorReader) == Sounds.TYPE_TRACK ? Urn.forTrack(soundId) : Urn.forPlaylist(soundId);
         }
+
+        private static int getSoundType(CursorReader cursorReader) {
+            return cursorReader.getInt(SoundStreamView.SOUND_TYPE);
+        }
     }
 
-    private static int getSoundType(CursorReader cursorReader) {
-        return cursorReader.getInt(SoundStreamView.SOUND_TYPE);
+    private static class PromotedStreamItemMapper extends StreamItemMapper {
+
+        @Override
+        public PropertySet map(CursorReader cursorReader) {
+            PropertySet propertySet = super.map(cursorReader);
+            addOptionalPromotedProperties(cursorReader, propertySet);
+            return propertySet;
+        }
+
+        private void addOptionalPromotedProperties(CursorReader cursorReader, PropertySet propertySet) {
+            if (cursorReader.isNotNull(PromotedTracks.AD_URN)) {
+                propertySet.put(PromotedTrackProperty.AD_URN, cursorReader.getString(PromotedTracks.AD_URN));
+                addOptionalPromoter(cursorReader, propertySet);
+            }
+        }
+
+        private void addOptionalPromoter(CursorReader cursorReader, PropertySet propertySet) {
+            if (cursorReader.isNotNull(PromotedTracks.PROMOTER_ID)) {
+                propertySet.put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(cursorReader.getLong(PromotedTracks.PROMOTER_ID))));
+                propertySet.put(PromotedTrackProperty.PROMOTER_NAME, Optional.of(cursorReader.getString(PromotedTracks.PROMOTER_NAME)));
+            }
+        }
     }
+
+    private static Query likeQuery() {
+        return Query.from(Table.Likes.name(), Table.Sounds.name())
+                .joinOn(SoundStreamView.SOUND_ID, Table.Likes.field(TableColumns.Likes._ID))
+                .joinOn(SoundStreamView.SOUND_TYPE, Table.Likes.field(TableColumns.Likes._TYPE))
+                .whereNull(TableColumns.Likes.REMOVED_AT);
+    }
+
+    private static Query repostQuery() {
+        return Query.from(Table.Posts.name(), Table.Sounds.name())
+                .joinOn(SoundStreamView.SOUND_ID, Table.Posts.field(TableColumns.Posts.TARGET_ID))
+                .joinOn(SoundStreamView.SOUND_TYPE, Table.Posts.field(TableColumns.Posts.TARGET_TYPE))
+                .whereEq(Table.Posts.field(TableColumns.Posts.TYPE), TableColumns.Posts.TYPE_REPOST);
+    }
+
 }

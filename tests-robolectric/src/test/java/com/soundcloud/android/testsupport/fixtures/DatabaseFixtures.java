@@ -2,8 +2,6 @@ package com.soundcloud.android.testsupport.fixtures;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.soundcloud.android.api.legacy.model.PublicApiComment;
-import com.soundcloud.android.api.legacy.model.activities.AffiliationActivity;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
@@ -11,8 +9,6 @@ import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.sync.likes.ApiLike;
 import com.soundcloud.android.sync.posts.ApiPost;
 import org.hamcrest.Matchers;
@@ -257,12 +253,6 @@ public class DatabaseFixtures {
         return playlist;
     }
 
-    public ApiLike insertPlaylistLike() {
-        final ApiLike like = ModelFixtures.apiPlaylistLike();
-        insertLike(like);
-        return like;
-    }
-
     public ApiPost insertTrackPost(ApiPost apiTrackPost) {
         insertTrackPost(apiTrackPost.getTargetUrn().getNumericId(),
                 apiTrackPost.getCreatedAt().getTime(),
@@ -294,108 +284,6 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Posts.TYPE, isRepost ? TableColumns.Posts.TYPE_REPOST : TableColumns.Posts.TYPE_POST);
         cv.put(TableColumns.Posts.CREATED_AT, createdAt);
         return insertInto(Table.Posts, cv);
-    }
-
-    @Deprecated
-    public long insertPlaylistCollection(long playlistId, long userId) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.CollectionItems.ITEM_ID, playlistId);
-        cv.put(TableColumns.CollectionItems.USER_ID, userId);
-        cv.put(TableColumns.CollectionItems.COLLECTION_TYPE, ScContentProvider.CollectionItemTypes.PLAYLIST);
-        cv.put(TableColumns.CollectionItems.RESOURCE_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        return insertInto(Table.CollectionItems, cv);
-    }
-
-    @Deprecated
-    public long insertLegacyTrackPost(ApiTrack track, long timestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
-        cv.put(TableColumns.Activities.SOUND_ID, track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.Activities.TYPE, "track");
-        cv.put(TableColumns.Activities.USER_ID, track.getUser().getId());
-        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.Activities, cv);
-    }
-
-    @Deprecated
-    public long insertLegacyTrackRepost(ApiTrack track, ApiUser reposter, long timestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
-        cv.put(TableColumns.Activities.SOUND_ID, track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.Activities.TYPE, "track-repost");
-        cv.put(TableColumns.Activities.USER_ID, reposter.getId());
-        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.Activities, cv);
-    }
-
-    public long insertTrackRepostOfOwnTrack(ApiTrack track, ApiUser reposter, long timestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
-        cv.put(TableColumns.Activities.SOUND_ID, track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.Activities.TYPE, "track-repost");
-        cv.put(TableColumns.Activities.USER_ID, reposter.getId());
-        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.Activities, cv);
-    }
-
-    @Deprecated
-    public long insertLegacyPlaylistPost(ApiPlaylist playlist, long timestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
-        cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Activities.TYPE, "playlist");
-        cv.put(TableColumns.Activities.USER_ID, playlist.getUser().getId());
-        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.Activities, cv);
-    }
-
-    @Deprecated
-    public long insertLegacyPlaylistRepost(ApiPlaylist playlist, ApiUser reposter, long timestamp) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_SOUND_STREAM.id);
-        cv.put(TableColumns.Activities.SOUND_ID, playlist.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_PLAYLIST);
-        cv.put(TableColumns.Activities.TYPE, "playlist-repost");
-        cv.put(TableColumns.Activities.USER_ID, reposter.getId());
-        cv.put(TableColumns.Activities.CREATED_AT, timestamp);
-        return insertInto(Table.Activities, cv);
-    }
-
-    public long insertComment(PublicApiComment comment) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Activities.COMMENT_ID, comment.getId());
-        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
-        cv.put(TableColumns.Activities.SOUND_ID, comment.track.getId());
-        cv.put(TableColumns.Activities.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.Activities.TYPE, "comment");
-        cv.put(TableColumns.Activities.USER_ID, comment.user.getId());
-        cv.put(TableColumns.Activities.CREATED_AT, comment.getCreatedAt().getTime());
-        return insertInto(Table.Activities, cv);
-    }
-
-    public PublicApiComment insertComment() {
-        PublicApiComment comment = ModelFixtures.create(PublicApiComment.class);
-        insertComment(comment);
-        return comment;
-    }
-
-    public long insertAffiliation(AffiliationActivity affiliation) {
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Activities.CONTENT_ID, Content.ME_ACTIVITIES.id);
-        cv.put(TableColumns.Activities.TYPE, "affiliation");
-        cv.put(TableColumns.Activities.USER_ID, affiliation.getUser().getId());
-        cv.put(TableColumns.Activities.CREATED_AT, affiliation.getCreatedAt().getTime());
-        return insertInto(Table.Activities, cv);
-    }
-
-    public AffiliationActivity insertAffiliation() {
-        AffiliationActivity affiliation = ModelFixtures.create(AffiliationActivity.class);
-        insertAffiliation(affiliation);
-        return affiliation;
     }
 
     public long insertStreamTrackPost(ApiStreamItem apiStreamItem) {
@@ -440,6 +328,29 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
+    public ApiTrack insertPromotedTrack(long timestamp) {
+        ApiTrack promotedTrack = insertTrack();
+        long promotedId = 26;
+
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.SoundStream.SOUND_ID, promotedTrack.getUrn().getNumericId());
+        cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
+        cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
+        cv.put(TableColumns.SoundStream.PROMOTED_ID, promotedId);
+        insertInto(Table.SoundStream, cv);
+
+        insertPromotedTrackMetadata(promotedId);
+        return promotedTrack;
+    }
+
+    private void insertPromotedTrackMetadata(long promotedId) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.PromotedTracks._ID, promotedId);
+        cv.put(TableColumns.PromotedTracks.AD_URN, "promoted:track:123");
+        cv.put(TableColumns.PromotedTracks.PROMOTER_ID, 83);
+        cv.put(TableColumns.PromotedTracks.PROMOTER_NAME, "SoundCloud");
+        insertInto(Table.PromotedTracks, cv);
+    }
 
     public void insertPolicyAllow(Urn urn, long lastUpdate) {
         ContentValues cv = new ContentValues();

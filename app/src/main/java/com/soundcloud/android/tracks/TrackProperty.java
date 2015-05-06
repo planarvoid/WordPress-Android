@@ -5,7 +5,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.propeller.Property;
 import com.soundcloud.propeller.guava.OptionalProperty;
 
-public final class TrackProperty extends PlayableProperty {
+public class TrackProperty extends PlayableProperty {
     public static final Property<Integer> PLAY_COUNT = Property.of(TrackProperty.class, Integer.class);
     public static final Property<String> WAVEFORM_URL = Property.of(TrackProperty.class, String.class);
     public static final Property<String> DESCRIPTION = Property.of(TrackProperty.class, String.class);

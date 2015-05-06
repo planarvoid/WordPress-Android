@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -18,6 +19,8 @@ import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.tracks.PromotedTrackItem;
+import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.EmptyView;
@@ -41,7 +44,8 @@ import java.util.List;
 public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableItem>
         implements AdapterView.OnItemClickListener {
 
-    private static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
+    @VisibleForTesting
+    static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
             new Func1<List<PropertySet>, List<PlayableItem>>() {
                 @Override
                 public List<PlayableItem> call(List<PropertySet> bindings) {
@@ -49,7 +53,11 @@ public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableIte
                     for (PropertySet source : bindings) {
                         final Urn urn = source.get(EntityProperty.URN);
                         if (urn.isTrack()) {
-                            items.add(TrackItem.from(source));
+                            if (source.contains(PromotedTrackProperty.AD_URN)) {
+                                items.add(PromotedTrackItem.from(source));
+                            } else {
+                                items.add(TrackItem.from(source));
+                            }
                         } else if (urn.isPlaylist()) {
                             items.add(PlaylistItem.from(source));
                         }
@@ -102,7 +110,7 @@ public class SoundStreamPresenter extends ListPresenter<PropertySet, PlayableIte
     @Override
     protected ListBinding<PropertySet, PlayableItem> onBuildListBinding() {
         return ListBinding.pagedList(
-                streamOperations.existingStreamItems(),
+                streamOperations.initialStreamItems(),
                 adapter,
                 streamOperations.pager(),
                 PAGE_TRANSFORMER

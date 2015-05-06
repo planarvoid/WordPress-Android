@@ -639,4 +639,8 @@
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
     <string name="feedback_unable_to_get_logs">Unable to get logs</string>
 
+    <!-- __PROMOTED TRACKS -->
+    <string name="promoted_label">Promoted</string>
+    <string name="promoted_by_label">Promoted by %s</string>
+
 </resources>

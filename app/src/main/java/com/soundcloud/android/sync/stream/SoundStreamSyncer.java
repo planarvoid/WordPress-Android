@@ -13,6 +13,8 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.api.model.stream.ApiStreamItem;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncResult;
 import com.soundcloud.android.sync.ApiSyncService;
@@ -31,8 +33,6 @@ import java.util.Map;
 
 public class SoundStreamSyncer implements SyncStrategy {
 
-
-
     @VisibleForTesting
     static final String FUTURE_LINK_REL = "future";
     static final String PREFS_NEXT_URL = "next_url";
@@ -44,7 +44,9 @@ public class SoundStreamSyncer implements SyncStrategy {
     private final ApiClient apiClient;
     private final StoreSoundStreamCommand storeSoundStreamCommand;
     private final ReplaceSoundStreamCommand replaceSoundStreamCommand;
-    private final TypeToken<ModelCollection<ApiStreamItem>> collectionTypeToken = new TypeToken<ModelCollection<ApiStreamItem>>() { };
+    private final FeatureFlags flags;
+    private final TypeToken<ModelCollection<ApiStreamItem>> collectionTypeToken = new TypeToken<ModelCollection<ApiStreamItem>>() {};
+
     private final Predicate<ApiStreamItem> removePromotedItemsPredicate = new Predicate<ApiStreamItem>() {
         @Override
         public boolean apply(ApiStreamItem input) {
@@ -53,15 +55,12 @@ public class SoundStreamSyncer implements SyncStrategy {
     };
 
     @Inject
-    public SoundStreamSyncer(Context appContext, ApiClient apiClient, StoreSoundStreamCommand storeSoundStreamCommand, ReplaceSoundStreamCommand replaceSoundStreamCommand) {
-        this(appContext.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE), apiClient, storeSoundStreamCommand, replaceSoundStreamCommand);
-    }
-
-    public SoundStreamSyncer(SharedPreferences syncPreferences, ApiClient apiClient, StoreSoundStreamCommand storeSoundStreamCommand, ReplaceSoundStreamCommand replaceSoundStreamCommand) {
-        this.syncPreferences = syncPreferences;
+    public SoundStreamSyncer(Context appContext, ApiClient apiClient, StoreSoundStreamCommand storeSoundStreamCommand, ReplaceSoundStreamCommand replaceSoundStreamCommand, FeatureFlags flags) {
+        this.syncPreferences = appContext.getSharedPreferences(SHARED_PREFS_NAME, Context.MODE_PRIVATE);
         this.apiClient = apiClient;
         this.storeSoundStreamCommand = storeSoundStreamCommand;
         this.replaceSoundStreamCommand = replaceSoundStreamCommand;
+        this.flags = flags;
     }
 
     @NotNull
@@ -82,7 +81,7 @@ public class SoundStreamSyncer implements SyncStrategy {
 
     private ApiSyncResult prependActivitiesWithFallback() throws Exception {
         try {
-            return prependActivities();
+            return prependStreamItems();
         } catch (ApiRequestException exception){
             if (exception.isNetworkError()) {
                 throw exception;
@@ -94,14 +93,13 @@ public class SoundStreamSyncer implements SyncStrategy {
     }
 
     private ApiSyncResult refreshSoundStream() throws Exception {
-
         final ApiRequest.Builder requestBuilder =
                 ApiRequest.get(ApiEndpoints.STREAM.path())
                         .addQueryParam(ApiRequest.Param.PAGE_SIZE, String.valueOf(Consts.LIST_PAGE_SIZE))
                         .forPrivateApi(1);
 
         ModelCollection<ApiStreamItem> streamItems = apiClient.fetchMappedResponse(requestBuilder.build(), collectionTypeToken);
-        replaceSoundStreamCommand.with(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate)).call();
+        replaceSoundStreamCommand.call(getFilteredCollection(streamItems));
         setNextPageUrl(streamItems.getNextLink());
 
         final Map<String, Link> links = streamItems.getLinks();
@@ -114,7 +112,7 @@ public class SoundStreamSyncer implements SyncStrategy {
 
 
     private ApiSyncResult appendStreamItems() throws Exception {
-        if (hasNextPageUrl()){
+        if (hasNextPageUrl()) {
 
             final String nextPageUrl = getNextPageUrl();
             Log.d(this, "Building soundstream request from stored next link " + nextPageUrl);
@@ -128,7 +126,7 @@ public class SoundStreamSyncer implements SyncStrategy {
                 return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
 
             } else {
-                storeSoundStreamCommand.with(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate)).call();
+                storeSoundStreamCommand.call(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate));
                 return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
             }
 
@@ -139,7 +137,7 @@ public class SoundStreamSyncer implements SyncStrategy {
         }
     }
 
-    private ApiSyncResult prependActivities() throws Exception {
+    private ApiSyncResult prependStreamItems() throws Exception {
         final String previousPageUrl = getFuturePageUrl();
         Log.d(this, "Building soundstream request from stored future link " + previousPageUrl);
 
@@ -153,10 +151,17 @@ public class SoundStreamSyncer implements SyncStrategy {
 
         if (streamItems.getCollection().isEmpty()) {
             return ApiSyncResult.fromSuccessWithoutChange(Content.ME_SOUND_STREAM.uri);
-
         } else {
-            storeSoundStreamCommand.with(Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate)).call();
+            storeSoundStreamCommand.call(getFilteredCollection(streamItems));
             return ApiSyncResult.fromSuccessfulChange(Content.ME_SOUND_STREAM.uri);
+        }
+    }
+
+    private Iterable<ApiStreamItem> getFilteredCollection(ModelCollection<ApiStreamItem> streamItems) {
+        if (flags.isEnabled(Flag.PROMOTED_IN_STREAM)) {
+            return streamItems.getCollection();
+        } else {
+            return Iterables.filter(streamItems.getCollection(), removePromotedItemsPredicate);
         }
     }
 

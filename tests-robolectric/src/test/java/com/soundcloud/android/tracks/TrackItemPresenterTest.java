@@ -9,6 +9,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -160,7 +161,26 @@ public class TrackItemPresenterTest {
                 (android.widget.ImageView) itemView.findViewById(R.id.image));
     }
 
+    @Test
+    public void shouldShowPromotedIndicator() {
+        TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
+        presenter.bindItemView(0, itemView, Arrays.asList(promotedTrackItem));
+
+        expect(textView(R.id.promoted_track)).toBeVisible();
+        expect(textView(R.id.promoted_track)).toHaveText("Promoted");
+    }
+
+    @Test
+    public void shouldShowPromotedIndicatorWithPromoter() throws Exception {
+        TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        presenter.bindItemView(0, itemView, Arrays.asList(promotedTrackItem));
+
+        expect(textView(R.id.promoted_track)).toBeVisible();
+        expect(textView(R.id.promoted_track)).toHaveText("Promoted by SoundCloud");
+    }
+
     private TextView textView(int id) {
         return ((TextView) itemView.findViewById(id));
     }
+
 }

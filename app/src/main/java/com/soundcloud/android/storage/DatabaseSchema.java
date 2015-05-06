@@ -19,8 +19,9 @@ final class DatabaseSchema {
 
     static final String DATABASE_CREATE_PROMOTED_TRACKS = "(" +
         "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
-        "urn TEXT, " +
+        "ad_urn TEXT, " +
         "promoter_id INTEGER," +
+        "promoter_name TEXT," +
         "tracking_track_clicked_urls TEXT," +
         "tracking_profile_clicked_urls TEXT," +
         "tracking_promoter_clicked_urls TEXT," +
@@ -413,6 +414,7 @@ final class DatabaseSchema {
                 ",SoundStream." + TableColumns.SoundStream.SOUND_ID + " as " + TableColumns.SoundStreamView.SOUND_ID +
                 ",SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " as " + TableColumns.SoundStreamView.SOUND_TYPE +
                 ",SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " as " + TableColumns.SoundStreamView.REPOSTER_ID +
+                ",SoundStream." + TableColumns.SoundStream.PROMOTED_ID + " as " + TableColumns.SoundStreamView.PROMOTED_ID +
 
                 // activity user (who commented, favorited etc. on contained following)
                 ",Users." + TableColumns.Users.USERNAME + " as " + TableColumns.SoundStreamView.REPOSTER_USERNAME +

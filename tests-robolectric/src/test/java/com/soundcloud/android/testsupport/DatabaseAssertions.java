@@ -222,7 +222,7 @@ public class DatabaseAssertions {
     public void assertPromotionInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
-                                .whereEq(TableColumns.PromotedTracks.URN, promotedTrack.getUrn())
+                                .whereEq(TableColumns.PromotedTracks.AD_URN, promotedTrack.getAdUrn())
                                 .whereEq(TableColumns.PromotedTracks.PROMOTER_ID, promotedTrack.getPromoter().getId()),
                         promotedTrack)
         ), counts(1));
@@ -231,7 +231,7 @@ public class DatabaseAssertions {
     public void assertPromotionWithoutPromoterInserted(ApiPromotedTrack promotedTrack) {
         assertThat(select(attachPromotedTrackingQueries(
                         from(Table.PromotedTracks.name())
-                                .whereEq(TableColumns.PromotedTracks.URN, promotedTrack.getUrn())
+                                .whereEq(TableColumns.PromotedTracks.AD_URN, promotedTrack.getAdUrn())
                                 .whereNull(TableColumns.PromotedTracks.PROMOTER_ID),
                         promotedTrack)
         ), counts(1));

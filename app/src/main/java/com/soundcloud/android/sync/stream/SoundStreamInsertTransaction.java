@@ -4,6 +4,7 @@ import static com.soundcloud.android.commands.StorePlaylistsCommand.buildPlaylis
 import static com.soundcloud.android.commands.StoreTracksCommand.buildPolicyContentValues;
 import static com.soundcloud.android.commands.StoreTracksCommand.buildTrackContentValues;
 import static com.soundcloud.android.commands.StoreUsersCommand.buildUserContentValues;
+import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
@@ -20,19 +21,16 @@ import android.content.ContentValues;
 
 class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
 
-    private final boolean clearTable;
     private final Iterable<ApiStreamItem> streamItems;
 
-    SoundStreamInsertTransaction(boolean clearTable, Iterable<ApiStreamItem> streamItems) {
-        this.clearTable = clearTable;
+    SoundStreamInsertTransaction(Iterable<ApiStreamItem> streamItems) {
         this.streamItems = streamItems;
     }
 
     @Override
     public void steps(PropellerDatabase propeller) {
-        if (clearTable) {
-            step(propeller.delete(Table.SoundStream));
-        }
+        step(propeller.delete(Table.SoundStream, filter().whereNotNull(TableColumns.SoundStream.PROMOTED_ID)));
+
         for (ApiStreamItem streamItem : streamItems) {
             step(propeller.upsert(Table.Users, getContentValuesForSoundOwner(streamItem)));
             step(propeller.upsert(Table.Sounds, getContentValuesForSoundTable(streamItem)));
@@ -106,7 +104,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
         final Joiner urlJoiner = Joiner.on(" ");
 
         final ContentValuesBuilder builder = ContentValuesBuilder.values()
-                .put(TableColumns.PromotedTracks.URN, streamItem.getPromotedUrn().get().toString())
+                .put(TableColumns.PromotedTracks.AD_URN, streamItem.getAdUrn().get())
                 .put(TableColumns.PromotedTracks.TRACKING_PROFILE_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingProfileClickedUrls()))
                 .put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingPromoterClickedUrls()))
                 .put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, urlJoiner.join(streamItem.getTrackingTrackClickedUrls()))
@@ -116,6 +114,7 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
         final Optional<ApiUser> promoter = streamItem.getPromoter();
         if (promoter.isPresent()) {
             builder.put(TableColumns.PromotedTracks.PROMOTER_ID, promoter.get().getId());
+            builder.put(TableColumns.PromotedTracks.PROMOTER_NAME, promoter.get().getUsername());
         }
         return builder.get();
     }

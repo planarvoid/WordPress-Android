@@ -17,11 +17,14 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.RxTestHelper;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.view.EmptyView;
@@ -68,7 +71,7 @@ public class SoundStreamPresenterTest {
     public void setUp() throws Exception {
         presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imageOperations,
                 pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
-        when(streamOperations.existingStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
+        when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
@@ -179,6 +182,33 @@ public class SoundStreamPresenterTest {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
 
         verify(trackPresenter).setPlayingTrack(playingTrack);
+    }
+
+    @Test
+    public void pageTransformerReturnsPlaylistItemForPlaylistProperties() {
+        List<PropertySet> items = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
+
+        PlayableItem item = SoundStreamPresenter.PAGE_TRANSFORMER.call(items).get(0);
+
+        expect(item).toBeInstanceOf(PlaylistItem.class);
+    }
+
+    @Test
+    public void pageTransformerReturnsTrackItemForTrackProperties() {
+        List<PropertySet> items = Arrays.asList(TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L)));
+
+        PlayableItem item = SoundStreamPresenter.PAGE_TRANSFORMER.call(items).get(0);
+
+        expect(item).toBeInstanceOf(TrackItem.class);
+    }
+
+    @Test
+    public void pageTransformerReturnsPromotedTrackItemForTrackPropertiesWithPromotedUrn() {
+        List<PropertySet> items = Arrays.asList(TestPropertySets.expectedPromotedTrack());
+
+        PlayableItem item = SoundStreamPresenter.PAGE_TRANSFORMER.call(items).get(0);
+
+        expect(item).toBeInstanceOf(PromotedTrackItem.class);
     }
 
 }
