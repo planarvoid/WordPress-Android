@@ -894,7 +894,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onUsernameInvalid(String message) {
-        final AlertDialogWrapper.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
+        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_error_title)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, null);
         //TODO: tracking spec is not ready yet
