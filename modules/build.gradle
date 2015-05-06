@@ -5,9 +5,7 @@ subprojects {
 
   repositories {
     mavenLocal()
-    maven {
-      url "http://maven.int.s-cloud.net/content/groups/hosted"
-    }
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
   }
 
   buildscript {
@@ -50,9 +48,7 @@ subprojects {
     }
 
     publishing.repositories {
-      maven {
-        url "http://maven.int.s-cloud.net/content/repositories/releases"
-      }
+      maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
     }
   }
 

@@ -4,7 +4,7 @@ def version   = rootProject.ext.androidNetworkManager
 def file      = "androidnetworkmanager-${version}.apk"
 def destDir   = "$project.buildDir/outputs/apk/"
 def destFile  = "$destDir/$file"
-def srcFile   = "http://maven.int.s-cloud.net/content/repositories/releases/com/soundcloud/androidnetworkmanager/" +
+def srcFile   = "http://maven.int.s-cloud.net/content/groups/soundcloud-proxy/com/soundcloud/androidnetworkmanager/" +
                 "androidnetworkmanager/$version/$file"
 
 task downloadNetworkManagerApkCI(type:Exec) {

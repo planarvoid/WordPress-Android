@@ -1,10 +1,8 @@
 allprojects {
   repositories {
     mavenLocal()
-    maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
-    maven { url 'http://maven.int.s-cloud.net/content/repositories/thirdparty_releases' }
+    maven { url 'http://maven.int.s-cloud.net/content/groups/soundcloud-proxy' }
     maven { url 'https://maven.fabric.io/public' }
-    maven { url 'http://maven.int.s-cloud.net/content/repositories/snapshots' }
   }
 }
 
