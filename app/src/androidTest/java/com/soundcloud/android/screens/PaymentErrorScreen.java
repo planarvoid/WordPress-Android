@@ -21,7 +21,7 @@ public class PaymentErrorScreen extends Screen {
     }
 
     public String getMessage() {
-        return new TextElement(testDriver.findElement(With.id(android.R.id.content))).getText();
+        return new TextElement(testDriver.findElement(With.id(android.R.id.message))).getText();
     }
 
 }

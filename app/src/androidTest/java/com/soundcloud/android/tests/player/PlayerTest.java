@@ -190,13 +190,11 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     public void testPlayerTrackMakeComment() throws Exception {
         playTrackFromStream();
 
-        String originalTitle = visualPlayerElement.getTrackTitle();
         final AddCommentScreen addCommentScreen = visualPlayerElement
                 .clickMenu()
                 .clickComment();
 
         assertTrue(addCommentScreen.waitForDialog());
-        assertTrue(addCommentScreen.getTitle().contains(originalTitle));
     }
 
     private void playExploreTrack() {
