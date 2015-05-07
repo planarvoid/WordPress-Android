@@ -95,7 +95,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<TrackItem> listBinding) {
+    protected void onSubscribeListBinding(ListBinding<TrackItem> listBinding, CompositeSubscription viewLifeCycle) {
         headerPresenter.onSubscribeListObservers(listBinding);
     }
 

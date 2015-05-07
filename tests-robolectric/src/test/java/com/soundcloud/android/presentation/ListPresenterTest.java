@@ -29,6 +29,7 @@ import rx.Observer;
 import rx.Subscription;
 import rx.observers.TestSubscriber;
 import rx.subjects.PublishSubject;
+import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -407,9 +408,9 @@ public class ListPresenterTest {
             }
 
             @Override
-            protected void onSubscribeListBinding(ListBinding<String> listBinding) {
+            protected void onSubscribeListBinding(ListBinding<String> listBinding, CompositeSubscription viewLifeCycle) {
                 for (Observer observer : listObservers) {
-                    listBinding.addViewObserver(observer);
+                    viewLifeCycle.add(listBinding.items().subscribe(observer));
                 }
             }
         };
@@ -425,7 +426,7 @@ public class ListPresenterTest {
             }
 
             @Override
-            protected void onSubscribeListBinding(ListBinding<String> listBinding) {
+            protected void onSubscribeListBinding(ListBinding<String> listBinding, CompositeSubscription viewLifeCycle) {
                 // no op
             }
         };

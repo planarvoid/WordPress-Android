@@ -82,40 +82,6 @@ public class ListBindingTest {
     }
 
     @Test
-    public void shouldSubscribeViewObserversThatWereAddedBefore() {
-        final List<String> listItems = Collections.singletonList("item");
-        ListBinding<String> binding = new ListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
-        binding.connect();
-
-        TestSubscriber<Iterable<String>> observer = new TestSubscriber<>();
-        binding.addViewObserver(observer);
-        binding.subscribeViewObservers();
-
-        expect(observer.getOnNextEvents()).toContainExactly(listItems);
-    }
-
-    @Test
-    public void shouldAttachViewObserversToViewSubscription() {
-        final PublishSubject<Iterable<String>> observable = PublishSubject.create();
-        ListBinding<String> binding = new ListBinding<>(observable, adapter);
-        binding.connect();
-
-        observable.onNext(singleton("event 1"));
-
-        TestSubscriber<Iterable<String>> observer1 = new TestSubscriber<>();
-        TestSubscriber<Iterable<String>> observer2 = new TestSubscriber<>();
-        binding.addViewObserver(observer1);
-        binding.addViewObserver(observer2);
-        final Subscription subscription = binding.subscribeViewObservers();
-        subscription.unsubscribe();
-
-        observable.onNext(singleton("event 2"));
-
-        expect(observer1.getOnNextEvents()).toContainExactly(singleton("event 1"));
-        expect(observer2.getOnNextEvents()).toContainExactly(singleton("event 1"));
-    }
-
-    @Test
     public void shouldDisconnectFromSourceSequence() {
         final List<String> listItems = Collections.singletonList("item");
         ListBinding<String> binding = new ListBinding<>(Observable.<Iterable<String>>just(listItems), adapter);
@@ -123,8 +89,7 @@ public class ListBindingTest {
         binding.disconnect();
 
         TestSubscriber<Iterable<String>> observer = new TestSubscriber<>();
-        binding.addViewObserver(observer);
-        binding.subscribeViewObservers();
+        binding.items().subscribe(observer);
 
         expect(subscription.isUnsubscribed()).toBeTrue();
         expect(observer.getOnNextEvents()).toBeEmpty();

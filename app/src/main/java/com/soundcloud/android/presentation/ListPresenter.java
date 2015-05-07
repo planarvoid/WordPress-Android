@@ -52,7 +52,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
         return onBuildListBinding(fragmentArgs);
     }
 
-    protected void onSubscribeListBinding(ListBinding<ItemT> listBinding) {
+    protected void onSubscribeListBinding(ListBinding<ItemT> listBinding, CompositeSubscription viewLifeCycle) {
         // NOP by default
     }
 
@@ -91,19 +91,18 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
     private void retryWith(ListBinding<ItemT> listBinding) {
         Log.d(TAG, "retrying list");
         resetListBindingTo(listBinding);
-        subscribeListViewObservers();
+        subscribeListBinding();
         listBinding.connect();
     }
 
-    private void subscribeListViewObservers() {
+    private void subscribeListBinding() {
         Log.d(TAG, "subscribing view observers");
-        listBinding.clearViewObservers();
-        onSubscribeListBinding(listBinding);
-        listBinding.addViewObserver(new EmptyViewSubscriber());
         if (viewLifeCycle != null) {
             viewLifeCycle.unsubscribe();
         }
-        viewLifeCycle = new CompositeSubscription(listBinding.subscribeViewObservers());
+        viewLifeCycle = new CompositeSubscription();
+        viewLifeCycle.add(listBinding.items().subscribe(new EmptyViewSubscriber()));
+        onSubscribeListBinding(listBinding, viewLifeCycle);
     }
 
     @Override
@@ -125,14 +124,13 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
         refreshWrapper.attach(refreshLayout, new PullToRefreshListener());
 
-        subscribeListViewObservers();
+        subscribeListBinding();
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
         Log.d(TAG, "onDestroyView");
         viewLifeCycle.unsubscribe();
-        listBinding.clearViewObservers();
         refreshWrapper.detach();
         listView.setAdapter(null);
         listView = null;
@@ -180,7 +178,7 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
             adapter.clear();
 
             resetListBindingTo(refreshBinding);
-            subscribeListViewObservers();
+            subscribeListBinding();
 
             refreshWrapper.setRefreshing(false);
             unsubscribe();
