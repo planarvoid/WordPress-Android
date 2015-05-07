@@ -1,14 +1,14 @@
 package com.soundcloud.android.tests.ageGating;
 
+import static com.soundcloud.android.framework.TestUser.over21user;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
+
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.tests.ActivityTest;
-
-import static com.soundcloud.android.framework.TestUser.over21user;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 
 public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
 
@@ -29,7 +29,7 @@ public class FollowingAgeGatedUser extends ActivityTest<LauncherActivity> {
         playlistTagsScreen = new MainScreen(solo).actionBar().clickSearchButton();
     }
 
-    public void testAbove21UsersAreAbleToFollowAgeGatedUsers() {
+    public void ignore_testAbove21UsersAreAbleToFollowAgeGatedUsers() {
         ProfileScreen annoyMouseUserScreen = playlistTagsScreen
                 .actionBar()
                 .doSearch("annoymouse")
