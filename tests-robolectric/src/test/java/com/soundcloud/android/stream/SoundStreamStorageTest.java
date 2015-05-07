@@ -45,7 +45,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadingInitialStreamItemsIncludesPromotedTrack() {
-        ApiTrack track = testFixtures().insertPromotedTrack(TIMESTAMP);
+        ApiTrack track = testFixtures().insertPromotedStreamTrack(TIMESTAMP);
 
         storage.initialStreamItems(50).subscribe(observer);
 
@@ -170,7 +170,7 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
 
     @Test
     public void loadStreamItemsSinceDoesNotIncludePromotedTracks() {
-        testFixtures().insertPromotedTrack(TIMESTAMP);
+        testFixtures().insertPromotedStreamTrack(TIMESTAMP);
         final ApiTrack newest = testFixtures().insertTrack();
         testFixtures().insertStreamTrackPost(newest.getId(), TIMESTAMP + 1);
 

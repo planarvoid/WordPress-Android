@@ -42,7 +42,7 @@ public class ReplaceSoundStreamCommandTest extends StorageIntegrationTest {
 
     @Test
     public void removesExistingPromotedTrackMetadata() {
-        testFixtures().insertPromotedTrack(1000L);
+        testFixtures().insertPromotedStreamTrack(1000L);
         expectPromotedTrackCountToBe(1);
 
         command.call(Arrays.asList(ApiStreamItemFixtures.trackPost()));

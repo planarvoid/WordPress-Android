@@ -113,7 +113,7 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void removesPromotedTrackssBeforeStoringNewItems() {
+    public void removesPromotedTracksFromStreamBeforeStoringNewItems() {
         command.call(Arrays.asList(
                 ApiStreamItemFixtures.promotedStreamItemWithoutPromoter(),
                 ApiStreamItemFixtures.trackPost()));
@@ -121,10 +121,27 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
         command.call(Arrays.asList(ApiStreamItemFixtures.playlistPost()));
 
         expectStreamItemCountToBe(2);
+        expectPromotedTrackItemCountToBe(0);
+    }
+
+    @Test
+    public void removePromotedTracksOnlyIfTheyCorrespondToPromotedIdForStream() {
+        testFixtures().insertPromotedTrackMetadata(123L);
+
+        command.call(Arrays.asList(
+                ApiStreamItemFixtures.promotedStreamItemWithoutPromoter(),
+                ApiStreamItemFixtures.trackPost()));
+
+        expectStreamItemCountToBe(2);
+        expectPromotedTrackItemCountToBe(2);
     }
 
     private void expectStreamItemCountToBe(int count) {
         assertThat(select(from(Table.SoundStream.name())), counts(count));
+    }
+
+    private void expectPromotedTrackItemCountToBe(int count) {
+        assertThat(select(from(Table.PromotedTracks.name())), counts(count));
     }
 
     private void expectTrackPostItemInserted(ApiStreamItem streamItem) {
@@ -172,4 +189,5 @@ public class StoreSoundStreamCommandTest extends StorageIntegrationTest {
                         .whereEq(TableColumns.SoundStream.CREATED_AT, streamItem.getCreatedAtTime())
         ), counts(1));
     }
+
 }

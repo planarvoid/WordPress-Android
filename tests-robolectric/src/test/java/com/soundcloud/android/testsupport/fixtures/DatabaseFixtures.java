@@ -328,7 +328,7 @@ public class DatabaseFixtures {
         return insertInto(Table.SoundStream, cv);
     }
 
-    public ApiTrack insertPromotedTrack(long timestamp) {
+    public ApiTrack insertPromotedStreamTrack(long timestamp) {
         ApiTrack promotedTrack = insertTrack();
         long promotedId = 26;
 
@@ -343,7 +343,7 @@ public class DatabaseFixtures {
         return promotedTrack;
     }
 
-    private void insertPromotedTrackMetadata(long promotedId) {
+    public void insertPromotedTrackMetadata(long promotedId) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.PromotedTracks._ID, promotedId);
         cv.put(TableColumns.PromotedTracks.AD_URN, "promoted:track:123");
