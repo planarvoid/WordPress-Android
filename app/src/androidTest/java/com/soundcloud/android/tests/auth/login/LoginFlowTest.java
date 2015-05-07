@@ -12,9 +12,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
-import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.screens.HomeScreen;
-import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
@@ -26,15 +24,11 @@ import com.soundcloud.android.tests.auth.LoginTest;
  */
 public class LoginFlowTest extends LoginTest {
     private HomeScreen homeScreen;
-    private Waiter waiter;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
         homeScreen = new HomeScreen(solo);
-
-        menuScreen = new MenuScreen(solo);
-        waiter = new Waiter(solo);
     }
 
     /*

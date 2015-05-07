@@ -58,4 +58,10 @@ public class TermsOfUseScreen extends Screen {
     public boolean isVisible() {
         return continueButton().isVisible();
     }
+
+    public LoginErrorScreen failToLogin() {
+        continueButton().click();
+        waiter.waitForTextToDisappear("Logging you in");
+        return new LoginErrorScreen(testDriver);
+    }
 }

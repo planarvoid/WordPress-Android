@@ -68,23 +68,20 @@ public class LoginScreen extends Screen {
     }
 
     public StreamScreen loginAs(String username, String password) {
-        emailInputField().clearText();
-
-        passwordInputField().typeText(password);
-        emailInputField().typeText(username);
-        loginButton().click();
+        tryToLogin(username, password);
         return new StreamScreen(testDriver);
     }
 
     public LoginErrorScreen failToLoginAs(String username, String password) {
-        emailInputField().clearText();
-
-        emailInputField().typeText(username);
-        passwordInputField().typeText(password);
-
-        loginButton().click();
-
+        tryToLogin(username, password);
         return new LoginErrorScreen(testDriver);
+    }
+
+    private void tryToLogin(String username, String password) {
+        emailInputField().clearText();
+        passwordInputField().typeText(password);
+        emailInputField().typeText(username);
+        loginButton().click();
     }
 
     @Override

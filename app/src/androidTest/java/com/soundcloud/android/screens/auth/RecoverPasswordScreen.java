@@ -23,8 +23,9 @@ public class RecoverPasswordScreen extends Screen {
         return new EditTextElement(testDriver.findElement(With.id(R.id.txt_email_address)));
     }
 
-    public void typeEmail(String text) {
+    public RecoverPasswordScreen typeEmail(String text) {
         emailInputField().typeText(text);
+        return this;
     }
 
     public void clickOkButton () {

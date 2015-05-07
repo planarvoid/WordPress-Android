@@ -1,5 +1,6 @@
 package com.soundcloud.android.tests.auth.login;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -12,7 +13,7 @@ public class LoginErrorScreen extends Screen {
 
     public LoginErrorScreen(Han solo) {
         super(solo);
-        waiter.waitForFragmentByTag("login_dialog");
+        waiter.waitForElement(With.text(solo.getString(R.string.authentication_error_title)));
     }
 
     public String errorMessage() {
