@@ -59,10 +59,4 @@ public class ExpandPlayerSubscriberTest {
         verify(playbackToastHelper).showToastOnPlaybackError(errorResult.getErrorReason());
     }
 
-    @Test
-    public void showsMissingPlayableTracksToastOnError() {
-        subscriber.onError(new IllegalStateException());
-
-        verify(playbackToastHelper).showToastOnPlaybackError(MISSING_PLAYABLE_TRACKS);
-    }
 }
