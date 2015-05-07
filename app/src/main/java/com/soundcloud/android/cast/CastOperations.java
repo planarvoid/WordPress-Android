@@ -43,13 +43,6 @@ public class CastOperations {
     private final ImageOperations imageOperations;
     private final Resources resources;
 
-    private Func1<List<Urn>, Observable<List<Urn>>> filterMonetizableTracks = new Func1<List<Urn>, Observable<List<Urn>>>() {
-        @Override
-        public Observable<List<Urn>> call(List<Urn> urns) {
-            return policyOperations.filterMonetizableTracks(urns);
-        }
-    };
-
     @Inject
     public CastOperations(VideoCastManager videoCastManager,
                           TrackRepository trackRepository,
@@ -64,7 +57,8 @@ public class CastOperations {
     }
 
     public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableTracks(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
-        return filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
+        return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
+                .filter(RxUtils.<Urn>filterEmptyLists())
                 .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
                     @Override
                     public Observable<LocalPlayQueue> call(List<Urn> filteredLocalPlayQueueTracks) {
@@ -91,12 +85,6 @@ public class CastOperations {
                                 track.get(TrackProperty.URN));
                     }
                 });
-    }
-
-    private Observable<List<Urn>> filterMonetizableTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
-        return Observable.just(unfilteredLocalPlayQueueTracks)
-                .flatMap(filterMonetizableTracks)
-                .filter(RxUtils.<Urn>filterEmptyLists());
     }
 
     private JSONObject createPlayQueueJSON(List<Urn> urns) {

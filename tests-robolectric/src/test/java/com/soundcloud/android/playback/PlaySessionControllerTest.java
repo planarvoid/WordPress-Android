@@ -93,6 +93,32 @@ public class PlaySessionControllerTest {
     }
 
     @Test
+    public void playQueueTrackChangeWhenCastingPlaysTrackWhenCurrentTrackIsDifferentAndPlaying() {
+        when(castConnectionHelper.isConnected()).thenReturn(true);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        PropertySet previousCurrentTrack = setupTrackLoad(Urn.forTrack(5L));
+        PropertySet newCurrentTrack = setupTrackLoad(Urn.forTrack(6L));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(previousCurrentTrack.get(TrackProperty.URN)));
+        Mockito.reset(playbackOperations);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(newCurrentTrack.get(TrackProperty.URN)));
+
+        verify(playbackOperations).playCurrent();
+    }
+
+    @Test
+    public void playQueueTrackChangeWhenCastingDoesNotPlayTrackWhenCurrentTrackStaysTheSame() {
+        when(castConnectionHelper.isConnected()).thenReturn(true);
+        when(playSessionStateProvider.isPlaying()).thenReturn(true);
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn));
+        Mockito.reset(playbackOperations);
+
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn));
+
+        verify(playbackOperations, never()).playCurrent();
+    }
+
+    @Test
     public void playQueueTrackChangedHandlerDoesNotSetTrackOnAudioManagerIfTrackChangeNotSupported() {
         when(audioManager.isTrackChangeSupported()).thenReturn(false);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(trackUrn));
@@ -189,4 +215,9 @@ public class PlaySessionControllerTest {
         verify(playQueueManager, never()).saveCurrentProgress(anyInt());
     }
 
+    private PropertySet setupTrackLoad(Urn urn) {
+        PropertySet track = PropertySet.from(TrackProperty.URN.bind(urn));
+        when(trackRepository.track(urn)).thenReturn(Observable.just(track));
+        return track;
+    }
 }

@@ -22,6 +22,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -67,7 +68,7 @@ public class SoundAdapterTest {
 
     @Before
     public void setup() {
-        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<List<Urn>>empty());
+        when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackOperations,
                 trackPresenter, playlistPresenter, eventBus, TestSubscribers.expandPlayerSubscriber());
     }

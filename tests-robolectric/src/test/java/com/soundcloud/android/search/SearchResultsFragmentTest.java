@@ -17,6 +17,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -85,7 +86,7 @@ public class SearchResultsFragmentTest {
 
     @Test
     public void trackItemClickShouldPlayTrack() {
-        TestObservables.MockObservable<List<Urn>> playbackObservable =
+        TestObservables.MockObservable<PlaybackResult> playbackObservable =
                 setupAdapterAndPlaybackOperations(Screen.SEARCH_EVERYTHING);
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
@@ -115,7 +116,7 @@ public class SearchResultsFragmentTest {
         fragment = createFragment(SearchOperations.TYPE_TRACKS, false);
         fragment.onCreate(null);
 
-        TestObservables.MockObservable<List<Urn>> playbackObservable =
+        TestObservables.MockObservable<PlaybackResult> playbackObservable =
                 setupAdapterAndPlaybackOperations(Screen.SEARCH_TRACKS);
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
@@ -263,8 +264,8 @@ public class SearchResultsFragmentTest {
         return fragment;
     }
 
-    private TestObservables.MockObservable<List<Urn>> setupAdapterAndPlaybackOperations(Screen screen) {
-        TestObservables.MockObservable<List<Urn>> playbackObservable = TestObservables.emptyObservable();
+    private TestObservables.MockObservable<PlaybackResult> setupAdapterAndPlaybackOperations(Screen screen) {
+        TestObservables.MockObservable<PlaybackResult> playbackObservable = TestObservables.emptyObservable();
         final TrackItem trackItem = TrackItem.from(PropertySet.from(TrackProperty.URN.bind(TRACK_URN)));
         when(adapter.getItem(0)).thenReturn(trackItem);
         when(adapter.getItems()).thenReturn(Arrays.asList((ListItem) trackItem));

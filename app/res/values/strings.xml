@@ -630,6 +630,9 @@
     <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
     <string name="device_management_continue">Continue</string>
 
+    <!-- GOOGLE CAST -->
+    <string name="cast_unable_play_track">Unable to cast track</string>
+    
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>
     <string name="feedback_playback_issue">Playback issue</string>

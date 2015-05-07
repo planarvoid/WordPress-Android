@@ -21,6 +21,7 @@ import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -141,7 +142,7 @@ public class TrackLikesHeaderPresenterTest {
     @Test
     public void emitTrackingEventOnShuffleButtonClick() {
         when(playbackOperations.playLikedTracksShuffled(any(PlaySessionSource.class)))
-                .thenReturn(Observable.<List<Urn>>empty());
+                .thenReturn(Observable.<PlaybackResult>empty());
 
         presenter.onViewCreated(layoutView, listView);
 

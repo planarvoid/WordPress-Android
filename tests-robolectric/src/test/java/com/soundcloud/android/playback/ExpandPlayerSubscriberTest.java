@@ -32,38 +32,30 @@ public class ExpandPlayerSubscriberTest {
     }
 
     @Test
-    public void subscriberExpandPlayerOnNext() {
-        subscriber.onNext(Collections.<Urn>emptyList());
+    public void expandsPlayerOnPlaybackResultSuccess() {
+        subscriber.onNext(PlaybackResult.success());
 
         Robolectric.runUiThreadTasksIncludingDelayedTasks();
         expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isExpand()).toBeTrue();
     }
 
     @Test
-    public void onErrorPassesPlaybackExceptionsToPlaybackToastHelper() {
-        final Exception someException = new Exception("some exception");
-
-        subscriber.onError(someException);
-
-        verify(playbackToastHelper).showToastOnPlaybackError(someException);
-    }
-
-    @Test
-    public void onErrorRethrowsExceptionIfNotHandledByPlaybackToastHelper() throws Exception {
-        final ClassNotFoundException someException = new ClassNotFoundException("some exception");
-        when(playbackToastHelper.showToastOnPlaybackError(someException)).thenReturn(false);
-
-        subscriber.onError(someException);
-    }
-
-    @Test
-    public void subscriberEmitsOpenPlayerFromTrackPlay() {
-        subscriber.onNext(Collections.<Urn>emptyList());
+    public void emitsOpenPlayerOnPlaybackResultSuccess() {
+        subscriber.onNext(PlaybackResult.success());
 
         Robolectric.runUiThreadTasksIncludingDelayedTasks();
         UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         UIEvent expectedEvent = UIEvent.fromPlayerOpen(UIEvent.METHOD_TRACK_PLAY);
         expect(event.getAttributes()).toEqual(expectedEvent.getAttributes());
+    }
+
+    @Test
+    public void showsToastOnPlaybackError() {
+        PlaybackResult errorResult = PlaybackResult.error(PlaybackResult.ErrorReason.UNSKIPPABLE);
+
+        subscriber.onNext(errorResult);
+
+        verify(playbackToastHelper).showToastOnPlaybackError(errorResult.getErrorReason());
     }
 
 }

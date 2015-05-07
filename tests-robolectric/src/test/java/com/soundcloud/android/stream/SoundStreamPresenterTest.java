@@ -14,6 +14,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -64,7 +65,7 @@ public class SoundStreamPresenterTest {
     @Mock private EmptyView emptyView;
 
     private TestEventBus eventBus = new TestEventBus();
-    private TestSubscriber testSubscriber = new TestSubscriber();
+    private TestSubscriber<PlaybackResult> testSubscriber = new TestSubscriber<>();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
 
     @Before
@@ -94,11 +95,12 @@ public class SoundStreamPresenterTest {
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
         when(playbackOperations.playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
-                .thenReturn(streamTracks);
+                .thenReturn(Observable.just(PlaybackResult.success()));
 
         presenter.onItemClick(listView, view, 0, 0);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(streamTrackUrns));
+        expect(testSubscriber.getOnNextEvents()).toNumber(1);
+        expect(testSubscriber.getOnNextEvents().get(0).isSuccess()).toBeTrue();
     }
 
     @Test

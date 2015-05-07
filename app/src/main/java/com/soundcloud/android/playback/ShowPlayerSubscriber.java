@@ -6,31 +6,27 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ErrorUtils;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class ShowPlayerSubscriber extends DefaultSubscriber<List<Urn>> {
-    private final PlaybackToastHelper playbackToastHelper;
+public class ShowPlayerSubscriber extends DefaultSubscriber<PlaybackResult> {
     private final EventBus eventBus;
+    private final PlaybackToastHelper playbackToastHelper;
 
     @Inject
     public ShowPlayerSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
-        this.playbackToastHelper = playbackToastHelper;
         this.eventBus = eventBus;
+        this.playbackToastHelper = playbackToastHelper;
     }
 
     @Override
-    public void onCompleted() {
-        eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        if (!playbackToastHelper.showToastOnPlaybackError(e)){
-            ErrorUtils.handleSilentException("Unhandled exception when showing a player", e);
+    public void onNext(PlaybackResult result) {
+        if (result.isSuccess()) {
+            eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+        } else {
+            playbackToastHelper.showToastOnPlaybackError(result.getErrorReason());
         }
-
     }
+
 }

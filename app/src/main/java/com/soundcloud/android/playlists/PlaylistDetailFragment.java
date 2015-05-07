@@ -22,6 +22,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ShowPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -184,7 +185,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     }
 
     private void playFromBeginning() {
-        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus, playbackToastHelper));
+        playTracksAtPosition(0, new ShowPlayerAfterPlaybackSubscriber(eventBus));
     }
 
     private void addLifeCycleComponents() {
@@ -326,7 +327,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         playTracksAtPosition(trackPosition, expandPlayerSubscriberProvider.get());
     }
 
-    private void playTracksAtPosition(int trackPosition, Subscriber<List<Urn>> playbackSubscriber) {
+    private void playTracksAtPosition(int trackPosition, Subscriber<PlaybackResult> playbackSubscriber) {
         final PlaySessionSource playSessionSource = getPlaySessionSource();
         final TrackItem initialTrack = controller.getAdapter().getItem(trackPosition);
         SearchQuerySourceInfo searchQuerySourceInfo = getSearchQuerySourceInfo();
@@ -425,7 +426,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
 
-        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper) {
+        public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus) {
             super(eventBus, playbackToastHelper);
         }
 

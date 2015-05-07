@@ -26,18 +26,19 @@ public class ShowPlayerSubscriberTest {
     }
 
     @Test
-    public void subscriberExpandPlayerOnComplete() {
-        subscriber.onCompleted();
+    public void showsPlayerOnSuccessfulPlaybackResult() {
+        subscriber.onNext(PlaybackResult.success());
 
         expect(eventBus.lastEventOn(EventQueue.PLAYER_COMMAND).isShow()).toBeTrue();
     }
 
     @Test
-    public void onErrorPassesExceptionToPlaybackToastHelper() {
-        final Exception someException = new Exception("some exception");
+    public void showsToastOnPlaybackError() {
+        PlaybackResult errorResult = PlaybackResult.error(PlaybackResult.ErrorReason.TRACK_NOT_FOUND);
 
-        subscriber.onError(someException);
+        subscriber.onNext(errorResult);
 
-        verify(playbackToastHelper).showToastOnPlaybackError(someException);
+        verify(playbackToastHelper).showToastOnPlaybackError(errorResult.getErrorReason());
     }
+
 }

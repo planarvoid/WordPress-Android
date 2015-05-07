@@ -32,6 +32,7 @@ import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -233,7 +234,7 @@ public class PlaylistEngagementsPresenterTest {
     @Test
     public void shouldPlayShuffledThroughContentOperationsOnPlayShuffled() {
         controller.setPlaylistInfo(playlistWithTracks, getPlaySessionSource());
-        final PublishSubject<List<Urn>> subject = PublishSubject.create();
+        final PublishSubject<PlaybackResult> subject = PublishSubject.create();
         when(offlinePlaybackOperations.playPlaylistShuffled(playlistWithTracks.getUrn(), getPlaySessionSource()))
                 .thenReturn(subject);
 

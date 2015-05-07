@@ -1,36 +1,36 @@
 package com.soundcloud.android.cast;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumer;
-import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConnectionException;
-import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackProgress;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import rx.Observable;
+import rx.observers.TestSubscriber;
 
+import javax.inject.Provider;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -50,6 +50,9 @@ public class CastSessionControllerTest {
     @Mock private VideoCastManager videoCastManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
 
+    private TestSubscriber expandPlayerSubscriber = new TestSubscriber();
+    private Provider expandPlayerSubscriberProvider = providerOf(expandPlayerSubscriber);
+
     private final TestEventBus eventBus = new TestEventBus();
 
     @Before
@@ -59,7 +62,8 @@ public class CastSessionControllerTest {
                 playQueueManager,
                 videoCastManager,
                 eventBus,
-                playSessionStateProvider);
+                playSessionStateProvider,
+                expandPlayerSubscriberProvider);
         when(castOperations.loadRemotePlayQueue()).thenReturn(new RemotePlayQueue(Collections.<Urn>emptyList(), Urn.NOT_SET));
     }
 
@@ -82,6 +86,7 @@ public class CastSessionControllerTest {
     public void onConnectedToReceiverAppStopsPlaybackService() throws Exception {
         castSessionController.startListening();
         when(playSessionStateProvider.getLastProgressByUrn(any(Urn.class))).thenReturn(PlaybackProgress.empty());
+        when(playbackOperations.reloadAndPlayCurrentQueue(anyLong())).thenReturn(Observable.<PlaybackResult>empty());
 
         callOnConnectedToReceiverApp();
 
@@ -89,15 +94,19 @@ public class CastSessionControllerTest {
     }
 
     @Test
-    public void onConnectedToReceiverAppReloadsAndPlaysCurrentTrackFromLastPosition() throws Exception {
+    public void onConnectedToReceiverAppExpandsPlayerWhenLocalQueueIsPopulated() throws Exception {
         castSessionController.startListening();
+        PlaybackResult playbackResult = PlaybackResult.success();
+        PlaybackProgress lastPlaybackProgress = new PlaybackProgress(123L, 456L);
+        when(playSessionStateProvider.getLastProgressByUrn(URN)).thenReturn(lastPlaybackProgress);
+        when(playbackOperations.reloadAndPlayCurrentQueue(lastPlaybackProgress.getPosition())).thenReturn(Observable.just(playbackResult));
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
-        when(playSessionStateProvider.getLastProgressByUrn(URN)).thenReturn(new PlaybackProgress(123, 456));
 
         callOnConnectedToReceiverApp();
 
-        verify(playbackOperations).reloadAndPlayCurrentQueue(123L);
+        expect(expandPlayerSubscriber.getOnNextEvents()).toNumber(1);
+        expect(expandPlayerSubscriber.getOnNextEvents().get(0)).toEqual(playbackResult);
     }
 
     @Test

@@ -112,19 +112,34 @@ public class PlaySessionController {
                     .track(event.getCurrentTrackUrn())
                     .map(PropertySetFunctions.mergeInto(event.getCurrentMetaData()))
                     .subscribe(new CurrentTrackSubscriber());
-
-            if (playSessionStateProvider.isPlaying()) {
-                playbackOperations.playCurrent();
-            }
         }
     }
 
     private final class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
         public void onNext(PropertySet track) {
+            if (castConnectionHelper.isConnected()) {
+                playIfTrackChanged(track);
+            } else if (playSessionStateProvider.isPlaying()) {
+                playbackOperations.playCurrent();
+            }
+
             currentPlayQueueTrack = track;
             updateRemoteAudioManager();
         }
+
+        private void playIfTrackChanged(PropertySet newCurrentTrack) {
+            Urn newCurrentTrackUrn = newCurrentTrack.get(TrackProperty.URN);
+            Urn previousCurrentTrackUrn = getCurrentPlayQueueTrackUrn();
+            if (playSessionStateProvider.isPlaying() &&
+                    !newCurrentTrackUrn.equals(previousCurrentTrackUrn)) {
+                playbackOperations.playCurrent();
+            }
+        }
+    }
+
+    private Urn getCurrentPlayQueueTrackUrn() {
+        return currentPlayQueueTrack == null ? Urn.NOT_SET : currentPlayQueueTrack.get(TrackProperty.URN);
     }
 
     private final class ArtworkSubscriber extends DefaultSubscriber<Bitmap> {

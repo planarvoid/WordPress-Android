@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
@@ -105,17 +106,15 @@ public class TrackLikesPresenterTest {
 
     @Test
     public void shouldPlayLikedTracksOnListItemClick() {
+        PlaybackResult playbackResult = PlaybackResult.success();
         final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
-        final List<Urn> likedUrns = Arrays.asList(TRACK_URN);
-        final Observable<List<Urn>> likedUrnsObservable = Observable.just(likedUrns);
-
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(playbackOperations.playLikes(eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
-                .thenReturn(likedUrnsObservable);
+                .thenReturn(Observable.just(playbackResult));
 
         presenter.onItemClick(listView, view, 1, 0);
 
-        testSubscriber.assertReceivedOnNext(Arrays.asList(likedUrns));
+        testSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
     }
 
     @Test
