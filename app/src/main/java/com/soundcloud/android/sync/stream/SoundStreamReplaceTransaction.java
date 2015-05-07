@@ -11,10 +11,8 @@ public class SoundStreamReplaceTransaction extends SoundStreamInsertTransaction 
     }
 
     @Override
-    public void steps(PropellerDatabase propeller) {
+    protected void beforeInserts(PropellerDatabase propeller) {
+        super.beforeInserts(propeller);
         step(propeller.delete(Table.SoundStream));
-        step(propeller.delete(Table.PromotedTracks));
-        super.steps(propeller);
     }
-
 }
