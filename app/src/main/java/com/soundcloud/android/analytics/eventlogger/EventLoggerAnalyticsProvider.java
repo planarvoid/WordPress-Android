@@ -11,6 +11,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -76,15 +77,17 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             handleSearchEvent((SearchEvent) event);
         } else if (event instanceof ForegroundEvent) {
             handleForegroundEvent((ForegroundEvent) event);
+        } else if (event instanceof PromotedTrackEvent) {
+            handlePromotedEvent((PromotedTrackEvent) event);
         }
     }
 
     private void handleForegroundEvent(ForegroundEvent event) {
-        trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+        trackEvent(event.getTimestamp(), dataBuilder.build(event));
     }
 
     private void handleScreenEvent(ScreenEvent event) {
-        trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+        trackEvent(event.getTimestamp(), dataBuilder.build(event));
     }
 
     @Override
@@ -93,13 +96,17 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void handleLeaveBehindTracking(AdOverlayTrackingEvent event) {
         final String url = dataBuilder.build(event);
-        trackEvent(event.getTimeStamp(), url);
+        trackEvent(event.getTimestamp(), url);
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
         if (AdOverlayTrackingEvent.KIND_CLICK.equals(event.getKind()) || AdOverlayTrackingEvent.KIND_IMPRESSION.equals(event.getKind())) {
-            trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+            trackEvent(event.getTimestamp(), dataBuilder.build(event));
         }
+    }
+
+    private void handlePromotedEvent(PromotedTrackEvent eventData) {
+        trackEvent(eventData.getTimestamp(), dataBuilder.build(eventData));
     }
 
     private void handlePlaybackSessionEvent(final PlaybackSessionEvent event) {
@@ -115,7 +122,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private void handleUIEvent(UIEvent event) {
         if (UIEvent.KIND_AUDIO_AD_CLICK.equals(event.getKind()) || UIEvent.KIND_SKIP_AUDIO_AD_CLICK.equals(event.getKind())) {
-            trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+            trackEvent(event.getTimestamp(), dataBuilder.build(event));
         }
     }
 
@@ -125,7 +132,7 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
                 case SearchEvent.KIND_RESULTS:
                 case SearchEvent.KIND_SUBMIT:
                 case SearchEvent.KIND_SUGGESTION:
-                    trackEvent(event.getTimeStamp(), dataBuilder.build(event));
+                    trackEvent(event.getTimestamp(), dataBuilder.build(event));
                     break;
                 default:
                     // no-op, ignoring certain types
@@ -145,15 +152,15 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void trackAudioAdImpression(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimeStamp(), dataBuilder.buildForAudioAdImpression(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilder.buildForAudioAdImpression(eventData));
     }
 
     private void trackAudioAdFinished(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimeStamp(), dataBuilder.buildForAdFinished(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilder.buildForAdFinished(eventData));
     }
 
     private void trackAudioPlayEvent(PlaybackSessionEvent eventData) {
-        trackEvent(eventData.getTimeStamp(), dataBuilder.buildForAudioEvent(eventData));
+        trackEvent(eventData.getTimestamp(), dataBuilder.buildForAudioEvent(eventData));
     }
 
     private void trackEvent(long timeStamp, String data) {
@@ -162,4 +169,5 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
             eventTracker.flush(BATCH_BACKEND_NAME);
         }
     }
+
 }

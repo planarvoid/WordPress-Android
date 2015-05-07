@@ -5,6 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
@@ -13,8 +14,8 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
@@ -23,10 +24,12 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
+import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -66,11 +69,26 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
                 }
             };
 
+    @VisibleForTesting
+    final Action1<List<PropertySet>> promotedImpression = new Action1<List<PropertySet>>() {
+        @Override
+        public void call(List<PropertySet> propertySets) {
+            if (!propertySets.isEmpty()) {
+                PropertySet first = propertySets.get(0);
+                if (first.contains(PromotedTrackProperty.AD_URN)) {
+                    eventBus.publish(EventQueue.TRACKING, PromotedTrackEvent.forImpression(PromotedTrackItem.from(first),
+                            dateProvider.getCurrentTime(), Screen.SIDE_MENU_STREAM.get()));
+                }
+            }
+        }
+    };
+
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
     private final SoundStreamAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
+    private final DateProvider dateProvider;
 
     private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
@@ -82,13 +100,15 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
                          ImageOperations imageOperations,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
-                         EventBus eventBus) {
+                         EventBus eventBus,
+                         DateProvider dateProvider) {
         super(imageOperations, pullToRefreshWrapper);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
         this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
+        this.dateProvider = dateProvider;
     }
 
     @Override
@@ -103,7 +123,7 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
 
     @Override
     protected ListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
-        return ListBinding.from(streamOperations.initialStreamItems(), PAGE_TRANSFORMER)
+        return ListBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
@@ -111,7 +131,7 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
 
     @Override
     protected ListBinding<PlayableItem> onBuildRefreshBinding() {
-        return ListBinding.from(streamOperations.updatedStreamItems(), PAGE_TRANSFORMER)
+        return ListBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
@@ -159,6 +179,11 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
                             position,
                             new PlaySessionSource(Screen.SIDE_MENU_STREAM))
                     .subscribe(subscriberProvider.get());
+            if (item instanceof PromotedTrackItem) {
+                PromotedTrackItem promotedTrack = (PromotedTrackItem) item;
+                eventBus.publish(EventQueue.TRACKING, PromotedTrackEvent.forTrackClick(promotedTrack,
+                        dateProvider.getCurrentTime(), Screen.SIDE_MENU_STREAM.get()));
+            }
         } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(view.getContext(), playableUrn, Screen.SIDE_MENU_STREAM);
         }

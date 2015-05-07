@@ -77,19 +77,19 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
     public void handleUserSessionEvent(UserSessionEvent event) {}
 
     private void handleLeaveBehindImpression(AdOverlayTrackingEvent event) {
-        trackAllUrls(event.getTimeStamp(), event.getTrackingUrls());
+        trackAllUrls(event.getTimestamp(), event.getTrackingUrls());
     }
 
     private void handleVisualAdImpression(VisualAdImpressionEvent event) {
-        trackAllUrls(event.getTimeStamp(), event.getImpressionUrls());
+        trackAllUrls(event.getTimestamp(), event.getImpressionUrls());
     }
 
     private void handlePlaybackSessionEvent(PlaybackSessionEvent event) {
         if (event.isAd()) {
             if (event.isFirstPlay()) {
-                trackAllUrls(event.getTimeStamp(), event.getAudioAdImpressionUrls());
+                trackAllUrls(event.getTimestamp(), event.getAudioAdImpressionUrls());
             } else if (event.hasTrackFinished()) {
-                trackAllUrls(event.getTimeStamp(), event.getAudioAdFinishUrls());
+                trackAllUrls(event.getTimestamp(), event.getAudioAdFinishUrls());
             }
         }
     }
@@ -107,7 +107,7 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
                 return;
         }
 
-        trackAllUrls(event.getTimeStamp(), urls);
+        trackAllUrls(event.getTimestamp(), urls);
     }
 
     private void trackAllUrls(long timeStamp, List<String> urls) {

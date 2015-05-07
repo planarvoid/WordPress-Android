@@ -217,6 +217,9 @@ class SoundStreamStorage {
             if (cursorReader.isNotNull(PromotedTracks.PROMOTER_ID)) {
                 propertySet.put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(cursorReader.getLong(PromotedTracks.PROMOTER_ID))));
                 propertySet.put(PromotedTrackProperty.PROMOTER_NAME, Optional.of(cursorReader.getString(PromotedTracks.PROMOTER_NAME)));
+            } else {
+                propertySet.put(PromotedTrackProperty.PROMOTER_URN, Optional.<Urn>absent());
+                propertySet.put(PromotedTrackProperty.PROMOTER_NAME, Optional.<String>absent());
             }
         }
     }

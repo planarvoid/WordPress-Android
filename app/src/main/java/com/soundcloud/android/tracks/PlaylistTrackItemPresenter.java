@@ -2,8 +2,11 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.tracks.TrackItemMenuPresenter.RemoveTrackListener;
 
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.DateProvider;
 
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
@@ -15,8 +18,10 @@ public class PlaylistTrackItemPresenter extends DownloadableTrackItemPresenter {
     private RemoveTrackListener removeTrackListener;
 
     @Inject
-    public PlaylistTrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter, FeatureOperations featureOperations) {
-        super(imageOperations, trackItemMenuPresenter, featureOperations);
+    public PlaylistTrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
+                                      EventBus eventBus, FeatureOperations featureOperations,
+                                      ScreenProvider screenProvider, DateProvider dateProvider) {
+        super(imageOperations, trackItemMenuPresenter, eventBus, featureOperations, screenProvider, dateProvider);
     }
 
     public void setRemoveTrackListener(RemoveTrackListener removeTrackListener) {

@@ -9,8 +9,10 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -28,6 +30,7 @@ import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
@@ -58,6 +61,7 @@ public class SoundStreamPresenterTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private TrackItemPresenter trackPresenter;
+    @Mock private DateProvider dateProvider;
 
     @Mock private Fragment fragment;
     @Mock private View view;
@@ -71,12 +75,13 @@ public class SoundStreamPresenterTest {
     @Before
     public void setUp() throws Exception {
         presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imageOperations,
-                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
+                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus, dateProvider);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
+        when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
 
     @Test
@@ -101,6 +106,23 @@ public class SoundStreamPresenterTest {
 
         expect(testSubscriber.getOnNextEvents()).toNumber(1);
         expect(testSubscriber.getOnNextEvents().get(0).isSuccess()).toBeTrue();
+    }
+
+    @Test
+    public void tracksPromotedTrackItemClick() {
+        final PromotedTrackItem clickedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        final List<Urn> streamTrackUrns = Arrays.asList(clickedTrack.getEntityUrn(), Urn.forTrack(634L));
+        final Observable<List<Urn>> streamTracks = Observable.just(streamTrackUrns);
+
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
+        when(playbackOperations.playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
+                .thenReturn(Observable.just(PlaybackResult.success()));
+
+        presenter.onItemClick(listView, view, 0, 0);
+
+        expect(eventBus.lastEventOn(EventQueue.TRACKING))
+                .toEqual(PromotedTrackEvent.forTrackClick(clickedTrack, 100L, Screen.SIDE_MENU_STREAM.get()));
     }
 
     @Test
@@ -203,6 +225,18 @@ public class SoundStreamPresenterTest {
         PlayableItem item = SoundStreamPresenter.PAGE_TRANSFORMER.call(items).get(0);
 
         expect(item).toBeInstanceOf(PromotedTrackItem.class);
+    }
+
+    @Test
+    public void addingPromotedTrackTriggersPromotedTrackImpression() {
+        PropertySet promotedProperties = TestPropertySets.expectedPromotedTrack();
+        List<PropertySet> items = Arrays.asList(promotedProperties);
+
+        presenter.promotedImpression.call(items);
+
+        PromotedTrackItem item = PromotedTrackItem.from(promotedProperties);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING))
+                .toEqual(PromotedTrackEvent.forImpression(item, 100L, Screen.SIDE_MENU_STREAM.get()));
     }
 
 }
