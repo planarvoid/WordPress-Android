@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens;
 
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -11,6 +13,9 @@ import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tracks.TrackItem;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 public class StreamScreen extends Screen {
     private static final Class ACTIVITY = MainActivity.class;
@@ -38,8 +43,7 @@ public class StreamScreen extends Screen {
 
     public TrackItemElement firstTrack() {
         waitForTracksLoading();
-        return new TrackItemElement(testDriver,
-                testDriver.findElements(With.id(R.id.track_list_item)).get(0));
+        return trackItemElements().get(0);
     }
 
     public VisualPlayerElement clickFirstTrack() {
@@ -77,4 +81,15 @@ public class StreamScreen extends Screen {
     public ExploreScreen openExploreFromMenu() {
         return menuScreen.open().clickExplore();
     }
+
+    private List<TrackItemElement> trackItemElements() {
+        return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
+    }
+
+    private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
+        @Override
+        public TrackItemElement apply(ViewElement viewElement) {
+            return new TrackItemElement(testDriver, viewElement);
+        }
+    };
 }

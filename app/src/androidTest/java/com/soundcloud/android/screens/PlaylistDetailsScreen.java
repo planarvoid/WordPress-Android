@@ -65,7 +65,11 @@ public class PlaylistDetailsScreen extends Screen {
         return testDriver.findElement(With.id(R.id.toggle_play_pause));
     }
 
-    public boolean containsTrack(String title) {
+    /**
+     * Use this method with caution, {@link Han} (TestDriver) might not
+     * be able to find tracks in long or paginated lists.
+     */
+    public boolean containsTrackWithTitle(String title) {
         waiter.waitForContentAndRetryIfLoadingFailed();
         tracksListElement().scrollToBottom();
         for (TrackItemElement trackItemElement: trackItemElements()) {
@@ -75,7 +79,6 @@ public class PlaylistDetailsScreen extends Screen {
         }
         return false;
     }
-
 
     private ViewElement likeToggle() {
         return testDriver.findElement(With.id(R.id.toggle_like));

@@ -47,10 +47,10 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         String trackAddedTitle = streamScreen.firstTrack().getTitle();
 
         VisualPlayerElement player = streamScreen.clickFirstTrack();
-        assertTrue("Player did not expand", player.waitForExpandedPlayer());
+        player.waitForExpandedPlayer();
         player.clickMenu()
-              .clickAddToPlaylist()
-              .clickPlaylistWithTitle(TEST_PLAYLIST);
+                .clickAddToPlaylist()
+                .clickPlaylistWithTitle(TEST_PLAYLIST);
 
         player.pressBackToCollapse();
 
@@ -62,15 +62,12 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         waiter.waitForContentAndRetryIfLoadingFailed();
         PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
 
-        String playListTitle = playlistDetailsScreen.getTitle();
-        int trackCount = playlistsScreen.getLoadedTrackCount();
-
-        assertThat(playListTitle, is(TEST_PLAYLIST));
-        assertThat(playlistDetailsScreen.containsTrack(trackTitle), is(true));
+        assertThat(playlistDetailsScreen.getTitle(), is(TEST_PLAYLIST));
+        assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(true));
 
         TrackItemMenuElement menu = playlistDetailsScreen.clickLastTrackOverflowButton();
         menu.clickRemoveFromPlaylist();
 
-        assertThat(playlistsScreen.getLoadedTrackCount(), is(trackCount - 1));
+        assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(false));
     }
 }
