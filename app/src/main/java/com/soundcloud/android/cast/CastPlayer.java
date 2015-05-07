@@ -41,8 +41,6 @@ import java.util.List;
 @Singleton
 public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPusher {
 
-    private final static String TAG = "CastPlayer";
-
     private final CastOperations castOperations;
     private final VideoCastManager castManager;
     private final ProgressReporter progressReporter;
@@ -131,7 +129,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
             final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(), castManager.getMediaDuration());
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
-            Log.e(TAG, "Unable to report progress", e);
+            Log.e(CastOperations.TAG, "Unable to report progress", e);
         }
     }
 
@@ -230,7 +228,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             castManager.loadMedia(localPlayQueue.mediaInfo, true, (int) progressPosition, localPlayQueue.playQueueTracksJSON);
         } catch (TransientNetworkDisconnectionException | NoConnectionException e) {
-            Log.e(TAG, "Unable to load track", e);
+            Log.e(CastOperations.TAG, "Unable to load track", e);
         }
     }
 
@@ -263,7 +261,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
             castManager.play();
             return true;
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(TAG, "Unable to resume playback", e);
+            Log.e(CastOperations.TAG, "Unable to resume playback", e);
         }
         return false;
     }
@@ -272,7 +270,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             castManager.pause();
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(TAG, "Unable to pause playback", e);
+            Log.e(CastOperations.TAG, "Unable to pause playback", e);
         }
     }
 
@@ -280,7 +278,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             castManager.togglePlayback();
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(TAG, "Unable to pause playback", e);
+            Log.e(CastOperations.TAG, "Unable to pause playback", e);
         }
     }
 
@@ -288,7 +286,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             castManager.seek((int) ms);
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(TAG, "Unable to seek", e);
+            Log.e(CastOperations.TAG, "Unable to seek", e);
         }
         return ms;
     }
@@ -297,7 +295,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             return castManager.getCurrentMediaPosition();
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(TAG, "Unable to get progress", e);
+            Log.e(CastOperations.TAG, "Unable to get progress", e);
         }
         return 0;
     }
@@ -306,7 +304,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         try {
             return castManager.getMediaDuration();
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
-            Log.e(TAG, "Unable to get duration", e);
+            Log.e(CastOperations.TAG, "Unable to get duration", e);
         }
         return 0;
     }
