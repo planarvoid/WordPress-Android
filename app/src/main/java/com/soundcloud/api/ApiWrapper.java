@@ -16,6 +16,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.AuthenticationHandler;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.RedirectHandler;
@@ -23,7 +24,6 @@ import org.apache.http.client.RequestDirector;
 import org.apache.http.client.UserTokenHandler;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -44,6 +44,7 @@ import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.conn.scheme.SocketFactory;
 import org.apache.http.conn.ssl.SSLSocketFactory;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRequestDirector;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -64,6 +65,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -121,6 +125,31 @@ public class ApiWrapper implements CloudAPI {
     transient private CloudAPI.TokenListener listener;
     private String defaultContentType;
     private String defaultAcceptEncoding;
+
+    /**
+     * We do not want to use cookies, as it will result in continued sessions between logins / logouts
+     */
+    private static final CookieStore NO_OP_COOKIE_STORE = new CookieStore() {
+        @Override
+        public void addCookie(Cookie cookie) {
+
+        }
+
+        @Override
+        public List<Cookie> getCookies() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public boolean clearExpired(Date date) {
+            return false;
+        }
+
+        @Override
+        public void clear() {
+
+        }
+    };
 
     public ApiWrapper(OAuth oAuth, AccountOperations accountOperations) {
         this.accountOperations = accountOperations;
@@ -288,6 +317,7 @@ public class ApiWrapper implements CloudAPI {
                     new ThreadSafeClientConnManager(params, registry),
                     params) {
                 {
+
                     setKeepAliveStrategy(new ConnectionKeepAliveStrategy() {
                         @Override
                         public long getKeepAliveDuration(HttpResponse httpResponse, HttpContext httpContext) {
@@ -321,6 +351,11 @@ public class ApiWrapper implements CloudAPI {
                             }
                         }
                     });
+                }
+
+                @Override
+                protected CookieStore createCookieStore() {
+                    return NO_OP_COOKIE_STORE;
                 }
 
                 @Override
