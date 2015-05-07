@@ -16,7 +16,6 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.MenuScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.auth.FBWebViewScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
 
@@ -44,9 +43,11 @@ public class LoginFlowTest extends LoginTest {
      * So that I can listen to my favourite tracks
      */
     public void testSCUserLoginFlow() {
-        loginScreen = homeScreen.clickLogInButton();
-        loginScreen.loginAs(defaultUser.getEmail(), defaultUser.getPassword());
-        assertThat(new StreamScreen(solo), visible());
+        final StreamScreen streamScreen = homeScreen
+                .clickLogInButton()
+                .loginAs(defaultUser.getEmail(), defaultUser.getPassword());
+
+        assertThat(streamScreen, visible());
     }
 
     /*
@@ -55,19 +56,22 @@ public class LoginFlowTest extends LoginTest {
     * So that I don't need to create another SC account
     */
     public void testGPlusLoginFlow() {
-        loginScreen = homeScreen.clickLogInButton();
-        loginScreen.clickSignInWithGoogleButton();
-
         //FIXME Assuming that we have more than one g+ account, there should be another test for this
-        loginScreen.selectUserFromDialog(GPlusAccount.getEmail());
+        final TermsOfUseScreen termsOfUseScreen = homeScreen
+                .clickLogInButton()
+                .clickSignInWithGoogleButton()
+                .selectUserFromDialog(GPlusAccount.getEmail());
 
-        // Then termsOfUse dialog should be shown
-//        TODO: DialogElement
-        solo.assertText(R.string.auth_disclaimer_title);
-        solo.assertText(R.string.auth_disclaimer_message);
+        assertTermsOfUseDisplayed(termsOfUseScreen);
 
-        loginScreen.clickOnContinueButton();
-        assertThat(new StreamScreen(solo), visible());
+        final StreamScreen streamScreen = termsOfUseScreen.clickContinueWithGP();
+        assertThat(streamScreen, visible());
+    }
+
+    private void assertTermsOfUseDisplayed(TermsOfUseScreen termsOfUseScreen) {
+        assertThat(termsOfUseScreen, is(visible()));
+        assertEquals(termsOfUseScreen.getTitle(), solo.getString(R.string.auth_disclaimer_title));
+        assertEquals(termsOfUseScreen.getDisclaimer(), solo.getString(R.string.auth_disclaimer_message));
     }
 
     /*
@@ -75,17 +79,15 @@ public class LoginFlowTest extends LoginTest {
     * I want to sign in even if I don't have g+ profile
     */
     public void testNoGooglePlusAccountLogin() {
-        loginScreen = homeScreen.clickLogInButton();
-        loginScreen.clickSignInWithGoogleButton();
-        loginScreen.selectUserFromDialog(noGPlusAccount.getEmail());
+        final TermsOfUseScreen termsOfUseScreen = homeScreen
+                .clickLogInButton()
+                .clickSignInWithGoogleButton()
+                .selectUserFromDialog(noGPlusAccount.getEmail());
 
-        // Then termsOfUse dialog should be shown
-        //TODO: DIALOG
-        solo.assertText(R.string.auth_disclaimer_title);
-        solo.assertText(R.string.auth_disclaimer_message);
+        assertTermsOfUseDisplayed(termsOfUseScreen);
 
-        loginScreen.clickOnContinueButton();
-        assertThat(new StreamScreen(solo), visible());
+        final StreamScreen streamScreen = termsOfUseScreen.clickContinueWithGP();
+        assertThat(streamScreen, visible());
     }
 
     /*
@@ -94,22 +96,19 @@ public class LoginFlowTest extends LoginTest {
     * So that I don't need to create another account
     */
     public void testLoginWithFacebookWebFlow() {
-        loginScreen = homeScreen.clickLogInButton();
-        loginScreen.clickOnFBSignInButton();
+        final TermsOfUseScreen termsOfUseScreen = homeScreen
+                .clickLogInButton()
+                .clickOnFBSignInButton();
 
-        //Then termsOfUse dialog should be shown
-        //TODO: DialogElement
-        solo.assertText(R.string.auth_disclaimer_title);
-        solo.assertText(R.string.auth_disclaimer_message);
+        assertTermsOfUseDisplayed(termsOfUseScreen);
 
-        loginScreen.clickOnContinueButton();
+        final StreamScreen streamScreen = termsOfUseScreen
+                .clickContinueWithFacebookWB()
+                .typePassword(scAccount.getPassword())
+                .typeEmail(scAccount.getEmail())
+                .submit();
 
-        FBWebViewScreen facebookWebView = new FBWebViewScreen(solo);
-
-        facebookWebView.typePassword(scAccount.getPassword());
-        facebookWebView.typeEmail(scAccount.getEmail());
-        facebookWebView.submit();
-        assertThat(new StreamScreen(solo), visible());
+        assertThat(streamScreen, visible());
     }
 
     /*

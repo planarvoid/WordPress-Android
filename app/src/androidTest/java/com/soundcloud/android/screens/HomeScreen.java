@@ -25,10 +25,6 @@ public class HomeScreen extends Screen {
         return new SignUpMethodScreen(testDriver);
     }
 
-    public boolean hasItemByUsername(String username){
-        return !testDriver.findElements(With.text(username)).isEmpty();
-    }
-
     private ViewElement bottomBar() {
         return testDriver.findElement(With.id(R.id.tour_bottom_bar));
     }

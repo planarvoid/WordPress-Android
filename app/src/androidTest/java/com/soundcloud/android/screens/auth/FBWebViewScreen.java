@@ -10,9 +10,10 @@ import com.soundcloud.android.screens.StreamScreen;
 import android.webkit.WebView;
 
 public class FBWebViewScreen {
+
     private final ViewElement webview;
-    public Han solo;
-    private Waiter waiter;
+    private final Waiter waiter;
+    private final Han solo;
 
     public FBWebViewScreen(Han driver) {
         solo = driver;
@@ -26,17 +27,19 @@ public class FBWebViewScreen {
         return waiter.waitForWebViewToLoad(webview.toWebView());
     }
 
-    public void typeEmail(String text) {
+    public FBWebViewScreen typeEmail(String text) {
         solo.waitForWebElement(emailField());
         solo.clearTextInWebElement(emailField());
         solo.typeTextInWebElement(emailField(), text);
         solo.clickOnWebElement(emailField());
+        return this;
     }
 
-    public void typePassword(String text) {
+    public FBWebViewScreen typePassword(String text) {
         solo.waitForWebElement(passwordField());
         solo.clearTextInWebElement(passwordField());
         solo.typeTextInWebElement(passwordField(), text);
+        return this;
     }
 
     public StreamScreen submit() {
@@ -48,7 +51,6 @@ public class FBWebViewScreen {
         solo.clickOnWebElement(By.textContent("OK")); // confirm permissions
         waiter.waitForDialogToClose();
         return new StreamScreen(solo);
-
     }
 
     private By emailField() {

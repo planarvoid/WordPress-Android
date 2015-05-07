@@ -9,6 +9,7 @@ import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.tests.auth.login.LoginErrorScreen;
+import com.soundcloud.android.tests.auth.login.TermsOfUseScreen;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -45,12 +46,14 @@ public class LoginScreen extends Screen {
         testDriver.clickOnText(android.R.string.ok);
     }
 
-    public void clickOnFBSignInButton() {
+    public TermsOfUseScreen clickOnFBSignInButton() {
         facebookSignInButton().click();
+        return new TermsOfUseScreen(testDriver);
     }
 
-    public void clickSignInWithGoogleButton() {
+    public LoginScreen clickSignInWithGoogleButton() {
         googleSignInButton().click();
+        return this;
     }
 
     public RecoverPasswordScreen clickForgotPassword() {
@@ -58,15 +61,12 @@ public class LoginScreen extends Screen {
         return new RecoverPasswordScreen(testDriver);
     }
 
-    public void selectUserFromDialog(String username) {
+    public TermsOfUseScreen selectUserFromDialog(String username) {
         testDriver.findElement(With.text(username)).click();
         waiter.waitForActivity(OnboardActivity.class);
+        return new TermsOfUseScreen(testDriver);
     }
 
-    public void clickOnContinueButton() {
-        testDriver.clickOnButton(R.string.btn_continue);
-        waiter.waitForTextToDisappear("Logging you in");
-    }
     public StreamScreen loginAs(String username, String password) {
         emailInputField().clearText();
 
