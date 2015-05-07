@@ -1,14 +1,13 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.*;
-import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST;
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdConstants;
 import com.soundcloud.android.ads.AdsOperations;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.events.EventQueue;
@@ -134,7 +133,8 @@ public class PlaybackOperations {
                     public Observable<PlaybackResult> call(List<Urn> urns) {
                         return playbackStrategyProvider.get().playNewQueue(urns, Urn.NOT_SET, 0, false, playSessionSource);
                     }
-                });
+                })
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long fromLastProgressPosition) {
@@ -161,7 +161,8 @@ public class PlaybackOperations {
                     public Observable<PlaybackResult> call(List<Urn> urns) {
                         return playbackStrategyProvider.get().playNewQueue(urns, initialTrack, startPosition, loadRelated, playSessionSource);
                     }
-                });
+                })
+                .observeOn(AndroidSchedulers.mainThread());
 
     }
 
