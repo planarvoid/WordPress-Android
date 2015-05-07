@@ -8,6 +8,7 @@ import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
@@ -25,6 +26,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -35,8 +37,12 @@ import rx.Observable;
 import rx.observers.TestObserver;
 import rx.schedulers.Schedulers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class SearchOperationsTest {
@@ -152,16 +158,21 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldBackFillLikesForPlaylistsInUniversalSearchResult() throws Exception {
-        Observable observable = Observable.just(new SearchCollection<>(Lists.newArrayList(
+        final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forTrack(track),
-                ApiUniversalSearchItem.forPlaylist(playlist))));
+                ApiUniversalSearchItem.forPlaylist(playlist));
+
+        Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
         PropertySet playlistIsLikedStatus = PropertySet.from(
                 PlaylistProperty.URN.bind(playlist.getUrn()),
                 PlaylistProperty.IS_LIKED.bind(true));
-        when(loadPlaylistLikedStatuses.call()).thenReturn(Arrays.asList(playlistIsLikedStatus));
+
+        final SearchResult expectedSearchResult = new SearchResult(apiUniversalSearchItems, Optional.<Link>absent(), Optional.<Urn>absent());
+        final Map<Urn,PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
+        when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
@@ -174,18 +185,19 @@ public class SearchOperationsTest {
     @Test
     public void shouldRetainOrderWhenBackfillingLikesForPlaylistsInUniversalSearchResult() throws Exception {
         ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
-        Observable observable = Observable.just(new SearchCollection<>(Lists.newArrayList(
+        final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 ApiUniversalSearchItem.forPlaylist(playlist), // should be enriched with like status
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forPlaylist(playlist2), // should be enriched with like status
-                ApiUniversalSearchItem.forTrack(track))));
+                ApiUniversalSearchItem.forTrack(track));
+        Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
-        when(loadPlaylistLikedStatuses.call()).thenReturn(Arrays.asList(
-                // the database call returns playlist2 first, so changes order! which is valid.
-                PropertySet.from(PlaylistProperty.URN.bind(playlist2.getUrn()), PlaylistProperty.IS_LIKED.bind(true)),
-                PropertySet.from(PlaylistProperty.URN.bind(playlist.getUrn()), PlaylistProperty.IS_LIKED.bind(false))
-        ));
+
+        Map<Urn,PropertySet> likedPlaylists = new HashMap<>(2);
+        likedPlaylists.put(playlist2.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
+        likedPlaylists.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(false)));
+        when(loadPlaylistLikedStatuses.call(CollectionUtils.toPropertySets(apiUniversalSearchItems))).thenReturn(likedPlaylists);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
@@ -200,12 +212,14 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldBackFillLikesForPlaylistsInPlaylistSearch() throws Exception {
-        Observable searchObservable = Observable.just(new SearchCollection<>(Arrays.asList(playlist)));
+        final List<ApiPlaylist> apiPlaylists = Arrays.asList(playlist);
+        Observable searchObservable = Observable.just(new SearchCollection<>(apiPlaylists));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(searchObservable);
-        PropertySet playlistIsLikedStatus = PropertySet.from(
-                PlaylistProperty.URN.bind(playlist.getUrn()),
-                PlaylistProperty.IS_LIKED.bind(true));
-        when(loadPlaylistLikedStatuses.call()).thenReturn(Arrays.asList(playlistIsLikedStatus));
+
+        final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_LIKED.bind(true));
+        Map<Urn,PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), playlistIsLikedStatus);
+        final SearchResult expectedSearchResult = new SearchResult(apiPlaylists, Optional.<Link>absent(), Optional.<Urn>absent());
+        when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
         operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 

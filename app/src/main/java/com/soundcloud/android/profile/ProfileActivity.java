@@ -4,6 +4,7 @@ import static android.text.TextUtils.isEmpty;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.ads.AdPlayerController;
@@ -490,11 +491,14 @@ public class ProfileActivity extends ScActivity implements
             if (currentTab == Tab.details) {
                 return userInfoFragment;
             } else {
+                // don't ask me why the user could be null here. No time for this dead code - JS
+                final long id = user == null ? Consts.NOT_SET : user.getId();
+                final Content content = isLoggedInUser() ? currentTab.youContent : currentTab.userContent;
                 final SearchQuerySourceInfo searchQuerySourceForTab = searchQuerySourceForTab(currentTab);
-                final Uri uri = isLoggedInUser() ? currentTab.youContent.uri : currentTab.userContent.forId(user.getId());
+                final Uri uri = isLoggedInUser() ? content.uri : currentTab.userContent.forId(id);
                 final Screen youScreen = isLoggedInUser() ? currentTab.youScreen : currentTab.userScreen;
                 final String username = user == null ? ScTextUtils.EMPTY_STRING : user.username;
-                return profileListFragmentCreator.create(ProfileActivity.this, username, uri, youScreen, searchQuerySourceForTab);
+                return profileListFragmentCreator.create(ProfileActivity.this, content, user.getUrn(), username, uri, youScreen, searchQuerySourceForTab);
             }
         }
 

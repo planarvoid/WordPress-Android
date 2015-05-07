@@ -9,4 +9,8 @@ public class SoundAssociationHolder extends CollectionHolder<SoundAssociation> {
     public SoundAssociationHolder(List<SoundAssociation> collection) {
         super(collection);
     }
+
+    public SoundAssociationHolder(List<SoundAssociation> collection, String nextHref) {
+        super(collection, nextHref);
+    }
 }

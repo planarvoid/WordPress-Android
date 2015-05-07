@@ -101,4 +101,5 @@ public class TestUser {
     public static final TestUser childUser          = new TestUser("childuserblah",         "childuserblah@soundcloud.com",         "passwordyeah88"); // 13 years in 2015
     public static final TestUser playlistLikesUser  = new TestUser("playlist-likes-user",   "playlist-likes-user@soundcloud.com",   "passwordyeah");
     public static final TestUser onePlaylistUser    = new TestUser("onePlaylistUser",       "onePlaylistuser@gmail.com",            "passwordyeah88");
+    public static final TestUser profileEntryUser   = new TestUser("sc-profile-entry-user", "sc-profile-entry-user@gmail.com",      "passwordyeah");
 }

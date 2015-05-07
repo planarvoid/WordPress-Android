@@ -11,6 +11,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
@@ -33,7 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Deprecated
-public class PublicApiPlaylist extends Playable {
+public class PublicApiPlaylist extends Playable implements PlaylistRecord {
 
     public static final String EXTRA = "com.soundcloud.android.playlist";
     public static final Creator<PublicApiPlaylist> CREATOR = new Creator<PublicApiPlaylist>() {
@@ -221,8 +222,33 @@ public class PublicApiPlaylist extends Playable {
     }
 
 
+    @Override
+    public int getDuration() {
+        return duration;
+    }
+
     public int getTrackCount() {
         return Math.max(tracks.size(), track_count);
+    }
+
+    @Override
+    public Iterable<String> getTags() {
+        return humanTags();
+    }
+
+    @Override
+    public String getPermalinkUrl() {
+        return permalink_url;
+    }
+
+    @Override
+    public int getLikesCount() {
+        return likes_count;
+    }
+
+    @Override
+    public int getRepostsCount() {
+        return reposts_count;
     }
 
     @JsonProperty("track_count")

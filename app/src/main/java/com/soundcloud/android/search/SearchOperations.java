@@ -1,8 +1,6 @@
 package com.soundcloud.android.search;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
@@ -22,7 +20,6 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.utils.CollectionUtils;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import rx.Observable;
@@ -34,6 +31,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @SuppressFBWarnings(
         value = {"SE_BAD_FIELD"},
@@ -61,34 +59,17 @@ class SearchOperations {
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     private final Scheduler scheduler;
 
-    private final Func1<SearchResult, SearchResult> mergeLikeStatusForPlaylists = new Func1<SearchResult, SearchResult>() {
+    private final Func1<SearchResult, SearchResult> mergeLocalInfo = new Func1<SearchResult, SearchResult>() {
         @Override
-        public SearchResult call(SearchResult searchResult) {
-            final List<PropertySet> playlistsIsLikedStatus;
-            try {
-                playlistsIsLikedStatus = loadPlaylistLikedStatuses.with(searchResult.getItems()).call();
-
-                for (final PropertySet resultItem : searchResult) {
-                    final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
-                    final Optional<PropertySet> matchingPlaylistLikeStatus =
-                            Iterables.tryFind(playlistsIsLikedStatus, matchingUrnPredicate(itemUrn));
-                    if (itemUrn.isPlaylist() && matchingPlaylistLikeStatus.isPresent()) {
-                        resultItem.update(matchingPlaylistLikeStatus.get());
-                    }
+        public SearchResult call(SearchResult input) {
+            final Map<Urn, PropertySet> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(input);
+            for (final PropertySet resultItem : input) {
+                final Urn itemUrn = resultItem.getOrElse(PlaylistProperty.URN, Urn.NOT_SET);
+                if (playlistsIsLikedStatus.containsKey(itemUrn)) {
+                    resultItem.update(playlistsIsLikedStatus.get(itemUrn));
                 }
-            } catch (Exception e) {
-                ErrorUtils.handleSilentException(e);
             }
-            return searchResult;
-        }
-
-        private Predicate<PropertySet> matchingUrnPredicate(final Urn itemUrn) {
-            return new Predicate<PropertySet>() {
-                @Override
-                public boolean apply(PropertySet input) {
-                    return input.get(PlaylistProperty.URN).equals(itemUrn);
-                }
-            };
+            return input;
         }
     };
 
@@ -228,7 +209,7 @@ class SearchOperations {
                     .subscribeOn(scheduler)
                     .doOnNext(storePlaylistsCommand.toAction())
                     .map(TO_SEARCH_RESULT)
-                    .map(mergeLikeStatusForPlaylists);
+                    .map(mergeLocalInfo);
         }
     }
 
@@ -265,7 +246,7 @@ class SearchOperations {
                     .subscribeOn(scheduler)
                     .doOnNext(cacheUniversalSearchCommand.toAction())
                     .map(TO_SEARCH_RESULT)
-                    .map(mergeLikeStatusForPlaylists);
+                    .map(mergeLocalInfo);
         }
     }
 }

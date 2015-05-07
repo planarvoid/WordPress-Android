@@ -31,6 +31,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.MixedPlayableAdapter;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -56,7 +57,7 @@ public class SoundStreamPresenterTest {
 
     @Mock private SoundStreamOperations streamOperations;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private SoundStreamAdapter adapter;
+    @Mock private MixedPlayableAdapter adapter;
     @Mock private ImageOperations imageOperations;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private TrackItemPresenter trackPresenter;

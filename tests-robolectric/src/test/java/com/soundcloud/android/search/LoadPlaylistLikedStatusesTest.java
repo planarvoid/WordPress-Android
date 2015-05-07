@@ -4,7 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.model.PlayableProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -16,6 +16,7 @@ import org.junit.runner.RunWith;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
@@ -33,13 +34,11 @@ public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
         ApiPlaylist apiPlaylist2 = testFixtures().insertPlaylist();
         List<PropertySet> input = Arrays.asList(apiPlaylist1.toPropertySet(), apiPlaylist2.toPropertySet());
 
-        final List<PropertySet> likedStatuses = command.with(input).call();
+        Map<Urn, PropertySet> likedStatuses = command.call(input);
 
-        expect(likedStatuses).toNumber(2);
-        expect(likedStatuses.get(0).get(PlayableProperty.URN)).toEqual(apiPlaylist1.getUrn());
-        expect(likedStatuses.get(0).get(PlayableProperty.IS_LIKED)).toEqual(true);
-        expect(likedStatuses.get(1).get(PlayableProperty.URN)).toEqual(apiPlaylist2.getUrn());
-        expect(likedStatuses.get(1).get(PlayableProperty.IS_LIKED)).toEqual(false);
+        expect(likedStatuses.size()).toEqual(2);
+        expect(likedStatuses.get(apiPlaylist1.getUrn()).get(PlaylistProperty.IS_LIKED)).toBeTrue();
+        expect(likedStatuses.get(apiPlaylist2.getUrn()).get(PlaylistProperty.IS_LIKED)).toBeFalse();
     }
 
     @Test
@@ -50,12 +49,13 @@ public class LoadPlaylistLikedStatusesTest extends StorageIntegrationTest {
 
         List<PropertySet> input = Arrays.asList(
                 likedPlaylist.toPropertySet(), unlikedPlaylist.toPropertySet(), track.toPropertySet());
-        List<PropertySet> likedStatuses = command.with(input).call();
 
-        expect(likedStatuses).toContainExactlyInAnyOrder(
-                PropertySet.from(PlaylistProperty.URN.bind(likedPlaylist.getUrn()), PlaylistProperty.IS_LIKED.bind(true)),
-                PropertySet.from(PlaylistProperty.URN.bind(unlikedPlaylist.getUrn()), PlaylistProperty.IS_LIKED.bind(false))
-        );
+
+        Map<Urn, PropertySet> likedStatuses = command.call(input);
+
+        expect(likedStatuses.get(likedPlaylist.getUrn()).get(PlaylistProperty.IS_LIKED)).toBeTrue();
+        expect(likedStatuses.get(unlikedPlaylist.getUrn()).get(PlaylistProperty.IS_LIKED)).toBeFalse();
+        expect(likedStatuses.containsKey(track.getUrn())).toBeFalse();
     }
 
 }
