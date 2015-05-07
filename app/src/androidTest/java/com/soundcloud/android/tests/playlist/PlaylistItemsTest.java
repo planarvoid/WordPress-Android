@@ -59,7 +59,6 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     private void assertPlaylistContainsTrack(String trackTitle) {
         PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
-        waiter.waitForContentAndRetryIfLoadingFailed();
         PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
 
         assertThat(playlistDetailsScreen.getTitle(), is(TEST_PLAYLIST));
