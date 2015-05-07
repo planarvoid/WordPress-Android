@@ -51,17 +51,21 @@ public class ScreenPresenter {
         return layout;
     }
 
+    public void setToolBar() {
+        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            activity.setSupportActionBar(toolbar);
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+
     private View createLayout(int baseLayoutId) {
         activity.supportRequestWindowFeature(WindowCompat.FEATURE_ACTION_BAR_OVERLAY);
 
         final View layout = activity.getLayoutInflater().inflate(baseLayoutId, null);
         activity.setContentView(layout);
 
-        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            activity.setSupportActionBar(toolbar);
-            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+        setToolBar();
         return layout;
     }
 

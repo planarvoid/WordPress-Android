@@ -96,8 +96,14 @@ public class UploadActivity extends ScActivity {
         return true;
     }
 
+    @Override
+    protected void setContentView() {
+        super.setContentView(R.layout.sc_upload);
+        presenter.setToolBar();
+    }
+
     private void setUploadLayout(int layoutId) {
-        super.setContentView(layoutId);
+
         recordingMetadata = (RecordingMetaDataLayout) findViewById(R.id.metadata_layout);
         recordingMetadata.setActivity(this);
 
