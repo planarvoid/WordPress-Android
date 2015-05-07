@@ -124,11 +124,6 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<PlayableItem> listBinding) {
-        // Nothing
-    }
-
-    @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 

@@ -52,7 +52,9 @@ public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
         return onBuildListBinding(fragmentArgs);
     }
 
-    protected abstract void onSubscribeListBinding(ListBinding<ItemT> listBinding);
+    protected void onSubscribeListBinding(ListBinding<ItemT> listBinding) {
+        // NOP by default
+    }
 
     protected ListBinding<ItemT> getListBinding() {
         return listBinding;

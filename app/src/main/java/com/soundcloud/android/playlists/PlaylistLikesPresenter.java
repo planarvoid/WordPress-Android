@@ -100,11 +100,6 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<PlaylistItem> listBinding) {
-        // No-op
-    }
-
-    @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         Urn playlistUrn = adapter.getItem(position).getEntityUrn();
         PlaylistDetailActivity.start(adapterView.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
