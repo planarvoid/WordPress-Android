@@ -15,6 +15,7 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.Pager;
+import rx.android.Pager.PagingFunction;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -37,7 +38,7 @@ class SoundStreamOperations {
     private final ContentStats contentStats;
     private final Scheduler scheduler;
 
-    private final Pager<List<PropertySet>> pager = new Pager<List<PropertySet>>() {
+    private final PagingFunction<List<PropertySet>> pagingFunc = new PagingFunction<List<PropertySet>>() {
         @Override
         @SuppressWarnings("PMD.CompareObjectsWithEquals") // No, PMD. I DO want to compare references.
         public Observable<List<PropertySet>> call(List<PropertySet> result) {
@@ -64,8 +65,8 @@ class SoundStreamOperations {
         this.scheduler = scheduler;
     }
 
-    Pager<List<PropertySet>> pager() {
-        return pager;
+    PagingFunction<List<PropertySet>> pagingFunction() {
+        return pagingFunc;
     }
 
     public Observable<List<PropertySet>> updatedStreamItems() {

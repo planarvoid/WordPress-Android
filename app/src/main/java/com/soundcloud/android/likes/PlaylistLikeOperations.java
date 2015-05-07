@@ -102,8 +102,8 @@ public class PlaylistLikeOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Pager<List<PropertySet>> likedPlaylistsPager() {
-        return new Pager<List<PropertySet>>() {
+    public Pager.PagingFunction<List<PropertySet>> pagingFunction() {
+        return new Pager.PagingFunction<List<PropertySet>>() {
             @Override
             public Observable<List<PropertySet>> call(List<PropertySet> result) {
                 if (result.size() < PAGE_SIZE) {

@@ -1,42 +1,89 @@
 package com.soundcloud.android.presentation;
 
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import static com.google.common.base.Preconditions.checkArgument;
+
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Observable;
+import rx.Subscription;
 import rx.android.Pager;
+import rx.android.Pager.PagingFunction;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
+import rx.internal.util.UtilityFunctions;
+import rx.observables.ConnectableObservable;
+import rx.subscriptions.Subscriptions;
 
-import java.util.List;
+public class ListBinding<Item> {
 
-public class ListBinding<DataT, ViewT> extends DataBinding<List<DataT>, List<ViewT>> {
+    private final ConnectableObservable<? extends Iterable<Item>> items;
+    private final ItemAdapter<Item> adapter;
+    private Subscription sourceSubscription = Subscriptions.empty();
 
-    private final ItemAdapter<ViewT> adapter;
-    private Pager<List<DataT>> pager;
+    public static <Item, T extends Iterable<Item>> Builder<T, Item, T> from(Observable<T> source) {
+        return from(source, UtilityFunctions.<T>identity());
+    }
 
-    ListBinding(Observable<List<DataT>> source, ItemAdapter<ViewT> adapter, Func1<List<DataT>, List<ViewT>> itemTransformer) {
-        super(source, itemTransformer);
+    public static <S, Item, T extends Iterable<Item>> Builder<S, Item, T> from(
+            Observable<S> source, Func1<S, T> transformer) {
+        return new Builder<>(source, transformer);
+    }
+
+    ListBinding(Observable<? extends Iterable<Item>> items, ItemAdapter<Item> adapter) {
+        checkArgument(adapter != null, "adapter can't be null");
+        this.items = items.observeOn(AndroidSchedulers.mainThread()).replay();
         this.adapter = adapter;
     }
 
-    ListBinding(Observable<List<DataT>> source, PagingItemAdapter<ViewT> adapter, Pager<List<DataT>> pager,
-                Func1<List<DataT>, List<ViewT>> itemTransformer) {
-        this(pager.page(source), adapter, itemTransformer);
-        this.pager = pager;
+    public Subscription connect() {
+        sourceSubscription = items.connect();
+        return sourceSubscription;
     }
 
-    public ItemAdapter<ViewT> getAdapter() {
+    public void disconnect() {
+        sourceSubscription.unsubscribe();
+    }
+
+    public Observable<? extends Iterable<Item>> items() {
+        return items;
+    }
+
+    public ItemAdapter<Item> adapter() {
         return adapter;
     }
 
-    public Pager<List<DataT>> getPager() {
-        return pager;
-    }
+    public static class Builder<S, Item, T extends Iterable<Item>> {
 
-    boolean isPaged() {
-        return pager != null;
-    }
+        private final Observable<S> source;
+        private final Func1<S, T> transformer;
+        private ItemAdapter<Item> adapter;
+        private PagingFunction<S> pagingFunction;
 
-    ListBinding<DataT, ViewT> resetFromCurrentPage() {
-        return new ListBinding<>(pager.currentPage(), (PagingItemAdapter) adapter, pager, transformer);
+        Builder(Observable<S> source, Func1<S, T> transformer) {
+            this.source = source;
+            this.transformer = transformer;
+        }
+
+        public Builder<S, Item, T> withPager(PagingFunction<S> pagingFunction) {
+            this.pagingFunction = pagingFunction;
+            return this;
+        }
+
+        public Builder<S, Item, T> withAdapter(ItemAdapter<Item> adapter) {
+            this.adapter = adapter;
+            return this;
+        }
+
+        public ListBinding<Item> build() {
+            if (pagingFunction != null) {
+                checkArgument(adapter instanceof PagingItemAdapter,
+                        "adapter in paged binding must be " + PagingItemAdapter.class);
+                final Pager<S, T> pager = Pager.create(pagingFunction, transformer);
+                return new PagedListBinding<>(pager.page(source), (PagingItemAdapter<Item>) adapter, pager);
+            } else {
+                return new ListBinding<>(source.map(transformer), adapter);
+            }
+        }
+
     }
 }

@@ -11,7 +11,7 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;
 
@@ -33,7 +33,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
     private ListAdapter adapter;
 
     @Nullable private OnScrollListener scrollListener;
-    @Nullable private Pager<?> pager;
+    @Nullable private LegacyPager<?> pager;
 
     @Inject
     public ListViewController(EmptyViewController emptyViewController, ImageOperations imageOperations) {
@@ -53,7 +53,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
      * apply an optional transformation of items before adding them to the adapter, e.g. when mapping to a view model.
      */
     public <T, R extends ListItem, CollT extends Iterable<T>>
-    void setAdapter(final PagingItemAdapter<R> adapter, final Pager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
+    void setAdapter(final PagingItemAdapter<R> adapter, final LegacyPager<CollT> pager, final Func1<CollT, ? extends Iterable<R>> itemMapper) {
         this.adapter = adapter;
         this.pager = pager;
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
@@ -66,10 +66,10 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
     }
 
     /**
-     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.PagingItemAdapter, rx.android.Pager)}, but does
+     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.PagingItemAdapter, LegacyPager)}, but does
      * not perform any item mapping.
      */
-    public <T extends ListItem, CollT extends Iterable<T>> void setAdapter(final PagingItemAdapter<T> adapter, final Pager<CollT> pager) {
+    public <T extends ListItem, CollT extends Iterable<T>> void setAdapter(final PagingItemAdapter<T> adapter, final LegacyPager<CollT> pager) {
         setAdapter(adapter, pager, UtilityFunctions.<CollT>identity());
     }
 
@@ -121,11 +121,11 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
 
     private static class PagingScrollListener implements AbsListView.OnScrollListener {
 
-        private final Pager<?> pager;
+        private final LegacyPager<?> pager;
         private final PagingItemAdapter<?> adapter;
         private final OnScrollListener listenerDelegate;
 
-        PagingScrollListener(Pager<?> pager, PagingItemAdapter<?> adapter, OnScrollListener listenerDelegate) {
+        PagingScrollListener(LegacyPager<?> pager, PagingItemAdapter<?> adapter, OnScrollListener listenerDelegate) {
             this.pager = pager;
             this.adapter = adapter;
             this.listenerDelegate = listenerDelegate;

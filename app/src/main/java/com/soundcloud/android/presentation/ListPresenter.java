@@ -3,6 +3,7 @@ package com.soundcloud.android.presentation;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
@@ -16,17 +17,20 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
-public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
+public abstract class ListPresenter<ItemT> extends EmptyViewPresenter {
+
+    private static final String TAG = "ListPresenter";
 
     private final ImageOperations imageOperations;
     private final PullToRefreshWrapper refreshWrapper;
 
+    private Bundle fragmentArgs;
     private AbsListView listView;
     private AbsListView.OnScrollListener scrollListener;
     @Nullable private ListHeaderPresenter headerPresenter;
 
-    private ListBinding<DataT, ItemT> listBinding;
-    private ListBinding<DataT, ItemT> refreshBinding;
+    private ListBinding<ItemT> listBinding;
+    private ListBinding<ItemT> refreshBinding;
     private CompositeSubscription viewLifeCycle;
 
     public ListPresenter(ImageOperations imageOperations, PullToRefreshWrapper pullToRefreshWrapper) {
@@ -42,15 +46,17 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         this.scrollListener = scrollListener;
     }
 
-    protected abstract ListBinding<DataT, ItemT> onBuildListBinding();
+    protected abstract ListBinding<ItemT> onBuildListBinding(Bundle fragmentArgs);
 
-    protected ListBinding<DataT, ItemT> onBuildRefreshBinding() {
-        return onBuildListBinding();
+    protected ListBinding<ItemT> onBuildRefreshBinding() {
+        return onBuildListBinding(fragmentArgs);
     }
 
-    protected abstract void onSubscribeListBinding(ListBinding<DataT, ItemT> listBinding);
+    protected void onSubscribeListBinding(ListBinding<ItemT> listBinding, CompositeSubscription viewLifeCycle) {
+        // NOP by default
+    }
 
-    protected ListBinding<DataT, ItemT> getListBinding() {
+    protected ListBinding<ItemT> getListBinding() {
         return listBinding;
     }
 
@@ -60,43 +66,48 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
+        Log.d(TAG, "onCreate");
         super.onCreate(fragment, bundle);
-        rebuildListBinding();
+        this.fragmentArgs = fragment.getArguments();
+        rebuildListBinding(fragmentArgs);
     }
 
-    protected ListBinding<DataT, ItemT> rebuildListBinding() {
-        resetListBindingTo(onBuildListBinding());
+    protected ListBinding<ItemT> rebuildListBinding(Bundle fragmentArgs) {
+        Log.d(TAG, "rebinding list");
+        resetListBindingTo(onBuildListBinding(fragmentArgs));
         return listBinding;
     }
 
-    private void resetListBindingTo(ListBinding<DataT, ItemT> listBinding) {
+    private void resetListBindingTo(ListBinding<ItemT> listBinding) {
         this.listBinding = listBinding;
-        this.listBinding.getSource().subscribe(listBinding.getAdapter());
+        this.listBinding.items().subscribe(listBinding.adapter());
     }
 
     @Override
     protected void onRetry() {
-        retryWith(onBuildListBinding());
+        retryWith(onBuildListBinding(fragmentArgs));
     }
 
-    private void retryWith(ListBinding<DataT, ItemT> listBinding) {
+    private void retryWith(ListBinding<ItemT> listBinding) {
+        Log.d(TAG, "retrying list");
         resetListBindingTo(listBinding);
-        subscribeListViewObservers();
+        subscribeListBinding();
         listBinding.connect();
     }
 
-    private void subscribeListViewObservers() {
-        listBinding.clearViewObservers();
-        onSubscribeListBinding(listBinding);
-        listBinding.addViewObserver(new EmptyViewSubscriber());
+    private void subscribeListBinding() {
+        Log.d(TAG, "subscribing view observers");
         if (viewLifeCycle != null) {
             viewLifeCycle.unsubscribe();
         }
-        viewLifeCycle = new CompositeSubscription(listBinding.subscribeViewObservers());
+        viewLifeCycle = new CompositeSubscription();
+        viewLifeCycle.add(listBinding.items().subscribe(new EmptyViewSubscriber()));
+        onSubscribeListBinding(listBinding, viewLifeCycle);
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "onViewCreated");
         super.onViewCreated(fragment, view, savedInstanceState);
         this.listView = (AbsListView) view.findViewById(android.R.id.list);
         if (this.listView == null) {
@@ -108,18 +119,18 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         if (headerPresenter != null) {
             headerPresenter.onViewCreated(view, (ListView) listView);
         }
-        listView.setAdapter(getListBinding().getAdapter());
+        listView.setAdapter(getListBinding().adapter());
 
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
         refreshWrapper.attach(refreshLayout, new PullToRefreshListener());
 
-        subscribeListViewObservers();
+        subscribeListBinding();
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        Log.d(TAG, "onDestroyView");
         viewLifeCycle.unsubscribe();
-        listBinding.clearViewObservers();
         refreshWrapper.detach();
         listView.setAdapter(null);
         listView = null;
@@ -128,6 +139,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
 
     @Override
     public void onDestroy(Fragment fragment) {
+        Log.d(TAG, "onDestroy");
         listBinding.disconnect();
         super.onDestroy(fragment);
     }
@@ -138,21 +150,21 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
         } else {
             scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         }
-        if (getListBinding().isPaged()) {
-            configurePagedListAdapter();
+        if (listBinding instanceof PagedListBinding) {
+            configurePagedListAdapter((PagedListBinding<ItemT, ?>) listBinding);
         }
 
         listView.setOnScrollListener(scrollListener);
     }
 
-    private void configurePagedListAdapter() {
-        final PagingItemAdapter adapter = (PagingItemAdapter) listBinding.getAdapter();
+    private void configurePagedListAdapter(final PagedListBinding<ItemT, ?> binding) {
+        final PagingItemAdapter<ItemT> adapter = binding.adapter();
         scrollListener = new PagingScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 adapter.setLoading();
-                retryWith(listBinding.resetFromCurrentPage());
+                retryWith(binding.fromCurrentPage());
             }
         });
     }
@@ -161,11 +173,12 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
 
         @Override
         public void onNext(Iterable<ItemT> collection) {
-            final ItemAdapter<ItemT> adapter = listBinding.getAdapter();
+            Log.d(TAG, "refresh complete");
+            final ItemAdapter<ItemT> adapter = listBinding.adapter();
             adapter.clear();
 
             resetListBindingTo(refreshBinding);
-            subscribeListViewObservers();
+            subscribeListBinding();
 
             refreshWrapper.setRefreshing(false);
             unsubscribe();
@@ -173,6 +186,7 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
 
         @Override
         public void onError(Throwable error) {
+            Log.d(TAG, "refresh failed");
             error.printStackTrace();
             refreshWrapper.setRefreshing(false);
             super.onError(error);
@@ -182,8 +196,9 @@ public abstract class ListPresenter<DataT, ItemT> extends EmptyViewPresenter {
     private final class PullToRefreshListener implements SwipeRefreshLayout.OnRefreshListener {
         @Override
         public void onRefresh() {
+            Log.d(TAG, "refreshing list");
             refreshBinding = onBuildRefreshBinding();
-            refreshBinding.getSource().subscribe(new ListRefreshSubscriber());
+            refreshBinding.items().subscribe(new ListRefreshSubscriber());
             refreshBinding.connect();
         }
     }

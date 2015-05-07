@@ -14,7 +14,7 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
@@ -32,11 +32,11 @@ class PlaylistPostOperations {
     private final SyncInitiator syncInitiator;
     private final NetworkConnectionHelper networkConnectionHelper;
 
-    private final Pager<List<PropertySet>> postedPlaylistsPager = new Pager<List<PropertySet>>() {
+    private final LegacyPager<List<PropertySet>> postedPlaylistsPager = new LegacyPager<List<PropertySet>>() {
         @Override
         public Observable<List<PropertySet>> call(List<PropertySet> result) {
             if (result.size() < PAGE_SIZE) {
-                return Pager.finish();
+                return LegacyPager.finish();
             } else {
                 return postedPlaylists(getLast(result).get(PlaylistProperty.CREATED_AT).getTime());
             }
@@ -78,7 +78,7 @@ class PlaylistPostOperations {
         return syncInitiator.refreshPostedPlaylists().map(toInitalPageParams).flatMap(loadPostedPlaylistsCommand);
     }
 
-    Pager<List<PropertySet>> postedPlaylistsPager() {
+    LegacyPager<List<PropertySet>> postedPlaylistsPager() {
         return postedPlaylistsPager;
     }
 

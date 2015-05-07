@@ -29,7 +29,7 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +61,7 @@ public class TrackLikesHeaderPresenterTest {
     @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private LikesMenuPresenter likesMenuPresenter;
-    @Mock private ListBinding<PropertySet, TrackItem> listBinding;
+    @Mock private ItemAdapter<TrackItem> adapter;
     @Mock private Fragment fragment;
     @Mock private View layoutView;
     @Mock private ListView listView;
@@ -92,12 +92,14 @@ public class TrackLikesHeaderPresenterTest {
     @Test
     public void onSubscribeListObserversUpdatesHeaderViewOnlyOnce() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
-        when(listBinding.getSource()).thenReturn(
-                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList());
         when(likeOperations.likedTrackUrns()).thenReturn(Observable.just(likedTrackUrns));
-
         presenter.onViewCreated(layoutView, listView);
+
+        ListBinding<TrackItem> listBinding = ListBinding.from(
+                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
+                .withAdapter(adapter).build();
         presenter.onSubscribeListObservers(listBinding);
+        listBinding.connect();
 
         verify(headerView).updateTrackCount(likedTrackUrns.size());
         verify(headerView).updateOverflowMenuButton(true);
@@ -105,13 +107,13 @@ public class TrackLikesHeaderPresenterTest {
 
     @Test
     public void doNotUpdateTrackCountAfterViewIsDestroyed() {
-        when(listBinding.getSource()).thenReturn(
-                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList());
         PublishSubject<List<Urn>> likedTrackUrnsObservable = PublishSubject.create();
         when(likeOperations.likedTrackUrns()).thenReturn(likedTrackUrnsObservable);
 
         presenter.onViewCreated(layoutView, listView);
-        presenter.onSubscribeListObservers(listBinding);
+        presenter.onSubscribeListObservers(ListBinding.from(
+                Observable.just(TrackItem.from(TestPropertySets.expectedLikedTrackForLikesScreen())).toList())
+                .withAdapter(adapter).build());
         presenter.onDestroyView(fragment);
         likedTrackUrnsObservable.onNext(likedTrackUrns);
 

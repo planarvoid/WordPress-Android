@@ -13,7 +13,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
+import rx.android.LegacyPager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -87,14 +87,14 @@ class CommentsOperations {
         }
     }
 
-    final class CommentsPager extends Pager<CommentsCollection> {
+    final class CommentsPager extends LegacyPager<CommentsCollection> {
 
         @Override
         public Observable<CommentsCollection> call(CommentsCollection apiComments) {
             if (apiComments.getNextHref() != null) {
                 return comments(apiComments.getNextHref());
             } else {
-                return Pager.finish();
+                return LegacyPager.finish();
             }
         }
     }

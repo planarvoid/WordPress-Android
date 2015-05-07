@@ -15,7 +15,7 @@ import com.soundcloud.android.playlists.PlaylistLikesPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.RxTestHelper;
+import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.view.EmptyView;
@@ -63,7 +63,7 @@ public class PlaylistLikesPresenterTest {
         when(fragmentView.findViewById(android.R.id.list)).thenReturn(listView);
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedPlaylists()).thenReturn(Observable.<List<PropertySet>>empty());
-        when(likeOperations.likedPlaylistsPager()).thenReturn(RxTestHelper.<List<PropertySet>>pagerWithSinglePage());
+        when(likeOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(likeOperations.onPlaylistLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
         when(listView.getContext()).thenReturn(Robolectric.application);

@@ -82,9 +82,8 @@ public class PlaylistLikeOperationsTest {
         final PublishSubject<SyncResult> syncObservable = PublishSubject.create();
         when(syncInitiator.syncPlaylistLikes()).thenReturn(syncObservable);
 
-        final Pager<List<PropertySet>> listPager = operations.likedPlaylistsPager();
-        listPager.page(operations.likedPlaylists()).subscribe(observer);
-        listPager.next();
+        final Pager.PagingFunction<List<PropertySet>> listPager = operations.pagingFunction();
+        listPager.call(firstPage).subscribe(observer);
 
         expect(syncObservable.hasObservers()).toBeFalse();
     }
@@ -138,14 +137,11 @@ public class PlaylistLikeOperationsTest {
     public void playlistPagerLoadsNextPageUsingTimestampOfOldestItemOfPreviousPage() throws Exception {
         final List<PropertySet> firstPage = createPageOfPlaylistLikes(PAGE_SIZE);
         final long lastTimestampOfFirstPage = firstPage.get(firstPage.size() - 1).get(LikeProperty.CREATED_AT).getTime();
-        when(storage.loadLikedPlaylists(anyInt(), anyLong())).thenReturn(Observable.just(firstPage), Observable.<List<PropertySet>>never());
-        when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
+        when(storage.loadLikedPlaylists(anyInt(), anyLong())).thenReturn(Observable.just(firstPage));
 
-        operations.likedPlaylistsPager().page(operations.likedPlaylists()).subscribe(observer);
-        operations.likedPlaylistsPager().next();
+        operations.pagingFunction().call(firstPage).subscribe(observer);
 
         InOrder inOrder = inOrder(storage);
-        inOrder.verify(storage).loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE);
         inOrder.verify(storage).loadLikedPlaylists(PAGE_SIZE, lastTimestampOfFirstPage);
     }
 
@@ -155,12 +151,7 @@ public class PlaylistLikeOperationsTest {
         when(storage.loadLikedPlaylists(PAGE_SIZE, Long.MAX_VALUE)).thenReturn(Observable.just(firstPage));
         when(syncInitiator.syncPlaylistLikes()).thenReturn(Observable.<SyncResult>empty());
 
-        operations.likedPlaylistsPager().page(operations.likedPlaylists()).subscribe(observer);
-        operations.likedPlaylistsPager().next();
-
-        InOrder inOrder = inOrder(observer);
-        inOrder.verify(observer).onNext(firstPage);
-        inOrder.verify(observer).onCompleted();
+        expect(operations.pagingFunction().call(firstPage)).toBe(Pager.<List<PropertySet>>finish());
     }
 
     @Test
