@@ -4,15 +4,13 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
-
-import android.R;
+import com.soundcloud.android.screens.elements.ToolBarElement;
 
 public abstract class Screen {
     protected Han testDriver;
     protected Waiter waiter;
-    protected static final int CONTENT_ROOT = R.id.content;
+    protected static final int CONTENT_ROOT = android.R.id.content;
 
     public Screen(Han solo) {
         this.testDriver = solo;
@@ -56,8 +54,8 @@ public abstract class Screen {
     @Override
     public String toString() {
         return String.format("Page: %s, Activity: %s, CurrentActivity: %s",
-                getClass().getSimpleName().toString(),
-                getActivity().getSimpleName().toString(),
+                getClass().getSimpleName(),
+                getActivity().getSimpleName(),
                 testDriver.getCurrentActivity().toString()
         );
     }
