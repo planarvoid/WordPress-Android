@@ -12,8 +12,6 @@ import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.tracks.TrackItem;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -42,12 +40,12 @@ public class StreamScreen extends Screen {
     }
 
     public TrackItemElement firstTrack() {
-        waitForTracksLoading();
+        waitForContentWithTracks();
         return trackItemElements().get(0);
     }
 
     public VisualPlayerElement clickFirstTrack() {
-        waitForTracksLoading();
+        waitForContentWithTracks();
         getViewElementWithId(R.id.track_list_item).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
@@ -60,7 +58,7 @@ public class StreamScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
-    private void waitForTracksLoading() {
+    private void waitForContentWithTracks() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         waiter.waitForElements(R.id.track_list_item);
     }
