@@ -1,5 +1,7 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -88,7 +90,7 @@ public class OfflinePlaybackOperations {
             public Observable<PlaybackResult> call(List<Urn> urns) {
                 int corrected = PlaybackUtils.correctInitialPosition(urns, position, trackUrn);
                 if (corrected < 0) {
-                    throw new TrackNotAvailableOffline();
+                    return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_OFFLINE));
                 }
                 return playbackOperations.playTracks(urns, trackUrn, corrected, sessionSource);
             }
@@ -108,5 +110,4 @@ public class OfflinePlaybackOperations {
         return featureOperations.isOfflineContentEnabled() && !connectionHelper.isNetworkConnected();
     }
 
-    public static class TrackNotAvailableOffline extends IllegalStateException {}
 }

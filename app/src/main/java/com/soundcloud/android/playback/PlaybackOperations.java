@@ -283,5 +283,4 @@ public class PlaybackOperations {
         return playQueueManager.isCurrentTrack(trackUrn);
     }
 
-    public static class UnskippablePeriodException extends RuntimeException {}
 }

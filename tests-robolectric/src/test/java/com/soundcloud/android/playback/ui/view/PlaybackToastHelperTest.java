@@ -1,8 +1,6 @@
 package com.soundcloud.android.playback.ui.view;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.offline.OfflinePlaybackOperations.TrackNotAvailableOffline;
-import static com.soundcloud.android.playback.PlaybackOperations.UnskippablePeriodException;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;

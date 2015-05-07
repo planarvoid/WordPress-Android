@@ -2,7 +2,7 @@ package com.soundcloud.android.offline;
 
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.offline.OfflinePlaybackOperations.TrackNotAvailableOffline;
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_OFFLINE;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -132,8 +132,9 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playLikes(trackNotAvailableOffline, 0, playSessionSource).subscribe(observer);
 
-        expect(observer.getOnErrorEvents()).toNumber(1);
-        expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(TrackNotAvailableOffline.class);
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeFalse();
+        expect(observer.getOnNextEvents().get(0).getErrorReason()).toEqual(TRACK_UNAVAILABLE_OFFLINE);
     }
 
     @Test
@@ -219,8 +220,9 @@ public class OfflinePlaybackOperationsTest {
 
         operations.playPlaylist(playlistUrn, trackNotAvailableOffline, 0, playSessionSource).subscribe(observer);
 
-        expect(observer.getOnErrorEvents()).toNumber(1);
-        expect(observer.getOnErrorEvents().get(0)).toBeInstanceOf(TrackNotAvailableOffline.class);
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeFalse();
+        expect(observer.getOnNextEvents().get(0).getErrorReason()).toEqual(TRACK_UNAVAILABLE_OFFLINE);
     }
 
     private PropertySet downloadedTrack() {
