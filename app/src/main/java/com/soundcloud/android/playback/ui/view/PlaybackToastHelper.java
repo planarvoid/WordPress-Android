@@ -28,8 +28,8 @@ public class PlaybackToastHelper {
             case TRACK_UNAVAILABLE_OFFLINE:
                 showTrackUnavailableOfflineToast();
                 break;
-            case TRACK_NOT_FOUND:
-                showUnableToFindTracksToPlayToast();
+            case MISSING_PLAYABLE_TRACKS:
+                showMissingPlayableTracksToast();
                 break;
             case TRACK_UNAVAILABLE_CAST:
                 showUnableToCastTrack();
@@ -37,10 +37,6 @@ public class PlaybackToastHelper {
             default:
                 throw new IllegalStateException("Unknown error reason: " + errorReason);
         }
-    }
-
-    private void showUnableToCastTrack() {
-        Toast.makeText(context, R.string.cast_unable_play_track, Toast.LENGTH_SHORT).show();
     }
 
     public void showUnskippableAdToast() {
@@ -54,7 +50,11 @@ public class PlaybackToastHelper {
         Toast.makeText(context, R.string.offline_track_not_available, Toast.LENGTH_SHORT).show();
     }
 
-    public void showUnableToFindTracksToPlayToast() {
+    public void showMissingPlayableTracksToast() {
         Toast.makeText(context, R.string.playback_missing_playable_tracks, Toast.LENGTH_SHORT).show();
+    }
+
+    private void showUnableToCastTrack() {
+        Toast.makeText(context, R.string.cast_unable_play_track, Toast.LENGTH_SHORT).show();
     }
 }

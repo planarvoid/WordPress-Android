@@ -10,7 +10,7 @@ public class PlaybackResult {
         UNSKIPPABLE,
         TRACK_UNAVAILABLE_OFFLINE,
         TRACK_UNAVAILABLE_CAST,
-        TRACK_NOT_FOUND
+        MISSING_PLAYABLE_TRACKS
     }
 
     public static PlaybackResult success() {

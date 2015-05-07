@@ -1,6 +1,7 @@
 package com.soundcloud.android.playback;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +51,7 @@ public class ExpandPlayerSubscriberTest {
     }
 
     @Test
-    public void showsToastOnPlaybackError() {
+    public void showsToastOnPlaybackResultError() {
         PlaybackResult errorResult = PlaybackResult.error(PlaybackResult.ErrorReason.UNSKIPPABLE);
 
         subscriber.onNext(errorResult);
@@ -58,4 +59,10 @@ public class ExpandPlayerSubscriberTest {
         verify(playbackToastHelper).showToastOnPlaybackError(errorResult.getErrorReason());
     }
 
+    @Test
+    public void showsMissingPlayableTracksToastOnError() {
+        subscriber.onError(new IllegalStateException());
+
+        verify(playbackToastHelper).showToastOnPlaybackError(MISSING_PLAYABLE_TRACKS);
+    }
 }

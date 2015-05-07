@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback;
 
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.UNSKIPPABLE;
 
 import com.google.common.collect.Lists;
@@ -36,17 +37,6 @@ import java.util.concurrent.TimeUnit;
 public class PlaybackOperations {
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final long SEEK_POSITION_RESET = 0L;
-
-    private static final Func1<List<Urn>, Boolean> FILTER_EMPTY_TRACK_LIST = new Func1<List<Urn>, Boolean>() {
-        @Override
-        public Boolean call(List<Urn> trackUrnList) {
-            if (trackUrnList.isEmpty()) {
-                throw new IllegalStateException("Attempting to play a track on an empty track list");
-            } else {
-                return true;
-            }
-        }
-    };
 
     private static final Func1<List<Urn>, List<Urn>> SHUFFLE_TRACKS = new Func1<List<Urn>, List<Urn>>() {
         @Override
@@ -103,8 +93,8 @@ public class PlaybackOperations {
     }
 
     @Deprecated
-    public Observable<PlaybackResult> playTracksFromUri(Uri uri, final int startPosition, final Urn initialTrack,
-                                                   final PlaySessionSource playSessionSource) {
+    public Observable<PlaybackResult> playTracksFromUri(Uri uri, int startPosition, Urn initialTrack,
+                                                        PlaySessionSource playSessionSource) {
         return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition,
                 playSessionSource, false);
     }
@@ -120,50 +110,48 @@ public class PlaybackOperations {
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
-                                                    final PlaySessionSource playSessionSource) {
+                                                    PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
+        } else {
+            return trackUrnsObservable
+                    .map(SHUFFLE_TRACKS)
+                    .flatMap(playNewQueue(Urn.NOT_SET, 0, playSessionSource, false))
+                    .observeOn(AndroidSchedulers.mainThread());
         }
+    }
 
-        return trackUrnsObservable
-                .filter(FILTER_EMPTY_TRACK_LIST)
-                .map(SHUFFLE_TRACKS)
-                .flatMap(new Func1<List<Urn>, Observable<PlaybackResult>>() {
-                    @Override
-                    public Observable<PlaybackResult> call(List<Urn> urns) {
-                        return playbackStrategyProvider.get().playNewQueue(urns, Urn.NOT_SET, 0, false, playSessionSource);
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread());
+    private Observable<PlaybackResult> playTracksList(Observable<List<Urn>> trackUrns,
+                                                      Urn initialTrack,
+                                                      int startPosition,
+                                                      PlaySessionSource playSessionSource,
+                                                      boolean loadRelated) {
+        if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
+            return Observable.just(PlaybackResult.success());
+        } else if (shouldDisableSkipping()) {
+            return Observable.just(PlaybackResult.error(UNSKIPPABLE));
+        } else {
+            return trackUrns
+                    .flatMap(playNewQueue(initialTrack, startPosition, playSessionSource, loadRelated))
+                    .observeOn(AndroidSchedulers.mainThread());
+        }
+    }
+
+    private Func1<List<Urn>, Observable<PlaybackResult>> playNewQueue(final Urn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, final boolean loadRelated) {
+        return new Func1<List<Urn>, Observable<PlaybackResult>>() {
+            @Override
+            public Observable<PlaybackResult> call(List<Urn> trackUrns) {
+                if (trackUrns.isEmpty()) {
+                    return Observable.just(PlaybackResult.error(MISSING_PLAYABLE_TRACKS));
+                } else {
+                    return playbackStrategyProvider.get().playNewQueue(trackUrns, initialTrack, startPosition, loadRelated, playSessionSource);
+                }
+            }
+        };
     }
 
     public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long fromLastProgressPosition) {
         return playbackStrategyProvider.get().reloadAndPlayCurrentQueue(fromLastProgressPosition);
-    }
-
-    private Observable<PlaybackResult> playTracksList(Observable<List<Urn>> trackUrns,
-                                                      final Urn initialTrack,
-                                                      final int startPosition,
-                                                      final PlaySessionSource playSessionSource,
-                                                      final boolean loadRelated) {
-        if (!shouldChangePlayQueue(initialTrack, playSessionSource)) {
-            return Observable.just(PlaybackResult.success());
-        }
-
-        if (shouldDisableSkipping()) {
-            return Observable.just(PlaybackResult.error(UNSKIPPABLE));
-        }
-
-        return trackUrns
-                .filter(FILTER_EMPTY_TRACK_LIST)
-                .flatMap(new Func1<List<Urn>, Observable<PlaybackResult>>() {
-                    @Override
-                    public Observable<PlaybackResult> call(List<Urn> urns) {
-                        return playbackStrategyProvider.get().playNewQueue(urns, initialTrack, startPosition, loadRelated, playSessionSource);
-                    }
-                })
-                .observeOn(AndroidSchedulers.mainThread());
-
     }
 
     public Observable<PlaybackResult> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {

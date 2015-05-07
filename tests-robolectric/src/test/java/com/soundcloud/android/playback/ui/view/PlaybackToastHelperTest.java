@@ -52,8 +52,8 @@ public class PlaybackToastHelperTest {
     }
 
     @Test
-    public void showsTrackNotFound() {
-        toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.TRACK_NOT_FOUND);
+    public void showsMissingPlayableTracks() {
+        toastHelper.showToastOnPlaybackError(PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS);
 
         expect(ShadowToast.getLatestToast()).toHaveMessage(R.string.playback_missing_playable_tracks);
     }

@@ -66,7 +66,6 @@ public class PlaybackOperationsTest {
 
     private PlaybackOperations playbackOperations;
 
-    //private PublicApiTrack track;
     private PublicApiPlaylist playlist;
 
     @Mock private ScModelManager modelManager;
