@@ -1,6 +1,6 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.*;
+import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST;
 import static com.soundcloud.android.playback.PlaybackUtils.correctInitialPosition;
 
 import com.google.android.gms.cast.MediaStatus;
@@ -13,7 +13,6 @@ import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackProgressEvent;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ProgressReporter;
@@ -26,7 +25,6 @@ import com.soundcloud.android.playback.service.Playa.Reason;
 import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
