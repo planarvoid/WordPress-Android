@@ -102,7 +102,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
         viewHelper.setCircularButtonOutline(actionButton, orangeButtonDimension);
         actionButton.setImageResource(R.drawable.ic_record_upload_orange);
 
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             if (savedInstanceState.getInt("createPrivacyValue") == R.id.rdo_private) {
                 rdoPrivate.setChecked(true);
             } else {
@@ -112,7 +112,10 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
         }
 
         recordingMetadata.setActivity(metadataFragment.getActivity());
-        recordingMetadata.setPlaceholder(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));
+
+        if(!recordingMetadata.hasPlaceholder()) {
+            recordingMetadata.setPlaceholder(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));
+        }
 
         configureViews();
     }
@@ -143,7 +146,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
 
     public void onArtworkSelected(Intent imageSelectionResult) {
         final Uri artworkFileUri = Uri.fromFile(recording.generateImageFile(Recording.IMAGE_DIR));
-        if (imageSelectionResult != null){
+        if (imageSelectionResult != null) {
             ImageUtils.sendCropIntent(metadataFragment.getActivity(), imageSelectionResult.getData(), artworkFileUri);
         } else {
             // we supplied the artworkFileUri
@@ -198,7 +201,7 @@ public class MetadataPresenter extends SupportFragmentLightCycleDispatcher<Fragm
             RecordActivity activity = (RecordActivity) metadataFragment.getActivity();
             mapToRecording(recording);
             activity.startUpload(recording);
-            activity.onMonitorToUpload(recording, actionButton);
+            activity.onMonitorToUpload(recording);
         }
     }
 }

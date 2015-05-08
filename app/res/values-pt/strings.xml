@@ -7,7 +7,6 @@
   <string name="close">Fechar</string>
   <string name="post">Publicar</string>
   <string name="view">Visualizar</string>
-  <string name="btn_publish">Próximo</string>
   <string name="btn_apply">Aplicar</string>
   <string name="cancel">Cancelar</string>
   <string name="retry">Repetir</string>
@@ -33,15 +32,9 @@
   <string name="btn_skip">Pular</string>
   <string name="configure">Configurar</string>
   <string name="connect_progress">Carregando</string>
-  <string name="connect_success">Conexão com %1$s bem-sucedida</string>
-  <string name="connection_list_footer">Para alterar as opções de compartilhamento padrão, vá em suas configurações no SoundCloud e selecione \"Conexões\"</string>
   <string name="delete">Excluir</string>
   <string name="comments">Comentários</string>
-  <string name="new_connection_error">Houve um problema ao adicionar a rede</string>
-  <string name="reset">Descartar</string>
-  <string name="share_fail_message">OK, deu errado.</string>
   <string name="share_log_out">Sair</string>
-  <string name="share_success_message">Oba, funcionou!</string>
   <string name="share_to_soundcloud">&lt;b&gt;Compartilhar&lt;/b&gt; no &lt;b&gt;SoundCloud&lt;/b&gt;</string>
   <string name="sounds_from">Sons de %s</string>
   <string name="this_user">Este usuário</string>
@@ -49,8 +42,6 @@
   <string name="track_by">por</string>
   <string name="display_name">Nome de exibição</string>
   <string name="website">Website</string>
-  <string name="what_hint">O que</string>
-  <string name="where_hint">Onde</string>
   <string name="like">Curtir</string>
   <string name="unlike">Descurtir</string>
 
@@ -159,7 +150,6 @@
   <string name="empty_user_tracks_text">%1$s não carregou nenhum som público ainda.</string>
 
   <!-- __ERRORS -->
-  <string name="error_recording_message">Houve um erro durante a gravação.\nO seu dispositivo pode não suportar a configuração do registro atual. Você pode alterar as configurações nas configurações do aplicativo.</string>
   <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você faça o login no SoundCloud antes que possa continuar a usar o aplicativo.</string>
   <string name="error_unauthorized_title">Erro na conta</string>
   <string name="error_loading_url">Houve um problema ao carregar esse URL</string>
@@ -170,7 +160,6 @@
   <string name="crop_image_error">Houve um erro ao recortar a imagem.</string>
   <string name="error_server_problems_message">Houve um problema no processamento de seu pedido. Tente novamente mais tarde.</string>
   <string name="connection_list_error">Parece haver um problema de conexão. Tente novamente em breve</string>
-  <string name="connect_failure">Falha de conexão com %1$s</string>
   <!-- signup scope was revoked on server side -->
   <string name="signup_scope_revoked">Ops! Não foi possível inscrevê-lo. Tente atualizar o aplicativo ou inscrever-se em SoundCloud.com.</string>
 
@@ -368,32 +357,20 @@
   <string name="myspace">Myspace</string>
 
   <!-- __RECORD -->
-  <string name="rec_title_generating_waveform">Aguarde...</string>
   <string name="rec_title_idle_rec">Gravar</string>
   <string name="rec_title_recording">Gravando</string>
   <string name="rec_title_idle_play">Em pausa</string>
   <string name="rec_title_playing">Jogando</string>
   <string name="rec_title_editing">Editar</string>
-  <string name="record_another_sound">Gravar outro som</string>
   <string name="record_insert_sd_card">Insira um cartão SD para gravar.</string>
   <string name="record_storage_is_full">Armazenamento cheio</string>
   <string name="recorded_afternoon">%s tarde</string>
-  <string name="recorded_at">%1$s em %2$s</string>
   <string name="recorded_evening">%s entardecer</string>
   <string name="recorded_morning">%s manhã</string>
   <string name="recorded_night">%s noite</string>
-  <string name="recording_not_found">Gravação não encontrada</string>
-  <string name="rec_your_sound_is_saved_locally_at">Seu som é gravado localmente</string>
   <string name="dialog_confirm_delete_recording_message">Tem certeza de que deseja excluir este registro?</string>
-  <string name="dialog_reset_recording_message">Redefinir? A gravação será excluída.</string>
-  <string name="dialog_unsaved_recordings_message">Gravações não salvas encontradas. Os itens verificados serão salvos.</string>
   <string name="btn_revert_to_original">Voltar ao original</string>
   <string name="fade_toggle_on">Aparecer/Desaparecer</string>
-  <string name="fade_toggle_off">Não aparecer/desaparecer</string>
-  <string name="optimize_toggle_on">Otimizado</string>
-  <string name="optimize_toggle_off">Não otimizado</string>
-  <string name="create_autosave_message">Suas gravações serão salvas automaticamente quando criadas. Você poderá encontrá-las em sua lista de sons.</string>
-  <string name="create_regenerating_waveform_message">Regenerando forma de onda, aguarde.</string>
   <string name="dialog_revert_recording_message">Todas as edições serão perdida. Continuar?</string>
   <string name="cloud_recorder_event_message">Gravação para %s</string>
   <string name="cloud_recorder_event_title">Gravação em andamento</string>
@@ -509,11 +486,8 @@
 
   <!-- __UPLOAD -->
   <string name="uploader_event_processing">Processando</string>
-  <string name="uploader_event_processing_percent">Processando: %d %%</string>
-  <string name="uploader_event_not_yet_uploading">Ainda não carregado</string>
   <string name="uploader_event_uploading_percent">Carregando: %d %%</string>
   <string name="uploader_event_cancelling">Cancelando</string>
-  <string name="uploader_event_processing_finished">Processamento terminado</string>
   <string name="cloud_upload_clear_artwork">Segure para excluir ilustração</string>
   <string name="cloud_uploader_notification_error_message">Houve um erro ao enviar %s</string>
   <string name="cloud_uploader_notification_error_ticker">Erro no Upload</string>
@@ -521,15 +495,9 @@
   <string name="cloud_uploader_notification_finished_message">%s foi carregado</string>
   <string name="cloud_uploader_notification_finished_ticker">Carregamento finalizado</string>
   <string name="cloud_uploader_notification_finished_title">Carregamento finalizado</string>
-  <string name="cloud_uploader_notification_transcoding_error_message">Houve um erro de transcodificação %s</string>
-  <string name="cloud_uploader_notification_transcoding_error_ticker">Erro de transcodificação</string>
-  <string name="cloud_uploader_notification_transcoding_error_title">Erro de transcodificação</string>
   <string name="dialog_cancel_upload_message">Cancelar o carregamento?</string>
-  <string name="sc_upload_add_image">Adicionar Imagem</string>
   <string name="sc_upload_private">Privado</string>
   <string name="sc_upload_public">Público</string>
-  <string name="sc_upload_sharing_options_private">Seu som se tornará privado no SoundCloud.</string>
-  <string name="sc_upload_sharing_options_public">Seu som se tornará público no SoundCloud. Com que outras redes gostaria de compartilhar este som?</string>
 
   <!-- __WIDGET -->
   <string name="widget_touch_to_open">Toque para abrir o SoundCloud</string>

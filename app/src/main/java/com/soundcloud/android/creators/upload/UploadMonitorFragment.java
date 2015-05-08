@@ -3,6 +3,7 @@ package com.soundcloud.android.creators.upload;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 
 import android.content.Intent;
@@ -17,7 +18,7 @@ import javax.inject.Inject;
 
 public class UploadMonitorFragment extends LightCycleSupportFragment {
 
-    @Inject UploadMonitorPresenter uploadMonitorPresenter;
+    @Inject @LightCycle UploadMonitorPresenter uploadMonitorPresenter;
 
     public static Fragment create(Recording recording) {
         final UploadMonitorFragment uploadMonitorFragment = new UploadMonitorFragment();
@@ -29,18 +30,10 @@ public class UploadMonitorFragment extends LightCycleSupportFragment {
 
     public UploadMonitorFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        attachLightCycle(uploadMonitorPresenter);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.upload_monitor, container, false);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        final Intent intent = getActivity().getIntent();
-        uploadMonitorPresenter.setProgressFromIntent(intent);
     }
 }

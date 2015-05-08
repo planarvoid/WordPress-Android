@@ -79,9 +79,10 @@ public class UploaderTest {
 
     @Test
     public void shouldSetSuccessAfterFileUpload() throws Exception {
+        PublicApiTrack apiTrack = ModelFixtures.create(PublicApiTrack.class);
         when(apiClient.fetchMappedResponse(
                 argThat(isPublicApiRequestTo("POST", ApiEndpoints.LEGACY_TRACKS.path())), eq(PublicApiTrack.class)))
-                .thenReturn(ModelFixtures.create(PublicApiTrack.class));
+                .thenReturn(apiTrack);
 
         uploader(recording).run();
         List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
@@ -94,7 +95,7 @@ public class UploaderTest {
                 UploadEvent.transferSuccess(recording, track));
 
         expect(recording.isUploaded()).toBeTrue();
-        expect(track.getUrn()).toEqual(Urn.forTrack(47204307));
+        expect(track.getUrn()).toEqual(apiTrack.getUrn());
     }
 
     @Test
@@ -114,7 +115,6 @@ public class UploaderTest {
                                 StringPart.from(Uploader.PARAM_SHARING, "public"),
                                 StringPart.from(Uploader.PARAM_TAG_LIST, "soundcloud:source=android-record"),
                                 StringPart.from(Uploader.PARAM_DOWNLOADABLE, "false"),
-                                StringPart.from(Uploader.PARAM_POST_TO_EMPTY, ""),
                                 FilePart.from(Uploader.PARAM_ASSET_DATA, transcodedFile,
                                         recording.title.replaceAll(" ", "_") + ".ogg",
                                         FilePart.BLOB_MEDIA_TYPE)

@@ -8,7 +8,6 @@
   <string name="close">Закрыть</string>
   <string name="post">Опубликовать</string>
   <string name="view">Посмотреть</string>
-  <string name="btn_publish">Далее</string>
   <string name="btn_apply">Применить</string>
   <string name="cancel">Отменить</string>
   <string name="retry">Повторить</string>
@@ -34,15 +33,9 @@
   <string name="btn_skip">Пропустить</string>
   <string name="configure">Настроить</string>
   <string name="connect_progress">Идет загрузка</string>
-  <string name="connect_success">Связь с %1$s успешно установлена</string>
-  <string name="connection_list_footer">Чтобы изменить настройки общего доступа по умолчанию, перейдите в настройки SoundCloud и выберите \"Соединения\"</string>
   <string name="delete">Удалить</string>
   <string name="comments">Комментарии</string>
-  <string name="new_connection_error">Не удалось добавить сеть</string>
-  <string name="reset">Удалить</string>
-  <string name="share_fail_message">Похоже, что-то пошло не так.</string>
   <string name="share_log_out">Выйти</string>
-  <string name="share_success_message">Ура, получилось!</string>
   <string name="share_to_soundcloud">&lt;b&gt;Поделиться&lt;/b&gt; на &lt;b&gt;SoundCloud&lt;/b&gt;</string>
   <string name="sounds_from">Музыка от %s</string>
   <string name="this_user">Текущий пользователь</string>
@@ -50,8 +43,6 @@
   <string name="track_by">исп:</string>
   <string name="display_name">Показать имя</string>
   <string name="website">Веб-сайт</string>
-  <string name="what_hint">Что</string>
-  <string name="where_hint">Где</string>
   <string name="like">Нравится</string>
   <string name="unlike">Не нравится</string>
 
@@ -160,7 +151,6 @@
   <string name="empty_user_tracks_text">%1$s не имеет закачанной \nмузыки в открытом доступе.</string>
 
   <!-- __ERRORS -->
-  <string name="error_recording_message">Произошел сбой во время записи.\n Возможно ваше устройство не поддерживает текущую конфигурацию записи. Вы можете изменить конфигурацию в настройках приложения.</string>
   <string name="error_unauthorized_message">Возникла проблема с вашей учетной записью. Чтобы продолжить использовать приложение, нужно, чтобы вы повторно вошли в SoundCloud.</string>
   <string name="error_unauthorized_title">Проблема с учетной записью</string>
   <string name="error_loading_url">Не удалось загрузить URL</string>
@@ -171,7 +161,6 @@
   <string name="crop_image_error">Сбой при обрезке изображения.</string>
   <string name="error_server_problems_message">Произошел сбой при обработке вашего запроса. Повторите попытку позже.</string>
   <string name="connection_list_error">Возможно, проблемы со связью. Повторите попытку через некоторое время.</string>
-  <string name="connect_failure">Не удалось соединиться с %1$s</string>
   <!-- signup scope was revoked on server side -->
   <string name="signup_scope_revoked">Ой! Нам не удалось зарегистрировать вас.\nПопробуйте обновить приложение или зарегистрироваться на SoundCloud.com.</string>
 
@@ -369,32 +358,20 @@
   <string name="myspace">MySpace</string>
 
   <!-- __RECORD -->
-  <string name="rec_title_generating_waveform">Пожалуйста, подождите...</string>
   <string name="rec_title_idle_rec">Записать</string>
   <string name="rec_title_recording">Запись</string>
   <string name="rec_title_idle_play">Остановлено</string>
   <string name="rec_title_playing">Играет</string>
   <string name="rec_title_editing">Редактировать</string>
-  <string name="record_another_sound">Сделать другую запись</string>
   <string name="record_insert_sd_card">Чтобы сделать запись, вставьте SD карту.</string>
   <string name="record_storage_is_full">Нет свободного места</string>
   <string name="recorded_afternoon">%s послеполудня</string>
-  <string name="recorded_at">%1$s в %2$s</string>
   <string name="recorded_evening">%s вечера</string>
   <string name="recorded_morning">%s утра</string>
   <string name="recorded_night">%s ночи</string>
-  <string name="recording_not_found">Запись не найдена</string>
-  <string name="rec_your_sound_is_saved_locally_at">Ваша музыка сохраняется на устройство</string>
   <string name="dialog_confirm_delete_recording_message">Вы уверены, что хотите удалить эту запись?</string>
-  <string name="dialog_reset_recording_message">Перезапустить? Запись будет удалена.</string>
-  <string name="dialog_unsaved_recordings_message">Есть несохраненные записи. Отмеченные записи будут сохранены.</string>
   <string name="btn_revert_to_original">Вернуть в исходное состояние</string>
   <string name="fade_toggle_on">Нарастание/затухание</string>
-  <string name="fade_toggle_off">Без нарастания/затухания</string>
-  <string name="optimize_toggle_on">С оптимизацией</string>
-  <string name="optimize_toggle_off">Без оптимизации</string>
-  <string name="create_autosave_message">Ваши записи будут автоматически сохранены по мере их создания. Вы можете их найти в списке вашей музыки.</string>
-  <string name="create_regenerating_waveform_message">Восстановление сигнала... Пожалуйста, подождите.</string>
   <string name="dialog_revert_recording_message">Все ваши изменения будут потеряны. Продолжить?</string>
   <string name="cloud_recorder_event_message">Запись для %s</string>
   <string name="cloud_recorder_event_title">Идет запись</string>
@@ -510,11 +487,8 @@
 
   <!-- __UPLOAD -->
   <string name="uploader_event_processing">Обработка</string>
-  <string name="uploader_event_processing_percent">Обработка: %d %%</string>
-  <string name="uploader_event_not_yet_uploading">Пока не загружается</string>
   <string name="uploader_event_uploading_percent">Загрузка: %d %%</string>
   <string name="uploader_event_cancelling">Отмена...</string>
-  <string name="uploader_event_processing_finished">Обработка завершена</string>
   <string name="cloud_upload_clear_artwork">Удерживайте, чтобы очистить оформление</string>
   <string name="cloud_uploader_notification_error_message">Произошел сбой при загрузке %s</string>
   <string name="cloud_uploader_notification_error_ticker">Сбой при отправке</string>
@@ -522,15 +496,9 @@
   <string name="cloud_uploader_notification_finished_message">%s был загружен</string>
   <string name="cloud_uploader_notification_finished_ticker">Загрузка завершена</string>
   <string name="cloud_uploader_notification_finished_title">Загрузка завершена</string>
-  <string name="cloud_uploader_notification_transcoding_error_message">Произошел сбой перекодирования %s</string>
-  <string name="cloud_uploader_notification_transcoding_error_ticker">Сбой перекодирования</string>
-  <string name="cloud_uploader_notification_transcoding_error_title">Сбой перекодирования</string>
   <string name="dialog_cancel_upload_message">Отменить загрузку?</string>
-  <string name="sc_upload_add_image">Добавить\nизображение</string>
   <string name="sc_upload_private">Личное</string>
   <string name="sc_upload_public">Открытый доступ</string>
-  <string name="sc_upload_sharing_options_private">Ваша запись будет закрыта от доступа других пользователей SoundCloud.</string>
-  <string name="sc_upload_sharing_options_public">Ваша запись будет открыта для доступа других пользователей SoundCloud. В каких еще социальных сетях вы хотите ею поделиться?</string>
 
   <!-- __WIDGET -->
   <string name="widget_touch_to_open">Нажмите, чтобы открыть SoundCloud</string>

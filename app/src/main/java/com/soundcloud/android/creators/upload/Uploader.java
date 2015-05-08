@@ -42,7 +42,6 @@ public class Uploader implements Runnable {
     static final String PARAM_TITLE = "track[title]";          // required
     static final String PARAM_TYPE = "track[track_type]";
     static final String PARAM_DESCRIPTION = "track[description]";
-    static final String PARAM_POST_TO_EMPTY = "track[post_to][]";
     static final String PARAM_TAG_LIST = "track[tag_list]";
     static final String PARAM_SHARING = "track[sharing]";
     static final String PARAM_STREAMABLE = "track[streamable]";
@@ -113,7 +112,6 @@ public class Uploader implements Runnable {
 
             final ApiRequest request = buildUploadRequest(resources, recording);
             onUploadFinished(apiClient.fetchMappedResponse(request, PublicApiTrack.class));
-
         } catch (IOException | ApiMapperException | ApiRequestException e) {
             if (!isCancelled()) {
                 onUploadFailed(e);
@@ -246,7 +244,7 @@ public class Uploader implements Runnable {
                 throw new UserCanceledException();
             }
 
-            if (System.currentTimeMillis() - lastPublished > 1000) {
+            if (System.currentTimeMillis() - lastPublished > 500) {
                 final int progress = (int) Math.min(100, (100 * bytesWritten) / totalBytes);
                 eventBus.publish(EventQueue.UPLOAD, UploadEvent.transferProgress(recording, progress));
                 lastPublished = System.currentTimeMillis();

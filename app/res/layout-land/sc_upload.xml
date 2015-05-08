@@ -24,8 +24,6 @@
 
                 <ImageButton
                     android:id="@+id/btn_action"
-                    android:layout_width="@dimen/rec_upload_button_dimension"
-                    android:layout_height="@dimen/rec_upload_button_dimension"
                     style="@style/UploadButton" />
             </FrameLayout>
         </RelativeLayout>

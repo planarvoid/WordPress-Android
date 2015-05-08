@@ -7,7 +7,6 @@
   <string name="close">Fermer</string>
   <string name="post">Publier</string>
   <string name="view">Voir</string>
-  <string name="btn_publish">Suivant</string>
   <string name="btn_apply">Appliquer</string>
   <string name="cancel">Annuler</string>
   <string name="retry">Réessayer</string>
@@ -33,15 +32,9 @@
   <string name="btn_skip">Passer</string>
   <string name="configure">Configurer</string>
   <string name="connect_progress">Téléchargement en cours</string>
-  <string name="connect_success">Connexion réussie avec %1$s</string>
-  <string name="connection_list_footer">Pour modifier vos options de partage par défaut, accédez à vos paramètres sur SoundCloud et sélectionnez « Connexions »</string>
   <string name="delete">Supprimer</string>
   <string name="comments">Commentaires</string>
-  <string name="new_connection_error">Un problème est survenu en ajoutant le réseau</string>
-  <string name="reset">Rejeter</string>
-  <string name="share_fail_message">Bon, ça n\'a pas marché comme prévu.</string>
   <string name="share_log_out">Déconnexion</string>
-  <string name="share_success_message">Ouais, ça a marché !</string>
   <string name="share_to_soundcloud">&lt;b&gt;Partager&lt;/b&gt; sur &lt;b&gt;SoundCloud&lt;/b&gt;</string>
   <string name="sounds_from">Fichier audio de %s</string>
   <string name="this_user">Cet utilisateur</string>
@@ -49,8 +42,6 @@
   <string name="track_by">par</string>
   <string name="display_name">Afficher nom</string>
   <string name="website">Site Web</string>
-  <string name="what_hint">Quoi</string>
-  <string name="where_hint">Où</string>
   <string name="like">Aimer</string>
   <string name="unlike">Ne plus aimer</string>
 
@@ -159,7 +150,6 @@
   <string name="empty_user_tracks_text">%1$s n\'a pas encore téléchargé de fichiers audio publiques.</string>
 
   <!-- __ERRORS -->
-  <string name="error_recording_message">Une erreur est survenue lors de l\'enregistrement. Votre appareil ne prend peut-être pas en charge la configuration d\'enregistrement actuelle. Vous pouvez modifier les configurations dans les paramètres de l\'application.</string>
   <string name="error_unauthorized_message">Nous avons un problème avec votre compte et avons besoin que vous vous reconnectiez de nouveau dans SoundCloud avant de pouvoir continuer à utiliser l\'application.</string>
   <string name="error_unauthorized_title">Erreur de compte</string>
   <string name="error_loading_url">Un problème est survenu lors du chargement de cet URL</string>
@@ -170,7 +160,6 @@
   <string name="crop_image_error">Une erreur est survenue lors du recadrage de votre image.</string>
   <string name="error_server_problems_message">Un problème est survenu lors du traitement de votre demande. Veuillez réessayer plus tard.</string>
   <string name="connection_list_error">Il semble y avoir un problème de connexion. Veuillez réessayer dans quelques instants.</string>
-  <string name="connect_failure">Echec de la connexion avec %1$s</string>
   <!-- signup scope was revoked on server side -->
   <string name="signup_scope_revoked">Oups ! Nous n\'avons pas pu vous inscrire\nVeuillez essayer de mettre à jour l\'application ou inscrivez-vous à SoundCloud.com.</string>
 
@@ -368,32 +357,20 @@
   <string name="myspace">Myspace</string>
 
   <!-- __RECORD -->
-  <string name="rec_title_generating_waveform">Veuillez patienter...</string>
   <string name="rec_title_idle_rec">Enregistrer</string>
   <string name="rec_title_recording">Enregistrement en cours</string>
   <string name="rec_title_idle_play">En pause</string>
   <string name="rec_title_playing">Lecture en cours de</string>
   <string name="rec_title_editing">Modifier</string>
-  <string name="record_another_sound">Enregistrer un autre fichier audio</string>
   <string name="record_insert_sd_card">Veuillez insérer une carte SD pour enregistrer.</string>
   <string name="record_storage_is_full">La mémoire est pleine</string>
   <string name="recorded_afternoon">%s après-midi</string>
-  <string name="recorded_at">%1$s à %2$s</string>
   <string name="recorded_evening">%s soir</string>
   <string name="recorded_morning">%s matin</string>
   <string name="recorded_night">%s nuit</string>
-  <string name="recording_not_found">Enregistrement introuvable</string>
-  <string name="rec_your_sound_is_saved_locally_at">Votre fichier audio est enregistré localement</string>
   <string name="dialog_confirm_delete_recording_message">Êtes-vous sûr de vouloir supprimer cet enregistrement ?</string>
-  <string name="dialog_reset_recording_message">Réinitialiser? L\'enregistrement sera supprimé.</string>
-  <string name="dialog_unsaved_recordings_message">Les enregistrements non sauvegardés ont été retrouvés. Les éléments sélectionnés seront sauvegardés.</string>
   <string name="btn_revert_to_original">Revenir à l\'original</string>
   <string name="fade_toggle_on">Estomper plus/moins</string>
-  <string name="fade_toggle_off">Désactiver Estomper plus/moins</string>
-  <string name="optimize_toggle_on">Optimisé</string>
-  <string name="optimize_toggle_off">Ne pas optimisé</string>
-  <string name="create_autosave_message">Vos enregistrements seront automatiquement sauvegardés à mesure que vous les créer. Vous pouvez les trouver dans votre liste de fichiers audios.</string>
-  <string name="create_regenerating_waveform_message">Renvoi du signal, veuillez patienter.</string>
   <string name="dialog_revert_recording_message">Vous perdrez toutes vos modifications. Continuer?</string>
   <string name="cloud_recorder_event_message">Enregistrement en cours pour %s</string>
   <string name="cloud_recorder_event_title">Enregistrement en cours</string>
@@ -509,11 +486,8 @@
 
   <!-- __UPLOAD -->
   <string name="uploader_event_processing">Traitement en cours</string>
-  <string name="uploader_event_processing_percent">Traitement en cours : %d %%</string>
-  <string name="uploader_event_not_yet_uploading">Le téléchargement n\'est pas prêt</string>
   <string name="uploader_event_uploading_percent">Mise en ligne : %d%%</string>
   <string name="uploader_event_cancelling">Annulation</string>
-  <string name="uploader_event_processing_finished">Traitement terminé</string>
   <string name="cloud_upload_clear_artwork">Maintenir appuyé pour effacer l\'illustration</string>
   <string name="cloud_uploader_notification_error_message">Une erreur est survenue lors du téléchargement %s</string>
   <string name="cloud_uploader_notification_error_ticker">Erreur de téléchargement</string>
@@ -521,15 +495,9 @@
   <string name="cloud_uploader_notification_finished_message">%s a été téléchargé</string>
   <string name="cloud_uploader_notification_finished_ticker">téléchargement terminé</string>
   <string name="cloud_uploader_notification_finished_title">Téléchargement terminée</string>
-  <string name="cloud_uploader_notification_transcoding_error_message">Une erreur est survenue lors du transcodage %s</string>
-  <string name="cloud_uploader_notification_transcoding_error_ticker">Erreur de transcodage</string>
-  <string name="cloud_uploader_notification_transcoding_error_title">Erreur de transcodage</string>
   <string name="dialog_cancel_upload_message">Annuler le téléchargement?</string>
-  <string name="sc_upload_add_image">Ajouter\nune Image</string>
   <string name="sc_upload_private">Privé</string>
   <string name="sc_upload_public">Publique</string>
-  <string name="sc_upload_sharing_options_private">Votre fichier audio sera rendu privé sur SoundCloud.</string>
-  <string name="sc_upload_sharing_options_public">Votre fichier audio sera rendu publique sur SoundCloud. Sur quels autres réseaux aimeriez-vous le partager ?</string>
 
   <!-- __WIDGET -->
   <string name="widget_touch_to_open">Touchez pour ouvrir SoundCloud</string>

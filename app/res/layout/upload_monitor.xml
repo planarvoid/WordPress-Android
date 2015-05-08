@@ -1,91 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipChildren="false"
-    style="@style/MetadataContainer">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="0dp"
-        android:layout_marginTop="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@+id/bottom_bar"
         android:layout_alignParentTop="true"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:clipChildren="false">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
-            android:background="@drawable/placeholder">
-
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_alignParentLeft="true"
-                android:layout_width="@dimen/share_progress_icon_width"
-                android:layout_height="@dimen/share_progress_icon_height"
-                android:gravity="center_vertical"
-                android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip"
-                android:layout_marginTop="24dip"
-                android:layout_marginBottom="24dip"
-                android:background="@color/white"
-                android:scaleType="centerCrop" />
-
-            <TextView
-                android:id="@+id/track_username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/icon"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/dark_gray_text"
-                style="?android:textAppearanceSmall"
-                android:layout_toRightOf="@id/icon" />
-
-            <TextView
-                android:id="@+id/track"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/track_username"
-                android:textColor="@color/black"
-                style="?android:textAppearanceSmall"
-                android:layout_toRightOf="@id/icon" />
-
-            <TextView
-                android:id="@+id/track_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@id/track_username"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="16dip"
-                android:textColor="@color/dark_gray_text"
-                style="?android:textAppearanceSmall" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/control_layout"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_marginBottom="48dp"
-            android:gravity="center|top"
+            android:layout_weight="5">
+
+            <include layout="@layout/upload_metadata" />
+
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:gravity="center|center_vertical"
             android:clipChildren="false">
 
             <RelativeLayout
                 android:id="@+id/rec_controls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="-3dp"
                 android:layout_centerInParent="true"
-                android:clipChildren="false"
-                >
+                android:clipChildren="false">
 
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:clipChildren="false"
-                    >
+                    android:clipChildren="false">
 
                     <ImageButton
                         android:id="@+id/btn_action"
@@ -94,36 +48,36 @@
 
                 <com.soundcloud.android.creators.upload.CircularProgressBar
                     android:id="@+id/upload_progress"
-                    android:layout_centerInParent="true"
-                    style="@style/RecordUploadProgressBar" />
+                    style="@style/RecordUploadProgressBar"
+                    android:layout_centerInParent="true" />
 
             </RelativeLayout>
 
             <TextView
                 android:id="@+id/upload_status_text"
-                android:layout_height="wrap_content"
+                style="?android:textAppearanceMedium"
                 android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_below="@id/rec_controls"
                 android:layout_centerInParent="true"
-                android:layout_marginTop="32dp"
-                android:text="@string/uploader_event_processing_your_sound"
-                style="?android:textAppearanceMedium" />
+                android:layout_marginTop="29dp"
+                android:text="@string/uploader_event_processing_your_sound" />
         </RelativeLayout>
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/btn_min_height"
-        android:gravity="end"
-        android:id="@+id/bottom_bar"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:gravity="end">
 
         <Button
             android:id="@+id/btn_cancel"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/gray_text"
-            android:text="@string/cancel" />
+            android:text="@string/cancel"
+            android:textColor="@color/gray_text" />
     </LinearLayout>
 </RelativeLayout>

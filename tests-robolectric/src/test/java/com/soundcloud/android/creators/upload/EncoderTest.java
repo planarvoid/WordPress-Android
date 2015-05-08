@@ -24,17 +24,19 @@ public class EncoderTest {
 
     @Before
     public void before() throws Exception {
+        ShadowVorbisEncoder.throwException = null;
+        ShadowVorbisEncoder.simulateProgress = false;
+        ShadowVorbisEncoder.simulateCancel = false;
+
         recording = RecordingTestHelper.getValidRecording();
-        encoder = new Encoder(recording);
+        recording.getEncodedFile().delete();
+        encoder = new Encoder(recording, eventBus);
     }
 
     @Test
     public void shouldEncode() throws Exception {
-        expect(recording.getEncodedFile().delete()).toBeTrue();
-        Recording rec = RecordingTestHelper.getValidRecording();
-        rec.getEncodedFile().delete();
-
         ShadowVorbisEncoder.simulateProgress = true;
+        encoder = new Encoder(recording, eventBus);
         encoder.run();
 
         List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
@@ -51,7 +53,6 @@ public class EncoderTest {
 
     @Test
     public void shouldHandleEncodingFailure() throws Exception {
-        Recording rec = RecordingTestHelper.getValidRecording();
         ShadowVorbisEncoder.throwException = new IOException();
         encoder.run();
 
@@ -67,35 +68,19 @@ public class EncoderTest {
     @Test
     public void shouldHandleCancel() throws Exception {
         Recording rec = RecordingTestHelper.getValidRecording();
-        ShadowVorbisEncoder.simulateCancel = true;
-        encoder.run();
-
-        List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
-
-        expect(events).toNumber(3);
-        expect(events).toContainExactly(
-                UploadEvent.idle(),
-                UploadEvent.processingStarted(recording),
-                UploadEvent.cancelled(recording));
-    }
-
-    @Test
-    public void shouldMakeSureOutputfileGetsCreatedAtomically() throws Exception {
-        expect(recording.getEncodedFile().delete()).toBeTrue();
-        Recording rec = RecordingTestHelper.getValidRecording();
         expect(rec.getEncodedFile().delete()).toBeTrue();
 
         ShadowVorbisEncoder.simulateCancel = true;
+        encoder = new Encoder(rec, eventBus);
         encoder.run();
 
         List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
 
-        expect(events).toNumber(3);
+        expect(events).toNumber(2);
         expect(events).toContainExactly(
                 UploadEvent.idle(),
-                UploadEvent.processingStarted(recording),
-                UploadEvent.cancelled(recording));
+                UploadEvent.processingStarted(rec));
 
-        expect(recording.getEncodedFile().exists()).toBeFalse();
+        expect(rec.getEncodedFile().exists()).toBeFalse();
     }
 }

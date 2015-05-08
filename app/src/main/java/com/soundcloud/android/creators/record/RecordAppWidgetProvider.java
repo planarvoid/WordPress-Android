@@ -75,7 +75,7 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.btn_action,
                     PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
         } else {
-            views.setImageViewResource(R.id.btn_action, R.drawable.rec_button_states);
+            views.setImageViewResource(R.id.btn_action, R.drawable.btn_rec_states);
             views.setOnClickPendingIntent(R.id.btn_action,
                     PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_START), PendingIntent.FLAG_CANCEL_CURRENT));
         }

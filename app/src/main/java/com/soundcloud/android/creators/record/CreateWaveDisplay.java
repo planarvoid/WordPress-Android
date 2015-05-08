@@ -121,7 +121,7 @@ public class CreateWaveDisplay extends TouchLayout {
         super.onLayout(changed, l, t, r, b);
 
         if (changed && getWidth() > 0 && waveformView != null && waveformView.getWidth() > 0) {
-            calcualteWaveformRect();
+            calculateWaveformRect();
 
             leftHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_LEFT, waveformView.getId());
             rightHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_RIGHT, waveformView.getId());
@@ -135,14 +135,12 @@ public class CreateWaveDisplay extends TouchLayout {
     @Override
     protected void processDownInput(InputObject input) {
         setTouchMode(input);
-        final int x = input.actionIndex == 0 ? input.x : input.pointerX;
 
         if (seekMode) {
             seekTouch(input.x);
         } else if (leftHandleTouchIndex > -1 && input.actionIndex == leftHandleTouchIndex) {
             queueUnique(UI_ON_TRIM_STATE);
         } else if (rightHandleTouchIndex > -1 && input.actionIndex == rightHandleTouchIndex) {
-//            rightDragOffsetX = x - rightHandle.getRightWithMargin();
             queueUnique(UI_ON_TRIM_STATE);
         }
     }
@@ -155,7 +153,7 @@ public class CreateWaveDisplay extends TouchLayout {
             final int x = input.actionIndex == 0 ? input.x : input.pointerX;
             if (leftHandleTouchIndex > -1) {
                 if (leftDragOffsetX == Consts.NOT_SET){
-                    leftDragOffsetX = x - leftHandle.getLeftWithMargin();
+                    leftDragOffsetX = x - leftHandle.getLeft();
                 }
                 newTrimActionLeft = new TrimAction(System.currentTimeMillis(),
                         Math.max(0, Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
@@ -165,7 +163,7 @@ public class CreateWaveDisplay extends TouchLayout {
 
             if (rightHandleTouchIndex > -1) {
                 if (rightDragOffsetX == Consts.NOT_SET){
-                    rightDragOffsetX = x - rightHandle.getRightWithMargin();
+                    rightDragOffsetX = x - rightHandle.getRight();
                 }
                 newTrimActionRight = new TrimAction(System.currentTimeMillis(),
                         Math.min(getWidth(), Math.max(leftHandle.getRight() + rightHandle.getWidth(),
@@ -293,7 +291,7 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    private void calcualteWaveformRect() {
+    private void calculateWaveformRect() {
         if (waveformView != null) {
             waveformRect = new Rect();
             waveformView.getHitRect(waveformRect);

@@ -126,8 +126,8 @@
     <style name="RecordDarkButtonBase" parent="android:Widget.Holo.Button.Borderless" />
 
     <style name="RecordDarkButton" parent="RecordDarkButtonBase">
-        <item name="android:layout_width">@dimen/rec_action_button_dimension</item>
-        <item name="android:layout_height">@dimen/rec_action_button_dimension</item>
+        <item name="android:layout_width">@dimen/rec_record_button_dimension</item>
+        <item name="android:layout_height">@dimen/rec_record_button_dimension</item>
         <item name="android:scaleType">fitCenter</item>
     </style>
 

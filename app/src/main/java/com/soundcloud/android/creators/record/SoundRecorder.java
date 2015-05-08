@@ -437,10 +437,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         return false;
     }
 
-    public boolean isOptimized() {
-        return playbackStream != null && playbackStream.isOptimized();
-    }
-
     public boolean isFading() {
         return playbackStream != null && playbackStream.isFading();
     }

@@ -2,6 +2,7 @@ package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 
 import android.os.Bundle;
@@ -14,17 +15,14 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 
 public class RecordFragment extends LightCycleSupportFragment {
-
-
     public static Fragment create() {
         return new RecordFragment();
     }
 
-    @Inject RecordPresenter recordPresenter;
+    @Inject @LightCycle RecordPresenter recordPresenter;
 
     public RecordFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        attachLightCycle(recordPresenter);
     }
 
     @Override

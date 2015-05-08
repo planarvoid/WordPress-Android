@@ -67,7 +67,7 @@ public class RecordingTest {
     public void shouldGenerateStatusMessageWithError() throws Exception {
         Recording r = createRecording();
         r.upload_status = Recording.Status.ERROR;
-        expect(r.getStatusMessage(resources)).toMatch("Upload Failed");
+        expect(r.getStatusMessage(resources)).toMatch("Upload failed");
     }
 
     @Test

@@ -7,7 +7,6 @@
   <string name="close">Tutup</string>
   <string name="post">Kirim</string>
   <string name="view">Lihat</string>
-  <string name="btn_publish">Berikutnya</string>
   <string name="btn_apply">Terapkan</string>
   <string name="cancel">Batal</string>
   <string name="retry">Coba lagi</string>
@@ -33,15 +32,9 @@
   <string name="btn_skip">Lewati</string>
   <string name="configure">Konfigurasi</string>
   <string name="connect_progress">Memuat</string>
-  <string name="connect_success">Berhasil terhubung dengan %1$s</string>
-  <string name="connection_list_footer">Untuk mengubah opsi berbagi standar, buka pengaturanmu di SoundCloud dan pilih \'Koneksi\'</string>
   <string name="delete">Hapus</string>
   <string name="comments">Komentar</string>
-  <string name="new_connection_error">Ada masalah menambahkan jaringan</string>
-  <string name="reset">Buang</string>
-  <string name="share_fail_message">OK, itu tidak beres.</string>
   <string name="share_log_out">Keluar</string>
-  <string name="share_success_message">Wah, berhasil!</string>
   <string name="share_to_soundcloud">&lt;B&gt;Berbagi&lt;/ b&gt; ke &lt;b&gt;SoundCloud&lt;/ b&gt;</string>
   <string name="sounds_from">Suara dari %s</string>
   <string name="this_user">Pengguna ini</string>
@@ -49,8 +42,6 @@
   <string name="track_by">oleh</string>
   <string name="display_name">Tampilkan Nama</string>
   <string name="website">Situs Web</string>
-  <string name="what_hint">Apa</string>
-  <string name="where_hint">Di mana</string>
   <string name="like">Suka</string>
   <string name="unlike">Tidak suka</string>
 
@@ -159,7 +150,6 @@
   <string name="empty_user_tracks_text">%1$s belum mengunggah\nsuara publik sama sekali.</string>
 
   <!-- __ERRORS -->
-  <string name="error_recording_message">Ada kesalahan selama perekaman.\n Perangkatmu mungkin tidak mendukung konfigurasi perekaman saat ini. Kamu dapat mengubah konfigurasi dalam pengaturan aplikasi.</string>
   <string name="error_unauthorized_message">Kami sedang mengalami masalah dengan akunmu dan kamu harus masuk lagi ke SoundCloud sebelum kamu dapat terus menggunakan aplikasi.</string>
   <string name="error_unauthorized_title">Kesalahan Akun</string>
   <string name="error_loading_url">Ada masalah saat memuat url tersebut</string>
@@ -170,7 +160,6 @@
   <string name="crop_image_error">Terjadi kesalahan saat memangkas gambarmu.</string>
   <string name="error_server_problems_message">Terjadi masalah saat memproses permintaanmu. Harap coba lagi nanti.</string>
   <string name="connection_list_error">Tampaknya ada masalah koneksi. Coba beberapa saat lagi.</string>
-  <string name="connect_failure">Gagal menghubungkanmu dengan %1$s</string>
   <!-- signup scope was revoked on server side -->
   <string name="signup_scope_revoked">Ups! Kami tidak bisa memasukkanmu\nSilakan perbarui aplikasi atau mendaftar di SoundCloud.com.</string>
 
@@ -368,32 +357,20 @@
   <string name="myspace">Myspace</string>
 
   <!-- __RECORD -->
-  <string name="rec_title_generating_waveform">Silakan Tunggu...</string>
   <string name="rec_title_idle_rec">Rekam</string>
   <string name="rec_title_recording">Rekaman</string>
   <string name="rec_title_idle_play">Dihentikan</string>
   <string name="rec_title_playing">Diputar</string>
   <string name="rec_title_editing">Edit</string>
-  <string name="record_another_sound">Rekam suara lain</string>
   <string name="record_insert_sd_card">Harap masukkan kartu SD untuk merekam.</string>
   <string name="record_storage_is_full">Penyimpanan penuh</string>
   <string name="recorded_afternoon">%s sore</string>
-  <string name="recorded_at">%1$s di %2$s</string>
   <string name="recorded_evening">%s malam</string>
   <string name="recorded_morning">%s pagi</string>
   <string name="recorded_night">%s malam</string>
-  <string name="recording_not_found">Rekaman tidak ditemukan</string>
-  <string name="rec_your_sound_is_saved_locally_at">Suara kamu disimpan secara lokal</string>
   <string name="dialog_confirm_delete_recording_message">Kamu yakin ingin menghapus rekaman ini?</string>
-  <string name="dialog_reset_recording_message">Atur ulang? Rekaman akan dihapus.</string>
-  <string name="dialog_unsaved_recordings_message">Rekaman yang tidak tersimpan ditemukan. Item yang dicentang akan disimpan.</string>
   <string name="btn_revert_to_original">Kembalikan ke asli</string>
   <string name="fade_toggle_on">Pertegas/Pudarkan</string>
-  <string name="fade_toggle_off">Tanpa Pertegas/Pudarkan</string>
-  <string name="optimize_toggle_on">Dioptimalkan</string>
-  <string name="optimize_toggle_off">Tidak Dioptimalkan</string>
-  <string name="create_autosave_message">Rekamanmu secara otomatis akan disimpan saat kamu membuatnya. Kamu dapat menemukannya dalam daftar suara.</string>
-  <string name="create_regenerating_waveform_message">Membuat ulang gelombang, silakan tunggu.</string>
   <string name="dialog_revert_recording_message">Kamu akan kehilangan semua editanmu. Lanjutkan?</string>
   <string name="cloud_recorder_event_message">Merekam selama %s</string>
   <string name="cloud_recorder_event_title">Perekaman sedang berlangsung</string>
@@ -509,11 +486,8 @@
 
   <!-- __UPLOAD -->
   <string name="uploader_event_processing">Memproses</string>
-  <string name="uploader_event_processing_percent">Memproses: %d %%</string>
-  <string name="uploader_event_not_yet_uploading">Belum diunggah</string>
   <string name="uploader_event_uploading_percent">Mengunggah: %d %%</string>
   <string name="uploader_event_cancelling">Membatalkan</string>
-  <string name="uploader_event_processing_finished">Pemrosesan selesai</string>
   <string name="cloud_upload_clear_artwork">Tahan untuk menghapus karya seni</string>
   <string name="cloud_uploader_notification_error_message">Terjadi kesalahan saat mengunggah %s</string>
   <string name="cloud_uploader_notification_error_ticker">Kesalahan Mengunggah</string>
@@ -521,15 +495,9 @@
   <string name="cloud_uploader_notification_finished_message">%s telah diunggah</string>
   <string name="cloud_uploader_notification_finished_ticker">Unggahan Selesai</string>
   <string name="cloud_uploader_notification_finished_title">Unggahan Selesai</string>
-  <string name="cloud_uploader_notification_transcoding_error_message">Ada kesalahan transfer kode %s</string>
-  <string name="cloud_uploader_notification_transcoding_error_ticker">Kesalahan Transfer Kode</string>
-  <string name="cloud_uploader_notification_transcoding_error_title">Kesalahan Transfer Kode</string>
   <string name="dialog_cancel_upload_message">Batal mengunggah?</string>
-  <string name="sc_upload_add_image">Tambahkan\nGambar</string>
   <string name="sc_upload_private">Pribadi</string>
   <string name="sc_upload_public">Publik</string>
-  <string name="sc_upload_sharing_options_private">Suaramu akan dibuat pribadi di SoundCloud.</string>
-  <string name="sc_upload_sharing_options_public">Suaramu akan dipublikasikan di SoundCloud. Jaringan lain mana yang ingin kamu bagi juga?</string>
 
   <!-- __WIDGET -->
   <string name="widget_touch_to_open">Sentuh untuk membuka SoundCloud</string>

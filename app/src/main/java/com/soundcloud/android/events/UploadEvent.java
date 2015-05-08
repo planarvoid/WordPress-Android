@@ -6,24 +6,24 @@ import com.soundcloud.android.api.legacy.model.Recording;
 
 
 public final class UploadEvent {
-    private static final int IDLE = 0;
-    private static final int UPLOAD_SUCCESS = 1;
-    private static final int PROCESSING_STARTED = 2;
-    private static final int PROCESSING_PROGRESS = 3;
-    private static final int PROCESSING_SUCCESS = 4;
-    private static final int PROCESSING_CANCELLED = 5;
-    private static final int CANCELLED = 6;
-    private static final int TRANSFER_STARTED = 7;
-    private static final int TRANSFER_PROGRESS = 8;
-    private static final int TRANSFER_SUCCESS = 9;
-    private static final int RESIZE_STARTED = 10;
-    private static final int RESIZE_SUCCESS = 11;
-    private static final int UPLOAD_CANCELLED = 12;
-    private static final int TRANSFER_CANCELLED = 13;
-    private static final int ERROR = 14;
-    private static final int UPLOAD_START = 15;
+    private static final String IDLE = "idle";
+    private static final String UPLOAD_SUCCESS = "upload_success";
+    private static final String PROCESSING_STARTED = "processing_started";
+    private static final String PROCESSING_PROGRESS = "processing_progress";
+    private static final String PROCESSING_SUCCESS = "processing_success";
+    private static final String PROCESSING_CANCELLED = "processing_cancelled";
+    private static final String CANCELLED = "cancelled";
+    private static final String TRANSFER_STARTED = "transfer_started";
+    private static final String TRANSFER_PROGRESS = "transfer_progress";
+    private static final String TRANSFER_SUCCESS = "transfer_success";
+    private static final String RESIZE_STARTED = "resize_started";
+    private static final String RESIZE_SUCCESS = "resize_success";
+    private static final String UPLOAD_CANCELLED = "upload_cancelled";
+    private static final String TRANSFER_CANCELLED = "transfer_cancelled";
+    private static final String ERROR = "error";
+    private static final String UPLOAD_START = "upload_start";
 
-    private final int kind;
+    private final String kind;
     private final Recording recording;
     private final PublicApiTrack track;
     private final int progress;
@@ -80,19 +80,19 @@ public final class UploadEvent {
         return new UploadEvent(UPLOAD_START, recording);
     }
 
-    private UploadEvent(int kind) {
+    private UploadEvent(String kind) {
         this(kind, null);
     }
 
-    private UploadEvent(int kind, Recording recording) {
+    private UploadEvent(String kind, Recording recording) {
         this(kind, recording, 0);
     }
 
-    private UploadEvent(int kind, Recording recording, int progress) {
+    private UploadEvent(String kind, Recording recording, int progress) {
         this(kind, recording, progress, null);
     }
 
-    private UploadEvent(int kind, Recording recording, int progress, PublicApiTrack track) {
+    private UploadEvent(String kind, Recording recording, int progress, PublicApiTrack track) {
         this.kind = kind;
         this.recording = recording;
         this.track = track;
@@ -100,7 +100,7 @@ public final class UploadEvent {
     }
 
     public boolean isUploading() {
-        return !(kind == IDLE || isCancelled() || isError() || isUploadSuccess());
+        return !(kind.equals(IDLE) || isCancelled() || isError() || isUploadSuccess());
     }
 
     public boolean isFinished() {
@@ -108,15 +108,15 @@ public final class UploadEvent {
     }
 
     public boolean isStarted() {
-        return kind == UPLOAD_START;
+        return kind.equals(UPLOAD_START);
     }
 
     public boolean isError() {
-        return kind == ERROR;
+        return kind.equals(ERROR);
     }
 
     public boolean isUploadSuccess() {
-        return kind == UPLOAD_SUCCESS;
+        return kind.equals(UPLOAD_SUCCESS);
     }
 
     public boolean isProcessing() {
@@ -128,47 +128,47 @@ public final class UploadEvent {
     }
 
     public boolean isProcessingStarted() {
-        return kind == PROCESSING_STARTED;
+        return kind.equals(PROCESSING_STARTED);
     }
 
     public boolean isProcessingProgress() {
-        return kind == PROCESSING_PROGRESS;
+        return kind.equals(PROCESSING_PROGRESS);
     }
 
     public boolean isProcessingSuccess() {
-        return kind == PROCESSING_SUCCESS;
+        return kind.equals(PROCESSING_SUCCESS);
     }
 
     public boolean isTransferStarted() {
-        return kind == TRANSFER_STARTED;
+        return kind.equals(TRANSFER_STARTED);
     }
 
     public boolean isTransferProgress() {
-        return kind == TRANSFER_PROGRESS;
+        return kind.equals(TRANSFER_PROGRESS);
     }
 
     public boolean isTransferSuccess() {
-        return kind == TRANSFER_SUCCESS;
+        return kind.equals(TRANSFER_SUCCESS);
     }
 
     public boolean isCancelled() {
-        return kind == CANCELLED || isTransferCancelled() || isUploadCancelled();
+        return kind.equals(CANCELLED) || isTransferCancelled() || isUploadCancelled();
     }
 
     public boolean isResizeStarted() {
-        return kind == RESIZE_STARTED;
+        return kind.equals(RESIZE_STARTED);
     }
 
     public boolean isResizeSuccess() {
-        return kind == RESIZE_SUCCESS;
+        return kind.equals(RESIZE_SUCCESS);
     }
 
     public boolean isUploadCancelled() {
-        return kind == UPLOAD_CANCELLED;
+        return kind.equals(UPLOAD_CANCELLED);
     }
 
     public boolean isTransferCancelled() {
-        return kind == TRANSFER_CANCELLED;
+        return kind.equals(TRANSFER_CANCELLED);
     }
 
     public Recording getRecording() {
@@ -207,6 +207,10 @@ public final class UploadEvent {
 
     @Override
     public String toString() {
-        return String.format("Upload Event with type id %d, progress = %d and track = %s", kind, progress, track != null ? track.getUrn() : "none");
+        return Objects.toStringHelper(this)
+                .add("kind", kind)
+                .add("progress", progress)
+                .add("track", track)
+                .toString();
     }
 }

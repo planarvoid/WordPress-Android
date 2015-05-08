@@ -2,51 +2,53 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:clipChildren="false"
+    android:orientation="vertical"
     style="@style/MetadataContainer">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_weight="2"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:clipChildren="false"
         android:gravity="center_vertical">
 
         <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:clipChildren="false">
 
             <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:clipChildren="false">
 
                 <ImageButton
                     android:id="@+id/btn_action"
+                    style="@style/RecordButton"
                     android:layout_width="@dimen/rec_record_button_dimension"
-                    android:layout_height="@dimen/rec_record_button_dimension"
-                    style="@style/RecordButton" />
-
+                    android:layout_height="@dimen/rec_record_button_dimension" />
             </FrameLayout>
 
-            <ImageButton
-                android:id="@+id/btn_play_edit"
-                style="@style/RecordPlayButton"
+            <FrameLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_centerInParent="true"
-                android:adjustViewBounds="true"/>
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:clipChildren="false">
+
+                <ImageButton
+                    android:id="@+id/btn_play_edit"
+                    style="@style/RecordPlayButton"
+                    android:adjustViewBounds="false" />
+            </FrameLayout>
 
         </RelativeLayout>
 
         <FrameLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
             android:layout_weight="1">
 
             <com.soundcloud.android.creators.record.ChronometerView
@@ -62,11 +64,11 @@
         <ImageButton
             android:id="@+id/btn_play"
             style="@style/RecordPlayButton"
-            android:layout_marginRight="5dp"/>
+            android:layout_marginRight="5dp" />
 
         <ImageButton
             android:id="@+id/btn_edit"
-            style="@style/RecordEditButton"/>
+            style="@style/RecordEditButton" />
 
         <android.support.v7.widget.SwitchCompat
             android:id="@+id/toggle_fade"
@@ -74,19 +76,22 @@
 
     </LinearLayout>
 
+
+    <TextView
+        android:id="@+id/action_text"
+        style="?android:textAppearanceMedium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/record_tap_to_record" />
+
     <RelativeLayout
         android:id="@+id/gauge_holder"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="4" />
-
-    <TextView
-        android:id="@+id/action_text"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
-        android:layout_marginTop="32dp"
-        android:text="@string/record_tap_to_record"
-        style="?android:textAppearanceMedium" />
 
     <include
         layout="@layout/record_bottom_bar"

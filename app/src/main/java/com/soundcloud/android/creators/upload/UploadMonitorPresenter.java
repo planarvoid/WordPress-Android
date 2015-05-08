@@ -3,7 +3,6 @@ package com.soundcloud.android.creators.upload;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
@@ -18,14 +17,15 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewHelper;
 import com.soundcloud.android.utils.images.ImageUtils;
+import org.jetbrains.annotations.NotNull;
 import rx.Subscription;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -43,6 +43,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     private final AccountOperations accountOperations;
     private final ViewHelper viewHelper;
     private boolean isUploading = false;
+    private boolean isCancelling = false;
     private Recording recording;
     private Subscription subscription;
     private UploadMonitorFragment uploadMonitorFragment;
@@ -73,10 +74,6 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
         uploadMonitorFragment = (UploadMonitorFragment) fragment;
         uploadMonitorFragment.getActivity().setTitle(R.string.upload);
-
-        if (uploadMonitorFragment.getArguments() != null) {
-            recording = uploadMonitorFragment.getArguments().getParcelable(RECORDING_KEY);
-        }
     }
 
     @Override
@@ -84,22 +81,16 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
         super.onViewCreated(fragment, view, savedInstanceState);
         ButterKnife.inject(this, view);
 
-        final int orangeButtonDimension = view.getResources().getDimensionPixelSize(R.dimen.rec_upload_button_dimension);
-        viewHelper.setCircularButtonOutline(actionButton, orangeButtonDimension);
-
-        final int progressDimension = view.getResources().getDimensionPixelSize(R.dimen.rec_upload_progress_dimension);
-        viewHelper.setCircularButtonOutline(uploadProgress, progressDimension);
-
-        final Recording recording = uploadMonitorFragment.getArguments().getParcelable(RECORDING_KEY);
-        if (recording != null) {
-            setRecording(recording);
-        }
+        setCircularShape(actionButton, R.dimen.rec_upload_button_dimension);
+        setCircularShape(uploadProgress, R.dimen.rec_upload_progress_dimension);
+        updateRecording((Recording) uploadMonitorFragment.getArguments().getParcelable(RECORDING_KEY));
     }
 
     @Override
     public void onResume(Fragment fragment) {
         super.onResume(fragment);
         ((RecordActivity) uploadMonitorFragment.getActivity()).trackScreen(ScreenEvent.create(Screen.RECORD_PROGRESS));
+        isCancelling = false;
         subscription = eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
     }
 
@@ -109,20 +100,17 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
         super.onPause(fragment);
     }
 
-    public void setProgressFromIntent(Intent intent) {
-        if (intent.hasExtra(UploadService.EXTRA_STAGE)) {
-            intent.removeExtra(UploadService.EXTRA_STAGE);
-            intent.removeExtra(UploadService.EXTRA_PROGRESS);
-        }
-    }
-
-    private void updateRecording(Recording recording) {
+    private void updateRecording(@Nullable Recording recording) {
         if (recording != null) {
             setRecording(recording);
         }
     }
 
-    private void setRecording(final Recording recording) {
+    private void setRecording(@NotNull final Recording recording) {
+        if (recording.equals(this.recording)) {
+            return;
+        }
+
         this.recording = recording;
 
         trackTitle.setText(recording.sharingNote(uploadMonitorFragment.getResources()));
@@ -131,8 +119,8 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
         if (recording.hasArtwork()) {
             ImageUtils.setImage(recording.getArtwork(), icon,
-                    (int) uploadMonitorFragment.getResources().getDimension(R.dimen.share_progress_icon_width),
-                    (int) uploadMonitorFragment.getResources().getDimension(R.dimen.share_progress_icon_height));
+                    getDimension(R.dimen.share_progress_icon_width),
+                    getDimension(R.dimen.share_progress_icon_height));
         } else {
             icon.setImageDrawable(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));
         }
@@ -153,7 +141,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     }
 
     private void setTransferState(int progress) {
-        if(progress < 0) {
+        if (progress < 0) {
             setIndeterminateState();
         } else {
             int progressWithLimit = Math.max(0, Math.min(100, progress));
@@ -194,8 +182,11 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     private final class EventSubscriber extends DefaultSubscriber<UploadEvent> {
         @Override
         public void onNext(UploadEvent uploadEvent) {
-            int progress = uploadEvent.getProgress();
+            if (isCancelling) {
+                return;
+            }
 
+            int progress = uploadEvent.getProgress();
             isUploading = uploadEvent.isUploading();
             updateRecording(uploadEvent.getRecording());
 
@@ -208,6 +199,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
             } else if (uploadEvent.isFinished()) {
                 onUploadFinished(uploadEvent.isUploadSuccess());
             } else if (uploadEvent.isCancelled()) {
+                isCancelling = true;
                 displayRecordScreenWithDelay();
             }
         }
@@ -216,7 +208,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     private void displayRecordScreen() {
         RecordActivity activity = (RecordActivity) uploadMonitorFragment.getActivity();
         if (activity != null) {
-            activity.onUploadToRecord(actionButton);
+            activity.onUploadToRecord();
         }
     }
 
@@ -230,7 +222,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
     }
 
     private void showCancelDialog() {
-        new AlertDialogWrapper.Builder(uploadMonitorFragment.getActivity())
+        new AlertDialog.Builder(uploadMonitorFragment.getActivity())
                 .setTitle(null)
                 .setMessage(R.string.dialog_cancel_upload_message)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
@@ -248,6 +240,14 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
                 .show();
     }
 
+    private int getDimension(int dimensionId) {
+        return uploadMonitorFragment.getResources().getDimensionPixelSize(dimensionId);
+    }
+
+    private void setCircularShape(View view, int dimensionId) {
+        viewHelper.setCircularButtonOutline(view, getDimension(dimensionId));
+    }
+
     @OnClick(R.id.btn_cancel)
     public void onCancel() {
         if (isUploading) {
@@ -262,7 +262,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
         if (!isUploading) {
             RecordActivity activity = (RecordActivity) uploadMonitorFragment.getActivity();
             activity.startUpload(recording);
-            activity.onMonitorToUpload(recording, actionButton);
+            activity.onMonitorToUpload(recording);
         }
     }
 }

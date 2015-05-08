@@ -3,7 +3,6 @@ package com.soundcloud.android.creators.upload;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.ApiClient;
-import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.SoundRecorder;
@@ -38,7 +37,6 @@ import java.util.Map;
 public class UploadService extends Service {
     public static final int UPLOAD_STAGE_PROCESSING = 1;
     public static final int UPLOAD_STAGE_TRANSFERRING = 2;
-    public static final int UPLOAD_STAGE_FAILED = 3;
 
     public static final String EXTRA_RECORDING = Recording.EXTRA;
     public static final String EXTRA_PROGRESS = "progress";
@@ -283,11 +281,11 @@ public class UploadService extends Service {
             Log.d(TAG, "handleMessage(" + upload + ")");
 
             if (upload.recording.needsResizing()) {
-                post(new ImageResizer(upload.recording));
+                service.processingHandler.post(new ImageResizer(upload.recording));
             } else if (upload.recording.needsProcessing()) {
                 service.processingHandler.post(new Processor(upload.recording));
             } else if (upload.recording.needsEncoding()) {
-                service.processingHandler.post(new Encoder(upload.recording));
+                service.processingHandler.post(new Encoder(upload.recording, eventBus));
             } else {
                 // perform the actual upload
                 post(new Uploader(service, apiClient, upload.recording, storePostsCommand, eventBus));

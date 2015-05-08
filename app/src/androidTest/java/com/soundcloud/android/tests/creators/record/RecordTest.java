@@ -6,7 +6,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.main.LauncherActivity;
-import com.soundcloud.android.screens.MainScreen;
 import com.soundcloud.android.screens.RecordScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -25,7 +24,7 @@ public class RecordTest extends ActivityTest<LauncherActivity> {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        recordScreen = new MainScreen(solo).actionBar().clickRecordButton();
+        recordScreen = menuScreen.clickSystemSettings().actionBar().clickRecordButton();
     }
 
     public void testRecordScreenIsVisible() {

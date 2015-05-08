@@ -24,13 +24,9 @@ import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.transition.TransitionInflater;
-import android.view.View;
 import android.view.Window;
-import android.widget.FrameLayout;
 
 import javax.inject.Inject;
 
@@ -55,9 +51,7 @@ public class RecordActivity extends ScActivity {
 
     @Override
     protected void setContentView() {
-        final FrameLayout contentView = new FrameLayout(this);
-        contentView.setId(R.id.container);
-        setContentView(contentView);
+        presenter.setContainerLayout();
     }
 
     private void restoreCurrentFragment() {
@@ -99,41 +93,30 @@ public class RecordActivity extends ScActivity {
     }
 
 
-    public void onRecordToMetadata(View actionButton) {
+    public void onRecordToMetadata() {
         Fragment fragment = getMetadataFragment();
 
         if (fragment == null) {
             fragment = MetadataFragment.create();
         }
 
-        transitionWithSharedButton(fragment, METADATA_FRAGMENT_TAG, actionButton, true);
+        transition(fragment, METADATA_FRAGMENT_TAG, true);
     }
 
-    public void onUploadToRecord(View actionButton) {
+    public void onUploadToRecord() {
         Fragment fragment = getRecordFragment();
 
         if (fragment == null) {
             fragment = RecordFragment.create();
         }
 
-        transitionWithSharedButton(fragment, RECORD_FRAGMENT_TAG, actionButton, false);
+        transition(fragment, RECORD_FRAGMENT_TAG, false);
     }
 
-    private void transitionWithSharedButton(Fragment fragment, String fragmentTag, @Nullable View actionButton, boolean addToBackStack) {
+    private void transition(Fragment fragment, String fragmentTag, boolean addToBackStack) {
         final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.container, fragment, fragmentTag);
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
-            fragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.transition_move));
-            fragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.fade));
-            fragmentTransaction.setTransitionStyle(android.R.transition.fade);
-
-            if (actionButton != null) {
-                fragmentTransaction.addSharedElement(actionButton, actionButton.getTransitionName());
-            }
-        } else {
-            fragmentTransaction.setCustomAnimations(R.anim.fade_in, R.anim.fade_out);
-        }
 
         if (addToBackStack) {
             fragmentTransaction.addToBackStack(null);
@@ -174,14 +157,14 @@ public class RecordActivity extends ScActivity {
         eventBus.publish(EventQueue.UPLOAD, UploadEvent.start(recording));
     }
 
-    public void onMonitorToUpload(Recording recording, View actionButton) {
+    public void onMonitorToUpload(Recording recording) {
         Fragment fragment = getUploadMonitorFragment();
         if (fragment == null) {
             fragment = UploadMonitorFragment.create(recording);
         }
 
         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        transitionWithSharedButton(fragment, UPLOAD_PROGRESS_FRAGMENT_TAG, actionButton, false);
+        transition(fragment, UPLOAD_PROGRESS_FRAGMENT_TAG, false);
     }
 
 

@@ -3,6 +3,7 @@ package com.soundcloud.android.creators.upload;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.lightcycle.LightCycle;
 import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
 
 import android.content.Intent;
@@ -17,7 +18,7 @@ import javax.inject.Inject;
 
 public class MetadataFragment extends LightCycleSupportFragment {
 
-    @Inject MetadataPresenter metadataPresenter;
+    @Inject @LightCycle MetadataPresenter metadataPresenter;
 
     public static Fragment create(Recording recording) {
         final MetadataFragment metadataFragment = new MetadataFragment();
@@ -33,7 +34,6 @@ public class MetadataFragment extends LightCycleSupportFragment {
 
     public MetadataFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        attachLightCycle(metadataPresenter);
     }
 
     @Override

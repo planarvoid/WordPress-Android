@@ -41,7 +41,6 @@
     <string name="key_dev_rewind_notifications">dev.rewindNotifications</string>
     <string name="key_dev_sync_now">dev.syncNow</string>
     <string name="key_dev_crash">dev.crash</string>
-    <string name="key_dev_clear_recordings">dev.clearRecordings</string>
     <string name="key_dev_features">dev.configFeatures</string>
     <string name="key_dev_http_proxy">dev.http.proxy</string>
     <string name="key_dev_flush_eventlogger_instantly">dev.flushEventloggerInstantly</string>

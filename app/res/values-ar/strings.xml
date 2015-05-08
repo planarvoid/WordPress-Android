@@ -7,7 +7,6 @@
     <string name="close">إغلاق</string>
     <string name="post">منشور</string>
     <string name="view">عرض</string>
-    <string name="btn_publish">التالي</string>
     <string name="btn_apply">تطبيق</string>
     <string name="cancel">إلغاء</string>
     <string name="retry">إعادة المحاولة</string>
@@ -33,15 +32,9 @@
     <string name="btn_skip">تخطي</string>
     <string name="configure">تهيئة</string>
     <string name="connect_progress">تحميل</string>
-    <string name="connect_success">تم الاتصال بنجاح بـ %1$s</string>
-    <string name="connection_list_footer">لتغيير خيارات المشاركة الافتراضية، انتقل إلى الإعدادات الخاصة بك على SoundCloud وحدد \"اتصالات\"</string>
     <string name="delete">حذف</string>
     <string name="comments">تعليقات</string>
-    <string name="new_connection_error">هناك مشكلة في إضافة الشبكة</string>
-    <string name="reset">تجاهل</string>
-    <string name="share_fail_message">حسنًا، هذا خطأ</string>
     <string name="share_log_out">تسجيل الخروج</string>
-    <string name="share_success_message">نعم، هذا يعمل!</string>
     <string name="share_to_soundcloud">&lt;b&gt;مشاركة&lt;/b&gt; إلى &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">الأصوات من %s</string>
     <string name="this_user">هذا المستخدم</string>
@@ -49,8 +42,6 @@
     <string name="track_by">بواسطة</string>
     <string name="display_name">عرض الاسم</string>
     <string name="website">الموقع</string>
-    <string name="what_hint">ماذا</string>
-    <string name="where_hint">أين</string>
     <string name="like">إعجاب</string>
 
     <!-- __ACCESSIBILITY -->
@@ -155,7 +146,6 @@
     <string name="empty_user_tracks_text">%1$s لم يقم بتحميل\nأي أصوات عامة حتى الآن.</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">حدث خطأ اثناء التسجيل.\nقد لا يدعم جهازك عملية تهيئة التسجيل الحالية.\nيمكنك تغيير التهيئات في إعدادات التطبيق.</string>
     <string name="error_unauthorized_message">لدينا مشكلة مع حسابك ونحتاج قيامك بتسجيل الدخول مرة أخرى إلى SoundCloud قبل أن تتمكن من الاستمرار في استخدام التطبيق.</string>
     <string name="error_unauthorized_title">خطأ في الحساب</string>
     <string name="error_loading_url">هناك مشكلة في تحميل عنوان url</string>
@@ -166,7 +156,6 @@
     <string name="crop_image_error">حدث خطأ في اقتصاص الصورة.</string>
     <string name="error_server_problems_message">حدثت مشكلة عند معالجة طلبك. يرجى المحاولة مرة أخرى في وقت لاحق.</string>
     <string name="connection_list_error">يبدو أن هناك مشكلة في الاتصال. يرجى المحاولة مرة أخرى قريبا.</string>
-    <string name="connect_failure">فشل الاتصال مع %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">عذرًا! تعذر تسجيلك\nيرجى محاولة تحديث التطبيق أو الاشتراك في موقع SoundCloud.com.</string>
 
@@ -324,32 +313,19 @@
     <string name="myspace">Myspace</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">يرجى الانتظار...</string>
     <string name="rec_title_idle_rec">تسجيل</string>
     <string name="rec_title_recording">تسجيل</string>
     <string name="rec_title_idle_play">إيقاف مؤقت</string>
     <string name="rec_title_playing">تشغيل</string>
     <string name="rec_title_editing">تحرير</string>
-    <string name="record_another_sound">تسجيل صوت آخر</string>
     <string name="record_insert_sd_card">يرجى إدخال بطاقة SD للتسجيل.</string>
     <string name="record_storage_is_full">التخزين مكتمل</string>
     <string name="recorded_afternoon">%s بعد الظهر</string>
-    <string name="recorded_at">%1$s في %2$s</string>
     <string name="recorded_evening">%s مساء</string>
     <string name="recorded_morning">%s صباحًا</string>
     <string name="recorded_night">%s ليلاً</string>
-    <string name="recording_not_found">لم يتم العثور على التسجيل</string>
-    <string name="rec_your_sound_is_saved_locally_at">تم خفظ صوتك محليًا</string>
     <string name="dialog_confirm_delete_recording_message">هل أنت متأكد أنك تريد حذف هذا التسجيل؟</string>
-    <string name="dialog_reset_recording_message">هل تريد إعادة التعيين؟ سيتم حذف التسجيل.</string>
-    <string name="dialog_unsaved_recordings_message">تم العثور على تسجيلات لم يتم حفظها. سيتم حفظ العناصر المحددة.</string>
     <string name="btn_revert_to_original">عودة إلى الأصل</string>
-    <string name="fade_toggle_on">تلاشي للداخل/الخارج</string>
-    <string name="fade_toggle_off">لا تلاشي للداخل/الخارج</string>
-    <string name="optimize_toggle_on">أمثل</string>
-    <string name="optimize_toggle_off">ليس الأمثل</string>
-    <string name="create_autosave_message">سيتم حفظ التسجيلات تلقائيًا كلما تقوم بإنشائها. يمكنك العثور عليها في قائمة أصواتك.</string>
-    <string name="create_regenerating_waveform_message">إعادة توليد شكل الموجه، يرجى الانتظار.</string>
     <string name="dialog_revert_recording_message">سوف تفقد كافة عمليات التحرير، هل تريد المتابعة؟</string>
     <string name="cloud_recorder_event_message">تسجيل لـ %s</string>
     <string name="cloud_recorder_event_title">التسجيل قيد التقدم</string>
@@ -452,11 +428,8 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">معالجة</string>
-    <string name="uploader_event_processing_percent">معالجة: %d%%</string>
-    <string name="uploader_event_not_yet_uploading">لم يتم التحميل بعد</string>
     <string name="uploader_event_uploading_percent">تحميل: %d%%</string>
     <string name="uploader_event_cancelling">إلغاء</string>
-    <string name="uploader_event_processing_finished">الانتهاء من المعالجة</string>
     <string name="cloud_upload_clear_artwork">استمرار لمسح العمل الفني</string>
     <string name="cloud_uploader_notification_error_message">حدث خطأ أثناء تحميل %s</string>
     <string name="cloud_uploader_notification_error_ticker">خطأ في التحميل</string>
@@ -464,15 +437,9 @@
     <string name="cloud_uploader_notification_finished_message">%s تم تحميله</string>
     <string name="cloud_uploader_notification_finished_ticker">اكتمل التحميل</string>
     <string name="cloud_uploader_notification_finished_title">اكتمل التحميل</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">هناك خطأ في تحويل ترميز %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">خطأ تحويل الترميز</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">خطأ تحويل الترميز</string>
     <string name="dialog_cancel_upload_message">هل تريد إلغاء التحميل؟</string>
-    <string name="sc_upload_add_image">إضافة\nصورة</string>
     <string name="sc_upload_private">خاص</string>
     <string name="sc_upload_public">عام</string>
-    <string name="sc_upload_sharing_options_private">سيكون الصوت خاصًا على SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">سيكون الصوت عامًا على SoundCloud. أي من الشبكات الأخرى ترغب في مشاركتها؟</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">المس لفتح SoundCloud</string>

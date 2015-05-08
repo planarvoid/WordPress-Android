@@ -13,7 +13,6 @@ import butterknife.InjectView;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.Optional;
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
@@ -32,12 +31,14 @@ import rx.subscriptions.Subscriptions;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,6 +93,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle state) {
         super.onCreate(fragment, state);
+        this.recordFragment = (RecordFragment) fragment;
 
         if (state == null) {
             currentState = CreateState.IDLE_RECORD;
@@ -183,19 +185,26 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
         initializeView(actionButton, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, RECORD, PLAYBACK);
         actionButton.setEnabled(false);
 
-        initializeView(actionText, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, RECORD, PLAYBACK);
-
         initializeAndHideView(chrono, View.INVISIBLE, IDLE_RECORD, IDLE_PLAYBACK, RECORD, PLAYBACK, EDIT, EDIT_PLAYBACK);
 
         initializeAndHideView(next, View.GONE, PLAYBACK, IDLE_PLAYBACK);
         initializeAndHideView(delete, View.GONE, PLAYBACK, IDLE_PLAYBACK);
-        initializeAndHideView(playButton, View.GONE, IDLE_PLAYBACK, PLAYBACK);
-        initializeAndHideView(editButton, View.GONE, IDLE_PLAYBACK, PLAYBACK);
 
         initializeAndHideView(revert, View.GONE, EDIT, EDIT_PLAYBACK);
         initializeAndHideView(apply, View.GONE, EDIT, EDIT_PLAYBACK);
         initializeAndHideView(toggleFade, View.GONE, EDIT, EDIT_PLAYBACK);
         initializeAndHideView(playEditButton, View.GONE, EDIT, EDIT_PLAYBACK);
+
+        if (editControls != null) {
+            initializeAndHideView(editControls, View.GONE, EDIT, EDIT_PLAYBACK);
+            initializeAndHideView(playButton, View.GONE, IDLE_PLAYBACK, PLAYBACK);
+            initializeAndHideView(editButton, View.GONE, IDLE_PLAYBACK, PLAYBACK);
+            initializeView(actionText, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, RECORD, PLAYBACK);
+        } else {
+            initializeAndHideView(playButton, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, PLAYBACK);
+            initializeAndHideView(editButton, View.GONE, IDLE_RECORD, IDLE_PLAYBACK, PLAYBACK);
+            initializeAndHideView(actionText, View.GONE);
+        }
 
         final int actionButtonDimension = view.getResources().getDimensionPixelSize(R.dimen.rec_record_button_dimension);
         viewHelper.setCircularButtonOutline(this.actionButton, actionButtonDimension);
@@ -346,10 +355,11 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
                 break;
         }
 
+        toggleFade.setChecked(recorder.isFading());
+
         configureTitle();
         configureViewVisibilities();
 
-        toggleFade.setChecked(recorder.isFading());
         waveDisplay.setIsEditing(currentState.isEdit());
         setPlayButtonDrawable(currentState.isPlayState());
     }
@@ -390,7 +400,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     }
 
     private void configureRecordButton(boolean isRecording) {
-        if(isRecording) {
+        if (isRecording) {
             actionButton.setBackgroundResource(R.drawable.white_button);
             actionButton.setImageResource(R.drawable.ic_record_record_orange);
             actionText.setText(recordFragment.getString(R.string.record_tap_to_pause));
@@ -399,7 +409,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
             actionButton.setBackgroundResource(R.drawable.rec_button_states);
             actionButton.setImageResource(R.drawable.ic_record_record_white);
 
-            if(currentState == IDLE_PLAYBACK || currentState == PLAYBACK) {
+            if (currentState == IDLE_PLAYBACK || currentState == PLAYBACK) {
                 actionText.setText(recordFragment.getString(R.string.record_tap_to_resume));
             } else {
                 actionText.setText(recordFragment.getString(R.string.record_tap_to_record));
@@ -432,6 +442,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
                     waveDisplay.gotoPlaybackMode(false);
                 } else {
                     newState = CreateState.IDLE_RECORD;
+
                 }
             }
         }
@@ -460,7 +471,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @OnClick(R.id.btn_next)
     void next() {
-        ((RecordActivity) recordFragment.getActivity()).onRecordToMetadata(actionButton);
+        ((RecordActivity) recordFragment.getActivity()).onRecordToMetadata();
     }
 
     @OnClick(R.id.btn_apply)
@@ -481,40 +492,36 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     @OnCheckedChanged(R.id.toggle_fade)
     void toggleFade() {
-        recorder.toggleFade();
+        toggleFade.setChecked(recorder.toggleFade());
     }
 
 
     private void showRemoveRecordingDialog(int message) {
-        new MaterialDialog.Builder(recordFragment.getActivity())
-                .content(message)
-                .positiveText(R.string.yes)
-                .negativeText(R.string.no)
-                .callback(new MaterialDialog.ButtonCallback() {
+        new AlertDialog.Builder(recordFragment.getActivity())
+                .setMessage(message)
+                .setNegativeButton(R.string.no, null)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onPositive(MaterialDialog dialog) {
+                    public void onClick(DialogInterface dialog, int which) {
                         recorder.reset(true);
                         waveDisplay.reset();
                         checkForUnsavedRecordings();
                     }
                 })
-                .build()
                 .show();
     }
 
     private void showRevertRecordingDialog() {
-        new MaterialDialog.Builder(recordFragment.getActivity())
-                .content(R.string.dialog_revert_recording_message)
-                .positiveText(R.string.yes)
-                .negativeText(R.string.no)
-                .callback(new MaterialDialog.ButtonCallback() {
+        new AlertDialog.Builder(recordFragment.getActivity())
+                .setMessage(R.string.dialog_revert_recording_message)
+                .setNegativeButton(R.string.no, null)
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onPositive(MaterialDialog dialog) {
+                    public void onClick(DialogInterface dialog, int which) {
                         recorder.revertFile();
                         updateUi(currentState.isPlayState() ? CreateState.PLAYBACK : CreateState.IDLE_PLAYBACK);
                     }
                 })
-                .build()
                 .show();
     }
 

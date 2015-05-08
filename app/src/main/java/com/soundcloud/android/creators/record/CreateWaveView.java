@@ -177,7 +177,6 @@ public class CreateWaveView extends View {
         invalidate();
     }
 
-
     @Override
     protected void onDraw(Canvas canvas) {
         final SoundRecorder recorder = SoundRecorder.getInstance(getContext());
@@ -291,7 +290,6 @@ public class CreateWaveView extends View {
             final int trimIndexRight = (int) (trimWindow[1] * width);
             int currentProgressIndex = currentProgress == Consts.NOT_SET ? Consts.NOT_SET :
                     (int) (trimIndexLeft + ((trimIndexRight - trimIndexLeft) * currentProgress));
-            final int lineThickness = (int) (getResources().getDisplayMetrics().density * 4);
 
             // left points to cut
             drawPointsOnCanvas(canvas, aboveBarPoints, length, darkAbovePaint, 0, Math.max(trimIndexLeft - 1, 0));
@@ -350,8 +348,6 @@ public class CreateWaveView extends View {
     private void drawZoomView(Canvas c, DrawData drawData) {
         final int width = getWidth();
         if (nextBitmapX == Consts.NOT_SET) {
-
-            Log.i("asdf", "Draw zoom view with no initial data");
 
             // draw current amplitudes
             Canvas bitmapCanvas = new Canvas(zoomBitmap1);
@@ -428,7 +424,6 @@ public class CreateWaveView extends View {
             return;
         }
 
-
         final int width = getWidth();
         if (nextBitmapX != Consts.NOT_SET && zoomBitmap1 != null && zoomBitmap2 != null) {
             nextBitmapX++;
@@ -464,11 +459,6 @@ public class CreateWaveView extends View {
                 drawAmplitude(new Canvas(zoomBitmap2), nextBitmapX - width, maxAmplitude, abovePaint, belowPaint);
             }
         }
-        invalidate();
-    }
-
-    public void setCurrentProgress(float currentProgress) {
-        this.currentProgress = currentProgress;
         invalidate();
     }
 
@@ -560,7 +550,6 @@ public class CreateWaveView extends View {
             accumulations++;
 
             if (dumpIndex >= 0) {
-
                 // the new index can be used to draw
                 if (dumpIndex == 0){
                     calculateGroupValue();
@@ -573,8 +562,6 @@ public class CreateWaveView extends View {
                 }
 
             } else {
-                // this will be a bar
-
                 // only set the new value if its gone up. this is for visual purposes only
                 if (groupIndex == 0 && getCurrentAverage() > groupValue){
                     calculateGroupValue();
@@ -669,25 +656,6 @@ public class CreateWaveView extends View {
 
         public float getInterpolatedValue(int x, int width) {
             if (size > width) {
-
-//                int left = (int) Math.max(0, getInterpolatedIndex(x - 1, width));
-//                int right = (int) Math.min(size - 1, getInterpolatedIndex(x + 1, width));
-
-//                float acc = 0;
-//                for (int i = left; i <= right; i++){
-//                    acc += get(i);
-//                }
-//                return acc / (right - left + 1);
-
-//                float highest = 0;
-//                for (int i = left; i <= right; i++){
-//                    final float amplitude = get(i);
-//                    highest = amplitude > highest ? amplitude : highest;
-//                }
-//                return highest;
-
-
-
                 // scaling down, nearest neighbor is fine
                 return get((int) Math.min(size - 1, ((float) (x)) / width * size));
 
@@ -698,11 +666,6 @@ public class CreateWaveView extends View {
                 final float v2 = get((int) Math.ceil(fIndex));
                 return v1 + (v2 - v1) * (fIndex - ((int) fIndex));
             }
-        }
-
-        @SuppressWarnings("unused")
-        private float getInterpolatedIndex(int x, int width) {
-            return ((float) (x)) / width * size;
         }
 
         /**

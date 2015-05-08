@@ -28,13 +28,13 @@ public class Encoder implements Runnable, ProgressListener {
     private volatile boolean cancelled;
     private long lastProgressSent;
     private final Subscription subscription;
+    private final EventBus eventBus;
 
-    @Inject EventBus eventBus;
-
-    public Encoder(Recording recording) {
+    public Encoder(Recording recording, EventBus eventBus) {
         this.recording = recording;
+        this.eventBus = eventBus;
         SoundCloudApplication.getObjectGraph().inject(this);
-        subscription = eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
+        subscription = this.eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
     }
 
     @Override

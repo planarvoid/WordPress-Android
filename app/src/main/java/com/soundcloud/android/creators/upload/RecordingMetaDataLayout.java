@@ -137,9 +137,15 @@ public class RecordingMetaDataLayout extends RelativeLayout {
 
     public void setImage(File file) {
         if (file != null) {
+            int iconWidth = (int) getResources().getDimension(R.dimen.share_progress_icon_width);
+            int iconHeight = (int) getResources().getDimension(R.dimen.share_progress_icon_height);
             artworkFile = file;
-            ImageUtils.setImage(file, artwork, (int) (getResources().getDisplayMetrics().density * 100f), (int) (getResources().getDisplayMetrics().density * 100f));
+            ImageUtils.setImage(file, artwork, iconWidth, iconHeight);
         }
+    }
+
+    public boolean hasPlaceholder() {
+        return placeholder != null;
     }
 
     public void setPlaceholder(Drawable drawable) {
