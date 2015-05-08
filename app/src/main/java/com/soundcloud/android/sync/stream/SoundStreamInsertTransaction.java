@@ -14,11 +14,10 @@ import com.soundcloud.android.api.model.stream.ApiStreamItem;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
-import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.InsertResult;
 import com.soundcloud.propeller.PropellerDatabase;
+import com.soundcloud.propeller.ScalarMapper;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.RxResultMapper;
 
 import android.content.ContentValues;
 
@@ -67,16 +66,9 @@ class SoundStreamInsertTransaction extends PropellerDatabase.Transaction {
         List<Long> promotedStreamIds = propeller.query(Query.from(Table.SoundStream.name())
                 .select(TableColumns.SoundStream.PROMOTED_ID)
                 .whereNotNull(TableColumns.SoundStream.PROMOTED_ID))
-                .toList(new PromotedIdMapper());
+                .toList(ScalarMapper.create(Long.class));
         step(propeller.delete(Table.SoundStream, filter().whereNotNull(TableColumns.SoundStream.PROMOTED_ID)));
         step(propeller.delete(Table.PromotedTracks, filter().whereIn(TableColumns.PromotedTracks._ID, promotedStreamIds)));
-    }
-
-    private static class PromotedIdMapper extends RxResultMapper<Long> {
-        @Override
-        public Long map(CursorReader reader) {
-            return reader.getLong(TableColumns.SoundStream.PROMOTED_ID);
-        }
     }
 
     private boolean isTrack(ApiStreamItem streamItem) {
