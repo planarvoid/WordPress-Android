@@ -8,8 +8,6 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.tests.auth.login.LoginErrorScreen;
-import com.soundcloud.android.tests.auth.login.TermsOfUseScreen;
 
 public class LoginScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;
@@ -78,6 +76,7 @@ public class LoginScreen extends Screen {
     }
 
     private void tryToLogin(String username, String password) {
+        passwordInputField().clearText();
         emailInputField().clearText();
         passwordInputField().typeText(password);
         emailInputField().typeText(username);

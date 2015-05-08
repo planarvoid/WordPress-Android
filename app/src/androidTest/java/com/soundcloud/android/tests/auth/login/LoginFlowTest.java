@@ -14,7 +14,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.auth.LoginErrorScreen;
 import com.soundcloud.android.screens.auth.RecoverPasswordScreen;
+import com.soundcloud.android.screens.auth.TermsOfUseScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
 
 /*

@@ -1,4 +1,4 @@
-package com.soundcloud.android.tests.auth.login;
+package com.soundcloud.android.screens.auth;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
@@ -8,7 +8,6 @@ import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.auth.FBWebViewScreen;
 
 public class TermsOfUseScreen extends Screen {
 

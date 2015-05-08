@@ -8,6 +8,7 @@ import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.screens.HomeScreen;
+import com.soundcloud.android.screens.auth.LoginErrorScreen;
 import com.soundcloud.android.tests.auth.LoginTest;
 
 public class OfflineLoginFlowTest extends LoginTest {
