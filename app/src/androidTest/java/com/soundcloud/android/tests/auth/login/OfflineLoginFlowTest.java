@@ -21,6 +21,12 @@ public class OfflineLoginFlowTest extends LoginTest {
         networkManager.switchWifiOff();
     }
 
+    @Override
+    public void tearDown() throws Exception {
+        networkManager.switchWifiOn();
+        super.tearDown();
+    }
+
     public void testLoginWithEmailWithoutNetworkConnection() {
         LoginErrorScreen loginErrorScreen = homeScreen
                 .clickLogInButton()
