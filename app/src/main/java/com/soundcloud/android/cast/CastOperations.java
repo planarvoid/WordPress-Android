@@ -37,11 +37,31 @@ public class CastOperations {
     private static final String KEY_URN = "urn";
     private static final String KEY_PLAY_QUEUE = "play_queue";
 
+    private static final Func1<PropertySet, Boolean> FILTER_PRIVATE_TRACKS = new Func1<PropertySet, Boolean>() {
+        @Override
+        public Boolean call(PropertySet track) {
+            return !track.get(TrackProperty.IS_PRIVATE);
+        }
+    };
+    private static final Func1<PropertySet, Urn> TO_URNS = new Func1<PropertySet, Urn>() {
+        @Override
+        public Urn call(PropertySet track) {
+            return track.get(TrackProperty.URN);
+        }
+    };
+
     private final VideoCastManager videoCastManager;
     private final TrackRepository trackRepository;
     private final PolicyOperations policyOperations;
     private final ImageOperations imageOperations;
     private final Resources resources;
+
+    private final Func1<Urn, Observable<PropertySet>> loadTracks = new Func1<Urn, Observable<PropertySet>>() {
+        @Override
+        public Observable<PropertySet> call(Urn urn) {
+            return trackRepository.track(urn);
+        }
+    };
 
     @Inject
     public CastOperations(VideoCastManager videoCastManager,
@@ -56,9 +76,8 @@ public class CastOperations {
         this.resources = resources;
     }
 
-    public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableTracks(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
-        return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
-                .filter(RxUtils.<Urn>filterEmptyLists())
+    public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
+        return filterMonetizableAndPrivateTracks(unfilteredLocalPlayQueueTracks).toList()
                 .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
                     @Override
                     public Observable<LocalPlayQueue> call(List<Urn> filteredLocalPlayQueueTracks) {
@@ -85,6 +104,14 @@ public class CastOperations {
                                 track.get(TrackProperty.URN));
                     }
                 });
+    }
+
+    private Observable<Urn> filterMonetizableAndPrivateTracks(List<Urn> unfilteredLocalPlayQueueTracks) {
+        return policyOperations.filterMonetizableTracks(unfilteredLocalPlayQueueTracks)
+                .flatMap(RxUtils.<Urn>emitCollectionItems())
+                .flatMap(loadTracks)
+                .filter(FILTER_PRIVATE_TRACKS)
+                .map(TO_URNS);
     }
 
     private JSONObject createPlayQueueJSON(List<Urn> urns) {

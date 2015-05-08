@@ -285,7 +285,7 @@ public class CastPlayerTest {
     public void reloadAndPlayCurrentQueueLoadsMediaWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
 
@@ -296,7 +296,7 @@ public class CastPlayerTest {
     public void reloadAndPlayCurrentQueueReportsBufferingEvent() throws Exception {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
 
@@ -306,7 +306,7 @@ public class CastPlayerTest {
     @Test
     public void reloadAndPlayCurrentQueueLoadsQueueWithoutMonetizableTracks() throws TransientNetworkDisconnectionException, NoConnectionException {
         final LocalPlayQueue localPlayQueue = createLocalPlayQueue();
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(localPlayQueue));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(localPlayQueue));
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
 
@@ -317,7 +317,7 @@ public class CastPlayerTest {
 
     @Test
     public void reloadAndPlayCurrentQueueReportsErrorStateToEventBusOnUnsuccessfulLoad() throws TransientNetworkDisconnectionException, NoConnectionException {
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
