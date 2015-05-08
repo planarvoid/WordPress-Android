@@ -116,7 +116,7 @@ public class PlaybackOperations {
         } else {
             return trackUrnsObservable
                     .map(SHUFFLE_TRACKS)
-                    .flatMap(playNewQueue(Urn.NOT_SET, 0, playSessionSource, false))
+                    .flatMap(playNewQueue(playbackStrategyProvider.get(), Urn.NOT_SET, 0, playSessionSource, false))
                     .observeOn(AndroidSchedulers.mainThread());
         }
     }
@@ -132,19 +132,23 @@ public class PlaybackOperations {
             return Observable.just(PlaybackResult.error(UNSKIPPABLE));
         } else {
             return trackUrns
-                    .flatMap(playNewQueue(initialTrack, startPosition, playSessionSource, loadRelated))
+                    .flatMap(playNewQueue(playbackStrategyProvider.get(), initialTrack, startPosition, playSessionSource, loadRelated))
                     .observeOn(AndroidSchedulers.mainThread());
         }
     }
 
-    private Func1<List<Urn>, Observable<PlaybackResult>> playNewQueue(final Urn initialTrack, final int startPosition, final PlaySessionSource playSessionSource, final boolean loadRelated) {
+    private Func1<List<Urn>, Observable<PlaybackResult>> playNewQueue(final PlaybackStrategy playbackStrategy,
+                                                                      final Urn initialTrack,
+                                                                      final int startPosition,
+                                                                      final PlaySessionSource playSessionSource,
+                                                                      final boolean loadRelated) {
         return new Func1<List<Urn>, Observable<PlaybackResult>>() {
             @Override
             public Observable<PlaybackResult> call(List<Urn> trackUrns) {
                 if (trackUrns.isEmpty()) {
                     return Observable.just(PlaybackResult.error(MISSING_PLAYABLE_TRACKS));
                 } else {
-                    return playbackStrategyProvider.get().playNewQueue(trackUrns, initialTrack, startPosition, loadRelated, playSessionSource);
+                    return playbackStrategy.playNewQueue(trackUrns, initialTrack, startPosition, loadRelated, playSessionSource);
                 }
             }
         };
