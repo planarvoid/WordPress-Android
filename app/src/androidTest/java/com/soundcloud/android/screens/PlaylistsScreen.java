@@ -32,6 +32,7 @@ public class PlaylistsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         playlistsList().getItemAt(index).click();
         return new PlaylistDetailsScreen(testDriver);
     }
