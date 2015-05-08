@@ -85,7 +85,7 @@
                 android:drawablePadding="@dimen/signup_done_drawable_padding"
                 android:hint="@string/enter_age_hint"
                 android:inputType="number"
-                android:maxLength="4"
+                android:maxLength="3"
                 android:padding="@dimen/signup_label_padding"
                 android:requiresFadingEdge="horizontal" />
 
