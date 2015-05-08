@@ -12,7 +12,7 @@ import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -46,7 +46,7 @@ public class LikesSyncerTest {
     @Mock private BulkFetchCommand fetchLikedResources;
     @Mock private PushLikesCommand<ApiLike> pushLikeAdditions;
     @Mock private PushLikesCommand<ApiDeletedLike> pushLikeDeletions;
-    @Mock private StoreCommand storeLikedResources;
+    @Mock private StoreTracksCommand storeLikedResources;
     @Mock private StoreLikesCommand storeLikes;
     @Mock private RemoveLikesCommand removeLikes;
     @Mock private AccountOperations accountOperations;
@@ -272,8 +272,7 @@ public class LikesSyncerTest {
 
         expect(syncer.call()).toBe(true);
 
-        verify(storeLikedResources).call();
-        expect(storeLikedResources.getInput()).toEqual(tracks);
+        verify(storeLikedResources).call(tracks);
     }
 
     @Test

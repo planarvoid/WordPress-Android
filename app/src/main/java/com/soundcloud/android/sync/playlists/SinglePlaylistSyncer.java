@@ -71,7 +71,7 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         List<ApiTrack> validRemoteTracks = performRemovals(apiPlaylistWithTracks, pendingRemoteRemovals);
 
         // store dependencies (all still valid tracks that came back)
-        storeTracks.with(validRemoteTracks).call();
+        storeTracks.call(validRemoteTracks);
 
         // perform remote additions
         final Set<Urn> pendingRemoteAdditions = getSetDifference(localAdditions, remoteTracks);
