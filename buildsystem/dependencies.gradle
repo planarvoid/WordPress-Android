@@ -7,120 +7,84 @@ allprojects {
 }
 
 ext {
-  //Android
   androidBuildToolsVersion = '22.0.1'
 
-  //Google Android
-  androidSupportLibraryVersion = '22.1.0'
-  androidAppCompatLibraryVersion = '22.1.0'
-  androidMediaRouterLibraryVersion = '22.1.0'
-  androidPlayServicesBaseVersion = '6.5.87'
-  androidPlayServicesCastVersion = '6.5.87'
-
-  //Application
+  // Dependency versions
+  androidSupportVersion = '22.1.0'
+  playServicesVersion = '6.5.87'
+  lightCycleVersion = '0.0.2'
   daggerVersion = '1.2.2'
-  butterKnifeVersion = '5.1.2'
-  guavaRepackVersion = '14.11.14'
-  sqliteJdbcVersion = '3.7.15-M1'
   propellerVersion = '0.44'
-  findBugsAnnotationVersion = '3.0.0'
-  findBugsJsr305Version = '3.0.0'
-  intellijAnnotationsVersion = '9.0.4'
-  skippyVersion = '727'
-  soundCloudVorbisEncoderVersion = '1.0.9-SNAPSHOT'
-  comscoreVersion = '2.1407.28'
-  adjustAndroidVersion = '3.6.1'
-  crashlyticsVersion = '2.2.3'
-  jacksonRepackVersion = '15.04.14'
-  okHttpVersion = '2.3.0'
-  httpClientAndroidVersion = '4.3.5'
-  localyticsVersion = '2.71'
-  slidingUpPanelVersion = '2.0.2-SC'
-  androidCropVersion = '1.0.0'
-  universalImageLoaderVersion = '1.9.2'
-  facebookReboundVersion = '0.3.4'
-  facebookAndroidSdkVersion = '3.20.0'
-  castCompanionLibraryVersion = '2.0-SOUNDCLOUD'
-  undoBarVersion = '1.4'
-
-  //Rx
-  rxAndroidVersion = '0.23.0'
-  rxJavaVersion = '1.0.2'
-  rxJavaComputationExpressionsVersion = '0.21.0'
-  rxJavaAsyncUtilVersion = '0.21.0'
-  rxJavaDebugVersion = '0.21.0'
-
-  //Testing
-  robolectricVersion = '1.2_sdk_21_fix'
-  robotiumVersion = '5.2.1'
-  jUnitVersion = '4.9'
-  mockitoVersion = '1.9.5'
-  hamcrestVersion = '1.3'
-  javassistVersion = '3.18.2-GA'
-  greatExpectationsVersion = '0.14'
-  modelCitizenVersion = '0.8.1'
-  equalsVerifierVersion = '1.4.1'
-  jsonVersion = '20080701'
-  guavaVersion = '14.0.1'
-  androidNetworkManager = '21'
+  findBugsVersion = '3.0.0'
 
   libraries = [
-      daggerCompiler:               "com.squareup.dagger:dagger-compiler:${daggerVersion}",
-      lightCycle:                   "com.soundcloud.lightcycle:lightcycle-lib:0.0.1",
-      lightCycleProcessor:          "com.soundcloud.lightcycle:lightcycle-processor:0.0.1",
-      findBugsAnnotations:          "com.google.code.findbugs:annotations:${findBugsAnnotationVersion}",
-      findBugsJsr305:               "com.google.code.findbugs:jsr305:${findBugsJsr305Version}",
-      intellijAnnotations:          "com.intellij:annotations:${intellijAnnotationsVersion}",
-      propeller:                    "com.soundcloud.propeller:propeller:${propellerVersion}",
-      skippy:                       "com.soundcloud.android:skippy:${skippyVersion}@aar",
-      soundCloudVorbisEncoder:      "com.soundcloud.android.native:soundcloud_vorbis_encoder:${soundCloudVorbisEncoderVersion}@aar",
-      comscore:                     "com.comscore:comscore:${comscoreVersion}",
-      adjustAndroid:                "com.adjust.sdk:adjust-android:${adjustAndroidVersion}",
-      dagger:                       "com.squareup.dagger:dagger:${daggerVersion}",
-      guavaRepack:                  "com.google.guava:guava-repack:${guavaRepackVersion}",
-      crashlytics:                  "com.crashlytics.sdk.android:crashlytics:${crashlyticsVersion}",
-      jacksonRespack:               "com.fasterxml.jackson.core:jackson-repack:${jacksonRepackVersion}",
-      okHttp:                       "com.squareup.okhttp:okhttp:${okHttpVersion}",
-      httpClientAndroid:            "org.apache.httpcomponents:httpclient-android:${httpClientAndroidVersion}",
-      localytics:                   "com.localytics:android-localytics:${localyticsVersion}",
-      slidingUpPanel:               "com.sothree.slidinguppanel:library:${slidingUpPanelVersion}@aar",
-      androidCrop:                  "com.soundcloud.android:android-crop:${androidCropVersion}@aar",
-      rxAndroid:                    "io.reactivex:rxandroid:${rxAndroidVersion}",
-      rxJava:                       "io.reactivex:rxjava:${rxJavaVersion}",
-      rxJavaComputationExpressions: "io.reactivex:rxjava-computation-expressions:${rxJavaComputationExpressionsVersion}",
-      rxJavaAsyncUtil:              "io.reactivex:rxjava-async-util:${rxJavaAsyncUtilVersion}",
-      rxJavaDebug:                  "io.reactivex:rxjava-debug:${rxJavaDebugVersion}",
-      universalImageLoader:         "com.nostra13.universalimageloader:universal-image-loader:${universalImageLoaderVersion}",
-      facebookRebound:              "com.facebook.rebound:rebound:${facebookReboundVersion}",
-      facebookAndroidSdk:           "com.facebook.android:facebook-android-sdk:${facebookAndroidSdkVersion}@aar",
-      butterKnife:                  "com.jakewharton:butterknife:${butterKnifeVersion}",
-      castCompanionLibrary:         "com.google.android.cast:castcompanionlibrary:${castCompanionLibraryVersion}@aar",
-      undoBar:                      "com.cocosw:undobar:${undoBarVersion}@aar",
-      androidSupportLibrary:        "com.android.support:support-v4:${androidSupportLibraryVersion}",
-      androidAppCompatLibrary:      "com.android.support:appcompat-v7:${androidAppCompatLibraryVersion}",
-      androidMediaRouterLibrary:    "com.android.support:mediarouter-v7:${androidMediaRouterLibraryVersion}",
-      androidPlayServicesBase:      "com.google.android.gms:play-services-base:${androidPlayServicesBaseVersion}@aar",
-      androidPlayServicesCast:      "com.google.android.gms:play-services-cast:${androidPlayServicesCastVersion}@aar",
+          // annotation processors / annotations
+          daggerCompiler              : "com.squareup.dagger:dagger-compiler:$daggerVersion",
+          dagger                      : "com.squareup.dagger:dagger:$daggerVersion",
+          lightCycleProcessor         : "com.soundcloud.lightcycle:lightcycle-processor:$lightCycleVersion",
+          lightCycle                  : "com.soundcloud.lightcycle:lightcycle-lib:$lightCycleVersion",
+          findBugsAnnotations         : "com.google.code.findbugs:annotations:$findBugsVersion",
+          findBugsJsr305              : "com.google.code.findbugs:jsr305:$findBugsVersion",
+          intellijAnnotations         : "com.intellij:annotations:9.0.4",
+
+          // SoundCloud libraries
+          propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
+          skippy                      : "com.soundcloud.android:skippy:727@aar",
+          soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
+
+          // Analytics / tracking
+          comscore                    : "com.comscore:comscore:2.1407.28",
+          adjustAndroid               : "com.adjust.sdk:adjust-android:3.6.1",
+          crashlytics                 : "com.crashlytics.sdk.android:crashlytics:2.2.3",
+          localytics                  : "com.localytics:android-localytics:2.71",
+
+          // utility libraries
+          guavaRepack                 : "com.google.guava:guava-repack:14.11.14",
+          jacksonRespack              : "com.fasterxml.jackson.core:jackson-repack:15.04.14",
+          okHttp                      : "com.squareup.okhttp:okhttp:2.3.0",
+          httpClientAndroid           : "org.apache.httpcomponents:httpclient-android:4.3.5",
+          rxAndroid                   : "io.reactivex:rxandroid:0.23.0",
+          rxJava                      : "io.reactivex:rxjava:1.0.2",
+          rxJavaComputationExpressions: "io.reactivex:rxjava-computation-expressions:0.21.0",
+          rxJavaAsyncUtil             : "io.reactivex:rxjava-async-util:0.21.0",
+          rxJavaDebug                 : "io.reactivex:rxjava-debug:0.21.0",
+          universalImageLoader        : "com.nostra13.universalimageloader:universal-image-loader:1.9.2",
+
+          // UI libraries
+          slidingUpPanel              : "com.sothree.slidinguppanel:library:2.0.2-SC@aar",
+          androidCrop                 : "com.soundcloud.android:android-crop:1.0.0@aar",
+          facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
+          facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:3.20.0@aar",
+          butterKnife                 : "com.jakewharton:butterknife:5.1.2",
+          castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.0-SOUNDCLOUD@aar",
+          undoBar                     : "com.cocosw:undobar:1.4@aar",
+
+          // Android libraries
+          androidSupportLibrary       : "com.android.support:support-v4:$androidSupportVersion",
+          androidAppCompatLibrary     : "com.android.support:appcompat-v7:$androidSupportVersion",
+          androidMediaRouterLibrary   : "com.android.support:mediarouter-v7:$androidSupportVersion",
+          androidPlayServicesBase     : "com.google.android.gms:play-services-base:$playServicesVersion@aar",
+          androidPlayServicesCast     : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
   ]
 
   unitTestLibraries = [
-      daggerCompiler:     "com.squareup.dagger:dagger-compiler:${daggerVersion}",
-      guava:              "com.google.guava:guava:${guavaVersion}",
-      robolectric:        "com.pivotallabs:robolectric:${robolectricVersion}",
-      jUnit:              "junit:junit:${jUnitVersion}",
-      mockito:            "org.mockito:mockito-core:${mockitoVersion}",
-      hamcrest:           "org.hamcrest:hamcrest-all:${hamcrestVersion}",
-      sqliteJdbc:         "org.xerial:sqlite-jdbc:${sqliteJdbcVersion}",
-      javassist:          "org.javassist:javassist:${javassistVersion}",
-      greatExpectations:  "com.github.xian:great-expectations:${greatExpectationsVersion}",
-      modelCitizen:       "com.tobedevoured.modelcitizen:core:${modelCitizenVersion}",
-      equalsVerifier:     "nl.jqno.equalsverifier:equalsverifier:${equalsVerifierVersion}",
-      json:               "org.json:json:${jsonVersion}",
-      propellerTest:      "com.soundcloud.propeller:propeller:${propellerVersion}:tests",
+          daggerCompiler   : "com.squareup.dagger:dagger-compiler:$daggerVersion",
+          guava            : "com.google.guava:guava:14.0.1",
+          robolectric      : "com.pivotallabs:robolectric:1.2_sdk_21_fix",
+          jUnit            : "junit:junit:4.9",
+          mockito          : "org.mockito:mockito-core:1.9.5",
+          hamcrest         : "org.hamcrest:hamcrest-all:1.3",
+          sqliteJdbc       : "org.xerial:sqlite-jdbc:3.7.15-M1",
+          javassist        : "org.javassist:javassist:3.18.2-GA",
+          greatExpectations: "com.github.xian:great-expectations:0.14",
+          modelCitizen     : "com.tobedevoured.modelcitizen:core:0.8.1",
+          equalsVerifier   : "nl.jqno.equalsverifier:equalsverifier:1.4.1",
+          json             : "org.json:json:20080701",
+          propellerTest    : "com.soundcloud.propeller:propeller:$propellerVersion:tests",
   ]
 
   acceptanceTestLibraries = [
-      hamcrest: "org.hamcrest:hamcrest-all:${hamcrestVersion}",
-      robotium: "com.jayway.android.robotium:robotium-solo:${robotiumVersion}",
+          hamcrest: "org.hamcrest:hamcrest-all:1.3",
+          robotium: "com.jayway.android.robotium:robotium-solo:5.2.1",
   ]
 }

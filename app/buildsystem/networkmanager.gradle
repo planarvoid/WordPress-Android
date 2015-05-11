@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 
-def version   = rootProject.ext.androidNetworkManager
+def version   = '21'
 def file      = "androidnetworkmanager-${version}.apk"
 def destDir   = "$project.buildDir/outputs/apk/"
 def destFile  = "$destDir/$file"
