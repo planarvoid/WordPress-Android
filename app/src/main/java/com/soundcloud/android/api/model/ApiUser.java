@@ -3,13 +3,14 @@ package com.soundcloud.android.api.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Parcel;
 
-public class ApiUser extends ScModel implements PropertySetSource {
+public class ApiUser extends ScModel implements PropertySetSource, UserRecord {
 
     public static Creator<ApiUser> CREATOR = new Creator<ApiUser>() {
         public ApiUser createFromParcel(Parcel source) {

@@ -28,7 +28,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertTrack() {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        insertUser(track.getUser());
+        insertUser((ApiUser) track.getUser());
         insertTrack(track);
         return track;
     }
@@ -38,7 +38,7 @@ public class DatabaseFixtures {
         cv.put(TableColumns.Sounds._ID, track.getId());
         cv.put(TableColumns.Sounds.TITLE, track.getTitle());
         cv.put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK);
-        cv.put(TableColumns.Sounds.USER_ID, track.getUser().getId());
+        cv.put(TableColumns.Sounds.USER_ID, track.getUser().getUrn().getNumericId());
         cv.put(TableColumns.Sounds.DURATION, track.getDuration());
         cv.put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl());
         cv.put(TableColumns.Sounds.STREAM_URL, track.getStreamUrl());
@@ -175,7 +175,7 @@ public class DatabaseFixtures {
 
     public long insertUser(ApiUser user) {
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.Users._ID, user.getId());
+        cv.put(TableColumns.Users._ID, user.getUrn().getNumericId());
         cv.put(TableColumns.Users.USERNAME, user.getUsername());
 
         final long id = insertInto(Table.Users, cv);
@@ -206,7 +206,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertLikedTrack(Date likedDate) {
         ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        insertUser(track.getUser());
+        insertUser((ApiUser) track.getUser());
         insertLike(insertTrack(track), TableColumns.Sounds.TYPE_TRACK, likedDate);
         return track;
     }

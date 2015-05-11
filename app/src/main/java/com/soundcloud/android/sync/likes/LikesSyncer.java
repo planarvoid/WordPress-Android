@@ -1,16 +1,18 @@
 package com.soundcloud.android.sync.likes;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.commands.DefaultWriteStorageCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.PropertySetComparator;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
+import com.soundcloud.propeller.WriteResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,7 +29,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
     private final LoadLikesCommand loadLikes;
     private final LoadLikesPendingAdditionCommand loadLikesPendingAddition;
     private final LoadLikesPendingRemovalCommand loadLikesPendingRemoval;
-    private final StoreCommand<Iterable<ApiModel>> storeLikedResources;
+    private final DefaultWriteStorageCommand<Iterable<ApiModel>, WriteResult> storeLikedResources;
     private final StoreLikesCommand storeLikes;
     private final RemoveLikesCommand removeLikes;
 
@@ -39,7 +41,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
                 LoadLikesCommand loadLikes,
                 LoadLikesPendingAdditionCommand loadLikesPendingAddition,
                 LoadLikesPendingRemovalCommand loadLikesPendingRemoval,
-                StoreCommand<Iterable<ApiModel>> storeLikedResources,
+                DefaultWriteStorageCommand storeLikedResources,
                 StoreLikesCommand storeLikes,
                 RemoveLikesCommand removeLikes) {
         this.fetchLikes = fetchLikes;
@@ -94,7 +96,8 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
             for (PropertySet like : pendingLocalAdditions) {
                 urns.add(like.get(LikeProperty.TARGET_URN));
             }
-            fetchLikedResources.with(urns).andThen(storeLikedResources).call();
+            final List<ApiModel> apiModels = fetchLikedResources.with(urns).call();
+            storeLikedResources.call(apiModels);
         }
     }
 

@@ -1,12 +1,13 @@
 package com.soundcloud.android.sync.posts;
 
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StoreCommand;
+import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -19,14 +20,14 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
     private final StorePostsCommand storePostsCommand;
     private final RemovePostsCommand removePostsCommand;
     private final BulkFetchCommand<ApiModel> fetchPostResources;
-    private final StoreCommand<Iterable<ApiModel>> storePostResources;
+    private final WriteStorageCommand storePostResources;
 
     public PostsSyncer(LoadLocalPostsCommand loadLocalPosts,
                        FetchPostsCommand fetchRemotePosts,
                        StorePostsCommand storePostsCommand,
                        RemovePostsCommand removePostsCommand,
                        BulkFetchCommand<ApiModel> fetchPostResources,
-                       StoreCommand<Iterable<ApiModel>> storePostResources) {
+                       WriteStorageCommand storePostResources) {
         this.loadLocalPosts = loadLocalPosts;
         this.fetchRemotePosts = fetchRemotePosts;
         this.storePostsCommand = storePostsCommand;
@@ -65,7 +66,8 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         for (PropertySet like : additions) {
             urns.add(like.get(LikeProperty.TARGET_URN));
         }
-        fetchPostResources.with(urns).andThen(storePostResources).call();
+        final List<ApiModel> apiResources = fetchPostResources.with(urns).call();
+        storePostResources.call(apiResources);
     }
 
     @SafeVarargs

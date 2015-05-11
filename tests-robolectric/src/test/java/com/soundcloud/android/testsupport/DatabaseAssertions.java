@@ -12,6 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadResult;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.test.matchers.QueryBinding;
 
@@ -51,7 +52,7 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime())
                 .whereEq(TableColumns.Sounds.GENRE, track.getGenre())
                 .whereEq(TableColumns.Sounds.SHARING, track.getSharing().value())
-                .whereEq(TableColumns.Sounds.USER_ID, track.getUser().getId())
+                .whereEq(TableColumns.Sounds.USER_ID, track.getUser().getUrn().getNumericId())
                 .whereEq(TableColumns.Sounds.COMMENTABLE, track.isCommentable())
                 .whereEq(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount())
                 .whereEq(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
@@ -128,9 +129,9 @@ public class DatabaseAssertions {
                 .whereNotNull(TableColumns.Likes.REMOVED_AT)), counts(1));
     }
 
-    public void assertPlayableUserInserted(ApiUser user) {
+    public void assertPlayableUserInserted(UserRecord user) {
         assertThat(select(from(Table.SoundView.name())
-                        .whereEq(TableColumns.SoundView.USER_ID, user.getId())
+                        .whereEq(TableColumns.SoundView.USER_ID, user.getUrn().getNumericId())
                         .whereEq(TableColumns.SoundView.USERNAME, user.getUsername())
         ), counts(1));
     }

@@ -134,8 +134,7 @@ public class PlaylistDiscoveryOperationsTest {
 
         operations.playlistsForTag("electronic").subscribe(observer);
 
-        expect(storePlaylistsCommand.getInput()).toBe(collection);
-        verify(storePlaylistsCommand).call();
+        verify(storePlaylistsCommand).call(collection);
     }
 
     private ApiPlaylistCollection buildPlaylistSummariesResponse() throws CreateModelException {

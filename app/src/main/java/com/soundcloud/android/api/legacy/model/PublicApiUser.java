@@ -9,7 +9,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Model;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -17,6 +16,7 @@ import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.images.ImageUtils;
@@ -124,7 +124,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         updateFromCursor(cursor);
     }
 
-    public PublicApiUser(ApiUser user) {
+    public PublicApiUser(UserRecord user) {
         setUrn(user.getUrn().toString());
         setUsername(user.getUsername());
         avatar_url = user.getAvatarUrl();

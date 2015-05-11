@@ -5,7 +5,6 @@ import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
 import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
@@ -31,7 +30,7 @@ public class StoreUsersCommandTest extends StorageIntegrationTest {
     public void shouldPersistUsersInDatabase() throws Exception {
         final List<ApiUser> users = ModelFixtures.create(ApiUser.class, 2);
 
-        command.with(users).call();
+        command.call(users);
 
         databaseAssertions().assertUserInserted(users.get(0));
         databaseAssertions().assertUserInserted(users.get(1));
@@ -42,7 +41,7 @@ public class StoreUsersCommandTest extends StorageIntegrationTest {
         final ApiUser user = testFixtures().insertUser();
         user.setUsername("new username");
 
-        command.with(Arrays.asList(user)).call();
+        command.call(Arrays.asList(user));
 
         assertThat(select(from(Table.Users.name())), counts(1));
         databaseAssertions().assertUserInserted(user);

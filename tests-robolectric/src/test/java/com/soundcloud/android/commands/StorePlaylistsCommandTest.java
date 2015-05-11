@@ -30,7 +30,7 @@ public class StorePlaylistsCommandTest extends StorageIntegrationTest {
     public void shouldPersistPlaylistsWithCreatorsInDatabase() throws Exception {
         final List<ApiPlaylist> playlists = ModelFixtures.create(ApiPlaylist.class, 2);
 
-        command.with(playlists).call();
+        command.call(playlists);
 
         databaseAssertions().assertPlaylistWithUserInserted(playlists.get(0));
         databaseAssertions().assertPlaylistWithUserInserted(playlists.get(1));
@@ -41,7 +41,7 @@ public class StorePlaylistsCommandTest extends StorageIntegrationTest {
         final ApiPlaylist playlist = testFixtures().insertPlaylist();
         playlist.setTitle("new title");
 
-        command.with(Arrays.asList(playlist)).call();
+        command.call(Arrays.asList(playlist));
 
         assertThat(select(from(Table.Sounds.name())), counts(1));
         databaseAssertions().assertPlaylistInserted(playlist);
