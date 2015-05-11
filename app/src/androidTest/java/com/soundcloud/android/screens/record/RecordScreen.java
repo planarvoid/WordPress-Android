@@ -14,6 +14,8 @@ import com.soundcloud.android.screens.Screen;
 public class RecordScreen extends Screen {
     private static final Class ACTIVITY = RecordActivity.class;
     private static final int ACTION_BUTTON = R.id.btn_action;
+    private static final int EDIT_BUTTON = R.id.btn_edit;
+    private static final int PLAY_BUTTON = R.id.btn_play;
     private static final int CHRONOMETER = R.id.chronometer;
     private static final int BOTTOM_BAR = R.id.bottom_bar;
 
@@ -26,17 +28,33 @@ public class RecordScreen extends Screen {
         return actionBar().getTitle();
     }
 
+    public RecordScreen clickPlayButton() {
+        getPlayButton().click();
+        return this;
+    }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;
     }
 
     public RecordScreen clickRecordButton() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        waiter.waitForElements(ACTION_BUTTON);
-        testDriver
-                .findElements(With.id(ACTION_BUTTON))
-                .get(0).click();
+        getActionButton().click();
+        return this;
+    }
+
+    public RecordScreen clickEditButton() {
+        getEditButton().click();
+        return this;
+    }
+
+    public RecordScreen clickApplyButton() {
+        getApplyButton().click();
+        return this;
+    }
+
+    public RecordScreen waitForRecord() {
+        waiter.waitTwoSeconds();
         return this;
     }
 
@@ -44,10 +62,16 @@ public class RecordScreen extends Screen {
         return getDeleteRecordingButton().isVisible();
     }
 
+    public RecordScreen deleteRecording() {
+        getDeleteRecordingButton().click();
+        testDriver.waitForDialogToOpen(2000l);
+        acceptDeleteRecording();
+        return this;
+    }
+
     public RecordScreen acceptDeleteRecording() {
         testDriver.findElement(text(testDriver.getString(R.string.yes))).click();
         testDriver.waitForDialogToClose(1000l);
-
         return this;
     }
 
@@ -59,6 +83,27 @@ public class RecordScreen extends Screen {
         return getBottomBarButton("Next");
     }
 
+    public ViewElement getApplyButton() {
+        return getBottomBarButton("Apply");
+    }
+
+    public ViewElement getRevertButton() {
+        return getBottomBarButton("Revert to original");
+    }
+
+    public ViewElement getEditButton() {
+        return testDriver.findElement(With.id(EDIT_BUTTON));
+    }
+
+    private ViewElement getActionButton() {
+        return testDriver.findElement(With.id(ACTION_BUTTON));
+    }
+
+    private ViewElement getPlayButton() {
+        return testDriver.findElement(With.id(PLAY_BUTTON));
+    }
+
+
     public RecordMetadataScreen clickNext() {
         getNextButton().click();
         return new RecordMetadataScreen(testDriver);
@@ -66,16 +111,24 @@ public class RecordScreen extends Screen {
 
     public RecordScreen deleteRecordingIfPresent() {
         if(hasRecording()) {
-            getDeleteRecordingButton().click();
-            testDriver.waitForDialogToOpen(2000l);
-            acceptDeleteRecording();
-            testDriver.waitForDialogToClose(2000l);
+            deleteRecording();
         }
         return this;
     }
 
     public TextElement getChronometer() {
         return new TextElement(testDriver.findElement(With.id(CHRONOMETER)));
+    }
+
+    public RecordScreen startRecording() {
+        clickRecordButton();
+        return this;
+    }
+
+    public RecordScreen waitAndPauseRecording() {
+        waitForRecord();
+        clickRecordButton();
+        return this;
     }
 
     private ViewElement getBottomBarButton(String withText) {
@@ -87,6 +140,8 @@ public class RecordScreen extends Screen {
             return new EmptyViewElement(null);
         }
     }
+
+
 
 
 }

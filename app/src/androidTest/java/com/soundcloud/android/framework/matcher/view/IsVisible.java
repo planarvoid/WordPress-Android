@@ -22,4 +22,9 @@ public class IsVisible extends TypeSafeMatcher<ViewElement> {
     public static Matcher<ViewElement> visible() {
         return new IsVisible();
     }
+
+    @Factory
+    public static Matcher<ViewElement> viewVisible() {
+        return new IsVisible();
+    }
 }

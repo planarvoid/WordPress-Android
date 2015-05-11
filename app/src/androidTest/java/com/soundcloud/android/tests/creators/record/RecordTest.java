@@ -1,13 +1,15 @@
 package com.soundcloud.android.tests.creators.record;
 
-import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
-import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class RecordTest extends ActivityTest<MainActivity> {
@@ -26,26 +28,86 @@ public class RecordTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
+        recordScreen.deleteRecordingIfPresent(); // start clean
     }
 
-    public void testRecordScreenIsVisible() {
-        assertThat(recordScreen, is(visible()));
+    @Override
+    protected void tearDown() throws Exception {
+        recordScreen.deleteRecordingIfPresent(); // cleanup
+        super.tearDown();
     }
 
-    // big brother test :D
-    public void testRecordButtonStartsRecording() {
+    public void testRecordButton() {
+        recordScreen.startRecording();
+        assertThat(recordScreen.getChronometer().getText(), is("0:00"));
+        assertThat(recordScreen.getNextButton(), is(not(visible())));
+
+        recordScreen.waitAndPauseRecording();
+        assertThat(recordScreen.getChronometer().getText(), is(not("0:00")));
+        assertThat(recordScreen.getNextButton(), is(visible()));
+    }
+
+    public void testRecordingIsDeletable() {
         recordScreen
-                .deleteRecordingIfPresent()
-                .clickRecordButton(); // start recording
+                .startRecording()
+                .waitAndPauseRecording();
+        assertThat(recordScreen.getDeleteRecordingButton(), is(visible()));
 
-        waiter.waitTwoSeconds();
+        recordScreen.deleteRecording();
+        assertThat(recordScreen.getDeleteRecordingButton(), is(not(visible())));
+    }
+
+    public void testRecordingIsSaved() {
+        assertThat(recordScreen.getDeleteRecordingButton(), is(not(visible())));
 
         recordScreen
-                .clickRecordButton()
-                .clickNext();
-        assertNotSame(recordScreen.getChronometer().getText(), "0:00");
+                .startRecording()
+                .waitAndPauseRecording();
 
-        // cleanup
-        recordScreen.deleteRecordingIfPresent();
+        solo.goBack();
+
+        recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
+        assertThat(recordScreen.getDeleteRecordingButton(), is(visible()));
+    }
+
+    public void testRecordingIsEditable() {
+        recordScreen
+                .startRecording()
+                .waitAndPauseRecording();
+
+        assertThat(recordScreen.getEditButton(), is(visible()));
+
+        recordScreen.clickEditButton();
+        assertThat(recordScreen.getEditButton(), is(not(visible())));
+        assertThat(recordScreen.getApplyButton(), is(visible()));
+        assertThat(recordScreen.getRevertButton(), is(visible()));
+
+        recordScreen.clickApplyButton();
+        assertThat(recordScreen.getApplyButton(), is(not(visible())));
+        assertThat(recordScreen.getNextButton(), is(visible()));
+    }
+
+    public void testRecordingIsResumable() {
+        recordScreen
+                .startRecording()
+                .waitAndPauseRecording();
+
+        String firstChrono = recordScreen.getChronometer().getText();
+
+        recordScreen
+                .startRecording()
+                .waitAndPauseRecording();
+
+        assertThat(recordScreen.getChronometer().getText(), is(not(firstChrono)));
+    }
+
+    public void testRecordingIsPlayable() {
+        recordScreen
+                .startRecording()
+                .waitAndPauseRecording()
+                .clickPlayButton();
+
+        // Note: it might record more than two seconds.
+        assertThat(recordScreen.getChronometer().getText(), startsWith("0:00 / 0:"));
     }
 }

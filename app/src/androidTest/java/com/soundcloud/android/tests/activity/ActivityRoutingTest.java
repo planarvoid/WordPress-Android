@@ -4,8 +4,6 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.activities.ActivitiesActivity;
 import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
-import com.soundcloud.android.creators.upload.MetadataFragment;
-import com.soundcloud.android.creators.upload.UploadMonitorFragment;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.profile.MeActivity;

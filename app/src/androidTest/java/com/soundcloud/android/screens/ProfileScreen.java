@@ -38,6 +38,12 @@ public class ProfileScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
+    public String getFirstTrackTitle() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        TextElement textElement = new TextElement(testDriver.findElements(With.id(R.id.list_item_subheader)).get(0));
+        return textElement.getText();
+    }
+
     public void scrollToBottomOfCurrentListAndLoadMoreItems() {
         testDriver.scrollToBottom(currentList());
         waiter.waitForContentAndRetryIfLoadingFailed();

@@ -1,11 +1,14 @@
 package com.soundcloud.android.tests.creators.upload;
 
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static com.soundcloud.android.framework.matcher.view.IsVisible.viewVisible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.record.RecordMetadataScreen;
 import com.soundcloud.android.screens.record.RecordScreen;
@@ -28,19 +31,39 @@ public class MetadataTest extends ActivityTest<MainActivity> {
     public void setUp() throws Exception {
         super.setUp();
         recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
+        recordScreen.deleteRecordingIfPresent();
     }
 
     public void testMetadataScreenIsVisible() {
-        recordScreen
-                .deleteRecordingIfPresent()
-                .clickRecordButton(); // start recording
-
-        waiter.waitTwoSeconds();
-
         recordMetadataScreen = recordScreen
-                .clickRecordButton() // pause
+                .startRecording()
+                .waitAndPauseRecording()
                 .clickNext();
 
         assertThat(recordMetadataScreen, is(visible()));
+    }
+
+    public void testMetadataUploadPrivate() {
+        RecordMetadataScreen metadataScreen = recordScreen
+                .startRecording()
+                .waitAndPauseRecording()
+                .clickNext();
+
+        String title = "test-" + System.currentTimeMillis();
+
+        recordScreen = metadataScreen
+                .setPrivate()
+                .setTitle(title)
+                .clickUploadButton();
+
+        assertThat(recordScreen, is(visible()));
+        assertThat(recordScreen.getNextButton(), is(not(viewVisible())));
+
+        solo.goBack();
+
+        ProfileScreen profileScreen = new StreamScreen(solo).openMenu().clickUserProfile();
+        assertThat(profileScreen, is(visible()));
+
+        assertThat(profileScreen.getFirstTrackTitle(), is(title));
     }
 }
