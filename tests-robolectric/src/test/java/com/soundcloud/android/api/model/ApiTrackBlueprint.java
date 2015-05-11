@@ -2,9 +2,11 @@ package com.soundcloud.android.api.model;
 
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.legacy.model.TrackStats;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.annotation.Blueprint;
 import com.tobedevoured.modelcitizen.annotation.Default;
 import com.tobedevoured.modelcitizen.annotation.Mapped;
+import com.tobedevoured.modelcitizen.callback.AfterCreateCallback;
 import com.tobedevoured.modelcitizen.callback.ConstructorCallback;
 
 import java.util.Date;
@@ -23,9 +25,6 @@ public class ApiTrackBlueprint {
 
     @Default
     String title = "new track " + System.currentTimeMillis();
-
-    @Mapped
-    ApiUser user;
 
     @Mapped
     TrackStats stats;
@@ -53,4 +52,16 @@ public class ApiTrackBlueprint {
 
     @Default
     String policy = "allowed";
+
+    // avoid the setter problem where getUser and setUser are typed differently
+    // https://github.com/mguymon/model-citizen/issues/20
+    AfterCreateCallback<ApiTrack> afterCreate = new AfterCreateCallback<ApiTrack>() {
+        @Override
+        public ApiTrack afterCreate(ApiTrack model) {
+            if (model.getUser() == null){
+                model.setUser(ModelFixtures.create(ApiUser.class));
+            }
+            return model;
+        }
+    };
 }
