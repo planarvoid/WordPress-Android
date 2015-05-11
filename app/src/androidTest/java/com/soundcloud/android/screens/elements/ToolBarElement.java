@@ -21,7 +21,7 @@ import android.widget.TextView;
 public class ToolBarElement extends Element {
 
     private static final int SEARCH_SELECTOR = R.id.action_search;
-    private static final int CONTAINER = R.id.toolbar;
+    private static final int CONTAINER = R.id.toolbar_id;
     protected final Han testDriver;
 
     public ToolBarElement(Han solo) {

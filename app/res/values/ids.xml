@@ -4,6 +4,7 @@
     <item name="navigation_fragment_id" type="id" />
     <item name="fixed_navigation_fragment_id" type="id" />
     <item name="month_of_year_tag" type="id" />
+    <item name="toolbar_id" type="id" />
 
     <!-- list item views -->
     <item name="list_item_header" type="id" />

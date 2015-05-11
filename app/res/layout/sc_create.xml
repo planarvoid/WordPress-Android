@@ -7,6 +7,8 @@
 
     <include layout="@layout/toolbar" />
 
+    <View style="@style/ToolbarShadow" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -177,4 +179,5 @@
             app:button_background="@drawable/item_background_dark"
             app:separator_color="@color/rec_button_bar_separator" />
     </RelativeLayout>
+
 </LinearLayout>

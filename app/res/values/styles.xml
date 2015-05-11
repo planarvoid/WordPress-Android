@@ -195,4 +195,11 @@
         <item name="android:textOff">@null</item>
     </style>
 
+    <style name="ToolbarShadow">
+        <item name="android:background">@drawable/toolbar_shadow</item>
+        <item name="android:layout_height">5dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_below">@id/toolbar_id</item>
+    </style>
+
 </resources>

@@ -53,7 +53,7 @@ public class ScreenPresenter {
     }
 
     public void setToolBar() {
-        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar_id);
         if (toolbar != null) {
             activity.setSupportActionBar(toolbar);
 

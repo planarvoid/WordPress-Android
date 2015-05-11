@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <include layout="@layout/toolbar" />
 
     <LinearLayout
+        android:layout_below="@id/toolbar_id"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -19,4 +19,7 @@
         <View style="@style/MarginRight" />
 
     </LinearLayout>
-</LinearLayout>
+
+    <View style="@style/ToolbarShadow" />
+
+</RelativeLayout>

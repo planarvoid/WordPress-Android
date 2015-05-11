@@ -1,98 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
     <include layout="@layout/toolbar" />
 
-    <ScrollView
-        android:id="@+id/ScrollView01"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingTop="5dip">
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar_id"
+        android:orientation="vertical">
 
-        <RelativeLayout
-            android:id="@+id/input_layout"
+        <ScrollView
+            android:id="@+id/ScrollView01"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:layout_below="@id/toolbar_id"
+            android:layout_weight="1"
+            android:paddingTop="5dip">
 
-            <FrameLayout
-                android:id="@+id/share_user_layout"
+            <RelativeLayout
+                android:id="@+id/input_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
-                android:paddingBottom="5dip" />
+                android:layout_height="wrap_content">
 
-            <com.soundcloud.android.creators.upload.RecordingMetaDataLayout
-                android:id="@+id/metadata_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignWithParentIfMissing="true"
-                android:layout_below="@id/share_user_layout" />
-
-            <RadioGroup
-                android:id="@+id/rdo_privacy"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="false"
-                android:layout_below="@+id/metadata_layout"
-                android:layout_marginBottom="5dip"
-                android:layout_marginTop="5dip"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:id="@+id/rdo_public"
-                    style="@style/RadioButton.Dark"
-                    android:layout_width="wrap_content"
+                <FrameLayout
+                    android:id="@+id/share_user_layout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="true"
-                    android:text="@string/sc_upload_public" />
+                    android:layout_alignParentTop="true"
+                    android:paddingBottom="5dip" />
 
-                <RadioButton
-                    android:id="@+id/rdo_private"
-                    style="@style/RadioButton.Dark"
-                    android:layout_width="wrap_content"
+                <com.soundcloud.android.creators.upload.RecordingMetaDataLayout
+                    android:id="@+id/metadata_layout"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:checked="false"
-                    android:text="@string/sc_upload_private" />
-            </RadioGroup>
+                    android:layout_alignWithParentIfMissing="true"
+                    android:layout_below="@id/share_user_layout" />
 
-            <TextView
-                android:id="@+id/txt_record_options"
-                style="@style/txt_record_share_options"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/rdo_privacy"
-                android:background="#474747"
-                android:gravity="left"
-                android:padding="5dip"
-                android:text="@string/sc_upload_sharing_options_public" />
+                <RadioGroup
+                    android:id="@+id/rdo_privacy"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="false"
+                    android:layout_below="@+id/metadata_layout"
+                    android:layout_marginBottom="5dip"
+                    android:layout_marginTop="5dip"
+                    android:orientation="horizontal">
 
-            <View
-                android:id="@+id/share_options_separator"
-                android:layout_width="match_parent"
-                android:layout_height="1dip"
-                android:layout_below="@id/txt_record_options"
-                android:background="@color/record_upload_border" />
+                    <RadioButton
+                        android:id="@+id/rdo_public"
+                        style="@style/RadioButton.Dark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="true"
+                        android:text="@string/sc_upload_public" />
 
-            <com.soundcloud.android.creators.upload.ConnectionListLayout
-                android:id="@+id/connectionList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/share_options_separator" />
+                    <RadioButton
+                        android:id="@+id/rdo_private"
+                        style="@style/RadioButton.Dark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:checked="false"
+                        android:text="@string/sc_upload_private" />
+                </RadioGroup>
 
-        </RelativeLayout>
-    </ScrollView>
+                <TextView
+                    android:id="@+id/txt_record_options"
+                    style="@style/txt_record_share_options"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/rdo_privacy"
+                    android:background="#474747"
+                    android:gravity="left"
+                    android:padding="5dip"
+                    android:text="@string/sc_upload_sharing_options_public" />
 
-    <com.soundcloud.android.view.ButtonBar
-        android:id="@+id/bottom_bar"
-        style="@style/dark_button_bar"
-        app:button_background="@drawable/item_background_dark"
-        app:separator_color="@color/rec_button_bar_separator" />
+                <View
+                    android:id="@+id/share_options_separator"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dip"
+                    android:layout_below="@id/txt_record_options"
+                    android:background="@color/record_upload_border" />
 
-</LinearLayout>
+                <com.soundcloud.android.creators.upload.ConnectionListLayout
+                    android:id="@+id/connectionList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/share_options_separator" />
+
+            </RelativeLayout>
+        </ScrollView>
+
+        <com.soundcloud.android.view.ButtonBar
+            android:id="@+id/bottom_bar"
+            style="@style/dark_button_bar"
+            app:button_background="@drawable/item_background_dark"
+            app:separator_color="@color/rec_button_bar_separator" />
+
+    </LinearLayout>
+
+    <View style="@style/ToolbarShadow" />
+
+</RelativeLayout>
