@@ -1,5 +1,2 @@
 include ':app'
 include ':tests-robolectric'
-include ':libraries:lightcycle:lightcycle-lib'
-include ':libraries:lightcycle:lightcycle-lib-test'
-include ':libraries:lightcycle:lightcycle-processor'
