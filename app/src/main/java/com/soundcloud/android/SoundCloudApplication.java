@@ -13,7 +13,6 @@ import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.ScModelManager;
 import com.soundcloud.android.api.oauth.Token;
-import com.soundcloud.android.backdoor.IntegrationTestsController;
 import com.soundcloud.android.cast.CastSessionController;
 import com.soundcloud.android.configuration.ConfigurationFeatureController;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -100,7 +99,6 @@ public class SoundCloudApplication extends Application {
     @Inject ScreenProvider screenProvider;
     @Inject AdIdHelper adIdHelper;
     @Inject CastSessionController castSessionController;
-    @Inject IntegrationTestsController integrationTestsController;
 
     // we need this object to exist throughout the life time of the app,
     // even if it appears to be unused
@@ -172,7 +170,6 @@ public class SoundCloudApplication extends Application {
         }
 
         configurationFeatureController.subscribe();
-        integrationTestsController.subscribe();
     }
 
     private void generateDeviceKey() {

@@ -20,9 +20,11 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
 
     private Context context;
     private StreamScreen streamScreen;
+    private final OfflineContentHelper offlineContentHelper;
 
     public OfflineTrackItemOverflowMenuTest() {
         super(MainActivity.class);
+        offlineContentHelper = new OfflineContentHelper();
     }
 
     @Override
@@ -57,6 +59,6 @@ public class OfflineTrackItemOverflowMenuTest extends ActivityTest<MainActivity>
 
     private void resetOfflineSyncState(Context context) {
         ConfigurationHelper.disableOfflineContent(context);
-        OfflineContentHelper.clearOfflineContent(context);
+        offlineContentHelper.clearOfflineContent(context);
     }
 }

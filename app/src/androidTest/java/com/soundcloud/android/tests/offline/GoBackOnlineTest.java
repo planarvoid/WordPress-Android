@@ -4,8 +4,6 @@ import static com.soundcloud.android.framework.helpers.ConfigurationHelper.disab
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetPolicyUpdateCheckTime;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.setPolicyUpdateCheckTime;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearOfflineContent;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.insertOfflinePlaylistAndTrackWithPolicy;
 import static com.soundcloud.android.framework.matcher.element.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNot.not;
@@ -13,6 +11,7 @@ import static org.hamcrest.core.IsNot.not;
 import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.framework.helpers.networkmanager.NetworkManager;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
@@ -28,6 +27,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
 
     private static final Urn PLAYLIST = Urn.forPlaylist(213L);
     private static final Urn TRACK = Urn.forTrack(123L);
+    private final OfflineContentHelper offlineContentHelper;
     private Context context;
     private NetworkManager networkManager;
     private Han testDriver;
@@ -40,6 +40,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
 
     public GoBackOnlineTest() {
         super(MainActivity.class);
+        offlineContentHelper = new OfflineContentHelper();
     }
 
     @Override
@@ -50,7 +51,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         initNetworkManager();
         networkManager.switchWifiOn();
         TestUser.offlineUser.logIn(context);
-        clearOfflineContent(context);
+        offlineContentHelper.clearOfflineContent(context);
 
         super.setUp();
     }
@@ -81,7 +82,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     public void testDisplaysGoBackOnline() throws Exception {
         networkManager.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
-        insertOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
+        offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         enableOfflineContent(context);
 
         final StreamScreen streamScreen = startMainActivity();
@@ -93,7 +94,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() throws Exception {
         networkManager.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
-        insertOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
+        offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         disableOfflineContent(context);
 
         assertThat(startMainActivity().getGoBackOnlineDialog(), not(visible()));
@@ -102,7 +103,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     public void testDisplaysGoBackOnlineOnlyOnceADay() throws Exception {
         networkManager.switchWifiOff();
         setPolicyUpdateCheckTime(context, System.currentTimeMillis());
-        insertOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
+        offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         enableOfflineContent(context);
 
         assertThat(startMainActivity().getGoBackOnlineDialog(), not(visible()));
@@ -114,7 +115,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         // notifying the wifi is up even though it is not connected yet.
         testDriver.waitForCondition(isWifiEnabled, 10000);
         resetPolicyUpdateCheckTime(context);
-        insertOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
+        offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         enableOfflineContent(context);
 
         assertThat(startMainActivity().getGoBackOnlineDialog(), not(visible()));
@@ -123,7 +124,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     public void testDoesNotDisplayDialogWhenOfflineForLessThan27Days() throws Exception {
         networkManager.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
-        insertOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(26, TimeUnit.DAYS));
+        offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(26, TimeUnit.DAYS));
         enableOfflineContent(context);
 
         assertThat(startMainActivity().getGoBackOnlineDialog(), not(visible()));

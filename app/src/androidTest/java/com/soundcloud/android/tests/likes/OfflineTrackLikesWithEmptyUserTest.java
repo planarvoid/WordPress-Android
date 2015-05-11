@@ -2,8 +2,8 @@ package com.soundcloud.android.tests.likes;
 
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.enableOfflineContent;
 import static com.soundcloud.android.framework.helpers.ConfigurationHelper.resetOfflineSyncState;
-import static com.soundcloud.android.framework.helpers.OfflineContentHelper.clearLikes;
 
+import com.soundcloud.android.framework.IntegrationTestsFixtures;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.TrackLikesScreen;
@@ -27,7 +27,8 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
     public void setUp() throws Exception {
         final Context context = getInstrumentation().getTargetContext();
 
-        clearLikes(context);
+        IntegrationTestsFixtures testsFixtures = new IntegrationTestsFixtures();
+        testsFixtures.clearLikes(context);
         super.setUp();
 
         resetOfflineSyncState(context);
