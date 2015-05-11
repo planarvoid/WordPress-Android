@@ -1,6 +1,6 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.android.lightcycle.ActivityLightCycle;
+import com.soundcloud.lightcycle.ActivityLightCycle;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;

@@ -12,7 +12,7 @@ ext {
   // Dependency versions
   androidSupportVersion = '22.1.0'
   playServicesVersion = '6.5.87'
-  lightCycleVersion = '0.0.2'
+  lightCycleVersion = '0.0.3'
   daggerVersion = '1.2.2'
   propellerVersion = '0.44'
   findBugsVersion = '3.0.0'

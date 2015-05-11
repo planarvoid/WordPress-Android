@@ -6,7 +6,7 @@ import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.SearchActivity;

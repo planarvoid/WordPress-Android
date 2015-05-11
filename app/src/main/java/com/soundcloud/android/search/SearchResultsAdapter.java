@@ -1,7 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
+import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.eventbus.EventBus;

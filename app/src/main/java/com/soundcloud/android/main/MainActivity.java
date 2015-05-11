@@ -19,7 +19,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
-import com.soundcloud.android.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.service.PlayQueueManager;

@@ -15,7 +15,7 @@ import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.storage.provider.Content;

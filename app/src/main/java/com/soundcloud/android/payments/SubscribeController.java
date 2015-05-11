@@ -7,7 +7,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.ConfigurationOperations;
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import org.jetbrains.annotations.Nullable;

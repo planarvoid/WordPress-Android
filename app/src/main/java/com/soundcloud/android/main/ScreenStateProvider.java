@@ -1,6 +1,6 @@
 package com.soundcloud.android.main;
 
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;

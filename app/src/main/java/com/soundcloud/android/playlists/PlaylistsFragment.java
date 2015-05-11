@@ -3,7 +3,7 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
-import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.view.SlidingTabLayout;
 

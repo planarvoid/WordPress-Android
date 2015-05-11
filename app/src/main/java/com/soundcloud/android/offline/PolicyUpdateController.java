@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DateProvider;
 import rx.Subscription;

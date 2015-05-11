@@ -11,7 +11,7 @@ import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.upload.UploadActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.utils.AndroidUtils;

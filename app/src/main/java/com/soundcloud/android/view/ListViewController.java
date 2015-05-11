@@ -6,7 +6,7 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;

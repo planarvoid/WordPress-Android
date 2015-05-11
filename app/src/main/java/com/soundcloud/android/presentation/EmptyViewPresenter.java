@@ -1,8 +1,8 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.lightcycle.LightCycleBinder;
-import com.soundcloud.android.lightcycle.SupportFragmentLightCycleDispatcher;
+import com.soundcloud.lightcycle.LightCycleBinder;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;

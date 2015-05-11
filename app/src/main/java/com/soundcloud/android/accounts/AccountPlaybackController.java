@@ -1,6 +1,6 @@
 package com.soundcloud.android.accounts;
 
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 
 import android.support.v7.app.ActionBarActivity;

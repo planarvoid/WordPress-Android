@@ -1,6 +1,6 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.support.v7.app.ActionBarActivity;

@@ -5,8 +5,8 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.lightcycle.LightCycle;
-import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;

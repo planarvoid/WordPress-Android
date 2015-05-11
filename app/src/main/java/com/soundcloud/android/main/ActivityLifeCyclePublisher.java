@@ -2,7 +2,7 @@ package com.soundcloud.android.main;
 
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.lightcycle.SupportFragmentLightCycle;
+import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.SyncFailedException;
 import com.soundcloud.android.view.EmptyView;

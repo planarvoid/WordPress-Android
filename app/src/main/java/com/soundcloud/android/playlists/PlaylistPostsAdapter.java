@@ -1,7 +1,7 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.lightcycle.DefaultSupportFragmentLightCycle;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;

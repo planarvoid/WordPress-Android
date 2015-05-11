@@ -2,8 +2,8 @@ package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.lightcycle.LightCycle;
-import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;

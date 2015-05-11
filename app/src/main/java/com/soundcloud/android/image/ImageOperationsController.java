@@ -1,6 +1,6 @@
 package com.soundcloud.android.image;
 
-import com.soundcloud.android.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 
 import android.support.v7.app.ActionBarActivity;
 

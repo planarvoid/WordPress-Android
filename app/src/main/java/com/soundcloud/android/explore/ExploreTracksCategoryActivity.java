@@ -2,7 +2,7 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.ads.AdPlayerController;
-import com.soundcloud.android.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 
