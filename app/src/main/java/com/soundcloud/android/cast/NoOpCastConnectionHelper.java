@@ -3,11 +3,11 @@ package com.soundcloud.android.cast;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.utils.ScTextUtils;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.Menu;
 
-public class NoOpCastConnectionHelper extends DefaultLightCycleActivity<ActionBarActivity> implements CastConnectionHelper  {
+public class NoOpCastConnectionHelper extends DefaultLightCycleActivity<AppCompatActivity> implements CastConnectionHelper  {
 
     @Override
     public void addOnConnectionChangeListener(OnConnectionChangeListener listener) {

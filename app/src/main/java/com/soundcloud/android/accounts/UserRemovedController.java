@@ -11,11 +11,11 @@ import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class UserRemovedController extends DefaultLightCycleActivity<ActionBarActivity> {
+public class UserRemovedController extends DefaultLightCycleActivity<AppCompatActivity> {
     private final EventBus eventBus;
     private Subscription userEventSubscription = Subscriptions.empty();
 
@@ -25,12 +25,12 @@ public class UserRemovedController extends DefaultLightCycleActivity<ActionBarAc
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         userEventSubscription = eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new CurrentUserChangedSubscriber(activity));
     }
 
     @Override
-    public void onDestroy(ActionBarActivity activity) {
+    public void onDestroy(AppCompatActivity activity) {
         userEventSubscription.unsubscribe();
     }
 

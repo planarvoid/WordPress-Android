@@ -1,12 +1,12 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.lightcycle.ActivityLightCycle;
-import android.support.v7.app.ActionBarActivity;
+import com.soundcloud.android.lightcycle.ActivityLightCycle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
 import android.view.Menu;
 
-public interface CastConnectionHelper extends ActivityLightCycle<ActionBarActivity> {
+public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivity> {
 
     interface OnConnectionChangeListener {
         void onCastConnectionChange();

@@ -13,11 +13,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class UserRemovedControllerTest {
-    @Mock private ActionBarActivity activity;
+    @Mock private AppCompatActivity activity;
     private TestEventBus eventBus;
     private UserRemovedController lightCycle;
 

@@ -19,13 +19,13 @@ import rx.subscriptions.Subscriptions;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 
 import javax.inject.Inject;
 
-public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBarActivity> implements PanelSlideListener {
+public class SlidingPlayerController extends DefaultLightCycleActivity<AppCompatActivity> implements PanelSlideListener {
 
     public static final String EXTRA_EXPAND_PLAYER = "expand_player";
 
@@ -47,7 +47,7 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         slidingPanel = (SlidingUpPanelLayout) activity.findViewById(R.id.sliding_layout);
         slidingPanel.setPanelSlideListener(this);
         slidingPanel.setEnableDragViewTouchEvents(true);
@@ -60,7 +60,7 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
         }
     }
 
-    private PlayerFragment getPlayerFragmentFromActivity(ActionBarActivity activity) {
+    private PlayerFragment getPlayerFragmentFromActivity(AppCompatActivity activity) {
         return (PlayerFragment) activity.getSupportFragmentManager().findFragmentById(R.id.player_root);
     }
 
@@ -102,7 +102,7 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
     }
 
     @Override
-    public void onNewIntent(ActionBarActivity activity, Intent intent) {
+    public void onNewIntent(AppCompatActivity activity, Intent intent) {
         expandOnResume = shouldExpand(intent.getExtras());
     }
 
@@ -111,7 +111,7 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
     }
 
     @Override
-    public void onResume(ActionBarActivity activity) {
+    public void onResume(AppCompatActivity activity) {
         if (playQueueManager.isQueueEmpty()) {
             hide();
         } else {
@@ -150,12 +150,12 @@ public class SlidingPlayerController extends DefaultLightCycleActivity<ActionBar
     }
 
     @Override
-    public void onPause(ActionBarActivity activity) {
+    public void onPause(AppCompatActivity activity) {
         subscription.unsubscribe();
     }
 
     @Override
-    public void onSaveInstanceState(ActionBarActivity activity, Bundle bundle) {
+    public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
         bundle.putBoolean(EXTRA_EXPAND_PLAYER, slidingPanel.isPanelExpanded());
     }
 

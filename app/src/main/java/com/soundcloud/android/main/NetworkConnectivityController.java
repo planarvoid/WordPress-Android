@@ -12,11 +12,11 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class NetworkConnectivityController extends DefaultLightCycleActivity<ActionBarActivity> {
+public class NetworkConnectivityController extends DefaultLightCycleActivity<AppCompatActivity> {
     private static final int CONNECTIVITY_MSG = 0;
     private final Context context;
     private final Handler connHandler;
@@ -31,22 +31,22 @@ public class NetworkConnectivityController extends DefaultLightCycleActivity<Act
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         connectivityListener.registerHandler(connHandler, CONNECTIVITY_MSG);
     }
 
     @Override
-    public void onStart(ActionBarActivity activity) {
+    public void onStart(AppCompatActivity activity) {
         connectivityListener.startListening(context);
     }
 
     @Override
-    public void onStop(ActionBarActivity activity) {
+    public void onStop(AppCompatActivity activity) {
         connectivityListener.stopListening();
     }
 
     @Override
-    public void onDestroy(ActionBarActivity activity) {
+    public void onDestroy(AppCompatActivity activity) {
         connectivityListener.unregisterHandler(connHandler);
     }
 

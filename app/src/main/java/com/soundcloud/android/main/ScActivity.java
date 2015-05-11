@@ -8,8 +8,8 @@ import com.soundcloud.android.accounts.AccountPlaybackController;
 import com.soundcloud.android.accounts.UserRemovedController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.image.ImageOperationsController;
-import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleActionBarActivity;
+import com.soundcloud.android.lightcycle.LightCycle;
+import com.soundcloud.android.lightcycle.LightCycleAppCompatActivity;
 import com.soundcloud.android.offline.PolicyUpdateController;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.receiver.UnauthorisedRequestReceiver;
@@ -28,7 +28,7 @@ import javax.inject.Inject;
 /**
  * Just the basics. Should arguably be extended by all activities that a logged in user would use
  */
-public abstract class ScActivity extends LightCycleActionBarActivity {
+public abstract class ScActivity extends LightCycleAppCompatActivity {
     @Inject @LightCycle CastConnectionHelper castConnectionHelper;
     @Inject @LightCycle ActivityLifeCyclePublisher activityLifeCyclePublisher;
     @Inject @LightCycle NetworkConnectivityController networkConnectivityController;

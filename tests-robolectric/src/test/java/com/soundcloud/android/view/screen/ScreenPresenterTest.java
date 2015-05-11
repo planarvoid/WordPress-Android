@@ -13,7 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.support.v4.view.WindowCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +23,7 @@ public class ScreenPresenterTest {
 
     private ScreenPresenter presenter;
 
-    @Mock private ActionBarActivity activity;
+    @Mock private AppCompatActivity activity;
     @Mock private LayoutInflater inflater;
     @Mock private View layout;
     @Mock private ViewGroup container;

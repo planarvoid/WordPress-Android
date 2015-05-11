@@ -6,7 +6,7 @@ import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
@@ -14,7 +14,7 @@ import javax.inject.Inject;
 /**
  * http://support.localytics.com/Android
  */
-public class InAppCampaignController extends DefaultLightCycleActivity<ActionBarActivity> {
+public class InAppCampaignController extends DefaultLightCycleActivity<AppCompatActivity> {
 
     private final LocalyticsAmpSession localyticsAmpSession;
 
@@ -24,7 +24,7 @@ public class InAppCampaignController extends DefaultLightCycleActivity<ActionBar
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, Bundle bundle) {
+    public void onCreate(AppCompatActivity activity, Bundle bundle) {
         final Intent intent = activity.getIntent();
         this.localyticsAmpSession.registerPush(activity.getString(R.string.google_api_key));
         this.localyticsAmpSession.handlePushReceived(intent);           // Only needed if using Localytics Push
@@ -32,7 +32,7 @@ public class InAppCampaignController extends DefaultLightCycleActivity<ActionBar
     }
 
     @Override
-    public void onResume(ActionBarActivity activity) {
+    public void onResume(AppCompatActivity activity) {
         final Intent intent = activity.getIntent();
         localyticsAmpSession.attach(activity);
         localyticsAmpSession.handleIntent(intent);
@@ -40,7 +40,7 @@ public class InAppCampaignController extends DefaultLightCycleActivity<ActionBar
     }
 
     @Override
-    public void onPause(ActionBarActivity activity) {
+    public void onPause(AppCompatActivity activity) {
         localyticsAmpSession.detach();
     }
 }

@@ -9,12 +9,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 import java.util.concurrent.TimeUnit;
 
-public class PolicyUpdateController extends DefaultLightCycleActivity<ActionBarActivity> {
+public class PolicyUpdateController extends DefaultLightCycleActivity<AppCompatActivity> {
 
     static final int OFFLINE_DAYS_WARNING_THRESHOLD = 27;
     static final int OFFLINE_DAYS_ERROR_THRESHOLD = 30;
@@ -41,7 +41,7 @@ public class PolicyUpdateController extends DefaultLightCycleActivity<ActionBarA
     }
 
     @Override
-    public void onResume(ActionBarActivity activity) {
+    public void onResume(AppCompatActivity activity) {
         if (shouldCheckStalePolicies()) {
             subscription = offlineContentOperations
                     .tryToUpdateAndLoadLastPoliciesUpdateTime()
@@ -51,7 +51,7 @@ public class PolicyUpdateController extends DefaultLightCycleActivity<ActionBarA
     }
 
     @Override
-    public void onPause(ActionBarActivity activity) {
+    public void onPause(AppCompatActivity activity) {
         subscription.unsubscribe();
     }
 

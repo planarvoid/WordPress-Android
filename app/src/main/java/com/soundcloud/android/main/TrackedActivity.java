@@ -6,12 +6,12 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 /*
  * This base class can be used for lifecycle tracking where extending from ScActivity is not necessary.
  */
-public abstract class TrackedActivity extends ActionBarActivity {
+public abstract class TrackedActivity extends AppCompatActivity {
 
     public EventBus eventBus;
 

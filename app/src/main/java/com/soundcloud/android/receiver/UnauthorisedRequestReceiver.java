@@ -14,7 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
@@ -47,7 +47,7 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
         }
     }
 
-    public static class LightCycle extends DefaultLightCycleActivity<ActionBarActivity> {
+    public static class LightCycle extends DefaultLightCycleActivity<AppCompatActivity> {
         private UnauthorisedRequestReceiver unauthoriedRequestReceiver;
 
         @Inject
@@ -56,22 +56,22 @@ public class UnauthorisedRequestReceiver extends BroadcastReceiver {
         }
 
         @Override
-        public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+        public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
             unauthoriedRequestReceiver = new UnauthorisedRequestReceiver(activity.getApplicationContext(), activity.getSupportFragmentManager());
         }
 
         @Override
-        public void onResume(ActionBarActivity activity) {
+        public void onResume(AppCompatActivity activity) {
             activity.registerReceiver(unauthoriedRequestReceiver, new IntentFilter(Consts.GeneralIntents.UNAUTHORIZED));
         }
 
         @Override
-        public void onPause(ActionBarActivity activity) {
+        public void onPause(AppCompatActivity activity) {
             safeUnregisterReceiver(activity, unauthoriedRequestReceiver);
         }
 
 
-        private void safeUnregisterReceiver(ActionBarActivity activity, BroadcastReceiver receiver) {
+        private void safeUnregisterReceiver(AppCompatActivity activity, BroadcastReceiver receiver) {
             try {
                 activity.unregisterReceiver(receiver);
             } catch (IllegalArgumentException e) {

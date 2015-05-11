@@ -3,7 +3,7 @@ package com.soundcloud.android.view.screen;
 import com.soundcloud.android.R;
 
 import android.support.v4.view.WindowCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,14 +12,14 @@ import javax.inject.Inject;
 
 public class ScreenPresenter {
 
-    private ActionBarActivity activity;
+    private AppCompatActivity activity;
 
     @Inject
     ScreenPresenter() {
         // required for injection
     }
 
-    public void attach(ActionBarActivity activity) {
+    public void attach(AppCompatActivity activity) {
         this.activity = activity;
     }
 
