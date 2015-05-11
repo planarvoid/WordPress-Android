@@ -112,8 +112,7 @@ public class SearchOperationsTest {
 
         operations.searchResult("query", SearchOperations.TYPE_USERS).subscribe(observer);
 
-        expect(storeUsersCommand.getInput()).toBe(users);
-        verify(storeUsersCommand).call();
+        verify(storeUsersCommand).call(users);
     }
 
     @Test
@@ -124,8 +123,7 @@ public class SearchOperationsTest {
 
         operations.searchResult("query", SearchOperations.TYPE_PLAYLISTS).subscribe(observer);
 
-        expect(storePlaylistsCommand.getInput()).toBe(playlists);
-        verify(storePlaylistsCommand).call();
+        verify(storePlaylistsCommand).call(playlists);
     }
 
     @Test
@@ -136,8 +134,7 @@ public class SearchOperationsTest {
 
         operations.searchResult("query", SearchOperations.TYPE_TRACKS).subscribe(observer);
 
-        expect(storeTracksCommand.getInput()).toBe(tracks);
-        verify(storeTracksCommand).call();
+        verify(storeTracksCommand).call(tracks);
     }
 
     @Test
