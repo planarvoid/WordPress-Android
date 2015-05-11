@@ -1,15 +1,16 @@
 package com.soundcloud.android.search;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +37,8 @@ public class CacheUniversalSearchCommandTest {
         final ApiTrack track = new ApiTrack();
         command.with(Arrays.asList(new ApiUniversalSearchItem(null, null, track))).call();
 
-        verify(storeTracksCommand).call(Arrays.asList(track));
+        expect(storeTracksCommand.getInput()).toEqual(Arrays.asList(track));
+        verify(storeTracksCommand).call();
         verifyZeroInteractions(storePlaylistsCommand);
         verifyZeroInteractions(storeUsersCommand);
     }
@@ -46,7 +48,8 @@ public class CacheUniversalSearchCommandTest {
         final ApiPlaylist playlist = new ApiPlaylist();
         command.with(Arrays.asList(new ApiUniversalSearchItem(null, playlist, null))).call();
 
-        verify(storePlaylistsCommand).call(Arrays.asList(playlist));
+        expect(storePlaylistsCommand.getInput()).toEqual(Arrays.asList(playlist));
+        verify(storePlaylistsCommand).call();
         verifyZeroInteractions(storeTracksCommand);
         verifyZeroInteractions(storeUsersCommand);
     }
@@ -56,7 +59,8 @@ public class CacheUniversalSearchCommandTest {
         final ApiUser user = new ApiUser();
         command.with(Arrays.asList(new ApiUniversalSearchItem(user, null, null))).call();
 
-        verify(storeUsersCommand).call(Arrays.asList(user));
+        expect(storeUsersCommand.getInput()).toEqual(Arrays.asList(user));
+        verify(storeUsersCommand).call();
         verifyZeroInteractions(storeTracksCommand);
         verifyZeroInteractions(storePlaylistsCommand);
     }

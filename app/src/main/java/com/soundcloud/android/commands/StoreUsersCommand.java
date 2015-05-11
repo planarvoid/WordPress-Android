@@ -1,9 +1,10 @@
 package com.soundcloud.android.commands;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
@@ -14,7 +15,7 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? extends UserRecord>, WriteResult> {
+public class StoreUsersCommand extends StoreCommand<Iterable<ApiUser>> {
 
     @Inject
     public StoreUsersCommand(PropellerDatabase database) {
@@ -22,17 +23,18 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
     }
 
     @Override
-    protected WriteResult write(PropellerDatabase propeller, Iterable<? extends UserRecord> input) {
+    protected WriteResult store() {
         final List<ContentValues> newItems = new ArrayList<>(Consts.LIST_PAGE_SIZE);
-        for (UserRecord user : input) {
+        for (ApiUser user : input) {
             newItems.add(buildUserContentValues(user));
         }
-        return propeller.bulkInsert(Table.Users, newItems);
+
+        return database.bulkInsert(Table.Users, newItems);
     }
 
-    public static ContentValues buildUserContentValues(UserRecord user) {
+    public static ContentValues buildUserContentValues(ApiUser user) {
         return ContentValuesBuilder.values()
-                .put(TableColumns.Users._ID, user.getUrn().getNumericId())
+                .put(TableColumns.Users._ID, user.getId())
                 .put(TableColumns.Users.USERNAME, user.getUsername())
                 .put(TableColumns.Users.COUNTRY, user.getCountry())
                 .put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount())

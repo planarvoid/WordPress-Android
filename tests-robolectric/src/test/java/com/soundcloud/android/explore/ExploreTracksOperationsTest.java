@@ -1,5 +1,6 @@
 package com.soundcloud.android.explore;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
@@ -93,7 +94,8 @@ public class ExploreTracksOperationsTest {
 
         exploreTracksOperations.getSuggestedTracks(ExploreGenre.POPULAR_MUSIC_CATEGORY).subscribe(observer);
 
-        verify(storeTracksCommand).call(collection);
+        expect(storeTracksCommand.getInput()).toBe(collection);
+        verify(storeTracksCommand).call();
     }
 
     private SuggestedTracksCollection buildSuggestedTracksResponse() throws CreateModelException {

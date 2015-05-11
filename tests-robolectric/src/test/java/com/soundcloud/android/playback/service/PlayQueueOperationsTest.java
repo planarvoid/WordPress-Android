@@ -197,7 +197,8 @@ public class PlayQueueOperationsTest {
 
         playQueueOperations.getRelatedTracks(Urn.forTrack(1)).subscribe(observer);
 
-        verify(storeTracksCommand).call(collection);
+        verify(storeTracksCommand).call();
+        expect(storeTracksCommand.getInput()).toBe(collection);
     }
 
     private RecommendedTracksCollection createCollection(ApiTrack... suggestions) {

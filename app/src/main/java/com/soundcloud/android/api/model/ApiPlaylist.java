@@ -7,14 +7,13 @@ import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.propeller.PropertySet;
 
 import java.util.Date;
 import java.util.List;
 
-public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistRecord {
+public class ApiPlaylist extends ScModel implements PropertySetSource {
 
     private String title;
     private ApiUser user;
@@ -105,16 +104,6 @@ public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistR
 
     public String getPermalinkUrl() {
         return permalinkUrl;
-    }
-
-    @Override
-    public int getLikesCount() {
-        return stats.getLikesCount();
-    }
-
-    @Override
-    public int getRepostsCount() {
-        return stats.getRepostsCount();
     }
 
     @JsonProperty("permalink_url")

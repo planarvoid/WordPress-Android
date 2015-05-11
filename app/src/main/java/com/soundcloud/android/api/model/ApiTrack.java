@@ -9,9 +9,7 @@ import com.soundcloud.android.api.legacy.model.TrackStats;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.PropertySet;
 
 import android.os.Parcel;
@@ -20,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord {
+public class ApiTrack extends ScModel implements PropertySetSource {
 
     public static Creator<ApiTrack> CREATOR = new Creator<ApiTrack>() {
         public ApiTrack createFromParcel(Parcel source) {
@@ -90,7 +88,7 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
         this.genre = genre;
     }
 
-    public UserRecord getUser() {
+    public ApiUser getUser() {
         return user;
     }
 
@@ -209,26 +207,6 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
 
     public boolean isSyncable() {
         return syncable;
-    }
-
-    @Override
-    public int getPlaybackCount() {
-        return stats.getPlaybackCount();
-    }
-
-    @Override
-    public int getCommentsCount() {
-        return stats.getCommentsCount();
-    }
-
-    @Override
-    public int getLikesCount() {
-        return stats.getLikesCount();
-    }
-
-    @Override
-    public int getRepostsCount() {
-        return stats.getRepostsCount();
     }
 
     @JsonProperty("syncable")

@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.entities.EntitySyncJob;
@@ -25,7 +25,7 @@ public class EntitySyncJobTest {
     private EntitySyncJob entitySyncJob;
 
     @Mock private BulkFetchCommand fetchResources;
-    @Mock private StoreTracksCommand storeResources;
+    @Mock private StoreCommand storeResources;
 
     @Before
     public void setUp() throws Exception {
@@ -40,7 +40,8 @@ public class EntitySyncJobTest {
         entitySyncJob.setUrns(Arrays.asList(Urn.forTrack(123L)));
         entitySyncJob.run();
 
-        verify(storeResources).call(tracks);
+        verify(storeResources).call();
+        expect(storeResources.getInput()).toEqual(tracks);
     }
 
     @Test

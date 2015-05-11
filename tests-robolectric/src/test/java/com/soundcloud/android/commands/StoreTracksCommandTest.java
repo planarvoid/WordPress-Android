@@ -29,7 +29,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
     @Test
     public void shouldPersistTracksWithCreatorsInDatabase() throws Exception {
         final List<ApiTrack> tracks = ModelFixtures.create(ApiTrack.class, 2);
-        command.call(tracks);
+        command.with(tracks).call();
         databaseAssertions().assertTrackWithUserInserted(tracks.get(0));
         databaseAssertions().assertTrackWithUserInserted(tracks.get(1));
     }
@@ -39,7 +39,7 @@ public class StoreTracksCommandTest extends StorageIntegrationTest {
         final ApiTrack track = testFixtures().insertTrack();
         track.setTitle("new title");
 
-        command.call(Arrays.asList(track));
+        command.with(Arrays.asList(track)).call();
 
         assertThat(select(from(Table.Sounds.name())), counts(1));
         databaseAssertions().assertTrackInserted(track);

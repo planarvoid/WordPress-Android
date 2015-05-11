@@ -44,13 +44,13 @@ class CacheUniversalSearchCommand extends LegacyCommand<Iterable<ApiUniversalSea
         }
 
         if (!users.isEmpty()) {
-            storeUsersCommand.call(users);
+            storeUsersCommand.with(users).call();
         }
         if (!playlists.isEmpty()) {
-            storePlaylistsCommand.call(playlists);
+            storePlaylistsCommand.with(playlists).call();
         }
         if (!tracks.isEmpty()) {
-            storeTracksCommand.call(tracks);
+            storeTracksCommand.with(tracks).call();
         }
 
         return null;

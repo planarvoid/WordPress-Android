@@ -15,7 +15,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistTrackProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.WriteResult;
@@ -25,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -192,7 +190,8 @@ public class SinglePlaylistSyncerTest {
     }
 
     private void verifyTracksStored(ApiTrack... apiTrack) throws PropellerWriteException {
-        verify(storeTracksCommand).call(Arrays.asList(apiTrack));
+        verify(storeTracksCommand).call();
+        expect(storeTracksCommand.getInput()).toContainExactly(apiTrack);
     }
 
     private void verifyNoRemoteAdditions() {
@@ -217,7 +216,8 @@ public class SinglePlaylistSyncerTest {
     }
 
     private void verifyNoTracksStored() throws PropellerWriteException {
-        verify(storeTracksCommand).call(Collections.<TrackRecord>emptyList());
+        verify(storeTracksCommand).call();
+        expect(storeTracksCommand.getInput()).toBeEmpty();
     }
 
     private void withLocalTracks(PropertySet... tracks) throws Exception {

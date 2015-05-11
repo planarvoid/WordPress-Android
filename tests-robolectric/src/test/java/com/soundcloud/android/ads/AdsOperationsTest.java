@@ -72,7 +72,8 @@ public class AdsOperationsTest {
 
         adsOperations.ads(TRACK_URN).subscribe();
 
-        verify(storeTracksCommand).call(Arrays.asList(fullAdsForTrack.audioAd().getApiTrack()));
+        expect(storeTracksCommand.getInput()).toEqual(Arrays.asList(fullAdsForTrack.audioAd().getApiTrack()));
+        verify(storeTracksCommand).call();
     }
 
     @Test

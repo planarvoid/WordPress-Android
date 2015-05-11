@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.commands.BulkFetchCommand;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
+import com.soundcloud.android.commands.StoreCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -33,7 +33,7 @@ public class PostsSyncerTest {
     @Mock private StorePostsCommand storePlaylistPosts;
     @Mock private RemovePostsCommand removePlaylistPosts;
     @Mock private BulkFetchCommand<ApiPlaylist> fetchPostResources;
-    @Mock private StorePlaylistsCommand storePostResources;
+    @Mock private StoreCommand<Iterable<ApiPlaylist>> storePostResources;
 
     private PropertySet post1;
     private PropertySet post2;
@@ -105,7 +105,8 @@ public class PostsSyncerTest {
 
         expect(syncer.call()).toBe(true);
 
-        verify(storePostResources).call(playlists);
+        verify(storePostResources).call();
+        expect(storePostResources.getInput()).toEqual(playlists);
 
     }
 

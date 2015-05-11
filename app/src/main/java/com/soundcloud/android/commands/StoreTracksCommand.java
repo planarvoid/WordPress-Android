@@ -1,8 +1,8 @@
 package com.soundcloud.android.commands;
 
+import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -12,58 +12,58 @@ import android.content.ContentValues;
 
 import javax.inject.Inject;
 
-public class StoreTracksCommand extends DefaultWriteStorageCommand<Iterable<? extends TrackRecord>, WriteResult> {
+public class StoreTracksCommand extends StoreCommand<Iterable<ApiTrack>> {
 
     @Inject
     public StoreTracksCommand(PropellerDatabase database) {
         super(database);
     }
 
+    public static ContentValues buildTrackContentValues(ApiTrack track) {
+        if (track.getTitle() == null) {
+            ErrorUtils.handleSilentException(new IllegalStateException("Inserting a track with a NULL title: " + track.getUrn()));
+        }
+        return ContentValuesBuilder.values()
+                .put(TableColumns.Sounds._ID, track.getId())
+                .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
+                .put(TableColumns.Sounds.TITLE, track.getTitle())
+                .put(TableColumns.Sounds.DURATION, track.getDuration())
+                .put(TableColumns.Sounds.WAVEFORM_URL, track.getWaveformUrl())
+                .put(TableColumns.Sounds.STREAM_URL, track.getStreamUrl())
+                .put(TableColumns.Sounds.PERMALINK_URL, track.getPermalinkUrl())
+                .put(TableColumns.Sounds.CREATED_AT, track.getCreatedAt().getTime())
+                .put(TableColumns.Sounds.GENRE, track.getGenre())
+                .put(TableColumns.Sounds.SHARING, track.getSharing().value())
+                .put(TableColumns.Sounds.COMMENTABLE, track.isCommentable())
+                .put(TableColumns.Sounds.PLAYBACK_COUNT, track.getStats().getPlaybackCount())
+                .put(TableColumns.Sounds.COMMENT_COUNT, track.getStats().getCommentsCount())
+                .put(TableColumns.Sounds.LIKES_COUNT, track.getStats().getLikesCount())
+                .put(TableColumns.Sounds.REPOSTS_COUNT, track.getStats().getRepostsCount())
+                .put(TableColumns.Sounds.USER_ID, track.getUser().getId())
+                .get();
+    }
+
+    public static ContentValues buildPolicyContentValues(ApiTrack track) {
+        return ContentValuesBuilder.values()
+                .put(TableColumns.TrackPolicies.TRACK_ID, track.getId())
+                .put(TableColumns.TrackPolicies.MONETIZABLE, track.isMonetizable())
+                .put(TableColumns.TrackPolicies.POLICY, track.getPolicy())
+                .put(TableColumns.TrackPolicies.SYNCABLE, track.isSyncable())
+                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis())
+                .get();
+    }
+
     @Override
-    protected WriteResult write(PropellerDatabase propeller, final Iterable<? extends TrackRecord> input) {
-        return propeller.runTransaction(new PropellerDatabase.Transaction() {
+    protected WriteResult store() {
+        return database.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                for (TrackRecord trackRecord : input) {
-                    step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(trackRecord.getUser())));
-                    step(propeller.upsert(Table.Sounds, buildTrackContentValues(trackRecord)));
-                    step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(trackRecord)));
+                for (ApiTrack track : input) {
+                    step(propeller.upsert(Table.Users, StoreUsersCommand.buildUserContentValues(track.getUser())));
+                    step(propeller.upsert(Table.Sounds, buildTrackContentValues(track)));
+                    step(propeller.upsert(Table.TrackPolicies, buildPolicyContentValues(track)));
                 }
             }
         });
-    }
-
-    public static ContentValues buildTrackContentValues(TrackRecord trackRecord) {
-        if (trackRecord.getTitle() == null) {
-            ErrorUtils.handleSilentException(new IllegalStateException("Inserting a track with a NULL title: " + trackRecord.getUrn()));
-        }
-        return ContentValuesBuilder.values()
-                .put(TableColumns.Sounds._ID, trackRecord.getUrn().getNumericId())
-                .put(TableColumns.Sounds._TYPE, TableColumns.Sounds.TYPE_TRACK)
-                .put(TableColumns.Sounds.TITLE, trackRecord.getTitle())
-                .put(TableColumns.Sounds.DURATION, trackRecord.getDuration())
-                .put(TableColumns.Sounds.WAVEFORM_URL, trackRecord.getWaveformUrl())
-                .put(TableColumns.Sounds.STREAM_URL, trackRecord.getStreamUrl())
-                .put(TableColumns.Sounds.PERMALINK_URL, trackRecord.getPermalinkUrl())
-                .put(TableColumns.Sounds.CREATED_AT, trackRecord.getCreatedAt().getTime())
-                .put(TableColumns.Sounds.GENRE, trackRecord.getGenre())
-                .put(TableColumns.Sounds.SHARING, trackRecord.getSharing().value())
-                .put(TableColumns.Sounds.COMMENTABLE, trackRecord.isCommentable())
-                .put(TableColumns.Sounds.PLAYBACK_COUNT, trackRecord.getPlaybackCount())
-                .put(TableColumns.Sounds.COMMENT_COUNT, trackRecord.getCommentsCount())
-                .put(TableColumns.Sounds.LIKES_COUNT, trackRecord.getLikesCount())
-                .put(TableColumns.Sounds.REPOSTS_COUNT, trackRecord.getRepostsCount())
-                .put(TableColumns.Sounds.USER_ID, trackRecord.getUser().getUrn().getNumericId())
-                .get();
-    }
-
-    public static ContentValues buildPolicyContentValues(TrackRecord trackRecord) {
-        return ContentValuesBuilder.values()
-                .put(TableColumns.TrackPolicies.TRACK_ID, trackRecord.getUrn().getNumericId())
-                .put(TableColumns.TrackPolicies.MONETIZABLE, trackRecord.isMonetizable())
-                .put(TableColumns.TrackPolicies.POLICY, trackRecord.getPolicy())
-                .put(TableColumns.TrackPolicies.SYNCABLE, trackRecord.isSyncable())
-                .put(TableColumns.TrackPolicies.LAST_UPDATED, System.currentTimeMillis())
-                .get();
     }
 }
