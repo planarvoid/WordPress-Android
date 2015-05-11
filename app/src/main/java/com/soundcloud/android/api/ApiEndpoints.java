@@ -63,7 +63,6 @@ public enum ApiEndpoints {
     PLAYLIST_REMOVE_TRACK("/playlists/%s/tracks/%s"),
 
     // other
-    EXPERIMENTS("/experiments/%s"),
     HLS_STREAM("/tracks/%s/streams/hls"),
     HTTP_STREAM("/tracks/%s/streams/http"),
     SUBSCRIPTIONS("/subscriptions"),
@@ -75,17 +74,10 @@ public enum ApiEndpoints {
 
     // public API (DEPRECATED)
     CURRENT_USER("/me"),
-    MY_TRACK_LIKES("/e1/me/track_likes/%s"),
     MY_TRACK_REPOSTS("/e1/me/track_reposts/%s"),
-    MY_PLAYLIST_LIKES("/e1/me/playlist_likes/%s"),
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
-    LEGACY_SEARCH_ALL("/search"),
-    LEGACY_SEARCH_TRACKS("/search/sounds"),
-    LEGACY_SEARCH_PLAYLISTS("/search/sets"),
-    LEGACY_SEARCH_USERS("/search/people"),
     LEGACY_TRACKS("/tracks"),
-    LEGACY_TRACK("/tracks/%s"),
     TRACK_COMMENTS("/tracks/%s/comments");
 
     private final String path;
