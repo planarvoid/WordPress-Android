@@ -32,7 +32,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -43,7 +43,7 @@ public class SlidingPlayerControllerTest {
     @Mock private PlayQueueManager playQueueManager;
     @Mock private ActionBarController actionBarController;
     @Mock private View layout;
-    @Mock private ActionBarActivity activity;
+    @Mock private AppCompatActivity activity;
     @Mock private SlidingUpPanelLayout slidingPanel;
     @Mock private View playerView;
     @Mock private FragmentManager fragmentManager;

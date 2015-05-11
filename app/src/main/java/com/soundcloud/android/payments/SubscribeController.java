@@ -16,7 +16,7 @@ import rx.subscriptions.CompositeSubscription;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -24,7 +24,7 @@ import android.widget.Toast;
 
 import javax.inject.Inject;
 
-class SubscribeController extends DefaultLightCycleActivity<ActionBarActivity> {
+class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
 
     private final PaymentOperations paymentOperations;
     private final PaymentErrorController paymentErrorController;
@@ -49,7 +49,7 @@ class SubscribeController extends DefaultLightCycleActivity<ActionBarActivity> {
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         this.activity = activity;
         activity.setContentView(R.layout.subscribe_activity);
         ButterKnife.inject(this, activity.findViewById(android.R.id.content));
@@ -58,7 +58,7 @@ class SubscribeController extends DefaultLightCycleActivity<ActionBarActivity> {
     }
 
     @Override
-    public void onDestroy(ActionBarActivity activity) {
+    public void onDestroy(AppCompatActivity activity) {
         subscription.unsubscribe();
         paymentOperations.disconnect();
     }

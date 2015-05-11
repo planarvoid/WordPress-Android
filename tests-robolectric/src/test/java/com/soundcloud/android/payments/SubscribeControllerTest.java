@@ -24,7 +24,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
@@ -35,7 +35,7 @@ public class SubscribeControllerTest {
     @Mock private PaymentOperations paymentOperations;
     @Mock private PaymentErrorController paymentErrorController;
     @Mock private ConfigurationOperations configurationOperations;
-    @Mock private ActionBarActivity activity;
+    @Mock private AppCompatActivity activity;
 
     private SubscribeController controller;
     private View contentView;

@@ -3,11 +3,11 @@ package com.soundcloud.android.accounts;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class AccountPlaybackController extends DefaultLightCycleActivity<ActionBarActivity> {
+public class AccountPlaybackController extends DefaultLightCycleActivity<AppCompatActivity> {
     private final AccountOperations accountOperations;
     private final PlaybackOperations playbackOperations;
 
@@ -18,7 +18,7 @@ public class AccountPlaybackController extends DefaultLightCycleActivity<ActionB
     }
 
     @Override
-    public void onResume(ActionBarActivity activity) {
+    public void onResume(AppCompatActivity activity) {
         if (!accountOperations.isUserLoggedIn()) {
             playbackOperations.resetService();
             activity.finish();

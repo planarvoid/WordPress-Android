@@ -17,13 +17,13 @@ import com.soundcloud.android.utils.DeviceHelper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import javax.inject.Inject;
 
-public class ActionBarController extends DefaultLightCycleActivity<ActionBarActivity> {
+public class ActionBarController extends DefaultLightCycleActivity<AppCompatActivity> {
     protected EventBus eventBus;
     private final ApplicationProperties applicationProperties;
     private final DeviceHelper deviceHelper;
@@ -37,7 +37,7 @@ public class ActionBarController extends DefaultLightCycleActivity<ActionBarActi
     }
 
     @Override
-    public boolean onOptionsItemSelected(final ActionBarActivity activity, MenuItem item) {
+    public boolean onOptionsItemSelected(final AppCompatActivity activity, MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_search:
                 startActivity(activity, SearchActivity.class);
@@ -63,7 +63,7 @@ public class ActionBarController extends DefaultLightCycleActivity<ActionBarActi
         }
     }
 
-    private void showFeedbackDialog(final ActionBarActivity activity) {
+    private void showFeedbackDialog(final AppCompatActivity activity) {
         final String[] feedbackOptions = activity.getResources().getStringArray(R.array.feedback_options);
         new AlertDialog.Builder(activity).setTitle(R.string.select_feedback_category)
                 .setItems(feedbackOptions, new DialogInterface.OnClickListener() {

@@ -26,7 +26,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,24 +38,15 @@ public class NavigationFragmentTest {
 
     NavigationFragment fragment;
 
-    @Mock(extraInterfaces = NavigationCallbacks.class)
-    ActionBarActivity activity;
-    @Mock
-    Intent intent;
-    @Mock
-    SoundCloudApplication application;
-    @Mock
-    ViewGroup container;
-    @Mock
-    ActionBar actionBar;
-    @Mock
-    LayoutInflater layoutInflater;
-    @Mock
-    ListView listView;
-    @Mock
-    ImageOperations imageOperations;
-    @Mock
-    AccountOperations accountOperations;
+    @Mock(extraInterfaces = NavigationCallbacks.class) AppCompatActivity activity;
+    @Mock Intent intent;
+    @Mock SoundCloudApplication application;
+    @Mock ViewGroup container;
+    @Mock ActionBar actionBar;
+    @Mock LayoutInflater layoutInflater;
+    @Mock ListView listView;
+    @Mock ImageOperations imageOperations;
+    @Mock AccountOperations accountOperations;
 
     @Before
     public void setUp() throws Exception {
@@ -80,13 +71,13 @@ public class NavigationFragmentTest {
         verifyPositionSelected(NavItem.STREAM);
     }
 
-   @Test
+    @Test
     public void initStateShouldCallbackWithSavedInstancePosition() throws Exception {
-       Bundle bundle = Mockito.mock(Bundle.class);
-       when(bundle.getInt(NavigationFragment.STATE_SELECTED_POSITION)).thenReturn(NavItem.LIKES.ordinal());
-       fragment.initState(bundle);
-       verifyPositionSelected(NavItem.LIKES);
-   }
+        Bundle bundle = Mockito.mock(Bundle.class);
+        when(bundle.getInt(NavigationFragment.STATE_SELECTED_POSITION)).thenReturn(NavItem.LIKES.ordinal());
+        fragment.initState(bundle);
+        verifyPositionSelected(NavItem.LIKES);
+    }
 
     @Test
     public void initStateShouldCallbackWithStreamPositionFromAction() throws Exception {
@@ -162,7 +153,7 @@ public class NavigationFragmentTest {
         expect(fragment.getCurrentSelectedPosition()).not.toBe(NavItem.PROFILE.ordinal());
     }
 
-    private void verifyPositionSelected(NavItem navItem){
+    private void verifyPositionSelected(NavItem navItem) {
         verify((NavigationCallbacks) activity).onSelectItem(navItem.ordinal());
     }
 

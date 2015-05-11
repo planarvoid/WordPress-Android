@@ -16,13 +16,13 @@ import rx.functions.Func1;
 import rx.functions.Func2;
 import rx.subscriptions.Subscriptions;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class AdPlayerController extends DefaultLightCycleActivity<ActionBarActivity> {
+public class AdPlayerController extends DefaultLightCycleActivity<AppCompatActivity> {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
 
@@ -72,7 +72,7 @@ public class AdPlayerController extends DefaultLightCycleActivity<ActionBarActiv
     }
 
     @Override
-    public void onResume(ActionBarActivity activity) {
+    public void onResume(AppCompatActivity activity) {
         subscription = Observable
                 .combineLatest(
                         eventBus.queue(EventQueue.PLAY_QUEUE_TRACK),
@@ -84,7 +84,7 @@ public class AdPlayerController extends DefaultLightCycleActivity<ActionBarActiv
     }
 
     @Override
-    public void onPause(ActionBarActivity activity) {
+    public void onPause(AppCompatActivity activity) {
         subscription.unsubscribe();
     }
 

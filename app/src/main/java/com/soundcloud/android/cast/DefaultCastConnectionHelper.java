@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.MediaRouteButton;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -80,18 +80,18 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void onResume(ActionBarActivity activity) {
+    public void onResume(AppCompatActivity activity) {
         videoCastManager.startCastDiscovery();
         videoCastManager.incrementUiCounter();
     }
 
     @Override
-    public boolean onOptionsItemSelected(ActionBarActivity activity, MenuItem item) {
+    public boolean onOptionsItemSelected(AppCompatActivity activity, MenuItem item) {
         return false;
     }
 
     @Override
-    public void onPause(ActionBarActivity activity) {
+    public void onPause(AppCompatActivity activity) {
         videoCastManager.stopCastDiscovery();
         videoCastManager.decrementUiCounter();
     }
@@ -133,37 +133,37 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onNewIntent(ActionBarActivity activity, Intent intent) {
+    public void onNewIntent(AppCompatActivity activity, Intent intent) {
         /* no-op */
     }
 
     @Override
-    public void onStart(ActionBarActivity activity) {
+    public void onStart(AppCompatActivity activity) {
         /* no-op */
     }
 
     @Override
-    public void onStop(ActionBarActivity activity) {
+    public void onStop(AppCompatActivity activity) {
         /* no-op */
     }
 
     @Override
-    public void onSaveInstanceState(ActionBarActivity activity, Bundle bundle) {
+    public void onSaveInstanceState(AppCompatActivity activity, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onRestoreInstanceState(ActionBarActivity activity, Bundle bundle) {
+    public void onRestoreInstanceState(AppCompatActivity activity, Bundle bundle) {
         /* no-op */
     }
 
     @Override
-    public void onDestroy(ActionBarActivity activity) {
+    public void onDestroy(AppCompatActivity activity) {
         /* no-op */
     }
 }

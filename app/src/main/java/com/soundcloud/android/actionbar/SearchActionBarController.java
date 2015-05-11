@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -32,7 +32,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.internal.view.SupportMenuItem;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.view.Menu;
 import android.view.inputmethod.EditorInfo;
@@ -92,14 +92,14 @@ public class SearchActionBarController extends ActionBarController {
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, @Nullable Bundle savedInstanceState) {
+    public void onCreate(AppCompatActivity activity, @Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_QUERY)) {
             query = savedInstanceState.getString(STATE_QUERY);
         }
     }
 
     @Override
-    public void onDestroy(ActionBarActivity activity) {
+    public void onDestroy(AppCompatActivity activity) {
         // Suggestions adapter has to stop handler thread
         if (suggestionsAdapter != null) {
             suggestionsAdapter.onDestroy();
@@ -135,7 +135,7 @@ public class SearchActionBarController extends ActionBarController {
         }
     }
 
-    private void launchSuggestion(ActionBarActivity activity, int position) {
+    private void launchSuggestion(AppCompatActivity activity, int position) {
         final Uri itemUri = suggestionsAdapter.getItemIntentData(position);
 
         final boolean localResult = suggestionsAdapter.isLocalResult(position);
@@ -191,7 +191,7 @@ public class SearchActionBarController extends ActionBarController {
         }
     }
 
-    public void configureSearchState(final ActionBarActivity activity, Menu menu) {
+    public void configureSearchState(final AppCompatActivity activity, Menu menu) {
         initSearchView(activity, menu);
         searchView.setOnQueryTextListener(queryTextListener);
         searchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
@@ -223,7 +223,7 @@ public class SearchActionBarController extends ActionBarController {
         }
     }
 
-    private void initSearchView(ActionBarActivity activity, Menu menu) {
+    private void initSearchView(AppCompatActivity activity, Menu menu) {
         SearchManager searchManager = (SearchManager) activity.getSystemService(Context.SEARCH_SERVICE);
         final SearchableInfo searchableInfo = searchManager.getSearchableInfo(activity.getComponentName());
 

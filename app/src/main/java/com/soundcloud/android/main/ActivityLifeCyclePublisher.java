@@ -7,11 +7,11 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-public class ActivityLifeCyclePublisher extends DefaultLightCycleActivity<ActionBarActivity> {
+public class ActivityLifeCyclePublisher extends DefaultLightCycleActivity<AppCompatActivity> {
     private final EventBus eventBus;
 
     @Inject
@@ -20,17 +20,17 @@ public class ActivityLifeCyclePublisher extends DefaultLightCycleActivity<Action
     }
 
     @Override
-    public void onCreate(ActionBarActivity activity, @Nullable Bundle bundle) {
+    public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnCreate(activity.getClass()));
     }
 
     @Override
-    public void onResume(ActionBarActivity activity) {
+    public void onResume(AppCompatActivity activity) {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnResume(activity.getClass()));
     }
 
     @Override
-    public void onPause(ActionBarActivity activity) {
+    public void onPause(AppCompatActivity activity) {
         eventBus.publish(EventQueue.ACTIVITY_LIFE_CYCLE, ActivityLifeCycleEvent.forOnPause(activity.getClass()));
     }
 }

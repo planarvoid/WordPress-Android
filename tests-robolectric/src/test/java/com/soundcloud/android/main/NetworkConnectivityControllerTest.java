@@ -22,14 +22,14 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class NetworkConnectivityControllerTest {
     @Captor ArgumentCaptor<Handler> handlerArgumentCaptor;
     @Captor ArgumentCaptor<Integer> whatArgumentCaptor;
     @Captor ArgumentCaptor<Intent> intentArgumentCaptor;
-    @Mock private ActionBarActivity activity;
+    @Mock private AppCompatActivity activity;
     @Mock private NetworkInfo networkInfo;
     @Mock private NetworkConnectivityListener listener;
     @Mock private Context context;

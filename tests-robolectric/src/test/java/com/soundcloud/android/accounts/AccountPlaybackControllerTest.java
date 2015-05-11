@@ -11,13 +11,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 @RunWith(SoundCloudTestRunner.class)
 public class AccountPlaybackControllerTest {
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private ActionBarActivity activity;
+    @Mock private AppCompatActivity activity;
 
     private AccountPlaybackController lightCycle;
 

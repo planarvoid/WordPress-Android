@@ -25,7 +25,7 @@ import org.mockito.Mock;
 import android.content.res.Resources;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -33,7 +33,7 @@ public class NavigationDrawerFragmentTest {
 
     private NavigationDrawerFragment fragment;
 
-    @Mock(extraInterfaces = NavigationFragment.NavigationCallbacks.class) ActionBarActivity activity;
+    @Mock(extraInterfaces = NavigationFragment.NavigationCallbacks.class) AppCompatActivity activity;
     @Mock DrawerLayout drawerLayout;
     @Mock ActionBar actionBar;
     @Mock View view;
