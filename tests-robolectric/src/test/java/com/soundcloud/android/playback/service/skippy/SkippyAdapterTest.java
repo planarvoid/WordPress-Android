@@ -103,7 +103,7 @@ public class SkippyAdapterTest {
         userUrn = ModelFixtures.create(Urn.class);
         when(skippyFactory.create(any(PlayListener.class))).thenReturn(skippy);
         skippyAdapter = new SkippyAdapter(skippyFactory, accountOperations, apiUrlBuilder,
-                stateChangeHandler, eventBus, connectionHelper, lockUtil, deviceHelper, bufferUnderrunListener, sharedPreferences, secureFileStorage, cryptoOperations);
+                stateChangeHandler, eventBus, connectionHelper, lockUtil, bufferUnderrunListener, sharedPreferences, secureFileStorage, cryptoOperations);
         skippyAdapter.setListener(listener);
 
         track = TestPropertySets.expectedTrackForPlayer();
@@ -401,23 +401,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void doesNotLockLockUtilWhenPlayingIfNotInTestGroup() {
-        skippyAdapter.play(track);
-        skippyAdapter.onStateChanged(State.PLAYING, Reason.NOTHING, Error.OK, PROGRESS, DURATION, STREAM_URL);
-
-        verify(lockUtil, never()).lock();
-    }
-
-    @Test
-    public void doesNotLockLockUtilWhenBufferingIfNotInTestGroup() {
-        skippyAdapter.play(track);
-        skippyAdapter.onStateChanged(State.PLAYING, Reason.BUFFERING, Error.OK, PROGRESS, DURATION, STREAM_URL);
-
-        verify(lockUtil, never()).lock();
-    }
-
-    @Test
-    public void locksLockUtilWhenPlayingIfInTestGroup() {
+    public void locksLockUtilWhenPlaying() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -427,7 +411,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void locksLockUtilWhenBufferingIfInTestGroup() {
+    public void locksLockUtilWhenBuffering() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -437,7 +421,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void unlocksLockUtilWhenIdleIfInTestGroup() {
+    public void unlocksLockUtilWhenIdle() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -447,7 +431,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void unlocksLockUtilOnErrorIfInTestGroup() {
+    public void unlocksLockUtilOnError() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);
@@ -457,7 +441,7 @@ public class SkippyAdapterTest {
     }
 
     @Test
-    public void unlocksLockUtilWhenCompleteIfInTestGroup() {
+    public void unlocksLockUtilWhenComplete() {
         when(deviceHelper.inSplitTestGroup()).thenReturn(true);
 
         skippyAdapter.play(track);

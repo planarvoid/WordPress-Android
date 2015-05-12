@@ -32,7 +32,6 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
@@ -72,7 +71,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private final StateChangeHandler stateHandler;
     private final ApiUrlBuilder urlBuilder;
     private final NetworkConnectionHelper connectionHelper;
-    private final DeviceHelper deviceHelper;
     private final BufferUnderrunListener bufferUnderrunListener;
     private final SharedPreferences sharedPreferences;
     private final SecureFileStorage secureFileStorage;
@@ -86,7 +84,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     @Inject
     SkippyAdapter(SkippyFactory skippyFactory, AccountOperations accountOperations, ApiUrlBuilder urlBuilder,
                   StateChangeHandler stateChangeHandler, EventBus eventBus, NetworkConnectionHelper connectionHelper,
-                  LockUtil lockUtil, DeviceHelper deviceHelper, BufferUnderrunListener bufferUnderrunListener,
+                  LockUtil lockUtil, BufferUnderrunListener bufferUnderrunListener,
                   SharedPreferences sharedPreferences, SecureFileStorage secureFileStorage, CryptoOperations cryptoOperations) {
         this.skippyFactory = skippyFactory;
         this.lockUtil = lockUtil;
@@ -99,7 +97,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
         this.urlBuilder = urlBuilder;
         this.eventBus = eventBus;
         this.connectionHelper = connectionHelper;
-        this.deviceHelper = deviceHelper;
         this.stateHandler = stateChangeHandler;
         this.stateHandler.setBufferUnderrunListener(bufferUnderrunListener);
     }
@@ -187,9 +184,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private void sendSkippyPlayEvent() {
         // we can get rid of this after 100 percent launch. This is to help determind effectiveness of wakelocks
-        final boolean shouldUseLocks = shouldUseLocks();
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
-        eventBus.publish(EventQueue.TRACKING, new SkippyPlayEvent(currentConnectionType, shouldUseLocks));
+        eventBus.publish(EventQueue.TRACKING, new SkippyPlayEvent(currentConnectionType, true));
     }
 
     private String buildStreamUrl(int playType) {
@@ -290,11 +286,10 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             final PlayaState translatedState = getTranslatedState(state, reason);
             final Reason translatedReason = getTranslatedReason(reason, errorCode);
             final StateTransition transition = new StateTransition(translatedState, translatedReason, currentTrackUrn, adjustedPosition, duration);
-            final boolean shouldUseLocks = shouldUseLocks();
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYBACK_PROTOCOL, getPlaybackProtocol().getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_PLAYER_TYPE, PlayerType.SKIPPY.getValue());
             transition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, connectionHelper.getCurrentConnectionType().getValue());
-            transition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(shouldUseLocks));
+            transition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, String.valueOf(true));
 
             if (transition.playbackHasStopped()){
                 currentStreamUrl = null;
@@ -302,15 +297,8 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
             Message msg = stateHandler.obtainMessage(0, transition);
             stateHandler.sendMessage(msg);
-
-            if (shouldUseLocks){
-                configureLockBasedOnNewState(transition);
-            }
+            configureLockBasedOnNewState(transition);
         }
-    }
-
-    private boolean shouldUseLocks() {
-        return deviceHelper.inSplitTestGroup();
     }
 
     private void configureLockBasedOnNewState(StateTransition transition) {
