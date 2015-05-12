@@ -130,4 +130,7 @@
     <dimen name="likes_shuffle_button_margin_right">12dp</dimen>
     <dimen name="collection_download_state_margin_right">5dip</dimen>
 
+    <!-- Toolbar -->
+    <dimen name="toolbar_elevation">4dip</dimen>
+
 </resources>
