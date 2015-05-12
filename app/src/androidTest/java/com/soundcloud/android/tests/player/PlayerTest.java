@@ -16,6 +16,7 @@ import com.soundcloud.android.screens.AddCommentScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
+import com.soundcloud.android.screens.TrackInfoScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -141,15 +142,43 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     public void testPlayerShowTheTrackDescription() throws Exception {
-        playExploreTrack();
+        visualPlayerElement = streamScreen
+                .actionBar()
+                .clickSearchButton()
+                .actionBar()
+                .doSearch("zzz track with description")
+                .touchTracksTab()
+                .getTracks()
+                .get(0)
+                .click();
 
         String originalTitle = visualPlayerElement.getTrackTitle();
-        TrackCommentsScreen trackInfoScreen = visualPlayerElement
+        TrackInfoScreen trackInfoScreen = visualPlayerElement
                 .clickMenu()
-                .clickInfo()
-                .clickComments();
+                .clickInfo();
 
-        assertThat(trackInfoScreen.getTitle(), is(equalTo(originalTitle)));
+        assertThat(originalTitle, is(equalTo(trackInfoScreen.getTitle())));
+        assertTrue(trackInfoScreen.getDescription().isVisible());
+    }
+
+    public void testPlayerShowTheTrackNoDescription() throws Exception {
+        visualPlayerElement = streamScreen
+                .actionBar()
+                .clickSearchButton()
+                .actionBar()
+                .doSearch("aaazzz track with no description")
+                .touchTracksTab()
+                .getTracks()
+                .get(0)
+                .click();
+
+        String originalTitle = visualPlayerElement.getTrackTitle();
+        TrackInfoScreen trackInfoScreen = visualPlayerElement
+                .clickMenu()
+                .clickInfo();
+
+        assertThat(originalTitle, is(equalTo(trackInfoScreen.getTitle())));
+        assertTrue(trackInfoScreen.getNoDescription().isVisible());
     }
 
     public void testPlayerTrackInfoLinksToComments() throws Exception {

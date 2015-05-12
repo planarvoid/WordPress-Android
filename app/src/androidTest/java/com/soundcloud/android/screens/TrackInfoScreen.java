@@ -1,5 +1,7 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
@@ -9,6 +11,7 @@ public class TrackInfoScreen extends Screen {
 
     public TrackInfoScreen(Han solo) {
         super(solo);
+        waiter.waitForFragmentByTag("info_dialog");
     }
 
     @Override
@@ -16,12 +19,16 @@ public class TrackInfoScreen extends Screen {
         return MainActivity.class;
     }
 
-    public boolean waitForDialog() {
-        return waiter.waitForFragmentByTag("info_dialog");
-    }
-
     public String getTitle() {
         return new TextElement(testDriver.findElement(With.id(com.soundcloud.android.R.id.title))).getText();
+    }
+
+    public ViewElement getNoDescription() {
+        return testDriver.findElement(With.id(com.soundcloud.android.R.id.no_description));
+    }
+
+    public ViewElement getDescription() {
+        return testDriver.findElement(With.id(com.soundcloud.android.R.id.description));
     }
 
     public TrackCommentsScreen clickComments() {

@@ -14,9 +14,7 @@ public class PlayerMenuElement extends PopupMenuElement {
 
     public TrackInfoScreen clickInfo() {
         info().click();
-        final TrackInfoScreen trackInfoScreen = new TrackInfoScreen(testDriver);
-        trackInfoScreen.waitForDialog();
-        return trackInfoScreen;
+        return new TrackInfoScreen(testDriver);
     }
 
     public AddToPlaylistScreen clickAddToPlaylist() {
