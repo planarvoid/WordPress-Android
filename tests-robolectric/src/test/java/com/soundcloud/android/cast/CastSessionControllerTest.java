@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumer;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
@@ -21,14 +22,19 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
+
+import android.content.Intent;
 
 import javax.inject.Provider;
 import java.util.Arrays;
@@ -161,6 +167,19 @@ public class CastSessionControllerTest {
 
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).size()).toEqual(1);
         expect(eventBus.eventsOn(EventQueue.PLAYER_COMMAND).get(0).isShow()).toBeTrue();
+    }
+
+    @Test
+    public void onMediaRouteDialogCellClickOpensStreamAndExpandsPlayer() {
+        castSessionController.startListening();
+
+        castSessionController.onMediaRouteDialogCellClick(Robolectric.application);
+
+        final Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
+        expect(intent).not.toBeNull();
+        expect(intent.getAction()).toEqual(Actions.STREAM);
+        expect(intent.getBooleanExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, false)).toBeTrue();
+        expect(intent.getFlags()).toEqual(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
     }
 
     private void callOnMetadatUpdated() {

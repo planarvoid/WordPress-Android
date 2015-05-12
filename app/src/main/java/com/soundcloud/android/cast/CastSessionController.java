@@ -4,6 +4,7 @@ import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.MediaStatus;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
+import com.soundcloud.android.Actions;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUICommand;
 import com.soundcloud.android.model.Urn;
@@ -13,8 +14,12 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.Log;
+
+import android.content.Context;
+import android.content.Intent;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -23,7 +28,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Singleton
-public class CastSessionController extends VideoCastConsumerImpl {
+public class CastSessionController extends VideoCastConsumerImpl implements VideoCastManager.MediaRouteDialogListener {
 
     private final CastOperations castOperations;
     private final PlaybackOperations playbackOperations;
@@ -51,6 +56,7 @@ public class CastSessionController extends VideoCastConsumerImpl {
 
     public void startListening() {
         videoCastManager.addVideoCastConsumer(this);
+        videoCastManager.setMediaRouteDialogListener(this);
     }
 
     @Override
@@ -104,6 +110,18 @@ public class CastSessionController extends VideoCastConsumerImpl {
         }
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());
+    }
+
+    @Override
+    public void onMediaRouteDialogCellClick(Context context) {
+        openStreamAndExpandPlayer(context);
+    }
+
+    private void openStreamAndExpandPlayer(Context context) {
+        Intent intent = new Intent(Actions.STREAM)
+                .putExtra(SlidingPlayerController.EXTRA_EXPAND_PLAYER, true)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.startActivity(intent);
     }
 
 }
