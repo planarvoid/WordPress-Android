@@ -19,11 +19,11 @@
     <string name="cast_receiver_app_id">DCAC4134</string>
 
     <!-- Feature flags (enabled) -->
+    <bool name="feature_eventlogger_search">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_offline_sync">false</bool>
-    <bool name="feature_eventlogger_search">false</bool>
     <bool name="feature_promoted_in_stream">false</bool>
 </resources>
