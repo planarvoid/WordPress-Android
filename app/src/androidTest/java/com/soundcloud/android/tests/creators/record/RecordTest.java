@@ -6,6 +6,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.StringStartsWith.startsWith;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.StreamScreen;
@@ -38,12 +39,13 @@ public class RecordTest extends ActivityTest<MainActivity> {
     }
 
     public void testRecordButton() {
+        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_rec)));
         recordScreen.startRecording();
-        assertThat(recordScreen.getChronometer(), is("0:00"));
+        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_recording)));
         assertThat(recordScreen.getNextButton(), is(not(visible())));
 
         recordScreen.waitAndPauseRecording();
-        assertThat(recordScreen.getChronometer(), is(not("0:00")));
+        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_play)));
         assertThat(recordScreen.getNextButton(), is(visible()));
     }
 
@@ -107,7 +109,6 @@ public class RecordTest extends ActivityTest<MainActivity> {
                 .waitAndPauseRecording()
                 .clickPlayButton();
 
-        // Note: it might record more than two seconds.
-        assertThat(recordScreen.getChronometer(), startsWith("0:00 / 0:"));
+        assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_playing)));
     }
 }
