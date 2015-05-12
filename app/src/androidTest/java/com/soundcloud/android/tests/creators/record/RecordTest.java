@@ -32,12 +32,6 @@ public class RecordTest extends ActivityTest<MainActivity> {
         recordScreen.deleteRecordingIfPresent(); // start clean
     }
 
-    @Override
-    protected void tearDown() throws Exception {
-        recordScreen.deleteRecordingIfPresent(); // cleanup
-        super.tearDown();
-    }
-
     public void testRecordButton() {
         assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_rec)));
         recordScreen.startRecording();
@@ -60,8 +54,6 @@ public class RecordTest extends ActivityTest<MainActivity> {
     }
 
     public void testRecordingIsSaved() {
-        assertThat(recordScreen.getDeleteButton(), is(not(visible())));
-
         recordScreen
                 .startRecording()
                 .waitAndPauseRecording();

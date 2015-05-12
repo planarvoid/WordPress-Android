@@ -61,7 +61,6 @@ public class MetadataTest extends ActivityTest<MainActivity> {
 
         ProfileScreen profileScreen = new StreamScreen(solo).openMenu().clickUserProfile();
         assertThat(profileScreen, is(visible()));
-
         assertThat(profileScreen.getFirstTrackTitle(), is(title));
     }
 }
