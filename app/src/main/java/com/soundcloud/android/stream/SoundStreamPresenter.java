@@ -24,7 +24,6 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
@@ -76,8 +75,8 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
             if (!propertySets.isEmpty()) {
                 PropertySet first = propertySets.get(0);
                 if (first.contains(PromotedTrackProperty.AD_URN)) {
-                    eventBus.publish(EventQueue.TRACKING, PromotedTrackEvent.forImpression(PromotedTrackItem.from(first),
-                            dateProvider.getCurrentTime(), Screen.SIDE_MENU_STREAM.get()));
+                    eventBus.publish(EventQueue.TRACKING,
+                            PromotedTrackEvent.forImpression(PromotedTrackItem.from(first), Screen.SIDE_MENU_STREAM.get()));
                 }
             }
         }
@@ -88,7 +87,6 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     private final SoundStreamAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
-    private final DateProvider dateProvider;
 
     private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
@@ -100,15 +98,13 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
                          ImageOperations imageOperations,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
-                         EventBus eventBus,
-                         DateProvider dateProvider) {
+                         EventBus eventBus) {
         super(imageOperations, pullToRefreshWrapper);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
         this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
-        this.dateProvider = dateProvider;
     }
 
     @Override
@@ -181,8 +177,8 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
                     .subscribe(subscriberProvider.get());
             if (item instanceof PromotedTrackItem) {
                 PromotedTrackItem promotedTrack = (PromotedTrackItem) item;
-                eventBus.publish(EventQueue.TRACKING, PromotedTrackEvent.forTrackClick(promotedTrack,
-                        dateProvider.getCurrentTime(), Screen.SIDE_MENU_STREAM.get()));
+                eventBus.publish(EventQueue.TRACKING,
+                        PromotedTrackEvent.forTrackClick(promotedTrack, Screen.SIDE_MENU_STREAM.get()));
             }
         } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(view.getContext(), playableUrn, Screen.SIDE_MENU_STREAM);

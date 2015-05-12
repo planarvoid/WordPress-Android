@@ -10,7 +10,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import org.jetbrains.annotations.NotNull;
@@ -32,7 +31,6 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
     private final ImageOperations imageOperations;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
-    private final DateProvider dateProvider;
 
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
 
@@ -40,12 +38,11 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
 
     @Inject
     public TrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
-                              EventBus eventBus, ScreenProvider screenProvider, DateProvider dateProvider) {
+                              EventBus eventBus, ScreenProvider screenProvider) {
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
-        this.dateProvider = dateProvider;
     }
 
     @Override
@@ -132,8 +129,8 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
                 @Override
                 public void onClick(View v) {
                     context.startActivity(ProfileActivity.getIntent(context, track.getPromoterUrn().get()));
-                    eventBus.publish(EventQueue.TRACKING, PromotedTrackEvent.forPromoterClick(track,
-                            dateProvider.getCurrentTime(), screenProvider.getLastScreenTag()));
+                    eventBus.publish(EventQueue.TRACKING,
+                            PromotedTrackEvent.forPromoterClick(track, screenProvider.getLastScreenTag()));
                 }
             });
         } else {

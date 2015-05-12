@@ -24,28 +24,28 @@ public class PromotedTrackEvent extends TrackingEvent {
         }
     }
 
-    public static PromotedTrackEvent forPromoterClick(PromotedTrackItem promotedTrack, long timestamp, String screen) {
-        PromotedTrackEvent click = basePromotedEvent(KIND_CLICK, promotedTrack, timestamp, screen);
+    public static PromotedTrackEvent forPromoterClick(PromotedTrackItem promotedTrack, String screen) {
+        PromotedTrackEvent click = basePromotedEvent(KIND_CLICK, promotedTrack, screen);
         click.put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedTrack.getEntityUrn().toString());
         click.put(AdTrackingKeys.KEY_CLICK_TARGET_URN, promotedTrack.getPromoterUrn().get().toString());
         return click;
     }
 
-    public static PromotedTrackEvent forTrackClick(PromotedTrackItem promotedTrack, long timestamp, String screen) {
-        PromotedTrackEvent click = basePromotedEvent(KIND_CLICK, promotedTrack, timestamp, screen);
+    public static PromotedTrackEvent forTrackClick(PromotedTrackItem promotedTrack, String screen) {
+        PromotedTrackEvent click = basePromotedEvent(KIND_CLICK, promotedTrack, screen);
         click.put(AdTrackingKeys.KEY_CLICK_OBJECT_URN, promotedTrack.getEntityUrn().toString());
         click.put(AdTrackingKeys.KEY_CLICK_TARGET_URN, promotedTrack.getEntityUrn().toString());
         return click;
     }
 
-    public static PromotedTrackEvent forImpression(PromotedTrackItem promotedTrack, long timestamp, String screen) {
-        return basePromotedEvent(KIND_IMPRESSION, promotedTrack, timestamp, screen);
+    public static PromotedTrackEvent forImpression(PromotedTrackItem promotedTrack, String screen) {
+        return basePromotedEvent(KIND_IMPRESSION, promotedTrack, screen);
     }
 
     @NotNull
-    private static PromotedTrackEvent basePromotedEvent(String kind, PromotedTrackItem promotedTrack, long timestamp, String screen) {
+    private static PromotedTrackEvent basePromotedEvent(String kind, PromotedTrackItem promotedTrack, String screen) {
         return new PromotedTrackEvent(kind,
-                timestamp,
+                System.currentTimeMillis(),
                 promotedTrack.getAdUrn(),
                 promotedTrack.getEntityUrn().toString(),
                 promotedTrack.getPromoterUrn(),

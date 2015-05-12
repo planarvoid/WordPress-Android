@@ -199,7 +199,7 @@ public class EventLoggerAnalyticsProviderTest {
     @Test
     public void shouldTrackPromotedTrackEvents() {
         PromotedTrackItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        PromotedTrackEvent event = PromotedTrackEvent.forPromoterClick(promotedTrack, 123L, "stream");
+        PromotedTrackEvent event = PromotedTrackEvent.forPromoterClick(promotedTrack, "stream");
         when(dataBuilder.build(event)).thenReturn("ForPromotedEvent");
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

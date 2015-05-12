@@ -15,7 +15,7 @@ public class PromotedTrackEventTest {
 
     @Test
     public void createsEventForPromoterClick() {
-        PromotedTrackEvent click = PromotedTrackEvent.forPromoterClick(promotedTrack, 123L, "stream");
+        PromotedTrackEvent click = PromotedTrackEvent.forPromoterClick(promotedTrack, "stream");
 
         assertCommonProperties(click);
         expect(click.getKind()).toEqual("click");
@@ -26,7 +26,7 @@ public class PromotedTrackEventTest {
 
     @Test
     public void createsEventForTrackClick() {
-        PromotedTrackEvent click = PromotedTrackEvent.forTrackClick(promotedTrack, 123L, "stream");
+        PromotedTrackEvent click = PromotedTrackEvent.forTrackClick(promotedTrack, "stream");
 
         assertCommonProperties(click);
         expect(click.getKind()).toEqual("click");
@@ -37,7 +37,7 @@ public class PromotedTrackEventTest {
 
     @Test
     public void createsEventForImpression() {
-        PromotedTrackEvent impression = PromotedTrackEvent.forImpression(promotedTrack, 123L, "stream");
+        PromotedTrackEvent impression = PromotedTrackEvent.forImpression(promotedTrack, "stream");
 
         assertCommonProperties(impression);
         expect(impression.getKind()).toEqual("impression");
@@ -47,13 +47,12 @@ public class PromotedTrackEventTest {
     @Test
     public void omitsPromoterUrnPropertyIfPromoterIsAbsent() {
         PromotedTrackItem noPromoter = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
-        PromotedTrackEvent click = PromotedTrackEvent.forTrackClick(noPromoter, 123L, "stream");
+        PromotedTrackEvent click = PromotedTrackEvent.forTrackClick(noPromoter, "stream");
 
         expect(click.get(AdTrackingKeys.KEY_PROMOTER_URN)).toBeNull();
     }
 
     private void assertCommonProperties(PromotedTrackEvent event) {
-        expect(event.getTimestamp()).toEqual(123L);
         expect(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN)).toEqual("stream");
         expect(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE)).toEqual("promoted");
         expect(event.get(AdTrackingKeys.KEY_AD_URN)).toEqual(promotedTrack.getAdUrn());

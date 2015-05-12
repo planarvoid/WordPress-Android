@@ -7,7 +7,6 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.utils.DateProvider;
 
 import android.view.View;
 
@@ -23,9 +22,8 @@ public class DownloadableTrackItemPresenter extends TrackItemPresenter {
                                           TrackItemMenuPresenter trackItemMenuPresenter,
                                           EventBus eventBus,
                                           FeatureOperations featureOperations,
-                                          ScreenProvider screenProvider,
-                                          DateProvider dateProvider) {
-        super(imageOperations, trackItemMenuPresenter, eventBus, screenProvider, dateProvider);
+                                          ScreenProvider screenProvider) {
+        super(imageOperations, trackItemMenuPresenter, eventBus, screenProvider);
         this.featureOperations = featureOperations;
     }
 

@@ -1,6 +1,8 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +17,6 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -42,7 +43,6 @@ public class TrackItemPresenterTest {
     @Mock private ImageOperations imageOperations;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
-    @Mock private DateProvider dateProvider;
 
     private View itemView;
     private PropertySet propertySet;
@@ -190,14 +190,13 @@ public class TrackItemPresenterTest {
 
     @Test
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
-        when(dateProvider.getCurrentTime()).thenReturn(100L);
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
         PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         presenter.bindItemView(0, itemView, Arrays.asList((TrackItem) promotedTrackItem));
 
         itemView.findViewById(R.id.promoted_track).performClick();
 
-        verify(eventBus).publish(EventQueue.TRACKING, PromotedTrackEvent.forPromoterClick(promotedTrackItem, 100L, "stream"));
+        verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackEvent.class));
     }
 
     private TextView textView(int id) {

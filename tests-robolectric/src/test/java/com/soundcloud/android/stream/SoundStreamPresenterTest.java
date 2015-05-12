@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
@@ -75,7 +74,7 @@ public class SoundStreamPresenterTest {
     @Before
     public void setUp() throws Exception {
         presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imageOperations,
-                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus, dateProvider);
+                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
@@ -121,8 +120,7 @@ public class SoundStreamPresenterTest {
 
         presenter.onItemClick(listView, view, 0, 0);
 
-        expect(eventBus.lastEventOn(EventQueue.TRACKING))
-                .toEqual(PromotedTrackEvent.forTrackClick(clickedTrack, 100L, Screen.SIDE_MENU_STREAM.get()));
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
     }
 
     @Test
@@ -234,9 +232,7 @@ public class SoundStreamPresenterTest {
 
         presenter.promotedImpression.call(items);
 
-        PromotedTrackItem item = PromotedTrackItem.from(promotedProperties);
-        expect(eventBus.lastEventOn(EventQueue.TRACKING))
-                .toEqual(PromotedTrackEvent.forImpression(item, 100L, Screen.SIDE_MENU_STREAM.get()));
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
     }
 
 }

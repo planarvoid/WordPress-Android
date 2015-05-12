@@ -66,7 +66,6 @@ public class EventLoggerJsonDataBuilderTest {
     @Mock private JsonTransformer jsonTransformer;
     @Mock private FeatureFlags featureFlags;
 
-
     private EventLoggerJsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.SIDE_MENU_LIKES.get(), true);
     private final SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:click:urn"));
@@ -447,12 +446,12 @@ public class EventLoggerJsonDataBuilderTest {
     @Test
     public void createsPromotedTrackClickJson() throws Exception {
         PromotedTrackItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        PromotedTrackEvent click = PromotedTrackEvent.forPromoterClick(item, 123L, "stream");
+        PromotedTrackEvent click = PromotedTrackEvent.forPromoterClick(item, "stream");
 
         jsonDataBuilder.build(click);
 
         String promotedBy = item.getPromoterUrn().get().toString();
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(123L))
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(click.getTimestamp()))
                 .pageName("stream")
                 .monetizationType("promoted")
                 .adUrn(item.getAdUrn())
@@ -465,11 +464,11 @@ public class EventLoggerJsonDataBuilderTest {
     @Test
     public void createsPromotedTrackImpressionJson() throws Exception {
         PromotedTrackItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        PromotedTrackEvent impression = PromotedTrackEvent.forImpression(item, 123L, "stream");
+        PromotedTrackEvent impression = PromotedTrackEvent.forImpression(item, "stream");
 
         jsonDataBuilder.build(impression);
 
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(123L))
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(impression.getTimestamp()))
                 .pageName("stream")
                 .monetizationType("promoted")
                 .adUrn(item.getAdUrn())
