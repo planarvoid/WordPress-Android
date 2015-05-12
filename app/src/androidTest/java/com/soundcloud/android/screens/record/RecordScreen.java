@@ -5,7 +5,6 @@ import static com.soundcloud.android.framework.with.With.text;
 import com.soundcloud.android.R;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -13,11 +12,6 @@ import com.soundcloud.android.screens.Screen;
 
 public class RecordScreen extends Screen {
     private static final Class ACTIVITY = RecordActivity.class;
-    private static final int ACTION_BUTTON = R.id.btn_action;
-    private static final int EDIT_BUTTON = R.id.btn_edit;
-    private static final int PLAY_BUTTON = R.id.btn_play;
-    private static final int CHRONOMETER = R.id.chronometer;
-    private static final int BOTTOM_BAR = R.id.bottom_bar;
 
     public RecordScreen(Han solo) {
         super(solo);
@@ -26,11 +20,6 @@ public class RecordScreen extends Screen {
 
     public String getTitle() {
         return actionBar().getTitle();
-    }
-
-    public RecordScreen clickPlayButton() {
-        getPlayButton().click();
-        return this;
     }
 
     @Override
@@ -53,56 +42,42 @@ public class RecordScreen extends Screen {
         return this;
     }
 
+    public RecordScreen clickPlayButton() {
+        getPlayButton().click();
+        return this;
+    }
+
     public RecordScreen waitForRecord() {
         waiter.waitTwoSeconds();
         return this;
     }
 
-    public boolean hasRecording() {
-        return getDeleteRecordingButton().isVisible();
-    }
-
     public RecordScreen deleteRecording() {
-        getDeleteRecordingButton().click();
+        getDeleteButton().click();
         testDriver.waitForDialogToOpen(2000l);
         acceptDeleteRecording();
         return this;
     }
 
-    public RecordScreen acceptDeleteRecording() {
-        testDriver.findElement(text(testDriver.getString(R.string.yes))).click();
-        testDriver.waitForDialogToClose(1000l);
-        return this;
-    }
-
-    public ViewElement getDeleteRecordingButton() {
-        return getBottomBarButton("Delete");
+    public ViewElement getDeleteButton() {
+        return testDriver.findElement(With.id(R.id.btn_delete));
     }
 
     public ViewElement getNextButton() {
-        return getBottomBarButton("Next");
+        return testDriver.findElement(With.id(R.id.btn_next));
     }
 
     public ViewElement getApplyButton() {
-        return getBottomBarButton("Apply");
+        return testDriver.findElement(With.id(R.id.btn_apply));
     }
 
     public ViewElement getRevertButton() {
-        return getBottomBarButton("Revert to original");
+        return testDriver.findElement(With.id(R.id.btn_revert));
     }
 
     public ViewElement getEditButton() {
-        return testDriver.findElement(With.id(EDIT_BUTTON));
+        return testDriver.findElement(With.id(R.id.btn_edit));
     }
-
-    private ViewElement getActionButton() {
-        return testDriver.findElement(With.id(ACTION_BUTTON));
-    }
-
-    private ViewElement getPlayButton() {
-        return testDriver.findElement(With.id(PLAY_BUTTON));
-    }
-
 
     public RecordMetadataScreen clickNext() {
         getNextButton().click();
@@ -116,8 +91,8 @@ public class RecordScreen extends Screen {
         return this;
     }
 
-    public TextElement getChronometer() {
-        return new TextElement(testDriver.findElement(With.id(CHRONOMETER)));
+    public String getChronometer() {
+        return chronometer().getText();
     }
 
     public RecordScreen startRecording() {
@@ -131,17 +106,25 @@ public class RecordScreen extends Screen {
         return this;
     }
 
-    private ViewElement getBottomBarButton(String withText) {
-        ViewElement bottomBar = testDriver.findElement(With.id(BOTTOM_BAR));
-
-        if(bottomBar.isVisible()){
-            return bottomBar.findElement(With.text(withText));
-        } else{
-            return new EmptyViewElement(null);
-        }
+    private boolean hasRecording() {
+        return getDeleteButton().isVisible();
     }
 
+    private TextElement chronometer() {
+        return new TextElement(testDriver.findElement(With.id(R.id.chronometer)));
+    }
 
+    private RecordScreen acceptDeleteRecording() {
+        testDriver.findElement(text(testDriver.getString(R.string.yes))).click();
+        testDriver.waitForDialogToClose(1000l);
+        return this;
+    }
 
+    private ViewElement getActionButton() {
+        return testDriver.findElement(With.id(R.id.btn_action));
+    }
 
+    private ViewElement getPlayButton() {
+        return testDriver.findElement(With.id(R.id.btn_play));
+    }
 }

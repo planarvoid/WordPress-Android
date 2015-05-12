@@ -40,8 +40,7 @@ public class ProfileScreen extends Screen {
 
     public String getFirstTrackTitle() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        TextElement textElement = new TextElement(testDriver.findElements(With.id(R.id.list_item_subheader)).get(0));
-        return textElement.getText();
+        return new TextElement(trackTitle(tracks().get(0))).getText();
     }
 
     public void scrollToBottomOfCurrentListAndLoadMoreItems() {
@@ -120,6 +119,10 @@ public class ProfileScreen extends Screen {
 
     private String getFollowButtonText() {
         return testDriver.getString(R.string.btn_following);
+    }
+
+    private ViewElement trackTitle(ViewElement track) {
+        return track.findElement(With.id(R.id.list_item_subheader));
     }
 
     @Override

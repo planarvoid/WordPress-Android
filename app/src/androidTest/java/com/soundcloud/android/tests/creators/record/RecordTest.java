@@ -39,11 +39,11 @@ public class RecordTest extends ActivityTest<MainActivity> {
 
     public void testRecordButton() {
         recordScreen.startRecording();
-        assertThat(recordScreen.getChronometer().getText(), is("0:00"));
+        assertThat(recordScreen.getChronometer(), is("0:00"));
         assertThat(recordScreen.getNextButton(), is(not(visible())));
 
         recordScreen.waitAndPauseRecording();
-        assertThat(recordScreen.getChronometer().getText(), is(not("0:00")));
+        assertThat(recordScreen.getChronometer(), is(not("0:00")));
         assertThat(recordScreen.getNextButton(), is(visible()));
     }
 
@@ -51,14 +51,14 @@ public class RecordTest extends ActivityTest<MainActivity> {
         recordScreen
                 .startRecording()
                 .waitAndPauseRecording();
-        assertThat(recordScreen.getDeleteRecordingButton(), is(visible()));
+        assertThat(recordScreen.getDeleteButton(), is(visible()));
 
         recordScreen.deleteRecording();
-        assertThat(recordScreen.getDeleteRecordingButton(), is(not(visible())));
+        assertThat(recordScreen.getDeleteButton(), is(not(visible())));
     }
 
     public void testRecordingIsSaved() {
-        assertThat(recordScreen.getDeleteRecordingButton(), is(not(visible())));
+        assertThat(recordScreen.getDeleteButton(), is(not(visible())));
 
         recordScreen
                 .startRecording()
@@ -67,7 +67,7 @@ public class RecordTest extends ActivityTest<MainActivity> {
         solo.goBack();
 
         recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
-        assertThat(recordScreen.getDeleteRecordingButton(), is(visible()));
+        assertThat(recordScreen.getDeleteButton(), is(visible()));
     }
 
     public void testRecordingIsEditable() {
@@ -92,13 +92,13 @@ public class RecordTest extends ActivityTest<MainActivity> {
                 .startRecording()
                 .waitAndPauseRecording();
 
-        String firstChrono = recordScreen.getChronometer().getText();
+        String firstChrono = recordScreen.getChronometer();
 
         recordScreen
                 .startRecording()
                 .waitAndPauseRecording();
 
-        assertThat(recordScreen.getChronometer().getText(), is(not(firstChrono)));
+        assertThat(recordScreen.getChronometer(), is(not(firstChrono)));
     }
 
     public void testRecordingIsPlayable() {
@@ -108,6 +108,6 @@ public class RecordTest extends ActivityTest<MainActivity> {
                 .clickPlayButton();
 
         // Note: it might record more than two seconds.
-        assertThat(recordScreen.getChronometer().getText(), startsWith("0:00 / 0:"));
+        assertThat(recordScreen.getChronometer(), startsWith("0:00 / 0:"));
     }
 }

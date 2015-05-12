@@ -11,9 +11,6 @@ import com.soundcloud.android.screens.Screen;
 
 public class RecordMetadataScreen extends Screen {
     private static final Class ACTIVITY = RecordActivity.class;
-    private static final int ACTION_BUTTON = R.id.btn_action;
-    private static final int RADIO_PRIVATE = R.id.rdo_private;
-    private static final int TITLE_TEXT_EDIT = R.id.title;
 
     public RecordMetadataScreen(Han solo) {
         super(solo);
@@ -24,22 +21,18 @@ public class RecordMetadataScreen extends Screen {
         return actionBar().getTitle();
     }
 
-    public RecordMetadataScreen setTitle(String title) {
-        getTitleEditText().typeText(title);
-        return this;
-    }
-
-    private EditTextElement getTitleEditText() {
-        return new EditTextElement(testDriver.findElement(With.id(TITLE_TEXT_EDIT)));
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;
     }
 
+    public RecordMetadataScreen setTitle(String title) {
+        getTitleEditText().typeText(title);
+        return this;
+    }
+
     public RecordScreen clickUploadButton() {
-        testDriver.findElement(With.id(ACTION_BUTTON)).click();
+        testDriver.findElement(With.id(R.id.btn_action)).click();
         return new RecordScreen(testDriver);
     }
 
@@ -48,12 +41,11 @@ public class RecordMetadataScreen extends Screen {
         return this;
     }
 
-    private RadioButtonElement getPrivateRadioButton() {
-        return getRadioButton(RADIO_PRIVATE);
+    private EditTextElement getTitleEditText() {
+        return new EditTextElement(testDriver.findElement(With.id(R.id.title)));
     }
 
-    private RadioButtonElement getRadioButton(int id) {
-        ViewElement view = testDriver.findElement(With.id(id));
-        return new RadioButtonElement(view);
+    private RadioButtonElement getPrivateRadioButton() {
+        return new RadioButtonElement(testDriver.findElement(With.id(R.id.rdo_private)));
     }
 }
