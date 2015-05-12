@@ -23,6 +23,7 @@ class EventLoggerParam {
     static final String MONETIZED_OBJECT = "monetized_object";
     static final String IMPRESSION_NAME = "impression_name";
     static final String IMPRESSION_OBJECT = "impression_object";
+    static final String PROMOTED_BY = "promoted_by";
     // performance & error event params
     static final String LATENCY = "latency";
     static final String PROTOCOL = "protocol";

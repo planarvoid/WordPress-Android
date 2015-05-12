@@ -2,10 +2,15 @@ package com.soundcloud.android.tracks;
 
 import com.google.common.base.Optional;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import org.jetbrains.annotations.NotNull;
@@ -25,14 +30,22 @@ import java.util.concurrent.TimeUnit;
 public class TrackItemPresenter implements CellPresenter<TrackItem> {
 
     private final ImageOperations imageOperations;
+    private final EventBus eventBus;
+    private final ScreenProvider screenProvider;
+    private final DateProvider dateProvider;
+
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
 
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter) {
+    public TrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
+                              EventBus eventBus, ScreenProvider screenProvider, DateProvider dateProvider) {
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
+        this.eventBus = eventBus;
+        this.screenProvider = screenProvider;
+        this.dateProvider = dateProvider;
     }
 
     @Override
@@ -113,12 +126,14 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
         promoted.setVisibility(View.VISIBLE);
         if (track.hasPromoter()) {
             final Context context = itemView.getContext();
-            promoted.setText(context.getString(R.string.promoted_by_label, track.getPromoterName()));
+            promoted.setText(context.getString(R.string.promoted_by_label, track.getPromoterName().get()));
             promoted.setClickable(true);
             promoted.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    context.startActivity(ProfileActivity.getIntent(context, track.getPromoterUrn()));
+                    context.startActivity(ProfileActivity.getIntent(context, track.getPromoterUrn().get()));
+                    eventBus.publish(EventQueue.TRACKING, PromotedTrackEvent.forPromoterClick(track,
+                            dateProvider.getCurrentTime(), screenProvider.getLastScreenTag()));
                 }
             });
         } else {

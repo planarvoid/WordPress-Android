@@ -72,7 +72,7 @@ public class PlayCountAnalyticsProvider implements AnalyticsProvider {
         // only track the first play
         if (eventData.isFirstPlay()) {
             final String url = urlBuilder.buildUrl(eventData);
-            final TrackingRecord event = new TrackingRecord(eventData.getTimeStamp(), BACKEND_NAME, url);
+            final TrackingRecord event = new TrackingRecord(eventData.getTimestamp(), BACKEND_NAME, url);
             eventTracker.trackEvent(event);
             eventTracker.flush(BACKEND_NAME);
         }

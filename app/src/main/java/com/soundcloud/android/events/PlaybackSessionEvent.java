@@ -68,7 +68,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
                                                String protocol, String playerType, String connectionType, int stopReason) {
         final PlaybackSessionEvent playbackSessionEvent =
                 new PlaybackSessionEvent(EVENT_KIND_STOP, trackData, userUrn, trackSourceInfo, progress, timestamp, protocol, playerType, connectionType);
-        playbackSessionEvent.setListenTime(playbackSessionEvent.timeStamp - lastPlayEvent.getTimeStamp());
+        playbackSessionEvent.setListenTime(playbackSessionEvent.timestamp - lastPlayEvent.getTimestamp());
         playbackSessionEvent.setStopReason(stopReason);
         return playbackSessionEvent;
     }

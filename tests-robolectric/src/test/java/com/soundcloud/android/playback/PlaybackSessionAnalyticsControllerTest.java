@@ -88,7 +88,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         expect(playbackSessionEvent.get(PlaybackSessionEvent.KEY_PROTOCOL)).toEqual(stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYBACK_PROTOCOL));
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
-        expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
+        expect(playbackSessionEvent.getTimestamp()).toBeGreaterThan(0L);
     }
 
     @Test
@@ -237,7 +237,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         expect(playbackSessionEvent.getTrackSourceInfo()).toBe(trackSourceInfo);
         expect(playbackSessionEvent.isStopEvent()).toBeTrue();
         expect(playbackSessionEvent.getProgress()).toEqual(PROGRESS);
-        expect(playbackSessionEvent.getTimeStamp()).toBeGreaterThan(0L);
+        expect(playbackSessionEvent.getTimestamp()).toBeGreaterThan(0L);
         expect(playbackSessionEvent.getStopReason()).toEqual(stopReason);
         expect(playbackSessionEvent.getDuration()).toEqual(DURATION);
     }

@@ -19,6 +19,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -33,6 +34,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.propeller.PropertySet;
@@ -85,7 +87,7 @@ public class EventLoggerJsonDataBuilderTest {
 
         jsonDataBuilder.build(screenEvent);
 
-        String timestamp = String.valueOf(screenEvent.getTimeStamp());
+        String timestamp = String.valueOf(screenEvent.getTimestamp());
         verify(jsonTransformer).toJson(eq(getEventData("pageview", "v0.0.0", timestamp).pageName(Screen.ACTIVITIES.get())));
     }
 
@@ -225,7 +227,7 @@ public class EventLoggerJsonDataBuilderTest {
 
         jsonDataBuilder.buildForAdFinished(stopEvent.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(stopEvent.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(stopEvent.getTimestamp()))
                 .pageName(stopEvent.getTrackSourceInfo().getOriginScreen())
                 .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
                 .clickName("ad::finish")
@@ -242,7 +244,7 @@ public class EventLoggerJsonDataBuilderTest {
 
         jsonDataBuilder.buildForAudioAdImpression(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(event.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(event.getTimestamp()))
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .adUrn(audioAd.get(AdProperty.AUDIO_AD_URN))
                 .impressionName("audio_ad_impression")
@@ -263,7 +265,7 @@ public class EventLoggerJsonDataBuilderTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", String.valueOf(event.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", String.valueOf(event.getTimestamp()))
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .duration(audioAdTrack.get(PlayableProperty.DURATION))
                 .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
@@ -296,7 +298,7 @@ public class EventLoggerJsonDataBuilderTest {
 
         jsonDataBuilder.buildForAudioEvent(event.withAudioAd(audioAd));
 
-        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", String.valueOf(event.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("audio", "v0.0.0", String.valueOf(event.getTimestamp()))
                 .pageName(event.getTrackSourceInfo().getOriginScreen())
                 .duration(audioAdTrack.get(PlayableProperty.DURATION))
                 .sound("soundcloud:sounds:" + audioAdTrack.get(TrackProperty.URN).getNumericId())
@@ -385,7 +387,7 @@ public class EventLoggerJsonDataBuilderTest {
         SearchEvent searchEvent = SearchEvent.searchStart(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimestamp()))
                 .clickName("search")
                 .queryUrn("some:search:urn"));
     }
@@ -395,7 +397,7 @@ public class EventLoggerJsonDataBuilderTest {
         SearchEvent searchEvent = SearchEvent.tapUserOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimestamp()))
                 .pageName("search:everything")
                 .clickName("open_profile")
                 .clickObject("some:click:urn")
@@ -408,13 +410,12 @@ public class EventLoggerJsonDataBuilderTest {
         SearchEvent searchEvent = SearchEvent.tapTrackOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimestamp()))
                 .pageName("search:everything")
                 .clickName("play")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition("5"));
-
     }
 
     @Test
@@ -422,13 +423,12 @@ public class EventLoggerJsonDataBuilderTest {
         SearchEvent searchEvent = SearchEvent.tapPlaylistOnScreen(Screen.SEARCH_EVERYTHING, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimestamp()))
                 .pageName("search:everything")
                 .clickName("open_playlist")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition("5"));
-
     }
 
     @Test
@@ -436,13 +436,46 @@ public class EventLoggerJsonDataBuilderTest {
         SearchEvent searchEvent = SearchEvent.searchSuggestion(Content.SEARCH, false, searchQuerySourceInfo);
         jsonDataBuilder.build(searchEvent);
 
-        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimeStamp()))
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(searchEvent.getTimestamp()))
                 .pageName("search:suggestions")
                 .clickName("item_navigation")
                 .clickObject("some:click:urn")
                 .queryUrn("some:search:urn")
                 .queryPosition("5"));
+    }
 
+    @Test
+    public void createsPromotedTrackClickJson() throws Exception {
+        PromotedTrackItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackEvent click = PromotedTrackEvent.forPromoterClick(item, 123L, "stream");
+
+        jsonDataBuilder.build(click);
+
+        String promotedBy = item.getPromoterUrn().get().toString();
+        verify(jsonTransformer).toJson(getEventData("click", "v0.0.0", String.valueOf(123L))
+                .pageName("stream")
+                .monetizationType("promoted")
+                .adUrn(item.getAdUrn())
+                .promotedBy(promotedBy)
+                .clickObject(item.getEntityUrn().toString())
+                .clickTarget(promotedBy)
+                .clickName("item_navigation"));
+    }
+
+    @Test
+    public void createsPromotedTrackImpressionJson() throws Exception {
+        PromotedTrackItem item = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackEvent impression = PromotedTrackEvent.forImpression(item, 123L, "stream");
+
+        jsonDataBuilder.build(impression);
+
+        verify(jsonTransformer).toJson(getEventData("impression", "v0.0.0", String.valueOf(123L))
+                .pageName("stream")
+                .monetizationType("promoted")
+                .adUrn(item.getAdUrn())
+                .promotedBy(item.getPromoterUrn().get().toString())
+                .impressionName("promoted_track")
+                .impressionObject(item.getEntityUrn().toString()));
     }
 
     private EventLoggerEventData getPlaybackPerformanceEventFor(PlaybackPerformanceEvent event, String type) {

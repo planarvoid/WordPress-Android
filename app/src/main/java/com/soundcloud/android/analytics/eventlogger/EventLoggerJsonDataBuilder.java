@@ -12,6 +12,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
@@ -175,6 +176,38 @@ public class EventLoggerJsonDataBuilder {
                 .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
     }
 
+    public String build(PromotedTrackEvent event) {
+        switch (event.getKind()) {
+            case PromotedTrackEvent.KIND_CLICK:
+                return transform(getPromotedTrackClickEvent(event));
+            case PromotedTrackEvent.KIND_IMPRESSION:
+                return transform(getPromotedTrackImpressionEvent(event));
+            default:
+                throw new IllegalStateException("Unexpected PromotedTrackEvent type: " + event);
+        }
+    }
+
+    private EventLoggerEventData getPromotedTrackClickEvent(PromotedTrackEvent event) {
+        return buildBaseEvent(CLICK_EVENT, event)
+                .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
+                .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN))
+                .clickName("item_navigation")
+                .clickObject(event.get(AdTrackingKeys.KEY_CLICK_OBJECT_URN))
+                .clickTarget(event.get(AdTrackingKeys.KEY_CLICK_TARGET_URN));
+    }
+
+    private EventLoggerEventData getPromotedTrackImpressionEvent(PromotedTrackEvent event) {
+        return buildBaseEvent(IMPRESSION_EVENT, event)
+                .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
+                .pageName(event.get(AdTrackingKeys.KEY_ORIGIN_SCREEN))
+                .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN))
+                .impressionName("promoted_track")
+                .impressionObject(event.get(AdTrackingKeys.KEY_AD_TRACK_URN));
+    }
+
     public String buildForAudioEvent(PlaybackSessionEvent event) {
         return transform(buildAudioEvent(event));
     }
@@ -292,7 +325,7 @@ public class EventLoggerJsonDataBuilder {
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, TrackingEvent event) {
-        return buildBaseEvent(eventName, event.getTimeStamp());
+        return buildBaseEvent(eventName, event.getTimestamp());
     }
 
     private EventLoggerEventData buildBaseEvent(String eventName, long timestamp) {

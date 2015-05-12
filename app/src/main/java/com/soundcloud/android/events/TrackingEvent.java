@@ -13,11 +13,11 @@ public class TrackingEvent {
 
     @NotNull protected final String kind;
     @NotNull protected final Map<String, String> attributes;
-    protected final long timeStamp;
+    protected final long timestamp;
 
-    protected TrackingEvent(@NotNull String kind, long timeStamp) {
+    protected TrackingEvent(@NotNull String kind, long timestamp) {
         this.kind = kind;
-        this.timeStamp = timeStamp;
+        this.timestamp = timestamp;
         this.attributes = new ArrayMap<>();
     }
 
@@ -26,8 +26,8 @@ public class TrackingEvent {
         return kind;
     }
 
-    public long getTimeStamp() {
-        return timeStamp;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     public TrackingEvent put(String key, @Nullable String value) {
@@ -55,7 +55,7 @@ public class TrackingEvent {
 
         TrackingEvent event = (TrackingEvent) o;
 
-        if (timeStamp != event.timeStamp) {
+        if (timestamp != event.timestamp) {
             return false;
         }
         if (!attributes.equals(event.attributes)) {
@@ -71,7 +71,7 @@ public class TrackingEvent {
     @Override
     public final int hashCode() {
         int result = kind.hashCode();
-        result = 31 * result + (int) (timeStamp ^ (timeStamp >>> 32));
+        result = 31 * result + (int) (timestamp ^ (timestamp >>> 32));
         result = 31 * result + attributes.hashCode();
         return result;
     }

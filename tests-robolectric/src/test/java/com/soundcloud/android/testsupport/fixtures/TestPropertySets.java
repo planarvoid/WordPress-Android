@@ -135,7 +135,9 @@ public abstract class TestPropertySets {
 
     public static PropertySet expectedPromotedTrackWithoutPromoter() {
         return expectedTrackForListItem(Urn.forTrack(123L))
-                .put(PromotedTrackProperty.AD_URN, "ad:urn:123");
+                .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
+                .put(PromotedTrackProperty.PROMOTER_URN, Optional.<Urn>absent())
+                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.<String>absent());
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {

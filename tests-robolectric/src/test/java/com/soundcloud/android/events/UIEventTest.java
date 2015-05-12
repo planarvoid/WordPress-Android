@@ -241,7 +241,7 @@ public class UIEventTest {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
         UIEvent uiEvent = UIEvent.fromAudioAdCompanionDisplayClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_AUDIO_AD_CLICK);
-        expect(uiEvent.getTimeStamp()).toEqual(1000L);
+        expect(uiEvent.getTimestamp()).toEqual(1000L);
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.COMPANION_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(123).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
@@ -255,7 +255,7 @@ public class UIEventTest {
         PropertySet audioAd = TestPropertySets.audioAdProperties(Urn.forTrack(123));
         UIEvent uiEvent = UIEvent.fromSkipAudioAdClick(audioAd, Urn.forTrack(456), Urn.forUser(456L), trackSourceInfo, 1000L);
         expect(uiEvent.getKind()).toEqual(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
-        expect(uiEvent.getTimeStamp()).toEqual(1000L);
+        expect(uiEvent.getTimestamp()).toEqual(1000L);
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AUDIO_AD_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(123).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_TRACK_URN)).toEqual(Urn.forTrack(456).toString());

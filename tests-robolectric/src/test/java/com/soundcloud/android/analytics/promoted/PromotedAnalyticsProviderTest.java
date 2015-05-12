@@ -53,7 +53,7 @@ public class PromotedAnalyticsProviderTest {
         PlaybackSessionEvent playbackEvent = mock(PlaybackSessionEvent.class);
         when(playbackEvent.isAd()).thenReturn(true);
         when(playbackEvent.isFirstPlay()).thenReturn(true);
-        when(playbackEvent.getTimeStamp()).thenReturn(12345L);
+        when(playbackEvent.getTimestamp()).thenReturn(12345L);
         when(playbackEvent.getAudioAdImpressionUrls()).thenReturn(newArrayList("url1", "url2"));
 
         analyticsProvider.handleTrackingEvent(playbackEvent);
@@ -88,7 +88,7 @@ public class PromotedAnalyticsProviderTest {
 
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
+        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
         expect(adEvent.getData()).toEqual("click1");
 
         expect(allValues.get(1).getData()).toEqual("click2");
@@ -109,7 +109,7 @@ public class PromotedAnalyticsProviderTest {
 
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
+        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
         expect(adEvent.getData()).toEqual("skip1");
 
         expect(allValues.get(1).getData()).toEqual("skip2");
@@ -140,7 +140,7 @@ public class PromotedAnalyticsProviderTest {
 
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
+        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
         expect(adEvent.getData()).toEqual("finish1");
 
         expect(allValues.get(1).getData()).toEqual("finish2");

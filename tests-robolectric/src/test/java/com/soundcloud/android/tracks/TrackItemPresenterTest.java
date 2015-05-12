@@ -2,14 +2,20 @@ package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -34,6 +40,9 @@ public class TrackItemPresenterTest {
 
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
+    @Mock private EventBus eventBus;
+    @Mock private ScreenProvider screenProvider;
+    @Mock private DateProvider dateProvider;
 
     private View itemView;
     private PropertySet propertySet;
@@ -171,12 +180,24 @@ public class TrackItemPresenterTest {
     }
 
     @Test
-    public void shouldShowPromotedIndicatorWithPromoter() throws Exception {
+    public void shouldShowPromotedIndicatorWithPromoter() {
         TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
         presenter.bindItemView(0, itemView, Arrays.asList(promotedTrackItem));
 
         expect(textView(R.id.promoted_track)).toBeVisible();
         expect(textView(R.id.promoted_track)).toHaveText("Promoted by SoundCloud");
+    }
+
+    @Test
+    public void clickingOnPromotedIndicatorFiresTrackingEvent() {
+        when(dateProvider.getCurrentTime()).thenReturn(100L);
+        when(screenProvider.getLastScreenTag()).thenReturn("stream");
+        PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        presenter.bindItemView(0, itemView, Arrays.asList((TrackItem) promotedTrackItem));
+
+        itemView.findViewById(R.id.promoted_track).performClick();
+
+        verify(eventBus).publish(EventQueue.TRACKING, PromotedTrackEvent.forPromoterClick(promotedTrackItem, 100L, "stream"));
     }
 
     private TextView textView(int id) {

@@ -8,19 +8,17 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
-import junit.framework.TestCase;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(SoundCloudTestRunner.class)
-public class AdOverlayTrackingEventTest extends TestCase {
+public class AdOverlayTrackingEventTest {
 
     private TrackSourceInfo sourceInfo;
 
     @Before
     public void setUp() throws Exception {
-        super.setUp();
         sourceInfo = new TrackSourceInfo("originScreen", true);
     }
 
@@ -29,7 +27,7 @@ public class AdOverlayTrackingEventTest extends TestCase {
         PropertySet audioAd = TestPropertySets.leaveBehindForPlayer();
         AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forImpression(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
         expect(uiEvent.getKind()).toEqual(AdOverlayTrackingEvent.KIND_IMPRESSION);
-        expect(uiEvent.getTimeStamp()).toEqual(1000L);
+        expect(uiEvent.getTimestamp()).toEqual(1000L);
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.LEAVE_BEHIND_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(LeaveBehindProperty.IMAGE_URL).toString());
@@ -42,7 +40,7 @@ public class AdOverlayTrackingEventTest extends TestCase {
         PropertySet audioAd = TestPropertySets.leaveBehindForPlayer();
         AdOverlayTrackingEvent uiEvent = AdOverlayTrackingEvent.forClick(1000L, audioAd, Urn.forTrack(456), Urn.forUser(123), sourceInfo);
         expect(uiEvent.getKind()).toEqual(AdOverlayTrackingEvent.KIND_CLICK);
-        expect(uiEvent.getTimeStamp()).toEqual(1000L);
+        expect(uiEvent.getTimestamp()).toEqual(1000L);
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(LeaveBehindProperty.LEAVE_BEHIND_URN));
         expect(uiEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(Urn.forTrack(456).toString());
         expect(uiEvent.get(AdTrackingKeys.KEY_AD_ARTWORK_URL)).toEqual(audioAd.get(LeaveBehindProperty.IMAGE_URL).toString());

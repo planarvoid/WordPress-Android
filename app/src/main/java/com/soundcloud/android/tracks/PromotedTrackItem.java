@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
@@ -13,16 +14,20 @@ public class PromotedTrackItem extends TrackItem {
         super(source);
     }
 
+    public String getAdUrn() {
+        return source.get(PromotedTrackProperty.AD_URN);
+    }
+
     public boolean hasPromoter() {
-        return source.contains(PromotedTrackProperty.PROMOTER_URN);
+        return source.get(PromotedTrackProperty.PROMOTER_URN).isPresent();
     }
 
-    public String getPromoterName() {
-        return source.get(PromotedTrackProperty.PROMOTER_NAME).get();
+    public Optional<String> getPromoterName() {
+        return source.get(PromotedTrackProperty.PROMOTER_NAME);
     }
 
-    public Urn getPromoterUrn() {
-        return source.get(PromotedTrackProperty.PROMOTER_URN).get();
+    public Optional<Urn> getPromoterUrn() {
+        return source.get(PromotedTrackProperty.PROMOTER_URN);
     }
 
 }

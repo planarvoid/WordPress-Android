@@ -18,6 +18,7 @@ import com.soundcloud.android.events.PlaybackErrorEvent;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -30,6 +31,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +69,7 @@ public class EventLoggerAnalyticsProviderTest {
         PlaybackSessionEvent event = mock(PlaybackSessionEvent.class);
         when(event.isAd()).thenReturn(true);
         when(event.isFirstPlay()).thenReturn(true);
-        when(event.getTimeStamp()).thenReturn(12345L);
+        when(event.getTimestamp()).thenReturn(12345L);
         when(dataBuilder.buildForAudioAdImpression(event)).thenReturn("adUrl");
         when(dataBuilder.buildForAudioEvent(event)).thenReturn("url");
 
@@ -102,7 +104,7 @@ public class EventLoggerAnalyticsProviderTest {
 
         TrackingRecord adEvent = allValues.get(0);
         expect(adEvent.getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(adEvent.getTimeStamp()).toEqual(event.getTimeStamp());
+        expect(adEvent.getTimeStamp()).toEqual(event.getTimestamp());
         expect(adEvent.getData()).toEqual("clickUrl");
     }
 
@@ -116,7 +118,7 @@ public class EventLoggerAnalyticsProviderTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         expect(captor.getValue().getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimeStamp());
+        expect(captor.getValue().getTimeStamp()).toEqual(event.getTimestamp());
         expect(captor.getValue().getData()).toEqual("url");
     }
 
@@ -163,10 +165,10 @@ public class EventLoggerAnalyticsProviderTest {
         verify(eventTracker, times(2)).trackEvent(captor.capture());
         expect(captor.getAllValues()).toNumber(2);
         expect(captor.getAllValues().get(0).getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getAllValues().get(0).getTimeStamp()).toEqual(event1.getTimeStamp());
+        expect(captor.getAllValues().get(0).getTimeStamp()).toEqual(event1.getTimestamp());
         expect(captor.getAllValues().get(0).getData()).toEqual("url1");
         expect(captor.getAllValues().get(1).getBackend()).toEqual(EventLoggerAnalyticsProvider.BATCH_BACKEND_NAME);
-        expect(captor.getAllValues().get(1).getTimeStamp()).toEqual(event2.getTimeStamp());
+        expect(captor.getAllValues().get(1).getTimeStamp()).toEqual(event2.getTimestamp());
         expect(captor.getAllValues().get(1).getData()).toEqual("url2");
     }
 
@@ -192,6 +194,19 @@ public class EventLoggerAnalyticsProviderTest {
         ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
         verify(eventTracker).trackEvent(captor.capture());
         expect(captor.getValue().getData()).toEqual("ForAudioAdClick");
+    }
+
+    @Test
+    public void shouldTrackPromotedTrackEvents() {
+        PromotedTrackItem promotedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackEvent event = PromotedTrackEvent.forPromoterClick(promotedTrack, 123L, "stream");
+        when(dataBuilder.build(event)).thenReturn("ForPromotedEvent");
+
+        eventLoggerAnalyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker).trackEvent(captor.capture());
+        expect(captor.getValue().getData()).toEqual("ForPromotedEvent");
     }
 
     @Test

@@ -1,10 +1,13 @@
 package com.soundcloud.android.tracks;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.DownloadState;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.DateProvider;
 
 import android.view.View;
 
@@ -12,13 +15,17 @@ import javax.inject.Inject;
 import java.util.List;
 
 public class DownloadableTrackItemPresenter extends TrackItemPresenter {
+
     private final FeatureOperations featureOperations;
 
     @Inject
     public DownloadableTrackItemPresenter(ImageOperations imageOperations,
                                           TrackItemMenuPresenter trackItemMenuPresenter,
-                                          FeatureOperations featureOperations) {
-        super(imageOperations, trackItemMenuPresenter);
+                                          EventBus eventBus,
+                                          FeatureOperations featureOperations,
+                                          ScreenProvider screenProvider,
+                                          DateProvider dateProvider) {
+        super(imageOperations, trackItemMenuPresenter, eventBus, screenProvider, dateProvider);
         this.featureOperations = featureOperations;
     }
 
