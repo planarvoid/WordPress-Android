@@ -11,12 +11,11 @@ import com.soundcloud.android.playback.service.Playa.Reason;
 import com.soundcloud.android.playback.service.Playa.StateTransition;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerAdapter;
 import com.soundcloud.android.playback.service.skippy.SkippyAdapter;
-import com.soundcloud.android.settings.SettingKey;
 import com.soundcloud.android.utils.Log;
+import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 
 import javax.inject.Inject;
 
@@ -24,8 +23,6 @@ import javax.inject.Inject;
 public class StreamPlaya implements PlayaListener {
 
     public static final String TAG = "StreamPlaya";
-    @VisibleForTesting
-    static final String PLAYS_ON_CURRENT_PLAYER = "StreamPlaya.playsOnCurrentPlaya";
 
     @VisibleForTesting
     static boolean skippyFailedToInitialize;
@@ -33,9 +30,9 @@ public class StreamPlaya implements PlayaListener {
     private final MediaPlayerAdapter mediaPlayaDelegate;
     private final SkippyAdapter skippyPlayaDelegate;
     private final BufferingPlaya bufferingPlayaDelegate;
-    private final SharedPreferences sharedPreferences;
     private final PlayerSwitcherInfo playerSwitcherInfo;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
+    private final NetworkConnectionHelper networkConnectionHelper;
 
     private Playa currentPlaya, lastPlaya;
     private PlayaListener playaListener;
@@ -45,18 +42,17 @@ public class StreamPlaya implements PlayaListener {
     private StateTransition lastStateTransition = StateTransition.DEFAULT;
 
     @Inject
-    public StreamPlaya(Context context, SharedPreferences sharedPreferences, MediaPlayerAdapter mediaPlayerAdapter,
-                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo,
-                       OfflinePlaybackOperations offlinePlaybackOperations) {
+    public StreamPlaya(Context context, MediaPlayerAdapter mediaPlayerAdapter,
+                       SkippyAdapter skippyAdapter, BufferingPlaya bufferingPlaya, PlayerSwitcherInfo playerSwitcherInfo, OfflinePlaybackOperations offlinePlaybackOperations,
+                       NetworkConnectionHelper networkConnectionHelper) {
 
-        this.sharedPreferences = sharedPreferences;
         mediaPlayaDelegate = mediaPlayerAdapter;
         skippyPlayaDelegate = skippyAdapter;
         bufferingPlayaDelegate = bufferingPlaya;
-        this.offlinePlaybackOperations = offlinePlaybackOperations;
-        currentPlaya = bufferingPlayaDelegate;
-
         this.playerSwitcherInfo = playerSwitcherInfo;
+        this.offlinePlaybackOperations = offlinePlaybackOperations;
+        this.networkConnectionHelper = networkConnectionHelper;
+        currentPlaya = bufferingPlayaDelegate;
 
         if (!skippyFailedToInitialize) {
             skippyFailedToInitialize = !skippyPlayaDelegate.init(context);
@@ -96,7 +92,7 @@ public class StreamPlaya implements PlayaListener {
 
     public void play(PropertySet track) {
         lastTrackPlayed = track;
-        configureNextPlayaToUseViaPreferences(track);
+        configureNextPlayaToUse();
 
         if (isAvailableOffline(track)){
             currentPlaya.playOffline(track, 0);
@@ -107,7 +103,7 @@ public class StreamPlaya implements PlayaListener {
 
     public void play(PropertySet track, long fromPos) {
         lastTrackPlayed = track;
-        configureNextPlayaToUseViaPreferences(track);
+        configureNextPlayaToUse();
 
         if (isAvailableOffline(track)){
             currentPlaya.playOffline(track, fromPos);
@@ -118,7 +114,7 @@ public class StreamPlaya implements PlayaListener {
 
     public void playUninterrupted(PropertySet track) {
         lastTrackPlayed = track;
-        configureNextPlayaToUseViaPreferences(track);
+        configureNextPlayaToUse();
         currentPlaya.playUninterrupted(track);
     }
 
@@ -179,7 +175,7 @@ public class StreamPlaya implements PlayaListener {
     }
 
     private boolean shouldFallbackToMediaPlayer(StateTransition stateTransition) {
-        return isUsingSkippyPlaya() && stateTransition.wasError() && !isInForceSkippyMode();
+        return isUsingSkippyPlaya() && stateTransition.wasGeneralFailure() && networkConnectionHelper.isNetworkConnected();
     }
 
     @Override
@@ -206,8 +202,8 @@ public class StreamPlaya implements PlayaListener {
         }
     }
 
-    private void configureNextPlayaToUseViaPreferences(PropertySet track){
-        configureNextPlayaToUse(getNextPlaya(track));
+    private void configureNextPlayaToUse(){
+        configureNextPlayaToUse(getNextPlaya());
     }
 
     private void configureNextPlayaToUse(Playa nextPlaya){
@@ -219,43 +215,16 @@ public class StreamPlaya implements PlayaListener {
 
         currentPlaya = nextPlaya;
         currentPlaya.setListener(this);
-        updateConsecutivePlays(currentPlaya != lastPlaya);
     }
 
-    private void updateConsecutivePlays(boolean changedPlayers) {
-        if (changedPlayers){
-            sharedPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, 1).apply();
-        } else {
-            int plays = sharedPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0);
-            sharedPreferences.edit().putInt(PLAYS_ON_CURRENT_PLAYER, plays + 1).apply();
-        }
-    }
 
     @SuppressWarnings({"PMD.CompareObjectsWithEquals"})
-    private Playa getNextPlaya(PropertySet track) {
-
+    private Playa getNextPlaya() {
+        // TODO : What about offline tracks, when forcing media player
         if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()){
             return mediaPlayaDelegate;
-
-        } else  if (isInForceSkippyMode()) {
-            return skippyPlayaDelegate;
-
-        } else if (isAvailableOffline(track)) {
-            return skippyPlayaDelegate;
-
-        } else if (lastPlaya == skippyPlayaDelegate){
-
-            if (sharedPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveSkippyPlays()) {
-                return mediaPlayaDelegate;
-            } else {
-                return skippyPlayaDelegate;
-            }
         } else {
-            if (sharedPreferences.getInt(PLAYS_ON_CURRENT_PLAYER, 0) >= playerSwitcherInfo.getMaxConsecutiveMpPlays()) {
-                return skippyPlayaDelegate;
-            } else {
-                return mediaPlayaDelegate;
-            }
+            return skippyPlayaDelegate;
         }
     }
 
@@ -267,26 +236,11 @@ public class StreamPlaya implements PlayaListener {
         return currentPlaya == skippyPlayaDelegate;
     }
 
-    private boolean isInForceSkippyMode() {
-        return sharedPreferences.getBoolean(SettingKey.FORCE_SKIPPY, false) ||
-                playerSwitcherInfo.getMaxConsecutiveMpPlays() <= 0;
-    }
-
     public static class PlayerSwitcherInfo {
-        private final int skippyCount;
-        private final int mpCount;
 
-        public PlayerSwitcherInfo(int maxConsecutiveMpPlays, int maxConsecutiveSkippyPlays) {
-            this.mpCount = maxConsecutiveMpPlays;
-            this.skippyCount = maxConsecutiveSkippyPlays;
-        }
-
-        public int getMaxConsecutiveSkippyPlays() {
-            return skippyCount;
-        }
-
-        public int getMaxConsecutiveMpPlays() {
-            return mpCount;
+        @Inject
+        public PlayerSwitcherInfo() {
+            // dagger
         }
 
         public boolean shouldForceMediaPlayer() {

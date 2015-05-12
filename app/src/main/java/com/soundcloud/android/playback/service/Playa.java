@@ -115,6 +115,10 @@ public interface Playa {
             return Reason.ERRORS.contains(reason);
         }
 
+        public boolean wasGeneralFailure() {
+            return reason == Reason.ERROR_FAILED;
+        }
+
         public boolean trackEnded() {
             return newState == Playa.PlayaState.IDLE && reason == Reason.TRACK_COMPLETE;
         }
