@@ -205,6 +205,13 @@ public class SyncStateManager extends ScheduledOperations {
         }
     }
 
+    public boolean resetSyncMisses(Uri contentUri) {
+        LocalCollection lc = fromContent(contentUri);
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Collections.EXTRA, 0);
+        return localCollectionDao.update(lc.getId(), cv);
+    }
+
     /* package */ void onCollectionAsyncQueryReturn(Cursor cursor, LocalCollection localCollection, LocalCollection.OnChangeListener listener) {
         try {
             final boolean wasRegistered = localCollection.hasNotBeenRegistered();

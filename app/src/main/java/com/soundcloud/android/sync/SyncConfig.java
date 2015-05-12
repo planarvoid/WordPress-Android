@@ -24,7 +24,7 @@ public final class SyncConfig {
     public static final long SHORTCUTS_STALE_TIME       = DEFAULT_STALE_TIME * 24;
 
     public static final long DEFAULT_SYNC_DELAY   = 3600L; // interval between syncs
-    public static int[] DEFAULT_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24, 48, 72, 96};
+    public static int[] DEFAULT_BACKOFF_MULTIPLIERS = new int[]{1, 2, 4, 8, 12, 18, 24};
     public static int[] USER_BACKOFF_MULTIPLIERS  = new int[]{1, 2, 3};
 
 

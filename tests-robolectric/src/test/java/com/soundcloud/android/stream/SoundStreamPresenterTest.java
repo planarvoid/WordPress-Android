@@ -147,14 +147,6 @@ public class SoundStreamPresenterTest {
     }
 
     @Test
-    public void updatesLastSeenOnResume() {
-        presenter.onCreate(fragment, null);
-        presenter.onResume(fragment);
-
-        verify(streamOperations).updateLastSeen();
-    }
-
-    @Test
     public void unsubscribesFromEventBusOnDestroyView() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);

@@ -62,7 +62,7 @@ public class SoundStreamSyncOperationsTest {
     public void createNotificationForUnseenItemsDoesNothingWithNoNewerItemsThanLastNotified() throws Exception {
         final List<PropertySet> unseenItems = Arrays.asList(PropertySet.from(PlayableProperty.CREATED_AT.bind(new Date(1000L))));
         when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
-        when(contentStats.getLastNotified(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
+        when(contentStats.getLastNotifiedItem(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
         when(soundStreamStorage.loadStreamItemsSince(LAST_SEEN, SoundStreamSyncOperations.MAX_NOTIFICATION_ITEMS)).thenReturn(unseenItems);
 
         syncOperations.createNotificationForUnseenItems();
@@ -99,7 +99,7 @@ public class SoundStreamSyncOperationsTest {
 
     private void setupUnseenNotification(List<PropertySet> unseenItems) {
         when(contentStats.getLastSeen(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
-        when(contentStats.getLastNotified(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
+        when(contentStats.getLastNotifiedItem(Content.ME_SOUND_STREAM)).thenReturn(LAST_SEEN);
         when(soundStreamStorage.loadStreamItemsSince(LAST_SEEN, SoundStreamSyncOperations.MAX_NOTIFICATION_ITEMS)).thenReturn(unseenItems);
         when(streamNotificationBuilder.notification(unseenItems)).thenReturn(Observable.just(notification));
     }

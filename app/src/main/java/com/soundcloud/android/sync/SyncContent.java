@@ -36,18 +36,26 @@ enum SyncContent {
     }
 
     public boolean shouldSync(int misses, long lastSync) {
-        return backoffMultipliers == null || (misses < backoffMultipliers.length
-            && System.currentTimeMillis() - lastSync >= syncDelay * backoffMultipliers[misses]);
+        if (backoffMultipliers == null){
+            return true;
+        } else {
+            final int backoffIndex = Math.min(backoffMultipliers.length - 1, misses);
+            return (System.currentTimeMillis() - lastSync >= syncDelay * backoffMultipliers[backoffIndex]);
+        }
     }
 
     public static void updateCollections(SyncStateManager stateManager, Bundle resultData) {
         for (SyncContent sc : SyncContent.values()) {
-            if (resultData.containsKey(sc.content.uri.toString()) &&
-                !resultData.getBoolean(sc.content.uri.toString())) {
-                final int misses = stateManager.incrementSyncMiss(sc.content.uri);
-
-                Log.d(SyncAdapterService.TAG, "Sync endpoint unchanged, " + sc.content.uri +
-                        " incrementing misses to " + misses);
+            final String contentUri = sc.content.uri.toString();
+            if (resultData.containsKey(contentUri)) {
+                if (resultData.getBoolean(contentUri)) {
+                    stateManager.resetSyncMisses(sc.content.uri);
+                    Log.d(SyncAdapterService.TAG, "Sync endpoint changed, reset misses for " + sc.content.uri);
+                } else {
+                    final int misses = stateManager.incrementSyncMiss(sc.content.uri);
+                    Log.d(SyncAdapterService.TAG, "Sync endpoint unchanged, " + sc.content.uri +
+                            " incremented misses to " + misses);
+                }
             }
         }
     }

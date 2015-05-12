@@ -10,7 +10,9 @@ import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,13 +46,40 @@ public class SoundStreamOperationsTest {
     }
 
     @Test
-    public void existingStreamItemsLoadsPageOne() {
+    public void initialStreamItemsLoadsPageOne() {
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(createItems(PAGE_SIZE, 123L)));
 
         operations.initialStreamItems().subscribe(observer);
 
         verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
+    }
+
+    @Test
+    public void initialStreamSetsLastSeen() {
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.from(items));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        verify(contentStats).setLastSeen(Content.ME_SOUND_STREAM, TIMESTAMP);
+    }
+
+    @Test
+    public void initialStreamIgnoresPromotedItemWhenItSetsLastSeen() {
+        final List<PropertySet> items = createItems(PAGE_SIZE - 1, 123L);
+        final long ignoredDate = Long.MAX_VALUE - 1;
+        items.add(0, PropertySet.from(
+                PlayableProperty.URN.bind(Urn.forTrack(12345L)),
+                PromotedTrackProperty.AD_URN.bind("adswizz:ad:123"),
+                PlayableProperty.CREATED_AT.bind(new Date(ignoredDate))));
+
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.from(items));
+
+        operations.initialStreamItems().subscribe(observer);
+        verify(contentStats).setLastSeen(Content.ME_SOUND_STREAM, TIMESTAMP);
     }
 
     @Test

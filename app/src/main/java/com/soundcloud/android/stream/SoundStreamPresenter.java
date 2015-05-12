@@ -102,12 +102,6 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     }
 
     @Override
-    public void onResume(Fragment fragment) {
-        super.onResume(fragment);
-        streamOperations.updateLastSeen();
-    }
-
-    @Override
     protected ListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
         return ListBinding.from(streamOperations.initialStreamItems(), PAGE_TRANSFORMER)
                 .withAdapter(adapter)

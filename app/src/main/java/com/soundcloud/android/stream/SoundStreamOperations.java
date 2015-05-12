@@ -10,6 +10,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
@@ -17,6 +18,8 @@ import rx.Scheduler;
 import rx.android.Pager;
 import rx.android.Pager.PagingFunction;
 import rx.functions.Func1;
+
+import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -96,10 +99,6 @@ class SoundStreamOperations {
                 .toList();
     }
 
-    public void updateLastSeen() {
-        contentStats.setLastSeen(Content.ME_SOUND_STREAM, System.currentTimeMillis());
-    }
-
     private Observable<List<PropertySet>> pagedStreamItems(final long timestamp, boolean syncCompleted) {
         Log.d(TAG, "Preparing page; timestamp=" + timestamp);
         return soundStreamStorage
@@ -116,6 +115,7 @@ class SoundStreamOperations {
                 if (result.isEmpty()) {
                     return handleEmptyLocalResult(timestamp, syncCompleted);
                 } else {
+                    updateLastSeen(result);
                     logPropertySet(result);
                     return Observable.just(result);
                 }
@@ -166,5 +166,23 @@ class SoundStreamOperations {
                 }
             }
         };
+    }
+
+    private void updateLastSeen(List<PropertySet> result) {
+        final PropertySet firstNonPromotedItem = getFirstNonPromotedItem(result);
+        if (firstNonPromotedItem != null){
+            contentStats.setLastSeen(Content.ME_SOUND_STREAM,
+                    firstNonPromotedItem.get(PlayableProperty.CREATED_AT).getTime());
+        }
+    }
+
+    @Nullable
+    private PropertySet getFirstNonPromotedItem(List<PropertySet> result) {
+        for (PropertySet propertySet : result){
+            if (!propertySet.contains(PromotedTrackProperty.AD_URN)){
+                return propertySet;
+            }
+        }
+        return null;
     }
 }

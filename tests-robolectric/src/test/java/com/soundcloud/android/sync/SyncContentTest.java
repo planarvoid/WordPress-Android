@@ -34,6 +34,20 @@ public class SyncContentTest {
     }
 
     @Test
+    public void shouldSyncIncomingMaxMisses() throws Exception {
+        LocalCollection c = new LocalCollection(
+                SyncContent.MySoundStream.content.uri, // uri
+                -1l, // last sync attempt, ignored in the sync adapter
+                -1l, // last sync
+                LocalCollection.SyncState.IDLE,
+                2, // size
+                String.valueOf(SyncConfig.DEFAULT_BACKOFF_MULTIPLIERS.length) // extra
+        );
+        new LocalCollectionDAO(resolver).create(c);
+        expect(syncStateManager.isContentDueForSync(SyncContent.MySoundStream)).toBeTrue();
+    }
+
+    @Test
     public void shouldNotSyncIncoming() throws Exception {
         LocalCollection c = new LocalCollection(
                 SyncContent.MySoundStream.content.uri, // uri
@@ -179,7 +193,7 @@ public class SyncContentTest {
     }
 
     @Test
-    public void shouldSyncAllExceptMySoundsMaxMisses() throws Exception {
+    public void shouldSyncAllIncludingMySoundsMaxMisses() throws Exception {
         LocalCollection c = new LocalCollection(
                 SyncContent.MySounds.content.uri, // uri
                 -1l, // last sync attempt, ignored in the sync adapter
@@ -191,8 +205,8 @@ public class SyncContentTest {
         new LocalCollectionDAO(resolver).create(c);
 
         List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
-        expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT -1);
-        expect(urisToSync).not.toContain(SyncContent.MySounds.content.uri);
+        expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT);
+        expect(urisToSync).toContain(SyncContent.MySounds.content.uri);
     }
 
     @Test
@@ -215,6 +229,30 @@ public class SyncContentTest {
         SyncContent.updateCollections(syncStateManager, syncResult);
 
         urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
-        expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT -1);
+        expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT - 1);
+    }
+
+    @Test
+    public void shouldNotSyncAfterNonMiss() throws Exception {
+        LocalCollection c = new LocalCollection(
+                SyncContent.MySounds.content.uri,// uri
+                -1l, // last sync attempt, ignored in the sync adapter
+                System.currentTimeMillis() - SyncConfig.TRACK_STALE_TIME, // last sync
+                LocalCollection.SyncState.PENDING,
+                2, // size
+                "" // extra
+        );
+
+        new LocalCollectionDAO(resolver).create(c);
+
+        List<Uri> urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
+        expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT);
+
+        android.os.Bundle syncResult = new android.os.Bundle();
+        syncResult.putBoolean(SyncContent.MySounds.content.uri.toString(),true);
+        SyncContent.updateCollections(syncStateManager, syncResult);
+
+        urisToSync = syncStateManager.getCollectionsDueForSync(SyncContent.NON_ACTIVITIES, false);
+        expect(urisToSync.size()).toEqual(NON_ACTIVITY_ACTIVE_SYNC_CONTENT);
     }
 }

@@ -52,8 +52,8 @@ public class SoundStreamSyncOperations {
         final boolean hasItems = !itemsSince.isEmpty();
 
         if (hasItems) {
-            final long lastNotified = contentStats.getLastNotified(Content.ME_SOUND_STREAM);
-            if (hasItemNewerThan(itemsSince, lastNotified)) {
+            final long lastNotifiedItem = contentStats.getLastNotifiedItem(Content.ME_SOUND_STREAM);
+            if (hasItemNewerThan(itemsSince, lastNotifiedItem)) {
                 streamNotificationBuilder.notification(itemsSince).subscribe(notificationSubscriber);
                 setLastNotifiedTimes(itemsSince);
                 return true;

@@ -33,8 +33,8 @@ public class ContentStats {
         setLastSeen(context, content, timestamp);
     }
 
-    public long getLastNotified(Content content){
-        return getLastNotified(context, content);
+    public long getLastNotifiedItem(Content content){
+        return getLastNotifiedItem(context, content);
     }
 
     public void setLastNotified(Content content, long timestamp) {

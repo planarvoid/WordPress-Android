@@ -2,6 +2,7 @@ package com.soundcloud.android.sync;
 
 import static com.soundcloud.android.Expect.expect;
 import static com.xtremelabs.robolectric.shadows.ShadowContentResolver.Status;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
@@ -28,6 +29,8 @@ import rx.observers.TestSubscriber;
 
 import android.accounts.Account;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
 import android.os.ResultReceiver;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -40,10 +43,11 @@ public class SyncInitiatorTest {
     @Mock private AccountOperations accountOperations;
     @Mock private ResultReceiver resultReceiver;
     @Mock private FeatureFlags featureFlags;
+    @Mock private SyncStateManager syncStateManager;
 
     @Before
     public void setup() {
-        initiator = new SyncInitiator(Robolectric.application, accountOperations);
+        initiator = new SyncInitiator(Robolectric.application, accountOperations, syncStateManager);
     }
 
     @Test
@@ -76,6 +80,14 @@ public class SyncInitiatorTest {
     }
 
     @Test
+    public void shouldResetSoundStreamSyncMissesOnChangedSync() {
+        initiator.refreshSoundStream().subscribe(legacySyncSubscriber);
+        final Uri uri = Content.ME_SOUND_STREAM.uri;
+        sendSyncChangedLegacyToUri(uri);
+        verify(syncStateManager).resetSyncMisses(uri);
+    }
+
+    @Test
     public void shouldCreateIntentForSyncingOlderSoundStreamItems() {
         initiator.backfillSoundStream().subscribe(legacySyncSubscriber);
 
@@ -96,6 +108,14 @@ public class SyncInitiatorTest {
         expect(intent.getData()).toBe(Content.ME_PLAYLISTS.uri);
         expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeNull();
+    }
+
+    @Test
+    public void shouldResetMyPlaylistSyncMissesOnChangedSync() {
+        initiator.refreshPostedPlaylists().subscribe(legacySyncSubscriber);
+        final Uri uri = Content.ME_PLAYLISTS.uri;
+        sendSyncChangedLegacyToUri(uri);
+        verify(syncStateManager).resetSyncMisses(uri);
     }
 
     @Test
@@ -132,6 +152,14 @@ public class SyncInitiatorTest {
     }
 
     @Test
+    public void shouldResetMyLikesSyncMissesOnChangedTrackLikesSync() {
+        initiator.syncTrackLikes().subscribe(syncSubscriber);
+        final Uri uri = Content.ME_LIKES.uri;
+        sendSyncChangedToUri(uri);
+        verify(syncStateManager).resetSyncMisses(uri);
+    }
+
+    @Test
     public void syncPlaylistLikesShouldRequestPlaylistLikesSync() throws Exception {
         initiator.syncPlaylistLikes().subscribe(syncSubscriber);
 
@@ -139,6 +167,14 @@ public class SyncInitiatorTest {
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLIST_LIKES);
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiverAdapter.class);
+    }
+
+    @Test
+    public void shouldResetMyLikesSyncMissesOnChangedPlaylistLikesSync() {
+        initiator.syncPlaylistLikes().subscribe(syncSubscriber);
+        final Uri uri = Content.ME_LIKES.uri;
+        sendSyncChangedToUri(uri);
+        verify(syncStateManager).resetSyncMisses(uri);
     }
 
     @Test
@@ -161,5 +197,22 @@ public class SyncInitiatorTest {
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLISTS);
         expect(intent.getParcelableArrayListExtra(SyncExtras.URNS)).toContainExactly(propertySet.get(PlaylistProperty.URN));
+    }
+
+
+    private void sendSyncChangedLegacyToUri(Uri uri) {
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
+        final Bundle resultData = new Bundle();
+        resultData.putBoolean(uri.toString(), true);
+        resultReceiver.send(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
+    }
+
+    private void sendSyncChangedToUri(Uri uri) {
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        final ResultReceiver resultReceiver = intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER);
+        final Bundle resultData = new Bundle();
+        resultData.putParcelable(ResultReceiverAdapter.SYNC_RESULT, SyncResult.success("action", true));
+        resultReceiver.send(ApiSyncService.STATUS_SYNC_FINISHED, resultData);
     }
 }

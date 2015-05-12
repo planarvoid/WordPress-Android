@@ -9,6 +9,7 @@ import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Action0;
+import rx.functions.Action1;
 
 import android.accounts.Account;
 import android.content.ContentResolver;
@@ -32,9 +33,11 @@ public class SyncInitiator {
 
     private final Context context;
     private final AccountOperations accountOperations;
+    private final SyncStateManager syncStateManager;
 
     @Inject
-    public SyncInitiator(Context context, AccountOperations accountOperations) {
+    public SyncInitiator(Context context, AccountOperations accountOperations, SyncStateManager syncStateManager) {
+        this.syncStateManager = syncStateManager;
         this.context = context.getApplicationContext();
         this.accountOperations = accountOperations;
     }
@@ -68,14 +71,15 @@ public class SyncInitiator {
     }
 
     public Observable<Boolean> refreshSoundStream() {
+        final Uri uri = SyncContent.MySoundStream.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 requestSoundStreamSync(
                         ApiSyncService.ACTION_HARD_REFRESH,
-                        new LegacyResultReceiverAdapter(subscriber, Content.ME_SOUND_STREAM.uri));
+                        new LegacyResultReceiverAdapter(subscriber, uri));
             }
-        });
+        }).doOnNext(resetSyncMissesLegacy(uri));
     }
 
     private void requestSoundStreamSync(String action, LegacyResultReceiverAdapter resultReceiver) {
@@ -87,14 +91,15 @@ public class SyncInitiator {
     }
 
     public Observable<Boolean> refreshPostedPlaylists() {
+        final Uri uri = SyncContent.MyPlaylists.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 requestPostedPlaylistsSync(
                         ApiSyncService.ACTION_HARD_REFRESH,
-                        new LegacyResultReceiverAdapter(subscriber, Content.ME_PLAYLISTS.uri));
+                        new LegacyResultReceiverAdapter(subscriber, uri));
             }
-        });
+        }).doOnNext(resetSyncMissesLegacy(uri));
     }
 
     private void requestPostedPlaylistsSync(String action, LegacyResultReceiverAdapter resultReceiver) {
@@ -106,11 +111,13 @@ public class SyncInitiator {
     }
 
     public Observable<SyncResult> syncTrackLikes() {
-        return requestSyncObservable(SyncActions.SYNC_TRACK_LIKES);
+        return requestSyncObservable(SyncActions.SYNC_TRACK_LIKES)
+                .doOnNext(resetSyncMisses(SyncContent.MyLikes.content.uri));
     }
 
     public Observable<SyncResult> syncPlaylistLikes() {
-        return requestSyncObservable(SyncActions.SYNC_PLAYLIST_LIKES);
+        return requestSyncObservable(SyncActions.SYNC_PLAYLIST_LIKES)
+                .doOnNext(resetSyncMisses(SyncContent.MyLikes.content.uri));
     }
 
     public Observable<SyncResult> syncPlaylistPosts() {
@@ -210,6 +217,28 @@ public class SyncInitiator {
                 .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
                 .setData(resultReceiver.contentUri));
+    }
+
+    private Action1<Boolean> resetSyncMissesLegacy(final Uri uri) {
+        return new Action1<Boolean>() {
+            @Override
+            public void call(Boolean changed) {
+                if (changed){
+                    syncStateManager.resetSyncMisses(uri);
+                }
+            }
+        };
+    }
+
+    private Action1<SyncResult> resetSyncMisses(final Uri uri) {
+        return new Action1<SyncResult>() {
+            @Override
+            public void call(SyncResult result) {
+                if (result.wasChanged()){
+                    syncStateManager.resetSyncMisses(uri);
+                }
+            }
+        };
     }
 
 }
