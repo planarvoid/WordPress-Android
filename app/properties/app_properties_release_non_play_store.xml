@@ -21,7 +21,6 @@
 
     <!-- Feature flags (enabled) -->
     <bool name="feature_eventlogger_page_view">true</bool>
-    <bool name="feature_reload_last_playqueue">true</bool>
     <bool name="feature_new_playlist_engagements">true</bool>
     <bool name="feature_eventlogger_batching">true</bool>
 

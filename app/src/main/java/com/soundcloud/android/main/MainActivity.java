@@ -19,7 +19,6 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.explore.ExploreFragment;
-import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.likes.TrackLikesFragment;
 import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -27,9 +26,9 @@ import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.SoundStreamFragment;
+import com.soundcloud.lightcycle.LightCycle;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
@@ -93,7 +92,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
         castConnectionHelper.reconnectSessionIfPossible();
 
-        if (featureFlags.isEnabled(Flag.RELOAD_LAST_PLAYQUEUE) && playQueueManager.shouldReloadQueue()) {
+        if (playQueueManager.shouldReloadQueue()) {
             playQueueManager.loadPlayQueueAsync(true);
         }
     }

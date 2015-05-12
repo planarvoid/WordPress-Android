@@ -20,7 +20,6 @@
 
     <!-- Feature flags (enabled) -->
     <bool name="feature_google_cast">true</bool>
-    <bool name="feature_reload_last_playqueue">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments_test">false</bool>

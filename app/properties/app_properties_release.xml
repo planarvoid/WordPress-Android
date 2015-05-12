@@ -19,7 +19,6 @@
     <string name="cast_receiver_app_id">DCAC4134</string>
 
     <!-- Feature flags (enabled) -->
-    <bool name="feature_reload_last_playqueue">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments_test">false</bool>
