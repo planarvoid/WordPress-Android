@@ -136,16 +136,6 @@ public class EventLoggerAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldOmitPlaybackPerformanceFragmentDownloadRate() {
-        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.fragmentDownloadRate(1000L, PlaybackProtocol.HLS, PlayerType.MEDIA_PLAYER,
-                ConnectionType.FOUR_G, "uri", userUrn);
-
-        eventLoggerAnalyticsProvider.handlePlaybackPerformanceEvent(event);
-
-        verifyZeroInteractions(eventTracker);
-    }
-
-    @Test
     public void shouldTrackPlaybackErrorEventAsEventLoggerEvent() throws Exception {
         PlaybackErrorEvent event = new PlaybackErrorEvent("category", PlaybackProtocol.HLS, "uri", "bitrate", "format", ConnectionType.FOUR_G);
         when(dataBuilder.build(event)).thenReturn("url");
