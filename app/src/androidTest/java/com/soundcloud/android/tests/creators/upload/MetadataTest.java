@@ -1,10 +1,8 @@
 package com.soundcloud.android.tests.creators.upload;
 
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
-import static com.soundcloud.android.framework.matcher.view.IsVisible.viewVisible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
@@ -57,7 +55,7 @@ public class MetadataTest extends ActivityTest<MainActivity> {
                 .clickUploadButton();
 
         assertThat(recordScreen, is(visible()));
-        assertThat(recordScreen.getNextButton(), is(not(viewVisible())));
+        assertThat(recordScreen.getNextButton().isVisible(), is(false));
 
         solo.goBack();
 

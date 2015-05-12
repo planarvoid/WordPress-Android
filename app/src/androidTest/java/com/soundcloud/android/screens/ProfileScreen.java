@@ -6,10 +6,10 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.ViewPagerElement;
 
 import android.widget.ListView;
 
@@ -113,7 +113,7 @@ public class ProfileScreen extends Screen {
         return testDriver.findElement(With.id(R.id.location));
     }
 
-    private ViewElement followersMessage(){
+    private ViewElement followersMessage() {
         return testDriver.findElement(With.id(R.id.followers_message));
     }
 
