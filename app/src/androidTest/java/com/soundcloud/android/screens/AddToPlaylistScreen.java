@@ -4,11 +4,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class AddToPlaylistScreen extends Screen {
 
     public AddToPlaylistScreen(Han solo) {
         super(solo);
+        waiter.waitForFragmentByTag("create_playlist_dialog");
     }
 
     @Override
@@ -26,8 +28,13 @@ public class AddToPlaylistScreen extends Screen {
         return new CreatePlaylistScreen(testDriver);
     }
 
-    public CreatePlaylistScreen clickPlaylistWithTitle(String title) {
+    public StreamScreen clickPlaylistWithTitleFromStream(String title) {
         testDriver.findElements(With.text(title)).get(0).click();
-        return new CreatePlaylistScreen(testDriver);
+        return new StreamScreen(testDriver);
+    }
+
+    public VisualPlayerElement clickPlaylistWithTitleFromPlayer(String title) {
+        testDriver.findElements(With.text(title)).get(0).click();
+        return new VisualPlayerElement(testDriver);
     }
 }

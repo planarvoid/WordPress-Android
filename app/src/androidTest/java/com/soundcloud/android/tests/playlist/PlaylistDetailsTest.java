@@ -77,7 +77,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
 
         player.tapFooter();
         AddToPlaylistScreen addToPlaylistScreen = player.clickMenu().clickAddToPlaylist();
-        addToPlaylistScreen.clickPlaylistWithTitle(title);
+        addToPlaylistScreen.clickPlaylistWithTitleFromPlayer(title);
         player.pressBackToCollapse();
 
         assertThat(playlistsScreen.getLoadedTrackCount(), is(initialTrackCount));

@@ -8,7 +8,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
@@ -25,11 +24,6 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         TestUser.onePlaylistUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
     public void testAddTrackToPlaylistFromStream() {
         StreamScreen streamScreen = new StreamScreen(solo);
         String trackAddedTitle = streamScreen.firstTrack().getTitle();
@@ -37,7 +31,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         streamScreen
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist()
-                .clickPlaylistWithTitle(TEST_PLAYLIST);
+                .clickPlaylistWithTitleFromStream(TEST_PLAYLIST);
 
         assertPlaylistContainsTrack(trackAddedTitle);
     }
@@ -47,12 +41,10 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         String trackAddedTitle = streamScreen.firstTrack().getTitle();
 
         VisualPlayerElement player = streamScreen.clickFirstTrack();
-        player.waitForExpandedPlayer();
         player.clickMenu()
                 .clickAddToPlaylist()
-                .clickPlaylistWithTitle(TEST_PLAYLIST);
-
-        player.pressBackToCollapse();
+                .clickPlaylistWithTitleFromPlayer(TEST_PLAYLIST)
+                .pressBackToCollapse();
 
         assertPlaylistContainsTrack(trackAddedTitle);
     }
@@ -64,8 +56,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
         assertThat(playlistDetailsScreen.getTitle(), is(TEST_PLAYLIST));
         assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(true));
 
-        TrackItemMenuElement menu = playlistDetailsScreen.clickLastTrackOverflowButton();
-        menu.clickRemoveFromPlaylist();
+        playlistDetailsScreen.clickLastTrackOverflowButton().clickRemoveFromPlaylist();
 
         assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(false));
     }
