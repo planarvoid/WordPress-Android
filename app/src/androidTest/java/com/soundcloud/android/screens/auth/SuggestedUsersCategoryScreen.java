@@ -72,9 +72,10 @@ public class SuggestedUsersCategoryScreen extends Screen {
         return false;
     }
 
-    public void waitForUsers() {
+    public SuggestedUsersCategoryScreen waitForUsers() {
         waiter.waitForElement(R.id.suggested_users_grid);
         waiter.waitForElement(R.id.username);
+        return this;
     }
 
     private GridView suggestedUsersGrid(){

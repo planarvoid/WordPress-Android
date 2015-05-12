@@ -58,7 +58,7 @@ public class SuggestedUsersScreen extends Screen {
 
     public SuggestedUsersScreen clickToggleCategoryCheckmark(int visibleIndex){
         clickOnCategoryElement(visibleIndex, R.id.btn_user_bucket_select_all);
-        return new SuggestedUsersScreen(testDriver);
+        return this;
     }
 
     public SuggestedUsersCategoryScreen clickCategory(int visibleIndex) {

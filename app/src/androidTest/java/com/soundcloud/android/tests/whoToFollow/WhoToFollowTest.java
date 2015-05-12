@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.whoToFollow;
 
 import static com.soundcloud.android.framework.TestUser.generateEmail;
 
-import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.HomeScreen;
 import com.soundcloud.android.screens.auth.SignUpBasicsScreen;
@@ -14,34 +13,26 @@ import com.soundcloud.android.tests.ActivityTest;
 
 public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
 
-    private Waiter waiter;
-    protected HomeScreen homeScreen;
-    protected SignUpMethodScreen signUpMethodScreen;
     protected SuggestedUsersScreen suggestedUsersScreen;
     protected SuggestedUsersCategoryScreen suggestedUsersCategoryScreen;
-    protected SignUpBasicsScreen signUpBasicsScreen;
 
     public WhoToFollowTest() {
         super(OnboardActivity.class);
     }
 
-    public void setUp() throws Exception {
-        super.setUp();
-        homeScreen = new HomeScreen(solo);
-        waiter = new Waiter(solo);
-    }
-
     public void testCheckmarkSelection() {
         createNewUser();
-        waiter.waitForContentAndRetryIfLoadingFailed();
 
-        suggestedUsersScreen.clickToggleCategoryCheckmark(1);
-        suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
+        suggestedUsersCategoryScreen = suggestedUsersScreen
+                .clickToggleCategoryCheckmark(1)
+                .clickCategory(1);
         assertEquals("All users should be selected", true, suggestedUsersCategoryScreen.hasAllUsersSelected());
 
         solo.goBack();
-        suggestedUsersScreen.clickToggleCategoryCheckmark(1);
-        suggestedUsersScreen.clickCategory(1);
+
+        suggestedUsersScreen
+                .clickToggleCategoryCheckmark(1)
+                .clickCategory(1);
         assertEquals("Users should not be selected", true, suggestedUsersCategoryScreen.hasNoUsersSelected());
     }
 
@@ -56,8 +47,7 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
     public void testSelectDeselectToggle() {
         createNewUser();
         suggestedUsersCategoryScreen = suggestedUsersScreen.clickCategory(1);
-        suggestedUsersCategoryScreen.waitForUsers();
-        suggestedUsersCategoryScreen.selectAll();
+        suggestedUsersCategoryScreen.waitForUsers().selectAll();
         assertTrue("All users should be selected", suggestedUsersCategoryScreen.hasAllUsersSelected());
 
         suggestedUsersCategoryScreen.deselectAll();
@@ -70,9 +60,8 @@ public class WhoToFollowTest extends ActivityTest<OnboardActivity> {
     }
 
     private void createNewUser() {
-        signUpMethodScreen = homeScreen.clickSignUpButton();
-        signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
-
+        final SignUpMethodScreen signUpMethodScreen = new HomeScreen(solo).clickSignUpButton();
+        final SignUpBasicsScreen signUpBasicsScreen = signUpMethodScreen.clickByEmailButton();
 
         // TODO : Re-use the same user
         signUpBasicsScreen.typeEmail(generateEmail());
