@@ -133,7 +133,7 @@ class GeneralSettings implements OnPreferenceClickListener {
                 parent.startActivity(new Intent(parent, LegalActivity.class));
                 return true;
             case LOGOUT:
-                if (!AndroidUtils.isUserAMonkey()) { // Don't let the monkey log out
+                if (!AndroidUtils.isUserAMonkey()) { // Don't let the monkey sign out
                     showLogoutDialog(parent);
                 }
                 return true;

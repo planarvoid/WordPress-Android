@@ -480,7 +480,7 @@
     <item>Crudo</item>
   </string-array>
 
-  <!-- __SETTINGS LOG OUT -->
+  <!-- __SETTINGS SIGN OUT -->
   <string name="menu_clear_user_desc">Tendrás que volver a conectar tu cuenta de SoundCloud.</string>
   <string name="menu_clear_user_title">¿Borrar datos de usuario?</string>
 

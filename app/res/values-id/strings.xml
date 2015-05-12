@@ -481,7 +481,7 @@
     <item>Mentah</item>
   </string-array>
 
-  <!-- __SETTINGS LOG OUT -->
+  <!-- __SETTINGS SIGN OUT -->
   <string name="menu_clear_user_desc">Kamu harus kembali menghubungkan akun SoundCloud-mu.</string>
   <string name="menu_clear_user_title">Hapus data pengguna?</string>
 
