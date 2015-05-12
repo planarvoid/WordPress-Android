@@ -18,7 +18,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.android.lightcycle.SupportFragmentLightCycleDispatcher;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.IOUtils;

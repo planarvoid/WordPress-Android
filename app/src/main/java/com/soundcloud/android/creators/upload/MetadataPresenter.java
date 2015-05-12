@@ -12,7 +12,7 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.crop.Crop;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.image.PlaceholderGenerator;
-import com.soundcloud.android.lightcycle.SupportFragmentLightCycleDispatcher;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ViewHelper;
 import com.soundcloud.android.utils.images.ImageUtils;

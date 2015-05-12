@@ -12,7 +12,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UploadEvent;
 import com.soundcloud.android.image.PlaceholderGenerator;
-import com.soundcloud.android.lightcycle.SupportFragmentLightCycleDispatcher;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ViewHelper;

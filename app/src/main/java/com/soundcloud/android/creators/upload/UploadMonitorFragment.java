@@ -3,8 +3,8 @@ package com.soundcloud.android.creators.upload;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.lightcycle.LightCycle;
-import com.soundcloud.android.lightcycle.LightCycleSupportFragment;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
 import android.content.Intent;
 import android.os.Bundle;
