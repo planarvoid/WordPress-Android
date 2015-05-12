@@ -34,7 +34,6 @@ public class SuggestedUsersActivity extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getMenuInflater().inflate(R.menu.suggested_users, menu);
         return true;
     }

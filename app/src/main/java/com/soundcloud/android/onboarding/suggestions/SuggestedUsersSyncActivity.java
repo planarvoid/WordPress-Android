@@ -26,7 +26,6 @@ public class SuggestedUsersSyncActivity extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getMenuInflater().inflate(R.menu.onboard, menu);
         return true;
     }

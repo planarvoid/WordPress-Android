@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import javax.inject.Inject;
@@ -293,10 +292,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void displayProfile() {
-        // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
-        // don't forget to search for the TODOs related to this in NavigationFragment.
-        // --Your friend.
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // prevents title text change flashing
         startActivity(new Intent(this, MeActivity.class));
     }
 
@@ -343,15 +338,12 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     public void restoreActionBar() {
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(lastTitle);
+        getSupportActionBar().setTitle(lastTitle);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getMenuInflater().inflate(R.menu.main, menu);
         restoreActionBar();
         if (navigationFragment != null) {

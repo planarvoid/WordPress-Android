@@ -91,7 +91,6 @@ public class UploadActivity extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }

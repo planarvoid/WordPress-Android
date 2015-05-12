@@ -141,7 +141,6 @@ public class RecordActivity extends ScActivity implements CreateWaveDisplay.List
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }

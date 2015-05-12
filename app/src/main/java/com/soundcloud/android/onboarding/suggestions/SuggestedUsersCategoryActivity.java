@@ -45,7 +45,6 @@ public class SuggestedUsersCategoryActivity extends ScActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
         getMenuInflater().inflate(R.menu.suggested_users_category, menu);
         if (category.isFollowed(followingOperations.getFollowedUserIds())) {
             menu.findItem(R.id.menu_select_all).setVisible(false);
