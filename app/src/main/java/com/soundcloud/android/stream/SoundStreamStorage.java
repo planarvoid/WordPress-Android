@@ -8,6 +8,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.exists;
 import static com.soundcloud.propeller.query.ColumnFunctions.field;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -209,6 +210,10 @@ class SoundStreamStorage {
         private void addOptionalPromotedProperties(CursorReader cursorReader, PropertySet propertySet) {
             if (cursorReader.isNotNull(PromotedTracks.AD_URN)) {
                 propertySet.put(PromotedTrackProperty.AD_URN, cursorReader.getString(PromotedTracks.AD_URN));
+                propertySet.put(PromotedTrackProperty.TRACK_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_CLICKED_URLS)));
+                propertySet.put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS)));
+                propertySet.put(PromotedTrackProperty.TRACK_PLAYED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_TRACK_PLAYED_URLS)));
+                propertySet.put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, splitUrls(cursorReader.getString(PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS)));
                 addOptionalPromoter(cursorReader, propertySet);
             }
         }
@@ -221,6 +226,10 @@ class SoundStreamStorage {
                 propertySet.put(PromotedTrackProperty.PROMOTER_URN, Optional.<Urn>absent());
                 propertySet.put(PromotedTrackProperty.PROMOTER_NAME, Optional.<String>absent());
             }
+        }
+
+        private List<String> splitUrls(String urls) {
+            return Lists.newArrayList(urls.split(" "));
         }
     }
 

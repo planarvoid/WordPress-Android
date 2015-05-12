@@ -20,6 +20,7 @@ import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
 
+import java.util.Arrays;
 import java.util.Date;
 
 public abstract class TestPropertySets {
@@ -127,17 +128,24 @@ public abstract class TestPropertySets {
     }
 
     public static PropertySet expectedPromotedTrack() {
-        return expectedTrackForListItem(Urn.forTrack(123L))
-                .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
+        return basePromotedTrack()
                 .put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(193L)))
                 .put(PromotedTrackProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
     }
 
     public static PropertySet expectedPromotedTrackWithoutPromoter() {
-        return expectedTrackForListItem(Urn.forTrack(123L))
-                .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
+        return basePromotedTrack()
                 .put(PromotedTrackProperty.PROMOTER_URN, Optional.<Urn>absent())
                 .put(PromotedTrackProperty.PROMOTER_NAME, Optional.<String>absent());
+    }
+
+    private static PropertySet basePromotedTrack() {
+        return expectedTrackForListItem(Urn.forTrack(123L))
+                .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
+                .put(PromotedTrackProperty.TRACK_CLICKED_URLS, Arrays.asList("url1", "url2"))
+                .put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, Arrays.asList("url3", "url4"))
+                .put(PromotedTrackProperty.TRACK_PLAYED_URLS, Arrays.asList("url5", "url6"))
+                .put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, Arrays.asList("url7", "url8"));
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {

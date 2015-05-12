@@ -26,6 +26,7 @@ import org.mockito.Mock;
 import rx.Observer;
 import rx.observers.TestObserver;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +54,11 @@ public class SoundStreamStorageTest extends StorageIntegrationTest {
                 .put(PlayableProperty.IS_PRIVATE, false)
                 .put(PromotedTrackProperty.AD_URN, "promoted:track:123")
                 .put(PromotedTrackProperty.PROMOTER_URN, Optional.of(Urn.forUser(83)))
-                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.of("SoundCloud"));
+                .put(PromotedTrackProperty.PROMOTER_NAME, Optional.of("SoundCloud"))
+                .put(PromotedTrackProperty.TRACK_CLICKED_URLS, Arrays.asList("url1", "url2"))
+                .put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, Arrays.asList("url3", "url4"))
+                .put(PromotedTrackProperty.TRACK_PLAYED_URLS, Arrays.asList("url5", "url6"))
+                .put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, Arrays.asList("url7", "url8"));
 
         verify(observer).onNext(promotedTrack);
         verify(observer).onCompleted();

@@ -14,6 +14,7 @@ import com.soundcloud.android.analytics.EventTracker;
 import com.soundcloud.android.analytics.TrackingRecord;
 import com.soundcloud.android.events.AdOverlayTrackingEvent;
 import com.soundcloud.android.events.PlaybackSessionEvent;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
@@ -21,6 +22,7 @@ import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -191,6 +193,26 @@ public class PromotedAnalyticsProviderTest {
         expect(event2.getData()).toEqual("leaveBehindTrackingImpressionUrl2");
     }
 
+    @Test
+    public void tracksPromotedTrackUrls() {
+        PromotedTrackItem track = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        PromotedTrackEvent event = PromotedTrackEvent.forTrackClick(track, "stream");
+
+        analyticsProvider.handleTrackingEvent(event);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
+        expect(event1.getTimeStamp()).toEqual(event.getTimestamp());
+        expect(event1.getData()).toEqual("url1");
+
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
+        expect(event2.getTimeStamp()).toEqual(event.getTimestamp());
+        expect(event2.getData()).toEqual("url2");
+    }
 
     @Test
     public void shouldForwardFlushCallToEventTracker() {
