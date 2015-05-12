@@ -8,7 +8,6 @@ import javax.inject.Inject;
 
 class PaymentErrorController {
 
-    private static final String ERROR_KEY_UNCONFIRMED_EMAIL = "unconfirmed_email";
     private static final String ERROR_KEY_ALREADY_SUBSCRIBED = "already_subscribed";
     private static final String ERROR_KEY_WRONG_USER = "wrong_user";
 
@@ -46,9 +45,6 @@ class PaymentErrorController {
 
     private void handleBadRequest(ApiRequestException e) {
         switch (e.errorKey()) {
-            case ERROR_KEY_UNCONFIRMED_EMAIL:
-                errorPresenter.showUnconfirmedEmail();
-                break;
             case ERROR_KEY_ALREADY_SUBSCRIBED:
                 errorPresenter.showAlreadySubscribed();
                 break;

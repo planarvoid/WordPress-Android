@@ -334,7 +334,6 @@
   <string name="payments_success">Sucesso</string>
   <string name="payments_error_title">Erro de pagamento</string>
   <string name="payments_error_already_subscribed">Já existe uma inscrição associada à sua conta. Os problemas continuaram? Fale com o suporte.</string>
-  <string name="payments_error_unconfirmed_email">Por favor, siga o link no email de confirmação e tente novamente.</string>
   <string name="payments_error_stale_checkout">Não foi possível restaurar a sua inscrição.</string>
   <string name="payments_error_wrong_user">Você tem uma inscrição ativa, mas ela está vinculada a um usuário diferente.</string>
   <string name="payments_error_contact_support">Fale com o suporte</string>

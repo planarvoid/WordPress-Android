@@ -37,12 +37,6 @@ public class PaymentErrorControllerTest {
     }
 
     @Test
-    public void badRequestFromUnconfirmedEmailShowsCorrectError() {
-        paymentErrorController.onError(ApiRequestException.badRequest(apiRequest, "unconfirmed_email"));
-        verify(errorPresenter).showUnconfirmedEmail();
-    }
-
-    @Test
     public void badRequestFromAlreadySubscribedShowsCorrectError() {
         paymentErrorController.onError(ApiRequestException.badRequest(apiRequest, "already_subscribed"));
         verify(errorPresenter).showAlreadySubscribed();

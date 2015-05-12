@@ -333,7 +333,6 @@
   <string name="payments_success">Éxito</string>
   <string name="payments_error_title">Error en el pago</string>
   <string name="payments_error_already_subscribed">Ya existe una suscripción asociada con tu cuenta. ¿Problema continuo? Contáctate con el área de soporte.</string>
-  <string name="payments_error_unconfirmed_email">Por favor, sigue el enlace en tu correo electrónico de confirmación y vuelve a intentarlo.</string>
   <string name="payments_error_stale_checkout">No fue posible restaurar tu suscripción.</string>
   <string name="payments_error_wrong_user">Tienes una suscripción activa, pero está vinculada a un usuario diferente.</string>
   <string name="payments_error_contact_support">Contactarse con el área de soporte</string>

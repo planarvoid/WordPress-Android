@@ -334,7 +334,6 @@
   <string name="payments_success">Berhasil</string>
   <string name="payments_error_title">Kesalahan pembayaran</string>
   <string name="payments_error_already_subscribed">Sudah ada berlangganan yang terkait dengan akun Anda. Masalah berlanjut? Hubungi bagian dukungan.</string>
-  <string name="payments_error_unconfirmed_email">Silakan ikuti tautan di surel konfirmasi Anda dan coba lagi.</string>
   <string name="payments_error_stale_checkout">Tidak memungkinkan untuk memulihkan berlangganan Anda.</string>
   <string name="payments_error_wrong_user">Anda memiliki status berlangganan aktif, tetapi status tersebut terkait dengan pengguna yang berbeda.</string>
   <string name="payments_error_contact_support">Hubungi bagian dukungan</string>

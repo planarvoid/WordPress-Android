@@ -339,7 +339,6 @@
     <string name="payments_success">Success</string>
     <string name="payments_error_title">Payment error</string>
     <string name="payments_error_already_subscribed">There is already a subscription associated with your account. Continued problems? Contact support.</string>
-    <string name="payments_error_unconfirmed_email">Please follow the link in your confirmation email and try again.</string>
     <string name="payments_error_stale_checkout">It was not possible to restore your subscription.</string>
     <string name="payments_error_wrong_user">You have an active subscription, but it is linked to a different user.</string>
     <string name="payments_error_contact_support">Contact support</string>

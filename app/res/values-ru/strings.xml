@@ -335,7 +335,6 @@
   <string name="payments_success">Успешно</string>
   <string name="payments_error_title">Ошибка платежа</string>
   <string name="payments_error_already_subscribed">Уже существует подписка, связанная с вашей учетной записью. Проблема не исчезла? Обратитесь в Центр поддержки.</string>
-  <string name="payments_error_unconfirmed_email">Пожалуйста, перейдите по ссылке в письме, отправленном на ваш электронный ящик, и попробуйте снова.</string>
   <string name="payments_error_stale_checkout">Невозможно восстановить вашу подписку.</string>
   <string name="payments_error_wrong_user">У вас есть активные подписки, но они связаны с другим пользователем.</string>
   <string name="payments_error_contact_support">Связаться с Центром поддержки</string>

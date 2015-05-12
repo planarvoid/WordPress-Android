@@ -334,7 +334,6 @@
   <string name="payments_success">Succès</string>
   <string name="payments_error_title">Erreur de paiement</string>
   <string name="payments_error_already_subscribed">Un abonnement est déjà associé à votre compte. Le problème n\'est toujours pas résolu? Contactez le support technique.</string>
-  <string name="payments_error_unconfirmed_email">Veuillez cliquer sur le lien contenu dans l\'e-mail de confirmation et réessayer.</string>
   <string name="payments_error_stale_checkout">Échec de restauration de votre abonnement.</string>
   <string name="payments_error_wrong_user">Vous avez un abonnement en cours, mais celui-ci est associé à un autre utilisateur.</string>
   <string name="payments_error_contact_support">Contactez le support technique</string>

@@ -3,7 +3,6 @@ package com.soundcloud.android.payments;
 import com.soundcloud.android.R;
 import com.soundcloud.android.payments.error.AlreadySubscribedDialog;
 import com.soundcloud.android.payments.error.StaleCheckoutDialog;
-import com.soundcloud.android.payments.error.UnconfirmedEmailDialog;
 import com.soundcloud.android.payments.error.WrongUserDialog;
 
 import android.content.Context;
@@ -29,10 +28,6 @@ class PaymentErrorPresenter {
 
     public void showAlreadySubscribed() {
         AlreadySubscribedDialog.show(fragmentManager);
-    }
-
-    public void showUnconfirmedEmail() {
-        UnconfirmedEmailDialog.show(fragmentManager);
     }
 
     public void showStaleCheckout() {
