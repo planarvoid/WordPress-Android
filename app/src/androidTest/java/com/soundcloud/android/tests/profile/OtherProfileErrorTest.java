@@ -9,7 +9,7 @@ import com.soundcloud.android.tests.ActivityTest;
 
 public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
 
-    private ProfileScreen screen;
+    private ProfileScreen profileScreen;
 
     public OtherProfileErrorTest() {
         super(LauncherActivity.class);
@@ -24,21 +24,22 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
     protected void setUp() throws Exception {
         super.setUp();
 
-        menuScreen = new MenuScreen(solo);
-        screen = menuScreen.open().clickUserProfile();
+        profileScreen = new MenuScreen(solo)
+                .open()
+                .clickUserProfile()
+                .touchFollowingsTab();
+
         networkManagerClient.switchWifiOff();
-        screen.touchFollowingsTab();
-        screen = screen.getUsers()
-                .get(0)
-                .click();
+
+        profileScreen.getUsers().get(0).click();
     }
 
     public void testConnectionErrorAndRetryInPosts() {
-        assertTrue(screen.emptyConnectionErrorMessage().isVisible());
+        assertTrue(profileScreen.emptyConnectionErrorMessage().isVisible());
 
         networkManagerClient.switchWifiOn();
-        screen.retryFromErrorView();
+        profileScreen.retryFromErrorView();
 
-        assertTrue(screen.playTrack(0).isVisible());
+        assertTrue(profileScreen.playTrack(0).isVisible());
     }
 }
