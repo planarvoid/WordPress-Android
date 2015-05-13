@@ -48,7 +48,7 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
 
     public void testShowToastWhenContentNotDownloaded() throws Exception {
         networkManager.switchWifiOff();
-        likesScreen.clickTrack(0);
+        likesScreen.clickOfflineTrack(0);
 
         assertTrue(waiter.expectToastWithText(toastObserver, "Track is not available offline"));
     }
