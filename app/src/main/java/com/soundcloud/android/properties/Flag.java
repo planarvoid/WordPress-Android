@@ -9,6 +9,7 @@ public enum Flag {
     GOOGLE_CAST(R.bool.feature_google_cast),
     OFFLINE_SYNC(R.bool.feature_offline_sync),
     PROMOTED_IN_STREAM(R.bool.feature_promoted_in_stream),
+    NEW_PROFILE_FRAGMENTS(R.bool.new_profile_fragments),
     EVENTLOGGER_SEARCH_EVENTS(R.bool.feature_eventlogger_search);
 
     private final int resourceId;

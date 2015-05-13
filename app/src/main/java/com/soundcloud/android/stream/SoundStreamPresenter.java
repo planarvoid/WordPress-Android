@@ -25,6 +25,7 @@ import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.MixedPlayableAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -84,7 +85,7 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
 
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
-    private final SoundStreamAdapter adapter;
+    private final MixedPlayableAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
 
@@ -94,7 +95,7 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
-                         SoundStreamAdapter adapter,
+                         MixedPlayableAdapter adapter,
                          ImageOperations imageOperations,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,

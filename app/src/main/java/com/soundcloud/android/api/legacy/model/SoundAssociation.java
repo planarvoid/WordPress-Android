@@ -4,11 +4,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.behavior.PlayableHolder;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
+import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.BulkInsertMap;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
+import com.soundcloud.android.sync.posts.PostProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -21,7 +24,7 @@ import java.util.Date;
 /**
  * Maps to <code>stream_item</code> item on backend.
  */
-public class SoundAssociation extends Association implements PlayableHolder {
+public class SoundAssociation extends Association implements PlayableHolder, PropertySetSource {
 
     public Playable playable;
 
@@ -199,5 +202,12 @@ public class SoundAssociation extends Association implements PlayableHolder {
                 ", playable=" + playable +
                 ", user=" + owner +
                 '}';
+    }
+
+    @Override
+    public PropertySet toPropertySet() {
+        return playable.toPropertySet()
+                .put(PostProperty.CREATED_AT, created_at)
+                .put(PostProperty.IS_REPOST, associationType == ScContentProvider.CollectionItemTypes.REPOST);
     }
 }

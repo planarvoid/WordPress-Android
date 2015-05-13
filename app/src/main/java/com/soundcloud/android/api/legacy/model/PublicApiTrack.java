@@ -17,6 +17,7 @@ import com.soundcloud.android.storage.ResolverHelper;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRecord;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -40,7 +41,7 @@ import java.util.regex.Pattern;
 @Deprecated
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PublicApiTrack extends Playable {
+public class PublicApiTrack extends Playable implements TrackRecord {
     public static final String EXTRA = "track";
     public static final String EXTRA_ID = "track_id";
     public static final Parcelable.Creator<PublicApiTrack> CREATOR = new Parcelable.Creator<PublicApiTrack>() {
@@ -53,7 +54,6 @@ public class PublicApiTrack extends Playable {
         }
     };
     private static final String TAG = "Track";
-    private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
     private static final String API_MONETIZABLE_VALUE = "monetize";
     // API fields
     @JsonView(Views.Full.class) @Nullable public String policy;
@@ -206,27 +206,34 @@ public class PublicApiTrack extends Playable {
     }
 
     @Override
+    public boolean isSyncable() {
+        return false;
+    }
+
+    @Override
+    public int getPlaybackCount() {
+        return playback_count;
+    }
+
+    @Override
+    public int getCommentsCount() {
+        return comment_count;
+    }
+
+    @Override
+    public int getLikesCount() {
+        return likes_count;
+    }
+
+    @Override
+    public int getRepostsCount() {
+        return reposts_count;
+    }
+
+    @Override
     public void setId(long id) {
         super.setId(id);
         urn = Urn.forTrack(id);
-    }
-
-    public List<String> humanTags() {
-        List<String> tags = new ArrayList<String>();
-        if (tag_list == null) {
-            return tags;
-        }
-        Matcher m = TAG_PATTERN.matcher(tag_list);
-        while (m.find()) {
-            tags.add(tag_list.substring(m.start(2), m.end(2)).trim());
-        }
-        String singlewords = m.replaceAll("");
-        for (String t : singlewords.split("\\s")) {
-            if (!TextUtils.isEmpty(t) && t.indexOf(':') == -1 && t.indexOf('=') == -1) {
-                tags.add(t);
-            }
-        }
-        return tags;
     }
 
     @Nullable
@@ -313,6 +320,11 @@ public class PublicApiTrack extends Playable {
         dest.writeBundle(b);
     }
 
+    @Override
+    public int getDuration() {
+        return duration;
+    }
+
     public String getWaveformUrl() {
         return waveform_url;
     }
@@ -341,7 +353,7 @@ public class PublicApiTrack extends Playable {
         return track;
     }
 
-    boolean isMonetizable() {
+    public boolean isMonetizable() {
         return policy != null && policy.equalsIgnoreCase(API_MONETIZABLE_VALUE);
     }
 
@@ -546,6 +558,21 @@ public class PublicApiTrack extends Playable {
 
     public String getStreamUrl() {
         return stream_url;
+    }
+
+    @Override
+    public String getPermalinkUrl() {
+        return permalink_url;
+    }
+
+    @Override
+    public String getGenre() {
+        return genre;
+    }
+
+    @Override
+    public boolean isCommentable() {
+        return commentable;
     }
 
     protected static String fixWaveform(String input) {

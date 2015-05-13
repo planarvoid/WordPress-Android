@@ -78,7 +78,9 @@ public enum ApiEndpoints {
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
     LEGACY_TRACKS("/tracks"),
-    TRACK_COMMENTS("/tracks/%s/comments");
+    LEGACY_TRACK("/tracks/%s"),
+    TRACK_COMMENTS("/tracks/%s/comments"),
+    USER_SOUNDS("/e1/users/%s/sounds");
 
     private final String path;
 
