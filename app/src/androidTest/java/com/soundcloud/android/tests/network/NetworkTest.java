@@ -20,19 +20,19 @@ public class NetworkTest extends ActivityTest<MainActivity> {
 
         // ensure wifi is switched on, since we always assume to have network connectivity at the
         // beginning of a test
-        networkManager.switchWifiOn();
+        networkManagerClient.switchWifiOn();
     }
 
     public void ignore_testSwitchOffWifi() {
-        networkManager.switchWifiOff();
-        assertFalse("Wifi was not switched off", networkManager.isWifiEnabled());
+        networkManagerClient.switchWifiOff();
+        assertFalse("Wifi was not switched off", networkManagerClient.isWifiEnabled());
     }
 
     public void ignore_testSwitchOnWifi() {
-        networkManager.switchWifiOff();
-        assertFalse("Wifi was not switched off", networkManager.isWifiEnabled());
+        networkManagerClient.switchWifiOff();
+        assertFalse("Wifi was not switched off", networkManagerClient.isWifiEnabled());
 
-        networkManager.switchWifiOn();
-        assertTrue("Wifi was not switched on", networkManager.isWifiEnabled());
+        networkManagerClient.switchWifiOn();
+        assertTrue("Wifi was not switched on", networkManagerClient.isWifiEnabled());
     }
 }

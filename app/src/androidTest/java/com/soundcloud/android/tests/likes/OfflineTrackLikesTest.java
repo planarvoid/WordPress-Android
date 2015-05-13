@@ -69,7 +69,7 @@ public class OfflineTrackLikesTest extends ActivityTest<MainActivity> {
         enableOfflineContent(context);
 
         final TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
 
         likesScreen.clickShuffleButton();
 

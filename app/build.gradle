@@ -228,6 +228,7 @@ dependencies {
   /* Acceptance Tests */
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
+  androidTestCompile acceptanceTestLibraries.networkManagerClient
 }
 
 int getNewVersionCode() {

@@ -4,11 +4,11 @@ import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.LogCollector;
 import com.soundcloud.android.framework.Waiter;
-import com.soundcloud.android.framework.helpers.networkmanager.NetworkManager;
 import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MenuScreen;
+import soundcloud.com.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.app.Activity;
 import android.app.ActivityManager;
@@ -33,7 +33,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
     protected Han solo;
 
-    protected NetworkManager networkManager;
+    protected NetworkManagerClient networkManagerClient;
 
     public ActivityTest(Class<T> activityClass) {
         super(activityClass);
@@ -49,7 +49,7 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));
 
         observeToasts();
-        networkManager = new NetworkManager(getInstrumentation().getContext());
+        networkManagerClient = new NetworkManagerClient(getInstrumentation().getContext());
 
         testCaseName = String.format("%s.%s", getClass().getName(), getName());
         LogCollector.startCollecting(testCaseName);
@@ -57,8 +57,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
 
         menuScreen = new MenuScreen(solo);
 
-        networkManager.bind();
-        networkManager.switchWifiOn();
+        networkManagerClient.bind();
+        networkManagerClient.switchWifiOn();
 
         logIn();
 
@@ -70,8 +70,8 @@ public abstract class ActivityTest<T extends Activity> extends ActivityInstrumen
     @Override
     protected void tearDown() throws Exception {
         toastObserver.stopObserving();
-        networkManager.switchWifiOn();
-        networkManager.unbind();
+        networkManagerClient.switchWifiOn();
+        networkManagerClient.unbind();
 
         AccountAssistant.logOutWithAccountCleanup(getInstrumentation());
         assertNull(AccountAssistant.getAccount(getInstrumentation().getTargetContext()));

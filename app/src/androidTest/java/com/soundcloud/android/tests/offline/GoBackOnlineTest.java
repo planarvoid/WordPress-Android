@@ -12,10 +12,10 @@ import com.robotium.solo.Condition;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.helpers.OfflineContentHelper;
-import com.soundcloud.android.framework.helpers.networkmanager.NetworkManager;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.StreamScreen;
+import soundcloud.com.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;
@@ -29,12 +29,12 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     private static final Urn TRACK = Urn.forTrack(123L);
     private final OfflineContentHelper offlineContentHelper;
     private Context context;
-    private NetworkManager networkManager;
+    private NetworkManagerClient networkManagerClient;
     private Han testDriver;
     private Condition isWifiEnabled = new Condition() {
         @Override
         public boolean isSatisfied() {
-            return networkManager.isWifiEnabled();
+            return networkManagerClient.isWifiEnabled();
         }
     };
 
@@ -49,7 +49,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
         context = getInstrumentation().getTargetContext();
 
         initNetworkManager();
-        networkManager.switchWifiOn();
+        networkManagerClient.switchWifiOn();
         TestUser.offlineUser.logIn(context);
         offlineContentHelper.clearOfflineContent(context);
 
@@ -58,7 +58,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
 
     @Override
     protected void tearDown() throws Exception {
-        networkManager.switchWifiOn();
+        networkManagerClient.switchWifiOn();
         super.tearDown();
     }
 
@@ -68,8 +68,8 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     private void initNetworkManager() {
-        networkManager = new NetworkManager(context);
-        if (!networkManager.bind()) {
+        networkManagerClient = new NetworkManagerClient(context);
+        if (!networkManagerClient.bind()) {
             throw new IllegalStateException("Could not bind network manager");
         }
     }
@@ -80,7 +80,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testDisplaysGoBackOnline() throws Exception {
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         enableOfflineContent(context);
@@ -92,7 +92,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testDoesNotDisplayGoBackOnlineWhenOfflineContentDisabled() throws Exception {
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         disableOfflineContent(context);
@@ -101,7 +101,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testDisplaysGoBackOnlineOnlyOnceADay() throws Exception {
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
         setPolicyUpdateCheckTime(context, System.currentTimeMillis());
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(27, TimeUnit.DAYS));
         enableOfflineContent(context);
@@ -110,7 +110,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testDoesNotDisplayGoBackOnlineWhenPolicyCanBeUpdated() throws Exception {
-        networkManager.switchWifiOn();
+        networkManagerClient.switchWifiOn();
         // FIXME : This is temporary. Remove this as soon as we fix the network manger
         // notifying the wifi is up even though it is not connected yet.
         testDriver.waitForCondition(isWifiEnabled, 10000);
@@ -122,7 +122,7 @@ public class GoBackOnlineTest extends ActivityInstrumentationTestCase2<MainActiv
     }
 
     public void testDoesNotDisplayDialogWhenOfflineForLessThan27Days() throws Exception {
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
         resetPolicyUpdateCheckTime(context);
         offlineContentHelper.setOfflinePlaylistAndTrackWithPolicy(context, PLAYLIST, TRACK, getPreviousDate(26, TimeUnit.DAYS));
         enableOfflineContent(context);

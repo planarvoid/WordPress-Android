@@ -26,7 +26,7 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
 
         menuScreen = new MenuScreen(solo);
         screen = menuScreen.open().clickUserProfile();
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
         screen.touchFollowingsTab();
         screen = screen.getUsers()
                 .get(0)
@@ -36,7 +36,7 @@ public class OtherProfileErrorTest extends ActivityTest<LauncherActivity> {
     public void testConnectionErrorAndRetryInPosts() {
         assertTrue(screen.emptyConnectionErrorMessage().isVisible());
 
-        networkManager.switchWifiOn();
+        networkManagerClient.switchWifiOn();
         screen.retryFromErrorView();
 
         assertTrue(screen.playTrack(0).isVisible());
