@@ -441,7 +441,7 @@
         <item>Raw</item>
     </string-array>
 
-    <!-- __SETTINGS LOG OUT -->
+    <!-- __SETTINGS SIGN OUT -->
     <string name="menu_clear_user_desc">سوف تحتاج إلى إعادة الاتصال بحساب SoundCloud لديك.</string>
     <string name="menu_clear_user_title">هل تريد مسح بيانات المستخدم؟</string>
 

@@ -23,7 +23,7 @@ public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
         // We are not logged in
 
         assertThat(new HomeScreen(solo), is(visible()));
-        assertTrue(waiter.expectToastWithText(toastObserver, "Please log in to open this link"));
+        assertTrue(waiter.expectToastWithText(toastObserver, "Please sign in to open this link"));
     }
 
     private Uri getUri() {

@@ -481,7 +481,7 @@
     <item>Не обработанный</item>
   </string-array>
 
-  <!-- __SETTINGS LOG OUT -->
+  <!-- __SETTINGS SIGN OUT -->
   <string name="menu_clear_user_desc">Вам нужно заново привязать свою учетную запись SoundCloud.</string>
   <string name="menu_clear_user_title">Очистить данные пользователя?</string>
 

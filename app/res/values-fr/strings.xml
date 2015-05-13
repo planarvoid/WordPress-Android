@@ -480,7 +480,7 @@
     <item>Brut</item>
   </string-array>
 
-  <!-- __SETTINGS LOG OUT -->
+  <!-- __SETTINGS SIGN OUT -->
   <string name="menu_clear_user_desc">Vous devrez vous reconnecter à votre compte SoundCloud.</string>
   <string name="menu_clear_user_title">Effacer les données Utilisateur ?</string>
 

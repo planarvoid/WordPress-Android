@@ -41,7 +41,7 @@
     <string name="new_connection_error">There was a problem adding the network</string>
     <string name="reset">Discard</string>
     <string name="share_fail_message">OK, that went wrong.</string>
-    <string name="share_log_out">Log out</string>
+    <string name="share_log_out">Sign out</string>
     <string name="share_success_message">Yay, that worked!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Share&lt;/b&gt; to &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Sounds from %s</string>
@@ -93,10 +93,10 @@
     <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
     <string name="authentication_error_age_not_valid">You must be at least 13 years old.</string>
     <string name="authentication_error_title">Error</string>
-    <string name="authentication_log_in">Log In</string>
+    <string name="authentication_log_in">Sign In</string>
     <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
-    <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
-    <string name="authentication_login_progress_message">Logging you in</string>
+    <string name="authentication_login_error_password_message">We couldn\'t sign you in. Sure you had the right email and password?</string>
+    <string name="authentication_login_progress_message">Signing you in</string>
     <string name="authentication_recover_password">Recover password</string>
     <string name="authentication_recover_password_failure">We can\'t recover your password right now. Please try again shortly</string>
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
@@ -109,14 +109,14 @@
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>
     <string name="authentication_clear_image">Hold to clear image</string>
-    <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
-    <string name="authentication_login_error_message">We couldn\'t log you in. Please try again.</string>
+    <string name="dialog_select_google_account">Please select a Google account to sign in with</string>
+    <string name="authentication_login_error_message">We couldn\'t sign you in. Please try again.</string>
     <string name="authentication_no_google_accounts">Please setup a google account first.</string>
     <string name="authentication_log_in_with_google">Sign in with Google</string>
-    <string name="error_google_sign_in_failed">We couldn\'t log you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
+    <string name="error_google_sign_in_failed">We couldn\'t sign you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
-    <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
+    <string name="facebook_authentication_failed_message">Please try again shortly or sign in using your SoundCloud username and password.</string>
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
     <string name="authentication_blocked_title">We couldn\'t sign you up</string>
     <string name="authentication_blocked_message">Our robots think this signup looks too much like spam. If you believe this to be a mistake, please <a href="http://help.soundcloud.com/customer/portal/emails/new">contact our support</a></string>
@@ -126,7 +126,7 @@
     <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided</string>
 
     <!-- __DEEPLINKS -->
-    <string name="error_toast_user_not_logged_in">Please log in to open this link</string>
+    <string name="error_toast_user_not_logged_in">Please sign in to open this link</string>
 
     <!-- __EMAIL OPT-IN -->
     <string name="optin_title">SoundCloud Newsletter</string>
@@ -138,7 +138,7 @@
     <!-- __EMPTY STATES -->
     <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
     <string name="info_empty_you_message">Your profile is empty</string>
-    <string name="info_empty_you_secondary">Please log in to SoundCloud on your desktop to edit your profile</string>
+    <string name="info_empty_you_secondary">Please sign in to SoundCloud on your desktop to edit your profile</string>
     <string name="list_empty_activity_message">You don\'t have any activities yet</string>
     <string name="list_empty_activity_secondary">Find out more about sharing sounds with our 101s</string>
     <string name="list_empty_stream_action">Find people to follow</string>
@@ -161,7 +161,7 @@
 
     <!-- __ERRORS -->
     <string name="error_recording_message">There was an error during recording.\n Your device may not support the current record configuration. You can change configurations in the application settings.</string>
-    <string name="error_unauthorized_message">We\'re having a problem with your account and need you to log back into SoundCloud before you can continue using the app.</string>
+    <string name="error_unauthorized_message">We\'re having a problem with your account and need you to sign back into SoundCloud before you can continue using the app.</string>
     <string name="error_unauthorized_title">Account Error</string>
     <string name="error_loading_url">There was a problem loading that url</string>
     <string name="error_soundcloud_no_response">SoundCloud isn\'t responding.</string>
@@ -473,8 +473,8 @@
     <string name="pref_connection_and_data">Connection and data</string>
     <string name="pref_help">Help</string>
     <string name="pref_help_desc">Access the SoundCloud support site</string>
-    <string name="pref_revoke_access">Log Out</string>
-    <string name="pref_revoke_desc">Log out current user</string>
+    <string name="pref_revoke_access">Sign Out</string>
+    <string name="pref_revoke_desc">Sign out current user</string>
     <string name="pref_sync_wifi_only">Only update data over Wi-Fi</string>
     <string name="pref_sync_wifi_only_description">Only update new likes etc. over Wi-Fi</string>
     <string name="pref_analytics">Analytics</string>
@@ -493,7 +493,7 @@
         <item>Raw</item>
     </string-array>
 
-    <!-- __SETTINGS LOG OUT -->
+    <!-- __SETTINGS SIGN OUT -->
     <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>
     <string name="menu_clear_user_title">Clear user data?</string>
 

@@ -480,7 +480,7 @@
     <item>Arquivos RAW</item>
   </string-array>
 
-  <!-- __SETTINGS LOG OUT -->
+  <!-- __SETTINGS SIGN OUT -->
   <string name="menu_clear_user_desc">Você terá que reconectar sua conta do SoundCloud.</string>
   <string name="menu_clear_user_title">Excluir dados de usuário?</string>
 

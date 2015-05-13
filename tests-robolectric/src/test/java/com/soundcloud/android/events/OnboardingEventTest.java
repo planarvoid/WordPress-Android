@@ -24,7 +24,7 @@ public class OnboardingEventTest {
     public void shouldCreateEventFromLoginPrompt() {
         onboardingEvent = OnboardingEvent.logInPrompt();
         expect(onboardingEvent.getKind()).toBe(OnboardingEvent.AUTH_PROMPT);
-        expect(onboardingEvent.getAttributes().get("type")).toEqual("log in");
+        expect(onboardingEvent.getAttributes().get("type")).toEqual("sign in");
     }
 
     @Test
