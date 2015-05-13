@@ -142,10 +142,10 @@ public abstract class TestPropertySets {
     private static PropertySet basePromotedTrack() {
         return expectedTrackForListItem(Urn.forTrack(123L))
                 .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
-                .put(PromotedTrackProperty.TRACK_CLICKED_URLS, Arrays.asList("url1", "url2"))
-                .put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, Arrays.asList("url3", "url4"))
-                .put(PromotedTrackProperty.TRACK_PLAYED_URLS, Arrays.asList("url5", "url6"))
-                .put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, Arrays.asList("url7", "url8"));
+                .put(PromotedTrackProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
+                .put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
+                .put(PromotedTrackProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))
+                .put(PromotedTrackProperty.PROMOTER_CLICKED_URLS, Arrays.asList("promoted7", "promoted8"));
     }
 
     public static PropertySet expectedLikedTrackForLikesScreen() {

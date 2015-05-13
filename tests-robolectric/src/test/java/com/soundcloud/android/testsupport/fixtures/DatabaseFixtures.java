@@ -349,10 +349,10 @@ public class DatabaseFixtures {
         cv.put(TableColumns.PromotedTracks.AD_URN, "promoted:track:123");
         cv.put(TableColumns.PromotedTracks.PROMOTER_ID, 83);
         cv.put(TableColumns.PromotedTracks.PROMOTER_NAME, "SoundCloud");
-        cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, "url1 url2");
-        cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, "url3 url4");
-        cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, "url5 url6");
-        cv.put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, "url7 url8");
+        cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_CLICKED_URLS, "promoted1 promoted2");
+        cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_IMPRESSION_URLS, "promoted3 promoted4");
+        cv.put(TableColumns.PromotedTracks.TRACKING_TRACK_PLAYED_URLS, "promoted5 promoted6");
+        cv.put(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, "promoted7 promoted8");
 
         insertInto(Table.PromotedTracks, cv);
     }

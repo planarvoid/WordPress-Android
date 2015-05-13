@@ -206,12 +206,12 @@ public class PromotedAnalyticsProviderTest {
         final TrackingRecord event1 = captor.getAllValues().get(0);
         expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event1.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(event1.getData()).toEqual("url1");
+        expect(event1.getData()).toEqual("promoted1");
 
         final TrackingRecord event2 = captor.getAllValues().get(1);
         expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
         expect(event2.getTimeStamp()).toEqual(event.getTimestamp());
-        expect(event2.getData()).toEqual("url2");
+        expect(event2.getData()).toEqual("promoted2");
     }
 
     @Test
