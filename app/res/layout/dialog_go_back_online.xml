@@ -16,12 +16,12 @@
     <com.soundcloud.android.view.CustomFontTextView
         style="@style/MaterialDialog.Title"
         android:id="@+id/offline_dialog_go_online_title"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <com.soundcloud.android.view.CustomFontTextView
         style="@style/MaterialDialog.Content"
         android:id="@+id/offline_dialog_go_online_content"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 </LinearLayout>
