@@ -35,6 +35,7 @@ public class OtherProfileTest extends ActivityTest<LauncherActivity> {
                 .getUsers()
                 .get(0)
                 .click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
     public void testPostsLoadNextPage() {
