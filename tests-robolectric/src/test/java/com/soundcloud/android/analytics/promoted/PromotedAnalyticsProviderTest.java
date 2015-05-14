@@ -51,7 +51,7 @@ public class PromotedAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldTrackPlaybackEventAsEventLoggerEvent() throws Exception {
+    public void tracksAdPlayUrls() throws Exception {
         PlaybackSessionEvent playbackEvent = mock(PlaybackSessionEvent.class);
         when(playbackEvent.isAd()).thenReturn(true);
         when(playbackEvent.isFirstPlay()).thenReturn(true);
@@ -215,13 +215,37 @@ public class PromotedAnalyticsProviderTest {
     }
 
     @Test
-    public void shouldForwardFlushCallToEventTracker() {
+    public void tracksPromotedTrackPlayUrls() {
+        PlaybackSessionEvent playbackEvent = mock(PlaybackSessionEvent.class);
+        when(playbackEvent.isPromotedTrack()).thenReturn(true);
+        when(playbackEvent.isFirstPlay()).thenReturn(true);
+        when(playbackEvent.getTimestamp()).thenReturn(12345L);
+        when(playbackEvent.getPromotedPlayUrls()).thenReturn(newArrayList("promoPlay1", "promoPlay2"));
+
+        analyticsProvider.handleTrackingEvent(playbackEvent);
+
+        ArgumentCaptor<TrackingRecord> captor = ArgumentCaptor.forClass(TrackingRecord.class);
+        verify(eventTracker, times(2)).trackEvent(captor.capture());
+
+        final TrackingRecord event1 = captor.getAllValues().get(0);
+        expect(event1.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
+        expect(event1.getTimeStamp()).toEqual(12345L);
+        expect(event1.getData()).toEqual("promoPlay1");
+
+        final TrackingRecord event2 = captor.getAllValues().get(1);
+        expect(event2.getBackend()).toEqual(PromotedAnalyticsProvider.BACKEND_NAME);
+        expect(event2.getTimeStamp()).toEqual(12345L);
+        expect(event2.getData()).toEqual("promoPlay2");
+    }
+
+    @Test
+    public void forwardsFlushCallToEventTracker() {
         analyticsProvider.flush();
         verify(eventTracker).flush(PromotedAnalyticsProvider.BACKEND_NAME);
     }
 
     @Test
-    public void shouldSendTrackingEventAsap() throws CreateModelException {
+    public void sendsTrackingEventAsap() throws CreateModelException {
         final PropertySet audioAdMetadata = TestPropertySets.audioAdProperties(Urn.forTrack(123L));
         final PlaybackSessionEvent event = TestEvents.playbackSessionPlayEventWithProgress(0).withAudioAd(audioAdMetadata);
         analyticsProvider.handleTrackingEvent(event);

@@ -98,6 +98,8 @@ public class PromotedAnalyticsProvider implements AnalyticsProvider {
             } else if (event.hasTrackFinished()) {
                 trackAllUrls(event.getTimestamp(), event.getAudioAdFinishUrls());
             }
+        } else if (event.isPromotedTrack() && event.isFirstPlay()) {
+            trackAllUrls(event.getTimestamp(), event.getPromotedPlayUrls());
         }
     }
 

@@ -3,15 +3,18 @@ package com.soundcloud.android.playback;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.AdTrackingKeys;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -25,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -50,6 +54,7 @@ public class PlaybackSessionAnalyticsControllerTest {
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(track));
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(trackSourceInfo);
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(new PlaySessionSource("stream"));
         when(accountOperations.getLoggedInUserUrn()).thenReturn(USER_URN);
 
         analyticsController = new PlaybackSessionAnalyticsController(
@@ -126,6 +131,32 @@ public class PlaybackSessionAnalyticsControllerTest {
         // ad specific properties
         expect(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual(audioAd.get(AdProperty.AUDIO_AD_URN));
         expect(playbackSessionEvent.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN)).toEqual(audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
+    }
+
+    @Test
+    public void stateChangeToPlayEventForPlayingPromotedTrackIncludesPromotedInfo() {
+        Urn promoter = Urn.forUser(83L);
+        PlaySessionSource source = new PlaySessionSource("stream");
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.of(promoter), Arrays.asList("url")));
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
+
+        Playa.StateTransition playEvent = publishPlayingEvent();
+
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        expectCommonAudioEventData(playEvent, playbackSessionEvent);
+        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_AD_URN)).toEqual("ad:urn:123");
+        expect(playbackSessionEvent.get(AdTrackingKeys.KEY_PROMOTER_URN)).toEqual(promoter.toString());
+    }
+
+    @Test
+    public void promotedInfoIsClearedOnPlayEvent() {
+        PlaySessionSource source = new PlaySessionSource("stream");
+        source.setPromotedSourceInfo(new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url")));
+        when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(source);
+
+        publishPlayingEvent();
+
+        expect(source.isFromPromotedTrack()).toBeFalse();
     }
 
     @Test

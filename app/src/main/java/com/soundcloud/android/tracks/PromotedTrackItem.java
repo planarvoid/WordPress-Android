@@ -44,4 +44,8 @@ public class PromotedTrackItem extends TrackItem {
         return source.get(PromotedTrackProperty.PROMOTER_CLICKED_URLS);
     }
 
+    public List<String> getPlayUrls() {
+        return source.get(PromotedTrackProperty.TRACK_PLAYED_URLS);
+    }
+
 }

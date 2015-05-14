@@ -224,7 +224,8 @@ public class EventLoggerJsonDataBuilder {
                 .connectionType(event.get(PlaybackSessionEvent.CONNECTION_TYPE))
                 .adUrn(event.get(AdTrackingKeys.KEY_AD_URN))
                 .monetizedObject(event.get(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN))
-                .monetizationType(MONETIZATION_TYPE_AUDIO_AD);
+                .monetizationType(event.get(AdTrackingKeys.KEY_MONETIZATION_TYPE))
+                .promotedBy(event.get(AdTrackingKeys.KEY_PROMOTER_URN));
 
         TrackSourceInfo trackSourceInfo = event.getTrackSourceInfo();
 
@@ -299,7 +300,6 @@ public class EventLoggerJsonDataBuilder {
                         .pageName(event.get(ForegroundEvent.KEY_PAGE_NAME))
                         .pageUrn(event.get(ForegroundEvent.KEY_PAGE_URN))
                         .referrer(event.get(ForegroundEvent.KEY_REFERRER)));
-
             default:
                 throw new IllegalArgumentException("Unexpected Foreground Event type " + event);
         }

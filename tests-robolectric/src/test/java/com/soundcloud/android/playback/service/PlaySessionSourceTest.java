@@ -2,6 +2,8 @@ package com.soundcloud.android.playback.service;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.google.common.base.Optional;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -14,6 +16,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import android.os.Parcel;
+
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaySessionSourceTest {
@@ -96,10 +100,12 @@ public class PlaySessionSourceTest {
     @Test
     public void shouldBeParcelable() throws Exception {
         SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
+        PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
         PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
         original.setExploreVersion(EXPLORE_TAG);
         original.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
         original.setSearchQuerySourceInfo(searchQuerySourceInfo);
+        original.setPromotedSourceInfo(promotedSourceInfo);
 
         Parcel parcel = Parcel.obtain();
         original.writeToParcel(parcel, 0);
@@ -111,6 +117,7 @@ public class PlaySessionSourceTest {
         expect(copy.getInitialSource()).toEqual(PlaySessionSource.DiscoverySource.EXPLORE.value());
         expect(copy.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
         expect(copy.getSearchQuerySourceInfo()).toEqual(searchQuerySourceInfo);
+        expect(copy.getPromotedSourceInfo()).toEqual(promotedSourceInfo);
     }
 
     @Test

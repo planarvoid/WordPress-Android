@@ -2,10 +2,12 @@ package com.soundcloud.android.playback;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackSessionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -105,11 +107,19 @@ public class PlaybackSessionAnalyticsController {
                 final String playerType = getPlayerType(stateTransition);
                 final String connectionType = getConnectionType(stateTransition);
                 lastSessionEventData = PlaybackSessionEvent.forPlay(track, loggedInUserUrn, currentTrackSourceInfo, progress, protocol, playerType, connectionType);
+
                 if (adsOperations.isCurrentTrackAudioAd()) {
                     lastPlayAudioAd = playQueueManager.getCurrentMetaData();
                     lastSessionEventData = lastSessionEventData.withAudioAd(lastPlayAudioAd);
                 } else {
                     lastPlayAudioAd = null;
+                }
+
+                PlaySessionSource source = playQueueManager.getCurrentPlaySessionSource();
+                if (source.isFromPromotedTrack()) {
+                    PromotedSourceInfo promotedSourceInfo = source.getPromotedSourceInfo();
+                    lastSessionEventData = lastSessionEventData.withPromotedTrack(promotedSourceInfo);
+                    source.clearPromotedSourceInfo();
                 }
                 return lastSessionEventData;
             }
@@ -148,7 +158,6 @@ public class PlaybackSessionAnalyticsController {
     private String getPlayerType(Playa.StateTransition stateTransition) {
         return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE);
     }
-
 
     private String getConnectionType(Playa.StateTransition stateTransition) {
         return stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_CONNECTION_TYPE);

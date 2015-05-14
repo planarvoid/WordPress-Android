@@ -3,6 +3,7 @@ package com.soundcloud.android.stream;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
@@ -169,21 +170,27 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final ListItem item = adapter.getItem(position);
         final Urn playableUrn = item.getEntityUrn();
-        if (playableUrn.isTrack()) {
-            playbackOperations
-                    .playTracks(streamOperations.trackUrnsForPlayback(),
-                            playableUrn,
-                            position,
-                            new PlaySessionSource(Screen.SIDE_MENU_STREAM))
-                    .subscribe(subscriberProvider.get());
-            if (item instanceof PromotedTrackItem) {
-                PromotedTrackItem promotedTrack = (PromotedTrackItem) item;
-                eventBus.publish(EventQueue.TRACKING,
-                        PromotedTrackEvent.forTrackClick(promotedTrack, Screen.SIDE_MENU_STREAM.get()));
-            }
+        if (item instanceof PromotedTrackItem) {
+            playFromPromotedTrack(position, (PromotedTrackItem) item, playableUrn);
+        } else if (playableUrn.isTrack()) {
+            playTracks(position, playableUrn, new PlaySessionSource(Screen.SIDE_MENU_STREAM));
         } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(view.getContext(), playableUrn, Screen.SIDE_MENU_STREAM);
         }
+    }
+
+    private void playFromPromotedTrack(int position, PromotedTrackItem promotedTrack, Urn playableUrn) {
+        eventBus.publish(EventQueue.TRACKING,
+                PromotedTrackEvent.forTrackClick(promotedTrack, Screen.SIDE_MENU_STREAM.get()));
+        PlaySessionSource source = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
+        source.setPromotedSourceInfo(PromotedSourceInfo.fromTrack(promotedTrack));
+        playTracks(position, playableUrn, source);
+    }
+
+    private void playTracks(int position, Urn playableUrn, PlaySessionSource playSessionSource) {
+        playbackOperations
+                .playTracks(streamOperations.trackUrnsForPlayback(), playableUrn, position, playSessionSource)
+                .subscribe(subscriberProvider.get());
     }
 
 }

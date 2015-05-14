@@ -2,6 +2,7 @@ package com.soundcloud.android.events;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -33,6 +34,9 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private static final String EVENT_KIND_PLAY = "play";
     private static final String EVENT_KIND_STOP = "stop";
 
+    private static final String MONETIZATION_AUDIO_AD = "audio_ad";
+    private static final String MONETIZATION_PROMOTED = "promoted";
+
     private final Urn trackUrn;
     private final int duration;
     private final long progress;
@@ -44,6 +48,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private List<String> adCompanionImpressionUrls = Collections.emptyList();
     private List<String> adImpressionUrls = Collections.emptyList();
     private List<String> adFinishedUrls = Collections.emptyList();
+    private List<String> promotedPlayUrls = Collections.emptyList();
 
     public static PlaybackSessionEvent forPlay(@NotNull PropertySet trackData, @NotNull Urn userUrn, TrackSourceInfo trackSourceInfo, long progress,
                                                String protocol, String playerType, String connectionType) {
@@ -73,7 +78,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return playbackSessionEvent;
     }
 
-    // Use this constructor for an ordinary audio playback event
+    // Regular track
     private PlaybackSessionEvent(String eventKind, PropertySet track, Urn userUrn, TrackSourceInfo trackSourceInfo, long progress, long timestamp,
                                  String protocol, String playerType, String connectionType) {
         super(eventKind, timestamp);
@@ -89,10 +94,11 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.duration = track.get(PlayableProperty.DURATION);
     }
 
-    // Use this constructor for an audio ad playback event
+    // Audio ad
     public PlaybackSessionEvent withAudioAd(PropertySet audioAd) {
         put(AdTrackingKeys.KEY_USER_URN, get(KEY_USER_URN));
         put(AdTrackingKeys.KEY_AD_URN, audioAd.get(AdProperty.AUDIO_AD_URN));
+        put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_AUDIO_AD);
         put(AdTrackingKeys.KEY_MONETIZABLE_TRACK_URN, audioAd.get(AdProperty.MONETIZABLE_TRACK_URN).toString());
         put(AdTrackingKeys.KEY_AD_ARTWORK_URL, audioAd.get(AdProperty.ARTWORK).toString());
         put(AdTrackingKeys.KEY_AD_TRACK_URN, get(KEY_TRACK_URN));
@@ -101,6 +107,17 @@ public class PlaybackSessionEvent extends TrackingEvent {
         this.adImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_IMPRESSION_URLS);
         this.adCompanionImpressionUrls = audioAd.get(AdProperty.AUDIO_AD_COMPANION_DISPLAY_IMPRESSION_URLS);
         this.adFinishedUrls = audioAd.get(AdProperty.AUDIO_AD_FINISH_URLS);
+        return this;
+    }
+
+    // Promoted track
+    public PlaybackSessionEvent withPromotedTrack(PromotedSourceInfo promotedSource) {
+        put(AdTrackingKeys.KEY_AD_URN, promotedSource.getAdUrn());
+        put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_PROMOTED);
+        if (promotedSource.hasPromoter()) {
+            put(AdTrackingKeys.KEY_PROMOTER_URN, promotedSource.getPromoterUrn().toString());
+        }
+        this.promotedPlayUrls = promotedSource.getTrackingUrls();
         return this;
     }
 
@@ -144,6 +161,10 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return adCompanionImpressionUrls;
     }
 
+    public List<String> getPromotedPlayUrls() {
+        return promotedPlayUrls;
+    }
+
     public Urn getTrackUrn() {
         return trackUrn;
     }
@@ -165,7 +186,16 @@ public class PlaybackSessionEvent extends TrackingEvent {
     }
 
     public boolean isAd() {
-        return attributes.containsKey(AdTrackingKeys.KEY_AD_URN);
+        return isMonetizationType(MONETIZATION_AUDIO_AD);
+    }
+
+    public boolean isPromotedTrack() {
+        return isMonetizationType(MONETIZATION_PROMOTED);
+    }
+
+    private boolean isMonetizationType(String type) {
+        return attributes.containsKey(AdTrackingKeys.KEY_MONETIZATION_TYPE)
+                && attributes.get(AdTrackingKeys.KEY_MONETIZATION_TYPE).equals(type);
     }
 
     public boolean isFirstPlay() {

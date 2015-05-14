@@ -84,7 +84,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         this.policyOperations = policyOperations;
     }
 
-
     public void setNewPlayQueue(PlayQueue playQueue, PlaySessionSource playSessionSource) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         setNewPlayQueue(playQueue, 0, playSessionSource);
