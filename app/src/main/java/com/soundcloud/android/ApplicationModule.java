@@ -226,7 +226,7 @@ public class ApplicationModule {
                                                     CastConnectionHelper castConnectionHelper,
                                                     PlayQueueManager playQueueManager,
                                                     Lazy<CastPlayer> castPlayer) {
-        if (castConnectionHelper.isConnected()){
+        if (castConnectionHelper.isCasting()){
             return new CastPlaybackStrategy(castPlayer.get());
         } else {
             return new DefaultPlaybackStrategy(context, playQueueManager);

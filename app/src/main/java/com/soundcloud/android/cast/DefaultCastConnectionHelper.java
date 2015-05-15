@@ -107,8 +107,8 @@ public class DefaultCastConnectionHelper extends VideoCastConsumerImpl implement
     }
 
     @Override
-    public boolean isConnected() {
-        return videoCastManager.isConnected();
+    public boolean isCasting() {
+        return videoCastManager.isConnected() || videoCastManager.canConsiderSessionRecovery(null);
     }
 
     @Override

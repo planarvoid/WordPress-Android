@@ -90,7 +90,7 @@ public class PlaySessionController {
     }
 
     private void skipOnTrackFinish(StateTransition stateTransition) {
-        if (!castConnectionHelper.isConnected()
+        if (!castConnectionHelper.isCasting()
                 && stateTransition.isPlayerIdle()
                 && !stateTransition.isPlayQueueComplete()
                 && stateTransition.trackEnded()) {
@@ -118,7 +118,7 @@ public class PlaySessionController {
     private final class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
         public void onNext(PropertySet track) {
-            if (castConnectionHelper.isConnected()) {
+            if (castConnectionHelper.isCasting()) {
                 playIfTrackChanged(track);
             } else if (playSessionStateProvider.isPlaying()) {
                 playbackOperations.playCurrent();

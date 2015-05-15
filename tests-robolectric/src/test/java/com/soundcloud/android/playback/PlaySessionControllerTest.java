@@ -94,7 +94,7 @@ public class PlaySessionControllerTest {
 
     @Test
     public void playQueueTrackChangeWhenCastingPlaysTrackWhenCurrentTrackIsDifferentAndPlaying() {
-        when(castConnectionHelper.isConnected()).thenReturn(true);
+        when(castConnectionHelper.isCasting()).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         PropertySet previousCurrentTrack = setupTrackLoad(Urn.forTrack(5L));
         PropertySet newCurrentTrack = setupTrackLoad(Urn.forTrack(6L));
@@ -108,7 +108,7 @@ public class PlaySessionControllerTest {
 
     @Test
     public void playQueueTrackChangeWhenCastingDoesNotPlayTrackWhenCurrentTrackStaysTheSame() {
-        when(castConnectionHelper.isConnected()).thenReturn(true);
+        when(castConnectionHelper.isCasting()).thenReturn(true);
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(trackUrn));
         Mockito.reset(playbackOperations);
@@ -173,7 +173,7 @@ public class PlaySessionControllerTest {
 
     @Test
     public void onStateTransitionDoesNotTryToAdvanceTrackIfTrackEndedWhileCasting() {
-        when(castConnectionHelper.isConnected()).thenReturn(true);
+        when(castConnectionHelper.isCasting()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, trackUrn));
         verify(playQueueManager, never()).autoNextTrack();
     }
