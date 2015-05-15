@@ -38,11 +38,13 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         playerElement.clickArtwork();
 
         assertThat(playerElement, is(not(playing())));
+
+        finishMrLogga();
     }
 
-    @Override
-    public void tearDown() throws Exception {
+    private void finishMrLogga() {
         mrLoggaVerifier.finishLogging();
         mrLoggaVerifier.isValid(TEST_SCENARIO);
     }
+
 }
