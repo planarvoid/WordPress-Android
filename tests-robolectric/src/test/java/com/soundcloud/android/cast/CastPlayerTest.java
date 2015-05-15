@@ -49,7 +49,7 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class CastPlayerTest {
 
-    private static final Urn TRACK_URN = Urn.forTrack(123L);
+    private static final Urn TRACK_URN1 = Urn.forTrack(123L);
     private static final Urn TRACK_URN2 = Urn.forTrack(456L);
     private static final Urn TRACK_URN3 = Urn.forTrack(789L);
 
@@ -199,8 +199,8 @@ public class CastPlayerTest {
 
     @Test
     public void playWithUrnAlreadyLoadedDoesNotLoadMedia() throws Exception {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
-        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.playCurrent();
 
@@ -209,25 +209,25 @@ public class CastPlayerTest {
 
     @Test
     public void playWithUrnAlreadyLoadedOutputsExistingState() throws Exception {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
-        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
+        when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castManager.getPlaybackStatus()).thenReturn(MediaStatus.PLAYER_STATE_PLAYING);
         when(castManager.getIdleReason()).thenReturn(MediaStatus.IDLE_REASON_NONE);
 
         castPlayer.playCurrent();
 
-        expectLastStateTransitionToBe(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN);
+        expectLastStateTransitionToBe(Playa.PlayaState.PLAYING, Playa.Reason.NONE, TRACK_URN1);
 
     }
 
     @Test
     public void playCurrentLoadsPlayQueueRemotely() throws TransientNetworkDisconnectionException, NoConnectionException {
-        ArrayList<Urn> localPlayQueueTracks = Lists.newArrayList(TRACK_URN, TRACK_URN2);
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        ArrayList<Urn> localPlayQueueTracks = Lists.newArrayList(TRACK_URN1, TRACK_URN2);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentQueueAsUrnList()).thenReturn(localPlayQueueTracks);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        LocalPlayQueue localPlayQueue = new LocalPlayQueue(new JSONObject(), localPlayQueueTracks, createMediaInfo(TRACK_URN), TRACK_URN);
-        when(castOperations.loadLocalPlayQueue(TRACK_URN, localPlayQueueTracks)).thenReturn(Observable.just(localPlayQueue));
+        LocalPlayQueue localPlayQueue = new LocalPlayQueue(new JSONObject(), localPlayQueueTracks, createMediaInfo(TRACK_URN1), TRACK_URN1);
+        when(castOperations.loadLocalPlayQueue(TRACK_URN1, localPlayQueueTracks)).thenReturn(Observable.just(localPlayQueue));
 
         castPlayer.playCurrent();
 
@@ -236,9 +236,9 @@ public class CastPlayerTest {
 
     @Test
     public void playCurrentLoadsMediaWithAutoPlay() throws TransientNetworkDisconnectionException, NoConnectionException {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
 
         castPlayer.playCurrent();
 
@@ -247,9 +247,9 @@ public class CastPlayerTest {
 
     @Test
     public void playCurrentLoadsMediaWithZeroedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
 
         castPlayer.playCurrent();
 
@@ -258,34 +258,34 @@ public class CastPlayerTest {
 
     @Test
     public void playCurrentReportsBufferingEvent() throws Exception {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(mock(LocalPlayQueue.class)));
 
         castPlayer.playCurrent();
 
-        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN);
+        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN1);
     }
 
     @Test
     public void playCurrentReportsBufferingEventBeforeLoadingFinishes() throws Exception {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>empty());
 
         castPlayer.playCurrent();
 
         Playa.PlayaState newState = Playa.PlayaState.BUFFERING;
         Playa.Reason reason = Playa.Reason.NONE;
-        Urn trackUrn = TRACK_URN;
+        Urn trackUrn = TRACK_URN1;
         expectLastStateTransitionToBe(newState, reason, trackUrn);
     }
 
     @Test
     public void reloadAndPlayCurrentQueueLoadsMediaWithRequestedPosition() throws TransientNetworkDisconnectionException, NoConnectionException {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
 
@@ -294,20 +294,20 @@ public class CastPlayerTest {
 
     @Test
     public void reloadAndPlayCurrentQueueReportsBufferingEvent() throws Exception {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(createLocalPlayQueue()));
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
 
-        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN);
+        expectLastStateTransitionToBe(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, TRACK_URN1);
     }
 
     @Test
     public void reloadAndPlayCurrentQueueLoadsQueueWithoutMonetizableTracks() throws TransientNetworkDisconnectionException, NoConnectionException {
         final LocalPlayQueue localPlayQueue = createLocalPlayQueue();
-        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.just(localPlayQueue));
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.just(localPlayQueue));
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(playQueueManager.getCurrentPlaySessionSource()).thenReturn(PlaySessionSource.EMPTY);
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
@@ -318,28 +318,62 @@ public class CastPlayerTest {
     @Test
     public void reloadAndPlayCurrentQueueReportsErrorStateToEventBusOnUnsuccessfulLoad() throws TransientNetworkDisconnectionException, NoConnectionException {
         when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
 
         castPlayer.reloadAndPlayCurrentQueue(100L).subscribe(observer);
 
         final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
-        expect(stateTransition.getTrackUrn()).toBe(TRACK_URN);
+        expect(stateTransition.getTrackUrn()).toBe(TRACK_URN1);
+    }
+
+    @Test
+    public void playNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotDefined() {
+        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(filteredLocalPlayQueue));
+
+        castPlayer.playNewQueue(Arrays.asList(TRACK_URN1), Urn.NOT_SET, 0L, PlaySessionSource.EMPTY).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeTrue();
+    }
+
+    @Test
+    public void playNewQueueEmitsSuccessfulPlaybackResultWhenInitialTrackIsNotFilteredOut() {
+        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(filteredLocalPlayQueue));
+
+        castPlayer.playNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, 0L, PlaySessionSource.EMPTY).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeTrue();
+    }
+
+    @Test
+    public void playNewQueueEmitsTrackUnavailablePlaybackResultWhenInitialTrackIsFilteredOut() {
+        final LocalPlayQueue filteredLocalPlayQueue = new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN2), createMediaInfo(TRACK_URN2), TRACK_URN2);
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(filteredLocalPlayQueue));
+
+        castPlayer.playNewQueue(Arrays.asList(TRACK_URN1, TRACK_URN2), TRACK_URN1, 0L, PlaySessionSource.EMPTY).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeFalse();
+        expect(observer.getOnNextEvents().get(0).getErrorReason()).toEqual(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
     }
 
     @Test
     public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() throws Exception {
-        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN);
+        when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);
-        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
+        when(castOperations.loadLocalPlayQueue(eq(TRACK_URN1), anyListOf(Urn.class))).thenReturn(Observable.<LocalPlayQueue>error(new Throwable("loading error")));
 
         castPlayer.playCurrent();
 
         final Playa.StateTransition stateTransition = captureLastStateTransition();
         expect(stateTransition.getNewState()).toBe(Playa.PlayaState.IDLE);
         expect(stateTransition.getReason()).toBe(Playa.Reason.ERROR_FAILED);
-        expect(stateTransition.getTrackUrn()).toBe(TRACK_URN);
+        expect(stateTransition.getTrackUrn()).toBe(TRACK_URN1);
     }
 
     @Test
@@ -401,7 +435,7 @@ public class CastPlayerTest {
     }
 
     private LocalPlayQueue createLocalPlayQueue() {
-        return new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN), createMediaInfo(TRACK_URN), TRACK_URN);
+        return new LocalPlayQueue(mock(JSONObject.class), Arrays.asList(TRACK_URN1), createMediaInfo(TRACK_URN1), TRACK_URN1);
     }
 
     private void expectLastStateTransitionToBe(Playa.PlayaState newState, Playa.Reason reason, Urn trackUrn) {

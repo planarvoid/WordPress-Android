@@ -176,7 +176,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         return new Func1<LocalPlayQueue, Observable<PlaybackResult>>() {
             @Override
             public Observable<PlaybackResult> call(LocalPlayQueue localPlayQueue) {
-                if (!initialTrackUrnCandidate.equals(localPlayQueue.currentTrackUrn)) {
+                if (isInitialTrackDifferent(localPlayQueue)) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_CAST));
                 } else {
                     reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, localPlayQueue.currentTrackUrn));
@@ -184,6 +184,11 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
                     playLocalQueueOnRemote(localPlayQueue, withProgressPosition);
                     return Observable.just(PlaybackResult.success());
                 }
+            }
+
+            private boolean isInitialTrackDifferent(LocalPlayQueue localPlayQueue) {
+                return initialTrackUrnCandidate != Urn.NOT_SET &&
+                        !initialTrackUrnCandidate.equals(localPlayQueue.currentTrackUrn);
             }
         };
     }
