@@ -114,8 +114,8 @@ public class PlaybackSessionEvent extends TrackingEvent {
     public PlaybackSessionEvent withPromotedTrack(PromotedSourceInfo promotedSource) {
         put(AdTrackingKeys.KEY_AD_URN, promotedSource.getAdUrn());
         put(AdTrackingKeys.KEY_MONETIZATION_TYPE, MONETIZATION_PROMOTED);
-        if (promotedSource.hasPromoter()) {
-            put(AdTrackingKeys.KEY_PROMOTER_URN, promotedSource.getPromoterUrn().toString());
+        if (promotedSource.getPromoterUrn().isPresent()) {
+            put(AdTrackingKeys.KEY_PROMOTER_URN, promotedSource.getPromoterUrn().get().toString());
         }
         this.promotedPlayUrls = promotedSource.getTrackingUrls();
         return this;

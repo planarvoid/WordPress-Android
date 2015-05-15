@@ -8,7 +8,6 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 
 import java.util.List;
 
@@ -27,7 +26,7 @@ public final class PromotedSourceInfo implements Parcelable {
 
     private final String adUrn;
     private final Urn trackUrn;
-    private Urn promoterUrn;
+    private final Optional<Urn> promoterUrn;
     private final List<String> trackingUrls;
 
     public static PromotedSourceInfo fromTrack(PromotedTrackItem promotedTrack) {
@@ -44,16 +43,15 @@ public final class PromotedSourceInfo implements Parcelable {
         this.adUrn = adUrn;
         this.trackUrn = trackUrn;
         this.trackingUrls = trackingUrls;
-        if (promoterUrn.isPresent()) {
-            this.promoterUrn = promoterUrn.get();
-        }
+        this.promoterUrn = promoterUrn;
     }
 
     public PromotedSourceInfo(Parcel in) {
         ClassLoader loader = PromotedSourceInfo.class.getClassLoader();
         adUrn = in.readString();
         trackUrn = in.readParcelable(loader);
-        promoterUrn = in.readParcelable(loader);
+        Urn nullableUrn = in.readParcelable(loader);
+        promoterUrn = Optional.fromNullable(nullableUrn);
         trackingUrls = in.readArrayList(loader);
     }
 
@@ -65,12 +63,7 @@ public final class PromotedSourceInfo implements Parcelable {
         return trackUrn;
     }
 
-    public boolean hasPromoter() {
-        return promoterUrn != null;
-    }
-
-    @Nullable
-    public Urn getPromoterUrn() {
+    public Optional<Urn> getPromoterUrn() {
         return promoterUrn;
     }
 
@@ -82,7 +75,7 @@ public final class PromotedSourceInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(adUrn);
         dest.writeParcelable(trackUrn, NO_FLAGS);
-        dest.writeParcelable(promoterUrn, NO_FLAGS);
+        dest.writeParcelable(promoterUrn.isPresent() ? promoterUrn.get() : null, NO_FLAGS);
         dest.writeList(trackingUrls);
     }
 

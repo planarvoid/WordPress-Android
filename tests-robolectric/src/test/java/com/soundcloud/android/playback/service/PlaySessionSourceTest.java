@@ -98,7 +98,7 @@ public class PlaySessionSourceTest {
     }
 
     @Test
-    public void shouldBeParcelable() throws Exception {
+    public void shouldBeParcelable() {
         SearchQuerySourceInfo searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"));
         PromotedSourceInfo promotedSourceInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
         PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
@@ -118,6 +118,20 @@ public class PlaySessionSourceTest {
         expect(copy.getInitialSourceVersion()).toEqual(EXPLORE_TAG);
         expect(copy.getSearchQuerySourceInfo()).toEqual(searchQuerySourceInfo);
         expect(copy.getPromotedSourceInfo()).toEqual(promotedSourceInfo);
+    }
+
+    @Test
+    public void shouldParcelAbsentMetadata() {
+        PlaySessionSource original = new PlaySessionSource(ORIGIN_PAGE);
+        original.setExploreVersion(EXPLORE_TAG);
+        original.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
+
+        Parcel parcel = Parcel.obtain();
+        original.writeToParcel(parcel, 0);
+
+        PlaySessionSource copy = new PlaySessionSource(parcel);
+        expect(copy.isFromPromotedTrack()).toBeFalse();
+        expect(copy.isFromQuery()).toBeFalse();
     }
 
     @Test
