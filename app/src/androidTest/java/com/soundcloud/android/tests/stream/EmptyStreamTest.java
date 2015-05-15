@@ -20,8 +20,7 @@ public class EmptyStreamTest extends ActivityTest<MainActivity> {
         emptyUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    // *** Disabling until https://soundcloud.atlassian.net/browse/DROID-997 is fixed ***
-    public void ignore_testShowsEmptyStreamScreen() {
+    public void testShowsEmptyStreamScreen() {
         streamScreen = new StreamScreen(solo);
         waiter.waitForContentAndRetryIfLoadingFailed();
         assertTrue(streamScreen.emptyView().isVisible());
