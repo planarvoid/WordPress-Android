@@ -112,7 +112,7 @@ class SoundStreamOperations {
         return new Func1<List<PropertySet>, Observable<List<PropertySet>>>() {
             @Override
             public Observable<List<PropertySet>> call(List<PropertySet> result) {
-                if (result.isEmpty()) {
+                if (result.isEmpty() || containsOnlyPromotedTrack(result)) {
                     return handleEmptyLocalResult(timestamp, syncCompleted);
                 } else {
                     updateLastSeen(result);
@@ -121,6 +121,10 @@ class SoundStreamOperations {
                 }
             }
         };
+    }
+
+    private boolean containsOnlyPromotedTrack(List<PropertySet> result) {
+        return result.size() == 1 && result.get(0).contains(PromotedTrackProperty.AD_URN);
     }
 
     private Observable<List<PropertySet>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {

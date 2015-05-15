@@ -40,6 +40,11 @@ public class SoundStreamOperationsTest {
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private ContentStats contentStats;
 
+    private final PropertySet promotedTrackProperties = PropertySet.from(
+            PlayableProperty.URN.bind(Urn.forTrack(12345L)),
+            PromotedTrackProperty.AD_URN.bind("adswizz:ad:123"),
+            PlayableProperty.CREATED_AT.bind(new Date(123L)));
+
     @Before
     public void setUp() throws Exception {
         operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats, Schedulers.immediate());
@@ -108,8 +113,26 @@ public class SoundStreamOperationsTest {
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.<PropertySet>empty());
         // returning true means successful sync
-        when(syncInitiator.refreshSoundStream())
-                .thenReturn(Observable.just(true));
+        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
+        inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
+        inOrder.verify(syncInitiator).refreshSoundStream();
+        inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
+        inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
+        inOrder.verify(observer).onCompleted();
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void streamIsConsideredEmptyWhenOnlyPromotedTrackIsReturnedAndDoesNotSyncAgain() {
+        // 1st page comes back blank first, then includes promoted track only
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty(), Observable.just(promotedTrackProperties));
+        // returning true means successful sync
+        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
