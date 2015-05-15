@@ -124,6 +124,12 @@ public class AccountCleanupActionTest {
     }
 
     @Test
+    public void shouldClearPromotedTracks() throws PropellerWriteException {
+        action.call();
+        verify(clearTableCommand).call(Table.PromotedTracks);
+    }
+
+    @Test
     public void shouldClearLikes() throws PropellerWriteException {
         action.call();
         verify(clearTableCommand).call(Table.Likes);
