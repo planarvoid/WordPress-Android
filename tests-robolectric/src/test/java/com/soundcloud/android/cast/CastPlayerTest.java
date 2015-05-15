@@ -363,6 +363,17 @@ public class CastPlayerTest {
     }
 
     @Test
+    public void playNewQueueEmitsTrackUnavailablePlaybackResultWhenLocalQueueIsEmpty() {
+        when(castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(any(Urn.class), anyListOf(Urn.class))).thenReturn(Observable.just(LocalPlayQueue.empty()));
+
+        castPlayer.playNewQueue(Arrays.asList(TRACK_URN1), TRACK_URN1, 0L, PlaySessionSource.EMPTY).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeFalse();
+        expect(observer.getOnNextEvents().get(0).getErrorReason()).toEqual(PlaybackResult.ErrorReason.TRACK_UNAVAILABLE_CAST);
+    }
+
+    @Test
     public void playCallsReportsErrorStateToEventBusOnUnsuccessfulLoad() throws Exception {
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(TRACK_URN1);
         when(castOperations.getRemoteCurrentTrackUrn()).thenReturn(TRACK_URN3);

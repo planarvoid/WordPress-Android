@@ -81,11 +81,11 @@ public class CastOperations {
                 .flatMap(new Func1<List<Urn>, Observable<LocalPlayQueue>>() {
                     @Override
                     public Observable<LocalPlayQueue> call(List<Urn> filteredLocalPlayQueueTracks) {
-                        if (filteredLocalPlayQueueTracks.contains(currentTrackUrn)) {
+                        if (filteredLocalPlayQueueTracks.isEmpty()) {
+                            return Observable.just(LocalPlayQueue.empty());
+                        } else if (filteredLocalPlayQueueTracks.contains(currentTrackUrn)) {
                             return loadLocalPlayQueue(currentTrackUrn, filteredLocalPlayQueueTracks);
                         } else {
-                            // TODO: Improve the initial position correction when the track got filtered out (instead of just using first track).
-                            // This can be done by using the nearest unfiltered neighbour track, based on "unfilteredLocalPlayQueueTracks"
                             return loadLocalPlayQueue(filteredLocalPlayQueueTracks.get(0), filteredLocalPlayQueueTracks);
                         }
                     }

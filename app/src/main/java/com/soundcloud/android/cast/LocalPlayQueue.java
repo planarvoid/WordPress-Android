@@ -21,4 +21,12 @@ class LocalPlayQueue {
         this.currentTrackUrn = currentTrackUrn;
     }
 
+    public static LocalPlayQueue empty() {
+        return new LocalPlayQueue(null, Collections.<Urn>emptyList(), null, Urn.NOT_SET);
+    }
+
+    public boolean isEmpty() {
+        return playQueueTrackUrns.isEmpty();
+    }
+    
 }

@@ -176,7 +176,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         return new Func1<LocalPlayQueue, Observable<PlaybackResult>>() {
             @Override
             public Observable<PlaybackResult> call(LocalPlayQueue localPlayQueue) {
-                if (isInitialTrackDifferent(localPlayQueue)) {
+                if (localPlayQueue.isEmpty() || isInitialTrackDifferent(localPlayQueue)) {
                     return Observable.just(PlaybackResult.error(TRACK_UNAVAILABLE_CAST));
                 } else {
                     reportStateChange(new StateTransition(PlayaState.BUFFERING, Reason.NONE, localPlayQueue.currentTrackUrn));

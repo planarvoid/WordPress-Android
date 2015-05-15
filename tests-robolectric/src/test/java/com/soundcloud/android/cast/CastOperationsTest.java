@@ -13,6 +13,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -31,6 +32,7 @@ import rx.observers.TestObserver;
 import android.content.res.Resources;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -130,6 +132,18 @@ public class CastOperationsTest {
         expect(observer.getOnNextEvents()).toNumber(1);
         List<Urn> expectedFilteredPlayQueueTracks = Arrays.asList(TRACK1, TRACK2);
         expectLocalPlayQueue(observer.getOnNextEvents().get(0), currentTrackAfterFiltering, expectedFilteredPlayQueueTracks);
+    }
+
+    @Test
+    public void loadFilteredLocalPlayQueueEmitsEmptyLocalQueueWhenAllTracksAreFilteredOut() {
+        List<Urn> unfilteredPlayQueueTracks = Arrays.asList(TRACK1);
+        List<Urn> filteredPlayQueueTracks = Collections.emptyList();
+        when(policyOperations.filterMonetizableTracks(unfilteredPlayQueueTracks)).thenReturn(Observable.just(filteredPlayQueueTracks));
+
+        castOperations.loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(TRACK1, unfilteredPlayQueueTracks).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        expect(observer.getOnNextEvents().get(0).isEmpty()).toBeTrue();
     }
 
     @Test
