@@ -33,7 +33,6 @@ public abstract class Screen {
 
     public void swipeLeft() {
         testDriver.swipeLeft();
-        testDriver.sleep(1000); // wtf
     }
 
     public ViewElement emptyView(){
