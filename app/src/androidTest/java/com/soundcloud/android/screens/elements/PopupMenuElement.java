@@ -26,6 +26,11 @@ public class PopupMenuElement {
         return container().findElements(With.classSimpleName("ListMenuItemView"));
     }
 
+    protected ViewElement menuItem(With matcher) {
+        waiter.waitForElement(TextView.class);
+        return container().findElement(matcher);
+    }
+
     private ViewElement container() {
         return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
