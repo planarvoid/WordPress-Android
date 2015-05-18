@@ -15,7 +15,7 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -112,7 +112,7 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getListBinding().connect();
+        getBinding().connect();
     }
 
     public void setOnboardingSuccess(boolean onboardingSuccess) {
@@ -120,16 +120,16 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     }
 
     @Override
-    protected ListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
-        return ListBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected ListBinding<PlayableItem> onBuildRefreshBinding() {
-        return ListBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+    protected CollectionBinding<PlayableItem> onRefreshBinding() {
+        return CollectionBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();

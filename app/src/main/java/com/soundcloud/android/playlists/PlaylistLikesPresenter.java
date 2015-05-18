@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -51,7 +51,7 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getListBinding().connect();
+        getBinding().connect();
     }
 
     @Override
@@ -84,16 +84,16 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
     }
 
     @Override
-    protected ListBinding<PlaylistItem> onBuildListBinding(Bundle fragmentArgs) {
-        return ListBinding.from(likeOperations.likedPlaylists(), PlaylistItem.fromPropertySets())
+    protected CollectionBinding<PlaylistItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(likeOperations.likedPlaylists(), PlaylistItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected ListBinding<PlaylistItem> onBuildRefreshBinding() {
-        return ListBinding.from(likeOperations.updatedLikedPlaylists(), PlaylistItem.fromPropertySets())
+    protected CollectionBinding<PlaylistItem> onRefreshBinding() {
+        return CollectionBinding.from(likeOperations.updatedLikedPlaylists(), PlaylistItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();

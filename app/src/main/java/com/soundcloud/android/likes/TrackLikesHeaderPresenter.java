@@ -14,7 +14,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.ListHeaderPresenter;
-import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -156,8 +156,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         return featureOperations.isOfflineContentEnabled() || featureOperations.shouldShowUpsell();
     }
 
-    public void onSubscribeListObservers(ListBinding<TrackItem> listBinding) {
-        ConnectableObservable<List<Urn>> allLikedTrackUrns = listBinding.items()
+    public void onSubscribeListObservers(CollectionBinding<TrackItem> collectionBinding) {
+        ConnectableObservable<List<Urn>> allLikedTrackUrns = collectionBinding.items()
                 .first()
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())

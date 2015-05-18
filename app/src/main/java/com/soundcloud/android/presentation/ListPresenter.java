@@ -39,8 +39,8 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
 
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
-        final ListBinding<ItemT> listBinding = getListBinding();
-        Preconditions.checkState(listBinding.adapter() instanceof ListAdapter, "Adapter must be an " + ListAdapter.class);
+        final CollectionBinding<ItemT> collectionBinding = getBinding();
+        Preconditions.checkState(collectionBinding.adapter() instanceof ListAdapter, "Adapter must be an " + ListAdapter.class);
 
         this.listView = (AbsListView) view.findViewById(android.R.id.list);
         if (this.listView == null) {
@@ -52,7 +52,7 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
         if (headerPresenter != null) {
             headerPresenter.onViewCreated(view, (ListView) listView);
         }
-        listView.setAdapter((ListAdapter) listBinding.adapter());
+        listView.setAdapter((ListAdapter) collectionBinding.adapter());
     }
 
     @Override
@@ -68,15 +68,15 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
         } else {
             scrollListener = imageOperations.createScrollPauseListener(false, true, scrollListener);
         }
-        final ListBinding<ItemT> listBinding = getListBinding();
-        if (listBinding instanceof PagedListBinding) {
-            configurePagedListAdapter((PagedListBinding<ItemT, ?>) listBinding);
+        final CollectionBinding<ItemT> collectionBinding = getBinding();
+        if (collectionBinding instanceof PagedCollectionBinding) {
+            configurePagedListAdapter((PagedCollectionBinding<ItemT, ?>) collectionBinding);
         }
 
         listView.setOnScrollListener(scrollListener);
     }
 
-    private void configurePagedListAdapter(final PagedListBinding<ItemT, ?> binding) {
+    private void configurePagedListAdapter(final PagedCollectionBinding<ItemT, ?> binding) {
         final PagingItemAdapter<ItemT> adapter = binding.adapter();
         scrollListener = new PagingScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {

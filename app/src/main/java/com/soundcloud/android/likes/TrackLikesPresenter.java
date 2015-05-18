@@ -7,12 +7,12 @@ import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -75,28 +75,28 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getListBinding().connect();
+        getBinding().connect();
     }
 
     @Override
-    protected ListBinding<TrackItem> onBuildListBinding(Bundle fragmentArgs) {
-        return ListBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
+    protected CollectionBinding<TrackItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected ListBinding<TrackItem> onBuildRefreshBinding() {
-        return ListBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
+    protected CollectionBinding<TrackItem> onRefreshBinding() {
+        return CollectionBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<TrackItem> listBinding, CompositeSubscription viewLifeCycle) {
-        headerPresenter.onSubscribeListObservers(listBinding);
+    protected void onSubscribeBinding(CollectionBinding<TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
+        headerPresenter.onSubscribeListObservers(collectionBinding);
     }
 
     @Override

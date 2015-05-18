@@ -8,7 +8,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
@@ -64,9 +64,9 @@ class UserPostsPresenter extends ListPresenter<PlayableItem> {
     }
 
     @Override
-    protected ListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
-        return ListBinding.from(profileOperations.pagedPostItems(userUrn), pageTransformer)
+        return CollectionBinding.from(profileOperations.pagedPostItems(userUrn), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.pagingFunction())
                 .build();
@@ -75,7 +75,7 @@ class UserPostsPresenter extends ListPresenter<PlayableItem> {
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getListBinding().connect();
+        getBinding().connect();
     }
 
     @Override

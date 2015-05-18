@@ -30,7 +30,7 @@ final class PagingScrollListener implements AbsListView.OnScrollListener {
         int lookAheadSize = visibleItemCount * 2;
         boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
-        final PagedListBinding<?, ?> pagedBinding = (PagedListBinding<?, ?>) listPresenter.getListBinding();
+        final PagedCollectionBinding<?, ?> pagedBinding = (PagedCollectionBinding<?, ?>) listPresenter.getBinding();
         final Pager<?, ?> pager = pagedBinding.pager();
         if (lastItemReached && adapter.isIdle() && pager.hasNext()) {
             adapter.setLoading();

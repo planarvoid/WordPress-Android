@@ -21,26 +21,26 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
 
     private Bundle fragmentArgs;
 
-    private ListBinding<ItemT> listBinding;
-    private ListBinding<ItemT> refreshBinding;
+    private CollectionBinding<ItemT> collectionBinding;
+    private CollectionBinding<ItemT> refreshBinding;
     private CompositeSubscription viewLifeCycle;
 
     protected CollectionViewPresenter(PullToRefreshWrapper pullToRefreshWrapper) {
         this.refreshWrapper = pullToRefreshWrapper;
     }
 
-    protected abstract ListBinding<ItemT> onBuildListBinding(Bundle fragmentArgs);
+    protected abstract CollectionBinding<ItemT> onBuildBinding(Bundle fragmentArgs);
 
-    protected ListBinding<ItemT> onBuildRefreshBinding() {
-        return onBuildListBinding(fragmentArgs);
+    protected CollectionBinding<ItemT> onRefreshBinding() {
+        return onBuildBinding(fragmentArgs);
     }
 
-    protected void onSubscribeListBinding(ListBinding<ItemT> listBinding, CompositeSubscription viewLifeCycle) {
+    protected void onSubscribeBinding(CollectionBinding<ItemT> collectionBinding, CompositeSubscription viewLifeCycle) {
         // NOP by default
     }
 
-    protected ListBinding<ItemT> getListBinding() {
-        return listBinding;
+    protected CollectionBinding<ItemT> getBinding() {
+        return collectionBinding;
     }
 
     @Override
@@ -48,40 +48,40 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         Log.d(TAG, "onCreate");
         super.onCreate(fragment, bundle);
         this.fragmentArgs = fragment.getArguments();
-        rebuildListBinding(fragmentArgs);
+        rebuildBinding(fragmentArgs);
     }
 
-    protected ListBinding<ItemT> rebuildListBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<ItemT> rebuildBinding(Bundle fragmentArgs) {
         Log.d(TAG, "rebinding collection");
-        resetListBindingTo(onBuildListBinding(fragmentArgs));
-        return listBinding;
+        resetBindingTo(onBuildBinding(fragmentArgs));
+        return collectionBinding;
     }
 
-    private void resetListBindingTo(ListBinding<ItemT> listBinding) {
-        this.listBinding = listBinding;
-        this.listBinding.items().subscribe(listBinding.adapter());
+    private void resetBindingTo(CollectionBinding<ItemT> collectionBinding) {
+        this.collectionBinding = collectionBinding;
+        this.collectionBinding.items().subscribe(collectionBinding.adapter());
     }
 
     @Override
     protected void onRetry() {
-        retryWith(onBuildListBinding(fragmentArgs));
+        retryWith(onBuildBinding(fragmentArgs));
     }
 
-    protected void retryWith(ListBinding<ItemT> listBinding) {
+    protected void retryWith(CollectionBinding<ItemT> collectionBinding) {
         Log.d(TAG, "retrying collection");
-        resetListBindingTo(listBinding);
-        subscribeListBinding();
-        listBinding.connect();
+        resetBindingTo(collectionBinding);
+        subscribeBinding();
+        collectionBinding.connect();
     }
 
-    private void subscribeListBinding() {
+    private void subscribeBinding() {
         Log.d(TAG, "subscribing view observers");
         if (viewLifeCycle != null) {
             viewLifeCycle.unsubscribe();
         }
         viewLifeCycle = new CompositeSubscription();
-        viewLifeCycle.add(listBinding.items().subscribe(new EmptyViewSubscriber()));
-        onSubscribeListBinding(listBinding, viewLifeCycle);
+        viewLifeCycle.add(collectionBinding.items().subscribe(new EmptyViewSubscriber()));
+        onSubscribeBinding(collectionBinding, viewLifeCycle);
     }
 
     @Override
@@ -94,7 +94,7 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
         refreshWrapper.attach(refreshLayout, new PullToRefreshListener());
 
-        subscribeListBinding();
+        subscribeBinding();
     }
 
     protected abstract void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState);
@@ -110,20 +110,20 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
     @Override
     public void onDestroy(Fragment fragment) {
         Log.d(TAG, "onDestroy");
-        listBinding.disconnect();
+        collectionBinding.disconnect();
         super.onDestroy(fragment);
     }
 
-    private final class ListRefreshSubscriber extends DefaultSubscriber<Iterable<ItemT>> {
+    private final class RefreshSubscriber extends DefaultSubscriber<Iterable<ItemT>> {
 
         @Override
         public void onNext(Iterable<ItemT> collection) {
             Log.d(TAG, "refresh complete");
-            final ReactiveItemAdapter<ItemT> adapter = listBinding.adapter();
+            final ReactiveItemAdapter<ItemT> adapter = collectionBinding.adapter();
             adapter.clear();
 
-            resetListBindingTo(refreshBinding);
-            subscribeListBinding();
+            resetBindingTo(refreshBinding);
+            subscribeBinding();
 
             refreshWrapper.setRefreshing(false);
             unsubscribe();
@@ -142,8 +142,8 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         @Override
         public void onRefresh() {
             Log.d(TAG, "refreshing collection");
-            refreshBinding = onBuildRefreshBinding();
-            refreshBinding.items().subscribe(new ListRefreshSubscriber());
+            refreshBinding = onRefreshBinding();
+            refreshBinding.items().subscribe(new RefreshSubscriber());
             refreshBinding.connect();
         }
     }
