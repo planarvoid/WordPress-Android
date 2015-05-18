@@ -121,7 +121,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         Map<String, String> eventAttributes = new HashMap<>();
         final URI streamUri = URI.create(eventData.getCdnHost());
         final String proxyConfigured = proxyDetector.isProxyConfiguredFor(streamUri) ? "yes" : "no";
-        Log.e(TAG, String.format("Stream proxy configuration for %s is %s", eventData.getCdnHost(), proxyConfigured));
+        Log.i(TAG, String.format("Stream proxy configuration for %s is %s", eventData.getCdnHost(), proxyConfigured));
         eventAttributes.put("proxy_configured", proxyConfigured);
         tagEvent(LocalyticsEvents.STREAM_PROXY_CONFIGURED, eventAttributes);
     }
