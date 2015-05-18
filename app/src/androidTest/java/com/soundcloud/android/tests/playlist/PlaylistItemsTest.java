@@ -26,7 +26,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     public void testAddTrackToPlaylistFromStream() {
         StreamScreen streamScreen = new StreamScreen(solo);
-        String trackAddedTitle = streamScreen.firstTrack().getTitle();
+        String trackAddedTitle = streamScreen.getTrack(0).getTitle();
 
         streamScreen
                 .clickFirstTrackOverflowButton()
@@ -38,9 +38,9 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     public void testAddTrackToPlaylistFromPlayer() {
         StreamScreen streamScreen = new StreamScreen(solo);
-        String trackAddedTitle = streamScreen.firstTrack().getTitle();
+        String trackAddedTitle = streamScreen.getTrack(1).getTitle();
 
-        VisualPlayerElement player = streamScreen.clickFirstTrack();
+        VisualPlayerElement player = streamScreen.clickTrack(1);
         player.clickMenu()
                 .clickAddToPlaylist()
                 .clickPlaylistWithTitleFromPlayer(TEST_PLAYLIST)

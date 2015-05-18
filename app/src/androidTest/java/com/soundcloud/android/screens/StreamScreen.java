@@ -39,28 +39,32 @@ public class StreamScreen extends Screen {
         return ACTIVITY;
     }
 
-    public TrackItemElement firstTrack() {
-        waitForContentWithTracks();
-        return trackItemElements().get(0);
+    public TrackItemElement getTrack(int index) {
+        return trackItemElements().get(index);
     }
 
     public VisualPlayerElement clickFirstTrack() {
-        waitForContentWithTracks();
-        getViewElementWithId(R.id.track_list_item).click();
+        return clickTrack(0);
+    }
+
+    public VisualPlayerElement clickTrack(int index) {
+        getTrack(index).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        getViewElementWithId(R.id.overflow_button).click();
+        getTrack(0).findElement(With.id(R.id.overflow_button)).click();
         return new TrackItemMenuElement(testDriver);
     }
 
-    private void waitForContentWithTracks() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        waiter.waitForElements(R.id.track_list_item);
+    public MenuScreen openMenu() {
+        return menuScreen.open();
+    }
+
+    public ExploreScreen openExploreFromMenu() {
+        return menuScreen.open().clickExplore();
     }
 
     private StreamList streamList() {
@@ -72,15 +76,8 @@ public class StreamScreen extends Screen {
         return testDriver.findElements(With.id(viewId)).get(0);
     }
 
-    public MenuScreen openMenu() {
-        return menuScreen.open();
-    }
-
-    public ExploreScreen openExploreFromMenu() {
-        return menuScreen.open().clickExplore();
-    }
-
     private List<TrackItemElement> trackItemElements() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
     }
 

@@ -32,7 +32,6 @@ public class PlaylistsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         playlistsList().getItemAt(index).click();
         return new PlaylistDetailsScreen(testDriver);
     }
@@ -57,7 +56,6 @@ public class PlaylistsScreen extends Screen {
     }
 
     public int getLoadedTrackCount(){
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return playlistsList().getAdapter().getCount();
     }
 
@@ -66,17 +64,13 @@ public class PlaylistsScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    private ViewPagerElement getViewPager() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return new ViewPagerElement(testDriver);
-    }
-
     @Override
     protected Class getActivity() {
         return ACTIVITY;
     }
 
     private ListElement playlistsList() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 
