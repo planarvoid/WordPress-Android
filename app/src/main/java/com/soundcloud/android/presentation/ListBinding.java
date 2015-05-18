@@ -2,8 +2,8 @@ package com.soundcloud.android.presentation;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.ReactiveItemAdapter;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.Pager;
@@ -17,7 +17,7 @@ import rx.subscriptions.Subscriptions;
 public class ListBinding<Item> {
 
     private final ConnectableObservable<? extends Iterable<Item>> items;
-    private final ItemAdapter<Item> adapter;
+    private final ReactiveItemAdapter<Item> adapter;
     private Subscription sourceSubscription = Subscriptions.empty();
 
     public static <Item, T extends Iterable<Item>> Builder<T, Item, T> from(Observable<T> source) {
@@ -29,7 +29,7 @@ public class ListBinding<Item> {
         return new Builder<>(source, transformer);
     }
 
-    ListBinding(Observable<? extends Iterable<Item>> items, ItemAdapter<Item> adapter) {
+    ListBinding(Observable<? extends Iterable<Item>> items, ReactiveItemAdapter<Item> adapter) {
         checkArgument(adapter != null, "adapter can't be null");
         this.items = items.observeOn(AndroidSchedulers.mainThread()).replay();
         this.adapter = adapter;
@@ -48,7 +48,7 @@ public class ListBinding<Item> {
         return items;
     }
 
-    public ItemAdapter<Item> adapter() {
+    public ReactiveItemAdapter<Item> adapter() {
         return adapter;
     }
 
@@ -56,7 +56,7 @@ public class ListBinding<Item> {
 
         private final Observable<S> source;
         private final Func1<S, T> transformer;
-        private ItemAdapter<Item> adapter;
+        private ReactiveItemAdapter<Item> adapter;
         private PagingFunction<S> pagingFunction;
 
         Builder(Observable<S> source, Func1<S, T> transformer) {
@@ -69,7 +69,7 @@ public class ListBinding<Item> {
             return this;
         }
 
-        public Builder<S, Item, T> withAdapter(ItemAdapter<Item> adapter) {
+        public Builder<S, Item, T> withAdapter(ReactiveItemAdapter<Item> adapter) {
             this.adapter = adapter;
             return this;
         }

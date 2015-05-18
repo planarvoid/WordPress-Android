@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.presentation.ListItem;
-import rx.Observer;
 
 import android.util.SparseArray;
 import android.view.View;
@@ -19,7 +18,7 @@ import java.util.List;
  *
  * Keep this class lean and clean: it provides basic adapter functionality around a list of items, that's it.
  */
-public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable<ItemT>> {
+public class ItemAdapter<ItemT> extends BaseAdapter implements ReactiveItemAdapter<ItemT> {
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
     protected final List<ItemT> items;
@@ -70,6 +69,7 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements Observer<Iterable
         items.remove(position);
     }
 
+    @Override
     public void clear() {
         items.clear();
     }
