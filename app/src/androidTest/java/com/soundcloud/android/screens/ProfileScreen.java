@@ -6,10 +6,10 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.ViewPagerElement;
 
 import android.widget.ListView;
 
@@ -36,6 +36,11 @@ public class ProfileScreen extends Screen {
                 .findElements(With.id(R.id.overflow_button))
                 .get(0).click();
         return new TrackItemMenuElement(testDriver);
+    }
+
+    public String getFirstTrackTitle() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return new TextElement(trackTitle(tracks().get(0))).getText();
     }
 
     public void scrollToBottomOfCurrentListAndLoadMoreItems() {
@@ -108,12 +113,16 @@ public class ProfileScreen extends Screen {
         return testDriver.findElement(With.id(R.id.location));
     }
 
-    private ViewElement followersMessage(){
+    private ViewElement followersMessage() {
         return testDriver.findElement(With.id(R.id.followers_message));
     }
 
     private String getFollowButtonText() {
         return testDriver.getString(R.string.btn_following);
+    }
+
+    private ViewElement trackTitle(ViewElement track) {
+        return track.findElement(With.id(R.id.list_item_subheader));
     }
 
     @Override

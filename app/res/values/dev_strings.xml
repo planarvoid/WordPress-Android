@@ -25,10 +25,6 @@
     <string name='pref_dev_http_proxy_summary'>Use a proxy to connect to the API</string>
     <string name='pref_dev_http_proxy_invalid_url'>Invalid URL</string>
 
-    <string name="pref_dev_clear_recordings">Clear recordings</string>
-    <string name="pref_dev_clear_recordings_summary">Deletes all local recordings</string>
-
-    <string name="dev_clear_recordings">Clear all recordings?</string>
     <string name="dev_configuration_features">Configuration Features</string>
 
     <string name="pref_dev_flush_eventlogger_instantly">Flush Eventlogger Instantly</string>

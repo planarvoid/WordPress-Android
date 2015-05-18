@@ -7,7 +7,6 @@
     <string name="close">Sluiten</string>
     <string name="post">Plaatsen</string>
     <string name="view">Bekijken</string>
-    <string name="btn_publish">Volgende</string>
     <string name="btn_apply">Toepassen</string>
     <string name="cancel">Annuleren</string>
     <string name="retry">Opnieuw proberen</string>
@@ -33,15 +32,9 @@
     <string name="btn_skip">Overslaan</string>
     <string name="configure">Configureer</string>
     <string name="connect_progress">Aan het laden</string>
-    <string name="connect_success">Succesvol verbonden met %1$s</string>
-    <string name="connection_list_footer">Om uw standaard deelopties te wijzigen, gaat u naar instellingen op SoundCloud en kiest u \'Connecties\'</string>
     <string name="delete">Verwijderen</string>
     <string name="comments">Reacties</string>
-    <string name="new_connection_error">Er is een probleem opgetreden tijdens het toevoegen van het netwerk</string>
-    <string name="reset">Wegwerpen</string>
-    <string name="share_fail_message">OK, dat ging mis.</string>
     <string name="share_log_out">Afmelden</string>
-    <string name="share_success_message">Yay, dat werkte!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Deel&lt;/b&gt; op &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Geluiden van %s</string>
     <string name="this_user">Deze gebruiker</string>
@@ -49,8 +42,6 @@
     <string name="track_by">door</string>
     <string name="display_name">Schermnaam</string>
     <string name="website">Website</string>
-    <string name="what_hint">Wat</string>
-    <string name="where_hint">Waar</string>
     <string name="like">Vind ik leuk</string>
     <string name="unlike">Vind ik niet leuk</string>
 
@@ -159,7 +150,6 @@
     <string name="empty_user_tracks_text">%1$s heeft nog\ngeen publieke geluiden geüpload.</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">Er is een fout opgetreden tijdens het opnemen.\nUw apparaat ondersteunt de huidige opnameconfiguratie misschien niet. U kunt de configuraties veranderen bij de applicatieinstellingen.</string>
     <string name="error_unauthorized_message">We zijn een probleem tegengekomen met uw account. U moet opnieuw inloggen bij SoundCloud voordat u de app weer kunt gebruiken.</string>
     <string name="error_unauthorized_title">Accountfout</string>
     <string name="error_loading_url">Er is een probleem opgetreden tijdens het laden van deze url</string>
@@ -170,7 +160,6 @@
     <string name="crop_image_error">Er is een fout opgetreden bij het bijsnijden van uw afbeelding.</string>
     <string name="error_server_problems_message">Er is een probleem opgetreden tijdens het verwerken van uw verzoek. Probeer het later nog eens.</string>
     <string name="connection_list_error">Er lijkt een verbindingsprobleem te zijn. Probeer het binnenkort nog eens.</string>
-    <string name="connect_failure">Niet gelukt om met %1$s te verbinden</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oeps! Het is niet gelukt u aan te melden.\nProbeer de app te updaten of meld u aan op SoundCloud.com</string>
 
@@ -368,74 +357,24 @@
     <string name="myspace">MySpace</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">Even geduld a.u.b...</string>
     <string name="rec_title_idle_rec">Opnemen</string>
     <string name="rec_title_recording">Opnemen</string>
     <string name="rec_title_idle_play">Gepauzeerd</string>
     <string name="rec_title_playing">Spelen</string>
     <string name="rec_title_editing">Bewerken</string>
-    <string name="record_another_sound">Neem nog een ander geluid op</string>
     <string name="record_insert_sd_card">Steek er a.u.b. een SD-kaart in om op te nemen.</string>
-    <string name="record_instructions">Deel uw Geluiden</string>
     <string name="record_storage_is_full">Opslag is vol</string>
     <string name="recorded_afternoon">%s \'s middags</string>
-    <string name="recorded_at">%1$s om %2$s</string>
     <string name="recorded_evening">%s \'s avonds</string>
     <string name="recorded_morning">%s \'s ochtends</string>
     <string name="recorded_night">%s \'s nachts</string>
-    <string name="recording_not_found">Opname niet gevonden</string>
-    <string name="rec_your_sound_is_saved_locally_at">Uw geluid is lokaal opgeslagen</string>
     <string name="dialog_confirm_delete_recording_message">Weet u zeker dat u deze opname wilt verwijderen?</string>
-    <string name="dialog_reset_recording_message">Resetten? De opname zal worden gewist.</string>
-    <string name="dialog_unsaved_recordings_message">Niet-opgeslagen opnames gevonden. Aangevinkte items worden opgeslagen.</string>
     <string name="btn_revert_to_original">Keer terug naar het origineel</string>
     <string name="fade_toggle_on">Fade in/out</string>
-    <string name="fade_toggle_off">Geen fade in/out</string>
-    <string name="optimize_toggle_on">Geoptimaliseerd</string>
-    <string name="optimize_toggle_off">Niet geoptimaliseerd</string>
-    <string name="create_autosave_message">Uw opnames worden automatisch opgeslagen wanneer u ze maakt. U kunt ze vinden in uw lijst van geluiden.</string>
-    <string name="create_regenerating_waveform_message">Golfvorm aan het regenereren, even geduld a.u.b.</string>
     <string name="dialog_revert_recording_message">U zult al uw bewerkingen verliezen. Doorgaan?</string>
     <string name="cloud_recorder_event_message">Aan het opnemen voor %s</string>
     <string name="cloud_recorder_event_title">Opname aan de gang</string>
     <string name="cloud_recorder_playback_event_title">Terugspelen aan de gang</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-        <item>Waarom neemt u het geluid van uw straat niet op?</item>
-        <item>Spraakberichten opnemen als handige reminders.</item>
-        <item>Gebruik de REC-knop om een voice blog te maken - wat gaat u vandaag delen?</item>
-        <item>Wat bent u nu aan het doen?</item>
-        <item>Leg het moment vast: de eerste woorden van een kind</item>
-        <item>Leg het moment vast: het geluid dat uw huisdier maakt</item>
-        <item>Leg het moment vast: de stem van iemand om wie u geeft</item>
-        <item>Gaat u shoppen? Neem reminders op zodat u niet vergeet wat u wil kopen.</item>
-        <item>Had u een geweldig idee? Leg het met de REC-knop vast.</item>
-        <item>Onlangs een geweldige grap gehoord? Deel hem!</item>
-        <item>Voert u een geweldig gesprek? Waarom niet opnemen voor later?</item>
-        <item>Leg een hilarisch moment in geluid vast</item>
-        <item>Wist u dat u uw privé-opnamen kunt opslaan als u ze niet wilt delen?</item>
-        <item>Soms is het beste opname-apparaat hetgene u bij u hebt.</item>
-        <item>Laat uzelf horen!</item>
-        <item>Laat het internet horen.</item>
-        <item>Laat de wereld horen.</item>
-        <item>Druk uzelf uit!</item>
-        <item>Waarom niet de notulen van uw volgende vergadering opnemen?</item>
-        <item>Gebruik de knop REC-knop om ideeën vast te leggen voor later.</item>
-        <item>Gebruik de REC-knop als een ezelsbruggetje: bewaar uw notities onderweg.</item>
-        <item>U kunt de REC-knop gebruiken om gesprekken en vergaderingen op te nemen.</item>
-        <item>Neem het geluid van de golven op het strand op</item>
-        <item>Leg de geluiden van een bruisende stad in de spits vast</item>
-        <item>Een gek geluid gehoord? Leg het vast met de REC-knop</item>
-        <item>Heeft u inspiratie? Leg uw idee vast met de REC-knop.</item>
-        <item>Hebt u een idee voor een nieuw nummer? Sla het op met de REC-knop.</item>
-        <item>Melodietje in uw hoofd? Leg het vast met de REC-knop.</item>
-        <item>Ideeën voor songteksten? Leg ze direct vast met de REC-knop.</item>
-        <item>Wat is er gaande op dit moment?</item>
-        <item>Neem actuele gebeurtenissen live op en deel ze met de wereld.</item>
-        <item>Gebeurt er iets interessants? Leg het moment in audio vast.</item>
-        <item>Stadsreporter? Laat de wereld weten wat er op uw locatie gebeurt.</item>
-    </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Zoek in SoundCloud</string>
@@ -547,11 +486,8 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Aan het verwerken</string>
-    <string name="uploader_event_processing_percent">%d%% aan het verwerken</string>
-    <string name="uploader_event_not_yet_uploading">Nog niet aan het uploaden</string>
     <string name="uploader_event_uploading_percent">%d%% aan het uploaden</string>
     <string name="uploader_event_cancelling">Annuleren</string>
-    <string name="uploader_event_processing_finished">Verwerking voltooid</string>
     <string name="cloud_upload_clear_artwork">Houd vast om artwork te wissen</string>
     <string name="cloud_uploader_notification_error_message">Er is een fout opgetreden bij het uploaden van %s</string>
     <string name="cloud_uploader_notification_error_ticker">Fout bij het uploaden</string>
@@ -559,15 +495,9 @@
     <string name="cloud_uploader_notification_finished_message">%s is geüpload</string>
     <string name="cloud_uploader_notification_finished_ticker">Upload Voltooid</string>
     <string name="cloud_uploader_notification_finished_title">Upload Voltooid</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">Er is een fout opgetreden bij de transcodering van %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoderingsfout</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Transcoderingsfout</string>
     <string name="dialog_cancel_upload_message">Upload annuleren?</string>
-    <string name="sc_upload_add_image">Voeg\nAfbeelding\nToe</string>
     <string name="sc_upload_private">Privé</string>
     <string name="sc_upload_public">Openbaar</string>
-    <string name="sc_upload_sharing_options_private">Uw geluid zal privé worden gemaakt op SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">Uw geluid zal openbaar worden gemaakt op SoundCloud. Met welke andere netwerken wilt u het delen?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Raak aan om SoundCloud te openen</string>

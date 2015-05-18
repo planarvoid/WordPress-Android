@@ -13,6 +13,7 @@ import com.soundcloud.android.robolectric.shadows.ShadowV4CursorAdapter;
 import com.soundcloud.android.robolectric.shadows.ShadowV4Fragment;
 import com.soundcloud.android.robolectric.shadows.ShadowV4ListFragment;
 import com.soundcloud.android.robolectric.shadows.ShadowV7PopupMenu;
+import com.soundcloud.android.robolectric.shadows.ShadowVorbisEncoder;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.RobolectricConfig;
@@ -75,6 +76,7 @@ public class SoundCloudTestRunner extends RobolectricTestRunner {
         Robolectric.bindShadowClass(ShadowArrayMap.class);
         Robolectric.bindShadowClass(ShadowBase64.class);
         Robolectric.bindShadowClass(ShadowBaseBundle.class);
+        Robolectric.bindShadowClass(ShadowVorbisEncoder.class);
     }
 
     @SuppressWarnings("UnusedDeclaration")

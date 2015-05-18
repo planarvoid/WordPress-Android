@@ -271,6 +271,10 @@ public class Han  {
         solo.waitForDialogToClose(timeout);
     }
 
+    public void waitForDialogToOpen(long timeout) {
+        solo.waitForDialogToOpen(timeout);
+    }
+
     public void openSystemMenu() {
         solo.sendKey(Solo.MENU);
     }

@@ -25,7 +25,6 @@ public class SettingKey {
     public static final String DEV_REWIND_NOTIFICATIONS = "dev.rewindNotifications";
     public static final String DEV_SYNC_NOW = "dev.syncNow";
     public static final String DEV_CRASH = "dev.crash";
-    public static final String DEV_CLEAR_RECORDINGS = "dev.clearRecordings";
     public static final String DEV_HTTP_PROXY = "dev.http.proxy";
     public static final String DEV_RECORDING_TYPE = "dev.defaultRecordingType";
     public static final String DEV_RECORDING_TYPE_RAW = "raw";

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:clipChildren="false"
+    style="@style/MetadataContainer">
+
+    <LinearLayout
+        android:id="@+id/top_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:clipChildren="false">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_margin="13dp"
+            android:clipChildren="false">
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:clipChildren="false"
+                >
+
+                <ImageButton
+                    android:id="@+id/btn_action"
+                    android:layout_width="@dimen/rec_upload_button_dimension"
+                    android:layout_height="@dimen/rec_upload_button_dimension"
+                    style="@style/UploadButton" />
+            </FrameLayout>
+
+            <com.soundcloud.android.creators.upload.CircularProgressBar
+                android:id="@+id/upload_progress"
+                android:layout_centerInParent="true"
+                android:layout_width="@dimen/rec_upload_progress_dimension"
+                android:layout_height="@dimen/rec_upload_progress_dimension"
+                style="@style/RecordUploadProgressBar" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:background="@drawable/placeholder">
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_alignParentLeft="true"
+                android:layout_width="@dimen/share_progress_icon_width"
+                android:layout_height="@dimen/share_progress_icon_height"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="16dip"
+                android:layout_marginRight="16dip"
+                android:layout_marginTop="16dip"
+                android:layout_marginBottom="16dip"
+                android:background="@color/white"
+                android:scaleType="centerCrop" />
+
+            <TextView
+                android:id="@+id/track_username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/icon"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/dark_gray_text"
+                style="?android:textAppearanceSmall"
+                android:layout_toRightOf="@id/icon" />
+
+            <TextView
+                android:id="@+id/track"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/track_username"
+                android:textColor="@color/black"
+                style="?android:textAppearanceSmall"
+                android:layout_toRightOf="@id/icon" />
+
+            <TextView
+                android:id="@+id/track_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@id/track_username"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="16dip"
+                android:textColor="@color/dark_gray_text"
+                style="?android:textAppearanceSmall" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/upload_status_text"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/top_container"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="16dp"
+        android:text="@string/uploader_event_processing_your_sound"
+        style="?android:textAppearanceMedium" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_min_height"
+        android:gravity="end"
+        android:id="@+id/bottom_bar"
+        android:layout_alignParentBottom="true">
+
+        <Button
+            android:id="@+id/btn_cancel"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray_text"
+            android:text="@string/cancel" />
+    </LinearLayout>
+</RelativeLayout>

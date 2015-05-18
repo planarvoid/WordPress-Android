@@ -3,37 +3,42 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.creators.record.jni.EncoderOptions;
 import com.soundcloud.android.creators.record.jni.ProgressListener;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UploadEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.IOUtils;
+import rx.Subscription;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Encoder extends BroadcastReceiver implements Runnable, ProgressListener {
+public class Encoder implements Runnable, ProgressListener {
     private final Recording recording;
-    private final LocalBroadcastManager broadcastManager;
     private volatile boolean cancelled;
     private long lastProgressSent;
+    private final Subscription subscription;
+    private final EventBus eventBus;
 
-    public Encoder(Context context, Recording recording) {
+    public Encoder(Recording recording, EventBus eventBus) {
         this.recording = recording;
-        broadcastManager = LocalBroadcastManager.getInstance(context);
-        broadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
+        this.eventBus = eventBus;
+        SoundCloudApplication.getObjectGraph().inject(this);
+        subscription = this.eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
     }
 
-    @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
+    @Override
+    @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     public void run() {
         Log.d(TAG, "Encoder.run(" + recording + ")");
 
@@ -68,7 +73,9 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
                 Log.d(TAG, "encoding from source " + in.getAbsolutePath());
             }
             tmp = File.createTempFile("encoder-" + recording.getId(), ".ogg", out.getParentFile());
-            broadcast(UploadService.PROCESSING_STARTED);
+
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.processingStarted(recording));
+
             long now = System.currentTimeMillis();
             VorbisEncoder.encodeFile(in, tmp, options);
 
@@ -76,41 +83,28 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
             if (tmp.exists() && tmp.length() > 0) {
                 Log.d(TAG, "encoding finished in " + (System.currentTimeMillis() - now) + " msecs");
                 if (tmp.renameTo(out)) {
-                    broadcast(UploadService.PROCESSING_SUCCESS);
+                    eventBus.publish(EventQueue.UPLOAD, UploadEvent.processingSuccess(recording));
                 } else {
                     Log.w(TAG, "could not rename " + tmp + " to " + out);
-                    broadcast(UploadService.PROCESSING_ERROR);
+                    eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
                 }
             } else {
                 Log.w(TAG, "encoded file " + tmp + " does not exist or is empty");
-                broadcast(UploadService.PROCESSING_ERROR);
+                eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
             }
         } catch (UserCanceledException e) {
-            broadcast(UploadService.PROCESSING_CANCELED);
+            Log.w(TAG, "user cancelled encoding", e);
         } catch (IOException e) {
             Log.w(TAG, "error encoding file", e);
-            broadcast(UploadService.PROCESSING_ERROR);
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
         } finally {
             IOUtils.deleteFile(tmp);
-        }
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        if (this.recording.equals(recording)) {
-            Log.d(TAG, "canceling encoding of " + recording);
-            cancel();
+            subscription.unsubscribe();
         }
     }
 
     private void cancel() {
         cancelled = true;
-    }
-
-    private void broadcast(String action) {
-        broadcastManager.sendBroadcast(new Intent(action)
-                .putExtra(UploadService.EXTRA_RECORDING, recording));
     }
 
     @Override
@@ -124,11 +118,20 @@ public class Encoder extends BroadcastReceiver implements Runnable, ProgressList
 
         if (lastProgressSent == 0 || System.currentTimeMillis() - lastProgressSent > 1000) {
             final int percent = (int) Math.min(100, Math.round(100 * (current / (double) max)));
-            broadcastManager.sendBroadcast(new Intent(UploadService.PROCESSING_PROGRESS)
-                    .putExtra(UploadService.EXTRA_RECORDING, recording)
-                    .putExtra(UploadService.EXTRA_PROGRESS, percent));
-
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.processingProgress(recording, percent));
             lastProgressSent = System.currentTimeMillis();
+        }
+    }
+
+    private final class EventSubscriber extends DefaultSubscriber<UploadEvent> {
+        @Override
+        public void onNext(UploadEvent uploadEvent) {
+            if (uploadEvent.isCancelled()) {
+                if (recording.getId() == uploadEvent.getRecording().getId()) {
+                    Log.d(TAG, "canceling encoding of " + recording);
+                    cancel();
+                }
+            }
         }
     }
 }

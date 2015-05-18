@@ -66,20 +66,24 @@ public final class AnimUtils {
     }
 
     public static void hideView(Context context, final View view, boolean animated) {
+        hideView(context, view, View.GONE, animated);
+    }
+
+    public static void hideView(Context context, final View view, final int hiddenVisibility, boolean animated) {
         view.clearAnimation();
 
-        if (view.getVisibility() == View.GONE) {
+        if (view.getVisibility() == hiddenVisibility) {
             return;
         }
 
         if (!animated) {
-            view.setVisibility(View.GONE);
+            view.setVisibility(hiddenVisibility);
         } else {
             hideView(context, view, new SimpleAnimationListener() {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     if (animation == view.getAnimation()) {
-                        view.setVisibility(View.GONE);
+                        view.setVisibility(hiddenVisibility);
                     }
                 }
             });

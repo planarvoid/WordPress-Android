@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="waveform_width_ratio" format="float" type="dimen">1.5</item>
+    <item name="rec_waveform_baseline_ratio" format="float" type="dimen">.68</item>
 </resources>

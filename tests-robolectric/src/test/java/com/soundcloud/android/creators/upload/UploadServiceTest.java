@@ -9,8 +9,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.service.LocalBinder;
-import com.soundcloud.android.storage.RecordingStorage;
 import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
@@ -31,11 +31,11 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 
-import java.io.File;
 import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class UploadServiceTest {
+    private TestEventBus eventBus = new TestEventBus();
     UploadService svc;
 
     @Before
@@ -44,13 +44,9 @@ public class UploadServiceTest {
     }
 
     private UploadService startService() {
-        UploadService service = new UploadService(Mockito.mock(StorePostsCommand.class));
+        UploadService service = new UploadService(Mockito.mock(StorePostsCommand.class), eventBus);
         service.onCreate();
         return service;
-    }
-
-    private Scheduler getServiceScheduler() {
-        return Robolectric.shadowOf(svc.getServiceHandler().getLooper()).getScheduler();
     }
 
     private Scheduler getUploadScheduler() {
@@ -115,7 +111,7 @@ public class UploadServiceTest {
         mockSuccessfullTrackCreation();
 
         final Recording upload = RecordingTestHelper.getValidRecording();
-        upload.what_text = "testing";
+        upload.title = "testing";
 
         svc.upload(upload);
 
@@ -141,7 +137,7 @@ public class UploadServiceTest {
         mockSuccessfullTrackCreation();
 
         final Recording upload = RecordingTestHelper.getValidRecording();
-        upload.what_text = "testing";
+        upload.title = "testing";
 
         svc.upload(upload);
         ShadowNotificationManager m = shadowOf((NotificationManager)
@@ -156,7 +152,7 @@ public class UploadServiceTest {
 
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
         final Recording upload2 = RecordingTestHelper.getValidRecording();
-        upload2.what_text = "testing 2";
+        upload2.title = "testing 2";
 
         svc.upload(upload2);
 
@@ -165,7 +161,6 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing 2");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload2.toUri()));
         expect(shadowOf(svc).isStoppedBySelf()).toBeTrue();
     }
 
@@ -174,7 +169,7 @@ public class UploadServiceTest {
     public void shouldNotifyAboutUploadFailure() throws Exception {
         Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(503, "ohnoez"));
         final Recording upload = RecordingTestHelper.getValidRecording();
-        upload.what_text = "testing";
+        upload.title = "testing";
 
         svc.upload(upload);
 
@@ -186,59 +181,6 @@ public class UploadServiceTest {
         expect(notification).toHaveTicker("Upload Error");
         expect(notification).toHaveText("There was an error uploading testing");
         expect(notification).toHaveTitle("Upload Error");
-        expect(notification).toMatchIntent(new Intent(Actions.UPLOAD_MONITOR).setData(upload.toUri()));
-    }
-
-    @Ignore // fails with JNI error on Java 7
-    @Test
-    public void shouldUpdateRecordingEntryDuringUploadAndAfterSuccess() throws Exception {
-        Recording recording = RecordingTestHelper.getValidRecording();
-        mockSuccessfullTrackCreation();
-
-        getUploadScheduler().pause();
-
-        svc.upload(recording);
-
-        RecordingStorage recordings = new RecordingStorage();
-
-        Recording updated = recordings.getRecordingByUri(recording.toUri());
-        expect(updated.upload_status).toEqual(Recording.Status.UPLOADING);
-
-        getUploadScheduler().unPause();
-
-        updated = recordings.getRecordingByUri(recording.toUri());
-        expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
-    }
-
-    @Ignore // fails with JNI error on Java 7
-    @Test
-    public void shouldUpdateRecordingEntryAfterFailure() throws Exception {
-        Recording recording = RecordingTestHelper.getValidRecording();
-
-        Robolectric.addHttpResponseRule("POST", "/tracks", new TestHttpResponse(401, "ERROR"));
-
-        svc.upload(recording);
-
-        Recording updated = new RecordingStorage().getRecordingByUri(recording.toUri());
-        expect(updated.upload_status).toEqual(Recording.Status.ERROR);
-    }
-
-    @Ignore // fails with JNI error on Java 7
-    @Test
-    public void shouldResizeArtworkIfSpecified() throws Exception {
-        // cannot test this - just to execute code path
-        mockSuccessfullTrackCreation();
-
-        final Recording upload = RecordingTestHelper.getValidRecording();
-        upload.artwork_path = File.createTempFile("some_artwork", ".png");
-
-        svc.upload(upload);
-
-        expect(upload.isUploaded()).toBeTrue();
-        expect(upload.resized_artwork_path).toEqual(upload.artwork_path);
-
-        Recording updated = new RecordingStorage().getRecordingByUri(upload.toUri());
-        expect(updated.upload_status).toEqual(Recording.Status.UPLOADED);
     }
 
     @Ignore // fails with JNI error on Java 7
@@ -247,7 +189,6 @@ public class UploadServiceTest {
         Recording recording = RecordingTestHelper.getValidRecording();
         mockSuccessfullTrackCreation();
 
-        getServiceScheduler().pause();
         getMainScheduler().pause();
 
         svc.upload(recording);
@@ -255,7 +196,6 @@ public class UploadServiceTest {
         expect(svc.getWifiLock().isHeld()).toBeFalse();
         expect(svc.getWakeLock().isHeld()).toBeFalse();
 
-        getServiceScheduler().runOneTask();
         getMainScheduler().runOneTask();
 
         expect(svc.getWifiLock().isHeld()).toBeFalse();
@@ -283,30 +223,15 @@ public class UploadServiceTest {
         svc.onDestroy();
         expect(shadowOf(svc.getUploadHandler().getLooper()).hasQuit()).toBeTrue();
         expect(shadowOf(svc.getProcessingHandler().getLooper()).hasQuit()).toBeTrue();
-        expect(shadowOf(svc.getServiceHandler().getLooper()).hasQuit()).toBeTrue();
     }
 
-
-    @Test
-    public void shouldCheckForStuckRecordingsOnStartup() throws Exception {
-        Recording stuck = RecordingTestHelper.getValidRecording();
-        stuck.upload_status = Recording.Status.UPLOADING;
-
-        RecordingStorage recordings = new RecordingStorage();
-        recordings.store(stuck);
-
-        UploadService service = startService();
-        Recording r = recordings.getRecordingByUri(stuck.toUri());
-        expect(r.upload_status).toEqual(Recording.Status.NOT_YET_UPLOADED);
-//        expect(shadowOf(service).isStoppedBySelf()).toBeTrue();
-    }
 
     @Ignore // fails with JNI error on Java 7
     @Test
     public void shouldNotifyIfTranscodingFails() throws Exception {
         mockFailedTrackCreation();
         final Recording upload = RecordingTestHelper.getValidRecording();
-        upload.what_text = "testing";
+        upload.title = "testing";
 
         svc.upload(upload);
 

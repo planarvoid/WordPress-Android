@@ -3,60 +3,62 @@ package com.soundcloud.android.creators.upload;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.creators.record.PlaybackStream;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UploadEvent;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.creators.record.PlaybackStream;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.testsupport.RecordingTestHelper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ProcessorTest {
-    List<Intent> intents = new ArrayList<Intent>();
-    List<String> actions = new ArrayList<String>();
+    private TestEventBus eventBus = new TestEventBus();
+    private Recording recording;
+    Processor processor;
 
     @Mock private PlaybackStream playbackStream;
 
-
     @Before
-    public void before() {
-        LocalBroadcastManager.getInstance(Robolectric.application).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                intents.add(intent);
-                actions.add(intent.getAction());
-            }
-        }, UploadService.getIntentFilter());
+    public void before() throws Exception {
+        recording = RecordingTestHelper.getValidRecording();
+        processor = new Processor(recording, eventBus);
     }
 
     @Test
     public void shouldNotProcessFileIfNotModified() throws Exception {
-        Recording r = RecordingTestHelper.getValidRecording();
-        Processor processor = new Processor(Robolectric.application, r);
         processor.run();
-        expect(actions).toContainExactly(UploadService.PROCESSING_SUCCESS);
+
+        expect(eventBus.lastEventOn(EventQueue.UPLOAD)).toEqual(
+                UploadEvent.processingSuccess(recording));
     }
 
     @Test
     public void shouldTrimFileIfBoundsSet() throws Exception {
-        Recording r = RecordingTestHelper.getValidRecording();
-        r.setPlaybackStream(playbackStream);
+        recording.setPlaybackStream(playbackStream);
         when(playbackStream.getEndPos()).thenReturn(20l);
 
-        Processor processor = new Processor(Robolectric.application, r);
         processor.run();
-        expect(intents).not.toBeEmpty();
-        expect(actions).toContain(UploadService.PROCESSING_STARTED, UploadService.PROCESSING_SUCCESS);
+
+        List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
+
+        expect(events).toNumber(3);
+        expect(events).toContainExactly(
+                UploadEvent.idle(),
+                UploadEvent.processingStarted(recording),
+                UploadEvent.processingSuccess(recording));
+
+        expect(recording.getEncodedFile().exists()).toBeTrue();
     }
 }

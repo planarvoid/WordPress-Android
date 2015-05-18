@@ -4,6 +4,10 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.TestApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UploadEvent;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.RecordingTestHelper;
 import com.xtremelabs.robolectric.Robolectric;
@@ -11,44 +15,38 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ImageResizerTest {
-    List<Intent> intents = new ArrayList<Intent>();
-    List<String> actions = new ArrayList<String>();
+    private TestEventBus eventBus = new TestEventBus();
+
+    private ImageResizer resizer;
+    private Recording recording;
 
     @Before
-    public void before() {
-        LocalBroadcastManager.getInstance(Robolectric.application).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                intents.add(intent);
-                actions.add(intent.getAction());
-            }
-        }, UploadService.getIntentFilter());
+    public void before() throws Exception {
+        recording = RecordingTestHelper.getValidRecording();
+        resizer = new ImageResizer(recording, eventBus);
     }
 
     @Test
     public void shouldNotResizeWithEmptyArtwork() throws Exception {
-        ImageResizer resizer = new ImageResizer(Robolectric.application, RecordingTestHelper.getValidRecording());
         resizer.run();
-        expect(actions).toContainExactly(UploadService.RESIZE_ERROR);
+        expect(eventBus.lastEventOn(EventQueue.UPLOAD).isError()).toBeTrue();
     }
 
     @Test
     public void shouldResizeWithArtwork() throws Exception {
-        final Recording recording = RecordingTestHelper.getValidRecording();
-        ImageResizer resizer = new ImageResizer(Robolectric.application, recording);
         recording.artwork_path = TestApplication.createJpegFile();
         resizer.run();
 
-        expect(actions).toContainExactly(UploadService.RESIZE_STARTED, UploadService.RESIZE_SUCCESS);
+        List<UploadEvent> events = eventBus.eventsOn(EventQueue.UPLOAD);
+
+        expect(events).toNumber(3);
+        expect(events).toContainExactly(
+                UploadEvent.idle(),
+                UploadEvent.resizeStarted(recording),
+                UploadEvent.resizeSuccess(recording));
     }
 }

@@ -111,9 +111,6 @@ public enum Content {
 
     USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.UserAssociations),
 
-    RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.Recordings),
-    RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.Recordings),
-
     TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TrackMetadata),
 
     SEARCH("search", null, 1500, PublicApiResource.class, -1, null),

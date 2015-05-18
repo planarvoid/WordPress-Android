@@ -1,27 +1,7 @@
 package com.soundcloud.android.collections;
 
-import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.database.ContentObserver;
-import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.ListFragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.ListView;
+import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
+import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -46,7 +26,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playlists.PlaylistChangedSubscriber;
-import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.provider.Content;
@@ -62,18 +41,35 @@ import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.api.Request;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.lang.ref.WeakReference;
-
-import javax.inject.Inject;
-
 import rx.subscriptions.CompositeSubscription;
 
-import static com.soundcloud.android.playback.service.PlaybackService.Broadcasts;
-import static com.soundcloud.android.utils.AndroidUtils.isTaskFinished;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.database.ContentObserver;
+import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v4.app.ListFragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+import android.widget.ListView;
+
+import javax.inject.Inject;
+import java.lang.ref.WeakReference;
 
 @Deprecated
 public class ScListFragment extends ListFragment implements OnRefreshListener,
@@ -334,9 +330,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         super.onDestroyView();
         pullToRefreshController.onDestroyView(this);
 
-        if (content == Content.ME_SOUNDS && adapter != null) {
-            ((MyTracksAdapter) adapter).onDestroy();
-        }
         if (adapter != null) {
             adapter.onDestroyView();
         }
@@ -619,8 +612,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                     adapter = new UserAdapter(contentUri);
                     break;
                 case ME_SOUNDS:
-                    adapter = new MyTracksAdapter(getScActivity());
-                    break;
                 case USER_SOUNDS:
                     adapter = new PostsAdapter(contentUri, getRelatedUsername());
                     break;

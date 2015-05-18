@@ -1,183 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar" />
-
-    <View style="@style/ToolbarShadow" />
-
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_above="@+id/bottom_bar"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical">
 
-        <include
-            android:id="@+id/header_layout"
-            layout="@layout/rec_header" />
-
-        <LinearLayout
+        <com.soundcloud.android.creators.record.ChronometerView
+            android:id="@+id/chronometer"
+            style="@style/RecordTextChrono"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@id/header_layout"
-            android:orientation="vertical">
+            android:gravity="center|bottom"
+            android:singleLine="true"
+            android:layout_weight="2" />
 
-            <RelativeLayout
+        <RelativeLayout
+            android:id="@+id/gauge_holder"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3" />
+
+        <RelativeLayout
+            android:id="@+id/control_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:gravity="center|center_vertical"
+            android:clipChildren="false">
+
+            <LinearLayout
+                android:id="@+id/rec_controls"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="3">
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:clipChildren="false">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <RelativeLayout
+                    android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_alignParentBottom="true"
-                    android:orientation="vertical">
+                    android:layout_weight="1">
 
-                    <com.soundcloud.android.creators.record.ChronometerView
-                        android:id="@+id/chronometer"
-                        style="@style/txt_record_chrono"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="8dp"
-                        android:gravity="center"
-                        android:singleLine="true" />
+                    <ImageButton
+                        android:id="@+id/btn_play"
+                        android:layout_centerInParent="true"
+                        style="@style/RecordPlayButton" />
 
-                    <RelativeLayout
-                        android:id="@+id/gauge_holder"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-                </LinearLayout>
+                </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/txt_instructions"
-                    style="@style/txt_record_instructions"
+                <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:layout_centerInParent="true"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:gravity="center"
-                    android:paddingBottom="50dp"
-                    android:text="@string/record_instructions" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/control_layout"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_margin="5dip"
-                android:layout_weight="2"
-                android:gravity="center">
-
-                <LinearLayout
-                    android:id="@+id/rec_controls"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:gravity="center_vertical">
-
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-
-                        <ImageButton
-                            android:id="@+id/btn_play"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:background="@null"
-                            android:src="@drawable/btn_rec_play_states" />
-                    </RelativeLayout>
+                    android:layout_height="match_parent"
+                    android:clipChildren="false">
 
                     <ImageButton
                         android:id="@+id/btn_action"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:scaleType="centerInside"
-                        android:src="@drawable/btn_rec_states" />
+                        style="@style/RecordButton" />
 
-                    <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1">
-
-                        <ImageButton
-                            android:id="@+id/btn_edit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:background="@null"
-                            android:src="@drawable/btn_rec_edit_states" />
-                    </RelativeLayout>
-                </LinearLayout>
+                </FrameLayout>
 
                 <RelativeLayout
-                    android:id="@+id/edit_controls"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:gravity="center">
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
 
                     <ImageButton
-                        android:id="@+id/btn_play_edit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerHorizontal="true"
-                        android:background="@null"
-                        android:src="@drawable/btn_rec_play_states" />
-
-                    <ToggleButton
-                        android:id="@+id/toggle_optimize"
-                        style="@style/toggle_record_edit"
+                        android:id="@+id/btn_edit"
                         android:layout_centerInParent="true"
-                        android:textOff="@string/optimize_toggle_off"
-                        android:textOn="@string/optimize_toggle_on"
-                        android:visibility="gone" />
+                        style="@style/RecordEditButton" />
 
-                    <ToggleButton
-                        android:id="@+id/toggle_fade"
-                        style="@style/toggle_record_edit"
-                        android:layout_below="@id/btn_play_edit"
-                        android:layout_centerHorizontal="true"
-                        android:layout_marginTop="@dimen/rec_toggle_fade_margin_top"
-                        android:textOff="@string/fade_toggle_off"
-                        android:textOn="@string/fade_toggle_on" />
                 </RelativeLayout>
-            </RelativeLayout>
 
-            <RelativeLayout
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/action_text"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginTop="32dp"
+                android:layout_centerInParent="true"
+                android:layout_below="@id/rec_controls"
+                android:text="@string/record_tap_to_record"
+                style="?android:textAppearanceMedium" />
+
+            <LinearLayout
+                android:id="@+id/edit_controls"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center_horizontal">
+                android:orientation="vertical"
+                android:gravity="center">
 
-                <com.soundcloud.android.creators.record.RecordMessageView
-                    android:id="@+id/txt_record_message"
-                    style="@style/txt_record_message"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:gravity="center"
-                    android:lines="2"
-                    android:padding="10dp" />
-            </RelativeLayout>
-        </LinearLayout>
+                <ImageButton
+                    android:id="@+id/btn_play_edit"
+                    style="@style/RecordPlayButton" />
 
-        <com.soundcloud.android.view.ButtonBar
-            android:id="@+id/bottom_bar"
-            style="@style/dark_button_bar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/button_bar_height"
-            android:layout_alignParentBottom="true"
-            android:visibility="gone"
-            app:button_background="@drawable/item_background_dark"
-            app:separator_color="@color/rec_button_bar_separator" />
-    </RelativeLayout>
+                <android.support.v7.widget.SwitchCompat
+                    android:id="@+id/toggle_fade"
+                    style="@style/RecordFadeSwitch"
+                    android:layout_marginTop="@dimen/rec_toggle_fade_margin_top"/>
 
-</LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </LinearLayout>
+
+    <include layout="@layout/record_bottom_bar" />
+
+</RelativeLayout>

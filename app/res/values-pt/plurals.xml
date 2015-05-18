@@ -103,14 +103,4 @@
         <item quantity="one">1 ano atrás</item>
         <item quantity="other">%d anos atrás</item>
     </plurals>
-    <plurals name="minutes_available">
-        <item quantity="one">1 minuto disponível</item>
-        <item quantity="other">%d minutos disponíveis</item>
-    </plurals>
-    <plurals name="seconds_available">
-        <item quantity="one">1 segundo disponível</item>
-        <item quantity="other">%d segundos disponíveis</item>
-    </plurals>
-
-
 </resources>
