@@ -226,6 +226,7 @@ dependencies {
   compile libraries.androidSupportLibrary
   compile libraries.androidAppCompatLibrary
   compile libraries.androidMediaRouterLibrary
+  compile libraries.androidRecyclerView
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesCast
 

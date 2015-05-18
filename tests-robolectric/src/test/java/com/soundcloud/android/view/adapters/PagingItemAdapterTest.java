@@ -71,7 +71,7 @@ public class PagingItemAdapterTest {
     public void shouldCreateNormalItemRowUsingPresenter() {
         final FrameLayout parent = new FrameLayout(Robolectric.application);
         adapter.getView(0, null, parent);
-        verify(cellPresenter).createItemView(0, parent);
+        verify(cellPresenter).createItemView(parent);
     }
 
     @Test

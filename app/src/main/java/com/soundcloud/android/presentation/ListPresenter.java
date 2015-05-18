@@ -2,7 +2,7 @@ package com.soundcloud.android.presentation;
 
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+@Deprecated // use RecyclerView
 
 public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT> {
 
@@ -77,7 +79,7 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
     }
 
     private void configurePagedListAdapter(final PagedCollectionBinding<ItemT, ?> binding) {
-        final PagingItemAdapter<ItemT> adapter = binding.adapter();
+        final PagingAwareAdapter<ItemT> adapter = binding.adapter();
         scrollListener = new PagingScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override

@@ -8,7 +8,8 @@ import com.soundcloud.android.utils.ErrorUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>> {
+@Deprecated // use RecyclerView
+public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
 
     private final int progressItemLayoutResId;
 
@@ -28,11 +29,12 @@ public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdap
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    public PagingItemAdapter(CellPresenterEntity<?>... cellPresenterEntities) {
+    public PagingItemAdapter(CellPresenterBinding<? extends T>... cellPresenterEntities) {
         super(cellPresenterEntities);
         this.progressItemLayoutResId = R.layout.list_loading_item;
     }
 
+    @Override
     public void setOnErrorRetryListener(View.OnClickListener onErrorRetryListener) {
         this.onErrorRetryListener = onErrorRetryListener;
     }
@@ -114,11 +116,13 @@ public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdap
                  : super.getItemViewType(position);
     }
 
+    @Override
     public void setLoading() {
         setNewAppendState(AppendState.LOADING);
         notifyDataSetChanged();
     }
 
+    @Override
     public boolean isIdle() {
         return appendState == AppendState.IDLE;
     }

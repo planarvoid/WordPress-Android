@@ -26,7 +26,7 @@ public class UserItemPresenter implements CellPresenter<UserItem> {
     }
 
     @Override
-    public View createItemView(int position, ViewGroup parent) {
+    public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(R.layout.user_list_item, parent, false);
     }
 

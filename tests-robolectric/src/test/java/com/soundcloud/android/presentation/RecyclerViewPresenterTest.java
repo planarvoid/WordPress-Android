@@ -1,6 +1,5 @@
 package com.soundcloud.android.presentation;
 
-import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import static com.soundcloud.android.Expect.expect;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
@@ -11,12 +10,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.PauseOnScrollListener;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.PagingRecyclerViewAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,9 +32,9 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ListView;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,29 +42,27 @@ import java.util.LinkedList;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ListPresenterTest {
+public class RecyclerViewPresenterTest {
 
-    private ListPresenter<String> presenter;
+    RecyclerViewPresenter<String> presenter;
     private PublishSubject<List<String>> source = PublishSubject.create();
 
-    @Mock private PagingItemAdapter adapter;
-    @Mock private ImageOperations imageOperations;
+    @Mock private PagingRecyclerViewAdapter<String, TestViewHolder> adapter;
     @Mock private Fragment fragment;
     @Mock private View view;
     @Mock private MultiSwipeRefreshLayout refreshLayout;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
-    @Mock private ListView listView;
+    @Mock private RecyclerView recyclerView;
     @Mock private EmptyView emptyView;
-    @Mock private AbsListView.OnScrollListener scrollListener;
-    @Mock private ListHeaderPresenter headerPresenter;
+    @Mock private PauseOnScrollListener pauseOnScrollListener;
 
-    @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
+    @Captor private ArgumentCaptor<SwipeRefreshLayout.OnRefreshListener> refreshListenerCaptor;
 
     private TestSubscriber<Iterable<String>> testSubscriber = new TestSubscriber<>();
 
     @Before
     public void setup() {
-        when(view.findViewById(android.R.id.list)).thenReturn(listView);
+        when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
     }
@@ -108,41 +105,37 @@ public class ListPresenterTest {
     }
 
     @Test
-    public void shouldSetAdapterForListView() {
+    public void shouldSetAdapterOnRecyclerView() {
         CollectionBinding<String> collectionBinding = defaultBinding();
         createPresenterWithBinding(collectionBinding);
 
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(listView).setAdapter(adapter);
+        verify(recyclerView).setAdapter(adapter);
     }
 
     @Test
     public void shouldRegisterDefaultScrollListener() {
-        when(imageOperations.createScrollPauseListener(false, true)).thenReturn(scrollListener);
-
         CollectionBinding<String> collectionBinding = defaultBinding();
         createPresenterWithBinding(collectionBinding);
 
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(listView).setOnScrollListener(scrollListener);
+        verify(recyclerView).addOnScrollListener(pauseOnScrollListener);
     }
 
     @Test
     public void shouldWrapCustomScrollListenerInDefaultScrollListener() {
         CollectionBinding<String> collectionBinding = defaultBinding();
         createPresenterWithBinding(collectionBinding);
-        AbsListView.OnScrollListener existingListener = mock(AbsListView.OnScrollListener.class);
-        presenter.setScrollListener(existingListener);
-        when(imageOperations.createScrollPauseListener(false, true, existingListener)).thenReturn(scrollListener);
-
+        RecyclerView.OnScrollListener existingListener = mock(RecyclerView.OnScrollListener.class);
+        presenter.setOnScrollListener(existingListener);
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(listView).setOnScrollListener(scrollListener);
+        verify(recyclerView).addOnScrollListener(pauseOnScrollListener);
     }
 
     @Test
@@ -156,7 +149,7 @@ public class ListPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(listView).setOnScrollListener(isA(PagingScrollListener.class));
+        verify(recyclerView).addOnScrollListener(isA(RecyclerViewPagingScrollListener.class));
     }
 
     @Test
@@ -192,7 +185,7 @@ public class ListPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(OnRefreshListener.class));
+        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(SwipeRefreshLayout.OnRefreshListener.class));
     }
 
     @Test
@@ -231,7 +224,7 @@ public class ListPresenterTest {
     }
 
     @Test
-    public void pullToRefreshClearsListAdapterIfRefreshSuccessful() {
+    public void pullToRefreshClearsAdapterIfRefreshSuccessful() {
         final CollectionBinding<String> collectionBinding = defaultBinding();
         final CollectionBinding<String> refreshBinding = defaultBinding();
         createPresenterWithBinding(collectionBinding, refreshBinding);
@@ -254,7 +247,7 @@ public class ListPresenterTest {
     }
 
     @Test
-    public void pullToRefreshResubscribesListAdapterIfRefreshSuccessful() {
+    public void pullToRefreshResubscribesAdapterIfRefreshSuccessful() {
         createPresenterWithBinding(defaultBinding(), defaultBinding());
 
         final List<String> items = Collections.singletonList("item");
@@ -288,14 +281,14 @@ public class ListPresenterTest {
     }
 
     @Test
-    public void shouldDetachListAdapterFromListViewWhenViewsDestroyed() {
+    public void shouldDetachAdapterFromRecyclerViewWhenViewsDestroyed() {
         createPresenterWithBinding(defaultBinding());
 
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
 
-        verify(listView).setAdapter(null);
+        verify(recyclerView).setAdapter(null);
     }
 
     @Test
@@ -336,53 +329,11 @@ public class ListPresenterTest {
         verify(emptyView).setStatus(EmptyView.Status.OK);
     }
 
-    @Test
-    public void shouldConnectEmptyViewOnRetry() {
-        createPresenterWithBinding(defaultBinding());
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        Mockito.reset(emptyView);
-
-        presenter.onRetry();
-        source.onNext(Collections.singletonList("item"));
-
-        verify(emptyView).setStatus(EmptyView.Status.OK);
-    }
-
-    @Test
-    public void shouldConnectEmptyViewOnRefresh() {
-        CollectionBinding<String> refreshBinding = defaultBinding();
-        createPresenterWithBinding(new CollectionBinding<>(Observable.<List<String>>empty(), adapter), refreshBinding);
-        triggerPullToRefresh();
-        Mockito.reset(emptyView);
-
-        source.onNext(Collections.singletonList("item"));
-
-        verify(emptyView).setStatus(EmptyView.Status.OK);
-    }
-
-    @Test
-    public void shouldSetEmptyViewOnListOnViewCreated() {
-        createPresenterWithBinding(defaultBinding());
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        verify(listView).setEmptyView(emptyView);
-    }
-
-    @Test
-    public void shouldForwardViewCreatedEventToHeaderPresenter() {
-        createPresenterWithBinding(defaultBinding());
-        presenter.setHeaderPresenter(headerPresenter);
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        verify(headerPresenter).onViewCreated(view, listView);
-    }
-
     private void triggerPullToRefresh() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture());
-        OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
+        SwipeRefreshLayout.OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
     }
 
@@ -390,13 +341,13 @@ public class ListPresenterTest {
         return new CollectionBinding<>(source, adapter);
     }
 
-    private void createPresenterWithBinding(final CollectionBinding collectionBinding, final Observer... listObservers) {
-        createPresenterWithBinding(collectionBinding, collectionBinding, listObservers);
+    private void createPresenterWithBinding(final CollectionBinding collectionBinding, final Observer... observers) {
+        createPresenterWithBinding(collectionBinding, collectionBinding, observers);
     }
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final CollectionBinding refreshBinding,
-                                            final Observer... listObservers) {
-        presenter = new ListPresenter<String>(imageOperations, pullToRefreshWrapper) {
+                                            final Observer... observers) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, pauseOnScrollListener) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;
@@ -409,7 +360,7 @@ public class ListPresenterTest {
 
             @Override
             protected void onSubscribeBinding(CollectionBinding<String> collectionBinding, CompositeSubscription viewLifeCycle) {
-                for (Observer observer : listObservers) {
+                for (Observer observer : observers) {
                     viewLifeCycle.add(collectionBinding.items().subscribe(observer));
                 }
             }
@@ -419,7 +370,7 @@ public class ListPresenterTest {
     private void createPresenterWithPendingBindings(final CollectionBinding... collectionBindings) {
         final List<CollectionBinding> pendingBindings = new LinkedList<>();
         pendingBindings.addAll(Arrays.asList(collectionBindings));
-        presenter = new ListPresenter<String>(imageOperations, pullToRefreshWrapper) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, pauseOnScrollListener) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return pendingBindings.remove(0);
@@ -430,5 +381,12 @@ public class ListPresenterTest {
                 // no op
             }
         };
+    }
+
+    private static class TestViewHolder extends RecyclerView.ViewHolder {
+
+        public TestViewHolder(View itemView) {
+            super(itemView);
+        }
     }
 }

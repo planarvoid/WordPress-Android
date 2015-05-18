@@ -34,7 +34,7 @@ public class EmptyPlaylistTracksPresenterTest {
 
     @Test
     public void createsEmptyListViewWithNoDataForIgnoredItemType() throws Exception {
-        View view = presenter.createItemView(0, parent);
+        View view = presenter.createItemView(parent);
         expect(view).toBeInstanceOf(EmptyView.class);
     }
 

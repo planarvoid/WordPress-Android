@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CellPresenter<ItemT> {
 
-    View createItemView(int position, ViewGroup parent);
+    View createItemView(ViewGroup parent);
     void bindItemView(int position, View itemView, List<ItemT> items);
 
 }

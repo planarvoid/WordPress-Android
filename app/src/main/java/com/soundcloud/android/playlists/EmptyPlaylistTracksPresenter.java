@@ -25,7 +25,7 @@ class EmptyPlaylistTracksPresenter implements CellPresenter<TrackItem>, EmptyVie
     }
 
     @Override
-    public View createItemView(int position, ViewGroup parent) {
+    public View createItemView(ViewGroup parent) {
         Context context = parent.getContext();
         EmptyView emptyView = new EmptyViewBuilder()
                 .withImage(R.drawable.empty_playlists)

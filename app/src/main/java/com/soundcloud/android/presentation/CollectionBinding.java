@@ -2,7 +2,7 @@ package com.soundcloud.android.presentation;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import com.soundcloud.android.view.adapters.ReactiveItemAdapter;
 import rx.Observable;
 import rx.Subscription;
@@ -76,10 +76,10 @@ public class CollectionBinding<Item> {
 
         public CollectionBinding<Item> build() {
             if (pagingFunction != null) {
-                checkArgument(adapter instanceof PagingItemAdapter,
-                        "adapter in paged binding must be " + PagingItemAdapter.class);
+                checkArgument(adapter instanceof PagingAwareAdapter,
+                        "adapter in paged binding must be " + PagingAwareAdapter.class);
                 final Pager<S, T> pager = Pager.create(pagingFunction, transformer);
-                return new PagedCollectionBinding<>(pager.page(source), (PagingItemAdapter<Item>) adapter, pager);
+                return new PagedCollectionBinding<>(pager.page(source), (PagingAwareAdapter<Item>) adapter, pager);
             } else {
                 return new CollectionBinding<>(source.map(transformer), adapter);
             }
