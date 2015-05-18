@@ -15,7 +15,7 @@ import com.soundcloud.android.framework.helpers.OfflineContentHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.screens.StreamScreen;
-import soundcloud.com.androidnetworkmanagerclient.NetworkManagerClient;
+import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.content.Context;
 import android.test.ActivityInstrumentationTestCase2;

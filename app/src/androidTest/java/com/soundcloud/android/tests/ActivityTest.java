@@ -8,7 +8,7 @@ import com.soundcloud.android.framework.observers.ToastObserver;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.MenuScreen;
-import soundcloud.com.androidnetworkmanagerclient.NetworkManagerClient;
+import com.soundcloud.androidnetworkmanagerclient.NetworkManagerClient;
 
 import android.app.Activity;
 import android.app.ActivityManager;
