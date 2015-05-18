@@ -2,10 +2,12 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
+import org.jetbrains.annotations.Nullable;
 
 import android.content.SharedPreferences;
 import android.os.Parcel;
@@ -32,6 +34,7 @@ public class PlaySessionSource implements Parcelable {
     private Urn playlistOwnerUrn = Urn.NOT_SET;
     private String exploreVersion;
     private SearchQuerySourceInfo searchQuerySourceInfo;
+    private PromotedSourceInfo promotedSourceInfo;
 
     public PlaySessionSource(Parcel in) {
         originScreen = in.readString();
@@ -39,6 +42,7 @@ public class PlaySessionSource implements Parcelable {
         playlistUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
         playlistOwnerUrn = in.readParcelable(PlaySessionSource.class.getClassLoader());
         searchQuerySourceInfo = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
+        promotedSourceInfo = in.readParcelable(PromotedSourceInfo.class.getClassLoader());
     }
 
     public PlaySessionSource(SharedPreferences sharedPreferences) {
@@ -99,6 +103,10 @@ public class PlaySessionSource implements Parcelable {
         return searchQuerySourceInfo != null;
     }
 
+    public boolean isFromPromotedTrack() {
+        return promotedSourceInfo != null;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -111,6 +119,7 @@ public class PlaySessionSource implements Parcelable {
         dest.writeParcelable(playlistUrn, 0);
         dest.writeParcelable(playlistOwnerUrn, 0);
         dest.writeParcelable(searchQuerySourceInfo, 0);
+        dest.writeParcelable(promotedSourceInfo, 0);
     }
 
     public void saveToPreferences(SharedPreferences.Editor editor) {
@@ -149,8 +158,22 @@ public class PlaySessionSource implements Parcelable {
         this.searchQuerySourceInfo = searchQuerySourceInfo;
     }
 
+    @Nullable
     public SearchQuerySourceInfo getSearchQuerySourceInfo() {
         return searchQuerySourceInfo;
+    }
+
+    public void setPromotedSourceInfo(PromotedSourceInfo promotedSourceInfo) {
+        this.promotedSourceInfo = promotedSourceInfo;
+    }
+
+    @Nullable
+    public PromotedSourceInfo getPromotedSourceInfo() {
+        return promotedSourceInfo;
+    }
+
+    public void clearPromotedSourceInfo() {
+        promotedSourceInfo = null;
     }
 
     public enum DiscoverySource {

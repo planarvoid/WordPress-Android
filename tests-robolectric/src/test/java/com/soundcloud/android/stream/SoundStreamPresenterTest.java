@@ -37,6 +37,7 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.observers.TestSubscriber;
@@ -122,6 +123,24 @@ public class SoundStreamPresenterTest {
         presenter.onItemClick(listView, view, 0, 0);
 
         expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
+    }
+
+    @Test
+    public void includesPromotedSourceInfoOnPlayFromPromotedTrack() {
+        final PromotedTrackItem clickedTrack = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
+        final List<Urn> streamTrackUrns = Arrays.asList(clickedTrack.getEntityUrn(), Urn.forTrack(634L));
+        final Observable<List<Urn>> streamTracks = Observable.just(streamTrackUrns);
+        ArgumentCaptor<PlaySessionSource> captor = ArgumentCaptor.forClass(PlaySessionSource.class);
+        when(adapter.getItem(0)).thenReturn(clickedTrack);
+        when(streamOperations.trackUrnsForPlayback()).thenReturn(streamTracks);
+        when(playbackOperations.playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
+                .thenReturn(Observable.just(PlaybackResult.success()));
+
+        presenter.onItemClick(listView, view, 0, 0);
+
+        verify(playbackOperations).playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), captor.capture());
+        PlaySessionSource sessionSource = captor.getValue();
+        expect(sessionSource.isFromPromotedTrack()).toBeTrue();
     }
 
     @Test
