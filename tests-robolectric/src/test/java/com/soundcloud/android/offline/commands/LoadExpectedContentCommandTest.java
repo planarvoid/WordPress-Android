@@ -212,4 +212,20 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         expect(pending).toBeEmpty();
     }
+
+    @Test
+    public void doesNotReturnTracksWithoutStreamUrl() {
+        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
+        Urn urn = apiTrack.getUrn();
+        testFixtures().insertTrackPendingDownload(urn, 100);
+        testFixtures().insertPolicyAllow(urn, NOW);
+
+        database().execSQL("UPDATE Sounds SET stream_url=null"
+                + " WHERE _id=" + apiTrack.getUrn().getNumericId());
+
+        Collection<DownloadRequest> pending = command.call(null);
+
+        expect(pending).toBeEmpty();
+
+    }
 }

@@ -72,12 +72,14 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
     }
 
     private List<OfflineRequestData> tracksFromLikes() {
+        //TODO: remove filtering for stream URN not null after https://github.com/soundcloud/api-mobile/issues/331
         final Query likesToDownload = Query.from(Sounds.name())
                 .select(Sounds.field(_ID), Sounds.field(TableColumns.Sounds.STREAM_URL), Sounds.field(TableColumns.Sounds.DURATION))
                 .innerJoin(TrackPolicies.name(), Likes.field(TableColumns.Likes._ID), TableColumns.TrackPolicies.TRACK_ID)
                 .innerJoin(Table.Likes.name(), Table.Likes.field(TableColumns.Likes._ID), Sounds.field(TableColumns.Sounds._ID))
                 .where(isDownloadable())
                 .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                .whereNotNull(Sounds.field(TableColumns.Sounds.STREAM_URL))
                 .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), Query.ORDER_DESC);
 
         return database.query(likesToDownload).toList(new LikedTrackMapper());
@@ -88,6 +90,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
     }
 
     private List<OfflineRequestData> tracksFromOfflinePlaylists() {
+        //TODO: remove filtering for stream URN not null after https://github.com/soundcloud/api-mobile/issues/331
         final Query orderedPlaylists = Query.from(OfflineContent.name())
                 .select(OfflineContent.field(TableColumns.OfflineContent._ID))
                 .innerJoin(Sounds.name(), filter().whereEq(Sounds.field(_ID), OfflineContent.field(_ID)))
@@ -103,6 +106,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
                         .whereIn(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistIds))
                 .innerJoin(TrackPolicies.name(), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID), TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .where(isDownloadable())
+                .whereNotNull(Sounds.field(TableColumns.Sounds.STREAM_URL))
                 .order(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), Query.ORDER_DESC)
                 .order(PlaylistTracks.field(TableColumns.PlaylistTracks.POSITION), Query.ORDER_ASC);
 
