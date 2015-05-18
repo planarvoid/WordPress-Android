@@ -2,7 +2,9 @@ package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.DefaultViewElement;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
 
 import android.view.View;
 import android.widget.AbsListView;
@@ -35,5 +37,16 @@ public class ListElement {
 
     public void scrollToBottom() {
         testDriver.scrollToBottom(absListView);
+    }
+
+    public ViewElement scrollToItem(With with) {
+        ViewElement result = testDriver.findElement(with);
+        while (result instanceof EmptyViewElement) {
+            if (!testDriver.scrollDown()) {
+                return new EmptyViewElement("Unable to scroll to item; item not in list");
+            }
+            result = testDriver.findElement(with);
+        }
+        return result;
     }
 }

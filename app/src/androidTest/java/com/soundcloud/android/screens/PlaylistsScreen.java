@@ -7,7 +7,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
-import com.soundcloud.android.screens.elements.ViewPagerElement;
 
 import android.widget.ListView;
 
@@ -62,6 +61,10 @@ public class PlaylistsScreen extends Screen {
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
         playlistsList().scrollToBottom();
         waiter.waitForContentAndRetryIfLoadingFailed();
+    }
+
+    public PlaylistItemElement getPlaylistWithTitle(String title) {
+        return new PlaylistItemElement(testDriver, playlistsList().scrollToItem(With.text(title)));
     }
 
     @Override
