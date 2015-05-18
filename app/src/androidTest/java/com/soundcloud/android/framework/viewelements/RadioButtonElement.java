@@ -1,18 +1,12 @@
 package com.soundcloud.android.framework.viewelements;
 
-import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.Han;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemClock;
-import android.view.MotionEvent;
-import android.view.View;
 import android.widget.RadioButton;
-import android.widget.SeekBar;
 
 public class RadioButtonElement {
     protected final RadioButton view;
-    private final Solo testDriver;
+    private final Han testDriver;
 
     public RadioButtonElement(ViewElement element) {
         this.view = (RadioButton) element.getView();

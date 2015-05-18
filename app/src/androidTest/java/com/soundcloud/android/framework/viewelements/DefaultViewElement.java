@@ -1,6 +1,6 @@
 package com.soundcloud.android.framework.viewelements;
 
-import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.ViewFetcher;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
@@ -20,11 +20,11 @@ import android.widget.ToggleButton;
 import java.util.List;
 
 public final class DefaultViewElement extends ViewElement {
-    private final Solo testDriver;
+    private final Han testDriver;
     private final View view;
     private ViewFetcher viewFetcher;
 
-    public DefaultViewElement(View view, Solo driver) {
+    public DefaultViewElement(View view, Han driver) {
         if (view == null) {
             throw new IllegalArgumentException("viewElement cannot be null");
         }
@@ -155,7 +155,7 @@ public final class DefaultViewElement extends ViewElement {
     /* package */ View getView() { return view; }
 
     @Override
-    /* package */ Solo getTestDriver() { return testDriver; }
+    /* package */ Han getTestDriver() { return testDriver; }
 
     private boolean isShown() {
         return view.isShown();

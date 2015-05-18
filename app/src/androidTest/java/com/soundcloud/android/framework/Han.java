@@ -10,7 +10,6 @@ import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 import com.soundcloud.android.framework.viewelements.DefaultViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
-import com.soundcloud.android.framework.viewelements.ToastElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
@@ -23,6 +22,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ListView;
 
@@ -47,14 +47,12 @@ public class Han  {
     public Han(Instrumentation instrumentation) {
         this.instrumentation = instrumentation;
         solo = new Solo(instrumentation);
-        viewFetcher = new ViewFetcher(solo);
+        viewFetcher = new ViewFetcher(this);
     }
 
     public ViewElement wrap(View view) {
-        return new DefaultViewElement(view, solo);
+        return new DefaultViewElement(view, this);
     }
-
-    public ToastElement getToast() { return new ToastElement(this); }
 
     public ViewElement findElement(With findBy) {
         return viewFetcher.findElement(findBy);
@@ -62,6 +60,14 @@ public class Han  {
 
     public List<ViewElement> findElements(With with) {
         return viewFetcher.findElements(with);
+    }
+
+    public void typeText(EditText editText, String text) {
+        solo.typeText(editText, text);
+    }
+
+    public void clearEditText(EditText editText) {
+        solo.clearEditText(editText);
     }
 
     public void clickOnText(String text) {
@@ -113,6 +119,18 @@ public class Han  {
                 break;
             }
         }
+    }
+
+    public ArrayList getViews(View view) {
+        return solo.getViews(view);
+    }
+
+    public void clickOnView(View view) {
+        solo.clickOnView(view);
+    }
+
+    public void clickLongOnView(View view) {
+        solo.clickLongOnView(view);
     }
 
     public void clickOnButtonWithText(int textId) {
@@ -304,5 +322,9 @@ public class Han  {
 
     public void setup() {
         With.setResources(instrumentation.getTargetContext().getResources());
+    }
+
+    public boolean scrollDown() {
+        return solo.scrollDown();
     }
 }
