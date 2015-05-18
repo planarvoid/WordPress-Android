@@ -25,7 +25,7 @@ class AvailableProducts {
     public final List<Product> products;
 
     @JsonCreator
-    public AvailableProducts(@JsonProperty("products") List<Product> products) {
+    public AvailableProducts(@JsonProperty("collection") List<Product> products) {
         this.products = products;
     }
 
