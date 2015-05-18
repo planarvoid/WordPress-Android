@@ -33,8 +33,8 @@ import java.util.List;
 public class OfflineContentService extends Service implements DownloadHandler.Listener {
 
     public static final String TAG = "OfflineContent";
-    @VisibleForTesting static final String ACTION_START_DOWNLOAD = "action_start_download";
-    @VisibleForTesting static final String ACTION_STOP_DOWNLOAD = "action_stop_download";
+    @VisibleForTesting static final String ACTION_START = "action_start_download";
+    @VisibleForTesting static final String ACTION_STOP = "action_stop_download";
 
     @Inject DownloadOperations downloadOperations;
     @Inject OfflineContentOperations offlineContentOperations;
@@ -64,11 +64,11 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     };
 
     public static void start(Context context) {
-        context.startService(createIntent(context, ACTION_START_DOWNLOAD));
+        context.startService(createIntent(context, ACTION_START));
     }
 
     public static void stop(Context context) {
-        context.startService(createIntent(context, ACTION_STOP_DOWNLOAD));
+        context.startService(createIntent(context, ACTION_STOP));
     }
 
     private static Intent createIntent(Context context, String action) {
@@ -111,7 +111,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         offlineContentScheduler.cancelPendingRetries();
 
-        if (ACTION_START_DOWNLOAD.equalsIgnoreCase(action)) {
+        if (ACTION_START.equalsIgnoreCase(action)) {
             fireAndForget(offlineContentOperations.loadContentToDelete().flatMap(removeTracks));
 
             subscription.unsubscribe();
@@ -119,7 +119,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .loadOfflineContentUpdates()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new OfflineContentRequestsSubscriber());
-        } else if (ACTION_STOP_DOWNLOAD.equalsIgnoreCase(action)) {
+        } else if (ACTION_STOP.equalsIgnoreCase(action)) {
             stop();
         }
         return START_NOT_STICKY;

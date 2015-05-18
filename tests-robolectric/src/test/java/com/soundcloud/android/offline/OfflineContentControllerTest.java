@@ -182,14 +182,14 @@ public class OfflineContentControllerTest {
     private boolean wasServiceStarted() {
         final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
         return intent != null &&
-                intent.getAction().equals(OfflineContentService.ACTION_START_DOWNLOAD) &&
+                intent.getAction().equals(OfflineContentService.ACTION_START) &&
                 intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 
     private boolean wasServiceStopped() {
         final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
         return intent != null &&
-                intent.getAction().equals(OfflineContentService.ACTION_STOP_DOWNLOAD) &&
+                intent.getAction().equals(OfflineContentService.ACTION_STOP) &&
                 intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 }

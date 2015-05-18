@@ -345,13 +345,13 @@ public class OfflineContentServiceTest {
 
     private int startService() {
         Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
-        intent.setAction(OfflineContentService.ACTION_START_DOWNLOAD);
+        intent.setAction(OfflineContentService.ACTION_START);
         return service.onStartCommand(intent, 0, 0);
     }
 
     private int stopService() {
         Intent intent = new Intent(Robolectric.application, OfflineContentService.class);
-        intent.setAction(OfflineContentService.ACTION_STOP_DOWNLOAD);
+        intent.setAction(OfflineContentService.ACTION_STOP);
         return service.onStartCommand(intent, 0, 0);
     }
 
