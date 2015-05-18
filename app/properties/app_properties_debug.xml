@@ -13,9 +13,8 @@
     <bool name="debug_feature_screen">true</bool>
     <bool name="google_plus_enabled">true</bool>
 
-    <string name="api_mobile_base_uri_path">/app/mobileapps-dev</string>
     <string name="public_api_base_url">https://api.soundcloud.com</string>
-    <string name="mobile_api_base_url">https://api-mobile-dev.soundcloud.com</string>
+    <string name="mobile_api_base_url">https://api-mobile-alpha.soundcloud.com</string>
     
     <string name="eventgateway_url">http://ci.mobile.s-cloud.net:4567/v1/events</string>
     <string name="cast_receiver_app_id">9E70E41A</string>
