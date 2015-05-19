@@ -61,4 +61,15 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
 
         assertThat(offlineItem, is(visible()));
     }
+
+    public void testDownloadIsAvailableWhenTheyAccessPlaylistDetailScreen() throws Exception {
+        final ViewElement offlineItem = menuScreen
+                .open()
+                .clickPlaylists()
+                .clickPlaylistAt(0)
+                .clickPlaylistOverflowButton()
+                .getMakeAvailableOfflineItem();
+
+        assertThat(offlineItem, is(visible()));
+    }
 }
