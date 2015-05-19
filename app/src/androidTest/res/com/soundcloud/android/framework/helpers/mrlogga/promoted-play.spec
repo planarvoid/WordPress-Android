@@ -1,32 +1,35 @@
 --- !ruby/object:MrLoggerLogger::ResultSpec
 whitelisted_events:
+- impression
+- click
 - audio
-- pageview
 expected_events:
 - !ruby/object:MrLoggerLogger::Event
-  name: pageview
+  name: impression
   params:
-    client_id: '3152'
-    anonymous_id: (\w|-)+
+    impression_name: promoted_track
+    monetization_type: promoted
+    ad_urn: dfp:ads:[0-9,-]+
     ts: '[0-9]+'
-    page_name: drawer
-    user: soundcloud:users:107904111
-  version: '0'
-- !ruby/object:MrLoggerLogger::Event
-  name: audio
-  params:
-    trigger: manual
-    duration: '[0-9]+'
-    protocol: hls
-    ts: '[0-9]+'
-    sound: soundcloud:sounds:[0-9]+
-    player_type: Skippy
-    action: play
+    impression_object: soundcloud:tracks:[0-9]+
     client_id: '3152'
     anonymous_id: (\w|-)+
     page_name: stream:main
     user: soundcloud:users:107904111
-    connection_type: wifi
+  version: '0'
+- !ruby/object:MrLoggerLogger::Event
+  name: click
+  params:
+    monetization_type: promoted
+    ad_urn: dfp:ads:[0-9,-]+
+    click_object: soundcloud:tracks:[0-9]+
+    ts: '[0-9]+'
+    click_name: item_navigation
+    client_id: '3152'
+    anonymous_id: (\w|-)+
+    page_name: stream:main
+    click_target: soundcloud:tracks:[0-9]+
+    user: soundcloud:users:107904111
   version: '0'
 - !ruby/object:MrLoggerLogger::Event
   name: audio
@@ -34,13 +37,14 @@ expected_events:
     trigger: manual
     protocol: hls
     ts: '[0-9]+'
-    reason: pause
     anonymous_id: (\w|-)+
     connection_type: wifi
+    monetization_type: promoted
     duration: '[0-9]+'
+    ad_urn: dfp:ads:[0-9,-]+
     sound: soundcloud:sounds:[0-9]+
     player_type: Skippy
-    action: stop
+    action: play
     client_id: '3152'
     page_name: stream:main
     user: soundcloud:users:107904111

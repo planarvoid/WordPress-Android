@@ -59,6 +59,14 @@ public class StreamScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
+    public boolean isFirstTrackPromoted() {
+        return getTrack(0).isPromotedTrack();
+    }
+
+    public boolean isPromotedTrackWithPromoter() {
+        return getTrack(0).hasPromoter();
+    }
+
     public MenuScreen openMenu() {
         return menuScreen.open();
     }

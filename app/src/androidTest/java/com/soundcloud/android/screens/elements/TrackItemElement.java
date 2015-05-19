@@ -23,6 +23,18 @@ public class TrackItemElement {
         return new TextElement(wrapped.findElement(With.id(R.id.list_item_subheader))).getText();
     }
 
+    public boolean isPromotedTrack() {
+        return wrapped.findElement(With.id(R.id.promoted_track)).isVisible();
+    }
+
+    public boolean hasPromoter() {
+        return getPromotedTrackText().getText().contains("Promoted by");
+    }
+
+    private TextElement getPromotedTrackText() {
+        return new TextElement(wrapped.findElement(With.id(R.id.promoted_track)));
+    }
+
     public VisualPlayerElement click() {
         wrapped.click();
         return new VisualPlayerElement(testDriver);
