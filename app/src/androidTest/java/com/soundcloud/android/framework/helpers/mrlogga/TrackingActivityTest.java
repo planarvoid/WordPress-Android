@@ -29,7 +29,7 @@ public abstract class TrackingActivityTest<T extends Activity> extends ActivityT
         context = getInstrumentation().getTargetContext();
         final MrLoggaLoggaClient client = new MrLoggaLoggaClient(context, new DeviceHelper(context, new BuildHelper()), new OkHttpClient());
 
-        mrLoggaVerifier = new MrLoggaVerifier(client);
+        mrLoggaVerifier = new MrLoggaVerifier(client, waiter);
         mrLoggaRecorder = new MrLoggaRecorder(client);
 
         enableEventLoggerInstantFlush(context);

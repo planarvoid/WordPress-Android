@@ -2,11 +2,15 @@ package com.soundcloud.android.framework.helpers.mrlogga;
 
 import static junit.framework.Assert.assertTrue;
 
+import com.soundcloud.android.framework.Waiter;
+
 public class MrLoggaVerifier {
     private final MrLoggaLoggaClient client;
+    private final Waiter waiter;
 
-    public MrLoggaVerifier(MrLoggaLoggaClient client) {
+    public MrLoggaVerifier(MrLoggaLoggaClient client, Waiter waiter) {
         this.client = client;
+        this.waiter = waiter;
     }
 
     public void startLogging() {
@@ -15,6 +19,8 @@ public class MrLoggaVerifier {
     }
 
     public void finishLogging() {
+        waiter.waitFiveSeconds();
+
         MrLoggaResponse response = client.finishLogging();
         assertTrue("Failed to finish MrLoggaLogga logging\n" + response.responseBody, response.success);
     }
