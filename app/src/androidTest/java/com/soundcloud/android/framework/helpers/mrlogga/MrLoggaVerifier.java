@@ -21,7 +21,7 @@ public class MrLoggaVerifier {
 
     public void isValid(String scenarioId) {
         final MrLoggaResponse response = client.validate(scenarioId);
-        assertTrue("Error validating scenario: " + scenarioId + "\n" + response.responseBody, response.success);
+        assertTrue("Error validating scenario: " + scenarioId + " on device " + client.deviceUDID + " \n" + response.responseBody, response.success);
     }
 
 
