@@ -36,7 +36,10 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
         return propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-                step(propeller.delete(Table.PlaylistTracks, Filter.filter().whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, params.playlistUrn.getNumericId())));
+                step(propeller.delete(Table.PlaylistTracks, Filter.filter()
+                        .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, params.playlistUrn.getNumericId())
+                        .whereNull(TableColumns.PlaylistTracks.REMOVED_AT)));
+
                 for (int i = 0; i < playlistTracks.size(); i++) {
                     step(propeller.upsert(Table.PlaylistTracks, buildPlaylistTrackContentValues(params.playlistUrn, playlistTracks.get(i), i)));
                 }
@@ -65,6 +68,7 @@ class RemoveTrackFromPlaylistCommand extends WriteStorageCommand<RemoveTrackFrom
         return Query.from(Table.PlaylistTracks.name())
                 .select(TableColumns.PlaylistTracks.TRACK_ID)
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId())
+                .whereNull(TableColumns.PlaylistTracks.REMOVED_AT)
                 .order(TableColumns.PlaylistTracks.POSITION, Query.ORDER_ASC);
     }
 
