@@ -43,6 +43,8 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
     }
 
     private void finishMrLogga() {
+        waiter.waitFiveSeconds();
+
         mrLoggaVerifier.finishLogging();
         mrLoggaVerifier.isValid(TEST_SCENARIO);
     }
