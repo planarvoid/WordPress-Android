@@ -72,10 +72,6 @@ public class StreamScreen extends Screen {
         return new StreamList(list);
     }
 
-    private ViewElement getViewElementWithId(int viewId) {
-        return testDriver.findElements(With.id(viewId)).get(0);
-    }
-
     private List<TrackItemElement> trackItemElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);

@@ -93,14 +93,6 @@ public class ProfileScreen extends Screen {
         return testDriver.findElements(With.id(R.id.track_list_item));
     }
 
-    private List<ViewElement> playlists() {
-        return testDriver.findElements(With.id(R.id.playlist_list_item));
-    }
-
-    private List<ViewElement> users() {
-        return testDriver.findElements(With.id(R.id.user_list_item));
-    }
-
     private ViewElement followButton() {
         return testDriver.findElement(With.id(R.id.toggle_btn_follow));
     }
