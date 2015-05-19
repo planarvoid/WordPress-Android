@@ -269,6 +269,17 @@ public class OfflineContentOperationsTest {
         expect(observer.getOnCompletedEvents()).toNumber(1);
     }
 
+    @Test
+    public void loadOfflineContentUpdatesDoesNotFailWhenPoliciesFailedToUpdate() {
+        final TestObserver<OfflineContentRequests> observer = new TestObserver<>();
+
+        when(policyOperations.updatePolicies(anyListOf(Urn.class))).thenReturn(Observable.<Void>error(new RuntimeException("Test exception")));
+        operations.loadOfflineContentUpdates().subscribe(observer);
+
+        expect(observer.getOnCompletedEvents()).toNumber(1);
+        expect(observer.getOnErrorEvents()).toBeEmpty();
+    }
+
     private static class WriteResultStub extends WriteResult {
         private final boolean isStubbedSuccess;
 

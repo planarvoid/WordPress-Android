@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
@@ -226,6 +227,30 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toBeEmpty();
+    }
 
+    @Test
+    public void doesNotReturnLikedTrackWhenPolicyUpdateHappenedAfterTheLast30Days() {
+        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
+        testFixtures().insertTrackPendingDownload(apiTrack.getUrn(), 100);
+        testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW - TimeUnit.DAYS.toMillis(30));
+
+        final Collection<DownloadRequest> pending = command.call(null);
+
+        expect(pending).toBeEmpty();
+    }
+    
+    @Test
+    public void doesNotReturnOfflinePlaylistTracksWhenPolicyUpdateHappenedAfterTheLast30Days() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
+        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track1 = testFixtures().insertPlaylistTrack(playlist, 0);
+        Urn urn = track1.getUrn();
+        testFixtures().insertTrackPendingDownload(urn, 100);
+        testFixtures().insertPolicyAllow(urn, NOW - TimeUnit.DAYS.toMillis(30));
+
+        Collection<DownloadRequest> pending = command.call(null);
+
+        expect(pending).toBeEmpty();
     }
 }

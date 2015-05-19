@@ -13,6 +13,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.propeller.WriteResult;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.app.Activity;
+import android.content.Intent;
 
 import java.util.concurrent.TimeUnit;
 
@@ -47,11 +49,13 @@ public class PolicyUpdateControllerTest {
         yesterday = now - TimeUnit.DAYS.toMillis(1);
         tomorrow = now + TimeUnit.DAYS.toMillis(1);
         controller = new PolicyUpdateController(
+                Robolectric.application,
                 featureOperations,
                 offlineContentOperations,
                 offlineSettingsStorage,
                 dateProvider,
-                goOnlinePresenter);
+                goOnlinePresenter
+        );
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(yesterday));
         when(dateProvider.getCurrentTime()).thenReturn(now);
@@ -115,7 +119,7 @@ public class PolicyUpdateControllerTest {
 
         controller.onResume(null);
 
-        expect(clearOfflineContentObservable.subscribedTo()).toBeFalse();
+        expect(wasServiceStarted()).toBeFalse();
     }
 
     @Test
@@ -124,7 +128,7 @@ public class PolicyUpdateControllerTest {
 
         controller.onResume(null);
 
-        expect(clearOfflineContentObservable.subscribedTo()).toBeTrue();
+        expect(wasServiceStarted()).toBeTrue();
     }
 
     @Test
@@ -133,6 +137,13 @@ public class PolicyUpdateControllerTest {
 
         controller.onResume(null);
 
-        expect(clearOfflineContentObservable.subscribedTo()).toBeTrue();
+        expect(wasServiceStarted()).toBeTrue();
+    }
+
+    private boolean wasServiceStarted() {
+        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
+        return intent != null &&
+                intent.getAction().equals(OfflineContentService.ACTION_START) &&
+                intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 }

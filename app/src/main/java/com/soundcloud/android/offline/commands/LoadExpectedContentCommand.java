@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class LoadExpectedContentCommand extends Command<Void, Collection<DownloadRequest>> {
 
@@ -86,7 +87,9 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
     }
 
     private Where isDownloadable() {
-        return filter().whereEq(TrackPolicies.field(TableColumns.TrackPolicies.SYNCABLE), true);
+        return filter()
+                .whereEq(TrackPolicies.field(TableColumns.TrackPolicies.SYNCABLE), true)
+                .whereGt(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED), System.currentTimeMillis() - TimeUnit.DAYS.toMillis(30));
     }
 
     private List<OfflineRequestData> tracksFromOfflinePlaylists() {

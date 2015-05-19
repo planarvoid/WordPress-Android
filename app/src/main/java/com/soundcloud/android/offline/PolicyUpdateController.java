@@ -9,6 +9,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
@@ -24,15 +25,17 @@ public class PolicyUpdateController extends DefaultLightCycleActivity<AppCompatA
     private final OfflineSettingsStorage offlineSettingsStorage;
     private final DateProvider dateProvider;
     private final GoBackOnlineDialogPresenter goBackOnlineDialogPresenter;
+    private final Context context;
 
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
-    public PolicyUpdateController(FeatureOperations featureOperations,
+    public PolicyUpdateController(Context context, FeatureOperations featureOperations,
                                   OfflineContentOperations offlineContentOperations,
                                   OfflineSettingsStorage offlineSettingsStorage,
                                   DateProvider dateProvider,
                                   GoBackOnlineDialogPresenter goBackOnlineDialogPresenter) {
+        this.context = context;
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.offlineSettingsStorage = offlineSettingsStorage;
@@ -75,7 +78,7 @@ public class PolicyUpdateController extends DefaultLightCycleActivity<AppCompatA
             }
 
             if (shouldDeleteOfflineContent(lastPolicyUpdateDate)) {
-                fireAndForget(offlineContentOperations.clearOfflineContent());
+                OfflineContentService.start(context);
             }
         }
 

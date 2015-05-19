@@ -163,6 +163,7 @@ public class OfflineContentOperations {
 
     Observable<OfflineContentRequests> loadOfflineContentUpdates() {
         return updateOfflineContentStalePolicies()
+                .onErrorResumeNext(Observable.<Void>just(null))
                 .flatMap(loadExpectedContentCommand.toContinuation())
                 .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
                 .doOnNext(storeDownloadUpdatesCommand.toAction())
