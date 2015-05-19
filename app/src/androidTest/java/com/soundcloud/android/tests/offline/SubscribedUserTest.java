@@ -40,7 +40,7 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
     public void testDownloadIsAvailableWhenTheyAccessPlaylists() throws Exception {
         final ViewElement offlineItem = menuScreen
                 .open()
-                .clickPlaylist()
+                .clickPlaylists()
                 .getPlaylists()
                 .get(0)
                 .clickOverflow()
@@ -52,7 +52,7 @@ public class SubscribedUserTest extends ActivityTest<MainActivity> {
     public void testDownloadIsAvailableWhenTheyAccessLikedPlaylists() throws Exception {
         final ViewElement offlineItem = menuScreen
                 .open()
-                .clickPlaylist()
+                .clickPlaylists()
                 .touchLikedPlaylistsTab()
                 .getPlaylists()
                 .get(0)

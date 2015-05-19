@@ -30,7 +30,7 @@ public class MenuScreenTablet extends MenuScreen{
     }
 
     @Override
-    public PlaylistsScreen clickPlaylist() {
+    public PlaylistsScreen clickPlaylists() {
         playlistsMenuItem().click();
         return new PlaylistsScreen(testDriver);
     }

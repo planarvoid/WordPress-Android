@@ -6,7 +6,6 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
@@ -61,7 +60,7 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     private void assertPlaylistContainsTrack(String trackTitle) {
         PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open()
-                .clickPlaylist()
+                .clickPlaylists()
                 .getPlaylistWithTitle(playlist)
                 .click();
 

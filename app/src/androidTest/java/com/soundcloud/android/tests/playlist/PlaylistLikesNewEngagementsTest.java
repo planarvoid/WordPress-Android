@@ -23,7 +23,7 @@ public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        playlistsScreen = menuScreen.open().clickPlaylist();
+        playlistsScreen = menuScreen.open().clickPlaylists();
     }
 
     // *** Ignore until we come up with a good way to prevent like actions from getting synced ***

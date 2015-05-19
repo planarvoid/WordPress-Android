@@ -22,14 +22,14 @@ public class PlaylistPostsTest extends ActivityTest<MainActivity> {
     }
 
     public void testDrawerShowsPlaylists() {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylists();
         playlistsScreen.touchPostedPlaylistsTab();
         PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistOnCurrentPageAt(0);
         assertEquals("Should go to Playlist screen", true, playlistDetailsScreen.isVisible());
     }
 
     public void testLoadsNextPage() {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylists();
         playlistsScreen.touchPostedPlaylistsTab();
         int numberOfTracks = playlistsScreen.getLoadedTrackCount();
         assertThat(numberOfTracks, is(greaterThan(0)));

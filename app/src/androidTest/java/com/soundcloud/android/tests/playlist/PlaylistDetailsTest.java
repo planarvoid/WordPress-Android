@@ -36,7 +36,7 @@ public class PlaylistDetailsTest extends ActivityTest<LauncherActivity> {
         //FIXME: This is a workaround for #1487
         waiter.waitForContentAndRetryIfLoadingFailed();
 
-        playlistsScreen = menuScreen.open().clickPlaylist();
+        playlistsScreen = menuScreen.open().clickPlaylists();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
     }

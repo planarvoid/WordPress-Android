@@ -58,7 +58,7 @@ public class PlayerTest extends ActivityTest<MainActivity> {
     }
 
     private void openPlaylist() {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylists();
         waiter.waitForContentAndRetryIfLoadingFailed();
         playlistsScreen.clickPlaylistAt(0);
     }

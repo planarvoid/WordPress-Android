@@ -34,7 +34,7 @@ public class OfflinePlaylistPostsTest extends ActivityTest<MainActivity> {
     public void testDownloadsPlaylistWhenMadeAvailableOffline() {
         final PlaylistsScreen playlistsScreen = menuScreen
                 .open()
-                .clickPlaylist()
+                .clickPlaylists()
                 .get(0)
                 .clickOverflow()
                 .clickMakeAvailableOffline();

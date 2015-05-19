@@ -100,7 +100,7 @@ public class MenuScreen {
         return new TrackLikesScreen(testDriver);
     }
 
-    public PlaylistsScreen clickPlaylist() {
+    public PlaylistsScreen clickPlaylists() {
         playlistsMenuItem().click();
         waiter.waitForDrawerToClose();
         return new PlaylistsScreen(testDriver);
