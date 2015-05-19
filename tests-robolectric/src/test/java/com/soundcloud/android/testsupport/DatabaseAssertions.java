@@ -176,6 +176,7 @@ public class DatabaseAssertions {
         // assert no additional tracks
         assertThat(select(from(Table.PlaylistTracks.name())
                 .whereEq(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistId)
+                .whereNull(TableColumns.PlaylistTracks.REMOVED_AT)
                 .whereGe(TableColumns.PlaylistTracks.POSITION, tracklist.size())), counts(0));
     }
 
