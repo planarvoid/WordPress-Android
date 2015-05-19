@@ -1,611 +1,641 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<?xml version="1.0" encoding="UTF-8"?><resources xmlns:tools="http://schemas.android.com/tools">
 
-  <!-- __MISC / LOST&FOUND / UNSORTED -->
-  <string name="app_name">SoundCloud</string>
-  <string name="yes">Да</string>
-  <string name="no">Нет</string>
-  <string name="close">Закрыть</string>
-  <string name="post">Опубликовать</string>
-  <string name="view">Посмотреть</string>
-  <string name="btn_publish">Далее</string>
-  <string name="btn_apply">Применить</string>
-  <string name="cancel">Отменить</string>
-  <string name="retry">Повторить</string>
-  <string name="shuffle">вразброс</string>
-  <string name="done">Готово</string>
-  <string name="email">Электронная почта</string>
-  <string name="password">Пароль</string>
-  <string name="btn_continue">Продолжить</string>
-  <string name="imprint">О компании</string>
-  <string name="privacy">Конфиденциальность</string>
-  <string name="legal">Условия</string>
-  <string name="legal_summary">Правовая информация</string>
-  <string name="terms_of_use">Правила использования</string>
-  <string name="privacy_policy">Политика конфиденциальности</string>
-  <string name="version">Версия</string>
-  <string name="unavailable">Недоступно</string>
-  <string name="copyright_information">Авторские права</string>
-  <string name="started_following_you">теперь ваш подписчик</string>
-  <string name="account_one_active">Разрешается иметь только одну действующую учетную запись</string>
-  <string name="btn_follow">Подписаться</string>
-  <string name="btn_following">Подписан</string>
-  <string name="btn_save">Сохранить</string>
-  <string name="btn_skip">Пропустить</string>
-  <string name="configure">Настроить</string>
-  <string name="connect_progress">Идет загрузка</string>
-  <string name="connect_success">Связь с %1$s успешно установлена</string>
-  <string name="connection_list_footer">Чтобы изменить настройки общего доступа по умолчанию, перейдите в настройки SoundCloud и выберите \"Соединения\"</string>
-  <string name="delete">Удалить</string>
-  <string name="comments">Комментарии</string>
-  <string name="new_connection_error">Не удалось добавить сеть</string>
-  <string name="reset">Удалить</string>
-  <string name="share_fail_message">Похоже, что-то пошло не так.</string>
-  <string name="share_log_out">Выйти</string>
-  <string name="share_success_message">Ура, получилось!</string>
-  <string name="share_to_soundcloud">&lt;b&gt;Поделиться&lt;/b&gt; на &lt;b&gt;SoundCloud&lt;/b&gt;</string>
-  <string name="sounds_from">Музыка от %s</string>
-  <string name="this_user">Текущий пользователь</string>
-  <string name="track">музыка</string>
-  <string name="track_by">исп:</string>
-  <string name="display_name">Показать имя</string>
-  <string name="website">Веб-сайт</string>
-  <string name="what_hint">Что</string>
-  <string name="where_hint">Где</string>
-  <string name="like">Нравится</string>
-  <string name="unlike">Не нравится</string>
+    <!-- __MISC / LOST&FOUND / UNSORTED -->
+    <string name="app_name">SoundCloud</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="close">Закрыть</string>
+    <string name="post">Сообщение</string>
+    <string name="view">Вид</string>
+    <string name="btn_publish">Далее</string>
+    <string name="btn_apply">Применить</string>
+    <string name="cancel">Отмена</string>
+    <string name="retry">Повторить</string>
+    <string name="shuffle">Перемешать</string>
+    <string name="done">Готово</string>
+    <string name="email">E-mail</string>
+    <string name="password">Пароль</string>
+    <string name="btn_continue">Продолжить</string>
+    <string name="imprint">Печать</string>
+    <string name="privacy">Конфиденциальность</string>
+    <string name="legal">Условия</string>
+    <string name="legal_summary">Юридическая информация</string>
+    <string name="terms_of_use">Условия использования</string>
+    <string name="privacy_policy">Политика Конфиденциальности</string>
+    <string name="version">Версия</string>
+    <string name="unavailable">Недоступно</string>
+    <string name="copyright_information">Информация об авторских правах</string>
+    <string name="started_following_you">начал следовать за вами</string>
+    <string name="account_one_active">Вы можете иметь только один активный аккаунт</string>
+    <string name="btn_follow">Следовать</string>
+    <string name="btn_following">Следуют</string>
+    <string name="btn_save">Сохранить</string>
+    <string name="btn_skip">Пропустить</string>
+    <string name="configure">Настроить</string>
+    <string name="connect_progress">Загрузка</string>
+    <string name="connect_success">Успешно соединено с %1$s</string>
+    <string name="connection_list_footer">Чтобы изменить параметры доступа по умолчанию, перейдите к настройкам SoundCloud и выберите \"Connections\"</string>
+    <string name="delete">Удалить</string>
+    <string name="comments">Комментарии</string>
+    <string name="new_connection_error">Проблема при добавлении сети</string>
+    <string name="reset">Удалить</string>
+    <string name="share_fail_message">ОК, что-то пошло не так.</string>
+    <string name="share_log_out">Выйти</string>
+    <string name="share_success_message">Ура, сработало!</string>
+    <string name="share_to_soundcloud">&lt;b&gt;Поделиться&lt;/b&gt; на &lt;b&gt;SoundCloud&lt;/b&gt;</string>
+    <string name="sounds_from">Звуки из %s</string>
+    <string name="this_user">Этот пользователь</string>
+    <string name="track">звук</string>
+    <string name="track_by">от</string>
+    <string name="display_name">Отображаемое имя</string>
+    <string name="website">Сайт</string>
+    <string name="what_hint">Что</string>
+    <string name="where_hint">Где</string>
+    <string name="like">Нравится</string>
+    <string name="unlike">Не нравится</string>
 
-  <!-- __ACCESSIBILITY -->
-  <string name="accessibility_search">Поиск по SoundCloud</string>
-  <string name="accessibility_stats_user_liked">Нравится вам</string>
-  <string name="accessibility_like_action">Нравится</string>
+    <!-- __ACCESSIBILITY -->
+    <string name="accessibility_search">Поиск по SoundCloud</string>
+    <string name="accessibility_stats_user_liked">Нравится вам</string>
+    <string name="accessibility_like_action">Нравится</string>
 
-  <!-- __ACTIVITIES -->
-  <string name="liked">понравилось %s</string>
-  <string name="reposted">переопубликовал %s</string>
-  <string name="commented_on">прокомментировал %s</string>
-  <string name="mentioned_you_on">упомянул вас на %s</string>
+    <!-- __ACTIVITIES -->
+    <string name="liked">понравилось %s</string>
+    <string name="reposted">репостов %s</string>
+    <string name="commented_on">прокомментировал %s</string>
+    <string name="mentioned_you_on">упомянул вас на %s</string>
 
-  <!-- __ADS -->
-  <string name="advertisement">Реклама</string>
-  <string name="learn_more">ПОДРОБНЕЕ</string>
-  <string name="why_ads">Почему здесь реклама?</string>
-  <string name="why_ads_dialog_message">Каждый раз, когда вы слышите или видите рекламу, исполнители зарабатывают деньги. Благодаря немногочисленной рекламе, мы поддерживаем исполнителей, а слушатели могу бесплатно пользоваться SoundCloud.</string>
-  <string name="skip_ad">Пропустить рекламу</string>
-  <string name="next_up">Следующий: %1$s (%2$s)</string>
-  <string name="ad_in_progress">Воспроизводится реклама</string>
-  <string name="ad_resume_playing_to_continue">Чтобы продолжить, включите воспроизведение рекламы</string>
-  <string name="ad_skip">Перейти в: %s</string>
-  <string name="now_playing">Сейчас воспроизводится</string>
-  <string name="now_playing_with_args">Сейчас воспроизводится: %1$s (%2$s)</string>
+    <!-- __ADS -->
+    <string name="advertisement">Реклама</string>
+    <string name="learn_more">УЗНАТЬ БОЛЬШЕ</string>
+    <string name="why_ads">Почему с рекламой?</string>
+    <string name="why_ads_dialog_message">Каждый раз, когда вы видите или слышите рекламу, исполнители получают деньги. Показ рекламы позволяет нам продолжать поддерживать артистов и сохранять SoundCloud бесплатным для слушателей.</string>
+    <string name="skip_ad">Пропустить рекламу</string>
+    <string name="next_up">Далее: %1$s (%2$s)</string>
+    <string name="ad_in_progress">Реклама</string>
+    <string name="ad_resume_playing_to_continue">Для продолжения, возобновите просмотр рекламы</string>
+    <string name="ad_skip">Пропустить через: %s</string>
+    <string name="now_playing">Сейчас играет</string>
+    <string name="now_playing_with_args">Сейчас воспроизводится: %1$s (%2$s)</string>
 
-  <!-- __AUTHENTICATION -->
-  <string name="authentication_I_forgot_my_password">Я забыл свой пароль</string>
-  <string name="authentication_add_info_add_image_msg">Улыбнитесь! Это изображение будет показано в вашем профиле.</string>
-  <string name="authentication_add_info_msg">Почти готово. Теперь добавьте своему профилю индивидуальности: выберите имя пользователя и загрузите фотографию.</string>
-  <string name="authentication_add_info_username_hint">Имя пользователя</string>
-  <string name="onboarding_agreement_statement">Зарегистрировавшись здесь, я соглашаюсь с Условиями использования и Политикой конфиденциальности SoundCloud.</string>
-  <string name="authentication_choose_a_password">Не менее 6 символов</string>
-  <string name="authentication_error_incomplete_fields">Пожалуйста, заполните все поля.</string>
-  <string name="authentication_error_invalid_email">Пожалуйста, введите существующий адрес электронной почты.</string>
-  <string name="authentication_error_generic">Произошла непредвиденная ошибка. Пожалуйста, попробуйте снова.</string>
-  <string name="authentication_error_no_connection_message">Не удается установить соединение. Пожалуйста, проверьте настройки сети.</string>
-  <string name="authentication_error_password_too_short">Пароль должен состоять из 6 или больше символов.</string>
-  <string name="authentication_error_title">Ошибка</string>
-  <string name="authentication_log_in">Войти</string>
-  <string name="authentication_log_in_with_facebook">Войти через Facebook</string>
-  <string name="authentication_login_error_password_message">Нам не удалось вас авторизовать. Вы уверены, что адрес электронной почты и пароль правильные?</string>
-  <string name="authentication_login_progress_message">Авторизация...</string>
-  <string name="authentication_recover_password">Восстановить пароль</string>
-  <string name="authentication_recover_password_failure">Мы не можем восстановить пароль в данный момент. Пожалуйста, повторите попытку через некоторое время</string>
-  <string name="authentication_recover_password_failure_reason">Пароль восстановить не удалось: %s</string>
-  <string name="authentication_recover_password_success">Проверьте почту! Вы скоро получите письмо с инструкциями о том, как изменить пароль</string>
-  <string name="authentication_recover_progress_message">Отсылается запрос о сбросе пароля</string>
-  <string name="authentication_sign_up">Зарегистрируйтесь на SoundCloud</string>
-  <string name="authentication_signup_error_message">Что-то не так. Возможно, вам нужно зарегистрироваться на SoundCloud.com.</string>
-  <string name="authentication_support">Поддержка</string>
-  <string name="authentication_terms_of_use">Правила пользования</string>
-  <string name="authentication_your_email_address">Ваш электронный адрес</string>
-  <string name="authentication_your_password">Ваш пароль</string>
-  <string name="authentication_clear_image">Удерживайте, чтобы удалить изображение</string>
-  <string name="dialog_select_google_account">Чтобы войти, пожалуйста, выберите учетную запись Google</string>
-  <string name="authentication_login_error_message">Нам не удалось вас авторизовать. Пожалуйста, повторите попытку.</string>
-  <string name="authentication_no_google_accounts">Сначала создайте учетную запись Google.</string>
-  <string name="authentication_log_in_with_google">Войти с помощью Google</string>
-  <string name="error_google_sign_in_failed">Нам не удалось авторизовать вас с Google+. Посетите plus.google.com и активируйте свою учетную запись Google+, затем повторите попытку</string>
-  <string name="auth_disclaimer_title">Последний шаг</string>
-  <string name="auth_disclaimer_message">Нажимая \"Продолжить\", вы соглашаетесь с \"Условиями использования\" и \"Политикой конфиденциальности\" SoundCloud.</string>
-  <string name="facebook_authentication_failed_message">Повторите попытку через некоторое время или войдите, используя имя пользователя и пароль SoundCloud.</string>
-  <string name="authentication_recover_password_msg">Введите ваш адрес электронной почты и мы вышлем вам ссылку, с помощью которой вы сможете поменять пароль. Вопросы? Обратитесь в службу поддержки.</string>
-  <string name="authentication_blocked_title">Не удалось пройти регистрацию</string>
-  <string name="authentication_blocked_message">Наши программы-роботы считают, что эта авторизация очень похожа на спам. Если вы считаете, что это не так, <a href="http://help.soundcloud.com/customer/portal/emails/new">обратитесь в службу поддержки</a>
+    <!-- __AUTHENTICATION -->
+    <string name="authentication_I_forgot_my_password">Забыли пароль?</string>
+    <string name="authentication_add_info_add_image_msg">Улыбка! Это изображение появится в вашем профиле.</string>
+    <string name="authentication_add_info_msg">Почти готово. Теперь выберите имя пользователя и добавьте фото, чтобы персонализировать ваш профиль.</string>
+    <string name="authentication_add_info_username_hint">Ваше имя пользователя</string>
+    <string name="onboarding_agreement_statement">Зарегистрировавшись здесь, я соглашаюсь с Условиями использования и Политикой конфиденциальности SoundCloud.</string>
+    <string name="authentication_choose_a_password">Не меньше 6 символов</string>
+    <string name="authentication_error_incomplete_fields">Пожалуйста, заполните все поля.</string>
+    <string name="authentication_error_invalid_email">Пожалуйста, введите действительный адрес электронной почты.</string>
+    <string name="authentication_error_generic">Упс! Произошла непредвиденная ошибка. Пожалуйста, попробуйте еще раз.</string>
+    <string name="authentication_error_no_connection_message">Возникла проблема с передачей данных. Пожалуйста, проверьте настройки сети.</string>
+    <string name="authentication_error_password_too_short">Ваш пароль должен иметь 6 или более символов.</string>
+    <string name="authentication_error_age_not_valid">Вы должны быть не меньше 13 лет.</string>
+    <string name="authentication_error_title">Ошибка</string>
+    <string name="authentication_log_in">Войти</string>
+    <string name="authentication_log_in_with_facebook">Войти с помощью Facebook</string>
+    <string name="authentication_login_error_password_message">Мы не смогли авторизовать вас. Вы уверены, что адрес электронной почты и пароль указаны верно?</string>
+    <string name="authentication_login_progress_message">Осуществляется вход</string>
+    <string name="authentication_recover_password">Восстановить пароль</string>
+    <string name="authentication_recover_password_failure">Мы не можем восстановить ваш пароль в сейчас. Пожалуйста, попробуйте еще раз в ближайшее время</string>
+    <string name="authentication_recover_password_failure_reason">Восстановление пароля не удалось: %s</string>
+    <string name="authentication_recover_password_success">Проверьте вашу почту! Вы получите электронное письмо с инструкциями о том, как восстановить пароль в ближайшее время</string>
+    <string name="authentication_recover_progress_message">Запрос на восстановление пароля</string>
+    <string name="authentication_sign_up">Подпишитесь на SoundCloud</string>
+    <string name="authentication_signup_error_message">Кажется, возникла проблема. Пожалуйста, попробуйте зарегистрироваться на SoundCloud.com.</string>
+    <string name="authentication_support">Поддержка</string>
+    <string name="authentication_terms_of_use">Условия использования</string>
+    <string name="authentication_your_email_address">Ваш адрес электронной почты</string>
+    <string name="authentication_your_password">Ваш пароль</string>
+    <string name="authentication_clear_image">Удерживайте, чтобы очистить изображение</string>
+    <string name="dialog_select_google_account">Пожалуйста, выберите учетную запись Google для входа</string>
+    <string name="authentication_login_error_message">Мы не смогли авторизовать вас. Пожалуйста, попробуйте еще раз.</string>
+    <string name="authentication_no_google_accounts">Пожалуйста, сперва настройте аккаунт Google.</string>
+    <string name="authentication_log_in_with_google">Войти с помощью Google</string>
+    <string name="error_google_sign_in_failed">Мы не могли авторизовать вас с Google+. Посетите plus.google.com, чтобы активировать аккаунт Google+ и повторите попытку</string>
+    <string name="auth_disclaimer_title">Еще один шаг</string>
+    <string name="auth_disclaimer_message">Нажав \"Продолжить\", вы соглашаетесь с Условиями использования и Политикой конфиденциальности SoundCloud.</string>
+    <string name="facebook_authentication_failed_message">Пожалуйста, попробуйте еще раз в ближайшее время или войдите, используя имя пользователя и пароль SoundCloud.</string>
+    <string name="authentication_recover_password_msg">Введите свой адрес электронной почты, и мы вышлем вам ссылку, которая позволит вам изменить ваш пароль. Есть проблемы? Свяжитесь со службой поддержки.</string>
+    <string name="authentication_blocked_title">Мы не смогли авторизовать Вас</string>
+    <string name="authentication_blocked_message">Наши роботы считают, что эта регистрация слишком похожа на спам. Если вы считаете, что это ошибка, пожалуйста, <a href="http://help.soundcloud.com/customer/portal/emails/new">свяжитесь с нашей поддержкой</a>
   </string>
-  <string name="authentication_captcha_message">Не удается пройти авторизацию. Пожалуйста, прежде, чем авторизоваться снова, авторизуйтесь на мобильной версии веб-сайта.</string>
-  <string name="authentication_email_taken_message">Этот адрес электронной почты уже зарегистрирован. Введите другой адрес или авторизуйтесь</string>
-  <string name="authentication_email_invalid_message">Домен, указанный вами, скорее всего не поддерживает функцию приема сообщений. Проверьте правильность написания.</string>
-  <string name="authentication_email_other_error_message">Извините, недостаточно данных для авторизации</string>
+    <string name="authentication_captcha_message">У нас возникли некоторые проблемы с вашей авторизацией. Пожалуйста, войдите через наш мобильный сайт, перед тем как попробовать войти снова.</string>
+    <string name="authentication_email_taken_message">Этот адрес уже используется в учетной записи. Введите другой адрес, или попробуйте войти в</string>
+    <string name="authentication_email_invalid_message">Домен, который Вы ввели, кажется, не может получать электронные письма. Вы правильно ввели его?</string>
+    <string name="authentication_email_other_error_message">К сожалению, мы не смогли зарегистрировать вас с предоставленными вами данными</string>
 
-  <!-- __DEEPLINKS -->
-  <string name="error_toast_user_not_logged_in">Чтобы открыть эту ссылку, необходимо авторизоваться</string>
+    <!-- __DEEPLINKS -->
+    <string name="error_toast_user_not_logged_in">Пожалуйста, войдите, чтобы открыть эту ссылку</string>
 
-  <!-- __EMAIL OPT-IN -->
-  <string name="optin_title">Новостное письмо от SoundCloud</string>
-  <string name="optin_question">Вы хотите получать новостные рассылки о SoundCloud?</string>
-  <string name="optin_info">Это включает в себя рассылку новостей, обновлений продукта, специальные предложения и опросы. Вы можете отменить это решение позже. Для этого, зайдите на Soundcloud.com и перейдите к настройкам.</string>
-  <string name="optin_yes">Да, пожалуйста</string>
-  <string name="optin_no">Нет, спасибо</string>
+    <!-- __EMAIL OPT-IN -->
+    <string name="optin_title">Новостная рассылка SoundCloud</string>
+    <string name="optin_question">Хотите получать обновления SoundCloud на электронную почту?</string>
+    <string name="optin_info">Это включает в себя новости, обновления продукта, специальные предложения и обзоры. Вы можете отозвать свое согласие в любое время. Чтобы сделать это, откройте Soundcloud.com и перейдите к настройкам.</string>
+    <string name="optin_yes">Да, пожалуйста</string>
+    <string name="optin_no">Нет, спасибо</string>
 
-  <!-- __EMPTY STATES -->
-  <string name="info_empty_other_message">Пользователь еще не добавил информацию о себе.</string>
-  <string name="info_empty_you_message">Ваш профиль пуст</string>
-  <string name="info_empty_you_secondary">Чтобы отредактировать свой профиль, вам нужно войти в SoundCloud на компьютере.</string>
-  <string name="list_empty_activity_message">У вас еще нет истории активности</string>
-  <string name="list_empty_activity_secondary">Узнайте подробнее об обмене музыкой в нашей службе 101S</string>
-  <string name="list_empty_stream_action">Найти к кому подписаться</string>
-  <string name="list_empty_stream_message">Подписывайтесь к вашим любимым исполнителям, группам и подкастерам, и слушайте их последние записи</string>
-  <string name="list_empty_user_followers_message">У вас нет еще ни одного подписчика.</string>
-  <string name="list_empty_user_followers_secondary">Делитесь вашими любимыми записями и плейлистами, и объединяйтесь с людьми с похожими интересами</string>
-  <string name="list_empty_user_following_action">Найти к кому подписаться</string>
-  <string name="list_empty_user_following_message">Подписывайтесь к любимым исполнителям, группам и кураторам, и слушайте их последние записи</string>
-  <string name="list_empty_user_likes_message">Ставьте отметки \"Нравится\" напротив вашей любимой музыки, чтобы позже послушать снова</string>
-  <string name="list_empty_user_sounds_message">Переопубликуйте музыку, чтобы поделиться со своими подписчиками</string>
-  <string name="empty_playlist_title">Плейлист пуст</string>
-  <string name="empty_playlist_description">Этот плейлист пуст.</string>
-  <string name="list_empty_user_playlists_message">%1$s пока не имеет ни одного плейлиста.</string>
-  <string name="list_empty_you_playlists_message">Создавайте плейлисты с подборками любимой музыки</string>
-  <string name="list_empty_liked_playlists_message">Лайкните ваши любимые плейлисты, чтобы воспроизводить их снова</string>
-  <string name="empty_user_likes_text">%1$s еще не имеет\nпредпочтений.</string>
-  <string name="empty_user_followers_text">%1$s еще не имеет\nни одного подписчика.</string>
-  <string name="empty_user_followings_text">%1$s еще не имеет \nни одной подписки.</string>
-  <string name="empty_user_tracks_text">%1$s не имеет закачанной \nмузыки в открытом доступе.</string>
+    <!-- __EMPTY STATES -->
+    <string name="info_empty_other_message">Этот пользователь еще не добавил информацию о себе.</string>
+    <string name="info_empty_you_message">Ваш профиль пуст</string>
+    <string name="info_empty_you_secondary">Пожалуйста, войдите в SoundCloud, чтобы отредактировать свой профиль</string>
+    <string name="list_empty_activity_message">У вас пока нет какой-либо активности</string>
+    <string name="list_empty_activity_secondary">Узнайте больше о том, как делиться аудио на нашем ресурсе 101</string>
+    <string name="list_empty_stream_action">Найдите людей, за которыми вы хотите следить</string>
+    <string name="list_empty_stream_message">Следите за вашими любимыми исполнителями, групп и подкасты, чтобы услышать их самые свежие треки</string>
+    <string name="list_empty_user_followers_message">У Вас пока нет подписчиков.</string>
+    <string name="list_empty_user_followers_secondary">Поделитесь своими любимыми треками и плейлистами, чтобы построить свое сообщество</string>
+    <string name="list_empty_user_following_action">Найти людей, чтобы следить за ними</string>
+    <string name="list_empty_user_following_message">Следите за вашими любимыми исполнителями, группами и кураторами, чтобы услышать все их последние треки</string>
+    <string name="list_empty_user_likes_message">Поставьте лайк вашим любимым записям, чтобы услышать их снова</string>
+    <string name="list_empty_user_sounds_message">Сделайте репост аудио, чтобы поделиться со своими подписчиками</string>
+    <string name="empty_playlist_title">Пустой плейлист</string>
+    <string name="empty_playlist_description">В этом плейлисте еще нет треков</string>
+    <string name="list_empty_user_playlists_message">У %1$s в настоящее время нет плейлистов.</string>
+    <string name="list_empty_you_playlists_message">Создайте плейлисты, чтобы сделать миксы любимых звуков</string>
+    <string name="list_empty_liked_playlists_message">Поставьте лайк на Ваши любимые плейлисты, чтобы услышать их снова</string>
+    <string name="empty_user_likes_text">%1$s пока не выбрал, чтобы поставить лайки</string>
+    <string name="empty_user_followers_text">За %1$s никто пока не следит.</string>
+    <string name="empty_user_followings_text">%1$s ни за кем еще не следит.</string>
+    <string name="empty_user_tracks_text">%1$s пока не загрузил никаких публичных аудио.</string>
 
-  <!-- __ERRORS -->
-  <string name="error_recording_message">Произошел сбой во время записи.\n Возможно ваше устройство не поддерживает текущую конфигурацию записи. Вы можете изменить конфигурацию в настройках приложения.</string>
-  <string name="error_unauthorized_message">Возникла проблема с вашей учетной записью. Чтобы продолжить использовать приложение, нужно, чтобы вы повторно вошли в SoundCloud.</string>
-  <string name="error_unauthorized_title">Проблема с учетной записью</string>
-  <string name="error_loading_url">Не удалось загрузить URL</string>
-  <string name="error_soundcloud_no_response">SoundCloud не отвечает.</string>
-  <string name="error_no_internet">Нет сети Интернет</string>
-  <string name="error_connect_and_try_again">Подключитесь и повторите попытку.</string>
-  <string name="appending_failed">Сбой загрузки. Нажмите, чтобы повторить попытку</string>
-  <string name="crop_image_error">Сбой при обрезке изображения.</string>
-  <string name="error_server_problems_message">Произошел сбой при обработке вашего запроса. Повторите попытку позже.</string>
-  <string name="connection_list_error">Возможно, проблемы со связью. Повторите попытку через некоторое время.</string>
-  <string name="connect_failure">Не удалось соединиться с %1$s</string>
-  <!-- signup scope was revoked on server side -->
-  <string name="signup_scope_revoked">Ой! Нам не удалось зарегистрировать вас.\nПопробуйте обновить приложение или зарегистрироваться на SoundCloud.com.</string>
+    <!-- __ERRORS -->
+    <string name="error_recording_message">Произошла ошибка во время записи.\n Устройство может не поддерживать текущую конфигурацию записи. Вы можете изменить конфигурации в настройках приложения.</string>
+    <string name="error_unauthorized_message">У нас возникли проблемы с вашей учетной записью. Вам нужно снова войти в SoundCloud, прежде чем вы можете продолжать использовать приложение.</string>
+    <string name="error_unauthorized_title">Ошибка</string>
+    <string name="error_loading_url">Возникла проблема при загрузке URL</string>
+    <string name="error_soundcloud_no_response">SoundCloud не отвечает.</string>
+    <string name="error_no_internet">Интернет не подключен.</string>
+    <string name="error_connect_and_try_again">Подключитесь и попробуйте еще раз.</string>
+    <string name="appending_failed">Ошибка загрузки. Нажмите, чтобы попробовать еще раз</string>
+    <string name="crop_image_error">Ошибка кадрирования изображения.</string>
+    <string name="error_server_problems_message">Проблема при обработке вашего запроса. Пожалуйста, повторите попытку позднее.</string>
+    <string name="connection_list_error">Там, кажется, проблема с подключением. Пожалуйста, попробуйте еще раз в ближайшее время.</string>
+    <string name="connect_failure">Сбой соединения с %1$s</string>
+    <!-- signup scope was revoked on server side -->
+    <string name="signup_scope_revoked">Упс! Мы не смогли зарегистрировать вас\nПожалуйста, попробуйте обновить приложение или зарегистрироваться через SoundCloud.com.</string>
 
-  <string name="follow_blocked_title">Подписка заблокирована</string>
-  <string name="follow_blocked_content">%s заблокировал вас.</string>
-  <string name="follow_blocked_content_long">%s попросил нас заблокировать вашу учетную запись от подписки на него</string>
-  <string name="follow_age_restricted_title">Подписка заблокирована</string>
-  <string name="follow_age_restricted_content">Пользователи %1$s+ могут подписаться на %2$s.</string>
-  <string name="follow_age_restricted_content_long">К сожалению, только пользователи, достигшие %1$s лет, могут подписываться на %2$s.</string>
-  <string name="follow_age_unknown_title">Пожалуйста, подтвердите свой возраст</string>
-  <string name="follow_age_unknown_content">Введите возраст, чтобы подписаться на %s.</string>
-  <string name="follow_age_unknown_content_long">Чтобы подписаться на  %s, подвердите, что достигли требуемого возраста.</string>
+    <string name="follow_blocked_title">Следовать за теми, кто заблокирован</string>
+    <string name="follow_blocked_content">%s заблокировал вас.</string>
+    <string name="follow_blocked_content_long">%s попросил нас запретить подписку с вашего аккаунта.</string>
+    <string name="follow_age_restricted_title">Следовать за теми, кто заблокирован</string>
+    <string name="follow_age_restricted_content">Пользователи %1$s + могут следовать за %2$s.</string>
+    <string name="follow_age_restricted_content_long">К сожалению, только пользователи, достигшие %1$s лет, могут подписываться на %2$s.</string>
+    <string name="follow_age_unknown_title">Пожалуйста, подтвердите ваш возраст</string>
+    <string name="follow_age_unknown_content">Введите возраст для подписок %s.</string>
+    <string name="follow_age_unknown_content_long">Чтобы подписаться на  %s, подтвердите, что вы достигли требуемого возраста.</string>
 
-  <!-- __EXPLORE -->
-  <string name="explore_genres">Жанры</string>
-  <string name="explore_genre_header_music">Музыка</string>
-  <string name="explore_genre_header_audio">Аудио</string>
-  <string name="explore_category_trending_music">Музыка</string>
-  <string name="explore_category_trending_audio">Аудио</string>
+    <!-- __EXPLORE -->
+    <string name="explore_genres">Жанры</string>
+    <string name="explore_genre_header_music">Музыка</string>
+    <string name="explore_genre_header_audio">Аудио</string>
+    <string name="explore_category_trending_music">Музыка</string>
+    <string name="explore_category_trending_audio">Аудио</string>
 
-  <!-- __IMAGES -->
-  <string name="add_image">Добавить\nизображение</string>
-  <string name="image_load_error">Не удалось загрузить изображение</string>
-  <string name="image_where">Как вы хотите добавить изображение?</string>
-  <string name="take_new_picture">Сделать новый снимок</string>
-  <string name="take_new_picture_error">Не удалось сфотографировать</string>
-  <string name="use_existing_image">Использовать текущее изображение</string>
-  <string name="use_existing_image_error">Не удалось использовать текущее изображение</string>
+    <!-- __IMAGES -->
+    <string name="add_image">Добавить изображение</string>
+    <string name="image_load_error">Проблема при загрузке изображения</string>
+    <string name="image_where">Как вы хотите добавить изображение?</string>
+    <string name="take_new_picture">Новое изображение</string>
+    <string name="take_new_picture_error">Не удалось сделать фото</string>
+    <string name="use_existing_image">Существующее изображение</string>
+    <string name="use_existing_image_error">Не удается использовать существующее изображение</string>
 
-  <!-- __NAVIGATION -->
-  <string name="navigation_drawer_open">Открыть панель навигации</string>
-  <string name="navigation_drawer_close">Закрыть панель навигации</string>
-  <string name="side_menu_activity">Активность</string>
-  <string name="side_menu_record">Запись</string>
-  <string name="side_menu_stream">Лента</string>
-  <string name="side_menu_you">Вы</string>
-  <string name="side_menu_settings">Настройки</string>
-  <string name="side_menu_likes">Нравится</string>
-  <string name="side_menu_who_to_follow">Найти подписки</string>
-  <string name="side_menu_profile">Профиль</string>
-  <string name="side_menu_playlists">Плейлисты</string>
-  <string name="side_menu_explore">Найти музыку</string>
-  <string name="title_search">Поиск</string>
-  <string name="title_settings">Настройки</string>
-  <string name="title_feedback">Обратная связь</string>
+    <!-- __NAVIGATION -->
+    <string name="navigation_drawer_open">Открыть панель навигации</string>
+    <string name="navigation_drawer_close">Закрыть панель навигации</string>
+    <string name="side_menu_activity">Активность</string>
+    <string name="side_menu_record">Запись</string>
+    <string name="side_menu_stream">Поток</string>
+    <string name="side_menu_you">Вы</string>
+    <string name="side_menu_settings">Настройки</string>
+    <string name="side_menu_likes">Лайки</string>
+    <string name="side_menu_who_to_follow">Кто в подписчиках</string>
+    <string name="side_menu_profile">Профиль</string>
+    <string name="side_menu_playlists">Плейлисты</string>
+    <string name="side_menu_explore">Просмотреть</string>
+    <string name="title_search">Поиск</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_feedback">Отправить отчет об ошибке</string>
 
-  <!-- __NOTIFICATIONS -->
-  <string name="dashboard_notifications_activity_message_likes">%1$s нравится %2$s</string>
-  <string name="dashboard_notifications_message_incoming">от %s</string>
-  <string name="dashboard_notifications_message_incoming_2">от %1$s и %2$s</string>
-  <string name="dashboard_notifications_message_incoming_others">от %1$s, %2$s и других</string>
-  <string name="dashboard_notifications_ticker">%s новая музыка</string>
-  <string name="dashboard_notifications_ticker_single">1 новая запись</string>
-  <string name="dashboard_notifications_title">%s новая музыка</string>
-  <string name="dashboard_notifications_title_single">1 новая запись</string>
-  <string name="dashboard_notifications_activity_message_repost">%1$s переопубликовал %2$s</string>
+    <!-- __NOTIFICATIONS -->
+    <string name="dashboard_notifications_activity_message_likes">%1$s нравится %2$s</string>
+    <string name="dashboard_notifications_message_incoming">от %s</string>
+    <string name="dashboard_notifications_message_incoming_2">от %1$s и %2$s</string>
+    <string name="dashboard_notifications_message_incoming_others">от %1$s, %2$s и других</string>
+    <string name="dashboard_notifications_ticker">%s новых звуков</string>
+    <string name="dashboard_notifications_ticker_single">1 новый звук</string>
+    <string name="dashboard_notifications_title">%s новых звуков</string>
+    <string name="dashboard_notifications_title_single">1 новый звук</string>
+    <string name="dashboard_notifications_activity_message_repost">%1$s сделал репост %2$s</string>
 
-  <!-- __ONBOARDING -->
-  <string name="suggested_users_genres_large_title">Выберите свои любимые категории</string>
-  <string name="suggested_users_genres_sub_title">Подписывайтесь к популярным личностям в сообществе SoundCloud.</string>
-  <string name="suggested_users_section_facebook">Facebook</string>
-  <string name="suggested_users_section_music">Музыка</string>
-  <string name="suggested_users_section_audio">Аудио</string>
-  <string name="suggested_users_section_empty">Ничего не найдено</string>
-  <string name="suggested_users_section_error">Ничего не найдено, нажмите, чтобы повторить попытку</string>
-  <string name="suggested_users_btn_select_all">Выбрать все</string>
-  <string name="suggested_users_btn_deselect_all">Снять все выделения</string>
-  <string name="problem_connecting_to_SoundCloud">Не удалось \nсвязаться с SoundCloud.</string>
-  <string name="and_conjunction">%1$s и %2$s</string>
-  <string name="try_again">Повторите попытку</string>
-  <string name="finish">Завершить</string>
-  <string name="error_onboarding_fail">Мы все еще заполняем вашу ленту. Мы будем продолжать, пока все не заработает! Тем временем, вы можете поискать и открыть для себя другую музыку или аудиозаписи.</string>
-  <string name="gender">Пол</string>
-  <string name="onboarding_create_account">Создать учетную запись</string>
-  <string name="onboarding_indicate_gender">Укажите свой пол</string>
-  <string name="onboarding_custom_gender_hint">Введите пол</string>
-  <string name="onboarding_gender_option_female">Женский</string>
-  <string name="onboarding_gender_option_male">Мужской</string>
-  <string name="onboarding_gender_option_custom">Изменить</string>
-  <string name="onboarding_gender_option_nopref">Предпочитаю не указывать</string>
+    <!-- __ONBOARDING -->
+    <string name="suggested_users_genres_large_title">Выберите свои любимые категории</string>
+    <string name="suggested_users_genres_sub_title">Следуйте за людьми, задающими тон в сообществе SoundCloud.</string>
+    <string name="suggested_users_section_facebook">Facebook</string>
+    <string name="suggested_users_section_music">Музыка</string>
+    <string name="suggested_users_section_audio">Аудио</string>
+    <string name="suggested_users_section_empty">Результатов не найдено</string>
+    <string name="suggested_users_section_error">Ничего не найдено, нажмите, чтобы повторить</string>
+    <string name="suggested_users_btn_select_all">Выбрать все</string>
+    <string name="suggested_users_btn_deselect_all">Отменить все</string>
+    <string name="problem_connecting_to_SoundCloud">Возникла проблема при подключении к\nSoundCloud.</string>
+    <string name="and_conjunction">%1$s и %2$s</string>
+    <string name="try_again">Попробовать еще раз</string>
+    <string name="finish">Завершить</string>
+    <string name="error_onboarding_fail">Мы продолжаем работать над наполнением Вашего потока. Мы будем продолжать пробовать, пока все не заработает! А пока, вы можете попробовать поискать другую музыку и аудио.</string>
+    <string name="age">Возраст</string>
+    <string name="enter_age_hint">Введите свой возраст</string>
+    <string name="gender">Пол</string>
+    <string name="onboarding_create_account">Создать учетную запись</string>
+    <string name="onboarding_indicate_gender">Укажите свой пол</string>
+    <string name="onboarding_custom_gender_hint">Введите пол</string>
+    <string name="onboarding_gender_option_female">Женский</string>
+    <string name="onboarding_gender_option_male">Мужской</string>
+    <string name="onboarding_gender_option_custom">Особый</string>
+    <string name="onboarding_gender_option_nopref">Предпочитаю не говорить</string>
 
-  <!-- __ONBOARDING CATEGORIES -->
-  <string name="category_facebook_friends" tools:ignore="UnusedResources">Друзья в Facebook</string>
-  <string name="category_facebook_likes" tools:ignore="UnusedResources">Отметки \"Нравится\" Facebook</string>
-  <string name="category_rock" tools:ignore="UnusedResources">Рок</string>
-  <string name="category_indie" tools:ignore="UnusedResources">Инди</string>
-  <string name="category_dubstep" tools:ignore="UnusedResources">Дабстеп</string>
-  <string name="category_pop" tools:ignore="UnusedResources">Поп</string>
-  <string name="category_punk" tools:ignore="UnusedResources">Панк</string>
-  <string name="category_country" tools:ignore="UnusedResources">Страна</string>
-  <string name="category_alternative" tools:ignore="UnusedResources">Альтернатива</string>
-  <string name="category_electronic" tools:ignore="UnusedResources">Электронная</string>
-  <string name="category_house" tools:ignore="UnusedResources">Хаус</string>
-  <string name="category_rnb_and_soul" tools:ignore="UnusedResources">Ритм-н-блюз и соул</string>
-  <string name="category_hiphop_and_rap" tools:ignore="UnusedResources">Хип-хоп и рэп</string>
-  <string name="category_reggae" tools:ignore="UnusedResources">Рэгги</string>
-  <string name="category_singer_songwriter" tools:ignore="UnusedResources">Автор-исполнитель</string>
-  <string name="category_jazz_and_blues" tools:ignore="UnusedResources">Джаз и блюз</string>
-  <string name="category_metal" tools:ignore="UnusedResources">Металл</string>
-  <string name="category_classical" tools:ignore="UnusedResources">Классическая</string>
-  <string name="category_folk_and_world" tools:ignore="UnusedResources">Фолк и этническая</string>
-  <string name="category_ideas" tools:ignore="UnusedResources">Идеи</string>
-  <string name="category_business" tools:ignore="UnusedResources">Бизнес</string>
-  <string name="category_religion_and_spirituality" tools:ignore="UnusedResources">Религия и духовность</string>
-  <string name="category_audiobooks" tools:ignore="UnusedResources">Аудиокниги</string>
-  <string name="category_arts_and_entertainment" tools:ignore="UnusedResources">Искусство и развлечения</string>
-  <string name="category_sports" tools:ignore="UnusedResources">Спорт</string>
-  <string name="category_science_and_technology" tools:ignore="UnusedResources">Наука и техника</string>
-  <string name="category_comedy" tools:ignore="UnusedResources">Юмор</string>
-  <string name="category_news" tools:ignore="UnusedResources">Новости</string>
-  <string name="category_storytelling" tools:ignore="UnusedResources">Истории</string>
-  <string name="category_learning" tools:ignore="UnusedResources">Обучение</string>
+    <!-- __ONBOARDING CATEGORIES -->
+    <string name="category_facebook_friends" tools:ignore="UnusedResources">Facebook Друзья</string>
+    <string name="category_facebook_likes" tools:ignore="UnusedResources">Facebook Лайки</string>
+    <string name="category_rock" tools:ignore="UnusedResources">Рок</string>
+    <string name="category_indie" tools:ignore="UnusedResources">Инди</string>
+    <string name="category_dubstep" tools:ignore="UnusedResources">Дабстеп</string>
+    <string name="category_pop" tools:ignore="UnusedResources">Поп</string>
+    <string name="category_punk" tools:ignore="UnusedResources">Панк</string>
+    <string name="category_country" tools:ignore="UnusedResources">Кантри</string>
+    <string name="category_alternative" tools:ignore="UnusedResources">Альтернатива</string>
+    <string name="category_electronic" tools:ignore="UnusedResources">Электронная</string>
+    <string name="category_house" tools:ignore="UnusedResources">Хаус</string>
+    <string name="category_rnb_and_soul" tools:ignore="UnusedResources">RnB и Soul</string>
+    <string name="category_hiphop_and_rap" tools:ignore="UnusedResources">Хип-хоп и Рэп</string>
+    <string name="category_reggae" tools:ignore="UnusedResources">Регги</string>
+    <string name="category_singer_songwriter" tools:ignore="UnusedResources">Авторская</string>
+    <string name="category_jazz_and_blues" tools:ignore="UnusedResources">Джаз и блюз</string>
+    <string name="category_metal" tools:ignore="UnusedResources">Металл</string>
+    <string name="category_classical" tools:ignore="UnusedResources">Классика</string>
+    <string name="category_folk_and_world" tools:ignore="UnusedResources">Фолк и этно</string>
+    <string name="category_ideas" tools:ignore="UnusedResources">Идеи</string>
+    <string name="category_business" tools:ignore="UnusedResources">Бизнес</string>
+    <string name="category_religion_and_spirituality" tools:ignore="UnusedResources">Религия и духовность</string>
+    <string name="category_audiobooks" tools:ignore="UnusedResources">Аудиокниги</string>
+    <string name="category_arts_and_entertainment" tools:ignore="UnusedResources">Искусство и развлечения</string>
+    <string name="category_sports" tools:ignore="UnusedResources">Спорт</string>
+    <string name="category_science_and_technology" tools:ignore="UnusedResources">Наука и техника</string>
+    <string name="category_comedy" tools:ignore="UnusedResources">Комедия</string>
+    <string name="category_news" tools:ignore="UnusedResources">Новости</string>
+    <string name="category_storytelling" tools:ignore="UnusedResources">Рассказ</string>
+    <string name="category_learning" tools:ignore="UnusedResources">Обучение</string>
 
-  <!-- __PLAYABLE -->
-  <string name="private_indicator">Личное</string>
-  <string name="recording_pending_upload">Ожидание загрузки</string>
-  <string name="recording_uploading">Загрузка...</string>
-  <string name="recording_upload_failed">Сбой загрузки</string>
-  <string name="title_now_playing">Играет</string>
-  <string name="like_toast_overflow_action">Сохранено в ваших лайках</string>
-  <string name="unlike_toast_overflow_action">Удалено из ваших лайков</string>
-  <string name="like_error_toast_overflow_action">Статус лайка не изменился</string>
-  <string name="reposted_to_followers">Переопубликовано вашим подписчикам</string>
-  <string name="unposted_to_followers">Запись удалена</string>
-  <string name="repost_error_toast_overflow_action">Статус переопубликованной записи не может быть изменен</string>
+    <!-- __PLAYABLE -->
+    <string name="private_indicator">Приватное</string>
+    <string name="recording_pending_upload">Ожидает загрузки</string>
+    <string name="recording_uploading">Загрузка...</string>
+    <string name="recording_upload_failed">Загрузка не удалась</string>
+    <string name="title_now_playing">Сейчас играет</string>
+    <string name="like_toast_overflow_action">Добавлено в ваши лайки</string>
+    <string name="unlike_toast_overflow_action">Удалено из ваших лайков</string>
+    <string name="like_error_toast_overflow_action">Статус лайка не был изменен</string>
+    <string name="reposted_to_followers">Репост для вашим подписчиков</string>
+    <string name="unposted_to_followers">Пост удален</string>
+    <string name="repost_error_toast_overflow_action">Статус репоста не может быть изменен</string>
 
-  <!-- __PLAYER -->
-  <string name="share">Поделиться</string>
-  <string name="repost">Переопубликовать</string>
-  <string name="unpost">Удалить запись</string>
-  <string name="comment_at">Комментировать на %s</string>
-  <string name="comment_on">Комментировать %s</string>
-  <string name="your_comment_has_been_posted">Ваш комментарий опубликован</string>
-  <string name="comment_could_not_be_created_at_this_time">Сейчас не удается создать комментарий</string>
-  <string name="share_track_by_artist_on_soundcloud">Послушайте %1$s исп. %2$s #np на #SoundCloud\n%3$s</string>
-  <string name="share_track_on_soundcloud">Послушайте %1$s #np на #SoundCloud\n%2$s</string>
-  <string name="share_subject">%s - SoundCloud</string>
-  <string name="info">Сведения</string>
-  <string name="uploaded_at">Загружено %s</string>
-  <string name="track_info_no_description">Нет описания</string>
-  <string name="playback_error">Не воспроизводится</string>
-  <string name="playback_error_connection">Пожалуйста, проверьте ваше соединение. Нажмите, чтобы повторить попытку.</string>
-  <string name="playback_error_unable_to_play">Трек не может быть передан</string>
-  <string name="play">Воспроизведение</string>
-  <string name="pause">Пауза</string>
-  <string name="previous">Предыдущий</string>
-  <string name="next">Следующий</string>
+    <!-- __PLAYER -->
+    <string name="share">Поделиться</string>
+    <string name="repost">Репост</string>
+    <string name="unpost">Удалить</string>
+    <string name="comment_at">Комментировать в %s</string>
+    <string name="comment_on">Комментировать %s</string>
+    <string name="your_comment_has_been_posted">Ваш комментарий был размещен</string>
+    <string name="comment_could_not_be_created_at_this_time">Комментарий не может быть создан в настоящее время</string>
+    <string name="share_track_by_artist_on_soundcloud">Слушать %1$s от %2$s #np на #SoundCloud\n%3$s</string>
+    <string name="share_track_on_soundcloud">Слушать %1$s #np на #SoundCloud\n%2$s</string>
+    <string name="share_subject">%s - SoundCloud</string>
+    <string name="info">Информация</string>
+    <string name="uploaded_at">Загружено %s</string>
+    <string name="track_info_no_description">Описание недоступно</string>
+    <string name="playback_error">Не может быть проиграно</string>
+    <string name="playback_error_connection">Пожалуйста, проверьте ваше соединение. Нажмите, чтобы попробовать еще раз.</string>
+    <string name="playback_error_unable_to_play">Трек не может передаваться</string>
+    <string name="playback_missing_playable_tracks">Нет проигрываемых треков</string>
+    <string name="play">Воспроизведение</string>
+    <string name="pause">Пауза</string>
+    <string name="previous">Предыдущий</string>
+    <string name="next">Следующий</string>
+    <string name="casting_to">Передача на</string>
 
-  <!-- __COMMENTS -->
-  <string name="user_commented_at">%1$s на %2$s</string>
+    <!-- __COMMENTS -->
+    <string name="user_commented_at">%1$s на %2$s</string>
 
-  <!-- __PAYMENTS -->
-  <string name="payments_unknown_error">Неизвестная ошибка</string>
-  <string name="payments_connection_error">Ошибка соединения</string>
-  <string name="payments_connection_unavailable">Счет Google Play не доступен</string>
-  <string name="payments_user_cancelled">Отменено пользователем</string>
-  <string name="payments_none_available">Нет доступных подписок</string>
-  <string name="payments_verifying">Подтверждение</string>
-  <string name="payments_verify_fail">Не удалось подтвердить</string>
-  <string name="payments_verify_timeout">Невозможно подтвердить покупку</string>
-  <string name="payments_success">Успешно</string>
-  <string name="payments_error_title">Ошибка платежа</string>
-  <string name="payments_error_already_subscribed">Уже существует подписка, связанная с вашей учетной записью. Проблема не исчезла? Обратитесь в Центр поддержки.</string>
-  <string name="payments_error_stale_checkout">Невозможно восстановить вашу подписку.</string>
-  <string name="payments_error_wrong_user">У вас есть активные подписки, но они связаны с другим пользователем.</string>
-  <string name="payments_error_contact_support">Связаться с Центром поддержки</string>
+    <!-- __PAYMENTS -->
+    <string name="payments_unknown_error">Неизвестная ошибка</string>
+    <string name="payments_connection_error">Ошибка соединения</string>
+    <string name="payments_connection_unavailable">Счет Google Play не доступен</string>
+    <string name="payments_user_cancelled">Отменено пользователем</string>
+    <string name="payments_none_available">Нет доступных подписок</string>
+    <string name="payments_verifying">Проверка</string>
+    <string name="payments_verify_fail">Проверка не удалась</string>
+    <string name="payments_verify_timeout">Невозможно подтвердить покупку</string>
+    <string name="payments_success">Успешно</string>
+    <string name="payments_error_title">Ошибка платежа</string>
+    <string name="payments_error_already_subscribed">Уже существует подписка, связанная с вашей учетной записью. Остаются проблемы? Свяжитесь со службой поддержки.</string>
+    <string name="payments_error_stale_checkout">Невозможно восстановить вашу подписку.</string>
+    <string name="payments_error_wrong_user">У вас есть активные подписки, но они связаны с другим пользователем.</string>
+    <string name="payments_error_contact_support">Связаться со службой поддержки</string>
 
-  <!-- __PLAYLISTS -->
-  <string name="tab_title_user_playlists">Плейлисты</string>
-  <string name="activity_title_playlist">Плейлист</string>
-  <string name="your_playlists_tab">Ваши плейлисты</string>
-  <string name="liked_playlists_tab">Понравившиеся плейлисты</string>
-  <string name="playlist_removed">Такой плейлист отсутствует на SoundCloud</string>
-  <string name="playlist_load_error">Не удалось загрузить этот плейлист</string>
-  <string name="playlist_new_info_header_text">%1$s, %2$s</string>
-  <string name="shuffle_playlist">Перемешать плейлист</string>
-  <string name="add_to_playlist">Добавить в плейлист</string>
-  <string name="remove_from_playlist">Удалить из плейлиста</string>
+    <!-- __PLAYLISTS -->
+    <string name="tab_title_user_playlists">Плейлисты</string>
+    <string name="activity_title_playlist">Плейлист</string>
+    <string name="your_playlists_tab">Ваши плейлисты</string>
+    <string name="liked_playlists_tab">Понравившиеся плейлисты</string>
+    <string name="playlist_removed">Этот плейлист не был найден на SoundCloud</string>
+    <string name="playlist_load_error">Не удалось загрузить этот плейлист</string>
+    <string name="playlist_new_info_header_text">%1$s, %2$s</string>
+    <string name="shuffle_playlist">Перемешать плейлист</string>
+    <string name="add_to_playlist">Добавить в плейлист</string>
+    <string name="remove_from_playlist">Удалить из плейлиста</string>
 
-  <!-- __PLAYLIST CREATION -->
-  <string name="add_track_to_playlist">Добавить в плейлист...</string>
-  <string name="added_to_playlist">Добавлено в плейлист</string>
-  <string name="create_new_playlist">Создать новый плейлист</string>
-  <string name="create_new_playlist_hint">Введите название плейлиста</string>
-  <string name="error_new_playlist_blank_title">Пожалуйста, введите правильное название</string>
-  <string name="add_playlist_private">Личное</string>
+    <!-- __PLAYLIST CREATION -->
+    <string name="add_track_to_playlist">Добавить в плейлист...</string>
+    <string name="added_to_playlist">Добавлено в плейлист</string>
+    <string name="create_new_playlist">Создать новый плейлист</string>
+    <string name="create_new_playlist_hint">Введите имя плейлиста</string>
+    <string name="error_new_playlist_blank_title">Пожалуйста, введите допустимое название</string>
+    <string name="add_playlist_private">Частный</string>
+    <string name="add_playlist_offline">Доступен оффлайн</string>
 
-  <!-- __PROFILE -->
-  <string name="tab_title_user_info">Сведения</string>
-  <string name="tab_title_user_sounds">Публикации</string>
-  <string name="tab_title_user_likes">Нравится</string>
-  <string name="tab_title_user_followers">Подписчики</string>
-  <string name="tab_title_user_followings">Подписан</string>
-  <string name="discogs">Discogs</string>
-  <string name="myspace">MySpace</string>
+    <!-- __PROFILE -->
+    <string name="tab_title_user_info">Информация</string>
+    <string name="tab_title_user_sounds">Сообщения</string>
+    <string name="tab_title_user_likes">Лайки</string>
+    <string name="tab_title_user_followers">Подписчики</string>
+    <string name="tab_title_user_followings">Подписки</string>
+    <string name="discogs">Дискографии</string>
+    <string name="myspace">MySpace</string>
 
-  <!-- __RECORD -->
-  <string name="rec_title_generating_waveform">Пожалуйста, подождите...</string>
-  <string name="rec_title_idle_rec">Записать</string>
-  <string name="rec_title_recording">Запись</string>
-  <string name="rec_title_idle_play">Остановлено</string>
-  <string name="rec_title_playing">Играет</string>
-  <string name="rec_title_editing">Редактировать</string>
-  <string name="record_another_sound">Сделать другую запись</string>
-  <string name="record_insert_sd_card">Чтобы сделать запись, вставьте SD карту.</string>
-  <string name="record_instructions">Поделитесь своей музыкой</string>
-  <string name="record_storage_is_full">Нет свободного места</string>
-  <string name="recorded_afternoon">%s послеполудня</string>
-  <string name="recorded_at">%1$s в %2$s</string>
-  <string name="recorded_evening">%s вечера</string>
-  <string name="recorded_morning">%s утра</string>
-  <string name="recorded_night">%s ночи</string>
-  <string name="recording_not_found">Запись не найдена</string>
-  <string name="rec_your_sound_is_saved_locally_at">Ваша музыка сохраняется на устройство</string>
-  <string name="dialog_confirm_delete_recording_message">Вы уверены, что хотите удалить эту запись?</string>
-  <string name="dialog_reset_recording_message">Перезапустить? Запись будет удалена.</string>
-  <string name="dialog_unsaved_recordings_message">Есть несохраненные записи. Отмеченные записи будут сохранены.</string>
-  <string name="btn_revert_to_original">Вернуть в исходное состояние</string>
-  <string name="fade_toggle_on">Нарастание/затухание</string>
-  <string name="fade_toggle_off">Без нарастания/затухания</string>
-  <string name="optimize_toggle_on">С оптимизацией</string>
-  <string name="optimize_toggle_off">Без оптимизации</string>
-  <string name="create_autosave_message">Ваши записи будут автоматически сохранены по мере их создания. Вы можете их найти в списке вашей музыки.</string>
-  <string name="create_regenerating_waveform_message">Восстановление сигнала... Пожалуйста, подождите.</string>
-  <string name="dialog_revert_recording_message">Все ваши изменения будут потеряны. Продолжить?</string>
-  <string name="cloud_recorder_event_message">Запись для %s</string>
-  <string name="cloud_recorder_event_title">Идет запись</string>
-  <string name="cloud_recorder_playback_event_title">Идет воспроизведение</string>
+    <!-- __RECORD -->
+    <string name="rec_title_generating_waveform">Пожалуйста, подождите...</string>
+    <string name="rec_title_idle_rec">Запись</string>
+    <string name="rec_title_recording">Запись</string>
+    <string name="rec_title_idle_play">Приостановлено</string>
+    <string name="rec_title_playing">Играет</string>
+    <string name="rec_title_editing">Правка</string>
+    <string name="record_another_sound">Записать другой звук</string>
+    <string name="record_insert_sd_card">Пожалуйста, вставьте SD-карту для записи.</string>
+    <string name="record_instructions">Поделитесь своими Звуками</string>
+    <string name="record_storage_is_full">Хранилище заполнено</string>
+    <string name="recorded_afternoon">%s дня</string>
+    <string name="recorded_at">%1$s в %2$s</string>
+    <string name="recorded_evening">%s вечера</string>
+    <string name="recorded_morning">%s утра</string>
+    <string name="recorded_night">%s ночи</string>
+    <string name="recording_not_found">Запись не найдена</string>
+    <string name="rec_your_sound_is_saved_locally_at">Ваше аудио сохранено локально</string>
+    <string name="dialog_confirm_delete_recording_message">Вы уверены, что хотите удалить эту запись?</string>
+    <string name="dialog_reset_recording_message">Сброс? Запись будет удалена.</string>
+    <string name="dialog_unsaved_recordings_message">Найдены несохраненные записи. Отмеченные элементы будут сохранены.</string>
+    <string name="btn_revert_to_original">Возврат к оригиналу</string>
+    <string name="fade_toggle_on">Эффект Fade in/out</string>
+    <string name="fade_toggle_off">Без эффекта Fade in/out</string>
+    <string name="optimize_toggle_on">Оптимизированный</string>
+    <string name="optimize_toggle_off">Не оптимизировано</string>
+    <string name="create_autosave_message">Ваши записи будут автоматически сохранены после их создания. Вы можете найти их в вашем списке звуков.</string>
+    <string name="create_regenerating_waveform_message">Восстановление сигнала, пожалуйста, подождите.</string>
+    <string name="dialog_revert_recording_message">Вы потеряете все ваши изменения. Продолжить?</string>
+    <string name="cloud_recorder_event_message">Запись %s</string>
+    <string name="cloud_recorder_event_title">Запись в процессе</string>
+    <string name="cloud_recorder_playback_event_title">Воспроизводится</string>
 
-  <!-- __RECORD TIPS -->
-  <string-array name="record_suggestions">
-    <item>Почему бы вам не записать звуки улицы?</item>
-    <item>Запишите голосовые заметки в качестве напоминаний.</item>
-    <item>Нажмите кнопку REC, чтобы создать голосовой блог. Чем  вы поделитесь сегодня?</item>
-    <item>Чем вы занимаетесь сейчас?</item>
+    <!-- __RECORD TIPS -->
+    <string-array name="record_suggestions">
+    <item>Почему бы вам не записать звуки вашей улицы?</item>
+    <item>Запись голосовых заметок, как удобные напоминания.</item>
+    <item>Используйте кнопку REC, чтобы создать голосовой блог. Чем вы поделитесь сегодня?</item>
+    <item>Что вы делаете сейчас?</item>
     <item>Поймайте момент: первые слова ребенка</item>
-    <item>Поймайте момент: как разговаривает ваш питомец</item>
-    <item>Поймайте момент: голос дорогого вам человека</item>
-    <item>Собираетесь по магазинам? Запишите напоминания, чтобы не забыть список покупок</item>
-    <item>Появилась отличная идея? Запомните ее с помощью кнопки REC</item>
-    <item>Услышали недавно хорошую шутку? Поделитесь ею!</item>
-    <item>Наслаждаетесь интересной беседой? Почему бы не записать его для других поколений?</item>
-    <item>Запечатлите веселый момент в звуках</item>
-    <item>Знаете ли вы, что можно делать личные записи, если вы не хотите ими делиться?</item>
-    <item>Лучшее устройство записи у вас в кармане</item>
-    <item>Включите свой звук!</item>
-    <item>Прослушайте весь Интернет.</item>
-    <item>Включите звук всего мира.</item>
+    <item>Поймайте момент: звуки вашего питомца</item>
+    <item>Поймайте момент: голос того, о ком вы заботитесь</item>
+    <item>Собрались за покупками? Запишите напоминания, чтобы не забыть, что купить.</item>
+    <item>Возникла прекрасная идея? Запишите ее с помощью кнопки REC.</item>
+    <item>Слышали недавно хорошую шутку? Поделитесь ею!</item>
+    <item>Участвуете в интересном разговоре? Почему бы не записать его для потомков?</item>
+    <item>Захватите веселый момент в звуке</item>
+    <item>Знаете ли вы, что вы можете сохранять записи приватно, если не хотите делиться ими?</item>
+    <item>Иногда самым лучшим записывающим устройством является именно то, которое сейчас лежит рядом с вами.</item>
+    <item>Заставьте звучать себя!</item>
+    <item>Заставьте интернет звучать.</item>
+    <item>Заставьте звучать мир.</item>
     <item>Выразите себя!</item>
-    <item>Почему бы не записать дату вашей следующей встречи?</item>
-    <item>Нажмите REC и сохраните идею на будущее.</item>
-    <item>Используйте кнопку REC как помощь в учебе: сохраняйте ваши заметки на ходу.</item>
-    <item>Вы можете использовать кнопку REC для записи интервью и встреч.</item>
+    <item>Почему бы не записать вашу следующую встречу?</item>
+    <item>Нажмите REC и сохраните идеи на будущее.</item>
+    <item>Используйте кнопку REC в качестве помощи в учебе: сохраняйте заметки на ходу.</item>
+    <item>Вы можете использовать кнопку REC, чтобы записывать интервью и встречи.</item>
     <item>Запишите звук океанских волн на пляже</item>
-    <item>Запечатлите звуки оживленного города в час пик</item>
-    <item>Услышали необычный звук? Запишите его, нажав REC!</item>
-    <item>У вас вдохновение? Запишите идею, нажав REC.</item>
+    <item>Запишите звуки оживленного города в час пик</item>
+    <item>Услышали сумасшедший звук? Захватите его с помощью кнопки REC!</item>
+    <item>Чувствуете вдохновение? Захватите вашу идею с помощью кнопки REC.</item>
     <item>Есть идея для следующей записи? Сохраните ее, нажав кнопку REC</item>
     <item>Мелодия крутится у вас в голове? Запишите ее, нажав кнопку REC</item>
-    <item>Появились идеи для текста песни? Запишите их в этот же момент, нажав кнопку REC.</item>
+    <item>Идеи для текстов песен? Запишите их тут же с помощью кнопки REC.</item>
     <item>Что происходит прямо сейчас?</item>
-    <item>Запишите текущие события, что и как происходит, и поделитесь ими с миром.</item>
+    <item>Записывайте текущие события и делитесь ими с миром.</item>
     <item>Происходит что-то интересное? Сохраните момент в аудио.</item>
-    <item>Вы репортер? Расскажите миру, что происходит там, где вы находитесь.</item>
+    <item>Работаете на Citizen? Расскажите миру, что происходит там, где вы находитесь.</item>
   </string-array>
 
-  <!-- __SEARCH -->
-  <string name="search_hint">Поиск по SoundCloud</string>
-  <string name="search_settings_description">Найти музыку</string>
-  <string name="search_type_all">Все</string>
-  <string name="search_type_tracks">Дорожки</string>
-  <string name="search_type_playlists">Плейлисты</string>
-  <string name="search_type_people">Люди</string>
-  <string name="search_recent_tags">ПОСЛЕДНИЕ</string>
-  <string name="search_popular_tags">ПОПУЛЯРНЫЕ ТЕГИ</string>
-  <string name="search_tags_title">Выбери любимый тег</string>
-  <string name="search_tags_subtitle">Посмотреть популярные на SoundCloud плейлисты</string>
-  <string name="search_empty">Ничего не найдено</string>
-  <string name="search_empty_subtext">Проверьте правильность написания или измените условия поиска</string>
-  <string name="search_for_query">Искать \"%s\"</string>
+    <!-- __SEARCH -->
+    <string name="search_hint">Поиск на SoundCloud</string>
+    <string name="search_settings_description">Поиск звуков</string>
+    <string name="search_type_all">Все</string>
+    <string name="search_type_tracks">Треки</string>
+    <string name="search_type_playlists">Плейлисты</string>
+    <string name="search_type_people">Люди</string>
+    <string name="search_recent_tags">ПОСЛЕДНИЕ</string>
+    <string name="search_popular_tags">ПОПУЛЯРНЫЕ ТЕГИ</string>
+    <string name="search_tags_title">Выбери свой любимый тег</string>
+    <string name="search_tags_subtitle">Найдите популярные плейлисты на SoundCloud</string>
+    <string name="search_empty">Ничего не найдено</string>
+    <string name="search_empty_subtext">Проверьте правильность написания или попробуйте другой поиск</string>
+    <string name="search_for_query">Поиск \"%s\"</string>
 
-  <!-- __SETTINGS -->
-  <string name="pref_app_details">О приложении</string>
-  <string name="pref_basic_settings">Базовые настройки</string>
-  <string name="pref_clear_cache">Очистить кеш приложения</string>
-  <string name="pref_clear_cache_desc">Очистите кэш приложения, чтобы освободить память на устройстве.</string>
-  <string name="pref_connection_and_data">Соединение и данные</string>
-  <string name="pref_help">Справка</string>
-  <string name="pref_help_desc">Перейти на сайт поддержки SoundCloud</string>
-  <string name="pref_revoke_access">Выход</string>
-  <string name="pref_revoke_desc">Завершить сеанс текущего пользователя</string>
-  <string name="pref_sync_wifi_only">Синхронизация только через Wi-Fi</string>
-  <string name="pref_sync_wifi_only_description">Синхронизировать данные только при подключении к Wi-Fi</string>
-  <string name="pref_analytics">Аналитика</string>
-  <string name="pref_analytics_desc">Включение функции \"Аналитика\" дает нам возможность собирать данные об использовании приложения, тем самым помогая делать его лучше. Ознакомьтесь с \"Политикой конфиденциальности\", чтобы узнать подробнее.</string>
-  <string name="pref_crashlogs">Отчеты о сбоях</string>
-  <string name="pref_crashlogs_desc">Включение функции \"Отчеты о сбоях\" значительно помогает нам улучшить приложение. Мы не собираем личную информацию. Ознакомьтесь с \"Политикой конфиденциальности\", чтобы узнать подробнее.</string>
-  <string name="playback_error_logging">Запись сбоев воспроизведения: %s</string>
-  <string name="enabled">Включено</string>
-  <string name="disabled">Выключено</string>
-  <string name="wifi_settings">Настройки Wi-Fi и сети</string>
-  <string name="wifi_settings_summary">Измените настройки. Для наилучшего результата, используйте Wi-Fi.</string>
-  <string name="cache_clearing">Идет очистка кэша</string>
-  <string name="cache_clearing_message">Удаление файлов кэша...</string>
-  <string-array name="pref_dev_record_type_entries">
-    <item>Сжатый</item>
-    <item>Не обработанный</item>
+    <!-- __SETTINGS -->
+    <string name="pref_app_details">Информация о приложении</string>
+    <string name="pref_basic_settings">Основные настройки</string>
+    <string name="pref_clear_cache">Очистить кеш приложения</string>
+    <string name="pref_clear_cache_desc">Очистите кэш приложения, чтобы освободить память устройства</string>
+    <string name="pref_connection_and_data">Подключение и данные</string>
+    <string name="pref_help">Помощь</string>
+    <string name="pref_help_desc">Посетить сайт поддержки SoundCloud</string>
+    <string name="pref_revoke_access">Выйти</string>
+    <string name="pref_revoke_desc">Выйти как текущий пользователь</string>
+    <string name="pref_sync_wifi_only">Обновлять данные только по Wi-Fi</string>
+    <string name="pref_sync_wifi_only_description">Обновлять новые лайки и т.п. только по Wi-Fi</string>
+    <string name="pref_analytics">Аналитика</string>
+    <string name="pref_analytics_desc">Включение аналитики позволяет собирать данные об использовании этого приложения, которое поможет нам улучшить приложение. Смотрите нашу Политику конфиденциальности для получения дополнительной информации.</string>
+    <string name="pref_crashlogs">Отчеты о падениях</string>
+    <string name="pref_crashlogs_desc">Включение отчетов о падениях сильно поможет нам улучшить приложение. Мы не собираем никаких личных данных. Смотрите нашу Политику конфиденциальности для получения дополнительной информации.</string>
+    <string name="playback_error_logging">Регистрация ошибок воспроизведения: %s</string>
+    <string name="enabled">Включено</string>
+    <string name="disabled">Выключено</string>
+    <string name="wifi_settings">Настройки беспроводных сетей и интернет</string>
+    <string name="wifi_settings_summary">Изменение настроек. Используйте Wi-Fi для лучшей производительности.</string>
+    <string name="cache_clearing">Очистка кэша</string>
+    <string name="cache_clearing_message">Удаление файлов кэша...</string>
+    <string-array name="pref_dev_record_type_entries">
+    <item>Сжатые</item>
+    <item>Несжатые</item>
   </string-array>
 
-  <!-- __SETTINGS LOG OUT -->
-  <string name="menu_clear_user_desc">Вам нужно заново привязать свою учетную запись SoundCloud.</string>
-  <string name="menu_clear_user_title">Очистить данные пользователя?</string>
+    <!-- __SETTINGS LOG OUT -->
+    <string name="menu_clear_user_desc">Вам придется заново подключиться к Вашему аккаунту SoundCloud.</string>
+    <string name="menu_clear_user_title">Очистить пользовательские данные?</string>
 
-  <!-- __SETTINGS NAVIGATION -->
-  <string name="title_about">Информация</string>
-  <string name="title_legal">Условия</string>
-  <string name="pref_extras">Дополнительно</string>
-  <string name="title_notification_settings">Настройки уведомлений</string>
+    <!-- __SETTINGS NAVIGATION -->
+    <string name="title_about">О программе</string>
+    <string name="title_legal">Условия</string>
+    <string name="pref_extras">Extras</string>
+    <string name="title_offline_settings">Настройки оффлайн-синхронизации</string>
+    <string name="title_notification_settings">Настройки уведомлений</string>
 
-  <!-- __SETTINGS NOTIFICATIONS -->
-  <string name="pref_notifications">Оповещения</string>
-  <string name="pref_notifications_activity">Активность</string>
-  <string name="pref_notifications_comments">Комментарии</string>
-  <string name="pref_notifications_comments_description">Получайте уведомления о новых комментариях про вашу музыку</string>
-  <string name="pref_notifications_description">Какие уведомления вы хотите получать?</string>
-  <string name="pref_notifications_favoritings">Отметки \"Нравится\"</string>
-  <string name="pref_notifications_favoritings_description">Получайте уведомления когда ваша музыка получила новую отметку \"Нравится\"</string>
-  <string name="pref_notifications_followers">Подписчики</string>
-  <string name="pref_notifications_followers_description">Получайте уведомления, когда у вас появляется новый подписчик</string>
-  <string name="pref_notifications_frequency">Частота уведомлений</string>
-  <string name="pref_notifications_frequency_description">Установите интервал отсылки уведомлений</string>
-  <string name="pref_notifications_incoming">Присланные записи</string>
-  <string name="pref_notifications_incoming_description">Получайте уведомления, когда с вами поделились новой музыкой</string>
-  <string name="pref_notifications_stream">Лента</string>
-  <string name="pref_notifications_wifi_only">Уведомления только через Wi-Fi</string>
-  <string name="pref_notifications_wifi_only_description">Запрашивать обновления только при подключении к Wi-Fi</string>
-  <string name="pref_notifications_reposts">Публикации</string>
-  <string name="pref_notifications_reposts_description">Получайте оповещения о перепубликациях вашей музыки</string>
-  <string-array name="pref_notifications_frequency">
+    <!-- __SETTINGS NOTIFICATIONS -->
+    <string name="pref_notifications">Уведомления</string>
+    <string name="pref_notifications_activity">Активность</string>
+    <string name="pref_notifications_comments">Комментарии</string>
+    <string name="pref_notifications_comments_description">Получите обновления о новых комментариях на ваши аудио</string>
+    <string name="pref_notifications_description">Какие обновления вы хотели бы получить?</string>
+    <string name="pref_notifications_favoritings">Лайки</string>
+    <string name="pref_notifications_favoritings_description">Получите обновления о новых лайках на ваши аудио</string>
+    <string name="pref_notifications_followers">Подписчики</string>
+    <string name="pref_notifications_followers_description">Получать обновления о новых подписчиках</string>
+    <string name="pref_notifications_frequency">Частота уведомлений</string>
+    <string name="pref_notifications_frequency_description">Установите частоту между обновлениями</string>
+    <string name="pref_notifications_incoming">Входящие Звуки</string>
+    <string name="pref_notifications_incoming_description">Получать обновления о новых аудио, которыми поделились с вами</string>
+    <string name="pref_notifications_stream">Поток</string>
+    <string name="pref_notifications_wifi_only">Только уведомления WiFi</string>
+    <string name="pref_notifications_wifi_only_description">Запрашивать обновления только при подключении через Wi-Fi</string>
+    <string name="pref_notifications_reposts">Репосты</string>
+    <string name="pref_notifications_reposts_description">Получать обновления о новых репостах ваших аудио</string>
+    <string-array name="pref_notifications_frequency">
     <item>Каждый час</item>
     <item>Каждые 4 часа</item>
     <item>Каждые 12 часов</item>
     <item>Каждые 24 часа</item>
   </string-array>
 
-  <!-- __SKIPPY -->
-  <string name="pref_extras_skippy">Загрузить Экспериментальный плеер</string>
-  <string name="pref_extras_skippy_desc">Воспроизводить все записи с помощью экспериментального плеера. Эта настройка будет применена уже к следующей записи.</string>
+    <!-- __SKIPPY -->
+    <string name="pref_extras_skippy">Использовать экспериментальный плеер</string>
+    <string name="pref_extras_skippy_desc">Проигрывать все треки через экспериментальный плеер. Вступит в силу при воспроизведении следующего трека.</string>
 
-  <!-- __SETTINGS SUBSCRIPTIONS -->
-  <string name="pref_subscriptions_header">Подписки</string>
-  <string name="pref_subscription_buy_title">Подписаться</string>
-  <string name="pref_subscription_buy_summary">Обновить учетную запись</string>
-  <string name="title_subscribe">Подписаться</string>
-  <string name="subscribe_buy">Купить</string>
+    <!-- __SUBSCRIPTION SETTINGS -->
+    <string name="pref_subscriptions_header">Подписки</string>
+    <string name="pref_subscription_buy_title">Подписаться</string>
+    <string name="pref_subscription_buy_summary">Обновить учетную запись</string>
+    <string name="title_subscribe">Подписаться</string>
+    <string name="subscribe_buy">Купить</string>
 
-  <!-- __SETTINGS OFFLINE -->
-  <string name="pref_offline_wifi_only_sync">Синхронизировать автономные данные только по Wi-Fi</string>
-  <string name="pref_offline_wifi_only_description">Синхронизировать понравившиеся вам записи и плейлисты только по Wi-Fi-соединению</string>
+    <!-- __OFFLINE SETTINGS -->
+    <string name="pref_offline_settings">Настройки оффлайновой синхронизации</string>
+    <string name="pref_offline_wifi_only_sync">Только оффлайновая синхронизация через Wi-Fi</string>
+    <string name="pref_offline_wifi_only_description">Синхронизировать лайки и плейлисты только через Wi-Fi подключение</string>
+    <string name="pref_offline_settings_summary">Управление настройками оффлайновой синхронизации</string>
+    <string name="pref_offline_storage_limit">Лимит объема памяти</string>
+    <string name="pref_offline_storage_limit_description">Сколько памяти мы можем\nиспользовать для синхронизации Ваших треков</string>
+    <string name="pref_offline_storage_free_gb">%1$.1f ГБ свободно из %2$.1f ГБ</string>
+    <string name="pref_offline_storage_limit_gb">%1$.1f ГБ</string>
+    <string name="pref_offline_storage_usage">Использование памяти</string>
+    <string name="pref_offline_used_by_other_apps">Используется другими приложениями</string>
+    <string name="pref_offline_used">Используется</string>
+    <string name="pref_offline_limit">Лимит</string>
+    <string name="pref_offline_remove_all_offline_content">Удалить весь оффлайн-контент</string>
+    <string name="pref_offline_remove_all_offline_content_description">Это удалит весь оффлайн-контент с Вашего устройства</string>
 
-  <!-- __TIME -->
-  <string name="format_abbreviated_seconds">%d сек.</string>
-  <string name="format_abbreviated_minutes">%d мин.</string>
+    <!-- __TIME -->
+    <string name="format_abbreviated_seconds">%d сек.</string>
+    <string name="format_abbreviated_minutes">%d мин.</string>
 
-  <!-- __TOUR -->
-  <string name="tour_title_1">Слушайте музыку со всего мира</string>
-  <string name="tour_text_1">Станьте частью самого большого сообщества\nисполнителей, групп, подкастеров, и\nсоздателей музыки и аудио</string>
-  <string name="tour_title_2">Сделайте открытие</string>
-  <string name="tour_text_2">Новая и уникальная музыка \nи аудио любых жанров</string>
-  <string name="tour_title_3">Связаться и поделиться</string>
-  <string name="tour_text_3">Найдите создателей музыки и аудио, \nслушайте их, подписывайтесь, и\nделитесь музыкой, которая вам понравилась</string>
-  <string name="tour_signup_button">Зарегистрироваться с помощью адреса электронной почты</string>
-  <string name="tour_login_header">Или войдите, используя свою учетную запись</string>
+    <!-- __TOUR -->
+    <string name="tour_title_1">Услышьте звучание мира</string>
+    <string name="tour_text_1">Откройте для себя самое большое сообщество\nисполнителей, групп, подкастеров и\nсоздателей музыки и аудио</string>
+    <string name="tour_title_2">Откройте для себя</string>
+    <string name="tour_text_2">Все виды новых и\nуникальных музыки и аудио</string>
+    <string name="tour_title_3">Подключить и поделиться</string>
+    <string name="tour_text_3">Найти музыкальных и звуковых создателей\nслышать и следовать,\nподелиться звуки, которые вы любите</string>
+    <string name="tour_signup_button">Зарегистрироваться, используя Ваш адрес электронной почты</string>
+    <string name="tour_login_header">Или войдите в свой аккаунт</string>
 
-  <!-- __UPLOAD -->
-  <string name="uploader_event_processing">Обработка</string>
-  <string name="uploader_event_processing_percent">Обработка: %d %%</string>
-  <string name="uploader_event_not_yet_uploading">Пока не загружается</string>
-  <string name="uploader_event_uploading_percent">Загрузка: %d %%</string>
-  <string name="uploader_event_cancelling">Отмена...</string>
-  <string name="uploader_event_processing_finished">Обработка завершена</string>
-  <string name="cloud_upload_clear_artwork">Удерживайте, чтобы очистить оформление</string>
-  <string name="cloud_uploader_notification_error_message">Произошел сбой при загрузке %s</string>
-  <string name="cloud_uploader_notification_error_ticker">Сбой при отправке</string>
-  <string name="cloud_uploader_notification_error_title">Сбой при загрузке</string>
-  <string name="cloud_uploader_notification_finished_message">%s был загружен</string>
-  <string name="cloud_uploader_notification_finished_ticker">Загрузка завершена</string>
-  <string name="cloud_uploader_notification_finished_title">Загрузка завершена</string>
-  <string name="cloud_uploader_notification_transcoding_error_message">Произошел сбой перекодирования %s</string>
-  <string name="cloud_uploader_notification_transcoding_error_ticker">Сбой перекодирования</string>
-  <string name="cloud_uploader_notification_transcoding_error_title">Сбой перекодирования</string>
-  <string name="dialog_cancel_upload_message">Отменить загрузку?</string>
-  <string name="sc_upload_add_image">Добавить\nизображение</string>
-  <string name="sc_upload_private">Личное</string>
-  <string name="sc_upload_public">Открытый доступ</string>
-  <string name="sc_upload_sharing_options_private">Ваша запись будет закрыта от доступа других пользователей SoundCloud.</string>
-  <string name="sc_upload_sharing_options_public">Ваша запись будет открыта для доступа других пользователей SoundCloud. В каких еще социальных сетях вы хотите ею поделиться?</string>
+    <!-- __UPLOAD -->
+    <string name="uploader_event_processing">Обрабатывается</string>
+    <string name="uploader_event_processing_percent">Обрабатывается: %d %%</string>
+    <string name="uploader_event_not_yet_uploading">Еще не загружено</string>
+    <string name="uploader_event_uploading_percent">Загружается: %d %%</string>
+    <string name="uploader_event_cancelling">Отмена</string>
+    <string name="uploader_event_processing_finished">Обработка закончена</string>
+    <string name="cloud_upload_clear_artwork">Удерживайте, чтобы очистить изображение</string>
+    <string name="cloud_uploader_notification_error_message">Ошибка при загрузке %s</string>
+    <string name="cloud_uploader_notification_error_ticker">Ошибка загрузки</string>
+    <string name="cloud_uploader_notification_error_title">Ошибка загрузки</string>
+    <string name="cloud_uploader_notification_finished_message">%s было загружено</string>
+    <string name="cloud_uploader_notification_finished_ticker">Загрузка завершена</string>
+    <string name="cloud_uploader_notification_finished_title">Загрузка завершена</string>
+    <string name="cloud_uploader_notification_transcoding_error_message">Ошибка перекодировки %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_ticker">Ошибка перекодировки</string>
+    <string name="cloud_uploader_notification_transcoding_error_title">Ошибка перекодировки</string>
+    <string name="dialog_cancel_upload_message">Отменить загрузку?</string>
+    <string name="sc_upload_add_image">Добавить\nизображение</string>
+    <string name="sc_upload_private">Приватное</string>
+    <string name="sc_upload_public">Публичное</string>
+    <string name="sc_upload_sharing_options_private">Ваше аудио будет приватным на SoundCloud.</string>
+    <string name="sc_upload_sharing_options_public">Ваше аудио будет обнародовано на SoundCloud. В каких еще социальных сетях вы хотели бы поделиться им?</string>
 
-  <!-- __WIDGET -->
-  <string name="widget_touch_to_open">Нажмите, чтобы открыть SoundCloud</string>
+    <!-- __WIDGET -->
+    <string name="widget_touch_to_open">Нажмите, чтобы открыть SoundCloud</string>
 
-  <!-- __OFFLINE_SYNC -->
-  <string name="offline_track_not_available">Трек не доступен в автономном режиме</string>
-  <string name="offline_update_completed_title">Все треки синхронизированы!</string>
-  <string name="offline_update_completed_message">Готов для прослушивания оффлайн!</string>
-  <string name="offline_update_in_progress">Синхронизация ваших треков</string>
-  <string name="offline_likes_dialog_title">Сделать доступным в режиме оффлайн</string>
-  <string name="offline_likes_dialog_message">Это позволит сохранить все, что Вам понравилось, для  прослушивания в режиме оффлайн, включая треки, которые вы хотели бы прослушать в будущем.</string>
-  <string name="make_offline_available">Сделать доступным в автономном режиме</string>
-  <string name="make_offline_unavailable">Удалить из списка для автономного прослушивания</string>
+    <!-- __OFFLINE_SYNC -->
+    <string name="offline_track_not_available">Трек не доступен в режиме оффлайн</string>
+    <string name="offline_update_completed_title">Все треки синхронизированы!</string>
+    <string name="offline_update_completed_message">Готово для оффлайн-прослушивания!</string>
+    <string name="offline_update_storage_limit_reached_title">Достигнут лимит хранения</string>
+    <string name="offline_update_storage_limit_reached_message">Нажмите здесь, чтобы просмотреть параметры хранения</string>
+    <string name="offline_update_in_progress">Синхронизация ваших треков</string>
+    <string name="offline_likes_dialog_title">Сделайте ваши лайки доступными в оффлайн-режиме</string>
+    <string name="offline_likes_dialog_message">Это сделает ваши текущие и будущие лайки доступными в автономном режиме, так что вы можете слушать без подключения к Интернету или сетям передачи данных.</string>
+    <string name="make_offline_available">Сделать доступным в режиме оффлайн</string>
+    <string name="make_offline_unavailable">Удалить из оффлайн-прослушивания</string>
+    <string name="offline_dialog_go_online_continue">Продолжить</string>
+    <string name="offline_dialog_go_online_error_title">Ваша подписка не может быть проверена</string>
+    <string name="offline_dialog_go_online_error_content">Так как это устройство было оффлайн более чем 30 дней, мы не смогли проверить Вашу подписку. Пожалуйста, перейдите в режим онлайн, чтобы восстановить доступ устройства к подписке и снова включить ваш оффлайн-контент.</string>
+    <string name="offline_update_paused">Оффлайн-синхронизация приостановлена</string>
+    <string name="no_network_connection">нет подключения к сети</string>
+    <string name="no_wifi_connection">нет подключения Wi-Fi</string>
 
-  <!-- AGE VERFICATION -->
-  <string name="age_verify_label">Подтвердите возраст</string>
-  <string name="age_verify_title">Пожалуйста, подтвердите ваш возраст</string>
-  <string name="age_verify_warning">Содержимое этого профиля может быть неуместным для лиц, не достигших определенного возраста</string>
-  <string name="age_verify_info">Эта информация будет сохранена в вашем профиле.</string>
-  <string name="age_verify_button">Подтвердите возраст</string>
+    <!-- __AGE VERFICATION -->
+    <string name="age_verify_label">Подтвердите возраст</string>
+    <string name="age_verify_title">Пожалуйста, подтвердите ваш возраст</string>
+    <string name="age_verify_warning">Содержимое этого профиля может оказаться неподходящим для лиц, недостигших определенного возраста.</string>
+    <string name="age_verify_info">Эта информация будет сохранена в вашем профиле.</string>
+    <string name="age_verify_button">Подтвердите возраст</string>
 
-  <!-- DEVICE MANAGEMENT -->
-  <string name="device_management_limit">Вы достигли лимита зарегистрированных устройств.</string>
-  <string name="device_management_login_message">Ваша подписка ограничена 3 устройствами. Вы можете зарегистрировать это устройство и исключить из подписки последнее использованное вами устройство, выбрав \"Продолжить\".</string>
-  <string name="device_management_conflict_message">Вы достигли лимита зарегистрированных устройств, предусмотренного вашей подпиской. Это устройство было исключено из подписки, а все автономные данные удалены. Вы можете выполнить вход снова и повторно зарегистрировать это устройство.</string>
-  <string name="device_management_continue">Продолжить</string>
+    <!-- __DEVICE MANAGEMENT -->
+    <string name="device_management_limit">Вы достигли лимита зарегистрированных устройств.</string>
+    <string name="device_management_login_message">Ваша подписка ограничена 3 устройствами. Вы можете зарегистрировать это устройство и выйти из последнего использованного устройства, выбрав \"продолжить\".</string>
+    <string name="device_management_conflict_message">Вы достигли предела количества устройств Вашей подписки. Это устройство было деавторизовано, и весь оффлайн-контент был удален. Вы можете войти обратно и перерегистрировать это устройство.</string>
+    <string name="device_management_continue">Продолжить</string>
 
-  <!-- DEBUG LOGS/FEEDBACK -->
-  <string name="select_feedback_category">О чём вы желаете сообщить?</string>
-  <string name="feedback_playback_issue">Проблема воспроизведения</string>
-  <string name="feedback_crash">Сбой</string>
-  <string name="feedback_other_issue">Другая проблема</string>
-  <string name="feedback_email_subject">Сообщить:%1$s</string>
-  <string name="feedback_action_chooser">Отправить сообщение по электронной почте...</string>
-    <string name="authentication_error_age_not_valid">Вы должны быть старше 13 лет.</string>
-    <string name="age">Возраст</string>
-    <string name="enter_age_hint">Введите ваш возраст</string>
+    <!-- GOOGLE CAST -->
+    <string name="cast_unable_play_track">Не удается передать трек</string>
+    
+    <!-- __DEBUG LOGS/FEEDBACK -->
+    <string name="select_feedback_category">Что бы вы хотели сообщить?</string>
+    <string name="feedback_playback_issue">Ошибка воспроизведения</string>
+    <string name="feedback_crash">Крэш</string>
+    <string name="feedback_other_issue">Другая проблема</string>
+    <string name="feedback_email_subject">Сообщено: %1$s</string>
+    <string name="feedback_action_chooser">Отправить отзыв по электронной почте...</string>
+    <string name="feedback_unable_to_get_logs">Не удалось получить журналы</string>
 
+    <!-- __PROMOTED TRACKS -->
+    <string name="promoted_label">При содействии</string>
+    <string name="promoted_by_label">При содействии %s</string>
 
 </resources>

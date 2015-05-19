@@ -11,7 +11,7 @@
     <string name="btn_apply">تطبيق</string>
     <string name="cancel">إلغاء</string>
     <string name="retry">إعادة المحاولة</string>
-    <string name="shuffle">تبديل عشوائي</string>
+    <string name="shuffle">خلط</string>
     <string name="done">تم</string>
     <string name="email">بريد إلكتروني</string>
     <string name="password">كلمة المرور</string>
@@ -52,6 +52,7 @@
     <string name="what_hint">ماذا</string>
     <string name="where_hint">أين</string>
     <string name="like">إعجاب</string>
+    <string name="unlike">إلغاء الإعجاب</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">بحث في SoundCloud</string>
@@ -62,6 +63,7 @@
     <string name="liked">أعجب %s</string>
     <string name="reposted">إعادة نشر %s</string>
     <string name="commented_on">علق على %s</string>
+    <string name="mentioned_you_on">ذكرك في %s</string>
 
     <!-- __ADS -->
     <string name="advertisement">إعلان</string>
@@ -81,12 +83,14 @@
     <string name="authentication_add_info_add_image_msg">ابتسم، سوف تظهر هذه الصورة في ملف التعريف.</string>
     <string name="authentication_add_info_msg">على وشك الاتمام. الآن اختر اسم مستخدم وأضف صورة لتخصيص ملفك التعريفي.</string>
     <string name="authentication_add_info_username_hint">اسم المستخدم</string>
-    <string name="onboarding_agreement_statement">أقر أنه بموجب التسجيل، فإنني أوافق على شروط الاستخدام وسياسة خصوصية SoundCloud.</string>
+    <string name="onboarding_agreement_statement">من خلال التوقيع فإنني أوافق على شروط الاستخدام وسياسة الخصوصية لـ SoundCloud.</string>
     <string name="authentication_choose_a_password">6 أحرف على الأقل</string>
     <string name="authentication_error_incomplete_fields">يرجى تعبئة كل الحقول.</string>
     <string name="authentication_error_invalid_email">يرجى إدخال عنوان بريد إلكتروني صالح.</string>
+    <string name="authentication_error_generic">عفوا! حدث خطأ غير متوقع. حاول مرة اخرى.</string>
     <string name="authentication_error_no_connection_message">هناك مشكلة في اتصال بياناتك. يرجى التحقق من إعدادات الشبكة.</string>
     <string name="authentication_error_password_too_short">يجب أن تكون كلمة المرور 6 أحرف أو أكثر.</string>
+    <string name="authentication_error_age_not_valid">يجب أن تكون على الأقل 13 عامًا.</string>
     <string name="authentication_error_title">خطأ</string>
     <string name="authentication_log_in">تسجيل الدخول</string>
     <string name="authentication_log_in_with_facebook">تسجيل الدخول عبر فيسبوك</string>
@@ -115,7 +119,7 @@
     <string name="authentication_recover_password_msg">أدخل عنوان بريدك الالكتروني وسنرسل لك رابطًًا يسمح لك بتغيير كلمة المرور. هل هناك مشكلات؟ اتصل بخدمة الدعم.</string>
     <string name="authentication_blocked_title">تعذر علينا تسجيل إشتراكك</string>
     <string name="authentication_blocked_message">تعتقد الروبوتات لدينا أن هذا الاشتراك يبدو كثيرًا مثل البريد المزعج. إذا كنت تعتقد أن هذا خطأ، يرجى <a href="http://help.soundcloud.com/customer/portal/emails/new">الاتصال بدعمنا</a>
-    </string>
+  </string>
     <string name="authentication_captcha_message">واجهنا بعض المتاعب في تسجيل دخولك. الرجاء تسجيل الدخول من خلال موقع الجوال لدينا، وقبل تسجيل الدخول مرة أخرى.</string>
     <string name="authentication_email_taken_message">تم تسجيل عنوان البريد الإلكتروني هذا بالفعل مع أحد الحسابات. أدخل عنوان بريد إلكتروني آخر أو حاول تسجيل الدخول</string>
     <string name="authentication_email_invalid_message">يبدو أن المجال الذي أدخلته غير قادر على استقبال رسائل البريد الإلكتروني. هل كتبته بشكل صحيح؟</string>
@@ -149,6 +153,7 @@
     <string name="empty_playlist_description">قائمة التشغيل هذه لا يحتوي على مسارات بعد</string>
     <string name="list_empty_user_playlists_message">%1$s ليس لديه حاليًا أي قائمة تشغيل.</string>
     <string name="list_empty_you_playlists_message">قم بإنشاء قوائم تشغيل لعمل مزيج من أصواتك المفضلة</string>
+    <string name="list_empty_liked_playlists_message">سجّل إعجابك بقوائم التشغيل المفضلة لسماعها مرة أخرى</string>
     <string name="empty_user_likes_text">%1$s لم يقم\nباختيار أية إعجابات حتى الآن.</string>
     <string name="empty_user_followers_text">%1$s لا تتم\nمتابعته من قبل أي شخص</string>
     <string name="empty_user_followings_text">%1$s لا يقم\nبمتابعة أي شخص حتى الآن.</string>
@@ -170,6 +175,16 @@
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">عذرًا! تعذر تسجيلك\nيرجى محاولة تحديث التطبيق أو الاشتراك في موقع SoundCloud.com.</string>
 
+    <string name="follow_blocked_title">المتابعة محظورة</string>
+    <string name="follow_blocked_content">%s قام بحظرك.</string>
+    <string name="follow_blocked_content_long">%s طلب منك حظر حسابك من متابعتهم.</string>
+    <string name="follow_age_restricted_title">المتابعة محظورة</string>
+    <string name="follow_age_restricted_content">المستخدمون %1$s+ يمكنهم متابعة %2$s.</string>
+    <string name="follow_age_restricted_content_long">عذرًا، فقط المستخدمون فقط الذين عمرهم %1$s عامًا مسموح لهم بمتابعة %2$s.</string>
+    <string name="follow_age_unknown_title">يرجى التحقق من عمرك</string>
+    <string name="follow_age_unknown_content">أدخل السن لمتابعة %s.</string>
+    <string name="follow_age_unknown_content_long">لمتابعة %s، تأكد أنك في السن المطلوبة.</string>
+
     <!-- __EXPLORE -->
     <string name="explore_genres">أنواع</string>
     <string name="explore_genre_header_music">موسيقى</string>
@@ -181,9 +196,9 @@
     <string name="add_image">إضافة\nصورة</string>
     <string name="image_load_error">هناك مشكلة في تحميل الصورة</string>
     <string name="image_where">كيف ترغب في إضافة صورة؟</string>
-    <string name="take_new_picture">التقط صورة جديدة</string>
+    <string name="take_new_picture">صورة جديدة</string>
     <string name="take_new_picture_error">تعذر التقاط صورة</string>
-    <string name="use_existing_image">استخدم الصورة الحالية</string>
+    <string name="use_existing_image">صورة موجودة</string>
     <string name="use_existing_image_error">تعذر استخدام الصورة الحالية</string>
 
     <!-- __NAVIGATION -->
@@ -201,6 +216,7 @@
     <string name="side_menu_explore">استكشاف</string>
     <string name="title_search">بحث</string>
     <string name="title_settings">إعدادات</string>
+    <string name="title_feedback">إرسال تقرير أعطال</string>
 
     <!-- __NOTIFICATIONS -->
     <string name="dashboard_notifications_activity_message_likes">%1$s إعجابات %2$s</string>
@@ -228,6 +244,16 @@
     <string name="try_again">حاول مرة أخرى</string>
     <string name="finish">النهاية</string>
     <string name="error_onboarding_fail">ما زلنا نعمل على ملء الدفق الخاص بك. سنستمر في المحاولة حتى يعمل! في هذه الأثناء، يمكنك البحث واكتشاف الموسيقى والأصوات الأخرى.</string>
+    <string name="age">العمر</string>
+    <string name="enter_age_hint">أدخل عمرك</string>
+    <string name="gender">الجنس</string>
+    <string name="onboarding_create_account">إنشاء حساب</string>
+    <string name="onboarding_indicate_gender">أشر إلى جنسك</string>
+    <string name="onboarding_custom_gender_hint">أدخل الجنس</string>
+    <string name="onboarding_gender_option_female">أنثى</string>
+    <string name="onboarding_gender_option_male">ذكر</string>
+    <string name="onboarding_gender_option_custom">مخصص</string>
+    <string name="onboarding_gender_option_nopref">أفضل ألا أقول</string>
 
     <!-- __ONBOARDING CATEGORIES -->
     <string name="category_facebook_friends" tools:ignore="UnusedResources">أصدقاء فيسبوك</string>
@@ -267,9 +293,14 @@
     <string name="recording_uploading">جار التحميل...</string>
     <string name="recording_upload_failed">فشل التحميل</string>
     <string name="title_now_playing">تشغيل الآن</string>
+    <string name="like_toast_overflow_action">حفظ في إعجاباتك</string>
+    <string name="unlike_toast_overflow_action">إزالة من إعجاباتك</string>
+    <string name="like_error_toast_overflow_action">لم تتغير حالة الإعجات</string>
+    <string name="reposted_to_followers">إعادة نشر لمتابعيك</string>
+    <string name="unposted_to_followers">غير منشور</string>
+    <string name="repost_error_toast_overflow_action">لم يتم تغيير حالة الإرسال الثاني</string>
 
     <!-- __PLAYER -->
-    <string name="add_to_playlist">إضافة الى قائمة</string>
     <string name="share">مشاركة</string>
     <string name="repost">إعادة نشر</string>
     <string name="unpost">إلغاء نشر</string>
@@ -277,34 +308,52 @@
     <string name="comment_on">تعليق على %s</string>
     <string name="your_comment_has_been_posted">تم نشر تعليقك</string>
     <string name="comment_could_not_be_created_at_this_time">لا يمكن إنشاء تعليق في هذا الوقت</string>
-    <string name="reposted_to_followers">إعادة نشر لمتابعيك</string>
-    <string name="unposted_to_followers">غير منشور</string>
     <string name="share_track_by_artist_on_soundcloud">استمع إلى %1$s من خلال %2$s  #np on # على SoundCloud %3$s</string>
     <string name="share_track_on_soundcloud">استمع إلى %1$s #np on # على SoundCloud %2$s</string>
     <string name="share_subject">%s - SoundCloud</string>
     <string name="info">معلومات</string>
     <string name="uploaded_at">تم تحميل %s</string>
     <string name="track_info_no_description">لا يوجد وصف متاح</string>
-    <string name="playback_error_connection">يرجى التحقق من الاتصال</string>
-    <string name="playback_error_unable_to_play">غير قادر على تشغيل المسار</string>
+    <string name="playback_error">غير قابل للتشغيل</string>
+    <string name="playback_error_connection">يرجى التحقق من اتصالك. اضغط لإعادة المحاولة.</string>
+    <string name="playback_error_unable_to_play">لا يمكن تشغيل المسار</string>
+    <string name="playback_missing_playable_tracks">مسارات تشغيل مفقودة</string>
+    <string name="play">تشغيل</string>
+    <string name="pause">إيقاف مؤقت</string>
+    <string name="previous">السابق</string>
+    <string name="next">التالي</string>
+    <string name="casting_to">إسناد لـ</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s في %2$s</string>
 
     <!-- __PAYMENTS -->
+    <string name="payments_unknown_error">خطأ غير معروف</string>
     <string name="payments_connection_error">خطأ في الاتصال</string>
     <string name="payments_connection_unavailable">فوترة Google Play غير متوفرة</string>
     <string name="payments_user_cancelled">تم إلغاء المستخدم</string>
     <string name="payments_none_available">لا توجد اشتراكات متاحة</string>
     <string name="payments_verifying">جارِ التحقق</string>
     <string name="payments_verify_fail">فشل التحقق</string>
+    <string name="payments_verify_timeout">تعذر التحقق من الشراء</string>
     <string name="payments_success">نجاح</string>
+    <string name="payments_error_title">خطأ في الدفع</string>
+    <string name="payments_error_already_subscribed">هناك بالفعل اشتراك مرتبط بحسابك. هل لا تزال المشاكل مستمرة؟ اتصل بالدعم.</string>
+    <string name="payments_error_stale_checkout">لم يكن من الممكن استعادة اشتراكك.</string>
+    <string name="payments_error_wrong_user">لديك اشتراك نشط، ولكنه مرتبط بمستخدك آخر.</string>
+    <string name="payments_error_contact_support">اتصل بالدعم</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">قوائم التشغيل</string>
     <string name="activity_title_playlist">قائمة التشغيل</string>
+    <string name="your_playlists_tab">قوائم التشغيل الخاصة بك</string>
+    <string name="liked_playlists_tab">قوائم التشغيل في قائمة الإعجاب</string>
     <string name="playlist_removed">لم يتم العثور على قائمة التشغيل على SoundCloud</string>
     <string name="playlist_load_error">تعذر تحميل قائمة التشغيل هذه</string>
+    <string name="playlist_new_info_header_text">%1$s، %2$s</string>
+    <string name="shuffle_playlist">خلط قائمة التشغيل</string>
+    <string name="add_to_playlist">إضافة الى قائمة</string>
+    <string name="remove_from_playlist">إزالة من قائمة التشغيل</string>
 
     <!-- __PLAYLIST CREATION -->
     <string name="add_track_to_playlist">أضف إلى قائمة التشغيل ...</string>
@@ -313,6 +362,7 @@
     <string name="create_new_playlist_hint">أدخل عنوان قائمة التشغيل</string>
     <string name="error_new_playlist_blank_title">يرجى إدخال عنوان صالح</string>
     <string name="add_playlist_private">خاص</string>
+    <string name="add_playlist_offline">متاح دون اتصال</string>
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">معلومات</string>
@@ -358,47 +408,40 @@
 
     <!-- __RECORD TIPS -->
     <string-array name="record_suggestions">
-        <item>لماذا لا تقوم بتسجيل أصوات الشارع؟</item>
-
-        <item>استمتع بتسجيل الملاحظات الصوتية كرسائل تذكير في المتناول.</item>
-        <item>استخدم زر REC لإنشاء مدونة صوتية - ما الذي ستشاركه اليوم؟</item>
-        <item>ماذا تفعل الآن؟</item>
-        <item>التقط اللحظة: كلمات الطفل الأولى</item>
-        <item>التقط اللحظة: الأصوات التي تصدرها حيواناتك الأليفة</item>
-        <item>التقط اللحظة: صوت شخص يحوز اهتمامك</item>
-        <item>أتذهب للتسوق؟ استمتع بتسجيل رسائل التذكير بحيث لا تنسى ما الذي سوف تشتريه.</item>
-        <item>ألديك فكرة عظيمة؟ هيا التقطها بضغطة على زر REC.</item>
-
-        <item>هل سمعت نكتة جديدة مؤخرًا؟ هيا شاركها!</item>
-        <item>أتستمتع بمحادثة رائعة؟ لماذا لا تقوم بالتسجيل لأبنائك؟</item>
-        <item>التقط لحظة المرحة وسجِّلها صوتيًا</item>
-
-        <item>هل تعلم أنه يمكنك حفظ التسجيلات الخاصة إذا كنت لا ترغب في مشاركتها؟</item>
-        <item>أحيانًا يكون أفضل جهاز تسجيل هو الذي بين يديك.</item>
-        <item>استمتع بإلغاء كتم نفسك!</item>
-        <item>قم بإلغاء كتم الإنترنت,</item>
-        <item>إلغاء كتم العالم.</item>
-        <item>عبِّر عن نفسك!</item>
-
-        <item>لماذا لا تُسجل محضر الاجتماع المقبل؟</item>
-        <item>استخدم زر REC لالتقاط الأفكار لتذكرها في وقت لاحق.</item>
-        <item>استخدم زر REC كوسيلة دراسة مساعدة: قم بتخزين ملاحظاتك أثناء تنقلاتك.</item>
-        <item>يمكنك استخدام زر REC لتسجيل المقابلات والاجتماعات.</item>
-
-        <item>تسجيل صوت أمواج المحيطات على الشاطئ</item>
-        <item>التقاط أصوات المدينة النابضة الحيوية ساعة الذروة</item>
-        <item>هل استمتعت إلى صوت غريب؟ التقط الصوت باستخدام زر REC!</item>
-
-        <item>أتشعر بأنك ملهم؟ التقط فكرتك باستخدام زر REC.</item>
-        <item>هل تريد الحصول على فكرة لمسار جديد؟ احفظه باستخدام زر REC.</item>
-        <item>النغمة لا تزال تتردد في رأسك؟ التقط الصوت باستخدام زر REC.</item>
-        <item>ألديك أفكار لكلمات أغنية؟ التقط الأفكار على الفور باستخدام زر REC.</item>
-
-        <item>ماذا يحدث الآن؟</item>
-        <item>تسجيل الأحداث الجارية فور حدوثها ومشاركتها مع العالم.</item>
-        <item>هل يحدث شيء مثير للاهتمام؟ التقاط اللحظة صوتيًا.</item>
-        <item>هل أنت مراسل مواطن؟ هيا أخبر العالم بما يحدث من حولك.</item>
-    </string-array>
+    <item>لماذا لا يتم تسجيل أصوات شارعك؟</item>
+    <item>سجِّل الملاحظات الصوتية كتنبيهات مفيدة.</item>
+    <item>استخدم زر REC لإنشاء مدونة صوتية - ما الذي ستشاركه اليوم؟</item>
+    <item>ماذا تفعل الآن؟</item>
+    <item>التقط اللحظة: الكلمات الأولى للطفل</item>
+    <item>التقط اللحظة: أصوات حيواناتك الأليفة</item>
+    <item>التقط اللحظة: صوت شخصٍ يهمك</item>
+    <item>هل ستذهب للتسوق؟ سجِّل تنبيهات حتى لا تنسى ما تريد شرائه.</item>
+    <item>لديك فكرة رائعة؟ سجَّلها مع زر REC.</item>
+    <item>سمعت نكتة جيدة مؤخرًا؟ شاركها!</item>
+    <item>تستمتع بمحادثة رائعة؟ لماذا لا تسجلها للأجيال القادمة؟</item>
+    <item>سجَّل لحظة رائعة بالصوت</item>
+    <item>هل تعلم أنك يمكن أن حفظ التسجيلات الخاصة إذا كنت لا ترغب في مشاركتها؟</item>
+    <item>أحيانا أفضل جهاز تسجيل هو الذي معك.</item>
+    <item>حرر لسانك!</item>
+    <item>حرر صوت الإنترنت.</item>
+    <item>حرر صوت العالم.</item>
+    <item>عبر عن نفسك!</item>
+    <item>لماذا لا تسجل محاضر الاجتماع المقبل؟</item>
+    <item>استخدم زر REC لتسجيل الأفكار للمستقبل.</item>
+    <item>استخدم زر REC كأداة مساعدة في الدراسة: حفظ الملاحظات أثناء التنقل.</item>
+    <item>يمكنك استخدام زر REC لتسجيل المقابلات والاجتماعات.</item>
+    <item>تسجيل صوت أمواج المحيط على الشاطئ</item>
+    <item>التقاط الأصوات من مدينة نابضة بالحياة في ساعة الذروة</item>
+    <item>سمعت صوتًا مجنونًًا؟ سجّله بزر REC!</item>
+    <item>تشعر بالإلهام؟ سجِّل فكرتك بزر REC.</item>
+    <item>لديك فكرة لمسار جديد؟ احفظها بالزر REC.</item>
+    <item>هناك نغمة عالقة في رأسك؟ سجِّلها بزر REC.</item>
+    <item>لديك أفكار لكلمات أغنية؟ سجِّلها فورًا مع الزر REC.</item>
+    <item>ما يحدث الآن؟</item>
+    <item>سجِّل الأحداث الجارية فور حدوثها وشاركنها مع العالم.</item>
+    <item>هل يحدث شيء مثير للاهتمام؟ سجِّل اللحظة بالصوت.</item>
+    <item>هل أنت مواطن مراسل؟ أخبر العالم بما يحدث في منطقتك.</item>
+  </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">بحث في SoundCloud</string>
@@ -418,13 +461,15 @@
     <!-- __SETTINGS -->
     <string name="pref_app_details">تفاصيل التطبيق</string>
     <string name="pref_basic_settings">إعدادات أساسية</string>
+    <string name="pref_clear_cache">مسح ذاكرة التخزين المؤقت للتطبيق</string>
+    <string name="pref_clear_cache_desc">امسح ذاكرة التخزين المؤقت للتطبيق لإفراغ مساحة الذاكرة على جهازك</string>
     <string name="pref_connection_and_data">الاتصال والبيانات</string>
     <string name="pref_help">مساعدة</string>
     <string name="pref_help_desc">الوصول إلى موقع دعم SoundCloud</string>
     <string name="pref_revoke_access">تسجيل الخروج</string>
     <string name="pref_revoke_desc">تسجيل خروج المستخدم الحالي</string>
-    <string name="pref_sync_wifi_only">مزامنة Wifi فقط</string>
-    <string name="pref_sync_wifi_only_description">مزامنة بياناتي فقد عند الاتصال عبر Wifi</string>
+    <string name="pref_sync_wifi_only">فقط تحديث البيانات عبر الواي فاي</string>
+    <string name="pref_sync_wifi_only_description">تحديث الإعجابات الجديدة فقط، إلخ، عبر الواي فاي</string>
     <string name="pref_analytics">تحليلات</string>
     <string name="pref_analytics_desc">تسمح لك خاصية تمكين التحليلات من تجميع البيانات حول استخدامك هذا التطبيق الذي يساعدنا في تحسين التطبيق. لمزيد من المعلومات، انظر سياسة الخصوصية.</string>
     <string name="pref_crashlogs">Crashlogs</string>
@@ -435,11 +480,11 @@
     <string name="wifi_settings">إعدادات اللاسلكي وشبكة الإنترنت</string>
     <string name="wifi_settings_summary">قم بتحرير الإعدادات. استخدم شبكة Wifi للحصول على أفضل أداء.</string>
     <string name="cache_clearing">مسح ذاكرة التخزين المؤقت</string>
-    <string name="cache_clearing_message">جار حذف ملفات ذاكرة التخزين المؤقت...</string>
+    <string name="cache_clearing_message">جارِ حذف الملفات المخزنة مؤقتًا ...</string>
     <string-array name="pref_dev_record_type_entries">
-        <item>مضغوط</item>
-        <item>Raw</item>
-    </string-array>
+    <item>مضغوط</item>
+    <item>خام</item>
+  </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">سوف تحتاج إلى إعادة الاتصال بحساب SoundCloud لديك.</string>
@@ -449,6 +494,7 @@
     <string name="title_about">حول</string>
     <string name="title_legal">قانوني</string>
     <string name="pref_extras">إضافات</string>
+    <string name="title_offline_settings">إعدادات المزامنة دون اتصال</string>
     <string name="title_notification_settings">إعدادات الإخطار</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -460,7 +506,7 @@
     <string name="pref_notifications_favoritings">إعجابات</string>
     <string name="pref_notifications_favoritings_description">تلقي التحديثات حول الإعجابات الجديدة على أصواتك</string>
     <string name="pref_notifications_followers">المتابعين</string>
-    <string name="pref_notifications_followers_description">تلقي التحديثات عندما يكون لديك متابع جديد</string>
+    <string name="pref_notifications_followers_description">تلقى تحديثات عندما يكون لديك متابع جديد</string>
     <string name="pref_notifications_frequency">معدل تكرار الإشعارات</string>
     <string name="pref_notifications_frequency_description">تعيين معدل التكرار بين التحديثات</string>
     <string name="pref_notifications_incoming">الأصوات الواردة</string>
@@ -470,17 +516,39 @@
     <string name="pref_notifications_wifi_only_description">طلب التحديثات فقط عند الاتصال عبر Wifi</string>
     <string name="pref_notifications_reposts">إعادة منشورات</string>
     <string name="pref_notifications_reposts_description">تلقي التحديثات حول إعادة المنشورات الجديدة على الأصوات الخاصة بك</string>
+    <string-array name="pref_notifications_frequency">
+    <item>كل ساعة</item>
+    <item>كل 4 ساعات</item>
+    <item>كل 12 ساعة</item>
+    <item>كل 24 ساعة</item>
+  </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">إجبار المشغل التجريبي</string>
     <string name="pref_extras_skippy_desc">تشغيل كافة المسارات باستخدام المشغل التجريبي. سوف يتم تطبيق ذلك عند تشغيل المسار التالي.</string>
 
-    <!-- __SUBSCRIPTIONS -->
+    <!-- __SUBSCRIPTION SETTINGS -->
     <string name="pref_subscriptions_header">اشتراكات</string>
     <string name="pref_subscription_buy_title">اشتراك</string>
     <string name="pref_subscription_buy_summary">ترقية حسابك</string>
     <string name="title_subscribe">اشتراك</string>
     <string name="subscribe_buy">شراء</string>
+
+    <!-- __OFFLINE SETTINGS -->
+    <string name="pref_offline_settings">إعدادات المزامنة بدون اتصال</string>
+    <string name="pref_offline_wifi_only_sync">مزامنة دون اتصال فقط عبر الواي فاي</string>
+    <string name="pref_offline_wifi_only_description">قم بمزامنة إعجاباتك وقوائم التشغيل الخاصة بك باستخدام اتصال واي فاي</string>
+    <string name="pref_offline_settings_summary">إدارة إعدادات المزامنة دون اتصال</string>
+    <string name="pref_offline_storage_limit">حد التخزين</string>
+    <string name="pref_offline_storage_limit_description">مساحة التخزين التي يمكنك استخدامها لمزامنة مساراتك</string>
+    <string name="pref_offline_storage_free_gb">%1$.1f جييجابايت خالية من %2$.1f جييجابايت</string>
+    <string name="pref_offline_storage_limit_gb">%1$.1f جييجابايت</string>
+    <string name="pref_offline_storage_usage">استخدام مساحة التخزين</string>
+    <string name="pref_offline_used_by_other_apps">مستخدمة من تطبيقات أخرى</string>
+    <string name="pref_offline_used">مستخدمة</string>
+    <string name="pref_offline_limit">الحد</string>
+    <string name="pref_offline_remove_all_offline_content">إزالة كافة المحتويات دون اتصال</string>
+    <string name="pref_offline_remove_all_offline_content_description">سيؤدي هذا إلى إزالة كافة المحتويات التي قمت بها دون اتصال من جهازك</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d ثانية</string>
@@ -493,6 +561,7 @@
     <string name="tour_text_2">كافة أنواع الموسيقى والأصوات الجديدة والفريدة</string>
     <string name="tour_title_3">اتصال ومشاركة</string>
     <string name="tour_text_3">اعثر على مؤلفي الموسيقى والصوت لاستماعهم ومتابعتهم، وشارك الأصوات التي تحبها</string>
+    <string name="tour_signup_button">سجِّل بعنوان بريدك الإلكتروني</string>
     <string name="tour_login_header">أو قم بتسجيل الدخول باستخدام حسابك</string>
 
     <!-- __UPLOAD -->
@@ -521,4 +590,52 @@
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">المس لفتح SoundCloud</string>
+
+    <!-- __OFFLINE_SYNC -->
+    <string name="offline_track_not_available">المسار ليس متوفرًا دون اتصال</string>
+    <string name="offline_update_completed_title">جميع المسارات متزامنة!</string>
+    <string name="offline_update_completed_message">جاهز للاستماع دون اتصال!</string>
+    <string name="offline_update_storage_limit_reached_title">تم الوصول إلى حد التخزين</string>
+    <string name="offline_update_storage_limit_reached_message">اضغط هنا لعرض إعدادات التخزين</string>
+    <string name="offline_update_in_progress">مزامنة مساراتك</string>
+    <string name="offline_likes_dialog_title">اجعل إعجاباتك متاحة دون اتصال</string>
+    <string name="offline_likes_dialog_message">ستُبقي هذه الخاصية إعجاباتك الحالية والمستقبلية متاحة بحيث يمكنك الاستماع دون اتصال بالإنترنت أو اتصال بيانات.</string>
+    <string name="make_offline_available">إتاحة دون اتصال</string>
+    <string name="make_offline_unavailable">إزالة من الاستماع دون اتصال</string>
+    <string name="offline_dialog_go_online_continue">استمر</string>
+    <string name="offline_dialog_go_online_error_title">لا يمكن التحقق من اشتراكك</string>
+    <string name="offline_dialog_go_online_error_content">نظرًا لأن هذا الجهاز كان غير متصل لأكثر من 30 يومًا، فلم تتمكن من التحقق من اشتراكك. يرجى الاتصال بالإنترنت لإعادة توصيل هذا الجهاز باشتراكك وأعد تفعيل المحتوى غير المتصل لك.</string>
+    <string name="offline_update_paused">تم إيقاف المزامنة دون اتصال مؤقتًا</string>
+    <string name="no_network_connection">لا يوجد اتصال بالشبكة</string>
+    <string name="no_wifi_connection">لا يوجد اتصال واي فاي</string>
+
+    <!-- __AGE VERFICATION -->
+    <string name="age_verify_label">تحقق من العمر</string>
+    <string name="age_verify_title">يرجى التحقق من عمرك</string>
+    <string name="age_verify_warning">المحتوى الموجود على هذا الملف قد يكون غير مناسب لمن هم دون سن معينة.</string>
+    <string name="age_verify_info">سيتم حفظ هذه المعلومات في ملفك الشخصي.</string>
+    <string name="age_verify_button">تحقق من العمر</string>
+
+    <!-- __DEVICE MANAGEMENT -->
+    <string name="device_management_limit">لقد وصلت إلى حد الجهاز المسجل.</string>
+    <string name="device_management_login_message">اشتراكك يقتصر على 3 أجهزة. يمكنك تسجيل هذا الجهاز وتسجيل الخروج من آخر جهاز استخدمته عن طريق اختيار متابعة.</string>
+    <string name="device_management_conflict_message"> وصل اشتراكك إلى الحد الأقصى للأجهزة. تم تسجيل خروج هذا الجهاز  وتمت إزالة أي محتوى غير متصل. يمكنك تسجيل الدخول مرة أخرى لإعادة تسجيل هذا الجهاز.</string>
+    <string name="device_management_continue">استمر</string>
+
+    <!-- GOOGLE CAST -->
+    <string name="cast_unable_play_track">غير قادر على إسناد المسار</string>
+    
+    <!-- __DEBUG LOGS/FEEDBACK -->
+    <string name="select_feedback_category">ما الذي تريد أن تبلغ عنه؟</string>
+    <string name="feedback_playback_issue">مشكلة في التشغيل</string>
+    <string name="feedback_crash">عطل</string>
+    <string name="feedback_other_issue">مشكلة أخرى</string>
+    <string name="feedback_email_subject">التقرير: %1$s</string>
+    <string name="feedback_action_chooser">إرسال الملاحظات عبر البريد الإلكتروني ...</string>
+    <string name="feedback_unable_to_get_logs">تعذر الحصول على السجلات</string>
+
+    <!-- __PROMOTED TRACKS -->
+    <string name="promoted_label">ترويج</string>
+    <string name="promoted_by_label">ترويج بواسطة %s</string>
+
 </resources>
