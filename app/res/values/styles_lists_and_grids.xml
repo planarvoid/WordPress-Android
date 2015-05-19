@@ -14,7 +14,7 @@
         <item name="android:layout_height">match_parent</item>
         <item name="android:paddingLeft">16dp</item>
         <item name="android:paddingRight">16dp</item>
-        <item name="android:paddingBottom">24dp</item>
+        <item name="android:paddingBottom">18dp</item>
     </style>
     <style name="ListItemText">
         <item name="android:layout_width">wrap_content</item>
@@ -51,7 +51,8 @@
     <style name="ListItemText.TertiaryText">
         <item name="android:textSize">12sp</item>
         <item name="android:layout_marginLeft">12dp</item>
-        <item name="android:layout_marginTop">6dp</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
         <item name="android:gravity">center</item>
         <item name="android:drawablePadding">6dp</item>
     </style>
