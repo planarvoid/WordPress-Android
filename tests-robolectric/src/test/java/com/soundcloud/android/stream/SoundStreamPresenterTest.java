@@ -12,7 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.PauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -59,7 +59,7 @@ public class SoundStreamPresenterTest {
     @Mock private SoundStreamOperations streamOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private MixedPlayableAdapter adapter;
-    @Mock private ImageOperations imageOperations;
+    @Mock private PauseOnScrollListener pauseOnScrollListener;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private TrackItemPresenter trackPresenter;
     @Mock private DateProvider dateProvider;
@@ -75,7 +75,7 @@ public class SoundStreamPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imageOperations,
+        presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, pauseOnScrollListener,
                 pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());

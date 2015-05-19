@@ -20,6 +20,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     private RecyclerView recyclerView;
     private RecyclerView.OnScrollListener externalScrollListener;
     private LinearLayoutManager linearLayoutManager;
+    private RecyclerView.AdapterDataObserver emptyViewObserver;
 
     protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, PauseOnScrollListener pauseOnScrollListener) {
         super(pullToRefreshWrapper);
@@ -43,13 +44,17 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         linearLayoutManager = new LinearLayoutManager(fragment.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        // recyclerView.setEmptyView(getEmptyView());
         configureScrollListener();
-        recyclerView.setAdapter((RecyclerView.Adapter) collectionBinding.adapter());
+
+        final RecyclerView.Adapter adapter = (RecyclerView.Adapter) collectionBinding.adapter();
+        recyclerView.setAdapter(adapter);
+        emptyViewObserver = createEmptyViewObserver(adapter);
+        adapter.registerAdapterDataObserver(emptyViewObserver);
     }
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        recyclerView.getAdapter().unregisterAdapterDataObserver(emptyViewObserver);
         recyclerView.setAdapter(null);
         recyclerView = null;
         super.onDestroyView(fragment);
@@ -64,15 +69,12 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         final CollectionBinding<ItemT> collectionBinding = getBinding();
         if (collectionBinding instanceof PagedCollectionBinding) {
             configurePagedListAdapter((PagedCollectionBinding<ItemT, ?>) collectionBinding);
-
-            recyclerView.addOnScrollListener(new RecyclerViewPagingScrollListener(this,
-                    (PagingAwareAdapter<?>) collectionBinding.adapter(), linearLayoutManager, externalScrollListener));
         }
     }
 
     private void configurePagedListAdapter(final PagedCollectionBinding<ItemT, ?> binding) {
         final PagingAwareAdapter<ItemT> adapter = binding.adapter();
-        externalScrollListener = new RecyclerViewPagingScrollListener(this, adapter, linearLayoutManager, externalScrollListener);
+        recyclerView.addOnScrollListener(new RecyclerViewPagingScrollListener(this, adapter, linearLayoutManager));
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,5 +82,28 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
                 retryWith(binding.fromCurrentPage());
             }
         });
+    }
+
+    private RecyclerView.AdapterDataObserver createEmptyViewObserver(final RecyclerView.Adapter adapter) {
+        return new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                configureEmptyView();
+            }
+
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                configureEmptyView();
+            }
+
+            @Override
+            public void onChanged() {
+                configureEmptyView();
+            }
+
+            private void configureEmptyView() {
+                getEmptyView().setVisibility(adapter.getItemCount() > 0 ? View.GONE : View.VISIBLE);
+            }
+        };
     }
 }

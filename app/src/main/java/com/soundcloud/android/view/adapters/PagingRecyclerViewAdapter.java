@@ -21,7 +21,7 @@ public abstract class PagingRecyclerViewAdapter<T, VH extends ViewHolder> extend
         this.progressCellPresenter = progressCellPresenter;
     }
 
-    public PagingRecyclerViewAdapter(ProgressCellPresenter progressCellPresenter, CellPresenterBinding<T>... cellPresenterEntities) {
+    public PagingRecyclerViewAdapter(ProgressCellPresenter progressCellPresenter, CellPresenterBinding<? extends T>... cellPresenterEntities) {
         super(cellPresenterEntities);
         this.progressCellPresenter = progressCellPresenter;
     }

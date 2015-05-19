@@ -1,5 +1,6 @@
 package com.soundcloud.android.presentation;
 
+import static android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import static com.soundcloud.android.Expect.expect;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
@@ -272,6 +273,7 @@ public class RecyclerViewPresenterTest {
     @Test
     public void shouldDetachPullToRefreshWrapperWhenViewsDestroyed() {
         createPresenterWithBinding(defaultBinding());
+        when(recyclerView.getAdapter()).thenReturn(adapter);
 
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
@@ -283,12 +285,25 @@ public class RecyclerViewPresenterTest {
     @Test
     public void shouldDetachAdapterFromRecyclerViewWhenViewsDestroyed() {
         createPresenterWithBinding(defaultBinding());
+        when(recyclerView.getAdapter()).thenReturn(adapter);
 
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
 
         verify(recyclerView).setAdapter(null);
+    }
+
+    @Test
+    public void shouldUnregisterDataObserverInOnDestroyView() {
+        createPresenterWithBinding(defaultBinding());
+        when(recyclerView.getAdapter()).thenReturn(adapter);
+
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        presenter.onDestroyView(fragment);
+
+        verify(adapter).unregisterAdapterDataObserver(any(RecyclerView.AdapterDataObserver.class));
     }
 
     @Test
@@ -328,6 +343,91 @@ public class RecyclerViewPresenterTest {
 
         verify(emptyView).setStatus(EmptyView.Status.OK);
     }
+
+    @Test
+    public void shouldShowEmptyViewWithNoDataOnChangeObserved() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
+        verify(adapter).registerAdapterDataObserver(captor.capture());
+
+        captor.getValue().onChanged();
+        verify(emptyView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldHideEmptyViewWithNoDataOnChangeObserved() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        when(adapter.getItemCount()).thenReturn(1);
+
+        ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
+        verify(adapter).registerAdapterDataObserver(captor.capture());
+
+        captor.getValue().onChanged();
+        verify(emptyView).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void shouldShowEmptyViewWithNoDataOnRangeInserted() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
+        verify(adapter).registerAdapterDataObserver(captor.capture());
+
+        captor.getValue().onItemRangeInserted(0, 1);
+        verify(emptyView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldHideEmptyViewWithNoDataOnRangeInserted() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        when(adapter.getItemCount()).thenReturn(1);
+
+        ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
+        verify(adapter).registerAdapterDataObserver(captor.capture());
+
+        captor.getValue().onItemRangeRemoved(0, 1);
+        verify(emptyView).setVisibility(View.GONE);
+    }
+
+    @Test
+    public void shouldShowEmptyViewWithNoDataOnRangeRemoved() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
+        verify(adapter).registerAdapterDataObserver(captor.capture());
+
+        captor.getValue().onItemRangeRemoved(0, 1);
+        verify(emptyView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldHideEmptyViewWithNoDataOnRangeRemoved() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        when(adapter.getItemCount()).thenReturn(1);
+
+        ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
+        verify(adapter).registerAdapterDataObserver(captor.capture());
+
+        captor.getValue().onItemRangeRemoved(0, 1);
+        verify(emptyView).setVisibility(View.GONE);
+    }
+
 
     private void triggerPullToRefresh() {
         presenter.onCreate(fragment, null);

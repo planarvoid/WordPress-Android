@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.PauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -17,17 +17,15 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedPlayableAdapter;
-import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Action1;
@@ -45,7 +43,7 @@ import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SoundStreamPresenter extends ListPresenter<PlayableItem>
+public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem>
         implements AdapterView.OnItemClickListener {
 
     @VisibleForTesting
@@ -86,7 +84,7 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
 
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
-    private final MixedPlayableAdapter adapter;
+    private final MixedPlayableRecyclerViewAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
 
@@ -96,12 +94,12 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
-                         MixedPlayableAdapter adapter,
-                         ImageOperations imageOperations,
+                         MixedPlayableRecyclerViewAdapter adapter,
+                         PauseOnScrollListener pauseOnScrollListener,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
                          EventBus eventBus) {
-        super(imageOperations, pullToRefreshWrapper);
+        super(pullToRefreshWrapper, pauseOnScrollListener);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
@@ -139,13 +137,13 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        getListView().setOnItemClickListener(this);
+//        getListView().setOnItemClickListener(this);
         configureEmptyView();
 
-        viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
-        );
+//        viewLifeCycle = new CompositeSubscription(
+//                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
+//                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
+//        );
     }
 
     @Override

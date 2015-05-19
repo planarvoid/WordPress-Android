@@ -2,6 +2,8 @@ package com.soundcloud.android.image;
 
 import android.support.v7.widget.RecyclerView;
 
+import javax.inject.Inject;
+
 /**
  * https://github.com/nostra13/Android-Universal-Image-Loader/issues/799
  */
@@ -9,7 +11,8 @@ public class PauseOnScrollListener extends RecyclerView.OnScrollListener {
 
     private ImageOperations imageOperations;
 
-    PauseOnScrollListener(ImageOperations imageOperations) {
+    @Inject
+    public PauseOnScrollListener(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 

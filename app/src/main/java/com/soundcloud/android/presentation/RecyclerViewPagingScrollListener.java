@@ -13,24 +13,16 @@ final class RecyclerViewPagingScrollListener extends RecyclerView.OnScrollListen
     private final PagingAwareAdapter<?> adapter;
 
     private final LinearLayoutManager layoutManager;
-    private final RecyclerView.OnScrollListener recyclerViewDelegate;
 
     RecyclerViewPagingScrollListener(CollectionViewPresenter presenter, PagingAwareAdapter<?> adapter,
-                                     LinearLayoutManager layoutManager, RecyclerView.OnScrollListener listenerDelegate) {
+                                     LinearLayoutManager layoutManager) {
         this.presenter = presenter;
         this.adapter = adapter;
         this.layoutManager = layoutManager;
-        this.recyclerViewDelegate = listenerDelegate;
-    }
-
-    @Override
-    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-        recyclerViewDelegate.onScrollStateChanged(recyclerView, newState);
     }
 
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-        recyclerViewDelegate.onScrolled(recyclerView, dx, dy);
         onScroll(layoutManager.findFirstVisibleItemPosition(), layoutManager.getChildCount(),
                 layoutManager.getItemCount());
 
@@ -47,5 +39,4 @@ final class RecyclerViewPagingScrollListener extends RecyclerView.OnScrollListen
             pager.next();
         }
     }
-
 }

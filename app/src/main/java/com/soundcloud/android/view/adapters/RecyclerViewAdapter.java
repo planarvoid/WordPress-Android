@@ -16,18 +16,18 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
     protected final List<ItemT> items;
-    protected final SparseArray<CellPresenter<ItemT>> cellPresenters;
+    protected final SparseArray<CellPresenter<?>> cellPresenters;
 
     @SafeVarargs
-    protected RecyclerViewAdapter(CellPresenterBinding<ItemT>... cellPresenterBindings) {
+    protected RecyclerViewAdapter(CellPresenterBinding<? extends ItemT>... cellPresenterBindings) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
         this.cellPresenters = new SparseArray<>(cellPresenterBindings.length);
-        for (CellPresenterBinding<ItemT> entity : cellPresenterBindings) {
+        for (CellPresenterBinding<? extends ItemT> entity : cellPresenterBindings) {
             this.cellPresenters.put(entity.itemViewType, entity.cellPresenter);
         }
     }
 
-    protected RecyclerViewAdapter(CellPresenter<ItemT> cellPresenter) {
+    protected RecyclerViewAdapter(CellPresenter<? extends ItemT> cellPresenter) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
         this.cellPresenters = new SparseArray<>(1);
         this.cellPresenters.put(DEFAULT_VIEW_TYPE, cellPresenter);
@@ -42,7 +42,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(VH holder, int position) {
-        cellPresenters.get(getItemViewType(position)).bindItemView(position, holder.itemView, items);
+        cellPresenters.get(getItemViewType(position)).bindItemView(position, holder.itemView, (List) items);
     }
 
     @Override
@@ -58,6 +58,10 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    public ItemT getItem(int position){
+        return items.get(position);
     }
 
     @Override
