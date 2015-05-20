@@ -6,6 +6,7 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import javax.inject.Inject;
 
 class OfflineUsage {
+    private final double STEP_IN_BYTES = 512 * 1024 * 1024;
 
     private final SecureFileStorage fileStorage;
     private final OfflineSettingsStorage offlineSettings;
@@ -65,7 +66,12 @@ class OfflineUsage {
     }
 
     public void setOfflineTotalPercentage(int percentage) {
-        offlineTotal = Math.round(getAvailableBeforeOffline() * percentage / 100d);
+        int numberOfSteps = Math.max(percentage / getIncrementStep(), 1);
+        offlineTotal = (long) (numberOfSteps * STEP_IN_BYTES);
+    }
+
+    public int getIncrementStep() {
+        return (int) Math.round((STEP_IN_BYTES / getAvailableBeforeOffline()) * 100d);
     }
 
     private long getAvailableBeforeOffline() {
