@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -15,18 +15,18 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
-import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.MixedPlayableAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -38,13 +38,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.AdapterView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
+public class SoundStreamPresenter extends ListPresenter<PlayableItem>
+        implements AdapterView.OnItemClickListener {
 
     @VisibleForTesting
     static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
@@ -84,23 +86,22 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
-    private final MixedPlayableRecyclerViewAdapter adapter;
+    private final MixedPlayableAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
 
     private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
 
-
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
-                         MixedPlayableRecyclerViewAdapter adapter,
-                         RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
+                         MixedPlayableAdapter adapter,
+                         ImageOperations imageOperations,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
                          EventBus eventBus) {
-        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener);
+        super(imageOperations, pullToRefreshWrapper);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
@@ -111,7 +112,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getBinding().connect();
+        getListBinding().connect();
     }
 
     public void setOnboardingSuccess(boolean onboardingSuccess) {
@@ -119,16 +120,16 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+    protected ListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
+        return ListBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onRefreshBinding() {
-        return CollectionBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+    protected ListBinding<PlayableItem> onBuildRefreshBinding() {
+        return ListBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
@@ -137,7 +138,10 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+
+        getListView().setOnItemClickListener(this);
         configureEmptyView();
+
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
@@ -163,7 +167,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     }
 
     @Override
-    protected void onItemClicked(View view, int position) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final ListItem item = adapter.getItem(position);
         final Urn playableUrn = item.getEntityUrn();
         if (item instanceof PromotedTrackItem) {

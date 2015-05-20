@@ -10,7 +10,7 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,7 @@ public class PlaylistDetailsControllerTest {
     PlaylistDetailsController controller;
 
     @Mock private PlaylistTrackItemPresenter trackItemPresenter;
-    @Mock private ListItemAdapter<TrackItem> itemAdapter;
+    @Mock private ItemAdapter<TrackItem> itemAdapter;
     private EventBus eventBus = new TestEventBus();
     private PlaylistWithTracks playlist;
 
@@ -65,7 +65,7 @@ public class PlaylistDetailsControllerTest {
     private static class PlaylistDetailsControllerImpl extends PlaylistDetailsController {
 
         protected PlaylistDetailsControllerImpl(PlaylistTrackItemPresenter trackPresenter,
-                                                ListItemAdapter<TrackItem> adapter, EventBus eventBus) {
+                                                ItemAdapter<TrackItem> adapter, EventBus eventBus) {
             super(trackPresenter, adapter, eventBus);
         }
 

@@ -29,7 +29,7 @@ public class ActivityItemPresenter implements CellPresenter<PropertySet> {
     }
 
     @Override
-    public View createItemView(ViewGroup parent) {
+    public View createItemView(int position, ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(R.layout.engagement_list_item, parent, false);
     }
 

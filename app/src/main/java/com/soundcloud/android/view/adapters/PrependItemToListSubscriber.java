@@ -4,9 +4,9 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 public final class PrependItemToListSubscriber<T extends ListItem> extends DefaultSubscriber<T> {
-    private final ListItemAdapter<T> adapter;
+    private final ItemAdapter<T> adapter;
 
-    public PrependItemToListSubscriber(ListItemAdapter<T> adapter) {
+    public PrependItemToListSubscriber(ItemAdapter<T> adapter) {
         this.adapter = adapter;
     }
 

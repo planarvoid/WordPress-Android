@@ -47,7 +47,7 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
     }
 
     @Override
-    public View createItemView(ViewGroup parent) {
+    public View createItemView(int position, ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(R.layout.track_list_item, parent, false);
     }
 

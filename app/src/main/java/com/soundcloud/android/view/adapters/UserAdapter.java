@@ -62,7 +62,7 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
 
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
-        return presenter.createItemView(parent);
+        return presenter.createItemView(position, parent);
     }
 
     @Override

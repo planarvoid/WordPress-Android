@@ -41,7 +41,7 @@ public class SoundStreamFragment extends LightCycleSupportFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
+        return inflater.inflate(R.layout.default_list_with_refresh, container, false);
     }
 
 }

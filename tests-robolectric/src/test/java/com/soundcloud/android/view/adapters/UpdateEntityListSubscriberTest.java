@@ -18,8 +18,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import android.support.v7.widget.RecyclerView;
-
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -29,7 +27,7 @@ public class UpdateEntityListSubscriberTest {
 
     private UpdateEntityListSubscriber updateEntityListSubscriber;
 
-    @Mock private RecyclerViewAdapter<TrackItem, RecyclerView.ViewHolder> adapter;
+    @Mock private ItemAdapter<TrackItem> adapter;
 
     @Before
     public void setUp() throws Exception {

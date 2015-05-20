@@ -93,7 +93,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
-        return activityItemPresenter.createItemView(parent);
+        return activityItemPresenter.createItemView(position, parent);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class TrackGridPresenter implements CellPresenter<TrackItem> {
     }
 
     @Override
-    public View createItemView(ViewGroup parent) {
+    public View createItemView(int position, ViewGroup parent) {
         View itemView = View.inflate(parent.getContext(), R.layout.default_grid_item, null);
         ItemViewHolder viewHolder = new ItemViewHolder();
         viewHolder.imageView = (ImageView) itemView.findViewById(R.id.image);

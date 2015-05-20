@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -20,7 +20,7 @@ class SplitScreenController extends PlaylistDetailsController {
 
     @Inject
     SplitScreenController(PlaylistTrackItemPresenter trackPresenter, EventBus eventBus) {
-        super(trackPresenter, new ListItemAdapter<>(trackPresenter), eventBus);
+        super(trackPresenter, new ItemAdapter<>(trackPresenter), eventBus);
     }
 
     @Override

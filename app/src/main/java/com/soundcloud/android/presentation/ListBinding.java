@@ -2,8 +2,8 @@ package com.soundcloud.android.presentation;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.Pager;
@@ -14,7 +14,7 @@ import rx.internal.util.UtilityFunctions;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
 
-public class CollectionBinding<Item> {
+public class ListBinding<Item> {
 
     private final ConnectableObservable<? extends Iterable<Item>> items;
     private final ItemAdapter<Item> adapter;
@@ -29,7 +29,7 @@ public class CollectionBinding<Item> {
         return new Builder<>(source, transformer);
     }
 
-    CollectionBinding(Observable<? extends Iterable<Item>> items, ItemAdapter<Item> adapter) {
+    ListBinding(Observable<? extends Iterable<Item>> items, ItemAdapter<Item> adapter) {
         checkArgument(adapter != null, "adapter can't be null");
         this.items = items.observeOn(AndroidSchedulers.mainThread()).replay();
         this.adapter = adapter;
@@ -74,14 +74,14 @@ public class CollectionBinding<Item> {
             return this;
         }
 
-        public CollectionBinding<Item> build() {
+        public ListBinding<Item> build() {
             if (pagingFunction != null) {
-                checkArgument(adapter instanceof PagingAwareAdapter,
-                        "adapter in paged binding must be " + PagingAwareAdapter.class);
+                checkArgument(adapter instanceof PagingItemAdapter,
+                        "adapter in paged binding must be " + PagingItemAdapter.class);
                 final Pager<S, T> pager = Pager.create(pagingFunction, transformer);
-                return new PagedCollectionBinding<>(pager.page(source), (PagingAwareAdapter<Item>) adapter, pager);
+                return new PagedListBinding<>(pager.page(source), (PagingItemAdapter<Item>) adapter, pager);
             } else {
-                return new CollectionBinding<>(source.map(transformer), adapter);
+                return new ListBinding<>(source.map(transformer), adapter);
             }
         }
 
