@@ -2,6 +2,7 @@ package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -36,6 +37,7 @@ public class OfflineContentOperations {
     private final SecureFileStorage secureFileStorage;
     private final OfflinePlaylistStorage playlistStorage;
     private final OfflineSettingsStorage settingsStorage;
+    private final FeatureOperations featureOperations;
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
     private final Scheduler scheduler;
@@ -95,7 +97,7 @@ public class OfflineContentOperations {
                                     PolicyOperations policyOperations,
                                     LoadExpectedContentCommand loadExpectedContentCommand,
                                     LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
-                                    OfflineTracksStorage tracksStorage,
+                                    FeatureOperations featureOperations, OfflineTracksStorage tracksStorage,
                                     SecureFileStorage secureFileStorage,
                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
@@ -107,6 +109,7 @@ public class OfflineContentOperations {
         this.policyOperations = policyOperations;
         this.loadExpectedContentCommand = loadExpectedContentCommand;
         this.loadOfflineContentUpdatesCommand = loadOfflineContentUpdatesCommand;
+        this.featureOperations = featureOperations;
         this.tracksStorage = tracksStorage;
         this.secureFileStorage = secureFileStorage;
         this.scheduler = scheduler;
@@ -132,6 +135,11 @@ public class OfflineContentOperations {
                 .map(WRITE_RESULT_TO_SUCCESS)
                 .doOnNext(publishMarkedForOfflineChange(playlistUrn, false))
                 .subscribeOn(scheduler);
+    }
+
+    public Observable<Boolean> getOfflineContentOrLikesStatus() {
+        return settingsStorage.getOfflineLikedTracksStatusChange()
+                .mergeWith(featureOperations.offlineContentEnabled());
     }
 
     public Observable<Boolean> getOfflineLikesSettingsStatus() {

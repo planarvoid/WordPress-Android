@@ -57,6 +57,10 @@ class TrackLikesHeaderView {
         overflowMenuButton.setVisibility(View.VISIBLE);
     }
 
+    void hideOverflowMenuButton() {
+        overflowMenuButton.setVisibility(View.GONE);
+    }
+
     void setOnOverflowMenuClick(View.OnClickListener listener) {
         overflowMenuButton.setOnClickListener(listener);
     }

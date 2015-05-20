@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -53,6 +54,7 @@ public class OfflineContentOperationsTest {
     @Mock private LoadExpectedContentCommand loadExpectedContentCommand;
     @Mock private LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
     @Mock private OfflineTracksStorage offlineTracksStorage;
+    @Mock private FeatureOperations featureOperations;
     @Mock private ChangeResult changeResult;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
     @Mock private SecureFileStorage secureFileStorage;
@@ -80,6 +82,7 @@ public class OfflineContentOperationsTest {
                 policyOperations,
                 loadExpectedContentCommand,
                 loadOfflineContentUpdatesCommand,
+                featureOperations,
                 offlineTracksStorage,
                 secureFileStorage,
                 Schedulers.immediate());

@@ -7,8 +7,8 @@ import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -16,6 +16,7 @@ import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -23,6 +24,7 @@ import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
+import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.Nullable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -46,6 +48,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
 
     private final TrackLikeOperations likeOperations;
     private final OfflinePlaybackOperations playbackOperations;
+    private final OfflineContentOperations offlineContentOperations;
     private final PagedTracksAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     private final EventBus eventBus;
@@ -55,7 +58,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
     @Inject
     TrackLikesPresenter(TrackLikeOperations likeOperations,
                         OfflinePlaybackOperations playbackOperations,
-                        PagedTracksAdapter adapter,
+                        OfflineContentOperations offlineContentOperations, PagedTracksAdapter adapter,
                         TrackLikesActionMenuController actionMenuController,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
@@ -63,6 +66,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
         super(imageOperations, pullToRefreshWrapper);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackOperations;
+        this.offlineContentOperations = offlineContentOperations;
         this.adapter = adapter;
         this.actionMenuController = actionMenuController;
         this.headerPresenter = headerPresenter;
@@ -109,16 +113,23 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
         getEmptyView().setMessageText(R.string.list_empty_user_likes_message);
 
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
-                eventBus.subscribe(ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)),
+                eventBus.subscribe(PLAY_QUEUE_TRACK,
+                        new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
+                eventBus.subscribe(CURRENT_DOWNLOAD,
+                        new UpdateCurrentDownloadSubscriber(adapter)),
+                eventBus.subscribe(ENTITY_STATE_CHANGED,
+                        new UpdateEntityListSubscriber(adapter)),
+
                 likeOperations.onTrackLiked()
                         .map(TrackItem.fromPropertySet())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new PrependItemToListSubscriber<>(adapter)),
                 likeOperations.onTrackUnliked()
                         .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new RemoveEntityListSubscriber(adapter))
+                        .subscribe(new RemoveEntityListSubscriber(adapter)),
+
+                offlineContentOperations.getOfflineContentOrLikesStatus()
+                        .subscribe(new RefreshAdapterSubscriber())
         );
     }
 
@@ -148,6 +159,13 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
             playbackOperations
                     .playLikes(initialTrack, realPosition, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
+        }
+    }
+
+    private final class RefreshAdapterSubscriber extends DefaultSubscriber<Boolean> {
+        @Override
+        public void onNext(Boolean ignored) {
+            adapter.notifyDataSetChanged();
         }
     }
 

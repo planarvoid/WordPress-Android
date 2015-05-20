@@ -85,8 +85,9 @@ public class TrackLikesHeaderPresenterTest {
 
         likedTrackUrns = Lists.newArrayList(TRACK1, TRACK2);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.<DownloadState>never());
-        when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.<Boolean>never());
+        when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.just(true));
     }
 
     @Test
@@ -188,25 +189,30 @@ public class TrackLikesHeaderPresenterTest {
 
     @Test
     public void ignoresCurrentDownloadEventsWhenUnrelatedToLikedTracks() {
-        presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(false, Arrays.asList(TRACK1)));
+        final CurrentDownloadEvent downloadNotFromLikes = CurrentDownloadEvent.downloaded(false, Arrays.asList(TRACK1));
 
-        verifyZeroInteractions(headerView);
+        presenter.onResume(fragment);
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadNotFromLikes);
+
+        verify(headerView, never()).show(downloadNotFromLikes.kind);
     }
 
     @Test
     public void ignoresCurrentDownloadEventsWhenOfflineContentFeatureIsDisabled() {
+        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(TRACK1_DOWNLOAD_REQUEST);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
-        presenter.onResume(fragment);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(TRACK1_DOWNLOAD_REQUEST));
 
-        verifyZeroInteractions(headerView);
+        presenter.onResume(fragment);
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+
+        verify(headerView, never()).show(downloadingEvent.kind);
     }
 
     @Test
     public void showsDownloadedStateWhenLikedTracksDownloadStateIsDownloaded() {
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.DOWNLOADED));
         presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
 
         verify(headerView).show(DownloadState.DOWNLOADED);
     }
@@ -215,6 +221,7 @@ public class TrackLikesHeaderPresenterTest {
     public void showsRequestedStateWhenLikedTracksDownloadStateIsRequested() {
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.REQUESTED));
         presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
 
         verify(headerView).show(DownloadState.REQUESTED);
     }
@@ -223,17 +230,18 @@ public class TrackLikesHeaderPresenterTest {
     public void showsDefaultStateWhenLikedTracksDownloadStateIsNoOffline() {
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.NO_OFFLINE));
         presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
 
         verify(headerView).show(DownloadState.NO_OFFLINE);
     }
 
     @Test
     public void removeDownloadStateWhenOfflineLikedChangeToDisable() {
-        final PublishSubject<Boolean> offlineLikedSettingsSubject = PublishSubject.create();
-        when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(offlineLikedSettingsSubject);
+        final PublishSubject<Boolean> offlineContentAndLikesSubject = PublishSubject.create();
+        when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(offlineContentAndLikesSubject);
 
         presenter.onResume(fragment);
-        offlineLikedSettingsSubject.onNext(false);
+        offlineContentAndLikesSubject.onNext(false);
 
         verify(headerView).show(DownloadState.NO_OFFLINE);
     }
@@ -262,6 +270,7 @@ public class TrackLikesHeaderPresenterTest {
     public void showLikesMenuWhenOfflineContentFeaturesIsEnabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
 
         verify(headerView).showOverflowMenuButton();
         verify(headerView).setOnOverflowMenuClick(any(View.OnClickListener.class));
@@ -283,6 +292,7 @@ public class TrackLikesHeaderPresenterTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
 
         verify(headerView).setOnOverflowMenuClick(onClickListenerCaptor.capture());
         onClickListenerCaptor.getValue().onClick(view);

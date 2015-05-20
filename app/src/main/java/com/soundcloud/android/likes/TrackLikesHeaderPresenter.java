@@ -6,18 +6,18 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.ListHeaderPresenter;
 import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.ListHeaderPresenter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -105,40 +105,42 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         headerView.setOnShuffleButtonClick(onShuffleButtonClick);
         headerView.attachToList(listView);
 
-        if (shouldShowOfflineSyncOptions()) {
-            headerView.showOverflowMenuButton();
-            headerView.setOnOverflowMenuClick(onOverflowMenuClick);
-        }
-
         viewLifeCycle = new CompositeSubscription();
         viewLifeCycle.add(eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_LIKE_EVENT_FILTER)
                 .flatMap(loadAllTrackUrns)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new AllLikedTracksSubscriber()));
-        if (featureOperations.isOfflineContentEnabled()) {
-            viewLifeCycle.add(offlineContentOperations
-                    .getLikedTracksDownloadStateFromStorage()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DownloadStateSubscriber()));
-        }
     }
 
     @Override
     public void onResume(Fragment fragment) {
-        if (featureOperations.isOfflineContentEnabled()) {
+        if (shouldShowOfflineSyncOptions()) {
             foregroundSubscription = new CompositeSubscription(
-                    eventBus
-                    .queue(EventQueue.CURRENT_DOWNLOAD)
-                    .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
-                    .map(CurrentDownloadEvent.TO_DOWNLOAD_STATE)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DownloadStateSubscriber()),
+                    likesDownloadState()
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new DownloadStateSubscriber()),
                     offlineContentOperations
                             .getOfflineLikesSettingsStatus()
                             .subscribe(new OfflineLikesSettingSubscriber())
             );
+
+            headerView.showOverflowMenuButton();
+            headerView.setOnOverflowMenuClick(onOverflowMenuClick);
+        } else {
+            headerView.hideOverflowMenuButton();
+            headerView.show(DownloadState.NO_OFFLINE);
         }
+    }
+
+    private Observable<DownloadState> likesDownloadState() {
+        final Observable<DownloadState> downloadStateFromCurrentDownload =
+                eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
+                        .filter(CurrentDownloadEvent.FOR_LIKED_TRACKS_FILTER)
+                        .map(CurrentDownloadEvent.TO_DOWNLOAD_STATE);
+        return offlineContentOperations
+                .getLikedTracksDownloadStateFromStorage()
+                .mergeWith(downloadStateFromCurrentDownload);
     }
 
     @Override
@@ -177,7 +179,9 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
         @Override
         public void onNext(DownloadState state) {
-            headerView.show(state);
+            if (shouldShowOfflineSyncOptions() && offlineContentOperations.isOfflineLikedTracksEnabled()) {
+                headerView.show(state);
+            }
         }
     }
 
