@@ -40,7 +40,7 @@ public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdap
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         if (items.isEmpty()) {
             return 0;
         } else {
@@ -109,7 +109,7 @@ public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdap
         if (isIdle() && position == items.size()) {
             ErrorUtils.handleSilentException(new IllegalStateException(
                     "This position is invalid in Idle state. Tracking issue #2377; position=" + position + "; items="
-                            + items.size() + "; count=" + getCount()));
+                            + items.size() + "; count=" + getItemCount()));
         }
         
         return appendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE

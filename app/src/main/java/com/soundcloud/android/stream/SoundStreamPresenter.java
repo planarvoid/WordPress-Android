@@ -24,8 +24,10 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Action1;
@@ -36,15 +38,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.AdapterView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem>
-        implements AdapterView.OnItemClickListener {
+public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     @VisibleForTesting
     static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
@@ -91,6 +91,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem>
     private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
 
+
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
@@ -136,14 +137,11 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem>
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
-//        getListView().setOnItemClickListener(this);
         configureEmptyView();
-
-//        viewLifeCycle = new CompositeSubscription(
-//                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-//                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
-//        );
+        viewLifeCycle = new CompositeSubscription(
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
+                eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
+        );
     }
 
     @Override
@@ -165,7 +163,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem>
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    protected void onItemClicked(View view, int position) {
         final ListItem item = adapter.getItem(position);
         final Urn playableUrn = item.getEntityUrn();
         if (item instanceof PromotedTrackItem) {

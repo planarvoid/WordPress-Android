@@ -30,7 +30,7 @@ public class InlinePlaylistTracksAdapterTest {
 
     @Test
     public void hasCountOf1WithNoDataAndInlineEmptyViews() throws Exception {
-        expect(adapter.getCount()).toBe(1);
+        expect(adapter.getItemCount()).toBe(1);
     }
 
     @Test

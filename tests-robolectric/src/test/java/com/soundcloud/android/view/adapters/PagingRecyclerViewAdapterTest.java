@@ -77,6 +77,8 @@ public class PagingRecyclerViewAdapterTest {
 
     @Test
     public void shouldCreateNormalItemRowUsingPresenter() {
+        when(cellPresenter.createItemView(parent)).thenReturn(rowView);
+
         final int viewType = 0;
         adapter.onCreateViewHolder(parent, viewType);
 

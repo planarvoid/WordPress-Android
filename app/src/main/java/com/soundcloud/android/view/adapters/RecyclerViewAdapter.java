@@ -18,6 +18,8 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     protected final List<ItemT> items;
     protected final SparseArray<CellPresenter<?>> cellPresenters;
 
+    private View.OnClickListener onClickListener;
+
     @SafeVarargs
     protected RecyclerViewAdapter(CellPresenterBinding<? extends ItemT>... cellPresenterBindings) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
@@ -35,13 +37,19 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        return createViewHolder(cellPresenters.get(viewType).createItemView(parent));
+        final View itemView = cellPresenters.get(viewType).createItemView(parent);
+        itemView.setOnClickListener(onClickListener);
+        return createViewHolder(itemView);
+    }
+
+    public void setOnItemClickListener(View.OnClickListener itemClickListener) {
+        this.onClickListener = itemClickListener;
     }
 
     protected abstract VH createViewHolder(View itemView);
 
     @Override
-    public void onBindViewHolder(VH holder, int position) {
+    public void onBindViewHolder(final VH holder, final int position) {
         cellPresenters.get(getItemViewType(position)).bindItemView(position, holder.itemView, (List) items);
     }
 
@@ -60,13 +68,22 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
         return items.size();
     }
 
-    public ItemT getItem(int position){
+    public ItemT getItem(int position) {
         return items.get(position);
+    }
+
+    public List<ItemT> getItems() {
+        return items;
+    }
+
+    @Override
+    public void removeItem(int position) {
+        items.remove(position);
     }
 
     @Override
     public void onCompleted() {
-
+        // no-op by default
     }
 
     @Override

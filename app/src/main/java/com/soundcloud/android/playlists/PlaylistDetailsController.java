@@ -69,7 +69,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         AnimUtils.removeItemFromList(listView, position, new AnimUtils.ItemRemovalCallback() {
             @Override
             public void onAnimationComplete(int position) {
-                adapter.removeAt(position);
+                adapter.removeItem(position);
                 adapter.notifyDataSetChanged();
                 listener.onPlaylistContentChanged();
             }

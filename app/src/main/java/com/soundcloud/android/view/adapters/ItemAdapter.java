@@ -43,8 +43,13 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements ReactiveItemAdapt
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return items.size();
+    }
+
+    @Override
+    public int getCount() {
+        return getItemCount();
     }
 
     @Override
@@ -65,7 +70,7 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements ReactiveItemAdapt
         items.add(item);
     }
 
-    public void removeAt(int position) {
+    public void removeItem(int position) {
         items.remove(position);
     }
 

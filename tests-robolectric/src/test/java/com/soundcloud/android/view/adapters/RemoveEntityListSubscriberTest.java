@@ -34,18 +34,18 @@ public class RemoveEntityListSubscriberTest {
     @Test
     public void onNextShouldRemoveEntityFromAdapter() {
         TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
-        when(adapter.getCount()).thenReturn(1);
+        when(adapter.getItemCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
         observable.onNext(TRACK_URN);
 
-        verify(adapter).removeAt(0);
+        verify(adapter).removeItem(0);
     }
 
     @Test
     public void onNextShouldNotifyDataSetChangedOnSuccessfulRemoval() {
         TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
-        when(adapter.getCount()).thenReturn(1);
+        when(adapter.getItemCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
         observable.onNext(TRACK_URN);
@@ -56,12 +56,12 @@ public class RemoveEntityListSubscriberTest {
     @Test
     public void onNextShouldNotNotifyDataSetChangedIfNoRemovalWasMade() {
         TrackItem item = TrackItem.from(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
-        when(adapter.getCount()).thenReturn(1);
+        when(adapter.getItemCount()).thenReturn(1);
         when(adapter.getItem(0)).thenReturn(item);
 
         observable.onNext(Urn.forTrack(9L));
 
-        verify(adapter, never()).removeAt(anyInt());
+        verify(adapter, never()).removeItem(anyInt());
         verify(adapter, never()).notifyDataSetChanged();
     }
 }

@@ -7,6 +7,7 @@ import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.PauseOnScrollListener;
 import com.soundcloud.android.view.adapters.PagingAwareAdapter;
+import com.soundcloud.android.view.adapters.RecyclerViewAdapter;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -34,7 +35,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         final CollectionBinding<ItemT> collectionBinding = getBinding();
-        Preconditions.checkState(collectionBinding.adapter() instanceof RecyclerView.Adapter, "Adapter must be an " + RecyclerView.Adapter.class);
+        Preconditions.checkState(collectionBinding.adapter() instanceof RecyclerViewAdapter, "Adapter must be an " + RecyclerViewAdapter.class);
 
         this.recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         if (this.recyclerView == null) {
@@ -46,8 +47,15 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
 
         configureScrollListener();
 
-        final RecyclerView.Adapter adapter = (RecyclerView.Adapter) collectionBinding.adapter();
+        final RecyclerViewAdapter adapter = (RecyclerViewAdapter) collectionBinding.adapter();
         recyclerView.setAdapter(adapter);
+        adapter.setOnItemClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onItemClicked(view, recyclerView.getChildAdapterPosition(view));
+            }
+        });
+
         emptyViewObserver = createEmptyViewObserver(adapter);
         adapter.registerAdapterDataObserver(emptyViewObserver);
     }
@@ -106,4 +114,6 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
             }
         };
     }
+
+    protected abstract void onItemClicked(View view, int position);
 }

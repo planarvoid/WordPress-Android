@@ -185,7 +185,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         }
 
         @Override
-        public int getCount() {
+        public int getItemCount() {
             return items.size();
         }
 

@@ -38,7 +38,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements Empt
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return Math.max(1, items.size()); // at least 1 for the empty view
     }
 

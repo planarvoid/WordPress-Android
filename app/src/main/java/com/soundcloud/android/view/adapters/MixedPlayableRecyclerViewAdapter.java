@@ -47,12 +47,9 @@ public class MixedPlayableRecyclerViewAdapter extends PagingRecyclerViewAdapter<
     }
 
     public static class MixedPlayableViewHolder extends RecyclerView.ViewHolder {
-
         public MixedPlayableViewHolder(View itemView) {
             super(itemView);
         }
-
-
     }
 
 }

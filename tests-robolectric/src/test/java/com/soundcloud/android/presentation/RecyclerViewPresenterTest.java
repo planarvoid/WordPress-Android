@@ -61,6 +61,9 @@ public class RecyclerViewPresenterTest {
 
     private TestSubscriber<Iterable<String>> testSubscriber = new TestSubscriber<>();
 
+    private View lastClickedView;
+    private int lastClickedPosition;
+
     @Before
     public void setup() {
         when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
@@ -428,6 +431,22 @@ public class RecyclerViewPresenterTest {
         verify(emptyView).setVisibility(View.GONE);
     }
 
+    @Test
+    public void shouldCallClickListenerWithPosition() throws Exception {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        View itemView = mock(View.class);
+        when(recyclerView.getChildAdapterPosition(itemView)).thenReturn(2);
+
+        ArgumentCaptor<View.OnClickListener> clickListenerCaptor = ArgumentCaptor.forClass(View.OnClickListener.class);
+        verify(adapter).setOnItemClickListener(clickListenerCaptor.capture());
+        clickListenerCaptor.getValue().onClick(itemView);
+
+        expect(lastClickedView).toBe(itemView);
+        expect(lastClickedPosition).toEqual(2);
+    }
 
     private void triggerPullToRefresh() {
         presenter.onCreate(fragment, null);
@@ -464,6 +483,12 @@ public class RecyclerViewPresenterTest {
                     viewLifeCycle.add(collectionBinding.items().subscribe(observer));
                 }
             }
+
+            @Override
+            protected void onItemClicked(View view, int position) {
+                lastClickedView = view;
+                lastClickedPosition = position;
+            }
         };
     }
 
@@ -479,6 +504,12 @@ public class RecyclerViewPresenterTest {
             @Override
             protected void onSubscribeBinding(CollectionBinding<String> collectionBinding, CompositeSubscription viewLifeCycle) {
                 // no op
+            }
+
+            @Override
+            protected void onItemClicked(View view, int position) {
+                lastClickedView = view;
+                lastClickedPosition = position;
             }
         };
     }

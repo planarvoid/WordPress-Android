@@ -9,9 +9,9 @@ import com.soundcloud.propeller.PropertySet;
 import java.util.Map;
 
 public final class UpdateEntityListSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
-    private final ItemAdapter<? extends ListItem> adapter;
+    private final ReactiveItemAdapter<? extends ListItem> adapter;
 
-    public UpdateEntityListSubscriber(ItemAdapter<? extends ListItem> adapter) {
+    public UpdateEntityListSubscriber(ReactiveItemAdapter<? extends ListItem> adapter) {
         this.adapter = adapter;
     }
 

@@ -15,9 +15,9 @@ import rx.Observable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class RecyclerViewAdapterTest {
@@ -25,6 +25,7 @@ public class RecyclerViewAdapterTest {
     @Mock private View itemView;
     @Mock private ViewGroup parent;
     @Mock private CellPresenter<String> cellPresenter;
+    @Mock private View.OnClickListener clickListener;
 
     private RecyclerViewAdapter<String, TestViewHolder> adapter;
     private TestViewHolder viewHolder;
@@ -49,8 +50,22 @@ public class RecyclerViewAdapterTest {
     }
 
     @Test
+    public void shouldRemoveItemAtPosition() {
+        adapter.addItem("item1");
+        adapter.addItem("item2");
+        adapter.addItem("item3");
+
+        adapter.removeItem(1);
+
+        List<String> items = adapter.getItems();
+        expect(items.size()).toEqual(2);
+        expect(items.get(0)).toEqual("item1");
+        expect(items.get(1)).toEqual("item3");
+    }
+
+    @Test
     public void shouldCreateItemViewWithPresenter() {
-        FrameLayout parent = mock(FrameLayout.class);
+        when(cellPresenter.createItemView(parent)).thenReturn(itemView);
         adapter.addItem("item");
         adapter.onCreateViewHolder(parent, 0);
         verify(cellPresenter).createItemView(parent);
@@ -61,6 +76,9 @@ public class RecyclerViewAdapterTest {
         CellPresenter presenterOne = mock(CellPresenter.class);
         CellPresenter presenterTwo = mock(CellPresenter.class);
         adapter = buildAdapter(new CellPresenterBinding<String>(0, presenterOne), new CellPresenterBinding<String>(1, presenterTwo));
+
+        when(presenterOne.createItemView(parent)).thenReturn(itemView);
+        when(presenterTwo.createItemView(parent)).thenReturn(itemView);
 
         adapter.onCreateViewHolder(parent, 0);
         verify(presenterOne).createItemView(parent);
@@ -76,6 +94,17 @@ public class RecyclerViewAdapterTest {
 
         adapter.onBindViewHolder(viewHolder, 0);
         verify(cellPresenter).bindItemView(0, itemView, Arrays.asList("item"));
+    }
+
+    @Test
+    public void shouldSetCustomClickListenerOnItemView() throws Exception {
+        adapter.setOnItemClickListener(clickListener);
+        when(cellPresenter.createItemView(parent)).thenReturn(itemView);
+
+        final TestViewHolder testViewHolder = adapter.onCreateViewHolder(parent, 0);
+        adapter.onBindViewHolder(testViewHolder, 1);
+
+        verify(itemView).setOnClickListener(clickListener);
     }
 
     private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(final CellPresenterBinding... bindings) {

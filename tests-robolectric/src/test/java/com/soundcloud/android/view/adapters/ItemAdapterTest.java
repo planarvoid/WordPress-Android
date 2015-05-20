@@ -35,15 +35,15 @@ public class ItemAdapterTest {
 
     @Test
     public void shouldAddItems() {
-        expect(adapter.getCount()).toBe(0);
+        expect(adapter.getItemCount()).toBe(0);
         adapter.addItem("item");
-        expect(adapter.getCount()).toBe(1);
+        expect(adapter.getItemCount()).toBe(1);
     }
 
     @Test
     public void shouldAddItemsFromObservableSequence() {
         Observable.just(Arrays.asList("one", "two", "three")).subscribe(adapter);
-        expect(adapter.getCount()).toBe(3);
+        expect(adapter.getItemCount()).toBe(3);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class ItemAdapterTest {
         adapter.addItem("item2");
         adapter.addItem("item3");
 
-        adapter.removeAt(1);
+        adapter.removeItem(1);
 
         List<String> items = adapter.getItems();
         expect(items.size()).toEqual(2);
