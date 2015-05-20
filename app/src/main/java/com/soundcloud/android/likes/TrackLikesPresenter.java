@@ -16,7 +16,7 @@ import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.rx.observers.RefreshAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -129,7 +129,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
                         .subscribe(new RemoveEntityListSubscriber(adapter)),
 
                 offlineContentOperations.getOfflineContentOrLikesStatus()
-                        .subscribe(new RefreshAdapterSubscriber())
+                        .subscribe(new RefreshAdapterSubscriber(adapter))
         );
     }
 
@@ -159,13 +159,6 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
             playbackOperations
                     .playLikes(initialTrack, realPosition, playSessionSource)
                     .subscribe(expandPlayerSubscriberProvider.get());
-        }
-    }
-
-    private final class RefreshAdapterSubscriber extends DefaultSubscriber<Boolean> {
-        @Override
-        public void onNext(Boolean ignored) {
-            adapter.notifyDataSetChanged();
         }
     }
 

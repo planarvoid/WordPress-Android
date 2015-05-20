@@ -140,7 +140,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
                         .map(CurrentDownloadEvent.TO_DOWNLOAD_STATE);
         return offlineContentOperations
                 .getLikedTracksDownloadStateFromStorage()
-                .mergeWith(downloadStateFromCurrentDownload);
+                .concatWith(downloadStateFromCurrentDownload);
     }
 
     @Override
@@ -155,7 +155,7 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     }
 
     private boolean shouldShowOfflineSyncOptions() {
-        return featureOperations.isOfflineContentEnabled() || featureOperations.shouldShowUpsell();
+        return featureOperations.isOfflineContentEnabled();
     }
 
     public void onSubscribeListObservers(ListBinding<TrackItem> listBinding) {

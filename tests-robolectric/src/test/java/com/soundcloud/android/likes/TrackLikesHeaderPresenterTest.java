@@ -6,6 +6,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -86,7 +87,7 @@ public class TrackLikesHeaderPresenterTest {
         likedTrackUrns = Lists.newArrayList(TRACK1, TRACK2);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(true);
-        when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.<DownloadState>never());
+        when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.NO_OFFLINE));
         when(offlineContentOperations.getOfflineLikesSettingsStatus()).thenReturn(Observable.just(true));
     }
 
@@ -160,7 +161,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(true, Arrays.asList(TRACK1)));
 
-        verify(headerView).show(DownloadState.DOWNLOADED);
+        verify(headerView, times(1)).show(DownloadState.DOWNLOADED);
     }
 
     @Test
@@ -184,7 +185,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(TRACK1_DOWNLOAD_REQUEST)));
 
-        verify(headerView).show(DownloadState.NO_OFFLINE);
+        verify(headerView, times(2)).show(DownloadState.NO_OFFLINE);//once from storage
     }
 
     @Test
@@ -243,7 +244,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         offlineContentAndLikesSubject.onNext(false);
 
-        verify(headerView).show(DownloadState.NO_OFFLINE);
+        verify(headerView, times(2)).show(DownloadState.NO_OFFLINE);//once from storage
     }
 
     @Test
