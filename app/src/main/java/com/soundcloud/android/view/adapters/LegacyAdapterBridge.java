@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 // purely exists for bridging to legacy code from the old stack
-public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapter<T> implements ItemAdapter<T> {
+@Deprecated
+public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapter<T> {
 
     protected final List<PlayableItem> listItems = new ArrayList<>(Consts.LIST_PAGE_SIZE);
 
@@ -101,35 +102,5 @@ public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapt
                 notifyDataSetChanged();
             }
         }
-    }
-
-    @Override
-    public void addItem(T item) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
-    }
-
-    @Override
-    public void removeItem(int position) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
-    }
-
-    @Override
-    public void clear() {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
-    }
-
-    @Override
-    public void onNext(Iterable<T> ts) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
-    }
-
-    @Override
-    public void onCompleted() {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
-    }
-
-    @Override
-    public void onError(Throwable e) {
-        // no op. exists to satisy interface contract so we can use these adapters in newer code
     }
 }

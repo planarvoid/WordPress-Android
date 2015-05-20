@@ -11,7 +11,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +29,7 @@ import javax.inject.Inject;
 abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMenuPresenter.RemoveTrackListener {
 
     private final PlaylistTrackItemPresenter trackPresenter;
-    private final ListItemAdapter<TrackItem> adapter;
+    private final ItemAdapter<TrackItem> adapter;
     private final EventBus eventBus;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
@@ -52,7 +52,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         void onPlaylistContentChanged();
     }
 
-    protected PlaylistDetailsController(PlaylistTrackItemPresenter trackPresenter, ListItemAdapter<TrackItem> adapter,
+    protected PlaylistDetailsController(PlaylistTrackItemPresenter trackPresenter, ItemAdapter<TrackItem> adapter,
                                         EventBus eventBus) {
         this.trackPresenter = trackPresenter;
         this.adapter = adapter;
@@ -69,7 +69,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         AnimUtils.removeItemFromList(listView, position, new AnimUtils.ItemRemovalCallback() {
             @Override
             public void onAnimationComplete(int position) {
-                adapter.removeItem(position);
+                adapter.removeAt(position);
                 adapter.notifyDataSetChanged();
                 listener.onPlaylistContentChanged();
             }
@@ -80,7 +80,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         return playlistUrn;
     }
 
-    ListItemAdapter<TrackItem> getAdapter() {
+    ItemAdapter<TrackItem> getAdapter() {
         return adapter;
     }
 

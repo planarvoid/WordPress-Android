@@ -15,8 +15,8 @@ public class MixedPlayableAdapter extends PagingItemAdapter<PlayableItem> {
 
     @Inject
     public MixedPlayableAdapter(TrackItemPresenter trackPresenter, PlaylistItemPresenter playlistPresenter) {
-        super(new CellPresenterBinding<>(TRACK_ITEM_TYPE, trackPresenter),
-                new CellPresenterBinding<>(PLAYLIST_ITEM_TYPE, playlistPresenter));
+        super(new CellPresenterEntity<>(TRACK_ITEM_TYPE, trackPresenter),
+                new CellPresenterEntity<>(PLAYLIST_ITEM_TYPE, playlistPresenter));
         this.trackPresenter = trackPresenter;
     }
 

@@ -11,7 +11,6 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -31,7 +30,6 @@ import android.view.View;
 import android.widget.ListView;
 
 import java.util.Collections;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 // TODO : Extend New List Presenter test
@@ -45,11 +43,10 @@ public class UserPostsPresenterTest {
     @Mock private ProfileOperations profileOperations;
     @Mock private MixedPlayableAdapter adapter;
     @Mock private MixedPlayableItemClickListener.Factory mixedClickListenerFactory;
-    @Mock private MixedPlayableItemClickListener itemClickListener;
+    @Mock private MixedPlayableItemClickListener mixedPlayableItemClickListener;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
     @Mock private Fragment fragment;
     @Mock private View fragmentView;
-    @Mock private View itemView;
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;
     @Mock private TrackItemPresenter trackPresenter;
@@ -66,7 +63,7 @@ public class UserPostsPresenterTest {
         when(fragmentView.findViewById(android.R.id.list)).thenReturn(listView);
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(fragment.getArguments()).thenReturn(arguments);
-        when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);
+        when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(mixedPlayableItemClickListener);
         when(profileOperations.pagedPostItems(user)).thenReturn(Observable.just(new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), "next-href")));
         when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
         when(playableListUpdaterFactory.create(adapter, trackPresenter)).thenReturn(playableListUpdater);
@@ -78,14 +75,11 @@ public class UserPostsPresenterTest {
     }
 
     @Test
-    public void presenterUsesMixedPlayableClickListener() throws Exception {
-        List<PlayableItem> items = Collections.emptyList();
+    public void presenterSetsMixedPlayableClickListener() throws Exception {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, fragmentView, null);
 
-        presenter.onItemClicked(itemView, 1);
-
-        verify(itemClickListener).onItemClick(items, itemView, 1);
+        verify(listView).setOnItemClickListener(mixedPlayableItemClickListener);
     }
 
 }

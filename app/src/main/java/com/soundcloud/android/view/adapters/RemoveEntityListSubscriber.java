@@ -13,7 +13,7 @@ public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
 
     @Override
     public void onNext(final Urn urn) {
-        int adapterCount = adapter.getItemCount();
+        int adapterCount = adapter.getCount();
         for (int position = 0; position < adapterCount; position++) {
             Urn itemUrn = adapter.getItem(position).getEntityUrn();
             if (itemUrn.equals(urn)) {
@@ -24,7 +24,7 @@ public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
     }
 
     private void removeItemFromAdapterAt(int position) {
-        adapter.removeItem(position);
+        adapter.removeAt(position);
         adapter.notifyDataSetChanged();
     }
 }

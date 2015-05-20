@@ -26,7 +26,7 @@ class GenreCellPresenter implements CellPresenter<ExploreGenre> {
     }
 
     @Override
-    public View createItemView(ViewGroup parent) {
+    public View createItemView(int position, ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(R.layout.explore_genre_item, parent, false);
     }
 

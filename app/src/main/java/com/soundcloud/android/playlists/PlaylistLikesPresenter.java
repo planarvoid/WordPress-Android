@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -23,10 +23,12 @@ import rx.subscriptions.CompositeSubscription;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
-public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
+public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
+        implements AdapterView.OnItemClickListener {
 
     private final PlaylistLikeOperations likeOperations;
     private final PlaylistLikesAdapter adapter;
@@ -49,12 +51,13 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getBinding().connect();
+        getListBinding().connect();
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+        getListView().setOnItemClickListener(this);
         getEmptyView().setImage(R.drawable.empty_like);
         getEmptyView().setMessageText(R.string.list_empty_liked_playlists_message);
 
@@ -81,24 +84,24 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
     }
 
     @Override
-    protected CollectionBinding<PlaylistItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(likeOperations.likedPlaylists(), PlaylistItem.fromPropertySets())
+    protected ListBinding<PlaylistItem> onBuildListBinding(Bundle fragmentArgs) {
+        return ListBinding.from(likeOperations.likedPlaylists(), PlaylistItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected CollectionBinding<PlaylistItem> onRefreshBinding() {
-        return CollectionBinding.from(likeOperations.updatedLikedPlaylists(), PlaylistItem.fromPropertySets())
+    protected ListBinding<PlaylistItem> onBuildRefreshBinding() {
+        return ListBinding.from(likeOperations.updatedLikedPlaylists(), PlaylistItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    public void onItemClicked(View view, int position) {
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
         Urn playlistUrn = adapter.getItem(position).getEntityUrn();
-        PlaylistDetailActivity.start(view.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
+        PlaylistDetailActivity.start(adapterView.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
     }
 }

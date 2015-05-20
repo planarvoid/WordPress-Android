@@ -35,7 +35,7 @@ public class TrackGridPresenterTest {
 
     @Test
     public void shouldCreateItemView() {
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
         expect(itemView.findViewById(R.id.image)).not.toBeNull();

@@ -37,7 +37,7 @@ public class PlaylistGridPresenterTest {
 
     @Test
     public void shouldCreateItemView() {
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
         expect(itemView.findViewById(R.id.image)).not.toBeNull();
@@ -49,7 +49,7 @@ public class PlaylistGridPresenterTest {
     public void shouldBindItemView() throws CreateModelException {
         PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
 
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
@@ -65,7 +65,7 @@ public class PlaylistGridPresenterTest {
         playlist.setTags(Arrays.asList("tag1"));
         PlaylistItem playlistItem = PlaylistItem.from(playlist);
 
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
@@ -78,7 +78,7 @@ public class PlaylistGridPresenterTest {
         playlist.setTags(Collections.<String>emptyList());
         PlaylistItem playlistItem = PlaylistItem.from(playlist);
 
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        View itemView = presenter.createItemView(0, new FrameLayout(Robolectric.application));
         presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();

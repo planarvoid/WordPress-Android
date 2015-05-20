@@ -90,10 +90,10 @@ public class SoundAdapter extends LegacyAdapterBridge<PublicApiResource> {
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
         if (isTrack(position)) {
-            return trackPresenter.createItemView(parent);
+            return trackPresenter.createItemView(position, parent);
         } else {
             // We assume this is a playlist
-            return playlistPresenter.createItemView(parent);
+            return playlistPresenter.createItemView(position, parent);
         }
     }
 

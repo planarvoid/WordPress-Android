@@ -8,7 +8,7 @@ import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.ListBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
@@ -34,7 +34,6 @@ class UserPostsPresenter extends ListPresenter<PlayableItem> {
     private final ProfileOperations profileOperations;
     private final MixedPlayableAdapter adapter;
     private final MixedPlayableItemClickListener.Factory clickListenerFactory;
-    private MixedPlayableItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
 
     private final Func1<PagedRemoteCollection, List<PlayableItem>> pageTransformer = new Func1<PagedRemoteCollection, List<PlayableItem>>() {
@@ -65,9 +64,9 @@ class UserPostsPresenter extends ListPresenter<PlayableItem> {
     }
 
     @Override
-    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+    protected ListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
         final Urn userUrn = fragmentArgs.getParcelable(UserPostsFragment.USER_URN_KEY);
-        return CollectionBinding.from(profileOperations.pagedPostItems(userUrn), pageTransformer)
+        return ListBinding.from(profileOperations.pagedPostItems(userUrn), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(profileOperations.pagingFunction())
                 .build();
@@ -76,27 +75,22 @@ class UserPostsPresenter extends ListPresenter<PlayableItem> {
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        clickListener = createClickListener(fragment.getArguments());
-        getBinding().connect();
+        getListBinding().connect();
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+        getListView().setOnItemClickListener(createClickListener(fragment));
 
         final String username = fragment.getArguments().getString(UserPostsFragment.USER_NAME_KEY);
         getEmptyView().setMessageText(fragment.getString(R.string.empty_user_tracks_text, username));
         getEmptyView().setImage(R.drawable.empty_sounds);
     }
 
-    @Override
-    protected void onItemClicked(View view, int position) {
-        clickListener.onItemClick(adapter.getItems(), view, position);
-    }
-
-    private MixedPlayableItemClickListener createClickListener(Bundle fragmentArgs) {
-        final Screen screen = (Screen) fragmentArgs.getSerializable(UserPostsFragment.SCREEN_KEY);
-        final SearchQuerySourceInfo searchQuerySourceInfo = fragmentArgs.getParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY);
+    private MixedPlayableItemClickListener createClickListener(Fragment fragment) {
+        final Screen screen = (Screen) fragment.getArguments().getSerializable(UserPostsFragment.SCREEN_KEY);
+        final SearchQuerySourceInfo searchQuerySourceInfo = fragment.getArguments().getParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY);
         return clickListenerFactory.create(screen, searchQuerySourceInfo);
     }
 }

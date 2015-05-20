@@ -12,7 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -31,7 +31,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.MixedPlayableAdapter;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -44,8 +44,8 @@ import rx.observers.TestSubscriber;
 
 import android.content.Intent;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ListView;
 
 import javax.inject.Provider;
 import java.util.Arrays;
@@ -58,15 +58,15 @@ public class SoundStreamPresenterTest {
 
     @Mock private SoundStreamOperations streamOperations;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private MixedPlayableRecyclerViewAdapter adapter;
-    @Mock private RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
+    @Mock private MixedPlayableAdapter adapter;
+    @Mock private ImageOperations imageOperations;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private TrackItemPresenter trackPresenter;
     @Mock private DateProvider dateProvider;
 
     @Mock private Fragment fragment;
     @Mock private View view;
-    @Mock private RecyclerView recyclerView;
+    @Mock private ListView listView;
     @Mock private EmptyView emptyView;
 
     private TestEventBus eventBus = new TestEventBus();
@@ -75,14 +75,21 @@ public class SoundStreamPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, recyclerViewPauseOnScrollListener,
+        presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imageOperations,
                 pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
-        when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
+        when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
         when(dateProvider.getCurrentTime()).thenReturn(100L);
+    }
+
+    @Test
+    public void setsItemClickHandlerOnList() {
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        verify(listView).setOnItemClickListener(presenter);
     }
 
     @Test
@@ -96,7 +103,7 @@ public class SoundStreamPresenterTest {
         when(playbackOperations.playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
-        presenter.onItemClicked(view, 0);
+        presenter.onItemClick(listView, view, 0, 0);
 
         expect(testSubscriber.getOnNextEvents()).toNumber(1);
         expect(testSubscriber.getOnNextEvents().get(0).isSuccess()).toBeTrue();
@@ -113,7 +120,7 @@ public class SoundStreamPresenterTest {
         when(playbackOperations.playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
-        presenter.onItemClicked(view, 0);
+        presenter.onItemClick(listView, view, 0, 0);
 
         expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
     }
@@ -129,7 +136,7 @@ public class SoundStreamPresenterTest {
         when(playbackOperations.playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
-        presenter.onItemClicked(view, 0);
+        presenter.onItemClick(listView, view, 0, 0);
 
         verify(playbackOperations).playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), captor.capture());
         PlaySessionSource sessionSource = captor.getValue();
@@ -142,7 +149,7 @@ public class SoundStreamPresenterTest {
         when(adapter.getItem(0)).thenReturn(playlistItem);
         when(view.getContext()).thenReturn(Robolectric.application);
 
-        presenter.onItemClicked(view, 0);
+        presenter.onItemClick(listView, view, 0, 0);
 
         final Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
@@ -183,8 +190,6 @@ public class SoundStreamPresenterTest {
     public void unsubscribesFromEventBusOnDestroyView() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-
-        when(recyclerView.getAdapter()).thenReturn(adapter);
 
         presenter.onDestroyView(fragment);
 

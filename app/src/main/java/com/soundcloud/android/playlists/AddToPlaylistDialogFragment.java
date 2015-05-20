@@ -15,7 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -169,7 +169,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         }
     }
 
-    static class MyPlaylistsAdapter extends ListItemAdapter<AddTrackToPlaylistItem> {
+    static class MyPlaylistsAdapter extends ItemAdapter<AddTrackToPlaylistItem> {
 
         @InjectView(R.id.title) TextView titleView;
         @InjectView(R.id.trackCount) TextView trackCountView;
@@ -185,7 +185,7 @@ public class AddToPlaylistDialogFragment extends DialogFragment {
         }
 
         @Override
-        public int getItemCount() {
+        public int getCount() {
             return items.size();
         }
 
