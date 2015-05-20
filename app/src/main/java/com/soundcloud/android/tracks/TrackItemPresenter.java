@@ -11,6 +11,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.adapters.CellPresenter;
 import org.jetbrains.annotations.NotNull;
 
@@ -133,8 +134,10 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
                             PromotedTrackEvent.forPromoterClick(track, screenProvider.getLastScreenTag()));
                 }
             });
+            ViewUtils.extendTouchArea(promoted, 10);
         } else {
             promoted.setText(R.string.promoted_label);
+            ViewUtils.clearTouchDelegate(promoted);
         }
     }
 
