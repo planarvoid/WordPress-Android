@@ -66,11 +66,6 @@ public class DefaultPlaybackStrategyTest {
         expect(application.getNextStartedService().getAction()).toEqual(PlaybackService.Actions.PLAY_ACTION);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void reloadAndPlayCurrentQueueThrowsExceptionCauseItIsntUsedByDefault() {
-        defaultPlaybackStrategy.reloadAndPlayCurrentQueue(123L);
-    }
-
     @Test
     public void togglePlaybackSendsTogglePlaybackIntent() throws Exception {
         defaultPlaybackStrategy.togglePlayback();

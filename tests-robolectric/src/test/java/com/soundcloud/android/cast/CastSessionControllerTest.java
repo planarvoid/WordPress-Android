@@ -135,7 +135,7 @@ public class CastSessionControllerTest {
 
         callOnMetadatUpdated();
 
-        verify(playbackOperations).playCurrent();
+        verify(castPlayer).playCurrent();
     }
 
     @Test
@@ -156,7 +156,7 @@ public class CastSessionControllerTest {
 
         callOnMetadatUpdated();
 
-        verify(playbackOperations).playCurrent();
+        verify(castPlayer).playCurrent();
     }
 
     @Test
