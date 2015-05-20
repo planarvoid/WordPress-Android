@@ -129,7 +129,7 @@ public class SoundStreamPresenterTest {
         when(playbackOperations.playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(PlaybackResult.success()));
 
-        presenter.onItemClick(listView, view, 0, 0);
+        presenter.onItemClicked(view, 0);
 
         verify(playbackOperations).playTracks(eq(streamTracks), eq(clickedTrack.getEntityUrn()), eq(0), captor.capture());
         PlaySessionSource sessionSource = captor.getValue();
