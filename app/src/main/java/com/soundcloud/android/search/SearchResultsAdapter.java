@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.view.adapters.CellPresenterBinding;
 import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
@@ -38,9 +39,9 @@ class SearchResultsAdapter extends PagingItemAdapter<ListItem> implements Suppor
                          TrackItemPresenter trackPresenter,
                          PlaylistItemPresenter playlistPresenter,
                          EventBus eventBus) {
-        super(new CellPresenterEntity<>(TYPE_USER, userPresenter),
-                new CellPresenterEntity<>(TYPE_TRACK, trackPresenter),
-                new CellPresenterEntity<>(TYPE_PLAYLIST, playlistPresenter));
+        super(new CellPresenterBinding<>(TYPE_USER, userPresenter),
+                new CellPresenterBinding<>(TYPE_TRACK, trackPresenter),
+                new CellPresenterBinding<>(TYPE_PLAYLIST, playlistPresenter));
         this.eventBus = eventBus;
         this.trackPresenter = trackPresenter;
     }

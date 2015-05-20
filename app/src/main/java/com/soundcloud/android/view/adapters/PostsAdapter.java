@@ -89,10 +89,10 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
         if (isTrack(position)) {
-            return trackPresenter.createItemView(position, parent);
+            return trackPresenter.createItemView(parent);
         } else {
             // We assume this is a playlist
-            return playlistPresenter.createItemView(position, parent);
+            return playlistPresenter.createItemView(parent);
         }
     }
 

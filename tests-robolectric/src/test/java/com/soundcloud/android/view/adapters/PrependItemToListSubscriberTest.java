@@ -13,7 +13,7 @@ import rx.subjects.PublishSubject;
 @RunWith(SoundCloudTestRunner.class)
 public class PrependItemToListSubscriberTest {
 
-    @Mock private ItemAdapter<ListItem> adapter;
+    @Mock private ListItemAdapter<ListItem> adapter;
     @Mock private ListItem item;
     private PublishSubject<ListItem> observable;
 

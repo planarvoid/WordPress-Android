@@ -4,11 +4,12 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.CellPresenterBinding;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 
 import javax.inject.Inject;
 
-class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements EmptyViewAware {
+class InlinePlaylistTracksAdapter extends ListItemAdapter<TrackItem> implements EmptyViewAware {
 
     private final EmptyViewAware emptyViewPresenter;
     private final PlaylistTrackItemPresenter playlistItemPresenter;
@@ -16,8 +17,8 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements Empt
     @Inject
     InlinePlaylistTracksAdapter(PlaylistTrackItemPresenter playlistItemPresenter,
                                 EmptyPlaylistTracksPresenter emptyViewPresenter) {
-        super(new CellPresenterEntity<>(DEFAULT_VIEW_TYPE, playlistItemPresenter),
-                new CellPresenterEntity<>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
+        super(new CellPresenterBinding<>(DEFAULT_VIEW_TYPE, playlistItemPresenter),
+                new CellPresenterBinding<>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
         this.emptyViewPresenter = emptyViewPresenter;
         this.playlistItemPresenter = playlistItemPresenter;
     }
@@ -37,7 +38,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements Empt
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return Math.max(1, items.size()); // at least 1 for the empty view
     }
 
