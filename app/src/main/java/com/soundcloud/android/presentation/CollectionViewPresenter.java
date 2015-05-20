@@ -91,7 +91,9 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         onCreateCollectionView(fragment, view, savedInstanceState);
 
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
-        refreshWrapper.attach(refreshLayout, new PullToRefreshListener());
+        if (refreshLayout != null){
+            refreshWrapper.attach(refreshLayout, new PullToRefreshListener());
+        }
 
         subscribeBinding();
     }

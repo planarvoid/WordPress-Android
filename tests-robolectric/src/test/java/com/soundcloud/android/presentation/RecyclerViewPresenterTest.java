@@ -7,6 +7,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -190,6 +191,19 @@ public class RecyclerViewPresenterTest {
         presenter.onViewCreated(fragment, view, null);
 
         verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(SwipeRefreshLayout.OnRefreshListener.class));
+    }
+
+    @Test
+    public void shouldNotAttachPullToRefreshListenerWithNullLayout() {
+        when(view.findViewById(R.id.str_layout)).thenReturn(null);
+
+        CollectionBinding<String> collectionBinding = defaultBinding();
+        createPresenterWithBinding(collectionBinding);
+
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class));
     }
 
     @Test
