@@ -1,11 +1,11 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 
 import javax.inject.Inject;
 
 
-class ExploreGenresAdapter extends ItemAdapter<ExploreGenre> {
+class ExploreGenresAdapter extends ListItemAdapter<ExploreGenre> {
 
     private final GenreCellPresenter cellPresenter;
 

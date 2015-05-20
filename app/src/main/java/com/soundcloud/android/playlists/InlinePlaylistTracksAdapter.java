@@ -5,11 +5,11 @@ import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.adapters.CellPresenterBinding;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 
 import javax.inject.Inject;
 
-class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements EmptyViewAware {
+class InlinePlaylistTracksAdapter extends ListItemAdapter<TrackItem> implements EmptyViewAware {
 
     private final EmptyViewAware emptyViewPresenter;
     private final PlaylistTrackItemPresenter playlistItemPresenter;

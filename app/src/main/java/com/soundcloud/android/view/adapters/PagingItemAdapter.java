@@ -8,7 +8,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
+public class PagingItemAdapter<T> extends ListItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
 
     private final int progressItemLayoutResId;
 

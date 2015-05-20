@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.android.view.adapters.ReactiveItemAdapter;
+import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
@@ -118,7 +118,7 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         @Override
         public void onNext(Iterable<ItemT> collection) {
             Log.d(TAG, "refresh complete");
-            final ReactiveItemAdapter<ItemT> adapter = collectionBinding.adapter();
+            final ItemAdapter<ItemT> adapter = collectionBinding.adapter();
             adapter.clear();
 
             resetBindingTo(refreshBinding);

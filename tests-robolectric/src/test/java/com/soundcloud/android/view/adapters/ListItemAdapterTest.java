@@ -22,15 +22,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ItemAdapterTest {
+public class ListItemAdapterTest {
 
     @Mock private CellPresenter<String> cellPresenter;
 
-    private ItemAdapter<String> adapter;
+    private ListItemAdapter<String> adapter;
 
     @Before
     public void setup() {
-        adapter = new ItemAdapter<>(cellPresenter);
+        adapter = new ListItemAdapter<>(cellPresenter);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         CellPresenter presenterOne = mock(CellPresenter.class);
         CellPresenter presenterTwo = mock(CellPresenter.class);
-        adapter = new ItemAdapter<String>(
+        adapter = new ListItemAdapter<String>(
                 new CellPresenterBinding<String>(0, presenterOne),
                 new CellPresenterBinding<String>(1, presenterTwo)) {
             @Override

@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 // purely exists for bridging to legacy code from the old stack
-public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapter<T> implements ReactiveItemAdapter<T> {
+public abstract class LegacyAdapterBridge<T extends ScModel> extends ScBaseAdapter<T> implements ItemAdapter<T> {
 
     protected final List<PlayableItem> listItems = new ArrayList<>(Consts.LIST_PAGE_SIZE);
 

@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHolder>
-        extends RecyclerView.Adapter<VH> implements ReactiveItemAdapter<ItemT> {
+        extends RecyclerView.Adapter<VH> implements ItemAdapter<ItemT> {
 
     protected static final int DEFAULT_VIEW_TYPE = 0;
 

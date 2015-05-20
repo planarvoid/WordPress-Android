@@ -29,7 +29,7 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +61,7 @@ public class TrackLikesHeaderPresenterTest {
     @Mock private OfflinePlaybackOperations playbackOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private LikesMenuPresenter likesMenuPresenter;
-    @Mock private ItemAdapter<TrackItem> adapter;
+    @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private Fragment fragment;
     @Mock private View layoutView;
     @Mock private ListView listView;

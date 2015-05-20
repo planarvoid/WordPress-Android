@@ -5,9 +5,9 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 
 public final class RemoveEntityListSubscriber extends DefaultSubscriber<Urn> {
-    private final ReactiveItemAdapter<? extends ListItem> adapter;
+    private final ItemAdapter<? extends ListItem> adapter;
 
-    public RemoveEntityListSubscriber(ItemAdapter<? extends ListItem> adapter) {
+    public RemoveEntityListSubscriber(ListItemAdapter<? extends ListItem> adapter) {
         this.adapter = adapter;
     }
 

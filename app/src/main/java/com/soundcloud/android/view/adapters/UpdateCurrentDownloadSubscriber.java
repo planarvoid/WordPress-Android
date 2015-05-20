@@ -8,7 +8,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.PropertySet;
 
 public class UpdateCurrentDownloadSubscriber  extends DefaultSubscriber<CurrentDownloadEvent> {
-    private final ReactiveItemAdapter<? extends ListItem> adapter;
+    private final ItemAdapter<? extends ListItem> adapter;
 
     public UpdateCurrentDownloadSubscriber(ItemAdapter<? extends ListItem> adapter) {
         this.adapter = adapter;
