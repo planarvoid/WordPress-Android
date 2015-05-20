@@ -100,6 +100,8 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
 
     protected abstract void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState);
 
+    protected abstract void onItemClicked(View view, int position);
+
     @Override
     public void onDestroyView(Fragment fragment) {
         Log.d(TAG, "onDestroyView");

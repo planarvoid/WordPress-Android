@@ -114,6 +114,4 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
             }
         };
     }
-
-    protected abstract void onItemClicked(View view, int position);
 }

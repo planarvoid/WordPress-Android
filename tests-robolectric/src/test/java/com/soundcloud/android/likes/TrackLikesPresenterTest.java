@@ -43,8 +43,6 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesPresenterTest {
 
-    private static final Urn TRACK_URN = Urn.forTrack(123);
-
     private TrackLikesPresenter presenter;
 
     @Mock private TrackLikeOperations likeOperations;
@@ -96,21 +94,16 @@ public class TrackLikesPresenterTest {
     }
 
     @Test
-    public void shouldRegisterOnItemClickHandlerWithList() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        verify(listView).setOnItemClickListener(presenter);
-    }
-
-    @Test
     public void shouldPlayLikedTracksOnListItemClick() {
         PlaybackResult playbackResult = PlaybackResult.success();
         final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(playbackOperations.playLikes(eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(playbackResult));
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
 
-        presenter.onItemClick(listView, view, 1, 0);
+        presenter.onItemClicked(view, 1);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
     }
@@ -118,7 +111,11 @@ public class TrackLikesPresenterTest {
     @Test
     public void shouldNotPlayTracksOnListItemClickIfItemIsNull() {
         when(listView.getItemAtPosition(0)).thenReturn(null);
-        presenter.onItemClick(listView, view, 0, 0);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        presenter.onItemClicked(view, 0);
+
         verifyZeroInteractions(playbackOperations);
     }
 

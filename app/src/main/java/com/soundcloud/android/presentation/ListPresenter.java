@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
@@ -53,6 +54,12 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
             headerPresenter.onViewCreated(view, (ListView) listView);
         }
         listView.setAdapter((ListAdapter) collectionBinding.adapter());
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                onItemClicked(view, position);
+            }
+        });
     }
 
     @Override

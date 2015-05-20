@@ -23,12 +23,10 @@ import rx.subscriptions.CompositeSubscription;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.AdapterView;
 
 import javax.inject.Inject;
 
-public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
-        implements AdapterView.OnItemClickListener {
+public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
 
     private final PlaylistLikeOperations likeOperations;
     private final PlaylistLikesAdapter adapter;
@@ -57,7 +55,6 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        getListView().setOnItemClickListener(this);
         getEmptyView().setImage(R.drawable.empty_like);
         getEmptyView().setMessageText(R.string.list_empty_liked_playlists_message);
 
@@ -100,8 +97,8 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem>
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+    public void onItemClicked(View view, int position) {
         Urn playlistUrn = adapter.getItem(position).getEntityUrn();
-        PlaylistDetailActivity.start(adapterView.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
+        PlaylistDetailActivity.start(view.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
     }
 }

@@ -35,6 +35,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.Arrays;
@@ -52,16 +53,19 @@ public class ListPresenterTest {
     @Mock private ImageOperations imageOperations;
     @Mock private Fragment fragment;
     @Mock private View view;
+    @Mock private View itemView;
     @Mock private MultiSwipeRefreshLayout refreshLayout;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;
     @Mock private AbsListView.OnScrollListener scrollListener;
     @Mock private ListHeaderPresenter headerPresenter;
-
     @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
+    @Captor private ArgumentCaptor<AdapterView.OnItemClickListener> clickListenerCaptor;
 
     private TestSubscriber<Iterable<String>> testSubscriber = new TestSubscriber<>();
+    private View lastClickedView;
+    private int lastClickedPosition;
 
     @Before
     public void setup() {
@@ -116,6 +120,18 @@ public class ListPresenterTest {
         presenter.onViewCreated(fragment, view, null);
 
         verify(listView).setAdapter(adapter);
+    }
+
+    @Test
+    public void shouldForwardItemClickEvents() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        verify(listView).setOnItemClickListener(clickListenerCaptor.capture());
+        clickListenerCaptor.getValue().onItemClick(listView, itemView, 2, -1);
+        expect(lastClickedView).toBe(itemView);
+        expect(lastClickedPosition).toEqual(2);
     }
 
     @Test
@@ -413,6 +429,12 @@ public class ListPresenterTest {
                     viewLifeCycle.add(collectionBinding.items().subscribe(observer));
                 }
             }
+
+            @Override
+            protected void onItemClicked(View view, int position) {
+                lastClickedView = view;
+                lastClickedPosition = position;
+            }
         };
     }
 
@@ -428,6 +450,12 @@ public class ListPresenterTest {
             @Override
             protected void onSubscribeBinding(CollectionBinding<String> collectionBinding, CompositeSubscription viewLifeCycle) {
                 // no op
+            }
+
+            @Override
+            protected void onItemClicked(View view, int position) {
+                lastClickedView = view;
+                lastClickedPosition = position;
             }
         };
     }
