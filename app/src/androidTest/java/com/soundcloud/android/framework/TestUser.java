@@ -15,7 +15,7 @@ public class TestUser {
     private PublicApiUser user;
 
     public static String generateEmail() {
-        return "someemail-"+System.currentTimeMillis()+"@test.com";
+        return "someemail-"+System.currentTimeMillis()+"@tests.com";
     }
 
     public TestUser(String permalink, String email, String password) {
