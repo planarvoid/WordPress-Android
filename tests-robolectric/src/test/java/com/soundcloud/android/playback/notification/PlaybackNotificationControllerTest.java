@@ -36,6 +36,7 @@ import rx.Subscription;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
@@ -59,6 +60,7 @@ public class PlaybackNotificationControllerTest {
     @Mock private Uri uri;
     @Mock private Subscription subscription;
     @Mock private PlaybackStateProvider playbackStateProvider;
+    @Mock private Resources resources;
     @Captor private ArgumentCaptor<PropertySet> propertySetCaptor;
     private PropertySet trackProperties;
 
@@ -68,6 +70,7 @@ public class PlaybackNotificationControllerTest {
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
 
         controller = new PlaybackNotificationController(
+                resources,
                 trackRepository,
                 playbackNotificationPresenter,
                 notificationManager,
