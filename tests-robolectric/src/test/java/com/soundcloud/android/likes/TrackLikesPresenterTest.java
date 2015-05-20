@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
@@ -43,12 +44,11 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesPresenterTest {
 
-    private static final Urn TRACK_URN = Urn.forTrack(123);
-
     private TrackLikesPresenter presenter;
 
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;
+    @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private PagedTracksAdapter adapter;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
@@ -70,7 +70,7 @@ public class TrackLikesPresenterTest {
     @Before
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
-                adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
+                offlineContentOperations, adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
                 eventBus, imageOperations, pullToRefreshWrapper);
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(listView.getHeaderViewsCount()).thenReturn(1);
@@ -78,6 +78,7 @@ public class TrackLikesPresenterTest {
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
+        when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(Observable.just(true));
     }
 
     @Test
@@ -129,6 +130,18 @@ public class TrackLikesPresenterTest {
         presenter.onDestroyView(fragment);
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldUpdateAdapterOnOfflineLikesOrOfflineContentStateChange() {
+        PublishSubject<Boolean> featureChange = PublishSubject.create();
+        when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(featureChange);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        featureChange.onNext(true);
+
+        verify(adapter).notifyDataSetChanged();
     }
 
 }
