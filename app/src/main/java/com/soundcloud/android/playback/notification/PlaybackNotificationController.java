@@ -11,8 +11,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
@@ -26,7 +26,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -116,7 +115,7 @@ public class PlaybackNotificationController {
         if (cachedBitmap != null) {
             notificationBuilder.setIcon(cachedBitmap);
         } else {
-            notificationBuilder.setIcon(BitmapFactory.decodeResource(resources, R.drawable.notification_loading));
+            notificationBuilder.setIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
             imageSubscription = getBitmap(trackUrn, notificationBuilder)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override
