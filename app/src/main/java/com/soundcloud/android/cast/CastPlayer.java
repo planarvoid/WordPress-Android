@@ -68,10 +68,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         progressReporter.setProgressPusher(this);
     }
 
-    public boolean isConnected() {
-        return castManager.isConnected();
-    }
-
     @Override
     public void onDisconnected() {
         reportStateChange(getStateTransition(PlayaState.IDLE, Reason.NONE)); // possibly show disconnect error here instead?
@@ -82,7 +78,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         onMediaPlayerStatusUpdatedListener(castManager.getPlaybackStatus(), castManager.getIdleReason());
     }
 
-    public void onMediaPlayerStatusUpdatedListener(int playerState, int idleReason) {
+    void onMediaPlayerStatusUpdatedListener(int playerState, int idleReason) {
         switch (playerState) {
             case MediaStatus.PLAYER_STATE_PLAYING:
                 reportStateChange(getStateTransition(PlayaState.PLAYING, Reason.NONE));
@@ -152,7 +148,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         }
     }
 
-    public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition) {
+    Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition) {
         return playNewQueue(
                 getCurrentQueueUrnsWithoutAds(),
                 playQueueManager.getCurrentTrackUrn(),

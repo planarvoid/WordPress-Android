@@ -45,11 +45,6 @@ public class CastPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition) {
-        return castPlayer.reloadAndPlayCurrentQueue(withProgressPosition);
-    }
-
-    @Override
     public void seek(long position) {
         castPlayer.seek(position);
     }

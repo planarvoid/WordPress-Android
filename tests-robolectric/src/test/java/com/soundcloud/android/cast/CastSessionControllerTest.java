@@ -23,7 +23,6 @@ import com.soundcloud.android.playback.service.PlayQueue;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.xtremelabs.robolectric.Robolectric;
@@ -52,6 +51,7 @@ public class CastSessionControllerTest {
 
     @Mock private CastOperations castOperations;
     @Mock private PlaybackOperations playbackOperations;
+    @Mock private CastPlayer castPlayer;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private VideoCastManager videoCastManager;
     @Mock private PlaySessionStateProvider playSessionStateProvider;
@@ -65,6 +65,7 @@ public class CastSessionControllerTest {
     public void setUp() throws Exception {
         castSessionController = new CastSessionController(castOperations,
                 playbackOperations,
+                castPlayer,
                 playQueueManager,
                 videoCastManager,
                 eventBus,
@@ -85,14 +86,14 @@ public class CastSessionControllerTest {
 
         callOnConnectedToReceiverApp();
 
-        verify(playbackOperations, never()).reloadAndPlayCurrentQueue(anyInt());
+        verify(castPlayer, never()).reloadAndPlayCurrentQueue(anyInt());
     }
 
     @Test
     public void onConnectedToReceiverAppStopsPlaybackService() throws Exception {
         castSessionController.startListening();
         when(playSessionStateProvider.getLastProgressByUrn(any(Urn.class))).thenReturn(PlaybackProgress.empty());
-        when(playbackOperations.reloadAndPlayCurrentQueue(anyLong())).thenReturn(Observable.<PlaybackResult>empty());
+        when(castPlayer.reloadAndPlayCurrentQueue(anyLong())).thenReturn(Observable.<PlaybackResult>empty());
 
         callOnConnectedToReceiverApp();
 
@@ -105,7 +106,7 @@ public class CastSessionControllerTest {
         PlaybackResult playbackResult = PlaybackResult.success();
         PlaybackProgress lastPlaybackProgress = new PlaybackProgress(123L, 456L);
         when(playSessionStateProvider.getLastProgressByUrn(URN)).thenReturn(lastPlaybackProgress);
-        when(playbackOperations.reloadAndPlayCurrentQueue(lastPlaybackProgress.getPosition())).thenReturn(Observable.just(playbackResult));
+        when(castPlayer.reloadAndPlayCurrentQueue(lastPlaybackProgress.getPosition())).thenReturn(Observable.just(playbackResult));
         when(playSessionStateProvider.isPlaying()).thenReturn(true);
         when(playQueueManager.getCurrentTrackUrn()).thenReturn(URN);
 

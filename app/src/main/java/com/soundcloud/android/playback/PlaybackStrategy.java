@@ -18,8 +18,6 @@ public interface PlaybackStrategy {
 
     Observable<PlaybackResult> playNewQueue(List<Urn> playQueueTracks, Urn initialTrackUrn, int initialTrackPosition, boolean loadRelated, PlaySessionSource playSessionSource);
 
-    Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition);
-
     void seek(long position);
 
 }
