@@ -57,6 +57,7 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements ReactiveItemAdapt
         return items.get(location);
     }
 
+    @Override
     public List<ItemT> getItems() {
         return items;
     }
@@ -70,6 +71,7 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements ReactiveItemAdapt
         items.add(item);
     }
 
+    @Override
     public void removeItem(int position) {
         items.remove(position);
     }
@@ -92,6 +94,7 @@ public class ItemAdapter<ItemT> extends BaseAdapter implements ReactiveItemAdapt
 
     @Override
     public void onCompleted() {
+        // no op by default.
     }
 
     @Override

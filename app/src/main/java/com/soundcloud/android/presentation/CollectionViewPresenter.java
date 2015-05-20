@@ -20,7 +20,6 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
     private final PullToRefreshWrapper refreshWrapper;
 
     private Bundle fragmentArgs;
-
     private CollectionBinding<ItemT> collectionBinding;
     private CollectionBinding<ItemT> refreshBinding;
     private CompositeSubscription viewLifeCycle;

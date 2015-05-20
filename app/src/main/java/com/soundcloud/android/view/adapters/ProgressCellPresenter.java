@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.view.View;
 
-public class ProgressCellPresenter {
+class ProgressCellPresenter {
 
     private final int layoutResId;
     private View.OnClickListener retryListener;

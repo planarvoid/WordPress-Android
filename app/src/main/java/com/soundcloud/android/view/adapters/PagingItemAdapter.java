@@ -8,7 +8,6 @@ import com.soundcloud.android.utils.ErrorUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
-@Deprecated // use RecyclerView
 public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
 
     private final int progressItemLayoutResId;

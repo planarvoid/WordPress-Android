@@ -69,7 +69,6 @@ ext {
           androidPlayServicesCast     : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
   ]
 
-
   unitTestLibraries = [
           daggerCompiler   : "com.squareup.dagger:dagger-compiler:$daggerVersion",
           guava            : "com.google.guava:guava:14.0.1",

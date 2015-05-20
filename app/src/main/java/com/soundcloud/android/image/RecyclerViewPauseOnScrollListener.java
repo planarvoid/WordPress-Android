@@ -9,7 +9,7 @@ import javax.inject.Inject;
  */
 public class RecyclerViewPauseOnScrollListener extends RecyclerView.OnScrollListener {
 
-    private ImageOperations imageOperations;
+    private final ImageOperations imageOperations;
 
     @Inject
     public RecyclerViewPauseOnScrollListener(ImageOperations imageOperations) {
@@ -23,7 +23,7 @@ public class RecyclerViewPauseOnScrollListener extends RecyclerView.OnScrollList
                 imageOperations.resume();
                 break;
             case RecyclerView.SCROLL_STATE_SETTLING:
-                    imageOperations.pause();
+                imageOperations.pause();
                 break;
             default:
                 // no-op

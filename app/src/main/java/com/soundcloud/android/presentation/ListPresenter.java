@@ -12,8 +12,6 @@ import android.widget.AbsListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-@Deprecated // use RecyclerView
-
 public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT> {
 
     private final ImageOperations imageOperations;
