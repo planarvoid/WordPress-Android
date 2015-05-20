@@ -28,7 +28,7 @@ final class RecyclerViewPagingScrollListener extends RecyclerView.OnScrollListen
 
     }
 
-    void onScroll(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+    private void onScroll(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         int lookAheadSize = visibleItemCount * 2;
         boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 

@@ -29,10 +29,6 @@ final class PagingScrollListener implements OnScrollListener {
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         listenerDelegate.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
-        onScroll(firstVisibleItem, visibleItemCount, totalItemCount);
-    }
-
-    void onScroll(int firstVisibleItem, int visibleItemCount, int totalItemCount) {
         int lookAheadSize = visibleItemCount * 2;
         boolean lastItemReached = totalItemCount > 0 && (totalItemCount - lookAheadSize <= firstVisibleItem);
 
