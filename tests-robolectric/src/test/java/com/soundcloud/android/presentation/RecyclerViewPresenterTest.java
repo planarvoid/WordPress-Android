@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.PauseOnScrollListener;
+import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.view.EmptyView;
@@ -55,7 +55,7 @@ public class RecyclerViewPresenterTest {
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private RecyclerView recyclerView;
     @Mock private EmptyView emptyView;
-    @Mock private PauseOnScrollListener pauseOnScrollListener;
+    @Mock private RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
 
     @Captor private ArgumentCaptor<SwipeRefreshLayout.OnRefreshListener> refreshListenerCaptor;
 
@@ -127,7 +127,7 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(recyclerView).addOnScrollListener(pauseOnScrollListener);
+        verify(recyclerView).addOnScrollListener(recyclerViewPauseOnScrollListener);
     }
 
     @Test
@@ -139,7 +139,7 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(recyclerView).addOnScrollListener(pauseOnScrollListener);
+        verify(recyclerView).addOnScrollListener(recyclerViewPauseOnScrollListener);
     }
 
     @Test
@@ -466,7 +466,7 @@ public class RecyclerViewPresenterTest {
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final CollectionBinding refreshBinding,
                                             final Observer... observers) {
-        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, pauseOnScrollListener) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;
@@ -495,7 +495,7 @@ public class RecyclerViewPresenterTest {
     private void createPresenterWithPendingBindings(final CollectionBinding... collectionBindings) {
         final List<CollectionBinding> pendingBindings = new LinkedList<>();
         pendingBindings.addAll(Arrays.asList(collectionBindings));
-        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, pauseOnScrollListener) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return pendingBindings.remove(0);

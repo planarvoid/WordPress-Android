@@ -7,7 +7,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.PauseOnScrollListener;
+import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -96,11 +96,11 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
                          MixedPlayableRecyclerViewAdapter adapter,
-                         PauseOnScrollListener pauseOnScrollListener,
+                         RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
                          EventBus eventBus) {
-        super(pullToRefreshWrapper, pauseOnScrollListener);
+        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;

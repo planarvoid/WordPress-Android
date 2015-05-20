@@ -7,12 +7,12 @@ import javax.inject.Inject;
 /**
  * https://github.com/nostra13/Android-Universal-Image-Loader/issues/799
  */
-public class PauseOnScrollListener extends RecyclerView.OnScrollListener {
+public class RecyclerViewPauseOnScrollListener extends RecyclerView.OnScrollListener {
 
     private ImageOperations imageOperations;
 
     @Inject
-    public PauseOnScrollListener(ImageOperations imageOperations) {
+    public RecyclerViewPauseOnScrollListener(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 

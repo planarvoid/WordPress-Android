@@ -5,7 +5,7 @@ import static android.support.v7.widget.RecyclerView.OnScrollListener;
 
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.PauseOnScrollListener;
+import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import com.soundcloud.android.view.adapters.RecyclerViewAdapter;
 
@@ -17,15 +17,15 @@ import android.view.View;
 
 public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresenter<ItemT> {
 
-    private final PauseOnScrollListener pauseOnScrollListener;
+    private final RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
     private RecyclerView recyclerView;
     private RecyclerView.OnScrollListener externalScrollListener;
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView.AdapterDataObserver emptyViewObserver;
 
-    protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, PauseOnScrollListener pauseOnScrollListener) {
+    protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener) {
         super(pullToRefreshWrapper);
-        this.pauseOnScrollListener = pauseOnScrollListener;
+        this.recyclerViewPauseOnScrollListener = recyclerViewPauseOnScrollListener;
     }
 
     public void setOnScrollListener(OnScrollListener scrollListener) {
@@ -69,7 +69,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     }
 
     private void configureScrollListener() {
-        recyclerView.addOnScrollListener(pauseOnScrollListener);
+        recyclerView.addOnScrollListener(recyclerViewPauseOnScrollListener);
         if (externalScrollListener != null) {
             recyclerView.addOnScrollListener(externalScrollListener);
         }

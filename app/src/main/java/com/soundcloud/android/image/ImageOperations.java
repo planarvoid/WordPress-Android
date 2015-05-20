@@ -12,6 +12,7 @@ import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiEndpoints;
@@ -319,11 +320,11 @@ public class ImageOperations {
 
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling,
                                                                   AbsListView.OnScrollListener customListener) {
-        return new com.nostra13.universalimageloader.core.listener.PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling, customListener);
+        return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling, customListener);
     }
 
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling) {
-        return new com.nostra13.universalimageloader.core.listener.PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling);
+        return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling);
     }
 
     public String getUrlForLargestImage(Resources resources, Urn urn){
