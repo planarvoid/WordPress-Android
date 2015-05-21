@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
-import com.soundcloud.android.playback.PlaybackConstants;
+import com.soundcloud.android.playback.PlayerDeviceCompatibility;
 import com.soundcloud.android.playback.service.Playa.PlayaListener;
 import com.soundcloud.android.playback.service.Playa.PlayaState;
 import com.soundcloud.android.playback.service.Playa.Reason;
@@ -244,8 +244,7 @@ public class StreamPlaya implements PlayaListener {
         }
 
         public boolean shouldForceMediaPlayer() {
-            return PlaybackConstants.FORCE_MEDIA_PLAYER;
+            return PlayerDeviceCompatibility.shouldForceMediaPlayer();
         }
     }
-
 }

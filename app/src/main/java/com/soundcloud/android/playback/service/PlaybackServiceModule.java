@@ -1,7 +1,7 @@
 package com.soundcloud.android.playback.service;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.playback.PlaybackConstants;
+import com.soundcloud.android.playback.PlayerDeviceCompatibility;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerManager;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerManagerCompat;
 import com.soundcloud.android.playback.service.mediaplayer.MediaPlayerManagerImpl;
@@ -16,7 +16,7 @@ public class PlaybackServiceModule {
     @Provides
     public MediaPlayerManager provideMediaPlayerManager(){
         // if we are always playing mediaplayer, we should use compat mode which always releases async
-        if (PlaybackConstants.FORCE_MEDIA_PLAYER){
+        if (PlayerDeviceCompatibility.shouldForceMediaPlayer()){
             return new MediaPlayerManagerCompat();
         } else {
             return new MediaPlayerManagerImpl();
