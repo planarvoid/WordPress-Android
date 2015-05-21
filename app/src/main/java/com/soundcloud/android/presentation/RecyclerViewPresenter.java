@@ -22,10 +22,13 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     private RecyclerView.OnScrollListener externalScrollListener;
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView.AdapterDataObserver emptyViewObserver;
+    private android.support.v7.widget.RecyclerView.ItemDecoration dividerItemDecoration;
 
-    protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener) {
+    protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
+                                    DividerItemDecoration dividerItemDecoration) {
         super(pullToRefreshWrapper);
         this.recyclerViewPauseOnScrollListener = recyclerViewPauseOnScrollListener;
+        this.dividerItemDecoration = dividerItemDecoration;
     }
 
     public void setOnScrollListener(OnScrollListener scrollListener) {
@@ -44,6 +47,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
 
         linearLayoutManager = new LinearLayoutManager(fragment.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addItemDecoration(dividerItemDecoration);
 
         configureScrollListener();
 
@@ -66,6 +70,11 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         recyclerView.setAdapter(null);
         recyclerView = null;
         super.onDestroyView(fragment);
+    }
+
+    @Override
+    protected int[] getSwipeToRefreshViewIds() {
+        return new int[]{ R.id.recycler_view, android.R.id.empty };
     }
 
     private void configureScrollListener() {

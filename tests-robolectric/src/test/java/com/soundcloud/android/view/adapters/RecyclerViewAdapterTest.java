@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,6 +35,7 @@ public class RecyclerViewAdapterTest {
     public void setUp() throws Exception {
         adapter = buildAdapter(cellPresenter);
         viewHolder = new TestViewHolder(itemView);
+        when(parent.getContext()).thenReturn(Robolectric.application);
     }
 
     @Test

@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -19,6 +20,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -76,7 +78,7 @@ public class SoundStreamPresenterTest {
     @Before
     public void setUp() throws Exception {
         presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, recyclerViewPauseOnScrollListener,
-                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
+                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus, mock(DividerItemDecoration.class));
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);

@@ -57,13 +57,14 @@ public class RecyclerViewPresenterTest {
     @Mock private RecyclerView recyclerView;
     @Mock private EmptyView emptyView;
     @Mock private RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
-
+    @Mock private DividerItemDecoration dividerItemDecoration;
     @Captor private ArgumentCaptor<SwipeRefreshLayout.OnRefreshListener> refreshListenerCaptor;
 
     private TestSubscriber<Iterable<String>> testSubscriber = new TestSubscriber<>();
 
     private View lastClickedView;
     private int lastClickedPosition;
+
 
     @Before
     public void setup() {
@@ -190,7 +191,7 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(SwipeRefreshLayout.OnRefreshListener.class));
+        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(SwipeRefreshLayout.OnRefreshListener.class), any(int[].class));
     }
 
     @Test
@@ -203,7 +204,7 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class));
+        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class), any(int[].class));
     }
 
     @Test
@@ -465,7 +466,7 @@ public class RecyclerViewPresenterTest {
     private void triggerPullToRefresh() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture());
+        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture(), any(int[].class));
         SwipeRefreshLayout.OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
     }
@@ -480,7 +481,7 @@ public class RecyclerViewPresenterTest {
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final CollectionBinding refreshBinding,
                                             final Observer... observers) {
-        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener, dividerItemDecoration) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;
@@ -509,7 +510,7 @@ public class RecyclerViewPresenterTest {
     private void createPresenterWithPendingBindings(final CollectionBinding... collectionBindings) {
         final List<CollectionBinding> pendingBindings = new LinkedList<>();
         pendingBindings.addAll(Arrays.asList(collectionBindings));
-        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener, dividerItemDecoration) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return pendingBindings.remove(0);

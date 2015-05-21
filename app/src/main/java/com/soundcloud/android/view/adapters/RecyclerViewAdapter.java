@@ -1,9 +1,12 @@
 package com.soundcloud.android.view.adapters;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.R;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -19,6 +22,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     protected final SparseArray<CellPresenter<?>> cellPresenters;
 
     private View.OnClickListener onClickListener;
+    private int backgroundResId = Consts.NOT_SET;
 
     @SafeVarargs
     protected RecyclerViewAdapter(CellPresenterBinding<? extends ItemT>... cellPresenterBindings) {
@@ -39,7 +43,18 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
         final View itemView = cellPresenters.get(viewType).createItemView(parent);
         itemView.setOnClickListener(onClickListener);
+        itemView.setBackgroundResource(getBackgroundResourceId(parent.getContext()));
         return createViewHolder(itemView);
+    }
+
+    private int getBackgroundResourceId(Context context) {
+        // lazy init of backgroundResId to avoid unnecessary object creation
+        if (backgroundResId == Consts.NOT_SET){
+            TypedValue typedValue = new TypedValue();
+            context.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
+            backgroundResId = typedValue.resourceId;
+        }
+        return backgroundResId;
     }
 
     public void setOnItemClickListener(View.OnClickListener itemClickListener) {

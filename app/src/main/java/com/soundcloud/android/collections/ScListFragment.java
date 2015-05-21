@@ -119,7 +119,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     @Inject PullToRefreshController pullToRefreshController;
     @Inject FollowingOperations followingOperations;
 
-    @Nullable private ScListView listView;
+    @Nullable private ListView listView;
     private ScBaseAdapter<?> adapter;
     @Nullable private EmptyView emptyView;
     private EmptyViewBuilder emptyViewBuilder;
@@ -181,10 +181,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return args;
     }
 
-    @Nullable
-    public ScListView getScListView() {
-        return listView;
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -223,7 +219,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
                              Bundle savedInstanceState) {
 
         SwipeRefreshLayout pullToRefreshLayout = (SwipeRefreshLayout) inflater.inflate(R.layout.sc_list_fragment, null);
-        listView = configureList((ScListView) pullToRefreshLayout.findViewById(android.R.id.list));
+        listView = (ListView) pullToRefreshLayout.findViewById(android.R.id.list);
         listView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, this));
 
         emptyView = createEmptyView();
@@ -547,12 +543,6 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         if (emptyView != null) {
             emptyView.setStatus(this.statusCode);
         }
-    }
-
-    protected ScListView configureList(ScListView lv) {
-        lv.setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-        lv.setFastScrollEnabled(false);
-        return lv;
     }
 
     protected void doneRefreshing() {

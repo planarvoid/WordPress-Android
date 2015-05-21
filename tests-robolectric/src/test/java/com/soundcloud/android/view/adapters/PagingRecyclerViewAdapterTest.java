@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,8 +47,8 @@ public class PagingRecyclerViewAdapterTest {
 
         Observable.just(items).subscribe(adapter);
 
-        when(parent.getContext()).thenReturn(context);
-        when(progressCellPresenter.createView(context)).thenReturn(rowView);
+        when(parent.getContext()).thenReturn(Robolectric.application);
+        when(progressCellPresenter.createView(Robolectric.application)).thenReturn(rowView);
     }
 
     @Test

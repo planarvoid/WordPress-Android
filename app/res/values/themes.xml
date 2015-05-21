@@ -4,12 +4,9 @@
     <style name="BaseTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:windowBackground">@android:color/white</item>
-
         <item name="android:popupAnimationStyle">@style/Animation.Popup</item>
-        <item name="android:listViewStyle">@style/ListView</item>
 
         <item name="searchViewStyle">@style/SearchView.SoundCloud</item>
-
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">@color/sc_orange</item>

@@ -208,7 +208,7 @@ public class ListPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(OnRefreshListener.class));
+        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(OnRefreshListener.class), any(int[].class));
     }
 
     @Test
@@ -397,7 +397,7 @@ public class ListPresenterTest {
     private void triggerPullToRefresh() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture());
+        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture(), any(int[].class));
         OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
     }

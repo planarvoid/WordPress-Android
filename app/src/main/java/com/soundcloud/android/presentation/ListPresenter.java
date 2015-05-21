@@ -69,6 +69,11 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
         super.onDestroyView(fragment);
     }
 
+    @Override
+    protected int[] getSwipeToRefreshViewIds() {
+        return new int[]{ android.R.id.list, android.R.id.empty };
+    }
+
     private void configureScrollListener() {
         if (scrollListener == null) {
             scrollListener = imageOperations.createScrollPauseListener(false, true);

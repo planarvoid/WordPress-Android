@@ -16,6 +16,7 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
@@ -99,8 +100,9 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
                          RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
-                         EventBus eventBus) {
-        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener);
+                         EventBus eventBus,
+                         DividerItemDecoration dividerItemDecoration) {
+        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener, dividerItemDecoration);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
