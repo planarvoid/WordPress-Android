@@ -70,6 +70,16 @@ public class SyncInitiator {
         }
     }
 
+    public Observable<Boolean> initialSoundStream() {
+        final Uri uri = SyncContent.MySoundStream.content.uri;
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                requestSoundStreamSync(null, new LegacyResultReceiverAdapter(subscriber, uri));
+            }
+        }).doOnNext(resetSyncMissesLegacy(uri));
+    }
+
     public Observable<Boolean> refreshSoundStream() {
         final Uri uri = SyncContent.MySoundStream.content.uri;
         return Observable.create(new Observable.OnSubscribe<Boolean>() {

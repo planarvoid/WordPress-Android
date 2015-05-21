@@ -94,13 +94,13 @@ public class SoundStreamOperationsTest {
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.from(items));
         // returning true means new items have been added to local storage
-        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(syncInitiator).refreshSoundStream();
+        inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(observer).onNext(items);
         inOrder.verify(observer).onCompleted();
@@ -113,13 +113,13 @@ public class SoundStreamOperationsTest {
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.<PropertySet>empty());
         // returning true means successful sync
-        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(syncInitiator).refreshSoundStream();
+        inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
         inOrder.verify(observer).onCompleted();
@@ -132,13 +132,13 @@ public class SoundStreamOperationsTest {
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.<PropertySet>empty(), Observable.just(promotedTrackProperties));
         // returning true means successful sync
-        when(syncInitiator.refreshSoundStream()).thenReturn(Observable.just(true));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
 
         operations.initialStreamItems().subscribe(observer);
 
         InOrder inOrder = inOrder(observer, soundStreamStorage, syncInitiator);
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
-        inOrder.verify(syncInitiator).refreshSoundStream();
+        inOrder.verify(syncInitiator).initialSoundStream();
         inOrder.verify(soundStreamStorage).initialStreamItems(PAGE_SIZE);
         inOrder.verify(observer).onNext(Collections.<PropertySet>emptyList());
         inOrder.verify(observer).onCompleted();

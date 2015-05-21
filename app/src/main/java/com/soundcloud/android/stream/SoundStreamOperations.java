@@ -135,7 +135,7 @@ class SoundStreamOperations {
         } else {
             if (timestamp == INITIAL_TIMESTAMP) {
                 Log.d(TAG, "First page; triggering full sync");
-                return syncInitiator.refreshSoundStream().flatMap(handleSyncResult(timestamp));
+                return syncInitiator.initialSoundStream().flatMap(handleSyncResult(timestamp));
             } else {
                 Log.d(TAG, "Not on first page; triggering backfill sync");
                 return syncInitiator.backfillSoundStream().flatMap(handleSyncResult(timestamp));
@@ -174,7 +174,7 @@ class SoundStreamOperations {
 
     private void updateLastSeen(List<PropertySet> result) {
         final PropertySet firstNonPromotedItem = getFirstNonPromotedItem(result);
-        if (firstNonPromotedItem != null){
+        if (firstNonPromotedItem != null) {
             contentStats.setLastSeen(Content.ME_SOUND_STREAM,
                     firstNonPromotedItem.get(PlayableProperty.CREATED_AT).getTime());
         }
@@ -183,7 +183,7 @@ class SoundStreamOperations {
     @Nullable
     private PropertySet getFirstNonPromotedItem(List<PropertySet> result) {
         for (PropertySet propertySet : result){
-            if (!propertySet.contains(PromotedTrackProperty.AD_URN)){
+            if (!propertySet.contains(PromotedTrackProperty.AD_URN)) {
                 return propertySet;
             }
         }
