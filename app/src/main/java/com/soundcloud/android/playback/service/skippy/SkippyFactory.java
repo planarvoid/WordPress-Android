@@ -46,7 +46,7 @@ public class SkippyFactory {
                 CACHE_MIN_FREE_SPACE_AVAILABLE_PERCENTAGE,
                 Consts.EXTERNAL_SKIPPY_STREAM_DIRECTORY.getAbsolutePath(),
                 cryptoOperations.getKeyOrGenerateAndStore(KEY_PREFERENCE_NAME),
-                applicationProperties.useVerboseLogging(),
+                !applicationProperties.isReleaseBuild(),
                 ALL_TRACKS_CACHE
         );
     }
