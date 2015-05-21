@@ -1,0 +1,15 @@
+{
+    "name": "android-listeners",
+    "description": "Listener focused android app",
+    "contact_email": "android@soundcloud.com",
+    "owner": "android",
+    "status": "production",
+    "alert_service": "https://sndcld.pagerduty.com/services/P0SW934",
+    "telemetry_dashboard": "http://promdash/android",
+    "data_sensitivity": ["pid", "user_urn", "client_credentials"],
+    "dependencies": [
+      "api-mobile",
+      "public-api",
+      "public-api-strangler"
+    ]
+}
