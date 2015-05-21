@@ -554,7 +554,7 @@
     <string name="age_verify_button">Verify age</string>
 
     <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">You\'ve reached the registered device limit.</string>
+    <string name="device_management_limit">You\'ve reached the registered device limit</string>
     <string name="device_management_login_message">Your subscription is limited to 3 devices. You can register this device and sign out of the device you used last by selecting continue.</string>
     <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
     <string name="device_management_continue">Continue</string>
