@@ -35,7 +35,7 @@ public class PlaylistItemPresenter implements CellPresenter<PlaylistItem> {
     }
 
     @Override
-    public View createItemView(int position, ViewGroup parent) {
+    public View createItemView(ViewGroup parent) {
         return LayoutInflater.from(parent.getContext()).inflate(R.layout.playlist_list_item, parent, false);
     }
 

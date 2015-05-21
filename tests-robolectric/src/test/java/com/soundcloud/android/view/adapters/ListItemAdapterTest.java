@@ -2,7 +2,6 @@ package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -23,28 +22,28 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ItemAdapterTest {
+public class ListItemAdapterTest {
 
-    @Mock private CellPresenter cellPresenter;
+    @Mock private CellPresenter<String> cellPresenter;
 
-    private ItemAdapter<String> adapter;
+    private ListItemAdapter<String> adapter;
 
     @Before
     public void setup() {
-        adapter = new ItemAdapter<String>(cellPresenter);
+        adapter = new ListItemAdapter<>(cellPresenter);
     }
 
     @Test
     public void shouldAddItems() {
-        expect(adapter.getCount()).toBe(0);
+        expect(adapter.getItemCount()).toBe(0);
         adapter.addItem("item");
-        expect(adapter.getCount()).toBe(1);
+        expect(adapter.getItemCount()).toBe(1);
     }
 
     @Test
     public void shouldAddItemsFromObservableSequence() {
         Observable.just(Arrays.asList("one", "two", "three")).subscribe(adapter);
-        expect(adapter.getCount()).toBe(3);
+        expect(adapter.getItemCount()).toBe(3);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class ItemAdapterTest {
         adapter.addItem("item2");
         adapter.addItem("item3");
 
-        adapter.removeAt(1);
+        adapter.removeItem(1);
 
         List<String> items = adapter.getItems();
         expect(items.size()).toEqual(2);
@@ -101,7 +100,7 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         adapter.addItem("item");
         adapter.getView(0, null, parent);
-        verify(cellPresenter).createItemView(0, parent);
+        verify(cellPresenter).createItemView(parent);
     }
 
     @Test
@@ -109,9 +108,9 @@ public class ItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         CellPresenter presenterOne = mock(CellPresenter.class);
         CellPresenter presenterTwo = mock(CellPresenter.class);
-        adapter = new ItemAdapter<String>(
-                new ItemAdapter.CellPresenterEntity(0, presenterOne),
-                new ItemAdapter.CellPresenterEntity(1, presenterTwo)) {
+        adapter = new ListItemAdapter<String>(
+                new CellPresenterBinding<String>(0, presenterOne),
+                new CellPresenterBinding<String>(1, presenterTwo)) {
             @Override
             public int getItemViewType(int position) {
                 return position;
@@ -119,17 +118,17 @@ public class ItemAdapterTest {
         };
 
         adapter.getView(0, null, parent);
-        verify(presenterOne).createItemView(0, parent);
+        verify(presenterOne).createItemView(parent);
 
         adapter.getView(1, null, parent);
-        verify(presenterTwo).createItemView(1, parent);
+        verify(presenterTwo).createItemView(parent);
     }
 
     @Test
     public void shouldBindItemView() {
         FrameLayout parent = mock(FrameLayout.class);
         View itemView = mock(View.class);
-        when(cellPresenter.createItemView(0, parent)).thenReturn(itemView);
+        when(cellPresenter.createItemView(parent)).thenReturn(itemView);
         adapter.addItem("item");
 
         adapter.getView(0, null, parent);
@@ -144,7 +143,7 @@ public class ItemAdapterTest {
 
         View itemView = adapter.getView(0, convertView, parent);
         expect(itemView).toBe(convertView);
-        verify(cellPresenter, never()).createItemView(anyInt(), any(ViewGroup.class));
+        verify(cellPresenter, never()).createItemView(any(ViewGroup.class));
         verify(cellPresenter).bindItemView(0, itemView, Arrays.asList("item"));
     }
 

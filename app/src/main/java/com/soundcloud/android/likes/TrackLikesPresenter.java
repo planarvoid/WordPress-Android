@@ -12,7 +12,7 @@ import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -34,14 +34,12 @@ import android.support.v4.app.Fragment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class TrackLikesPresenter extends ListPresenter<TrackItem>
-        implements AdapterView.OnItemClickListener {
+class TrackLikesPresenter extends ListPresenter<TrackItem> {
 
     final @LightCycle TrackLikesActionMenuController actionMenuController;
     final @LightCycle TrackLikesHeaderPresenter headerPresenter;
@@ -79,35 +77,33 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getListBinding().connect();
+        getBinding().connect();
     }
 
     @Override
-    protected ListBinding<TrackItem> onBuildListBinding(Bundle fragmentArgs) {
-        return ListBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
+    protected CollectionBinding<TrackItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(likeOperations.likedTracks(), TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected ListBinding<TrackItem> onBuildRefreshBinding() {
-        return ListBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
+    protected CollectionBinding<TrackItem> onRefreshBinding() {
+        return CollectionBinding.from(likeOperations.updatedLikedTracks(), TrackItem.fromPropertySets())
                 .withAdapter(adapter)
                 .withPager(likeOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected void onSubscribeListBinding(ListBinding<TrackItem> listBinding, CompositeSubscription viewLifeCycle) {
-        headerPresenter.onSubscribeListObservers(listBinding);
+    protected void onSubscribeBinding(CollectionBinding<TrackItem> collectionBinding, CompositeSubscription viewLifeCycle) {
+        headerPresenter.onSubscribeListObservers(collectionBinding);
     }
 
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
-        getListView().setOnItemClickListener(this);
 
         getEmptyView().setImage(R.drawable.empty_like);
         getEmptyView().setMessageText(R.string.list_empty_user_likes_message);
@@ -145,10 +141,10 @@ class TrackLikesPresenter extends ListPresenter<TrackItem>
     }
 
     @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+    public void onItemClicked(View view, int position) {
         // here we assume that the list you are looking at is up to date with the database, which is not necessarily the case
         // a sync may have happened in the background. This is def. an edge case, but worth handling maybe??
-        final int realPosition = position - ((ListView) adapterView).getHeaderViewsCount();
+        final int realPosition = position - ((ListView) getListView()).getHeaderViewsCount();
         TrackItem item = adapter.getItem(realPosition);
         if (item == null) {
             String exceptionMessage = "Adapter item is null on item click, with adapter: " + adapter + ", on position " + realPosition;

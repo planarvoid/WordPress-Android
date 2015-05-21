@@ -14,6 +14,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -59,18 +60,18 @@ public class MixedPlayableItemClickListenerTest {
     public void itemClickOnTrackStartsPlaybackWithJustTracks() throws Exception {
         final TrackItem track1 = ModelFixtures.create(TrackItem.class);
         final TrackItem track2 = ModelFixtures.create(TrackItem.class);
-        when(adapter.getItems()).thenReturn(Arrays.asList(
+        List<PlayableItem> items = Arrays.asList(
                 ModelFixtures.create(PlaylistItem.class),
                 track1,
                 ModelFixtures.create(PlaylistItem.class),
                 track2
-        ));
+        );
 
         final List<Urn> trackList = Arrays.asList(track1.getEntityUrn(), track2.getEntityUrn());
         final PlaybackResult playbackResult = PlaybackResult.success();
         when(playbackOperations.playTracks(trackList, 1, new PlaySessionSource(screen))).thenReturn(Observable.just(playbackResult));
 
-        listener.onItemClick(adapterView, view, 3, 3);
+        listener.onItemClick(items, view, 3);
 
         verify(expandPlayerSubscriber).onNext(playbackResult);
         verify(expandPlayerSubscriber).onCompleted();
@@ -79,14 +80,14 @@ public class MixedPlayableItemClickListenerTest {
     @Test
     public void itemClickOnPlaylistSendsPlaylistDetailIntent() throws Exception {
         final PlaylistItem playlistItem = ModelFixtures.create(PlaylistItem.class);
-        when(adapter.getItems()).thenReturn(Arrays.asList(
+        List<PlayableItem> items = Arrays.asList(
                 ModelFixtures.create(PlaylistItem.class),
                 ModelFixtures.create(TrackItem.class),
                 playlistItem,
                 ModelFixtures.create(TrackItem.class)
-        ));
+        );
 
-        listener.onItemClick(adapterView, view, 2, 2);
+        listener.onItemClick(items, view, 2);
 
         Intent nextStartedActivity = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
         expect(nextStartedActivity).not.toBeNull();

@@ -1,7 +1,6 @@
 package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Actions;
@@ -25,15 +24,13 @@ import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.List;
@@ -48,11 +45,11 @@ public class PlaylistLikesPresenterTest {
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private PlaylistLikesAdapter adapter;
     @Mock private Fragment fragment;
+    @Mock private Context context;
     @Mock private View fragmentView;
     @Mock private ListView listView;
+    @Mock private View itemView;
     @Mock private EmptyView emptyView;
-
-    @Captor private ArgumentCaptor<AdapterView.OnItemClickListener> onItemClickCaptor;
 
     private TestEventBus testEventBus = new TestEventBus();
 
@@ -66,7 +63,7 @@ public class PlaylistLikesPresenterTest {
         when(likeOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(likeOperations.onPlaylistLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onPlaylistUnliked()).thenReturn(Observable.<Urn>empty());
-        when(listView.getContext()).thenReturn(Robolectric.application);
+        when(itemView.getContext()).thenReturn(Robolectric.application);
     }
 
     @Test
@@ -76,7 +73,7 @@ public class PlaylistLikesPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, fragmentView, null);
 
-        getOnItemClickListener().onItemClick(listView, null, 0, 0);
+        presenter.onItemClicked(itemView, 0);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
@@ -93,10 +90,5 @@ public class PlaylistLikesPresenterTest {
         presenter.onDestroyView(fragment);
 
         testEventBus.verifyUnsubscribed();
-    }
-
-    private AdapterView.OnItemClickListener getOnItemClickListener() {
-        verify(listView).setOnItemClickListener(onItemClickCaptor.capture());
-        return onItemClickCaptor.getValue();
     }
 }

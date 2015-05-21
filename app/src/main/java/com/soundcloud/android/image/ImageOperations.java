@@ -314,6 +314,10 @@ public class ImageOperations {
         imageLoader.resume();
     }
 
+    public void pause() {
+        imageLoader.resume();
+    }
+
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling,
                                                                   AbsListView.OnScrollListener customListener) {
         return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling, customListener);

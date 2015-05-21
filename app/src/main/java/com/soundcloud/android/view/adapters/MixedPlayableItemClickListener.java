@@ -11,14 +11,13 @@ import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
 
 import android.view.View;
-import android.widget.AdapterView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MixedPlayableItemClickListener implements AdapterView.OnItemClickListener {
+public class MixedPlayableItemClickListener {
 
     private final PlaybackOperations playbackOperations;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
@@ -32,9 +31,7 @@ public class MixedPlayableItemClickListener implements AdapterView.OnItemClickLi
         this.searchQuerySourceInfo = searchQuerySourceInfo;
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        final List<PlayableItem> playables = ((MixedPlayableAdapter) parent.getAdapter()).getItems();
+    public void onItemClick(List<PlayableItem> playables, View view, int position) {
         final ListItem item = playables.get(position);
         final Urn playableUrn = item.getEntityUrn();
         if (playableUrn.isTrack()) {

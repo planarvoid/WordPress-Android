@@ -36,7 +36,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;
@@ -58,7 +58,6 @@ import android.widget.ToggleButton;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaylistDetailFragmentTest {
@@ -75,7 +74,7 @@ public class PlaylistDetailFragmentTest {
     @Mock private PlaylistOperations playlistOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistEngagementsPresenter playlistEngagementsPresenter;
-    @Mock private ItemAdapter<TrackItem> adapter;
+    @Mock private ListItemAdapter<TrackItem> adapter;
     @Mock private PullToRefreshController ptrController;
     @Mock private PlayQueueManager playQueueManager;
     @Mock private Intent intent;
