@@ -49,6 +49,10 @@
         <item name="windowActionBar">false</item>
     </style>
 
+    <style name="Theme.SoundCloud.Settings">
+        <item name="android:listViewStyle">@style/Widget.PreferenceListView</item>
+    </style>
+
     <style name="Theme.ScAuth" parent="Theme.SoundCloud.NoActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
         <item name="android:windowBackground">@color/dark_bg</item>
@@ -69,6 +73,11 @@
     <style name="Widget.CropImageView" parent="android:Widget">
         <item name="showHandles">always</item>
         <item name="highlightColor">@color/white</item>
+    </style>
+
+    <style name="Widget.PreferenceListView" parent="android:Widget">
+        <item name="android:divider">@android:color/transparent</item>
+        <item name="android:dividerHeight">4dip</item>
     </style>
 
 </resources>
