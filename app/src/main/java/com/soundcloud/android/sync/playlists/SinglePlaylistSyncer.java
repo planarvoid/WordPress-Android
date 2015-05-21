@@ -153,7 +153,6 @@ class SinglePlaylistSyncer implements Callable<Boolean> {
         storePlaylist.with(playlist).call();
     }
 
-    @SafeVarargs
     private final Set<Urn> getSetDifference(Set<Urn> set, Set<Urn>... without) {
         final Set<Urn> difference = new TreeSet<>();
         difference.addAll(set);

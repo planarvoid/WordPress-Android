@@ -24,7 +24,6 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     private View.OnClickListener onClickListener;
     private int backgroundResId = Consts.NOT_SET;
 
-    @SafeVarargs
     protected RecyclerViewAdapter(CellPresenterBinding<? extends ItemT>... cellPresenterBindings) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
         this.cellPresenters = new SparseArray<>(cellPresenterBindings.length);
