@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -93,7 +94,7 @@ public class PagingRecyclerViewAdapterTest {
 
         adapter.onCreateViewHolder(parent, PagingAwareAdapter.PROGRESS_VIEW_TYPE);
 
-        verify(progressCellPresenter).createView(context);
+        verify(progressCellPresenter).createView(any(Context.class));
         verifyZeroInteractions(cellPresenter);
     }
 
