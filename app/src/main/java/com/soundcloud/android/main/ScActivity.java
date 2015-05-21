@@ -61,14 +61,20 @@ public abstract class ScActivity extends LightCycleAppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (menu.findItem(R.id.media_route_menu_item) != null){
+        // This is a workaround. For some devices the back/up button does not work if we don't inflate "some" menu
+        getMenuInflater().inflate(R.menu.empty, menu);
+        return true;
+    }
+
+    protected void configureMainOptionMenuItems(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        if (menu.findItem(R.id.media_route_menu_item) != null) {
             castConnectionHelper.addMediaRouterButton(menu, R.id.media_route_menu_item);
         }
         final MenuItem feedbackItem = menu.findItem(R.id.action_feedback);
         if (feedbackItem != null) {
             feedbackItem.setVisible(applicationProperties.shouldAllowFeedback());
         }
-        return true;
     }
 
     /**
