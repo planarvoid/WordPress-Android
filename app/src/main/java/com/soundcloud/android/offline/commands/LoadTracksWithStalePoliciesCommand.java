@@ -8,7 +8,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import static com.soundcloud.propeller.query.Filter.filter;
 
 import com.soundcloud.android.commands.LegacyCommand;
-import com.soundcloud.android.commands.UrnMapper;
+import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.policies.PolicyOperations;
@@ -44,11 +44,11 @@ public class LoadTracksWithStalePoliciesCommand extends LegacyCommand<Void, Coll
                 .orWhereNull(TrackPolicies.field(TableColumns.TrackPolicies.LAST_UPDATED));
         if (settingsStorage.isOfflineLikedTracksEnabled()) {
             set.addAll(database.query(buildOfflineLikedTracksQuery()
-                    .where(stalePolicyCondition)).toList(new UrnMapper()));
+                    .where(stalePolicyCondition)).toList(new TrackUrnMapper()));
         }
         set.addAll(database.query(buildOfflinePlaylistTracksQuery()
                 .where(stalePolicyCondition))
-                .toList(new UrnMapper()));
+                .toList(new TrackUrnMapper()));
         return set;
     }
 
