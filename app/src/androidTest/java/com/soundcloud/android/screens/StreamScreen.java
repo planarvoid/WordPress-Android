@@ -76,7 +76,7 @@ public class StreamScreen extends Screen {
     }
 
     private StreamList streamList() {
-        ViewElement list = testDriver.findElement(With.id(android.R.id.list));
+        ViewElement list = testDriver.findElement(With.id(R.id.recycler_view));
         return new StreamList(list);
     }
 
