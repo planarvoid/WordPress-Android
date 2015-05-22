@@ -12,14 +12,15 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
 import com.soundcloud.android.payments.SubscribeActivity;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
 import android.app.Activity;
@@ -32,6 +33,7 @@ import android.preference.TwoStatePreference;
 import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
+import java.util.List;
 
 public class OfflineSettingsFragment extends PreferenceFragment implements OnPreferenceClickListener, OnPreferenceChangeListener {
 
@@ -143,14 +145,25 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
                 .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        OfflineContentService.stop(getActivity());
+
                         subscription.add(offlineContentOperations
                                 .clearOfflineContent()
-                                .subscribeOn(ScSchedulers.LOW_PRIO_SCHEDULER)
-                                .subscribe());
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new ClearOfflineContentSubscriber()));
                     }
                 })
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
+    }
+
+    private final class ClearOfflineContentSubscriber extends DefaultSubscriber<List<Urn>> {
+        @Override
+        public void onNext(List<Urn> result) {
+            if (!result.isEmpty()){
+                ((OfflineStoragePreference) findPreference(OFFLINE_STORAGE_LIMIT)).updateAndRefresh();
+            }
+        }
     }
 
     private final class CurrentDownloadSubscriber extends DefaultSubscriber<CurrentDownloadEvent> {

@@ -57,7 +57,6 @@ public class OfflineContentOperationsTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private ChangeResult changeResult;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
-    @Mock private SecureFileStorage secureFileStorage;
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
@@ -84,7 +83,6 @@ public class OfflineContentOperationsTest {
                 loadOfflineContentUpdatesCommand,
                 featureOperations,
                 offlineTracksStorage,
-                secureFileStorage,
                 Schedulers.immediate());
     }
 
@@ -188,21 +186,13 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void clearOfflineContentClearsTrackDownloads() {
-        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(WRITE_RESULT_SUCCESS));
+        List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
+        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
 
-        final TestObserver<WriteResult> observer = new TestObserver<>();
+        final TestObserver<List<Urn>> observer = new TestObserver<>();
         operations.clearOfflineContent().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(WRITE_RESULT_SUCCESS);
-    }
-
-    @Test
-    public void clearOfflineContentRemovesOfflineTrackFiles() {
-        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(WRITE_RESULT_SUCCESS));
-
-        operations.clearOfflineContent().subscribe(new TestObserver<WriteResult>());
-
-        verify(secureFileStorage).deleteAllTracks();
+        expect(observer.getOnNextEvents()).toContainExactly(removed);
     }
 
     @Test

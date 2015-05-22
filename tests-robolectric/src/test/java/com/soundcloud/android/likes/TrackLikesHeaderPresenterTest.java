@@ -210,6 +210,31 @@ public class TrackLikesHeaderPresenterTest {
     }
 
     @Test
+    public void ignoresCurrentDownloadEventsWhenOfflineLikesWereDisabled() {
+        // download result being delivered after offline likes disabled
+        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(TRACK1_DOWNLOAD_REQUEST);
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(false);
+        presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
+
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+
+        verify(headerView, never()).show(downloadingEvent.kind);
+    }
+
+    @Test
+    public void updatesToNoOfflineStateEvenWhenOfflineLikesDisabled() {
+        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloadRemoved(Arrays.asList(TRACK1));
+        when(offlineContentOperations.isOfflineLikedTracksEnabled()).thenReturn(false);
+        presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
+
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+
+        verify(headerView).show(DownloadState.NO_OFFLINE);
+    }
+
+    @Test
     public void showsDownloadedStateWhenLikedTracksDownloadStateIsDownloaded() {
         when(offlineContentOperations.getLikedTracksDownloadStateFromStorage()).thenReturn(Observable.just(DownloadState.DOWNLOADED));
         presenter.onViewCreated(layoutView, listView);
@@ -263,6 +288,7 @@ public class TrackLikesHeaderPresenterTest {
     public void doesNotShowDownloadedStateWhenOfflineContentFeatureIsDisabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
 
         verify(headerView, never()).show(DownloadState.DOWNLOADED);
     }

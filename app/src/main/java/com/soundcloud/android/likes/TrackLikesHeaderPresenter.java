@@ -179,8 +179,10 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
     private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
         @Override
         public void onNext(DownloadState state) {
-            if (shouldShowOfflineSyncOptions() && offlineContentOperations.isOfflineLikedTracksEnabled()) {
-                headerView.show(state);
+            if (shouldShowOfflineSyncOptions()) {
+                if (state == DownloadState.NO_OFFLINE || offlineContentOperations.isOfflineLikedTracksEnabled()) {
+                    headerView.show(state);
+                }
             }
         }
     }

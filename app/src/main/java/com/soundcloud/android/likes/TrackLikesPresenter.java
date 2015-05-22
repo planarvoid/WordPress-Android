@@ -1,11 +1,11 @@
 package com.soundcloud.android.likes;
 
-import static com.soundcloud.android.events.EventQueue.CURRENT_DOWNLOAD;
 import static com.soundcloud.android.events.EventQueue.ENTITY_STATE_CHANGED;
 import static com.soundcloud.android.events.EventQueue.PLAY_QUEUE_TRACK;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
@@ -111,8 +111,9 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(PLAY_QUEUE_TRACK,
                         new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(CURRENT_DOWNLOAD,
-                        new UpdateCurrentDownloadSubscriber(adapter)),
+                eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED,
                         new UpdateEntityListSubscriber(adapter)),
 

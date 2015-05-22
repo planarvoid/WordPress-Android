@@ -70,7 +70,9 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new RemoveEntityListSubscriber(adapter)),
 
-                eventBus.subscribe(EventQueue.CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter))
+                eventBus.queue(EventQueue.CURRENT_DOWNLOAD)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new UpdateCurrentDownloadSubscriber(adapter))
         );
     }
 

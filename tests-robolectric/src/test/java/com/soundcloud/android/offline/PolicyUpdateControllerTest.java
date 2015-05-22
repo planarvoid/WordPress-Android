@@ -9,10 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.utils.DateProvider;
-import com.soundcloud.propeller.WriteResult;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +23,7 @@ import rx.Observable;
 import android.app.Activity;
 import android.content.Intent;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -41,7 +42,6 @@ public class PolicyUpdateControllerTest {
     private long online27DaysAgo;
     private long online30DaysAgo;
     private long online33DaysAgo;
-    private TestObservables.MockObservable<WriteResult> clearOfflineContentObservable;
 
     @Before
     public void setUp() throws Exception {
@@ -59,7 +59,7 @@ public class PolicyUpdateControllerTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(yesterday));
         when(dateProvider.getCurrentTime()).thenReturn(now);
-        clearOfflineContentObservable = TestObservables.emptyObservable();
+        TestObservables.MockObservable<List<Urn>> clearOfflineContentObservable = TestObservables.emptyObservable();
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentObservable);
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
         online30DaysAgo = now - TimeUnit.DAYS.toMillis(30L);
