@@ -253,7 +253,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         }
 
         public Urn getUrn() {
-            return new Urn(Urn.SOUNDCLOUD_SCHEME + ":" + kind + "s:" + id);
+            return new Urn("soundcloud:" + kind + "s:" + id);
         }
 
         @Override

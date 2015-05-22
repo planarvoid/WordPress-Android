@@ -29,6 +29,7 @@ ext {
           intellijAnnotations         : "com.intellij:annotations:9.0.4",
 
           // SoundCloud libraries
+          androidKit                  : "com.soundcloud.android-kit:android-kit:0.1",
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
           skippy                      : "com.soundcloud.android:skippy:744@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
