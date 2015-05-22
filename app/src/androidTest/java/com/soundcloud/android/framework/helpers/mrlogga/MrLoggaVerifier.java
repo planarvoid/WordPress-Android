@@ -16,6 +16,8 @@ public class MrLoggaVerifier {
     public void startLogging() {
         MrLoggaResponse response = client.startLogging();
         assertTrue("Failed to start MrLoggaLogga logging\n" + response.responseBody, response.success);
+        
+        waiter.waitFiveSeconds();
     }
 
     public void finishLogging() {
