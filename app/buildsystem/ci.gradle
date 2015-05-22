@@ -27,7 +27,7 @@ staticAnalysis.mustRunAfter("assemble${project.buildType.capitalize()}")
 // DEBUG BUILDS
 // *********************************************************************************************************************
 
-task buildDebugCI(dependsOn: ['assembleDebug', 'staticAnalysis']) {
+task buildDebugCI(dependsOn: ['clean', 'assembleDebug', 'staticAnalysis']) {
   description = 'Assembles Debug build and performs static analysis for CI.'
 }
 buildDebugCI.mustRunAfter('updateVersion')
@@ -46,7 +46,7 @@ task updateAlphaVersion(dependsOn: ['incrementVersionName', 'setAlphaVersionCode
   description = 'Updates local AndroidManifest versions for Alpha deploy.'
 }
 
-task buildAlpha(dependsOn: ['assembleAlpha']) {
+task buildAlpha(dependsOn: ['clean', 'assembleAlpha']) {
   description = 'Assembles Alpha package.'
 }
 buildAlpha.mustRunAfter('updateAlphaVersion')
@@ -59,7 +59,7 @@ task deployAlpha(dependsOn: ['crashlyticsUploadDistributionAlpha']) {
 // BETA BUILDS
 // *********************************************************************************************************************
 
-task buildBetaCI(dependsOn: ['assembleBeta']) {
+task buildBetaCI(dependsOn: ['clean', 'assembleBeta']) {
   description = 'Assembles Beta build for CI.'
 }
 buildBetaCI.mustRunAfter('updateVersion')
@@ -73,12 +73,12 @@ deployBeta.mustRunAfter('buildBetaCI')
 // RELEASE BUILDS
 // *********************************************************************************************************************
 
-task buildReleaseNoProguardCI(dependsOn: ['assembleReleaseNoProguard', 'staticAnalysis']) {
+task buildReleaseNoProguardCI(dependsOn: ['clean', 'assembleReleaseNoProguard', 'staticAnalysis']) {
   description = 'Assembles Release (without ProGuard!) build and performs static analysis for CI.'
 }
 buildReleaseNoProguardCI.mustRunAfter('updateVersion')
 
-task buildReleaseCI(dependsOn: ['assembleRelease']) {
+task buildReleaseCI(dependsOn: ['clean', 'assembleRelease']) {
   description = 'Assembles Release build for CI.'
 }
 buildReleaseCI.mustRunAfter('updateVersion')
@@ -91,7 +91,7 @@ task deployReleaseCI(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'upload
 }
 deployReleaseCI.mustRunAfter('buildReleaseCI')
 
-task buildReleaseNonPlayStore(dependsOn: ['assembleRelease_non_play_store']) {
+task buildReleaseNonPlayStore(dependsOn: ['clean', 'assembleRelease_non_play_store']) {
   description = 'Assembles Release for Non Google Play Stores.'
 }
 
