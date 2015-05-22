@@ -25,7 +25,8 @@ public class PromotedStreamTrackingTest extends TrackingActivityTest<MainActivit
         TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testPlayPromotedTrackFromStream() {
+    // TODO: https://github.com/soundcloud/SoundCloud-Android/issues/3202
+    public void ignoreTestPlayPromotedTrackFromStream() {
         mrLoggaVerifier.startLogging();
 
         StreamScreen streamScreen = menuScreen
