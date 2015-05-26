@@ -29,7 +29,7 @@ class OfflineUsage {
         this.offlineUsed = fileStorage.getStorageUsed();
     }
 
-    public long getOfflineTotal() {
+    public long getOfflineLimit() {
         return Math.min(offlineTotal, deviceAvailable + offlineUsed);
     }
 
@@ -50,32 +50,28 @@ class OfflineUsage {
     }
 
     public long getOfflineAvailable() {
-        return Math.max(0, getOfflineTotal() - offlineUsed);
+        return Math.max(0, getOfflineLimit() - offlineUsed);
     }
 
-    public long getAvailableWithoutOfflineLimit() {
+    public long getUnused() {
         return deviceAvailable - getOfflineAvailable();
     }
 
-    public int getOfflineTotalPercentage() {
-        if (getAvailableBeforeOffline() == 0) {
-            return 0;
-        }
-
-        return Math.round(Math.max(0, Math.min(100, offlineTotal * 100 / getAvailableBeforeOffline())));
+    public int getOfflineLimitPercentage() {
+        return (int) (offlineTotal * 100 / deviceTotal);
     }
 
-    public void setOfflineTotalPercentage(int percentage) {
-        int numberOfSteps = Math.max(percentage / getIncrementStep(), 1);
-        offlineTotal = (long) (numberOfSteps * STEP_IN_BYTES);
+    public void setOfflineLimitPercentage(int percentage) {
+        int steps = (int) Math.max(Math.ceil(percentage / getStepPercentage()), 1);
+        offlineTotal = Math.min((long) (steps * STEP_IN_BYTES), deviceTotal);
     }
 
-    public int getIncrementStep() {
-        return (int) Math.round((STEP_IN_BYTES / getAvailableBeforeOffline()) * 100d);
+    public double getStepPercentage() {
+        return STEP_IN_BYTES / deviceTotal * 100;
     }
 
-    private long getAvailableBeforeOffline() {
-        return deviceAvailable + offlineUsed;
+    public boolean isMaximumLimit() {
+        return offlineTotal > (deviceTotal - STEP_IN_BYTES);
     }
 
 }

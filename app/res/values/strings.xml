@@ -585,5 +585,6 @@
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
+    <string name="unlimited">unlimited</string>
 
 </resources>

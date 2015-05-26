@@ -20,19 +20,20 @@ public final class OfflineStoragePreference extends Preference {
     @InjectView(R.id.offline_storage_usage_bars) UsageBarView usageBarView;
     @InjectView(R.id.offline_storage_limit_seek_bar) SeekBar storageLimitSeekBar;
     @InjectView(R.id.offline_storage_limit) TextView storageLimitTextView;
-    @InjectView(R.id.offline_storage_free ) TextView storageFreeTextView;
+    @InjectView(R.id.offline_storage_free) TextView storageFreeTextView;
     @InjectView(R.id.offline_storage_legend_other) TextView storageOtherLabelTextView;
     @InjectView(R.id.offline_storage_legend_used) TextView storageUsedLabelTextView;
     @InjectView(R.id.offline_storage_legend_limit) TextView storageLimitLabelTextView;
 
     private OnPreferenceChangeListener onStorageLimitChangeListener;
     private OfflineUsage offlineUsage;
+    private final Resources resources;
 
     private final SeekBar.OnSeekBarChangeListener onSeekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
-                offlineUsage.setOfflineTotalPercentage(progress);
+                offlineUsage.setOfflineLimitPercentage(progress);
                 updateView();
             }
         }
@@ -45,7 +46,7 @@ public final class OfflineStoragePreference extends Preference {
         public void onStopTrackingTouch(SeekBar seekBar) {
             if (onStorageLimitChangeListener != null) {
                 onStorageLimitChangeListener.onPreferenceChange(OfflineStoragePreference.this,
-                        offlineUsage.getOfflineTotal());
+                        offlineUsage.getOfflineLimit());
             }
         }
     };
@@ -54,6 +55,7 @@ public final class OfflineStoragePreference extends Preference {
         super(context, attr);
         setPersistent(false);
         setLayoutResource(R.layout.offline_storage_limit);
+        resources = context.getResources();
     }
 
     @Override
@@ -81,7 +83,7 @@ public final class OfflineStoragePreference extends Preference {
     }
 
     public void updateAndRefresh() {
-        if(offlineUsage != null) {
+        if (offlineUsage != null) {
             offlineUsage.update();
         }
         updateView();
@@ -93,24 +95,31 @@ public final class OfflineStoragePreference extends Preference {
     }
 
     private void updateLabels() {
-        storageLimitSeekBar.setProgress(offlineUsage.getOfflineTotalPercentage());
+        storageLimitSeekBar.setProgress(offlineUsage.getOfflineLimitPercentage());
+        storageLimitTextView.setText(formatLimitGigabytes());
+
         storageFreeTextView.setText(formatFreeGigabytes());
-        storageLimitTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
         storageOtherLabelTextView.setText(formatGigabytes(offlineUsage.getUsedOthers()));
         storageUsedLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineUsed()));
-        storageLimitLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineTotal()));
+        storageLimitLabelTextView.setText(formatGigabytes(offlineUsage.getOfflineLimit()));
     }
 
     private String formatGigabytes(long bytes) {
-        Resources resources = getContext().getResources();
         return String.format(resources.getString(R.string.pref_offline_storage_limit_gb), bytesToGB(bytes));
     }
 
     private String formatFreeGigabytes() {
-        Resources resources = getContext().getResources();
         return String.format(resources.getString(R.string.pref_offline_storage_free_gb),
                 bytesToGB(offlineUsage.getDeviceAvailable()),
                 bytesToGB(offlineUsage.getDeviceTotal()));
+    }
+
+    private String formatLimitGigabytes() {
+        if (offlineUsage.isMaximumLimit()) {
+            return resources.getString(R.string.unlimited);
+        } else {
+            return formatGigabytes(offlineUsage.getOfflineLimit());
+        }
     }
 
     private double bytesToGB(long bytes) {
@@ -122,7 +131,7 @@ public final class OfflineStoragePreference extends Preference {
                 .addBar(R.color.usage_bar_other, offlineUsage.getUsedOthers())
                 .addBar(R.color.usage_bar_used, offlineUsage.getOfflineUsed())
                 .addBar(R.color.usage_bar_limit, offlineUsage.getOfflineAvailable())
-                .addBar(R.color.usage_bar_free, offlineUsage.getAvailableWithoutOfflineLimit());
+                .addBar(R.color.usage_bar_free, offlineUsage.getUnused());
     }
 
 }
