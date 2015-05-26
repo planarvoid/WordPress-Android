@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.utils.DateProvider;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -59,8 +58,8 @@ public class PolicyUpdateControllerTest {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(yesterday));
         when(dateProvider.getCurrentTime()).thenReturn(now);
-        TestObservables.MockObservable<List<Urn>> clearOfflineContentObservable = TestObservables.emptyObservable();
-        when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentObservable);
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<List<Urn>>empty());
+
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
         online30DaysAgo = now - TimeUnit.DAYS.toMillis(30L);
         online33DaysAgo = now - TimeUnit.DAYS.toMillis(33L);
