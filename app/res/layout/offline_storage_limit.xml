@@ -5,8 +5,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:gravity="center_vertical"
     android:minHeight="?android:attr/listPreferredItemHeight"
-    android:paddingBottom="8dip"
-    android:paddingTop="8dip">
+    android:paddingBottom="2dip"
+    android:paddingTop="10dip">
 
     <TextView
         android:id="@+id/title_storage_usage"
@@ -34,7 +34,7 @@
         android:id="@+id/offline_storage_legend"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="24dp"
         android:layout_below="@id/offline_storage_usage_bars">
 
         <RelativeLayout
