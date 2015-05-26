@@ -8,7 +8,6 @@ import java.util.Set;
 
 public class PlayerDeviceCompatibility {
     private static final String ONE_PLUS_CM = "bacon";
-    private static final String LG_G3 = "g3";
     private static final String LG_OPTIMUS_G = "geehrc4g";
     private static final String LG_GPRO_LITE = "luv90ss";
     private static final String LG_L70 = "w5";
@@ -17,7 +16,7 @@ public class PlayerDeviceCompatibility {
     private static final String LG_VOLT = "x5";
 
     private static final Set<String> LG_DEVICES =
-            new HashSet<>(Arrays.asList(LG_G3, LG_OPTIMUS_G, LG_GPRO_LITE, LG_L70, LG_GVISTA, LG_CONNECT_4G, LG_VOLT));
+            new HashSet<>(Arrays.asList(LG_OPTIMUS_G, LG_GPRO_LITE, LG_L70, LG_GVISTA, LG_CONNECT_4G, LG_VOLT));
 
     private static final String MANUFACTURER_SAMSUNG = "samsung";
 
