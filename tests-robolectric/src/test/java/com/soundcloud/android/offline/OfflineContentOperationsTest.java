@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -57,7 +58,6 @@ public class OfflineContentOperationsTest {
     @Mock private FeatureOperations featureOperations;
     @Mock private ChangeResult changeResult;
     @Mock private ClearTrackDownloadsCommand clearTrackDownloadsCommand;
-    @Mock private SecureFileStorage secureFileStorage;
 
     private OfflineContentOperations operations;
     private TestEventBus eventBus;
@@ -84,7 +84,6 @@ public class OfflineContentOperationsTest {
                 loadOfflineContentUpdatesCommand,
                 featureOperations,
                 offlineTracksStorage,
-                secureFileStorage,
                 Schedulers.immediate());
     }
 
@@ -188,21 +187,34 @@ public class OfflineContentOperationsTest {
 
     @Test
     public void clearOfflineContentClearsTrackDownloads() {
-        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(WRITE_RESULT_SUCCESS));
+        List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
+        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
 
-        final TestObserver<WriteResult> observer = new TestObserver<>();
+        final TestObserver<List<Urn>> observer = new TestObserver<>();
         operations.clearOfflineContent().subscribe(observer);
 
-        expect(observer.getOnNextEvents()).toContainExactly(WRITE_RESULT_SUCCESS);
+        expect(observer.getOnNextEvents()).toContainExactly(removed);
     }
 
     @Test
-    public void clearOfflineContentRemovesOfflineTrackFiles() {
-        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(WRITE_RESULT_SUCCESS));
+    public void clearOfflineContentPublishesOfflineContentRemovedEvent() {
+        List<Urn> removed = Arrays.asList(Urn.forTrack(123), Urn.forPlaylist(1234));
+        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.just(removed));
 
-        operations.clearOfflineContent().subscribe(new TestObserver<WriteResult>());
+        operations.clearOfflineContent().subscribe();
 
-        verify(secureFileStorage).deleteAllTracks();
+        CurrentDownloadEvent publishedEvent = eventBus.lastEventOn(EventQueue.CURRENT_DOWNLOAD);
+        expect(publishedEvent.kind).toEqual(DownloadState.NO_OFFLINE);
+        expect(publishedEvent.entities).toContain(Urn.forTrack(123), Urn.forPlaylist(1234));
+    }
+
+    @Test
+    public void clearOfflineContentDisabledOfflineLikes() {
+        when(clearTrackDownloadsCommand.toObservable(null)).thenReturn(Observable.<List<Urn>>never());
+
+        operations.clearOfflineContent();
+
+        verify(settingsStorage).setOfflineLikedTracksEnabled(false);
     }
 
     @Test

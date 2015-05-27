@@ -12,11 +12,11 @@ import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.propeller.WriteResult;
 import dagger.Lazy;
 import rx.Observable;
 import rx.Scheduler;
@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 public class ConfigurationOperations {
@@ -57,9 +58,9 @@ public class ConfigurationOperations {
         }
     };
 
-    private final Func1<Void, Observable<WriteResult>> clearOfflineContent = new Func1<Void, Observable<WriteResult>>() {
+    private final Func1<Void, Observable<List<Urn>>> clearOfflineContent = new Func1<Void, Observable<List<Urn>>>() {
         @Override
-        public Observable<WriteResult> call(Void ignore) {
+        public Observable<List<Urn>> call(Void ignore) {
             return offlineContentOperations.clearOfflineContent();
         }
     };

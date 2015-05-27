@@ -111,8 +111,9 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(PLAY_QUEUE_TRACK,
                         new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
-                eventBus.subscribe(CURRENT_DOWNLOAD,
-                        new UpdateCurrentDownloadSubscriber(adapter)),
+                eventBus.queue(CURRENT_DOWNLOAD)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(ENTITY_STATE_CHANGED,
                         new UpdateEntityListSubscriber(adapter)),
 

@@ -19,9 +19,6 @@ public final class CurrentDownloadEvent {
         }
     };
 
-    public final DownloadState kind;
-    public final Collection<Urn> entities;
-    public final boolean isLikedTracks;
     public static final Func1<CurrentDownloadEvent, Boolean> FOR_LIKED_TRACKS_FILTER = new Func1<CurrentDownloadEvent, Boolean>() {
         @Override
         public Boolean call(CurrentDownloadEvent event) {
@@ -29,7 +26,11 @@ public final class CurrentDownloadEvent {
         }
     };
 
-    private CurrentDownloadEvent(DownloadState kind, boolean isLikedTracks, List<Urn> entities) {
+    public final DownloadState kind;
+    public final Collection<Urn> entities;
+    public final boolean isLikedTracks;
+
+     private CurrentDownloadEvent(DownloadState kind, boolean isLikedTracks, List<Urn> entities) {
         this.kind = kind;
         this.entities = Collections.unmodifiableList(entities);
         this.isLikedTracks = isLikedTracks;
@@ -73,6 +74,10 @@ public final class CurrentDownloadEvent {
 
     public static CurrentDownloadEvent downloadRequested(List<DownloadRequest> requests) {
         return create(DownloadState.REQUESTED, requests);
+    }
+
+    public static CurrentDownloadEvent offlineContentRemoved(List<Urn> urns) {
+        return new CurrentDownloadEvent(DownloadState.NO_OFFLINE, true, urns);
     }
 
     private static CurrentDownloadEvent create(DownloadState kind, Collection<DownloadRequest> requests) {

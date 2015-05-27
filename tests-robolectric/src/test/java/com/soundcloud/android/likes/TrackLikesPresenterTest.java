@@ -4,12 +4,17 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -39,6 +44,7 @@ import android.widget.ListView;
 
 import javax.inject.Provider;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -129,6 +135,22 @@ public class TrackLikesPresenterTest {
         presenter.onDestroyView(fragment);
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        final DownloadRequest downloadRequest = new DownloadRequest(track.getUrn(), "http://track1", 0, true, Collections.<Urn>emptyList());
+        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(downloadRequest);
+
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        reset(adapter);
+
+        when(adapter.getItems()).thenReturn(Arrays.asList(TrackItem.from(track)));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+
+        verify(adapter).notifyDataSetChanged();
     }
 
     @Test
