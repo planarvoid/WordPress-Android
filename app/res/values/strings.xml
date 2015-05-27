@@ -5,7 +5,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="close">Close</string>
     <string name="post">Post</string>
     <string name="view">View</string>
     <string name="btn_apply">Apply</string>
@@ -23,11 +22,12 @@
     <string name="legal_summary">Legal information</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="privacy_policy">Privacy Policy</string>
+    <string name="contact_support">Contact support</string>
     <string name="version">Version</string>
     <string name="unavailable">Unavailable</string>
     <string name="copyright_information">Copyright information</string>
     <string name="started_following_you">started following you</string>
-    <string name="account_one_active">You can only have one active account</string>
+    <string name="account_one_active">Yooriu can only have one active account</string>
     <string name="btn_follow">Follow</string>
     <string name="btn_following">Following</string>
     <string name="btn_save">Save</string>
@@ -107,16 +107,16 @@
     <string name="error_google_sign_in_failed">We couldn\'t sign you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
-    <string name="facebook_authentication_failed_message">Please try again shortly or sign in using your SoundCloud username and password.</string>
+    <string name="facebook_authentication_failed_message">Please try again shortly or sign in using your email address and password.</string>
     <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link to change your password. If you still need help, visit our Help Center.</string>
     <string name="authentication_recover_password_visit_our_Help_Center">visit our Help Center</string>
     <string name="authentication_recover_password_send">Send</string>
     <string name="authentication_blocked_title">We couldn\'t sign you up</string>
-    <string name="authentication_blocked_message">Our robots think this signup looks too much like spam. If you believe this to be a mistake, please <a href="http://help.soundcloud.com/customer/portal/emails/new">contact our support</a></string>
+    <string name="authentication_blocked_message">Our robots think this sign-up looks too much like spam. If you believe this to be a mistake, please contact our support.</string>
     <string name="authentication_captcha_message">We\'re having some trouble signing you in. Please sign in through our mobile website and before signing in again.</string>
-    <string name="authentication_email_taken_message">This email is already registered with an account. Enter a different email or try signing in</string>
+    <string name="authentication_email_taken_message">This email is already registered with an account. Enter a different email or try signing in.</string>
     <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
-    <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided</string>
+    <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided.</string>
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in to open this link</string>
@@ -335,7 +335,6 @@
     <string name="payments_error_wrong_user">Your subscription is associated with a different user. Sign in with the other account to continue using it.</string>
     <string name="payments_error_verification_issue">We were unable to verify your payment. Please try again later.</string>
 
-    <string name="payments_error_contact_support">Contact support</string>
     <string name="payments_sign_out">Sign out</string>
 
     <!-- __PLAYLISTS -->

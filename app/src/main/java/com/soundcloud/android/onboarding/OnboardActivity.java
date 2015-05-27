@@ -873,7 +873,15 @@ public class OnboardActivity extends FragmentActivity
     public void onBlocked() {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_blocked_title)
                 .setMessage(R.string.authentication_blocked_message)
-                .setPositiveButton(R.string.close, null);
+                .setPositiveButton(R.string.contact_support, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivity(new Intent(Intent.ACTION_VIEW)
+                                .setData(Uri.parse(getString(R.string.url_contact_support))));
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null);
         showDialogWithHyperlinksAndTrackEvent(dialogBuilder, OnboardingEvent.signupDenied());
     }
 

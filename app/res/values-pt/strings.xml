@@ -4,7 +4,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
-    <string name="close">Fechar</string>
     <string name="post">Postar</string>
     <string name="view">Visualizar</string>
     <string name="btn_apply">Aplicar</string>
@@ -87,7 +86,6 @@
     <string name="authentication_log_in_with_facebook">Acessar via Facebook</string>
     <string name="authentication_login_error_password_message">Não foi possível conectar. Tem certeza de que usou o e-mail e a senha corretos?</string>
     <string name="authentication_login_progress_message">Acessando</string>
-    <string name="authentication_recover_password">Recuperar senha</string>
     <string name="authentication_recover_password_failure">Não foi possível recuperar sua senha. Tente novamente daqui a pouco</string>
     <string name="authentication_recover_password_failure_reason">Falha na recuperação da senha: %s</string>
     <string name="authentication_recover_password_success">Verifica suas mensagens! Você receberá um e-mail com as instruções para redefinir sua senha em breve.</string>

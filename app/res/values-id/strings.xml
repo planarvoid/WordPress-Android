@@ -4,7 +4,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Ya</string>
     <string name="no">Tidak</string>
-    <string name="close">Tutup</string>
     <string name="post">Poskan</string>
     <string name="view">Lihat</string>
     <string name="btn_apply">Terapkan</string>
@@ -87,7 +86,6 @@
     <string name="authentication_log_in_with_facebook">Masuk dengan Facebook</string>
     <string name="authentication_login_error_password_message">Kami tidak dapat memasukkan Anda. Anda yakin telah memasukkan email dan kata sandi yang benar?</string>
     <string name="authentication_login_progress_message">Sedang memasukkan Anda</string>
-    <string name="authentication_recover_password">Pulihkan kata sandi</string>
     <string name="authentication_recover_password_failure">Kami tidak dapat memulihkan kata sandi Anda saat ini. Silakan coba sebentar lagi</string>
     <string name="authentication_recover_password_failure_reason">Pemulihan kata sandi gagal: %s</string>
     <string name="authentication_recover_password_success">Periksa email Anda! Sebentar lagi Anda akan menerima email berisi petunjuk cara mengatur ulang kata sandi</string>

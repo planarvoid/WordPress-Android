@@ -43,7 +43,7 @@ public class StaleCheckoutDialog extends UnrecoverableErrorDialog {
                 .setContent(R.drawable.dialog_payment_error,
                         R.string.payments_error_title_stale,
                         R.string.payments_error_stale)
-                .setPositiveButton(R.string.payments_error_contact_support, listener)
+                .setPositiveButton(R.string.contact_support, listener)
                 .setNegativeButton(android.R.string.cancel, listener)
                 .create();
     }

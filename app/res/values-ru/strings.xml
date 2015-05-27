@@ -4,7 +4,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
-    <string name="close">Закрыть</string>
     <string name="post">Сообщение</string>
     <string name="view">Вид</string>
     <string name="btn_apply">Применить</string>
@@ -17,6 +16,7 @@
     <string name="btn_continue">Продолжить</string>
     <string name="imprint">Печать</string>
     <string name="privacy">Конфиденциальность</string>
+    <string name="contact_support">Связаться с Центром поддержки</string>
     <string name="legal">Условия</string>
     <string name="legal_summary">Юридическая информация</string>
     <string name="terms_of_use">Условия использования</string>
@@ -87,7 +87,6 @@
     <string name="authentication_log_in_with_facebook">Войти с помощью Facebook</string>
     <string name="authentication_login_error_password_message">Мы не смогли авторизовать вас. Вы уверены, что адрес электронной почты и пароль указаны верно?</string>
     <string name="authentication_login_progress_message">Осуществляется вход</string>
-    <string name="authentication_recover_password">Восстановить пароль</string>
     <string name="authentication_recover_password_failure">Мы не можем восстановить ваш пароль в сейчас. Пожалуйста, попробуйте еще раз в ближайшее время</string>
     <string name="authentication_recover_password_failure_reason">Восстановление пароля не удалось: %s</string>
     <string name="authentication_recover_password_success">Проверьте вашу почту! Вы получите электронное письмо с инструкциями о том, как восстановить пароль в ближайшее время</string>

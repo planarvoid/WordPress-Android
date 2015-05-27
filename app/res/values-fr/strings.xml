@@ -4,7 +4,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Oui</string>
     <string name="no">Non</string>
-    <string name="close">Fermer</string>
     <string name="post">Poster</string>
     <string name="view">Voir</string>
     <string name="btn_apply">Appliquer</string>
@@ -17,6 +16,7 @@
     <string name="btn_continue">Continuer</string>
     <string name="imprint">Empreinte</string>
     <string name="privacy">Confidentialité</string>
+    <string name="contact_support">Contactez le support technique</string>
     <string name="legal">Juridique</string>
     <string name="legal_summary">Informations légales</string>
     <string name="terms_of_use">Conditions d\'utilisation</string>
@@ -87,7 +87,6 @@
     <string name="authentication_log_in_with_facebook">Connectez-vous avec Facebook</string>
     <string name="authentication_login_error_password_message">Nous ne pouvions pas vous connecter. Avez-vous bien le bon e-mail et mot de passe ?</string>
     <string name="authentication_login_progress_message">Vous conntecte dans</string>
-    <string name="authentication_recover_password">Récupérer le mot de passe</string>
     <string name="authentication_recover_password_failure">Nous ne pouvons pas récupérer votre mot de passe en ce moment. Veuillez essayer à nouveau un peu plus tard</string>
     <string name="authentication_recover_password_failure_reason">Récupération de mot de passe a échouée : %s</string>
     <string name="authentication_recover_password_success">Allez voir votre courrier ! Vous recevrez rapidement un e-mail comportant les instructions sur la façon de réinitialiser votre mot de passe</string>
