@@ -18,11 +18,10 @@ public class LocalyticsAnalyticsProviderSessionHandlingTest {
     private LocalyticsAnalyticsProvider localyticsProvider;
 
     @Mock private LocalyticsAmpSession localyticsSession;
-    @Mock private ProxyDetector proxyDetector;
 
     @Before
     public void setUp() throws Exception {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, proxyDetector);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession);
     }
 
     @After

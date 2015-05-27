@@ -21,12 +21,10 @@ public class LocalyticsAnalyticsProviderSearchTest {
     private LocalyticsAnalyticsProvider provider;
     private SearchQuerySourceInfo searchQuerySourceInfo;
     @Mock private LocalyticsAmpSession localyticsSession;
-    @Mock private ProxyDetector proxyDetector;
-
 
     @Before
     public void setUp() throws CreateModelException {
-        provider = new LocalyticsAnalyticsProvider(localyticsSession, 123L, proxyDetector);
+        provider = new LocalyticsAnalyticsProvider(localyticsSession, 123L);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:123"), 0, new Urn("soundcloud:tracks:1"));
     }
 

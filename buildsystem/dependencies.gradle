@@ -30,7 +30,7 @@ ext {
 
           // SoundCloud libraries
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
-          skippy                      : "com.soundcloud.android:skippy:734@aar",
+          skippy                      : "com.soundcloud.android:skippy:744@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
 
           // Analytics / tracking

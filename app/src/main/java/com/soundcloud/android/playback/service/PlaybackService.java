@@ -23,6 +23,7 @@ import com.soundcloud.propeller.PropertySet;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Notification;
@@ -299,6 +300,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
             loadTrackSubscription.unsubscribe();
             loadTrackSubscription = trackRepository.track(playQueueManager.getCurrentTrackUrn())
+                    .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new TrackInformationSubscriber(adsOperations.isCurrentTrackAudioAd()));
         }
     }

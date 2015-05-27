@@ -7,10 +7,11 @@
     <string name="close">Sluiten</string>
     <string name="post">Plaatsen</string>
     <string name="view">Bekijken</string>
+    <string name="btn_publish">Volgende</string>
     <string name="btn_apply">Toepassen</string>
     <string name="cancel">Annuleren</string>
     <string name="retry">Opnieuw proberen</string>
-    <string name="shuffle">shuffle</string>
+    <string name="shuffle">Shuffelen</string>
     <string name="done">Klaar</string>
     <string name="email">E-mail</string>
     <string name="password">Wachtwoord</string>
@@ -32,9 +33,15 @@
     <string name="btn_skip">Overslaan</string>
     <string name="configure">Configureer</string>
     <string name="connect_progress">Aan het laden</string>
+    <string name="connect_success">Succesvol verbonden met %1$s</string>
+    <string name="connection_list_footer">Om uw standaard deelopties te wijzigen, gaat u naar instellingen op SoundCloud en kiest u \'Connecties\'</string>
     <string name="delete">Verwijderen</string>
     <string name="comments">Reacties</string>
+    <string name="new_connection_error">Er is een probleem opgetreden tijdens het toevoegen van het netwerk</string>
+    <string name="reset">Wegwerpen</string>
+    <string name="share_fail_message">OK, dat ging mis.</string>
     <string name="share_log_out">Afmelden</string>
+    <string name="share_success_message">Yay, dat werkte!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Deel&lt;/b&gt; op &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Geluiden van %s</string>
     <string name="this_user">Deze gebruiker</string>
@@ -42,6 +49,8 @@
     <string name="track_by">door</string>
     <string name="display_name">Schermnaam</string>
     <string name="website">Website</string>
+    <string name="what_hint">Wat</string>
+    <string name="where_hint">Waar</string>
     <string name="like">Vind ik leuk</string>
     <string name="unlike">Vind ik niet leuk</string>
 
@@ -81,6 +90,7 @@
     <string name="authentication_error_generic">Oeps! Er is een onverwachte fout opgetreden. Probeer het opnieuw a.u.b.</string>
     <string name="authentication_error_no_connection_message">Er is een probleem met uw dataverbinding. Controleer uw netwerkinstellingen a.u.b.</string>
     <string name="authentication_error_password_too_short">Uw wachtwoord moet 6 of meer tekens bevatten.</string>
+    <string name="authentication_error_age_not_valid">U moet ten minste 13 jaar oud zijn.</string>
     <string name="authentication_error_title">Fout</string>
     <string name="authentication_log_in">Inloggen</string>
     <string name="authentication_log_in_with_facebook">Log in met Facebook</string>
@@ -150,6 +160,7 @@
     <string name="empty_user_tracks_text">%1$s heeft nog\ngeen publieke geluiden geüpload.</string>
 
     <!-- __ERRORS -->
+    <string name="error_recording_message">Er is een fout opgetreden tijdens het opnemen.\nUw apparaat ondersteunt de huidige opnameconfiguratie misschien niet. U kunt de configuraties veranderen bij de applicatieinstellingen.</string>
     <string name="error_unauthorized_message">We zijn een probleem tegengekomen met uw account. U moet opnieuw inloggen bij SoundCloud voordat u de app weer kunt gebruiken.</string>
     <string name="error_unauthorized_title">Accountfout</string>
     <string name="error_loading_url">Er is een probleem opgetreden tijdens het laden van deze url</string>
@@ -160,6 +171,7 @@
     <string name="crop_image_error">Er is een fout opgetreden bij het bijsnijden van uw afbeelding.</string>
     <string name="error_server_problems_message">Er is een probleem opgetreden tijdens het verwerken van uw verzoek. Probeer het later nog eens.</string>
     <string name="connection_list_error">Er lijkt een verbindingsprobleem te zijn. Probeer het binnenkort nog eens.</string>
+    <string name="connect_failure">Niet gelukt om met %1$s te verbinden</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oeps! Het is niet gelukt u aan te melden.\nProbeer de app te updaten of meld u aan op SoundCloud.com</string>
 
@@ -184,9 +196,9 @@
     <string name="add_image">Voeg\nAfbeelding\nToe</string>
     <string name="image_load_error">Er is een probleem opgetreden tijdens het laden van de afbeelding</string>
     <string name="image_where">Hoe wilt u een afbeelding toevoegen?</string>
-    <string name="take_new_picture">Neem een nieuwe foto</string>
+    <string name="take_new_picture">Nieuwe afbeelding</string>
     <string name="take_new_picture_error">Het is niet gelukt om een foto te maken</string>
-    <string name="use_existing_image">Gebruik bestaande afbeelding</string>
+    <string name="use_existing_image">Bestaande afbeelding</string>
     <string name="use_existing_image_error">Het is niet gelukt om de bestaande afbeelding te gebruiken</string>
 
     <!-- __NAVIGATION -->
@@ -204,7 +216,7 @@
     <string name="side_menu_explore">Ontdekken</string>
     <string name="title_search">Zoeken</string>
     <string name="title_settings">Instellingen</string>
-    <string name="title_feedback">Feedback</string>
+    <string name="title_feedback">Stuur bugrapport</string>
 
     <!-- __NOTIFICATIONS -->
     <string name="dashboard_notifications_activity_message_likes">%1$s vindt %2$s leuk</string>
@@ -232,6 +244,8 @@
     <string name="try_again">Probeer het nog eens</string>
     <string name="finish">Voltooien</string>
     <string name="error_onboarding_fail">We zijn nog steeds bezig met het vullen van uw stream. We zullen blijven proberen totdat het werkt! In de tussentijd kunt u andere soorten muziek en audio opzoeken en ontdekken.</string>
+    <string name="age">Leeftijd</string>
+    <string name="enter_age_hint">Voer uw leeftijd in</string>
     <string name="gender">Geslacht</string>
     <string name="onboarding_create_account">Een account aanmaken</string>
     <string name="onboarding_indicate_gender">Geef uw geslacht aan</string>
@@ -303,10 +317,12 @@
     <string name="playback_error">Niet afspeelbaar</string>
     <string name="playback_error_connection">Controleer uw verbinding. Klik om het opnieuw te proberen.</string>
     <string name="playback_error_unable_to_play">Nummer kan niet worden gestreamd</string>
+    <string name="playback_missing_playable_tracks">Af te spelen nummers ontbrekenSpeelbare tracks</string>
     <string name="play">Afspelen</string>
     <string name="pause">Pauze</string>
     <string name="previous">Vorig</string>
     <string name="next">Volgend</string>
+    <string name="casting_to">Uitbrengen naar</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s op %2$s</string>
@@ -346,6 +362,7 @@
     <string name="create_new_playlist_hint">Voer titel voor afspeellijst in</string>
     <string name="error_new_playlist_blank_title">Vul een geldige titel in</string>
     <string name="add_playlist_private">Privé</string>
+    <string name="add_playlist_offline">Offline Beschikbaar</string>
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Informatie</string>
@@ -357,24 +374,74 @@
     <string name="myspace">MySpace</string>
 
     <!-- __RECORD -->
+    <string name="rec_title_generating_waveform">Even geduld a.u.b...</string>
     <string name="rec_title_idle_rec">Opnemen</string>
     <string name="rec_title_recording">Opnemen</string>
     <string name="rec_title_idle_play">Gepauzeerd</string>
     <string name="rec_title_playing">Spelen</string>
     <string name="rec_title_editing">Bewerken</string>
+    <string name="record_another_sound">Neem nog een ander geluid op</string>
     <string name="record_insert_sd_card">Steek er a.u.b. een SD-kaart in om op te nemen.</string>
+    <string name="record_instructions">Deel uw Geluiden</string>
     <string name="record_storage_is_full">Opslag is vol</string>
     <string name="recorded_afternoon">%s \'s middags</string>
+    <string name="recorded_at">%1$s om %2$s</string>
     <string name="recorded_evening">%s \'s avonds</string>
     <string name="recorded_morning">%s \'s ochtends</string>
     <string name="recorded_night">%s \'s nachts</string>
+    <string name="recording_not_found">Opname niet gevonden</string>
+    <string name="rec_your_sound_is_saved_locally_at">Uw geluid is lokaal opgeslagen</string>
     <string name="dialog_confirm_delete_recording_message">Weet u zeker dat u deze opname wilt verwijderen?</string>
+    <string name="dialog_reset_recording_message">Resetten? De opname zal worden gewist.</string>
+    <string name="dialog_unsaved_recordings_message">Niet-opgeslagen opnames gevonden. Aangevinkte items worden opgeslagen.</string>
     <string name="btn_revert_to_original">Keer terug naar het origineel</string>
     <string name="fade_toggle_on">Fade in/out</string>
+    <string name="fade_toggle_off">Geen fade in/out</string>
+    <string name="optimize_toggle_on">Geoptimaliseerd</string>
+    <string name="optimize_toggle_off">Niet geoptimaliseerd</string>
+    <string name="create_autosave_message">Uw opnames worden automatisch opgeslagen wanneer u ze maakt. U kunt ze vinden in uw lijst van geluiden.</string>
+    <string name="create_regenerating_waveform_message">Golfvorm aan het regenereren, even geduld a.u.b.</string>
     <string name="dialog_revert_recording_message">U zult al uw bewerkingen verliezen. Doorgaan?</string>
     <string name="cloud_recorder_event_message">Aan het opnemen voor %s</string>
     <string name="cloud_recorder_event_title">Opname aan de gang</string>
     <string name="cloud_recorder_playback_event_title">Terugspelen aan de gang</string>
+
+    <!-- __RECORD TIPS -->
+    <string-array name="record_suggestions">
+    <item>Waarom neemt u het geluid van uw straat niet op?</item>
+    <item>Spraakberichten opnemen als handige reminders.</item>
+    <item>Gebruik de REC-knop om een voice blog te maken - wat gaat u vandaag delen?</item>
+    <item>Wat bent u nu aan het doen?</item>
+    <item>Leg het moment vast: de eerste woorden van een kind</item>
+    <item>Leg het moment vast: het geluid dat uw huisdier maakt</item>
+    <item>Leg het moment vast: de stem van iemand om wie u geeft</item>
+    <item>Gaat u shoppen? Neem reminders op zodat u niet vergeet wat u wil kopen.</item>
+    <item>Had u een geweldig idee? Leg het met de REC-knop vast.</item>
+    <item>Onlangs een geweldige grap gehoord? Deel hem!</item>
+    <item>Voert u een geweldig gesprek? Waarom niet opnemen voor later?</item>
+    <item>Leg een hilarisch moment in geluid vast</item>
+    <item>Wist u dat u uw privé-opnamen kunt opslaan als u ze niet wilt delen?</item>
+    <item>Soms is het beste opname-apparaat hetgene u bij u hebt.</item>
+    <item>Laat uzelf horen!</item>
+    <item>Laat het internet horen.</item>
+    <item>Laat de wereld horen.</item>
+    <item>Druk uzelf uit!</item>
+    <item>Waarom niet de notulen van uw volgende vergadering opnemen?</item>
+    <item>Gebruik de knop REC-knop om ideeën vast te leggen voor later.</item>
+    <item>Gebruik de REC-knop als een ezelsbruggetje: bewaar uw notities onderweg.</item>
+    <item>U kunt de REC-knop gebruiken om gesprekken en vergaderingen op te nemen.</item>
+    <item>Neem het geluid van de golven op het strand op</item>
+    <item>Leg de geluiden van een bruisende stad in de spits vast</item>
+    <item>Een gek geluid gehoord? Leg het vast met de REC-knop</item>
+    <item>Heeft u inspiratie? Leg uw idee vast met de REC-knop.</item>
+    <item>Hebt u een idee voor een nieuw nummer? Sla het op met de REC-knop.</item>
+    <item>Melodietje in uw hoofd? Leg het vast met de REC-knop.</item>
+    <item>Ideeën voor songteksten? Leg ze direct vast met de REC-knop.</item>
+    <item>Wat is er gaande op dit moment?</item>
+    <item>Neem actuele gebeurtenissen live op en deel ze met de wereld.</item>
+    <item>Gebeurt er iets interessants? Leg het moment in audio vast.</item>
+    <item>Stadsreporter? Laat de wereld weten wat er op uw locatie gebeurt.</item>
+  </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Zoek in SoundCloud</string>
@@ -395,14 +462,14 @@
     <string name="pref_app_details">Details van de App</string>
     <string name="pref_basic_settings">Basisinstellingen</string>
     <string name="pref_clear_cache">Verwijder applicatie cache</string>
-    <string name="pref_clear_cache_desc">Wis de applicatie cache om geheugen vrij te maken op uw toestel</string>
+    <string name="pref_clear_cache_desc">Wis de applicatie cache om geheugen vrij te maken op uw apparaat</string>
     <string name="pref_connection_and_data">Verbinding en data</string>
     <string name="pref_help">Help</string>
     <string name="pref_help_desc">Toegang tot de SoundCloud helpdesksite</string>
     <string name="pref_revoke_access">Afmelden</string>
     <string name="pref_revoke_desc">Huidige gebruiker afmelden</string>
-    <string name="pref_sync_wifi_only">Alleen synchroniseren via WiFi</string>
-    <string name="pref_sync_wifi_only_description">Synchroniseer mijn gegevens alleen wanneer ik verbonden ben via Wifi</string>
+    <string name="pref_sync_wifi_only">Alleen gegevens via Wi-Fi bijwerken</string>
+    <string name="pref_sync_wifi_only_description">Alleen nieuwe Vind Ik Leuk etc. via Wi-Fi bijwerken</string>
     <string name="pref_analytics">Analytics</string>
     <string name="pref_analytics_desc">Door Analytics in te stellen, kunnen we gegevens over uw gebruik van deze app verzamelen, die ons helpt bij het verbeteren van de app. Zie ons Privacybeleid voor meer details.</string>
     <string name="pref_crashlogs">Crashlogs</string>
@@ -415,11 +482,11 @@
     <string name="cache_clearing">Cache ontruimen</string>
     <string name="cache_clearing_message">In Cache opgeslagen bestanden verwijderen ...</string>
     <string-array name="pref_dev_record_type_entries">
-        <item>Gecomprimeerd</item>
-        <item>Onbewerkt</item>
-    </string-array>
+    <item>Gecomprimeerd</item>
+    <item>Onbewerkt</item>
+  </string-array>
 
-    <!-- __SETTINGS SIGN OUT -->
+    <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">U moet uw SoundCloud-account opnieuw verbinden.</string>
     <string name="menu_clear_user_title">Gebruikersgegevens wissen?</string>
 
@@ -427,6 +494,7 @@
     <string name="title_about">Over</string>
     <string name="title_legal">Legaal</string>
     <string name="pref_extras">Extra\'s</string>
+    <string name="title_offline_settings">Offline Sync Instellingen</string>
     <string name="title_notification_settings">Notificatie Instellingen</string>
 
     <!-- __SETTINGS NOTIFICATIONS -->
@@ -449,26 +517,38 @@
     <string name="pref_notifications_reposts">Gedeelde berichten</string>
     <string name="pref_notifications_reposts_description">Ontvang updates als uw geluiden worden gedeeld</string>
     <string-array name="pref_notifications_frequency">
-        <item>Om het uur</item>
-        <item>Om de 4 uur</item>
-        <item>Om de 12 uur</item>
-        <item>Om de 24 uur</item>
-    </string-array>
+    <item>Om het uur</item>
+    <item>Om de 4 uur</item>
+    <item>Om de 12 uur</item>
+    <item>Om de 24 uur</item>
+  </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Forceer Experimentele Speler</string>
     <string name="pref_extras_skippy_desc">Speel alle nummers door middel van de experimentele speler. Dit zal van kracht worden bij het afspelen van de volgende track.</string>
 
-    <!-- __SETTINGS SUBSCRIPTIONS -->
+    <!-- __SUBSCRIPTION SETTINGS -->
     <string name="pref_subscriptions_header">Abonnementen</string>
     <string name="pref_subscription_buy_title">Abonneren</string>
     <string name="pref_subscription_buy_summary">Upgrade je account</string>
     <string name="title_subscribe">Abonneren</string>
     <string name="subscribe_buy">Kopen</string>
 
-    <!-- __SETTINGS OFFLINE -->
+    <!-- __OFFLINE SETTINGS -->
+    <string name="pref_offline_settings">Offline sync Instellingen</string>
     <string name="pref_offline_wifi_only_sync">Alleen offlinesynchronisatie via wifi</string>
     <string name="pref_offline_wifi_only_description">Synchroniseer uw favorieten en afspeellijsten alleen via een wifi-verbinding</string>
+    <string name="pref_offline_settings_summary">Beheer uw offline sync-instellingen</string>
+    <string name="pref_offline_storage_limit">Opslaglimiet</string>
+    <string name="pref_offline_storage_limit_description">Hoeveel van uw opslag kunnen we\ngebruiken om uw nummers te synchroniseren</string>
+    <string name="pref_offline_storage_free_gb">%1$.1f GB beschikbaar van %2$.1f GB</string>
+    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
+    <string name="pref_offline_storage_usage">Opslag Gebruik</string>
+    <string name="pref_offline_used_by_other_apps">Gebruikt door andere applicaties</string>
+    <string name="pref_offline_used">Gebruikt</string>
+    <string name="pref_offline_limit">Limiet</string>
+    <string name="pref_offline_remove_all_offline_content">Verwijder alle offline inhoud</string>
+    <string name="pref_offline_remove_all_offline_content_description">Dit zal alle inhoud die u offline beschikbaar heeft gemaakt van uw apparaat verwijderen</string>
 
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
@@ -486,8 +566,11 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Aan het verwerken</string>
+    <string name="uploader_event_processing_percent">%d%% aan het verwerken</string>
+    <string name="uploader_event_not_yet_uploading">Nog niet aan het uploaden</string>
     <string name="uploader_event_uploading_percent">%d%% aan het uploaden</string>
     <string name="uploader_event_cancelling">Annuleren</string>
+    <string name="uploader_event_processing_finished">Verwerking voltooid</string>
     <string name="cloud_upload_clear_artwork">Houd vast om artwork te wissen</string>
     <string name="cloud_uploader_notification_error_message">Er is een fout opgetreden bij het uploaden van %s</string>
     <string name="cloud_uploader_notification_error_ticker">Fout bij het uploaden</string>
@@ -495,9 +578,15 @@
     <string name="cloud_uploader_notification_finished_message">%s is geüpload</string>
     <string name="cloud_uploader_notification_finished_ticker">Upload Voltooid</string>
     <string name="cloud_uploader_notification_finished_title">Upload Voltooid</string>
+    <string name="cloud_uploader_notification_transcoding_error_message">Er is een fout opgetreden bij de transcodering van %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoderingsfout</string>
+    <string name="cloud_uploader_notification_transcoding_error_title">Transcoderingsfout</string>
     <string name="dialog_cancel_upload_message">Upload annuleren?</string>
+    <string name="sc_upload_add_image">Voeg\nAfbeelding\nToe</string>
     <string name="sc_upload_private">Privé</string>
     <string name="sc_upload_public">Openbaar</string>
+    <string name="sc_upload_sharing_options_private">Uw geluid zal privé worden gemaakt op SoundCloud.</string>
+    <string name="sc_upload_sharing_options_public">Uw geluid zal openbaar worden gemaakt op SoundCloud. Met welke andere netwerken wilt u het delen?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Raak aan om SoundCloud te openen</string>
@@ -506,32 +595,47 @@
     <string name="offline_track_not_available">Nummer is niet offline beschikbaar</string>
     <string name="offline_update_completed_title">Alle nummers zijn gesynchroniseerd!</string>
     <string name="offline_update_completed_message">Klaar voor offline luisteren!</string>
+    <string name="offline_update_storage_limit_reached_title">Opslaglimiet bereikt</string>
+    <string name="offline_update_storage_limit_reached_message">Tik hier om opslaginstellingen te bekijken</string>
     <string name="offline_update_in_progress">Uw tracks zijn aan het synchroniseren</string>
-    <string name="offline_likes_dialog_title">Maak offline beschikbaar</string>
-    <string name="offline_likes_dialog_message">Dit maakt al je likes beschikbaar voor offline luisteren, ook alle tracks die u in de toekomst liket.</string>
+    <string name="offline_likes_dialog_title">Maak uw Vind Ik Leuk offline beschikbaar</string>
+    <string name="offline_likes_dialog_message">Dit zal ervoor zorgen dat uw huidige en toekomstige Vind Ik Leuk offline beschikbaar blijven, zodat u ook zonder internet of een dataverbinding kunt luisteren.</string>
     <string name="make_offline_available">Maak offline beschikbaar</string>
     <string name="make_offline_unavailable">Verwijderen uit offline luisteren</string>
+    <string name="offline_dialog_go_online_continue">Ga door</string>
+    <string name="offline_dialog_go_online_error_title">Uw abonnement kan niet worden geverifieerd</string>
+    <string name="offline_dialog_go_online_error_content">Omdat dit apparaat offline is geweest voor meer dan 30 dagen, waren wij niet in staat om uw abonnement te verifiëren. Ga online om dit apparaat opnieuw met uw abonnement te verbinden en maak uw offline inhoud opnieuw beschikbaar.</string>
+    <string name="offline_update_paused">Offline synchronisatie gestopt</string>
+    <string name="no_network_connection">geen netwerkverbinding</string>
+    <string name="no_wifi_connection">geen Wi-Fi-verbinding</string>
 
-    <!-- AGE VERFICATION -->
+    <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Geef leeftijd aan</string>
     <string name="age_verify_title">Geef a.u.b. uw leeftijd aan</string>
     <string name="age_verify_warning">De inhoud van dit profiel is mogelijk ongeschikt voor personen onder een bepaalde leeftijd.</string>
     <string name="age_verify_info">Deze informatie wordt op uw profiel opgeslagen.</string>
     <string name="age_verify_button">Geef uw leeftijd aan</string>
 
-    <!-- DEVICE MANAGEMENT -->
+    <!-- __DEVICE MANAGEMENT -->
     <string name="device_management_limit">U hebt de limiet voor geregistreerde apparaten bereikt.</string>
     <string name="device_management_login_message">Uw abonnement is beperkt tot 3 apparaten. U kunt dit apparaat registreren en u afmelden op het laatste gebruikte apparaat door \"doorgaan\" te selecteren.</string>
     <string name="device_management_conflict_message">Uw abonnement heeft de apparaatlimiet bereikt. Dit apparaat is afgemeld en eventuele offline-inhoud is verwijderd. U kunt opnieuw inloggen om dit apparaat opnieuw te registreren.</string>
     <string name="device_management_continue">Doorgaan</string>
 
-    <!-- DEBUG LOGS/FEEDBACK -->
+    <!-- GOOGLE CAST -->
+    <string name="cast_unable_play_track">Niet in staat om nummer uit te brengen</string>
+    
+    <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Wat zou u graag willen rapporteren?</string>
-    <string name="feedback_playback_issue">Afspeelprobleem</string>
+    <string name="feedback_playback_issue">Afspelen probleem</string>
     <string name="feedback_crash">Crash</string>
     <string name="feedback_other_issue">Ander probleem</string>
     <string name="feedback_email_subject">Rapporteer: %1$s</string>
     <string name="feedback_action_chooser">Zend feedback via e-mail...</string>
+    <string name="feedback_unable_to_get_logs">Niet in staat om logboeken te krijgen</string>
 
+    <!-- __PROMOTED TRACKS -->
+    <string name="promoted_label">Gepromoot</string>
+    <string name="promoted_by_label">Gepromoot door %s</string>
 
 </resources>

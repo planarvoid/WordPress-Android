@@ -339,11 +339,8 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Keep null check. This might fire as a result of setContentView in which case this var won't be assigned
-        getMenuInflater().inflate(R.menu.main, menu);
-        if (navigationFragment != null) {
-            return super.onCreateOptionsMenu(menu);
-        }
+        configureMainOptionMenuItems(menu);
+        getSupportActionBar().setTitle(lastTitle);
         return true;
     }
 

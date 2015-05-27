@@ -1,540 +1,641 @@
 <?xml version="1.0" encoding="UTF-8"?><resources xmlns:tools="http://schemas.android.com/tools">
 
-  <!-- __MISC / LOST&FOUND / UNSORTED -->
-  <string name="app_name">SoundCloud</string>
-  <string name="yes">Ya</string>
-  <string name="no">Tidak</string>
-  <string name="close">Tutup</string>
-  <string name="post">Kirim</string>
-  <string name="view">Lihat</string>
-  <string name="btn_apply">Terapkan</string>
-  <string name="cancel">Batal</string>
-  <string name="retry">Coba lagi</string>
-  <string name="shuffle">acak</string>
-  <string name="done">Selesai</string>
-  <string name="email">Surel</string>
-  <string name="password">Kata sandi</string>
-  <string name="btn_continue">Lanjut</string>
-  <string name="imprint">Jejak</string>
-  <string name="privacy">Privasi</string>
-  <string name="legal">Hukum</string>
-  <string name="legal_summary">Informasi hukum</string>
-  <string name="terms_of_use">Syarat Penggunaan</string>
-  <string name="privacy_policy">Kebijakan Privasi</string>
-  <string name="version">Versi</string>
-  <string name="unavailable">Tidak tersedia</string>
-  <string name="copyright_information">Informasi hak cipta</string>
-  <string name="started_following_you">mulai mengikutimu</string>
-  <string name="account_one_active">Kamu hanya dapat memiliki satu akun yang aktif</string>
-  <string name="btn_follow">Ikuti</string>
-  <string name="btn_following">Mengikuti</string>
-  <string name="btn_save">Simpan</string>
-  <string name="btn_skip">Lewati</string>
-  <string name="configure">Konfigurasi</string>
-  <string name="connect_progress">Memuat</string>
-  <string name="delete">Hapus</string>
-  <string name="comments">Komentar</string>
-  <string name="share_log_out">Keluar</string>
-  <string name="share_to_soundcloud">&lt;B&gt;Berbagi&lt;/ b&gt; ke &lt;b&gt;SoundCloud&lt;/ b&gt;</string>
-  <string name="sounds_from">Suara dari %s</string>
-  <string name="this_user">Pengguna ini</string>
-  <string name="track">suara</string>
-  <string name="track_by">oleh</string>
-  <string name="display_name">Tampilkan Nama</string>
-  <string name="website">Situs Web</string>
-  <string name="like">Suka</string>
-  <string name="unlike">Tidak suka</string>
+    <!-- __MISC / LOST&FOUND / UNSORTED -->
+    <string name="app_name">SoundCloud</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="close">Tutup</string>
+    <string name="post">Poskan</string>
+    <string name="view">Lihat</string>
+    <string name="btn_publish">Selanjutnya</string>
+    <string name="btn_apply">Terapkan</string>
+    <string name="cancel">Batal</string>
+    <string name="retry">Coba lagi</string>
+    <string name="shuffle">Acak</string>
+    <string name="done">Selesai</string>
+    <string name="email">Email</string>
+    <string name="password">Kata sandi</string>
+    <string name="btn_continue">Lanjutkan</string>
+    <string name="imprint">Jejak</string>
+    <string name="privacy">Privasi</string>
+    <string name="legal">Legal</string>
+    <string name="legal_summary">Informasi legal</string>
+    <string name="terms_of_use">Ketentuan Penggunaan</string>
+    <string name="privacy_policy">Kebijakan Privasi</string>
+    <string name="version">Versi</string>
+    <string name="unavailable">Tidak tersedia</string>
+    <string name="copyright_information">Informasi hak cipta</string>
+    <string name="started_following_you">mulai mengikuti Anda</string>
+    <string name="account_one_active">Anda hanya dapat memiliki satu akun aktif</string>
+    <string name="btn_follow">Ikuti</string>
+    <string name="btn_following">Mengikuti</string>
+    <string name="btn_save">Simpan</string>
+    <string name="btn_skip">Lewati</string>
+    <string name="configure">Konfigurasikan</string>
+    <string name="connect_progress">Memuat</string>
+    <string name="connect_success">Berhasil terhubung dengan %1$s</string>
+    <string name="connection_list_footer">Untuk mengubah opsi berbagi default Anda, buka pengaturan di SoundCloud dan pilihlah \'Koneksi\'</string>
+    <string name="delete">Hapus</string>
+    <string name="comments">Komentar</string>
+    <string name="new_connection_error">Terjadi masalah saat menambahkan jaringan</string>
+    <string name="reset">Buang</string>
+    <string name="share_fail_message">Oke, terjadi kesalahan.</string>
+    <string name="share_log_out">Keluar</string>
+    <string name="share_success_message">Ya, berhasil!</string>
+    <string name="share_to_soundcloud">&lt;b&gt;Bagikan&lt;/b&gt; ke &lt;b&gt;SoundCloud&lt;/b&gt;</string>
+    <string name="sounds_from">Suara dari %s</string>
+    <string name="this_user">Pengguna ini</string>
+    <string name="track">suara</string>
+    <string name="track_by">oleh</string>
+    <string name="display_name">Nama Tampilan</string>
+    <string name="website">Situs Web</string>
+    <string name="what_hint">Apa</string>
+    <string name="where_hint">Di mana</string>
+    <string name="like">Suka</string>
+    <string name="unlike">Tidak suka</string>
 
-  <!-- __ACCESSIBILITY -->
-  <string name="accessibility_search">Cari SoundCloud</string>
-  <string name="accessibility_stats_user_liked">Disukai olehmu</string>
-  <string name="accessibility_like_action">Suka</string>
+    <!-- __ACCESSIBILITY -->
+    <string name="accessibility_search">Cari SoundCloud</string>
+    <string name="accessibility_stats_user_liked">Disukai oleh Anda</string>
+    <string name="accessibility_like_action">Suka</string>
 
-  <!-- __ACTIVITIES -->
-  <string name="liked">menyukai %s</string>
-  <string name="reposted">kirim ulang %s</string>
-  <string name="commented_on">mengomentari %s</string>
-  <string name="mentioned_you_on">menyebut Anda pada %s</string>
+    <!-- __ACTIVITIES -->
+    <string name="liked">menyukai %s</string>
+    <string name="reposted">mengepos ulang %s</string>
+    <string name="commented_on">mengomentari %s</string>
+    <string name="mentioned_you_on">menyebut Anda pada %s</string>
 
-  <!-- __ADS -->
-  <string name="advertisement">Iklan</string>
-  <string name="learn_more">PELAJARI LEBIH LANJUT</string>
-  <string name="why_ads">Mengapa ada iklan?</string>
-  <string name="why_ads_dialog_message">Setiap kali kamu melihat atau mendengar iklan, artis dibayar. Iklan sesekali memungkinkan kita untuk terus mendukung artis dan mempertahankan SoundCloud agar tetap gratis bagi para penyimak.</string>
-  <string name="skip_ad">Lewati Iklan</string>
-  <string name="next_up">Selanjutnya: %1$s (%2$s)</string>
-  <string name="ad_in_progress">Iklan sedang ditayangkan</string>
-  <string name="ad_resume_playing_to_continue">Teruskan pemutaran iklan untuk lanjut</string>
-  <string name="ad_skip">Lewatkan dalam waktu: %s</string>
-  <string name="now_playing">Sedang Diputar</string>
-  <string name="now_playing_with_args">Sedang Diputar: %1$s (%2$s)</string>
+    <!-- __ADS -->
+    <string name="advertisement">Iklan</string>
+    <string name="learn_more">PELAJARI SELENGKAPNYA</string>
+    <string name="why_ads">Mengapa ada iklan?</string>
+    <string name="why_ads_dialog_message">Setiap kali Anda melihat atau mendengar iklan, artis mendapatkan bayaran.\nIklan yang muncul sesekali memungkinkan kami untuk terus mendukung para artis dan membuat SoundCloud gratis untuk para pendengar.</string>
+    <string name="skip_ad">Lewati Iklan</string>
+    <string name="next_up">Selanjutnya: %1$s (%2$s)</string>
+    <string name="ad_in_progress">Iklan sedang berlangsung</string>
+    <string name="ad_resume_playing_to_continue">Teruskan memutar iklan untuk melanjutkan</string>
+    <string name="ad_skip">Lewati dalam: %s</string>
+    <string name="now_playing">Sedang Diputar</string>
+    <string name="now_playing_with_args">Sedang Diputar: %1$s (%2$s)</string>
 
-  <!-- __AUTHENTICATION -->
-  <string name="authentication_I_forgot_my_password">Saya lupa kata sandi</string>
-  <string name="authentication_add_info_add_image_msg">Senyum! Gambar ini akan muncul di profilmu.</string>
-  <string name="authentication_add_info_msg">Hampir selesai. Sekarang pilih nama pengguna dan tambahkan foto untuk melengkapi profil kamu.</string>
-  <string name="authentication_add_info_username_hint">Nama pengguna kamu</string>
-  <string name="onboarding_agreement_statement">Dengan mendaftar, saya menyetujui Persyaratan Penggunaan dan Kebijakan Privasi SoundCloud.</string>
-  <string name="authentication_choose_a_password">Minimal 6 karakter</string>
-  <string name="authentication_error_incomplete_fields">Silakan isi semua kolom.</string>
-  <string name="authentication_error_invalid_email">Silakan masukkan surel yang valid.</string>
-  <string name="authentication_error_generic">Aduh! Terjadi kesalahan tak terduga. Silakan coba lagi.</string>
-  <string name="authentication_error_no_connection_message">Ada masalah dengan koneksi datamu. Silakan periksa pengaturan jaringanmu.</string>
-  <string name="authentication_error_password_too_short">Kata Sandi kamu minimal terdiri dari 6 karakter.</string>
-  <string name="authentication_error_title">Kesalahan</string>
-  <string name="authentication_log_in">Masuk</string>
-  <string name="authentication_log_in_with_facebook">Masuk melalui Facebook</string>
-  <string name="authentication_login_error_password_message">Kami tak dapat memasukkanmu. Yakin kamu telah memasukkan surel dan kata sandi yang benar?</string>
-  <string name="authentication_login_progress_message">Memasukkan kamu ke</string>
-  <string name="authentication_recover_password">Pulihkan kata sandi</string>
-  <string name="authentication_recover_password_failure">Kami tidak dapat memulihkan kata sandimu sekarang. Coba beberapa saat lagi</string>
-  <string name="authentication_recover_password_failure_reason">Pemulihan kata sandi gagal: %s</string>
-  <string name="authentication_recover_password_success">Ayo periksa surelmu! Sebentar lagi kamu akan menerima surel yang berisi petunjuk tentang cara mengatur ulang kata sandi.</string>
-  <string name="authentication_recover_progress_message">Meminta pengaturan ulang kata sandi</string>
-  <string name="authentication_sign_up">Mendaftar di SoundCloud</string>
-  <string name="authentication_signup_error_message">Tampaknya ada masalah. Silakan mendaftar di SoundCloud.com.</string>
-  <string name="authentication_support">Dukungan</string>
-  <string name="authentication_terms_of_use">Syarat Penggunaan</string>
-  <string name="authentication_your_email_address">Alamat surelmu</string>
-  <string name="authentication_your_password">Kata sandimu</string>
-  <string name="authentication_clear_image">Tahan untuk menghapus gambar</string>
-  <string name="dialog_select_google_account">Silakan pilih satu akun Google untuk Masuk</string>
-  <string name="authentication_login_error_message">Kami tidak bisa memasukkanmu. Silakan coba lagi.</string>
-  <string name="authentication_no_google_accounts">Silakan buat akun Google terlebih dahulu.</string>
-  <string name="authentication_log_in_with_google">Masuk dengan akun Google.</string>
-  <string name="error_google_sign_in_failed">Kami tidak bisa memasukkanmu dengan Google+. Kunjungi plus.google.com untuk mengaktifkan akun Google+ kamu dan coba lagi</string>
-  <string name="auth_disclaimer_title">Satu langkah lagi</string>
-  <string name="auth_disclaimer_message">Dengan menekan \"Lanjut\", Anda setuju dengan Syarat Penggunaan dan Kebijakan Privasi SoundCloud.</string>
-  <string name="facebook_authentication_failed_message">Coba sesaat lagi atau masuk dengan nama pengguna dan kata sandi SoundCloud-mu.</string>
-  <string name="authentication_recover_password_msg">Masukkan alamat surelmu dan kami akan mengirimi kamu sebuah tautan yang akan memungkinkan kamu untuk mengubah kata sandi. Ada masalah? Hubungi Dukungan.</string>
-  <string name="authentication_blocked_title">Kami tidak bisa mendaftarkanmu</string>
-  <string name="authentication_blocked_message">Robot kami menganggap pendaftaran ini terlalu mirip spam. Jika kamu yakin ini kesalahan, silakan <a href="http://help.soundcloud.com/customer/portal/emails/new"> hubungi dukungan kami </a>
+    <!-- __AUTHENTICATION -->
+    <string name="authentication_I_forgot_my_password">Saya lupa kata sandi saya</string>
+    <string name="authentication_add_info_add_image_msg">Senyum! Gambar ini akan muncul di profil Anda.</string>
+    <string name="authentication_add_info_msg">Hampir selesai. Sekarang, pilihlah nama pengguna dan tambahkan foto untuk mempersonalisasikan profil Anda.</string>
+    <string name="authentication_add_info_username_hint">Nama pengguna Anda</string>
+    <string name="onboarding_agreement_statement">Dengan mendaftar, saya menyetujui Ketentuan Penggunaan dan Kebijakan privasi SoundCloud.</string>
+    <string name="authentication_choose_a_password">Sedikitnya 6 karakter</string>
+    <string name="authentication_error_incomplete_fields">Mohon isi semua bidang.</string>
+    <string name="authentication_error_invalid_email">Silakan masukkan email yang valid.</string>
+    <string name="authentication_error_generic">Aduh! Terjadi galat tidak diharapkan. Silakan coba lagi.</string>
+    <string name="authentication_error_no_connection_message">Ada masalah dengan koneksi data Anda. Silakan periksa pengaturan jaringan Anda.</string>
+    <string name="authentication_error_password_too_short">Kata sandi Anda harus mengandung sedikitnya 6 karakter.</string>
+    <string name="authentication_error_age_not_valid">Anda harus berusia 13 tahun ke atas.</string>
+    <string name="authentication_error_title">Galat</string>
+    <string name="authentication_log_in">Masuk</string>
+    <string name="authentication_log_in_with_facebook">Masuk dengan Facebook</string>
+    <string name="authentication_login_error_password_message">Kami tidak dapat memasukkan Anda. Anda yakin telah memasukkan email dan kata sandi yang benar?</string>
+    <string name="authentication_login_progress_message">Sedang memasukkan Anda</string>
+    <string name="authentication_recover_password">Pulihkan kata sandi</string>
+    <string name="authentication_recover_password_failure">Kami tidak dapat memulihkan kata sandi Anda saat ini. Silakan coba sebentar lagi</string>
+    <string name="authentication_recover_password_failure_reason">Pemulihan kata sandi gagal: %s</string>
+    <string name="authentication_recover_password_success">Periksa email Anda! Sebentar lagi Anda akan menerima email berisi petunjuk cara mengatur ulang kata sandi</string>
+    <string name="authentication_recover_progress_message">Meminta pengaturan ulang kata sandi</string>
+    <string name="authentication_sign_up">Mendaftar di SoundCloud</string>
+    <string name="authentication_signup_error_message">Tampaknya ada masalah. Mohon coba untuk mendaftar di SoundCloud.com.</string>
+    <string name="authentication_support">Dukungan</string>
+    <string name="authentication_terms_of_use">Ketentuan Penggunaan</string>
+    <string name="authentication_your_email_address">Alamat email Anda</string>
+    <string name="authentication_your_password">Kata sandi Anda</string>
+    <string name="authentication_clear_image">Tahan untuk menghapus gambar</string>
+    <string name="dialog_select_google_account">Silakan pilih akun Google untuk masuk</string>
+    <string name="authentication_login_error_message">Kami tidak dapat memasukkan Anda. Silakan coba lagi.</string>
+    <string name="authentication_no_google_accounts">Mohon atur akun Google terlebih dahulu.</string>
+    <string name="authentication_log_in_with_google">Masuk dengan Google</string>
+    <string name="error_google_sign_in_failed">Kami tidak dapat memasukkan Anda dengan Google+. Kunjungi plus.google.com untuk mengaktifkan akun Google+ Anda dan coba lagi</string>
+    <string name="auth_disclaimer_title">Satu langkah lagi</string>
+    <string name="auth_disclaimer_message">Dengan menekan \"Lanjutkan\", berarti Anda menyetujui Ketentuan Penggunaan dan Kebijakan privasi SoundCloud.</string>
+    <string name="facebook_authentication_failed_message">Silakan coba sebentar lagi atau masuk menggunakan nama pengguna dan kata sandi SoundCloud Anda.</string>
+    <string name="authentication_recover_password_msg">Masukkan alamat email Anda dan kami akan mengirimkan tautan untuk mengubah kata sandi Anda. Ada masalah? Hubungi bagian dukungan.</string>
+    <string name="authentication_blocked_title">Kami tidak dapat mendaftarkan Anda</string>
+    <string name="authentication_blocked_message">Robot kami mengira pendaftaran ini mirip dengan spam. Jika menurut Anda ini merupakan kesalahan, mohon <a href="http://help.soundcloud.com/customer/portal/emails/new">hubungi bagian dukungan kami</a>
   </string>
-  <string name="authentication_captcha_message">Kami mengalami masalah saat memasukkanmu. Silakan masuk melalui website seluler kami sebelum masuk lagi.</string>
-  <string name="authentication_email_taken_message">Surel ini sudah terdaftar dengan sebuah akun. Masukkan surel lain atau silakan mencoba masuk</string>
-  <string name="authentication_email_invalid_message">Domain yang kamu masukkan tampaknya tidak mampu menerima surel. Apakah kamu memasukkannya dengan benar?</string>
-  <string name="authentication_email_other_error_message">Maaf kami tidak bisa mendaftarkanmu dengan detail yang kamu berikan</string>
+    <string name="authentication_captcha_message">Kami mendapatkan masalah saat memasukkan Anda. Mohon masuk melalui situs web mobile kami dan sebelum masuk kembali.</string>
+    <string name="authentication_email_taken_message">Email ini sudah terdaftar pada sebuah akun. Masukkan email yang lain atau cobalah untuk masuk</string>
+    <string name="authentication_email_invalid_message">Domain yang Anda masukkan tampaknya tidak dapat menerima email. Apakah Anda mengejanya dengan benar?</string>
+    <string name="authentication_email_other_error_message">Maaf, kami tidak dapat memasukkan Anda dengan detail informasi yang Anda berikan</string>
 
-  <!-- __DEEPLINKS -->
-  <string name="error_toast_user_not_logged_in">Silakan masuk untuk membuka tautan ini</string>
+    <!-- __DEEPLINKS -->
+    <string name="error_toast_user_not_logged_in">Silakan masuk untuk membuka tautan ini</string>
 
-  <!-- __EMAIL OPT-IN -->
-  <string name="optin_title">Buletin SoundCloud</string>
-  <string name="optin_question">Apakah kamu ingin menerima surel pembaruan mengenai SoundCloud?</string>
-  <string name="optin_info">Hal ini termasuk Buletin, Pembaruan produk, Penawaran khusus dan Survei. Kamu dapat membatalkan persetujuanmu kapan saja. Untuk melakukannya, buka Soundcloud.com dan buka pengaturan.</string>
-  <string name="optin_yes">Ya, silakan</string>
-  <string name="optin_no">Tidak, terima kasih</string>
+    <!-- __EMAIL OPT-IN -->
+    <string name="optin_title">Buletin SoundCloud</string>
+    <string name="optin_question">Apakah Anda ingin menerima email pembaruan tentang SoundCloud?</string>
+    <string name="optin_info">Ini termasuk Buletin, pembaruan Produk, penawaran Khusus, dan Survei.\nAnda dapat membatalkan persetujuan Anda kapan saja. Untuk melakukannya, buka Soundcloud.com dan buka pengaturan.</string>
+    <string name="optin_yes">Ya</string>
+    <string name="optin_no">Tidak</string>
 
-  <!-- __EMPTY STATES -->
-  <string name="info_empty_other_message">Orang ini belum menambahkan deskripsi profil.</string>
-  <string name="info_empty_you_message">Profilmu kosong</string>
-  <string name="info_empty_you_secondary">Harap masuk ke SoundCloud dengan desktop untuk mengedit profilmu</string>
-  <string name="list_empty_activity_message">Kamu belum memiliki aktivitas apa pun</string>
-  <string name="list_empty_activity_secondary">Cari tahu lebih lanjut tentang berbagi suara dengan 101S kami</string>
-  <string name="list_empty_stream_action">Cari orang untuk diikuti</string>
-  <string name="list_empty_stream_message">Ikuti artis favoritmu, band dan podcast untuk mendengar lagu terbaru mereka</string>
-  <string name="list_empty_user_followers_message">Kamu belum memiliki pengikut.</string>
-  <string name="list_empty_user_followers_secondary">Bagi lagu favorit dan daftar lagu untuk membangun komunitasmu</string>
-  <string name="list_empty_user_following_action">Cari orang untuk diikuti</string>
-  <string name="list_empty_user_following_message">Ikuti artis favorit, band dan kuratormu untuk mendengar lagu terbaru dari mereka</string>
-  <string name="list_empty_user_likes_message">Sukai lagu favorit agar kamu dapat mendengarnya lagi</string>
-  <string name="list_empty_user_sounds_message">Kirim ulang lagu untuk membaginya dengan pengikutmu</string>
-  <string name="empty_playlist_title">Daftar putar kosong</string>
-  <string name="empty_playlist_description">Daftar putar ini belum berisi lagu</string>
-  <string name="list_empty_user_playlists_message">%1$s saat ini tidak memiliki daftar putar.</string>
-  <string name="list_empty_you_playlists_message">Buat Daftar Putar untuk menciptakan gabungan suara favoritmu</string>
-  <string name="list_empty_liked_playlists_message">Sukai daftar putar favoritmu untuk mendengarnya lagi</string>
-  <string name="empty_user_likes_text">%1$s belum\nmemilih suka mana pun.</string>
-  <string name="empty_user_followers_text">%1$s tidak\ndiikuti oleh siapa pun.</string>
-  <string name="empty_user_followings_text">%1$s tidak\nmengikuti siapa pun.</string>
-  <string name="empty_user_tracks_text">%1$s belum mengunggah\nsuara publik sama sekali.</string>
+    <!-- __EMPTY STATES -->
+    <string name="info_empty_other_message">Orang ini belum menambahkan deskripsi profil.</string>
+    <string name="info_empty_you_message">Profil Anda kosong</string>
+    <string name="info_empty_you_secondary">Silakan masuk ke SoundCloud dari desktop untuk mengedit profil Anda</string>
+    <string name="list_empty_activity_message">Anda belum memiliki kegiatan apa pun</string>
+    <string name="list_empty_activity_secondary">Dapatkan informasi lebih lanjut tentang berbagi suara dengan 101 kami</string>
+    <string name="list_empty_stream_action">Temukan orang untuk diikuti</string>
+    <string name="list_empty_stream_message">Ikuti artis, band, dan podcast favorit Anda untuk mendengarkan trek terkini mereka</string>
+    <string name="list_empty_user_followers_message">Anda belum memiliki pengikut.</string>
+    <string name="list_empty_user_followers_secondary">Bagikan trek dan daftar putar favorit Anda untuk membangun komunitas Anda</string>
+    <string name="list_empty_user_following_action">Temukan orang untuk diikuti</string>
+    <string name="list_empty_user_following_message">Ikuti artis, band, dan kurator favorit Anda untuk mendengarkan trek terkini mereka</string>
+    <string name="list_empty_user_likes_message">Sukai suara favorit Anda untuk mendengarnya lagi</string>
+    <string name="list_empty_user_sounds_message">Poskan ulang suara untuk membagikannya dengan pengikut Anda</string>
+    <string name="empty_playlist_title">Kosongkan Daftar Putar</string>
+    <string name="empty_playlist_description">Daftar putar ini belum memiliki trek</string>
+    <string name="list_empty_user_playlists_message">%1$s saat ini tidak memiliki daftar putar.</string>
+    <string name="list_empty_you_playlists_message">Buat Daftar Putar untuk membuat mix suara favorit Anda</string>
+    <string name="list_empty_liked_playlists_message">Sukai daftar putar favorit Anda untuk mendengarnya lagi</string>
+    <string name="empty_user_likes_text">%1$s belum memilih suka apa pun.</string>
+    <string name="empty_user_followers_text">%1$s belum diikuti oleh siapa pun.</string>
+    <string name="empty_user_followings_text">%1$s belum mengikuti siapa pun.</string>
+    <string name="empty_user_tracks_text">%1$s belum mengunggah suara publik.</string>
 
-  <!-- __ERRORS -->
-  <string name="error_unauthorized_message">Kami sedang mengalami masalah dengan akunmu dan kamu harus masuk lagi ke SoundCloud sebelum kamu dapat terus menggunakan aplikasi.</string>
-  <string name="error_unauthorized_title">Kesalahan Akun</string>
-  <string name="error_loading_url">Ada masalah saat memuat url tersebut</string>
-  <string name="error_soundcloud_no_response">SoundCloud tidak merespons.</string>
-  <string name="error_no_internet">Tidak ada Internet.</string>
-  <string name="error_connect_and_try_again">Hubungkan dan coba lagi.</string>
-  <string name="appending_failed">Kesalahan memuat. Ketuk untuk mencoba lagi</string>
-  <string name="crop_image_error">Terjadi kesalahan saat memangkas gambarmu.</string>
-  <string name="error_server_problems_message">Terjadi masalah saat memproses permintaanmu. Harap coba lagi nanti.</string>
-  <string name="connection_list_error">Tampaknya ada masalah koneksi. Coba beberapa saat lagi.</string>
-  <!-- signup scope was revoked on server side -->
-  <string name="signup_scope_revoked">Ups! Kami tidak bisa memasukkanmu\nSilakan perbarui aplikasi atau mendaftar di SoundCloud.com.</string>
+    <!-- __ERRORS -->
+    <string name="error_recording_message">Terjadi kesalahan saat merekam.\n Perangkat Anda mungkin tidak mendukung konfigurasi rekaman saat ini. Anda dapat mengubah konfigurasi di pengaturan aplikasi.</string>
+    <string name="error_unauthorized_message">Terjadi masalah dengan akun Anda dan kami meminta Anda untuk masuk kembali ke SoundCloud sebelum Anda dapat melanjutkan menggunakan aplikasi.</string>
+    <string name="error_unauthorized_title">Galat Akun</string>
+    <string name="error_loading_url">Terjadi masalah saat memuat url tersebut</string>
+    <string name="error_soundcloud_no_response">SoundCloud tidak merespons.</string>
+    <string name="error_no_internet">Tidak ada Internet.</string>
+    <string name="error_connect_and_try_again">Hubungkan dan coba lagi.</string>
+    <string name="appending_failed">Galat saat memuat. Ketuk untuk mencoba lagi</string>
+    <string name="crop_image_error">Terjadi kesalahan saat memangkas gambar Anda.</string>
+    <string name="error_server_problems_message">Terjadi masalah saat memproses permintaan Anda. Silakan coba lagi nanti.</string>
+    <string name="connection_list_error">Tampaknya ada masalah koneksi. Silakan coba sebentar lagi.</string>
+    <string name="connect_failure">Gagal menghubungkan dengan %1$s</string>
+    <!-- signup scope was revoked on server side -->
+    <string name="signup_scope_revoked">Aduh! Kami tidak dapat mendaftarkan Anda \nMohon perbarui aplikasi atau mendaftarlah di SoundCloud.com.</string>
 
-  <string name="follow_blocked_title">Mengikuti Diblokir</string>
-  <string name="follow_blocked_content">%s telah memblokirmu.</string>
-  <string name="follow_blocked_content_long">%s telah meminta kami untuk memblokir akunmu dari mengikuti mereka.</string>
-  <string name="follow_age_restricted_title">Mengikuti Diblokir</string>
-  <string name="follow_age_restricted_content">Pengguna %1$s+ dapat mengikuti %2$s.</string>
-  <string name="follow_age_restricted_content_long">Maaf, hanya pengguna berusia %1$s tahun ke atas yang diperbolehkan untuk mengikuti %2$s.</string>
-  <string name="follow_age_unknown_title">Harap verifikasi usiamu</string>
-  <string name="follow_age_unknown_content">Masukkan usia untuk mengikuti %s.</string>
-  <string name="follow_age_unknown_content_long">Untuk mengikuti %s, pastikan usiamu sesuai dengan yang dipersyaratkan.</string>
+    <string name="follow_blocked_title">Mengikuti Diblokir</string>
+    <string name="follow_blocked_content">%s telah memblokir Anda.</string>
+    <string name="follow_blocked_content_long">%s telah meminta kami untuk memblokir akun Anda dari mengikuti mereka.</string>
+    <string name="follow_age_restricted_title">Mengikuti Diblokir</string>
+    <string name="follow_age_restricted_content">Pengguna %1$s+ dapat mengikuti %2$s.</string>
+    <string name="follow_age_restricted_content_long">Maaf, hanya pengguna berusia %1$s tahun ke atas yang boleh mengikuti %2$s.</string>
+    <string name="follow_age_unknown_title">Harap verifikasi usia Anda</string>
+    <string name="follow_age_unknown_content">Masukkan umur untuk mengikuti %s.</string>
+    <string name="follow_age_unknown_content_long">Untuk mengikuti %s, konfirmasikan bahwa Anda cukup umur.</string>
 
-  <!-- __EXPLORE -->
-  <string name="explore_genres">Aliran</string>
-  <string name="explore_genre_header_music">Musik</string>
-  <string name="explore_genre_header_audio">Audio</string>
-  <string name="explore_category_trending_music">Musik</string>
-  <string name="explore_category_trending_audio">Audio</string>
+    <!-- __EXPLORE -->
+    <string name="explore_genres">Genre</string>
+    <string name="explore_genre_header_music">Musik</string>
+    <string name="explore_genre_header_audio">Audio</string>
+    <string name="explore_category_trending_music">Musik</string>
+    <string name="explore_category_trending_audio">Audio</string>
 
-  <!-- __IMAGES -->
-  <string name="add_image">Tambahkan\nGambar</string>
-  <string name="image_load_error">Ada masalah saat memuat gambar</string>
-  <string name="image_where">Apakah kamu ingin menambahkan gambar?</string>
-  <string name="take_new_picture">Ambil gambar baru</string>
-  <string name="take_new_picture_error">Tidak bisa mengambil gambar</string>
-  <string name="use_existing_image">Gunakan gambar yang ada</string>
-  <string name="use_existing_image_error">Tidak bisa menggunakan gambar yang ada</string>
+    <!-- __IMAGES -->
+    <string name="add_image">Tambahkan \nGambar</string>
+    <string name="image_load_error">Terjadi masalah saat memuat gambar</string>
+    <string name="image_where">Bagaimana Anda ingin menambahkan gambar?</string>
+    <string name="take_new_picture">Gambar baru</string>
+    <string name="take_new_picture_error">Tidak dapat mengambil gambar</string>
+    <string name="use_existing_image">Gambar yang ada</string>
+    <string name="use_existing_image_error">Tidak dapat menggunakan gambar yang ada</string>
 
-  <!-- __NAVIGATION -->
-  <string name="navigation_drawer_open">Buka laci navigasi</string>
-  <string name="navigation_drawer_close">Tutup laci navigasi</string>
-  <string name="side_menu_activity">Aktivitas</string>
-  <string name="side_menu_record">Rekam</string>
-  <string name="side_menu_stream">Streaming</string>
-  <string name="side_menu_you">Kamu</string>
-  <string name="side_menu_settings">Pengaturan</string>
-  <string name="side_menu_likes">Suka</string>
-  <string name="side_menu_who_to_follow">Siapa yang harus diikuti</string>
-  <string name="side_menu_profile">Profil</string>
-  <string name="side_menu_playlists">Daftar putar</string>
-  <string name="side_menu_explore">Jelajahi</string>
-  <string name="title_search">Cari</string>
-  <string name="title_settings">Pengaturan</string>
-  <string name="title_feedback">Umpan Balik</string>
+    <!-- __NAVIGATION -->
+    <string name="navigation_drawer_open">Buka laci navigasi</string>
+    <string name="navigation_drawer_close">Tutup laci navigasi</string>
+    <string name="side_menu_activity">Kegiatan</string>
+    <string name="side_menu_record">Rekam</string>
+    <string name="side_menu_stream">Stream</string>
+    <string name="side_menu_you">Anda</string>
+    <string name="side_menu_settings">Pengaturan</string>
+    <string name="side_menu_likes">Suka</string>
+    <string name="side_menu_who_to_follow">Siapa yang diikuti</string>
+    <string name="side_menu_profile">Profil</string>
+    <string name="side_menu_playlists">Daftar Putar</string>
+    <string name="side_menu_explore">Jelajahi</string>
+    <string name="title_search">Cari</string>
+    <string name="title_settings">Pengaturan</string>
+    <string name="title_feedback">Kirim laporan bug</string>
 
-  <!-- __NOTIFICATIONS -->
-  <string name="dashboard_notifications_activity_message_likes">%1$s suka %2$s</string>
-  <string name="dashboard_notifications_message_incoming">dari %s</string>
-  <string name="dashboard_notifications_message_incoming_2">dari %1$s dan %2$s</string>
-  <string name="dashboard_notifications_message_incoming_others">dari %1$s, %2$s dan yang lain</string>
-  <string name="dashboard_notifications_ticker">%s suara baru</string>
-  <string name="dashboard_notifications_ticker_single">1 suara baru</string>
-  <string name="dashboard_notifications_title">%s suara baru</string>
-  <string name="dashboard_notifications_title_single">1 suara baru</string>
-  <string name="dashboard_notifications_activity_message_repost">%1$s mengirim ulang %2$s</string>
+    <!-- __NOTIFICATIONS -->
+    <string name="dashboard_notifications_activity_message_likes">%1$s menyukai %2$s</string>
+    <string name="dashboard_notifications_message_incoming">dari %s</string>
+    <string name="dashboard_notifications_message_incoming_2">dari %1$s dan %2$s</string>
+    <string name="dashboard_notifications_message_incoming_others">dari %1$s, %2$s dan lainnya</string>
+    <string name="dashboard_notifications_ticker">%s suara baru</string>
+    <string name="dashboard_notifications_ticker_single">1 suara baru</string>
+    <string name="dashboard_notifications_title">%s suara baru</string>
+    <string name="dashboard_notifications_title_single">1 suara baru</string>
+    <string name="dashboard_notifications_activity_message_repost">%1$s mengeposkan ulang %2$s</string>
 
-  <!-- __ONBOARDING -->
-  <string name="suggested_users_genres_large_title">Pilih kategori favoritmu</string>
-  <string name="suggested_users_genres_sub_title">Ikuti kecenderungan masyarakat di komunitas SoundCloud.</string>
-  <string name="suggested_users_section_facebook">Facebook</string>
-  <string name="suggested_users_section_music">Musik</string>
-  <string name="suggested_users_section_audio">Audio</string>
-  <string name="suggested_users_section_empty">Tidak mendapatkan hasil</string>
-  <string name="suggested_users_section_error">Tidak mendapatkan hasil, ketuk untuk mencoba lagi</string>
-  <string name="suggested_users_btn_select_all">Pilih Semua</string>
-  <string name="suggested_users_btn_deselect_all">Batal Pilih Semua</string>
-  <string name="problem_connecting_to_SoundCloud">Ada masalah saat menghubungkan ke\nSoundCloud.</string>
-  <string name="and_conjunction">%1$s dan %2$s</string>
-  <string name="try_again">Coba Lagi</string>
-  <string name="finish">Selesai</string>
-  <string name="error_onboarding_fail">Kami masih mengisi streaming-mu. Kami akan terus mencoba sampai berhasil! Sementara itu, kamu dapat mencari dan menemukan musik &amp; audio lainnya.</string>
-  <string name="gender">Jenis Kelamin</string>
-  <string name="onboarding_create_account">Buat akun</string>
-  <string name="onboarding_indicate_gender">Sebutkan jenis kelaminmu</string>
-  <string name="onboarding_custom_gender_hint">Masukkan jenis kelamin</string>
-  <string name="onboarding_gender_option_female">Perempuan</string>
-  <string name="onboarding_gender_option_male">Laki-laki</string>
-  <string name="onboarding_gender_option_custom">Kustom</string>
-  <string name="onboarding_gender_option_nopref">Memilih untuk tidak memberi tahu</string>
+    <!-- __ONBOARDING -->
+    <string name="suggested_users_genres_large_title">Pilih kategori favorit Anda</string>
+    <string name="suggested_users_genres_sub_title">Ikuti orang yang sedang tren di komunitas SoundCloud.</string>
+    <string name="suggested_users_section_facebook">Facebook</string>
+    <string name="suggested_users_section_music">Musik</string>
+    <string name="suggested_users_section_audio">Audio</string>
+    <string name="suggested_users_section_empty">Hasil tidak ditemukan</string>
+    <string name="suggested_users_section_error">Hasil tidak ditemukan, ketuk untuk mencoba lagi</string>
+    <string name="suggested_users_btn_select_all">Pilih Semua</string>
+    <string name="suggested_users_btn_deselect_all">Batal Pilih Semua</string>
+    <string name="problem_connecting_to_SoundCloud">Terjadi masalah saat menghubungkan ke SoundCloud.</string>
+    <string name="and_conjunction">%1$s dan %2$s</string>
+    <string name="try_again">Coba Lagi</string>
+    <string name="finish">Selesai</string>
+    <string name="error_onboarding_fail">Kami masih berusaha untuk mengisi stream Anda. Kami akan terus mencoba hingga berhasil! Untuk saat ini, Anda dapat mencari dan menemukan musik &amp; audio lain.</string>
+    <string name="age">Usia</string>
+    <string name="enter_age_hint">Masukkan usia Anda</string>
+    <string name="gender">Jenis Kelamin</string>
+    <string name="onboarding_create_account">Buat akun</string>
+    <string name="onboarding_indicate_gender">Tentukan jenis kelamin Anda</string>
+    <string name="onboarding_custom_gender_hint">Masukkan jenis kelamin</string>
+    <string name="onboarding_gender_option_female">Wanita</string>
+    <string name="onboarding_gender_option_male">Pria</string>
+    <string name="onboarding_gender_option_custom">Kustom</string>
+    <string name="onboarding_gender_option_nopref">Memilih untuk tidak memberi tahu</string>
 
-  <!-- __ONBOARDING CATEGORIES -->
-  <string name="category_facebook_friends" tools:ignore="UnusedResources">Teman di Facebook</string>
-  <string name="category_facebook_likes" tools:ignore="UnusedResources">Suka di Facebook</string>
-  <string name="category_rock" tools:ignore="UnusedResources">Rock</string>
-  <string name="category_indie" tools:ignore="UnusedResources">Indie</string>
-  <string name="category_dubstep" tools:ignore="UnusedResources">Dubstep</string>
-  <string name="category_pop" tools:ignore="UnusedResources">Pop</string>
-  <string name="category_punk" tools:ignore="UnusedResources">Punk</string>
-  <string name="category_country" tools:ignore="UnusedResources">Negara</string>
-  <string name="category_alternative" tools:ignore="UnusedResources">Alternatif</string>
-  <string name="category_electronic" tools:ignore="UnusedResources">Elektronik</string>
-  <string name="category_house" tools:ignore="UnusedResources">House</string>
-  <string name="category_rnb_and_soul" tools:ignore="UnusedResources">RnB dan Soul</string>
-  <string name="category_hiphop_and_rap" tools:ignore="UnusedResources">HipHop dan Rap</string>
-  <string name="category_reggae" tools:ignore="UnusedResources">Reggae</string>
-  <string name="category_singer_songwriter" tools:ignore="UnusedResources">Penyanyi Penulis Lagu</string>
-  <string name="category_jazz_and_blues" tools:ignore="UnusedResources">Jazz dan Blues</string>
-  <string name="category_metal" tools:ignore="UnusedResources">Metal</string>
-  <string name="category_classical" tools:ignore="UnusedResources">Klasik</string>
-  <string name="category_folk_and_world" tools:ignore="UnusedResources">Masyarakat dan Dunia</string>
-  <string name="category_ideas" tools:ignore="UnusedResources">Ide</string>
-  <string name="category_business" tools:ignore="UnusedResources">Bisnis</string>
-  <string name="category_religion_and_spirituality" tools:ignore="UnusedResources">Agama dan Spiritualitas</string>
-  <string name="category_audiobooks" tools:ignore="UnusedResources">Audiobook</string>
-  <string name="category_arts_and_entertainment" tools:ignore="UnusedResources">Seni dan Hiburan</string>
-  <string name="category_sports" tools:ignore="UnusedResources">Olahraga</string>
-  <string name="category_science_and_technology" tools:ignore="UnusedResources">Sains dan Teknologi</string>
-  <string name="category_comedy" tools:ignore="UnusedResources">Komedi</string>
-  <string name="category_news" tools:ignore="UnusedResources">Berita</string>
-  <string name="category_storytelling" tools:ignore="UnusedResources">Mendongeng</string>
-  <string name="category_learning" tools:ignore="UnusedResources">Belajar</string>
+    <!-- __ONBOARDING CATEGORIES -->
+    <string name="category_facebook_friends" tools:ignore="UnusedResources">Teman Facebook</string>
+    <string name="category_facebook_likes" tools:ignore="UnusedResources">Suka di Facebook</string>
+    <string name="category_rock" tools:ignore="UnusedResources">Rock</string>
+    <string name="category_indie" tools:ignore="UnusedResources">Indie</string>
+    <string name="category_dubstep" tools:ignore="UnusedResources">Dubstep</string>
+    <string name="category_pop" tools:ignore="UnusedResources">Pop</string>
+    <string name="category_punk" tools:ignore="UnusedResources">Punk</string>
+    <string name="category_country" tools:ignore="UnusedResources">Country</string>
+    <string name="category_alternative" tools:ignore="UnusedResources">Alternative</string>
+    <string name="category_electronic" tools:ignore="UnusedResources">Electronic</string>
+    <string name="category_house" tools:ignore="UnusedResources">House</string>
+    <string name="category_rnb_and_soul" tools:ignore="UnusedResources">RnB dan Soul</string>
+    <string name="category_hiphop_and_rap" tools:ignore="UnusedResources">HipHop dan Rap</string>
+    <string name="category_reggae" tools:ignore="UnusedResources">Reggae</string>
+    <string name="category_singer_songwriter" tools:ignore="UnusedResources">Penyanyi Penulis Lagu</string>
+    <string name="category_jazz_and_blues" tools:ignore="UnusedResources">Jazz dan Blues</string>
+    <string name="category_metal" tools:ignore="UnusedResources">Metal</string>
+    <string name="category_classical" tools:ignore="UnusedResources">Klasik</string>
+    <string name="category_folk_and_world" tools:ignore="UnusedResources">Folk and World</string>
+    <string name="category_ideas" tools:ignore="UnusedResources">Ide</string>
+    <string name="category_business" tools:ignore="UnusedResources">Bisnis</string>
+    <string name="category_religion_and_spirituality" tools:ignore="UnusedResources">Agama dan Spiritual</string>
+    <string name="category_audiobooks" tools:ignore="UnusedResources">Buku Audio</string>
+    <string name="category_arts_and_entertainment" tools:ignore="UnusedResources">Seni dan Hiburan</string>
+    <string name="category_sports" tools:ignore="UnusedResources">Olahraga</string>
+    <string name="category_science_and_technology" tools:ignore="UnusedResources">Sains dan Teknologi</string>
+    <string name="category_comedy" tools:ignore="UnusedResources">Komedi</string>
+    <string name="category_news" tools:ignore="UnusedResources">Berita</string>
+    <string name="category_storytelling" tools:ignore="UnusedResources">Dongeng</string>
+    <string name="category_learning" tools:ignore="UnusedResources">Pembelajaran</string>
 
-  <!-- __PLAYABLE -->
-  <string name="private_indicator">Pribadi</string>
-  <string name="recording_pending_upload">Unggahan Tertunda</string>
-  <string name="recording_uploading">Mengunggah...</string>
-  <string name="recording_upload_failed">Unggahan Gagal</string>
-  <string name="title_now_playing">Sedang Diputar</string>
-  <string name="like_toast_overflow_action">Disimpan pada hal yang Anda sukai</string>
-  <string name="unlike_toast_overflow_action">Dihapus dari hal yang Anda sukai</string>
-  <string name="like_error_toast_overflow_action">Status suka tidak berubah</string>
-  <string name="reposted_to_followers">Kirim ulang untuk pengikutmu</string>
-  <string name="unposted_to_followers">Belum dikirim</string>
-  <string name="repost_error_toast_overflow_action">Status yang dipasang ulang tidak bisa diubah</string>
+    <!-- __PLAYABLE -->
+    <string name="private_indicator">Pribadi</string>
+    <string name="recording_pending_upload">Pengunggahan Tertunda</string>
+    <string name="recording_uploading">Mengunggah...</string>
+    <string name="recording_upload_failed">Gagal Mengunggah</string>
+    <string name="title_now_playing">Sedang Diputar</string>
+    <string name="like_toast_overflow_action">Disimpan pada hal yang Anda sukai</string>
+    <string name="unlike_toast_overflow_action">Dihapus dari hal yang Anda sukai</string>
+    <string name="like_error_toast_overflow_action">Status suka tidak berubah</string>
+    <string name="reposted_to_followers">Diposkan ulang kepada pengikut Anda</string>
+    <string name="unposted_to_followers">Batal diposkan</string>
+    <string name="repost_error_toast_overflow_action">Status pos ulang tidak dapat diubah</string>
 
-  <!-- __PLAYER -->
-  <string name="share">Berbagi</string>
-  <string name="repost">Kirim ulang</string>
-  <string name="unpost">Batalkan kiriman</string>
-  <string name="comment_at">Komentar di %s</string>
-  <string name="comment_on">Komentar pada %s</string>
-  <string name="your_comment_has_been_posted">Komentarmu telah dikirimkan</string>
-  <string name="comment_could_not_be_created_at_this_time">Tidak dapat membuat komentar saat ini</string>
-  <string name="share_track_by_artist_on_soundcloud">Dengarkan %1$s oleh %2$s #np pada #SoundCloud\n%3$s</string>
-  <string name="share_track_on_soundcloud">Dengarkan %1$s #np pada #SoundCloud\n%2$s</string>
-  <string name="share_subject">%s - SoundCloud</string>
-  <string name="info">Info</string>
-  <string name="uploaded_at">Terunggah %s</string>
-  <string name="track_info_no_description">Tidak ada deskripsi yang tersedia</string>
-  <string name="playback_error">Tidak dapat diputar</string>
-  <string name="playback_error_connection">Silakan periksa koneksi Anda. Ketuk untuk mencoba lagi.</string>
-  <string name="playback_error_unable_to_play">Trek tidak dapat di-streaming</string>
-  <string name="play">Putar</string>
-  <string name="pause">Jeda</string>
-  <string name="previous">Sebelumnya</string>
-  <string name="next">Selanjutnya</string>
+    <!-- __PLAYER -->
+    <string name="share">Bagikan</string>
+    <string name="repost">Poskan ulang</string>
+    <string name="unpost">Batal poskan</string>
+    <string name="comment_at">Komentar di %s</string>
+    <string name="comment_on">Komentar pada %s</string>
+    <string name="your_comment_has_been_posted">Komentar Anda telah diposkan</string>
+    <string name="comment_could_not_be_created_at_this_time">Komentar tidak dapat dibuat saat ini</string>
+    <string name="share_track_by_artist_on_soundcloud">Mendengarkan %1$s dari %2$s #np di #SoundCloud\n%3$s</string>
+    <string name="share_track_on_soundcloud">Mendengarkan %1$s #np di #SoundCloud\n%2$s</string>
+    <string name="share_subject">%s - Soundcloud</string>
+    <string name="info">Info</string>
+    <string name="uploaded_at">Terunggah %s</string>
+    <string name="track_info_no_description">Keterangan tidak tersedia</string>
+    <string name="playback_error">Tidak dapat diputar</string>
+    <string name="playback_error_connection">Silakan periksa koneksi Anda. Ketuk untuk mencoba lagi.</string>
+    <string name="playback_error_unable_to_play">Trek tidak dapat di-streaming</string>
+    <string name="playback_missing_playable_tracks">Trek yang dapat diputar hilang</string>
+    <string name="play">Putar</string>
+    <string name="pause">Jeda</string>
+    <string name="previous">Sebelumnya</string>
+    <string name="next">Selanjutnya</string>
+    <string name="casting_to">Memasukkan ke</string>
 
-  <!-- __COMMENTS -->
-  <string name="user_commented_at">%1$s di %2$s</string>
+    <!-- __COMMENTS -->
+    <string name="user_commented_at">%1$s di %2$s</string>
 
-  <!-- __PAYMENTS -->
-  <string name="payments_unknown_error">Kesalahan yang tidak diketahui</string>
-  <string name="payments_connection_error">Kesalahan koneksi</string>
-  <string name="payments_connection_unavailable">Penagihan Google Play tidak tersedia</string>
-  <string name="payments_user_cancelled">Pengguna dibatalkan</string>
-  <string name="payments_none_available">Tidak ada langganan tersedia</string>
-  <string name="payments_verifying">Memverifikasi</string>
-  <string name="payments_verify_fail">Verifikasi gagal</string>
-  <string name="payments_verify_timeout">Tidak dapat memverifikasi pembelian</string>
-  <string name="payments_success">Berhasil</string>
-  <string name="payments_error_title">Kesalahan pembayaran</string>
-  <string name="payments_error_already_subscribed">Sudah ada berlangganan yang terkait dengan akun Anda. Masalah berlanjut? Hubungi bagian dukungan.</string>
-  <string name="payments_error_stale_checkout">Tidak memungkinkan untuk memulihkan berlangganan Anda.</string>
-  <string name="payments_error_wrong_user">Anda memiliki status berlangganan aktif, tetapi status tersebut terkait dengan pengguna yang berbeda.</string>
-  <string name="payments_error_contact_support">Hubungi bagian dukungan</string>
+    <!-- __PAYMENTS -->
+    <string name="payments_unknown_error">Galat tidak dikenal</string>
+    <string name="payments_connection_error">Kesalahan koneksi</string>
+    <string name="payments_connection_unavailable">Penagihan Google Play tidak tersedia</string>
+    <string name="payments_user_cancelled">Pengguna dibatalkan</string>
+    <string name="payments_none_available">Tidak ada langganan tersedia</string>
+    <string name="payments_verifying">Memverifikasi</string>
+    <string name="payments_verify_fail">Verifikasi gagal</string>
+    <string name="payments_verify_timeout">Tidak dapat memverifikasi pembelian</string>
+    <string name="payments_success">Berhasil</string>
+    <string name="payments_error_title">Kesalahan pembayaran</string>
+    <string name="payments_error_already_subscribed">Sudah ada berlangganan yang terkait dengan akun Anda. Masalah berlanjut? Hubungi bagian dukungan.</string>
+    <string name="payments_error_stale_checkout">Tidak memungkinkan untuk memulihkan berlangganan Anda.</string>
+    <string name="payments_error_wrong_user">Anda memiliki status berlangganan aktif, tetapi status tersebut terkait dengan pengguna yang berbeda.</string>
+    <string name="payments_error_contact_support">Hubungi dukungan</string>
 
-  <!-- __PLAYLISTS -->
-  <string name="tab_title_user_playlists">Daftar putar</string>
-  <string name="activity_title_playlist">Daftar putar</string>
-  <string name="your_playlists_tab">Daftar Putarmu</string>
-  <string name="liked_playlists_tab">Daftar Putar yang Disukai</string>
-  <string name="playlist_removed">Daftar putar ini tidak ditemukan di SoundCloud</string>
-  <string name="playlist_load_error">Tidak dapat memuat daftar putar ini</string>
-  <string name="playlist_new_info_header_text">%1$s, %2$s</string>
-  <string name="shuffle_playlist">Acak daftar putar</string>
-  <string name="add_to_playlist">Tambah ke daftar putar</string>
-  <string name="remove_from_playlist">Hapus dari daftar putar</string>
+    <!-- __PLAYLISTS -->
+    <string name="tab_title_user_playlists">Daftar Putar</string>
+    <string name="activity_title_playlist">Daftar Putar</string>
+    <string name="your_playlists_tab">Daftar Putar Anda</string>
+    <string name="liked_playlists_tab">Daftar Putar yang Disukai</string>
+    <string name="playlist_removed">Daftar putar ini tidak ditemukan di SoundCloud</string>
+    <string name="playlist_load_error">Tidak dapat memuat daftar putar ini</string>
+    <string name="playlist_new_info_header_text">%1$s, %2$s</string>
+    <string name="shuffle_playlist">Daftar putar acak</string>
+    <string name="add_to_playlist">Tambahkan ke daftar putar</string>
+    <string name="remove_from_playlist">Hapus dari daftar putar</string>
 
-  <!-- __PLAYLIST CREATION -->
-  <string name="add_track_to_playlist">Tambah ke daftar putar...</string>
-  <string name="added_to_playlist">Ditambahkan ke daftar putar</string>
-  <string name="create_new_playlist">Buat daftar putar baru</string>
-  <string name="create_new_playlist_hint">Masukkan judul daftar putar</string>
-  <string name="error_new_playlist_blank_title">Masukkan judul yang valid</string>
-  <string name="add_playlist_private">Pribadi</string>
+    <!-- __PLAYLIST CREATION -->
+    <string name="add_track_to_playlist">Tambahkan ke daftar putar...</string>
+    <string name="added_to_playlist">Ditambahkan ke daftar putar</string>
+    <string name="create_new_playlist">Buat daftar putar baru</string>
+    <string name="create_new_playlist_hint">Masukkan judul daftar putar</string>
+    <string name="error_new_playlist_blank_title">Masukkan judul yang valid</string>
+    <string name="add_playlist_private">Pribadi</string>
+    <string name="add_playlist_offline">Tersedia Offline</string>
 
-  <!-- __PROFILE -->
-  <string name="tab_title_user_info">Info</string>
-  <string name="tab_title_user_sounds">Kiriman</string>
-  <string name="tab_title_user_likes">Suka</string>
-  <string name="tab_title_user_followers">Pengikut</string>
-  <string name="tab_title_user_followings">Mengikuti</string>
-  <string name="discogs">Discogs</string>
-  <string name="myspace">Myspace</string>
+    <!-- __PROFILE -->
+    <string name="tab_title_user_info">Info</string>
+    <string name="tab_title_user_sounds">Pos</string>
+    <string name="tab_title_user_likes">Suka</string>
+    <string name="tab_title_user_followers">Pengikut</string>
+    <string name="tab_title_user_followings">Mengikuti</string>
+    <string name="discogs">Discogs</string>
+    <string name="myspace">Myspace</string>
 
-  <!-- __RECORD -->
-  <string name="rec_title_idle_rec">Rekam</string>
-  <string name="rec_title_recording">Rekaman</string>
-  <string name="rec_title_idle_play">Dihentikan</string>
-  <string name="rec_title_playing">Diputar</string>
-  <string name="rec_title_editing">Edit</string>
-  <string name="record_insert_sd_card">Harap masukkan kartu SD untuk merekam.</string>
-  <string name="record_storage_is_full">Penyimpanan penuh</string>
-  <string name="recorded_afternoon">%s sore</string>
-  <string name="recorded_evening">%s malam</string>
-  <string name="recorded_morning">%s pagi</string>
-  <string name="recorded_night">%s malam</string>
-  <string name="dialog_confirm_delete_recording_message">Kamu yakin ingin menghapus rekaman ini?</string>
-  <string name="btn_revert_to_original">Kembalikan ke asli</string>
-  <string name="fade_toggle_on">Pertegas/Pudarkan</string>
-  <string name="dialog_revert_recording_message">Kamu akan kehilangan semua editanmu. Lanjutkan?</string>
-  <string name="cloud_recorder_event_message">Merekam selama %s</string>
-  <string name="cloud_recorder_event_title">Perekaman sedang berlangsung</string>
-  <string name="cloud_recorder_playback_event_title">Pemutaran sedang berlangsung</string>
+    <!-- __RECORD -->
+    <string name="rec_title_generating_waveform">Mohon Tunggu...</string>
+    <string name="rec_title_idle_rec">Rekam</string>
+    <string name="rec_title_recording">Merekam</string>
+    <string name="rec_title_idle_play">Dijeda</string>
+    <string name="rec_title_playing">Memutar</string>
+    <string name="rec_title_editing">Edit</string>
+    <string name="record_another_sound">Rekam suara lain</string>
+    <string name="record_insert_sd_card">Mohon masukkan Kartu SD untuk merekam.</string>
+    <string name="record_instructions">Bagikan Suara Anda</string>
+    <string name="record_storage_is_full">Penyimpanan sudah penuh</string>
+    <string name="recorded_afternoon">%s sore</string>
+    <string name="recorded_at">%1$s di %2$s</string>
+    <string name="recorded_evening">%s petang</string>
+    <string name="recorded_morning">%s pagi</string>
+    <string name="recorded_night">%s malam</string>
+    <string name="recording_not_found">Rekaman tidak ditemukan</string>
+    <string name="rec_your_sound_is_saved_locally_at">Suara Anda disimpan secara lokal</string>
+    <string name="dialog_confirm_delete_recording_message">Apakah Anda yakin ingin menghapus rekaman ini?</string>
+    <string name="dialog_reset_recording_message">Atur ulang? Rekaman akan dihapus.</string>
+    <string name="dialog_unsaved_recordings_message">Rekaman yang belum disimpan ditemukan. Item yang dicentang akan disimpan.</string>
+    <string name="btn_revert_to_original">Kembalikan ke asli</string>
+    <string name="fade_toggle_on">Dari/Ke Pudar</string>
+    <string name="fade_toggle_off">Tanpa Dari/Ke Pudar</string>
+    <string name="optimize_toggle_on">Dioptimalkan</string>
+    <string name="optimize_toggle_off">Tidak Dioptimalkan</string>
+    <string name="create_autosave_message">Rekaman Anda akan disimpan secara otomatis saat Anda membuatnya. Anda dapat menemukannya di daftar suara Anda.</string>
+    <string name="create_regenerating_waveform_message">Membangun kembali waveform, mohon menunggu.</string>
+    <string name="dialog_revert_recording_message">Anda akan kehilangan semua hasil edit Anda. Lanjutkan?</string>
+    <string name="cloud_recorder_event_message">Merekam untuk %s</string>
+    <string name="cloud_recorder_event_title">Perekaman sedang berlangsung</string>
+    <string name="cloud_recorder_playback_event_title">Pemutaran sedang berlangsung</string>
 
-  <!-- __SEARCH -->
-  <string name="search_hint">Cari SoundCloud</string>
-  <string name="search_settings_description">Cari suara</string>
-  <string name="search_type_all">Semua</string>
-  <string name="search_type_tracks">Trek</string>
-  <string name="search_type_playlists">Daftar putar</string>
-  <string name="search_type_people">Orang</string>
-  <string name="search_recent_tags">TERBARU</string>
-  <string name="search_popular_tags">TAG POPULER</string>
-  <string name="search_tags_title">Pilih tag favoritmu</string>
-  <string name="search_tags_subtitle">Temukan daftar putar populer di SoundCloud</string>
-  <string name="search_empty">Tidak ditemukan hasil</string>
-  <string name="search_empty_subtext">Periksa ejaan atau coba pencarian yang berbeda</string>
-  <string name="search_for_query">Cari \'%s\'</string>
+    <!-- __RECORD TIPS -->
+    <string-array name="record_suggestions">
+    <item>Mengapa tidak merekam suara di jalanan Anda?</item>
+    <item>Rekam catatan suara sebagai pengingat mudah.</item>
+    <item>Gunakan tombol REC untuk membuat blog suara – apa yang akan Anda bagikan hari ini?</item>
+    <item>Apa yang sedang Anda lakukan saat ini?</item>
+    <item>Abadikan momen: kata yang pertama kali diucapkan anak Anda</item>
+    <item>Abadikan momen: suara binatang peliharaan Anda</item>
+    <item>Abadikan momen: suara orang yang Anda kasihi</item>
+    <item>Pergi berbelanja? Rekam pengingat agar Anda tidak lupa apa saja yang harus dibeli.</item>
+    <item>Punya gagasan cemerlang? Abadikan dengan tombol REC.</item>
+    <item>Baru mendengar lelucon lucu? Bagikan!</item>
+    <item>Menikmati perbincangan seru? Mengapa tidak merekamnya untuk diturunkan kepada anak cucu?</item>
+    <item>Abadikan momen lucu dalam suara</item>
+    <item>Apakah Anda tahu bahwa Anda dapat menyimpan rekaman pribadi jika Anda tidak ingin membagikannya?</item>
+    <item>Kadang-kadang alat perekam terbaik adalah yang Anda miliki saat ini.</item>
+    <item>Suarakan diri Anda!</item>
+    <item>Suarakan internet.</item>
+    <item>Suarakan dunia.</item>
+    <item>Ekspresikan diri Anda!</item>
+    <item>Mengapa tidak merekam notula untuk rapat Anda berikutnya?</item>
+    <item>Gunakan tombol REC untuk mengabadikan ide-ide untuk nanti.</item>
+    <item>Gunakan tombol REC sebagai alat bantu belajar: simpan catatan Anda di mana pun Anda berada.</item>
+    <item>Anda dapat menggunakan tombol REC untuk merekam wawancara dan rapat.</item>
+    <item>Rekam suara ombak di pantai</item>
+    <item>Abadikan suara keramaian kota di jam sibuk</item>
+    <item>Mendengar suara aneh? Abadikan dengan tombol REC!</item>
+    <item>Merasa terinspirasi? Abadikan ide Anda dengan tombol REC.</item>
+    <item>Punya ide untuk trek baru? Simpan dengan tombol REC.</item>
+    <item>Irama terjebak hanya di pikiran Anda? Abadikan dengan tombol REC.</item>
+    <item>Ada ide untuk lirik lagu? Abadikan segera dengan tombol REC.</item>
+    <item>Apa yang sedang terjadi sekarang?</item>
+    <item>Rekam peristiwa saat terjadi dan bagikan kepada dunia.</item>
+    <item>Ada hal menarik yang sedang terjadi? Abadikan momennya dalam audio.</item>
+    <item>Reporter Warga? Beri tahu dunia tentang apa yang terjadi di lokasi Anda.</item>
+  </string-array>
 
-  <!-- __SETTINGS -->
-  <string name="pref_app_details">Detail Aplikasi</string>
-  <string name="pref_basic_settings">Pengaturan Dasar</string>
-  <string name="pref_clear_cache">Bersihkan Cache Aplikasi</string>
-  <string name="pref_clear_cache_desc">Bersihkan cache aplikasi untuk memperbanyak memori kosong di perangkat Anda.</string>
-  <string name="pref_connection_and_data">Koneksi dan data</string>
-  <string name="pref_help">Bantuan</string>
-  <string name="pref_help_desc">Akses situs dukungan SoundCloud</string>
-  <string name="pref_revoke_access">Keluar</string>
-  <string name="pref_revoke_desc">Keluar pengguna saat ini</string>
-  <string name="pref_sync_wifi_only">Sinkronkan hanya dengan wifi</string>
-  <string name="pref_sync_wifi_only_description">Sinkronkan dataku hanya saat terhubung wifi</string>
-  <string name="pref_analytics">Analitis</string>
-  <string name="pref_analytics_desc">Mengaktifkan analitis memungkinkan kami untuk mengumpulkan data tentang penggunaan aplikasi ini dan membantu kami meningkatkannya. Lihat Kebijakan Privasi kami untuk lebih jelasnya.</string>
-  <string name="pref_crashlogs">Log gangguan</string>
-  <string name="pref_crashlogs_desc">Mengaktifkan Log gangguan membantu kami meningkatkan aplikasi secara signifikan. Kami tidak mengumpulkan data pribadi apa pun. Lihat Kebijakan Privasi kami untuk lebih jelasnya.</string>
-  <string name="playback_error_logging">Log kesalahan pemutaran: %s</string>
-  <string name="enabled">Diaktifkan</string>
-  <string name="disabled">Dinonaktifkan</string>
-  <string name="wifi_settings">Pengaturan nirkabel &amp; jaringan</string>
-  <string name="wifi_settings_summary">Edit pengaturanmu. Gunakan Wi-Fi untuk kinerja terbaik.</string>
-  <string name="cache_clearing">Bersihkan cache</string>
-  <string name="cache_clearing_message">Menghapus berkas cache...</string>
-  <string-array name="pref_dev_record_type_entries">
-    <item>Dikompres</item>
+    <!-- __SEARCH -->
+    <string name="search_hint">Cari SoundCloud</string>
+    <string name="search_settings_description">Cari suara</string>
+    <string name="search_type_all">Semua</string>
+    <string name="search_type_tracks">Trek</string>
+    <string name="search_type_playlists">Daftar putar</string>
+    <string name="search_type_people">Orang</string>
+    <string name="search_recent_tags">TERKINI</string>
+    <string name="search_popular_tags">TAG POPULER</string>
+    <string name="search_tags_title">Pilih tag favorit Anda</string>
+    <string name="search_tags_subtitle">Temukan daftar putar populer di SoundCloud</string>
+    <string name="search_empty">Hasil tidak ditemukan</string>
+    <string name="search_empty_subtext">Periksa pengejaannya atau cobalah pencarian lain</string>
+    <string name="search_for_query">Cari \'%s\'</string>
+
+    <!-- __SETTINGS -->
+    <string name="pref_app_details">Detail Aplikasi</string>
+    <string name="pref_basic_settings">Pengaturan dasar</string>
+    <string name="pref_clear_cache">Bersihkan Cache Aplikasi</string>
+    <string name="pref_clear_cache_desc">Bersihkan cache aplikasi untuk mengosongkan memori di perangkat Anda</string>
+    <string name="pref_connection_and_data">Koneksi dan data</string>
+    <string name="pref_help">Bantuan</string>
+    <string name="pref_help_desc">Akses situs dukungan SoundCloud</string>
+    <string name="pref_revoke_access">Keluar</string>
+    <string name="pref_revoke_desc">Keluar pengguna saat ini</string>
+    <string name="pref_sync_wifi_only">Hanya perbarui data melalui Wi-Fi</string>
+    <string name="pref_sync_wifi_only_description">Hanya perbarui suka baru dll. melalui Wi-Fi</string>
+    <string name="pref_analytics">Analitika</string>
+    <string name="pref_analytics_desc">Pengaktifan analitika memungkinkan kami untuk mengumpulkan data mengenai penggunaan aplikasi yang dapat membantu kami meningkatkan aplikasi ini. Lihat Kebijakan Privasi kami untuk lebih jelasnya.</string>
+    <string name="pref_crashlogs">Crashlog</string>
+    <string name="pref_crashlogs_desc">Pengaktifan Crashlog sangat membantu kami dalam meningkatkan aplikasi ini. Kami tidak mengumpulkan data pribadi apa pun. Lihat Kebijakan Privasi kami untuk lebih jelasnya.</string>
+    <string name="playback_error_logging">Log galat pemutaran: %s</string>
+    <string name="enabled">Aktif</string>
+    <string name="disabled">Nonaktif</string>
+    <string name="wifi_settings">Pengaturan nirkabel &amp; jaringan</string>
+    <string name="wifi_settings_summary">Edit pengaturan Anda. Gunakan Wi-Fi untuk performa terbaik.</string>
+    <string name="cache_clearing">Membersihkan cache</string>
+    <string name="cache_clearing_message">Menghapus berkas cache...</string>
+    <string-array name="pref_dev_record_type_entries">
+    <item>Dikompresi</item>
     <item>Mentah</item>
   </string-array>
 
-  <!-- __SETTINGS SIGN OUT -->
-  <string name="menu_clear_user_desc">Kamu harus kembali menghubungkan akun SoundCloud-mu.</string>
-  <string name="menu_clear_user_title">Hapus data pengguna?</string>
+    <!-- __SETTINGS LOG OUT -->
+    <string name="menu_clear_user_desc">Anda perlu menghubungkan kembali akun SoundCloud Anda.</string>
+    <string name="menu_clear_user_title">Bersihkan data pengguna?</string>
 
-  <!-- __SETTINGS NAVIGATION -->
-  <string name="title_about">Tentang</string>
-  <string name="title_legal">Hukum</string>
-  <string name="pref_extras">Ekstra</string>
-  <string name="title_notification_settings">Pengaturan Notifikasi</string>
+    <!-- __SETTINGS NAVIGATION -->
+    <string name="title_about">Tentang</string>
+    <string name="title_legal">Legal</string>
+    <string name="pref_extras">Ekstra</string>
+    <string name="title_offline_settings">Pengaturan Sinkronisasi Offline</string>
+    <string name="title_notification_settings">Pengaturan Pemberitahuan</string>
 
-  <!-- __SETTINGS NOTIFICATIONS -->
-  <string name="pref_notifications">Notifikasi</string>
-  <string name="pref_notifications_activity">Aktivitas</string>
-  <string name="pref_notifications_comments">Komentar</string>
-  <string name="pref_notifications_comments_description">Terima pembaruan atas komentar baru dari suaramu</string>
-  <string name="pref_notifications_description">Pembaruan mana yang ingin kamu terima?</string>
-  <string name="pref_notifications_favoritings">Suka</string>
-  <string name="pref_notifications_favoritings_description">Menerima pemberitahuan suka yang baru dari suaramu</string>
-  <string name="pref_notifications_followers">Pengikut</string>
-  <string name="pref_notifications_followers_description">Menerima pembaruan saat Anda mendapatkan pengikut baru</string>
-  <string name="pref_notifications_frequency">Frekuensi Notifikasi</string>
-  <string name="pref_notifications_frequency_description">Mengatur frekuensi antar pembaruan</string>
-  <string name="pref_notifications_incoming">Suara Masuk</string>
-  <string name="pref_notifications_incoming_description">Terima pemberitahuan dari suara publik baru yang dibagi dengan kamu</string>
-  <string name="pref_notifications_stream">Streaming</string>
-  <string name="pref_notifications_wifi_only">Notifikasi hanya dengan Wifi</string>
-  <string name="pref_notifications_wifi_only_description">Minta pemberitahuan hanya saat terhubung lewat wifi</string>
-  <string name="pref_notifications_reposts">Kiriman ulang</string>
-  <string name="pref_notifications_reposts_description">Terima pemberitahuan dari kiriman ulang suaramu</string>
-  <string-array name="pref_notifications_frequency">
+    <!-- __SETTINGS NOTIFICATIONS -->
+    <string name="pref_notifications">Pemberitahuan</string>
+    <string name="pref_notifications_activity">Kegiatan</string>
+    <string name="pref_notifications_comments">Komentar</string>
+    <string name="pref_notifications_comments_description">Menerima pembaruan untuk komentar baru atas suara Anda</string>
+    <string name="pref_notifications_description">Pembaruan apa yang ingin Anda terima?</string>
+    <string name="pref_notifications_favoritings">Suka</string>
+    <string name="pref_notifications_favoritings_description">Menerima pembaruan untuk suka baru atas suara Anda</string>
+    <string name="pref_notifications_followers">Pengikut</string>
+    <string name="pref_notifications_followers_description">Menerima pembaruan saat Anda mendapatkan pengikut baru</string>
+    <string name="pref_notifications_frequency">Frekuensi Pemberitahuan</string>
+    <string name="pref_notifications_frequency_description">Atur frekuensi antara pembaruan</string>
+    <string name="pref_notifications_incoming">Suara Masuk</string>
+    <string name="pref_notifications_incoming_description">Menerima pembaruan untuk suara publik baru yang dibagikan dengan Anda</string>
+    <string name="pref_notifications_stream">Stream</string>
+    <string name="pref_notifications_wifi_only">Pemberitahuan hanya melalui Wifi</string>
+    <string name="pref_notifications_wifi_only_description">Minta pembaruan hanya ketika terhubung melalui wifi</string>
+    <string name="pref_notifications_reposts">Pos ulang</string>
+    <string name="pref_notifications_reposts_description">Menerima pembaruan untuk pos ulang suara Anda</string>
+    <string-array name="pref_notifications_frequency">
     <item>Setiap jam</item>
     <item>Setiap 4 jam</item>
     <item>Setiap 12 jam</item>
     <item>Setiap 24 jam</item>
   </string-array>
 
-  <!-- __SKIPPY -->
-  <string name="pref_extras_skippy">Paksakan Pemutar Eksperimental</string>
-  <string name="pref_extras_skippy_desc">Putar semua lagu dengan pemutar eksperimental. Hal ini akan memberikan efek saat memutar lagu selanjutnya.</string>
+    <!-- __SKIPPY -->
+    <string name="pref_extras_skippy">Gunakan Pemutar Eksperimental</string>
+    <string name="pref_extras_skippy_desc">Mainkan semua trek melalui pemutar eksperimental. Ini akan mulai berlaku saat memainkan trek berikutnya.</string>
 
-  <!-- __SETTINGS SUBSCRIPTIONS -->
-  <string name="pref_subscriptions_header">Langganan</string>
-  <string name="pref_subscription_buy_title">Berlangganan</string>
-  <string name="pref_subscription_buy_summary">Tingkatkan akun Anda</string>
-  <string name="title_subscribe">Berlangganan</string>
-  <string name="subscribe_buy">Beli</string>
+    <!-- __SUBSCRIPTION SETTINGS -->
+    <string name="pref_subscriptions_header">Langganan</string>
+    <string name="pref_subscription_buy_title">Berlangganan</string>
+    <string name="pref_subscription_buy_summary">Tingkatkan akun Anda</string>
+    <string name="title_subscribe">Berlangganan</string>
+    <string name="subscribe_buy">Beli</string>
 
-  <!-- __SETTINGS OFFLINE -->
-  <string name="pref_offline_wifi_only_sync">Hanya sinkron secara offline dengan Wi-Fi</string>
-  <string name="pref_offline_wifi_only_description">Sinkronkan yang kamu suka dan daftar putarmu hanya dengan menggunakan koneksi Wi-Fi</string>
+    <!-- __OFFLINE SETTINGS -->
+    <string name="pref_offline_settings">Pengaturan Sinkronisasi Offline</string>
+    <string name="pref_offline_wifi_only_sync">Hanya lakukan sinkronisasi offline melalui Wi-Fi</string>
+    <string name="pref_offline_wifi_only_description">Sinkronkan suka dan daftar putar Anda hanya melalui koneksi Wi-Fi</string>
+    <string name="pref_offline_settings_summary">Kelola pengaturan Sinkronisasi Offline Anda</string>
+    <string name="pref_offline_storage_limit">Batas Penyimpanan</string>
+    <string name="pref_offline_storage_limit_description">Seberapa banyak penyimpanan Anda yang dapat kami gunakan untuk menyinkronkan trek Anda</string>
+    <string name="pref_offline_storage_free_gb">%1$.1f GB kosong dari %2$.1f GB</string>
+    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
+    <string name="pref_offline_storage_usage">Penggunaan Penyimpanan</string>
+    <string name="pref_offline_used_by_other_apps">Digunakan oleh aplikasi lain</string>
+    <string name="pref_offline_used">Digunakan</string>
+    <string name="pref_offline_limit">Batas</string>
+    <string name="pref_offline_remove_all_offline_content">Hapus semua konten offline</string>
+    <string name="pref_offline_remove_all_offline_content_description">Ini akan menghapus semua konten yang Anda sediakan secara offline dari perangkat Anda</string>
 
-  <!-- __TIME -->
-  <string name="format_abbreviated_seconds">%d detik.</string>
-  <string name="format_abbreviated_minutes">%d menit.</string>
+    <!-- __TIME -->
+    <string name="format_abbreviated_seconds">%d dtk.</string>
+    <string name="format_abbreviated_minutes">%d mnt.</string>
 
-  <!-- __TOUR -->
-  <string name="tour_title_1">Dengarkan suara dunia</string>
-  <string name="tour_text_1">Jelajahi komunitas terbesar\nartis, band, podcaster dan\npencipta musik serta audio</string>
-  <string name="tour_title_2">Temukan</string>
-  <string name="tour_text_2">Semua jenis musik dan\naudio yang baru serta unik</string>
-  <string name="tour_title_3">Hubungkan dan Bagikan</string>
-  <string name="tour_text_3">Cari musik dan pencipta audio\nuntuk didengar dan diikuti,\nbagi suara yang kamu sukai</string>
-  <string name="tour_signup_button">Daftar dengan menggunakan alamat emailmu.</string>
-  <string name="tour_login_header">Atau masuk dengan akunmu</string>
+    <!-- __TOUR -->
+    <string name="tour_title_1">Dengarkan suara dunia</string>
+    <string name="tour_text_1">Jelajahi komunitas artis, \nband, podcaster, dan pencipta \nmusik &amp; audio terbesar</string>
+    <string name="tour_title_2">Temukan</string>
+    <string name="tour_text_2">Semua jenis musik &amp; audio \nbaru dan unik</string>
+    <string name="tour_title_3">Hubungkan &amp; Bagikan</string>
+    <string name="tour_text_3">Temukan pencipta musik &amp; audio \nuntuk didengarkan dan diikuti, \nbagikan suara yang Anda sukai</string>
+    <string name="tour_signup_button">Mendaftar dengan alamat email Anda</string>
+    <string name="tour_login_header">Atau masuk dengan akun Anda</string>
 
-  <!-- __UPLOAD -->
-  <string name="uploader_event_processing">Memproses</string>
-  <string name="uploader_event_uploading_percent">Mengunggah: %d %%</string>
-  <string name="uploader_event_cancelling">Membatalkan</string>
-  <string name="cloud_upload_clear_artwork">Tahan untuk menghapus karya seni</string>
-  <string name="cloud_uploader_notification_error_message">Terjadi kesalahan saat mengunggah %s</string>
-  <string name="cloud_uploader_notification_error_ticker">Kesalahan Mengunggah</string>
-  <string name="cloud_uploader_notification_error_title">Kesalahan Mengunggah</string>
-  <string name="cloud_uploader_notification_finished_message">%s telah diunggah</string>
-  <string name="cloud_uploader_notification_finished_ticker">Unggahan Selesai</string>
-  <string name="cloud_uploader_notification_finished_title">Unggahan Selesai</string>
-  <string name="dialog_cancel_upload_message">Batal mengunggah?</string>
-  <string name="sc_upload_private">Pribadi</string>
-  <string name="sc_upload_public">Publik</string>
+    <!-- __UPLOAD -->
+    <string name="uploader_event_processing">Memproses</string>
+    <string name="uploader_event_processing_percent">Memproses: %d %%</string>
+    <string name="uploader_event_not_yet_uploading">Belum mengunggah</string>
+    <string name="uploader_event_uploading_percent">Mengunggah: %d%%</string>
+    <string name="uploader_event_cancelling">Membatalkan</string>
+    <string name="uploader_event_processing_finished">Pemrosesan selesai</string>
+    <string name="cloud_upload_clear_artwork">Tahan untuk menghapus artwork</string>
+    <string name="cloud_uploader_notification_error_message">Terjadi kesalahan saat mengunggah %s</string>
+    <string name="cloud_uploader_notification_error_ticker">Galat Pengunggahan</string>
+    <string name="cloud_uploader_notification_error_title">Galat Pengunggahan</string>
+    <string name="cloud_uploader_notification_finished_message">%s telah diunggah</string>
+    <string name="cloud_uploader_notification_finished_ticker">Pengunggahan Selesai</string>
+    <string name="cloud_uploader_notification_finished_title">Pengunggahan Selesai</string>
+    <string name="cloud_uploader_notification_transcoding_error_message">Terjadi kesalahan saat melakukan transcoding %s</string>
+    <string name="cloud_uploader_notification_transcoding_error_ticker">Galat Transcoding</string>
+    <string name="cloud_uploader_notification_transcoding_error_title">Galat Transcoding</string>
+    <string name="dialog_cancel_upload_message">Batalkan pengunggahan?</string>
+    <string name="sc_upload_add_image">Tambahkan \nGambar</string>
+    <string name="sc_upload_private">Pribadi</string>
+    <string name="sc_upload_public">Publik</string>
+    <string name="sc_upload_sharing_options_private">Suara Anda akan dijadikan pribadi di SoundCloud.</string>
+    <string name="sc_upload_sharing_options_public">Suara Anda akan dijadikan publik di SoundCloud. Anda ingin membagikannya ke jaringan lain apa?</string>
 
-  <!-- __WIDGET -->
-  <string name="widget_touch_to_open">Sentuh untuk membuka SoundCloud</string>
+    <!-- __WIDGET -->
+    <string name="widget_touch_to_open">Sentuh untuk membuka SoundCloud</string>
 
-  <!-- __OFFLINE_SYNC -->
-  <string name="offline_track_not_available">Trek ini tidak tersedia secara offline</string>
-  <string name="offline_update_completed_title">Semua trek disinkronkan!</string>
-  <string name="offline_update_completed_message">Siap untuk mendengarkan secara offline!</string>
-  <string name="offline_update_in_progress">Menyinkronkan trekmu</string>
-  <string name="offline_likes_dialog_title">Buat menjadi tersedia secara offline</string>
-  <string name="offline_likes_dialog_message">Tindakan ini akan membuat semua yang kamu Suka tetap dapat didengarkan secara offline, termasuk trek yang kamu sukai di masa mendatang.</string>
-  <string name="make_offline_available">Buat menjadi tersedia secara offline</string>
-  <string name="make_offline_unavailable">Hapus dari mendengarkan secara offline</string>
+    <!-- __OFFLINE_SYNC -->
+    <string name="offline_track_not_available">Trek tidak tersedia secara offline</string>
+    <string name="offline_update_completed_title">Semua trek telah disinkronkan!</string>
+    <string name="offline_update_completed_message">Siap untuk mendengarkan secara offline!</string>
+    <string name="offline_update_storage_limit_reached_title">Batas penyimpanan telah tercapai</string>
+    <string name="offline_update_storage_limit_reached_message">Ketuk di sini untuk melihat pengaturan penyimpanan</string>
+    <string name="offline_update_in_progress">Menyinkronkan trek Anda</string>
+    <string name="offline_likes_dialog_title">Membuat Suka Anda tersedia secara offline</string>
+    <string name="offline_likes_dialog_message">Ini akan membuat Suka Anda saat ini dan yang mendatang tersedia secara offline sehingga Anda dapat mendengarkan tanpa koneksi Internet atau data.</string>
+    <string name="make_offline_available">Buat menjadi tersedia secara offline</string>
+    <string name="make_offline_unavailable">Hapus dari mendengarkan secara offline</string>
+    <string name="offline_dialog_go_online_continue">Lanjutkan</string>
+    <string name="offline_dialog_go_online_error_title">Langganan Anda tidak dapat diverifikasi</string>
+    <string name="offline_dialog_go_online_error_content">Karena perangkat ini telah offline selama lebih dari 30 hari, kami tidak dapat memverifikasi langganan Anda. Mohon masuk ke status online untuk menghubungkan kembali perangkat ini dengan langganan Anda dan mengaktifkan kembali konten offline Anda.</string>
+    <string name="offline_update_paused">Sinkronisasi offline dijeda</string>
+    <string name="no_network_connection">tidak ada koneksi jaringan</string>
+    <string name="no_wifi_connection">tidak ada koneksi Wi-Fi</string>
 
-  <!-- AGE VERFICATION -->
-  <string name="age_verify_label">Verifikasi Usia</string>
-  <string name="age_verify_title">Harap verifikasi usiamu</string>
-  <string name="age_verify_warning">Konten di profil ini mungkin saja tidak cocok bagi yang berusia di bawah usia tertentu.</string>
-  <string name="age_verify_info">Informasi ini akan disimpan pada profil Anda.</string>
-  <string name="age_verify_button">Verifikasi usia</string>
+    <!-- __AGE VERFICATION -->
+    <string name="age_verify_label">Verifikasi Usia</string>
+    <string name="age_verify_title">Mohon verifikasi usia Anda</string>
+    <string name="age_verify_warning">Konten dalam profil ini mungkin tidak pantas bagi mereka yang berusia di bawah umur tertentu.</string>
+    <string name="age_verify_info">Informasi ini akan disimpan pada profil Anda.</string>
+    <string name="age_verify_button">Verifikasikan usia</string>
 
-  <!-- DEVICE MANAGEMENT -->
-  <string name="device_management_limit">Kamu telah mencapai batas perangkat terdaftar.</string>
-  <string name="device_management_login_message">Langgananmu terbatas pada 3 perangkat. Kamu dapat mendaftarkan perangkat ini dan keluar dari perangkat yang digunakan terakhir dengan memilih melanjutkan.</string>
-  <string name="device_management_conflict_message">Langgananmu telah mencapai batas perangkat. Perangkat ini telah keluar dan semua konten offline telah dihapus. Kamu dapat login kembali untuk mendaftar ulang perangkat ini.</string>
-  <string name="device_management_continue">Teruskan</string>
+    <!-- __DEVICE MANAGEMENT -->
+    <string name="device_management_limit">Anda telah mencapai batas perangkat terdaftar.</string>
+    <string name="device_management_login_message">Langganan Anda terbatas untuk 3 perangkat. Anda dapat mendaftarkan perangkat ini dan keluar dari perangkat yang Anda gunakan terakhir dengan memilih lanjutkan.</string>
+    <string name="device_management_conflict_message">Langganan Anda telah mencapai batas perangkat. Perangkat ini telah keluar dan setiap konten offline telah dihapus. Anda dapat masuk kembali untuk mendaftarkan ulang perangkat ini.</string>
+    <string name="device_management_continue">Lanjutkan</string>
 
-  <!-- DEBUG LOGS/FEEDBACK -->
-  <string name="select_feedback_category">Apa yang ingin kamu laporkan?</string>
-  <string name="feedback_playback_issue">Masalah pemutaran</string>
-  <string name="feedback_crash">Tabrakan</string>
-  <string name="feedback_other_issue">Masalah lain</string>
-  <string name="feedback_email_subject">Laporan: %1$s</string>
-  <string name="feedback_action_chooser">Kirim umpan balik melalui email...</string>
-    <string name="authentication_error_age_not_valid">Anda harus berusia minimal 13 tahun.</string>
-    <string name="age">usia</string>
-    <string name="enter_age_hint">Masukkan usia Anda</string>
+    <!-- GOOGLE CAST -->
+    <string name="cast_unable_play_track">Tidak dapat memasukkan trek</string>
+    
+    <!-- __DEBUG LOGS/FEEDBACK -->
+    <string name="select_feedback_category">Apa yang ingin Anda laporkan?</string>
+    <string name="feedback_playback_issue">Masalah pemutaran</string>
+    <string name="feedback_crash">Crash</string>
+    <string name="feedback_other_issue">Masalah lain</string>
+    <string name="feedback_email_subject">Laporan: %1$s</string>
+    <string name="feedback_action_chooser">Kirim masukan lewat email...</string>
+    <string name="feedback_unable_to_get_logs">Tidak dapat mengambil log</string>
 
+    <!-- __PROMOTED TRACKS -->
+    <string name="promoted_label">Dipromosikan</string>
+    <string name="promoted_by_label">Dipromosikan oleh %s</string>
 
 </resources>

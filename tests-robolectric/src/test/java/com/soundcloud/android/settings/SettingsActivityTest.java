@@ -23,7 +23,7 @@ public class SettingsActivityTest {
 
     @Test
     public void goesToStreamOnNavigationUp() {
-        activity.onNavigateUp();
+        activity.onSupportNavigateUp();
         Intent nextStartedActivity = shadowOf(activity).getNextStartedActivity();
         expect(nextStartedActivity.getAction()).toEqual(Actions.STREAM);
         expect(nextStartedActivity.getFlags()).toEqual(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -31,7 +31,7 @@ public class SettingsActivityTest {
 
     @Test
     public void finishesOnNavigationUp() {
-        activity.onNavigateUp();
+        activity.onSupportNavigateUp();
         expect(activity.isFinishing()).toBeTrue();
     }
 

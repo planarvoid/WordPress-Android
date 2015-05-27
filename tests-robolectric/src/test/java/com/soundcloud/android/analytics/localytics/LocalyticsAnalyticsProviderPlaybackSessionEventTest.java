@@ -39,7 +39,6 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Mock private LocalyticsAmpSession localyticsSession;
     @Mock private PlaybackStateProvider playbackServiceStateWrapper;
-    @Mock private ProxyDetector proxyDetector;
     @Captor private ArgumentCaptor<Map<String, String>> stopEventAttributes;
 
     private TrackSourceInfo trackSourceInfo;
@@ -47,7 +46,7 @@ public class LocalyticsAnalyticsProviderPlaybackSessionEventTest {
 
     @Before
     public void setUp() throws CreateModelException {
-        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession, proxyDetector);
+        localyticsProvider = new LocalyticsAnalyticsProvider(localyticsSession);
         trackSourceInfo = new TrackSourceInfo(Screen.YOUR_LIKES.get(), true);
 
 

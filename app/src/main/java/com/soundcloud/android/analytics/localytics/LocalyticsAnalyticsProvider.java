@@ -29,7 +29,6 @@ import com.soundcloud.android.utils.Log;
 import android.support.v4.util.ArrayMap;
 
 import javax.inject.Inject;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -47,7 +46,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     private static final long SESSION_EXPIRY = TimeUnit.MINUTES.toMillis(1);
 
     private final LocalyticsAmpSession session;
-    private final ProxyDetector proxyDetector;
     private final LocalyticsUIEventHandler uiEventHandler;
     private final LocalyticsOnboardingEventHandler onboardingEventHandler;
     private final LocalyticsSearchEventHandler searchEventHandler;
@@ -58,24 +56,20 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Inject
     public LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsAmpSession,
-                                       AccountOperations accountOperations,
-                                       ProxyDetector proxyDetector) {
-        this(localyticsAmpSession, accountOperations.getLoggedInUserId(), proxyDetector);
+                                       AccountOperations accountOperations) {
+        this(localyticsAmpSession, accountOperations.getLoggedInUserId());
     }
 
     @VisibleForTesting
     protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
-                                          long currentUserId,
-                                          ProxyDetector proxyDetector) {
-        this(localyticsSession, proxyDetector);
+                                          long currentUserId) {
+        this(localyticsSession);
         localyticsSession.setCustomerId(getCustomerId(currentUserId));
     }
 
     @VisibleForTesting
-    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession,
-                                          ProxyDetector proxyDetector) {
+    protected LocalyticsAnalyticsProvider(LocalyticsAmpSession localyticsSession) {
         session = localyticsSession;
-        this.proxyDetector = proxyDetector;
         uiEventHandler = new LocalyticsUIEventHandler(session);
         onboardingEventHandler = new LocalyticsOnboardingEventHandler(session);
         searchEventHandler = new LocalyticsSearchEventHandler(session);
@@ -112,23 +106,12 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
 
     @Override
     public void handlePlaybackPerformanceEvent(PlaybackPerformanceEvent eventData) {
-        if (eventData.getMetric() != PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY) {
-            return;
-        }
-        if (eventData.getCdnHost() == null) {
-            return;
-        }
-        Map<String, String> eventAttributes = new HashMap<>();
-        final URI streamUri = URI.create(eventData.getCdnHost());
-        final String proxyConfigured = proxyDetector.isProxyConfiguredFor(streamUri) ? "yes" : "no";
-        Log.i(TAG, String.format("Stream proxy configuration for %s is %s", eventData.getCdnHost(), proxyConfigured));
-        eventAttributes.put("proxy_configured", proxyConfigured);
-        tagEvent(LocalyticsEvents.STREAM_PROXY_CONFIGURED, eventAttributes);
+        // No-op
     }
 
     @Override
     public void handlePlaybackErrorEvent(PlaybackErrorEvent eventData) {
-
+        // No-op
     }
 
     @Override
