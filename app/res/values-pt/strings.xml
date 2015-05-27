@@ -7,7 +7,6 @@
     <string name="close">Fechar</string>
     <string name="post">Postar</string>
     <string name="view">Visualizar</string>
-    <string name="btn_publish">Próximo</string>
     <string name="btn_apply">Aplicar</string>
     <string name="cancel">Cancelar</string>
     <string name="retry">Tentar novamente</string>
@@ -33,15 +32,9 @@
     <string name="btn_skip">Pular</string>
     <string name="configure">Configurar</string>
     <string name="connect_progress">Carregando</string>
-    <string name="connect_success">Conexão com %1$s bem-sucedida</string>
-    <string name="connection_list_footer">Para alterar as opções padrão de compartilhamento, vá para as configurações do SoundCloud e selecione \'Conexões\'</string>
     <string name="delete">Excluir</string>
     <string name="comments">Comentários</string>
-    <string name="new_connection_error">Ocorreu um problema ao adicionar a rede</string>
-    <string name="reset">Descartar</string>
-    <string name="share_fail_message">OK, isto não deu certo</string>
     <string name="share_log_out">Desconectar</string>
-    <string name="share_success_message">Ahá! Agora sim!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Compartilhar&lt;/b&gt; para &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Sons de %s</string>
     <string name="this_user">Este usuário</string>

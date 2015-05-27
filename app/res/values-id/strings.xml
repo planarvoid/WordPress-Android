@@ -7,7 +7,6 @@
     <string name="close">Tutup</string>
     <string name="post">Poskan</string>
     <string name="view">Lihat</string>
-    <string name="btn_publish">Selanjutnya</string>
     <string name="btn_apply">Terapkan</string>
     <string name="cancel">Batal</string>
     <string name="retry">Coba lagi</string>
@@ -33,15 +32,9 @@
     <string name="btn_skip">Lewati</string>
     <string name="configure">Konfigurasikan</string>
     <string name="connect_progress">Memuat</string>
-    <string name="connect_success">Berhasil terhubung dengan %1$s</string>
-    <string name="connection_list_footer">Untuk mengubah opsi berbagi default Anda, buka pengaturan di SoundCloud dan pilihlah \'Koneksi\'</string>
     <string name="delete">Hapus</string>
     <string name="comments">Komentar</string>
-    <string name="new_connection_error">Terjadi masalah saat menambahkan jaringan</string>
-    <string name="reset">Buang</string>
-    <string name="share_fail_message">Oke, terjadi kesalahan.</string>
     <string name="share_log_out">Keluar</string>
-    <string name="share_success_message">Ya, berhasil!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Bagikan&lt;/b&gt; ke &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Suara dari %s</string>
     <string name="this_user">Pengguna ini</string>
