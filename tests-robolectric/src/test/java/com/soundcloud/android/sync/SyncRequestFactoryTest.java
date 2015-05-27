@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.InjectionSupport.lazyOf;
 import static org.mockito.Mockito.verify;
 
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -75,7 +76,8 @@ public class SyncRequestFactoryTest {
     @Test
     public void createSyncSinglePlaylistRequestFromSyncPlaylistIntent() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(123L);
-        final Intent intent = new Intent(SyncActions.SYNC_PLAYLIST).putExtra(SyncExtras.URN, playlistUrn);
+        final Intent intent = new Intent(SyncActions.SYNC_PLAYLIST)
+                .putExtra(SyncExtras.URN, ParcelableUrn.from(playlistUrn));
         syncRequestFactory.create(intent);
         verify(singlePlaylistSyncerFactory).create(playlistUrn);
     }

@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.propeller.PropertySet;
@@ -138,7 +139,7 @@ public interface Playa {
         public void addToIntent(Intent intent) {
             newState.addToIntent(intent);
             reason.addToIntent(intent);
-            intent.putExtra(TRACK_URN_EXTRA, getTrackUrn());
+            intent.putExtra(TRACK_URN_EXTRA, ParcelableUrn.from(getTrackUrn()));
             intent.putExtra(PROGRESS_EXTRA, progress.getPosition());
             intent.putExtra(DURATION_EXTRA, progress.getDuration());
         }

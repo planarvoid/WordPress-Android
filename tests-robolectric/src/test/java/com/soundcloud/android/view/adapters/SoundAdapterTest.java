@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playlists.PlaylistDetailActivity.EXTRA_URN;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
@@ -20,11 +21,11 @@ import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -162,7 +163,7 @@ public class SoundAdapterTest {
         Intent startedActivity = application.getNextStartedActivity();
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getAction()).toBe(Actions.PLAYLIST);
-        expect(startedActivity.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlist.getUrn());
+        expect(ParcelableUrn.unpack(EXTRA_URN, startedActivity.getExtras())).toEqual(playlist.getUrn());
     }
 
     @Test

@@ -9,6 +9,7 @@ import static rx.Observable.just;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.actionbar.PullToRefreshController;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
@@ -78,7 +79,7 @@ public class PlaylistPostsFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN))
+        expect(ParcelableUrn.unpack(PlaylistDetailFragment.EXTRA_URN, intent.getExtras()))
                 .toEqual(clickedPlaylist.getEntityUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SIDE_MENU_PLAYLISTS);
     }

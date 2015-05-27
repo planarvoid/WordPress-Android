@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.entities.EntitySyncRequestFactory;
@@ -54,7 +55,7 @@ class SyncRequestFactory {
             return entitySyncRequestFactory.create(intent, getReceiverFromIntent(intent));
 
         } else if (SyncActions.SYNC_PLAYLIST.equals(intent.getAction())) {
-            Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);
+            Urn playlistUrn = ParcelableUrn.unpack(SyncExtras.URN, intent.getExtras());
             return new SingleJobRequest(new DefaultSyncJob(singlePlaylistSyncerFactory.create(playlistUrn)),
                     intent.getAction(), true, getReceiverFromIntent(intent), eventBus);
         }

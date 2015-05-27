@@ -1,7 +1,7 @@
 package com.soundcloud.android.sync;
 
-import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.Looper;
 
 import javax.inject.Inject;
+import java.util.Collections;
 import java.util.List;
 
 public class SyncInitiator {
@@ -102,7 +103,7 @@ public class SyncInitiator {
                         .setAction(SyncActions.SYNC_USERS)
                         .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                         .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
-                        .putParcelableArrayListExtra(SyncExtras.URNS, Lists.newArrayList(userUrn)));
+                        .putParcelableArrayListExtra(SyncExtras.URNS, ParcelableUrn.from(Collections.singletonList(userUrn))));
             }
         });
     }
@@ -152,13 +153,15 @@ public class SyncInitiator {
     public void requestTracksSync(List<PropertySet> tracks) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_TRACKS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromEntities(tracks)));
+                .putParcelableArrayListExtra(SyncExtras.URNS,
+                        ParcelableUrn.from(CollectionUtils.extractUrnsFromEntities(tracks))));
     }
 
     public void requestPlaylistSync(List<PropertySet> playlists) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(SyncActions.SYNC_PLAYLISTS)
-                .putParcelableArrayListExtra(SyncExtras.URNS, CollectionUtils.extractUrnsFromEntities(playlists)));
+                .putParcelableArrayListExtra(SyncExtras.URNS,
+                        ParcelableUrn.from(CollectionUtils.extractUrnsFromEntities(playlists))));
     }
 
     private Observable<SyncResult> requestSyncObservable(final String syncAction) {
@@ -190,7 +193,7 @@ public class SyncInitiator {
     private void requestSync(String action, Urn urn, ResultReceiverAdapter resultReceiver) {
         context.startService(new Intent(context, ApiSyncService.class)
                 .setAction(action)
-                .putExtra(SyncExtras.URN, urn)
+                .putExtra(SyncExtras.URN, ParcelableUrn.from(urn))
                 .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver));
     }
 
