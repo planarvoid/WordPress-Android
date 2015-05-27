@@ -317,20 +317,7 @@
     <string name="user_commented_at">%1$s op %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Onbekende fout</string>
-    <string name="payments_connection_error">Verbindingsfout</string>
-    <string name="payments_connection_unavailable">Google Play betaling is niet beschikbaar</string>
-    <string name="payments_user_cancelled">Gebruiker geannuleerd</string>
-    <string name="payments_none_available">Geen abonnement beschikbaar</string>
-    <string name="payments_verifying">Aan het verifiëren</string>
-    <string name="payments_verify_fail">Verificatie mislukt</string>
-    <string name="payments_verify_timeout">Kan aankoop niet verifiëren</string>
     <string name="payments_success">Succes</string>
-    <string name="payments_error_title">Betalingsfout</string>
-    <string name="payments_error_already_subscribed">Er is al een abonnement aan uw account gekoppeld. Nog steeds problemen? Neem contact op met de helpdesk.</string>
-    <string name="payments_error_stale_checkout">Het was niet mogelijk om uw abonnement te herstellen.</string>
-    <string name="payments_error_wrong_user">U hebt een actief abonnement maar het is gekoppeld aan een andere gebruiker.</string>
-    <string name="payments_error_contact_support">Neem contact op met de helpdesk</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Afspeellijsten</string>

@@ -109,8 +109,7 @@
     <string name="facebook_authentication_failed_message">Veuillez essayer à nouveau bientôt ou connectez-vous en utilisant votre nom d\'utilisateur et mot de passe SoundCloud.</string>
     <string name="authentication_recover_password_msg">Saisissez votre adresse e-mail et nous vous enverrons un lien qui vous permettra de modifier votre mot de passe. Problèmes ? Contactez l\'assistance.</string>
     <string name="authentication_blocked_title">Nous n\'avons pas pu vous inscrire</string>
-    <string name="authentication_blocked_message">Nos robots pensent que cette inscription ressemble trop à un spam. Si vous pensez qu\'il s\'agit d\'une erreur, veuillez <a href="http://help.soundcloud.com/customer/portal/emails/new"> contactez notre asssistance </a>
-  </string>
+    <string name="authentication_blocked_message">Nos robots pensent que cette inscription ressemble trop à un spam. Si vous pensez qu\'il s\'agit d\'une erreur, veuillez <a href="http://help.soundcloud.com/customer/portal/emails/new"> contactez notre asssistance </a></string>
     <string name="authentication_captcha_message">Nous éprouvons des ennuis lors de votre connexion. Veuillez vous connecter par notre site web mobile avant de vous inscrire à nouveau.</string>
     <string name="authentication_email_taken_message">Cet e-mail est déjà enregistré sur un compte. Saisissez un e-mail différent ou essayez de vous connecter</string>
     <string name="authentication_email_invalid_message">Le domaine que vous avez saisit semble ne pas pouvoir recevoir de e-mails. L\'avez-vous orthographié correctement ?</string>
@@ -317,20 +316,7 @@
     <string name="user_commented_at">%1$s à %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Erreur inconnue</string>
-    <string name="payments_connection_error">Erreur de connexion</string>
-    <string name="payments_connection_unavailable">La facturation Google Play n\'est pas disponible</string>
-    <string name="payments_user_cancelled">Utilisateur annulé</string>
-    <string name="payments_none_available">Aucune inscription disponible</string>
-    <string name="payments_verifying">Vérification</string>
-    <string name="payments_verify_fail">Échec de la vérification</string>
-    <string name="payments_verify_timeout">Impossible de vérifier l\'achat</string>
     <string name="payments_success">Succès</string>
-    <string name="payments_error_title">Erreur de paiement</string>
-    <string name="payments_error_already_subscribed">Un abonnement est déjà associé à votre compte. Le problème n\'est toujours pas résolu ? Contactez le support technique.</string>
-    <string name="payments_error_stale_checkout">Il n\'a pas été possible de restaurer votre abonnement.</string>
-    <string name="payments_error_wrong_user">Vous avez un abonnement actif, mais il est lié à un autre utilisateur.</string>
-    <string name="payments_error_contact_support">Contacter l\'assistance</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Listes de lecture</string>
@@ -422,9 +408,9 @@
     <string name="cache_clearing">Vider le cache</string>
     <string name="cache_clearing_message">Suppression de fichiers mis en cache ...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Compressé</item>
-    <item>Brut</item>
-  </string-array>
+        <item>Compressé</item>
+        <item>Brut</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Vous devrez vous re-connecter à votre compte SoundCloud.</string>

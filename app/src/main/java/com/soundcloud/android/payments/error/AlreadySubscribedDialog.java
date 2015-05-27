@@ -11,8 +11,6 @@ import android.support.v4.app.FragmentManager;
 
 public class AlreadySubscribedDialog extends UnrecoverableErrorDialog {
 
-    private static final String TAG = "payment_error";
-
     private final DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialogInterface, int which) {
@@ -21,7 +19,7 @@ public class AlreadySubscribedDialog extends UnrecoverableErrorDialog {
     };
 
     public static void show(FragmentManager fragmentManager) {
-        new AlreadySubscribedDialog().show(fragmentManager, TAG);
+        new AlreadySubscribedDialog().show(fragmentManager, PaymentError.DIALOG_TAG);
     }
 
     @NotNull
@@ -29,7 +27,7 @@ public class AlreadySubscribedDialog extends UnrecoverableErrorDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new ImageAlertDialog(getActivity())
                 .setContent(R.drawable.dialog_payment_error,
-                        R.string.payments_error_title,
+                        R.string.payments_error_title_already_subscribed,
                         R.string.payments_error_already_subscribed)
                 .setPositiveButton(android.R.string.ok, listener)
                 .create();

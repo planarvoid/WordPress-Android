@@ -7,9 +7,9 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import com.soundcloud.android.R;
 import com.soundcloud.android.configuration.ConfigurationOperations;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 
@@ -20,14 +20,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
-class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
+class SubscribePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
 
     private final PaymentOperations paymentOperations;
-    private final PaymentErrorController paymentErrorController;
+    private final PaymentErrorPresenter paymentErrorPresenter;
     private final ConfigurationOperations configurationOperations;
 
     @InjectView(R.id.subscribe_title) TextView title;
@@ -41,10 +40,10 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
     private ProductDetails details;
 
     @Inject
-    SubscribeController(PaymentOperations paymentOperations, PaymentErrorController paymentErrorController,
-                        ConfigurationOperations configurationOperations) {
+    SubscribePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
+                       ConfigurationOperations configurationOperations) {
         this.paymentOperations = paymentOperations;
-        this.paymentErrorController = paymentErrorController;
+        this.paymentErrorPresenter = paymentErrorPresenter;
         this.configurationOperations = configurationOperations;
     }
 
@@ -53,7 +52,7 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
         this.activity = activity;
         activity.setContentView(R.layout.subscribe_activity);
         ButterKnife.inject(this, activity.findViewById(android.R.id.content));
-        paymentErrorController.bind(activity);
+        paymentErrorPresenter.setActivity(activity);
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
     }
 
@@ -66,10 +65,10 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
     public void handleBillingResult(BillingResult result) {
         if (result.isForRequest()) {
             if (result.isOk()) {
-                showText(R.string.payments_verifying);
+                // TODO: loading UI
                 subscription.add(paymentOperations.verify(result.getPayload()).subscribe(new StatusSubscriber()));
             } else {
-                showText(R.string.payments_user_cancelled);
+                paymentErrorPresenter.showCancelled();
                 fireAndForget(paymentOperations.cancel(result.getFailReason()));
             }
         }
@@ -93,7 +92,7 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
             if (status.isReady()) {
                 subscription.add(paymentOperations.queryStatus().subscribe(new StatusSubscriber()));
             } else if (status.isUnsupported()) {
-                showText(R.string.payments_connection_unavailable);
+                paymentErrorPresenter.showBillingUnavailable();
             }
         }
     }
@@ -105,14 +104,14 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
                 details = result.getDetails();
                 displayProductDetails();
             } else {
-                showText(R.string.payments_none_available);
+                paymentErrorPresenter.showConnectionError();
             }
         }
 
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            paymentErrorController.onError(e);
+            paymentErrorPresenter.onError(e);
         }
     }
 
@@ -120,7 +119,7 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            paymentErrorController.onError(e);
+            paymentErrorPresenter.onError(e);
         }
     }
 
@@ -133,10 +132,10 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
                     showSuccessScreen();
                     break;
                 case VERIFY_FAIL:
-                    showText(R.string.payments_verify_fail);
+                    paymentErrorPresenter.showVerifyFail();
                     break;
                 case VERIFY_TIMEOUT:
-                    showText(R.string.payments_verify_timeout);
+                    paymentErrorPresenter.showVerifyTimeout();
                     break;
                 case NONE:
                     loadPurchaseOptions();
@@ -148,7 +147,7 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
 
         @Override
         public void onError(Throwable e) {
-            paymentErrorController.onError(e);
+            paymentErrorPresenter.onError(e);
         }
     }
 
@@ -159,10 +158,6 @@ class SubscribeController extends DefaultLightCycleActivity<AppCompatActivity> {
 
     private void loadPurchaseOptions() {
         subscription.add(paymentOperations.queryProduct().subscribe(new DetailsSubscriber()));
-    }
-
-    private void showText(int messageId) {
-        Toast.makeText(activity.getApplicationContext(), messageId, Toast.LENGTH_SHORT).show();
     }
 
 }

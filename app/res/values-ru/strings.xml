@@ -109,8 +109,7 @@
     <string name="facebook_authentication_failed_message">Пожалуйста, попробуйте еще раз в ближайшее время или войдите, используя имя пользователя и пароль SoundCloud.</string>
     <string name="authentication_recover_password_msg">Введите свой адрес электронной почты, и мы вышлем вам ссылку, которая позволит вам изменить ваш пароль. Есть проблемы? Свяжитесь со службой поддержки.</string>
     <string name="authentication_blocked_title">Мы не смогли авторизовать Вас</string>
-    <string name="authentication_blocked_message">Наши роботы считают, что эта регистрация слишком похожа на спам. Если вы считаете, что это ошибка, пожалуйста, <a href="http://help.soundcloud.com/customer/portal/emails/new">свяжитесь с нашей поддержкой</a>
-  </string>
+    <string name="authentication_blocked_message">Наши роботы считают, что эта регистрация слишком похожа на спам. Если вы считаете, что это ошибка, пожалуйста, <a href="http://help.soundcloud.com/customer/portal/emails/new">свяжитесь с нашей поддержкой</a></string>
     <string name="authentication_captcha_message">У нас возникли некоторые проблемы с вашей авторизацией. Пожалуйста, войдите через наш мобильный сайт, перед тем как попробовать войти снова.</string>
     <string name="authentication_email_taken_message">Этот адрес уже используется в учетной записи. Введите другой адрес, или попробуйте войти в</string>
     <string name="authentication_email_invalid_message">Домен, который Вы ввели, кажется, не может получать электронные письма. Вы правильно ввели его?</string>
@@ -317,20 +316,7 @@
     <string name="user_commented_at">%1$s на %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Неизвестная ошибка</string>
-    <string name="payments_connection_error">Ошибка соединения</string>
-    <string name="payments_connection_unavailable">Счет Google Play не доступен</string>
-    <string name="payments_user_cancelled">Отменено пользователем</string>
-    <string name="payments_none_available">Нет доступных подписок</string>
-    <string name="payments_verifying">Проверка</string>
-    <string name="payments_verify_fail">Проверка не удалась</string>
-    <string name="payments_verify_timeout">Невозможно подтвердить покупку</string>
     <string name="payments_success">Успешно</string>
-    <string name="payments_error_title">Ошибка платежа</string>
-    <string name="payments_error_already_subscribed">Уже существует подписка, связанная с вашей учетной записью. Остаются проблемы? Свяжитесь со службой поддержки.</string>
-    <string name="payments_error_stale_checkout">Невозможно восстановить вашу подписку.</string>
-    <string name="payments_error_wrong_user">У вас есть активные подписки, но они связаны с другим пользователем.</string>
-    <string name="payments_error_contact_support">Связаться со службой поддержки</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Плейлисты</string>
@@ -422,9 +408,9 @@
     <string name="cache_clearing">Очистка кэша</string>
     <string name="cache_clearing_message">Удаление файлов кэша...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Сжатые</item>
-    <item>Несжатые</item>
-  </string-array>
+        <item>Сжатые</item>
+        <item>Несжатые</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Вам придется заново подключиться к Вашему аккаунту SoundCloud.</string>
@@ -457,11 +443,11 @@
     <string name="pref_notifications_reposts">Репосты</string>
     <string name="pref_notifications_reposts_description">Получать обновления о новых репостах ваших аудио</string>
     <string-array name="pref_notifications_frequency">
-    <item>Каждый час</item>
-    <item>Каждые 4 часа</item>
-    <item>Каждые 12 часов</item>
-    <item>Каждые 24 часа</item>
-  </string-array>
+        <item>Каждый час</item>
+        <item>Каждые 4 часа</item>
+        <item>Каждые 12 часов</item>
+        <item>Каждые 24 часа</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Использовать экспериментальный плеер</string>

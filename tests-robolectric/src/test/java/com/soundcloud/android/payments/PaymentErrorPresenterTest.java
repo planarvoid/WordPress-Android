@@ -15,48 +15,48 @@ import android.support.v4.app.FragmentActivity;
 import java.io.IOException;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PaymentErrorControllerTest {
+public class PaymentErrorPresenterTest {
 
-    private PaymentErrorController paymentErrorController;
+    private PaymentErrorPresenter paymentErrorPresenter;
 
     @Mock private FragmentActivity activity;
-    @Mock private PaymentErrorPresenter errorPresenter;
+    @Mock private PaymentErrorView errorPresenter;
 
     private ApiRequest apiRequest;
 
     @Before
     public void setUp() {
         apiRequest = ApiRequest.get("/").forPrivateApi(1).build();
-        paymentErrorController = new PaymentErrorController(errorPresenter);
-        paymentErrorController.bind(activity);
+        paymentErrorPresenter = new PaymentErrorPresenter(errorPresenter);
+        paymentErrorPresenter.setActivity(activity);
     }
 
     @Test
     public void bindSetsActivityOnPresenter() {
-        verify(errorPresenter).setActivity(activity);
+        verify(errorPresenter).bind(activity);
     }
 
     @Test
     public void badRequestFromAlreadySubscribedShowsCorrectError() {
-        paymentErrorController.onError(ApiRequestException.badRequest(apiRequest, "already_subscribed"));
+        paymentErrorPresenter.onError(ApiRequestException.badRequest(apiRequest, "already_subscribed"));
         verify(errorPresenter).showAlreadySubscribed();
     }
 
     @Test
     public void notFoundShowsStaleCheckout() {
-        paymentErrorController.onError(ApiRequestException.notFound(apiRequest));
+        paymentErrorPresenter.onError(ApiRequestException.notFound(apiRequest));
         verify(errorPresenter).showStaleCheckout();
     }
 
     @Test
     public void unrecognisedApiExceptionShowsConnectionError() {
-        paymentErrorController.onError(ApiRequestException.networkError(apiRequest, new IOException()));
+        paymentErrorPresenter.onError(ApiRequestException.networkError(apiRequest, new IOException()));
         verify(errorPresenter).showConnectionError();
     }
 
     @Test
     public void nonApiExceptionShowsGenericError() {
-        paymentErrorController.onError(new IllegalAccessError());
+        paymentErrorPresenter.onError(new IllegalAccessError());
         verify(errorPresenter).showUnknownError();
     }
 

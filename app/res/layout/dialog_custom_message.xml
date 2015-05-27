@@ -12,7 +12,8 @@
         android:id="@+id/custom_dialog_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="4dp" />
 
     <com.soundcloud.android.view.CustomFontTextView
         android:id="@+id/custom_dialog_title"
