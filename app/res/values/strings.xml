@@ -72,7 +72,7 @@
     <string name="now_playing_with_args">Now Playing: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
-    <string name="authentication_I_forgot_my_password">I forgot my password</string>
+    <string name="authentication_I_forgot_my_password">Forgot your password?</string>
     <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
     <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
     <string name="authentication_add_info_username_hint">Your username</string>
@@ -89,10 +89,9 @@
     <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
     <string name="authentication_login_error_password_message">We couldn\'t sign you in. Sure you had the right email and password?</string>
     <string name="authentication_login_progress_message">Signing you in</string>
-    <string name="authentication_recover_password">Recover password</string>
     <string name="authentication_recover_password_failure">We can\'t recover your password right now. Please try again shortly</string>
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
-    <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
+    <string name="authentication_recover_password_success">Check your email! We\'ve sent you instructions on how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Sign up for SoundCloud</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
@@ -109,7 +108,9 @@
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
     <string name="facebook_authentication_failed_message">Please try again shortly or sign in using your SoundCloud username and password.</string>
-    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link to change your password. If you still need help, visit our Help Center.</string>
+    <string name="authentication_recover_password_visit_our_Help_Center">visit our Help Center</string>
+    <string name="authentication_recover_password_send">Send</string>
     <string name="authentication_blocked_title">We couldn\'t sign you up</string>
     <string name="authentication_blocked_message">Our robots think this signup looks too much like spam. If you believe this to be a mistake, please <a href="http://help.soundcloud.com/customer/portal/emails/new">contact our support</a></string>
     <string name="authentication_captcha_message">We\'re having some trouble signing you in. Please sign in through our mobile website and before signing in again.</string>
