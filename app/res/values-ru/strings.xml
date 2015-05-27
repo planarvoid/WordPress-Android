@@ -93,7 +93,6 @@
     <string name="authentication_recover_progress_message">Запрос на восстановление пароля</string>
     <string name="authentication_sign_up">Подпишитесь на SoundCloud</string>
     <string name="authentication_signup_error_message">Кажется, возникла проблема. Пожалуйста, попробуйте зарегистрироваться на SoundCloud.com.</string>
-    <string name="authentication_support">Поддержка</string>
     <string name="authentication_terms_of_use">Условия использования</string>
     <string name="authentication_your_email_address">Ваш адрес электронной почты</string>
     <string name="authentication_your_password">Ваш пароль</string>
@@ -540,7 +539,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Не удается передать трек</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Что бы вы хотели сообщить?</string>
     <string name="feedback_playback_issue">Ошибка воспроизведения</string>

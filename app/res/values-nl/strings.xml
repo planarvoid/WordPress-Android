@@ -92,7 +92,6 @@
     <string name="authentication_recover_progress_message">Wachtwoord reset aanvragen</string>
     <string name="authentication_sign_up">Meld u aan voor SoundCloud</string>
     <string name="authentication_signup_error_message">Er lijkt een probleem te zijn. Probeer a.u.b. bij SoundCloud.com aan te melden.</string>
-    <string name="authentication_support">Ondersteuning</string>
     <string name="authentication_terms_of_use">Gebruiksvoorwaarden</string>
     <string name="authentication_your_email_address">Uw e-mailadres</string>
     <string name="authentication_your_password">Uw wachtwoord</string>

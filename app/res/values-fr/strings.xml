@@ -93,7 +93,6 @@
     <string name="authentication_recover_progress_message">Demande de réinitialisation de mot de passe</string>
     <string name="authentication_sign_up">Inscrivez-vous à SoundCloud</string>
     <string name="authentication_signup_error_message">Il semble y avoir un problème. Veuillez essayer de vous connecter à SoundCloud.com.</string>
-    <string name="authentication_support">Assistance</string>
     <string name="authentication_terms_of_use">Conditions d\'utilisation</string>
     <string name="authentication_your_email_address">Votre adresse e-mail</string>
     <string name="authentication_your_password">Votre mot de passe</string>
@@ -442,11 +441,11 @@
     <string name="pref_notifications_reposts">Republier</string>
     <string name="pref_notifications_reposts_description">Recevoir des mises à jour sur les nouvelles republications sur vos sons</string>
     <string-array name="pref_notifications_frequency">
-    <item>Toutes les heures</item>
-    <item>Toutes les 4 heures</item>
-    <item>Toutes les 12 heures</item>
-    <item>Toutes les 24 heures</item>
-  </string-array>
+        <item>Toutes les heures</item>
+        <item>Toutes les 4 heures</item>
+        <item>Toutes les 12 heures</item>
+        <item>Toutes les 24 heures</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Lecteur expérimental fort</string>
@@ -540,7 +539,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Impossible de jeter le morceau</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Que souhaitez-vous signaler ?</string>
     <string name="feedback_playback_issue">Problème de lecture</string>

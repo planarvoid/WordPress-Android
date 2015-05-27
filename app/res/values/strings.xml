@@ -27,7 +27,7 @@
     <string name="unavailable">Unavailable</string>
     <string name="copyright_information">Copyright information</string>
     <string name="started_following_you">started following you</string>
-    <string name="account_one_active">Yooriu can only have one active account</string>
+    <string name="account_one_active">You can only have one active account</string>
     <string name="btn_follow">Follow</string>
     <string name="btn_following">Following</string>
     <string name="btn_save">Save</string>
@@ -95,7 +95,6 @@
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Sign up for SoundCloud</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
-    <string name="authentication_support">Support</string>
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>
@@ -568,7 +567,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>
     <string name="feedback_playback_issue">Playback issue</string>

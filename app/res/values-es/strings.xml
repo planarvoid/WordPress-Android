@@ -93,7 +93,6 @@
     <string name="authentication_recover_progress_message">Solicitando restablecimiento de contraseña</string>
     <string name="authentication_sign_up">Registrarse en SoundCloud</string>
     <string name="authentication_signup_error_message">Parece haber un problema. Por favor intente registrarse en SoundCloud.com.</string>
-    <string name="authentication_support">Soporte</string>
     <string name="authentication_terms_of_use">Términos de uso</string>
     <string name="authentication_your_email_address">Su dirección de correo electrónico</string>
     <string name="authentication_your_password">Su contraseña</string>
@@ -540,7 +539,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">No se pudo emitir la pista</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">¿Qué le gustaría informar?</string>
     <string name="feedback_playback_issue">Problema de reproducción</string>

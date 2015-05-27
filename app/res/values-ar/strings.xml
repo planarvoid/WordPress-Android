@@ -92,7 +92,6 @@
     <string name="authentication_recover_progress_message">طلب إعادة تعيين كلمة المرور</string>
     <string name="authentication_sign_up">الاشتراك في SoundCloud</string>
     <string name="authentication_signup_error_message">يبدو أن هناك مشكلة. يرجى محاولة الاشتراك على موقع SoundCloud.com.</string>
-    <string name="authentication_support">دعم</string>
     <string name="authentication_terms_of_use">شروط الاستخدام</string>
     <string name="authentication_your_email_address">عنوان بريدك الإلكتروني</string>
     <string name="authentication_your_password">كلمة المرور</string>

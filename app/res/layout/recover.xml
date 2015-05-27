@@ -36,7 +36,7 @@
                   android:layout_alignRight="@id/txt_email_address"
                   android:layout_below="@id/txt_email_address"
                   android:text="@string/authentication_recover_password_msg"
-                  style="@style/txt_authrec_msg" />
+                  style="@style/txt_auth_msg" />
     </RelativeLayout>
 
     <Button android:id="@+id/btn_ok"
