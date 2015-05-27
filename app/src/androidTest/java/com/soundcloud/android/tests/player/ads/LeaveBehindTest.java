@@ -1,9 +1,11 @@
 package com.soundcloud.android.tests.player.ads;
 
+import com.soundcloud.android.tests.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
+@AdsTest
 public class LeaveBehindTest extends AdBaseTest {
 
     @Override
