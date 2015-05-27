@@ -140,7 +140,7 @@ public class TrackLikesPresenterTest {
     @Test
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
-        final DownloadRequest downloadRequest = new DownloadRequest(track.getUrn(), "http://track1", 0, true, Collections.<Urn>emptyList());
+        final DownloadRequest downloadRequest = new DownloadRequest(track.getUrn(), 0, true, Collections.<Urn>emptyList());
         final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(downloadRequest);
 
         presenter.onCreate(fragment, null);

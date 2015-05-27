@@ -16,9 +16,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
@@ -27,6 +24,7 @@ import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -73,7 +71,7 @@ public class MediaPlayerAdapterTest {
     @Mock private NetworkConnectionHelper networkConnectionHelper;
     @Mock private AccountOperations accountOperations;
     @Mock private BufferUnderrunListener bufferUnderrunListener;
-    @Mock private ApiUrlBuilder urlBuilder;
+    @Mock private StreamUrlBuilder urlBuilder;
     @Mock private DateProvider dateProvider;
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
@@ -97,10 +95,7 @@ public class MediaPlayerAdapterTest {
         when(accountOperations.getLoggedInUserUrn()).thenReturn(userUrn);
         when(networkConnectionHelper.getCurrentConnectionType()).thenReturn(ConnectionType.FOUR_G);
 
-        when(urlBuilder.from(ApiEndpoints.HTTP_STREAM, track.get(TrackProperty.URN))).thenReturn(urlBuilder);
-        when(urlBuilder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, "access")).thenReturn(urlBuilder);
-        when(urlBuilder.build()).thenReturn(STREAM_URL);
-
+        when(urlBuilder.buildHttpStreamUrl(track.get(TrackProperty.URN))).thenReturn(STREAM_URL);
         when(dateProvider.getCurrentDate()).thenReturn(new Date());
 
         mediaPlayerAdapter = new MediaPlayerAdapter(context, mediaPlayerManager, playerHandler, eventBus, networkConnectionHelper, accountOperations, bufferUnderrunListener, urlBuilder, dateProvider);
@@ -410,7 +405,7 @@ public class MediaPlayerAdapterTest {
     }
 
     @Test
-    public void onErroShouldRetryStreamPlaybacksMaxRetryTimesThenReportError() throws IOException {
+    public void onErrorShouldRetryStreamPlaybacksMaxRetryTimesThenReportError() throws IOException {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
         causeMediaPlayerErrors(MediaPlayerAdapter.MAX_CONNECT_RETRIES + 1);

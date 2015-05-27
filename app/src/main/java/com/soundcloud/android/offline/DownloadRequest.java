@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.List;
 
 public final class DownloadRequest {
-    public final String fileUrl;
     public final Urn track;
     public final long duration;
     public final List<Urn> inPlaylists;
@@ -17,15 +16,13 @@ public final class DownloadRequest {
     public static class Builder {
         private final Urn track;
         private final long duration;
-        private final String stream;
 
         private List<Urn> playlists = new ArrayList<>();
         private boolean inLikes = false;
 
-        public Builder(Urn track, String stream, long duration) {
+        public Builder(Urn track, long duration) {
             this.track = track;
             this.duration = duration;
-            this.stream = stream;
         }
 
         public Builder addToLikes(boolean inLikes) {
@@ -43,20 +40,19 @@ public final class DownloadRequest {
         }
 
         public DownloadRequest build() {
-            return new DownloadRequest(track, stream, duration, inLikes, playlists);
+            return new DownloadRequest(track, duration, inLikes, playlists);
         }
     }
 
-    public DownloadRequest(Urn track, String url, long duration, boolean inLikedTracks, List<Urn> inPlaylists) {
-        this.fileUrl = url;
+    public DownloadRequest(Urn track, long duration, boolean inLikedTracks, List<Urn> inPlaylists) {
         this.track = track;
         this.duration = duration;
         this.inPlaylists = inPlaylists;
         this.inLikedTracks = inLikedTracks;
     }
 
-    public DownloadRequest(Urn trackUrn, String stream, long duration) {
-        this (trackUrn, stream, duration, false, Collections.<Urn>emptyList());
+    public DownloadRequest(Urn trackUrn, long duration) {
+        this(trackUrn, duration, false, Collections.<Urn>emptyList());
     }
 
     @Override
@@ -67,22 +63,20 @@ public final class DownloadRequest {
 
         DownloadRequest that = (DownloadRequest) o;
 
-        return  Objects.equal(track, that.track) &&
-                Objects.equal(fileUrl, that.fileUrl) &&
-                Objects.equal(inLikedTracks, that.inLikedTracks) &&
-                Objects.equal(inPlaylists, that.inPlaylists);
+        return Objects.equal(track, that.track)
+                && Objects.equal(inLikedTracks, that.inLikedTracks)
+                && Objects.equal(inPlaylists, that.inPlaylists);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(fileUrl, track, inLikedTracks, inPlaylists);
+        return Objects.hashCode(track, inLikedTracks, inPlaylists);
     }
 
     @Override
     public String toString() {
         return Objects.toStringHelper(this)
                 .add("track", track)
-                .add("fileUrl", fileUrl)
                 .add("inLikedTracks", inLikedTracks)
                 .add("inPlaylists", inPlaylists)
                 .toString();

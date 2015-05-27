@@ -3,16 +3,13 @@ package com.soundcloud.android.playback.service.mediaplayer;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.ApiEndpoints;
-import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.ApiUrlBuilder;
-import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlaybackPerformanceEvent;
 import com.soundcloud.android.events.PlayerType;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.playback.PlaybackProtocol;
+import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.service.BufferUnderrunListener;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
@@ -51,7 +48,7 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
     private final NetworkConnectionHelper networkConnectionHelper;
     private final AccountOperations accountOperations;
     private final BufferUnderrunListener bufferUnderrunListener;
-    private final ApiUrlBuilder urlBuilder;
+    private final StreamUrlBuilder urlBuilder;
     private final DateProvider dateProvider;
 
     private PlaybackState internalState = PlaybackState.STOPPED;
@@ -73,8 +70,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
 
     @Inject
     public MediaPlayerAdapter(Context context, MediaPlayerManager mediaPlayerManager,
-                              PlayerHandler playerHandler, EventBus eventBus, NetworkConnectionHelper networkConnectionHelper,
-                              AccountOperations accountOperations, BufferUnderrunListener bufferUnderrunListener, ApiUrlBuilder urlBuilder, DateProvider dateProvider) {
+                              PlayerHandler playerHandler, EventBus eventBus,
+                              NetworkConnectionHelper networkConnectionHelper,
+                              AccountOperations accountOperations,
+                              BufferUnderrunListener bufferUnderrunListener,
+                              StreamUrlBuilder urlBuilder, DateProvider dateProvider) {
         this.bufferUnderrunListener = bufferUnderrunListener;
         this.urlBuilder = urlBuilder;
         this.dateProvider = dateProvider;
@@ -110,18 +110,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
         prepareStartTimeMs = dateProvider.getCurrentDate().getTime();
 
         try {
-            mediaPlayer.setDataSource(getStreamUrl(track));
+            mediaPlayer.setDataSource(urlBuilder.buildHttpStreamUrl(track.get(TrackProperty.URN)));
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             handleMediaPlayerError(mediaPlayer, resumePos);
         }
-    }
-
-    private String getStreamUrl(PropertySet track) {
-        Token token = accountOperations.getSoundCloudToken();
-        return urlBuilder.from(ApiEndpoints.HTTP_STREAM, track.get(TrackProperty.URN))
-                .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
-                .build();
     }
 
     @Override

@@ -356,11 +356,11 @@ public class OfflineContentServiceTest {
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest(track, "http://" + track.getNumericId(), 123456);
+        return new DownloadRequest(track, 123456);
     }
 
     private DownloadResult createFailedDownloadResult(Urn downloadedTrack, List<Urn> relatedPlaylists) {
-        DownloadRequest downloadRequest = new DownloadRequest(downloadedTrack, "http://" + downloadedTrack.getNumericId(), 123456, false, relatedPlaylists);
+        DownloadRequest downloadRequest = new DownloadRequest(downloadedTrack, 123456, false, relatedPlaylists);
         return DownloadResult.connectionError(downloadRequest, ConnectionState.DISCONNECTED);
     }
 

@@ -132,19 +132,19 @@ public class DownloadQueueTest {
     }
     
     private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
-        return new DownloadRequest.Builder(track, "http://", TRACK_DURATION)
+        return new DownloadRequest.Builder(track, TRACK_DURATION)
                 .addToLikes(isLikedTrack)
                 .build();
     }
 
     private DownloadRequest createDownloadRequest(Urn track, Urn playlist) {
-        return new DownloadRequest.Builder(track, "http://", TRACK_DURATION)
+        return new DownloadRequest.Builder(track, TRACK_DURATION)
                 .addToPlaylist(playlist)
                 .build();
     }
 
     private DownloadRequest createDownloadRequest(Urn track) {
-        return new DownloadRequest.Builder(track, "http://", TRACK_DURATION).build();
+        return new DownloadRequest.Builder(track, TRACK_DURATION).build();
     }
 
 }

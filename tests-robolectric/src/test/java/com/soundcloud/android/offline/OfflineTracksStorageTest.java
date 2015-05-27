@@ -131,7 +131,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
 
     @Test
     public void updatesDownloadTracksWithDownloadResults() throws PropellerWriteException {
-        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(TRACK_1, "http://url", 12345L));
+        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(TRACK_1, 12345L));
         testFixtures().insertTrackPendingDownload(TRACK_1, 100L);
 
         storage.storeCompletedDownload(downloadResult);
@@ -143,7 +143,7 @@ public class OfflineTracksStorageTest extends StorageIntegrationTest {
     public void resetUnavailableAtWhenDownloaded() {
         testFixtures().insertUnavailableTrackDownload(TRACK_1, 100L);
 
-        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(TRACK_1, "http://url", 12345L));
+        final DownloadResult downloadResult = DownloadResult.success(new DownloadRequest(TRACK_1, 12345L));
         storage.storeCompletedDownload(downloadResult);
 
         databaseAssertions().assertDownloadIsAvailable(TRACK_1);

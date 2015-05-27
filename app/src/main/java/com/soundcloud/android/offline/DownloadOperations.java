@@ -6,6 +6,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
+import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -29,6 +30,7 @@ class DownloadOperations {
     private final PlayQueueManager playQueueManager;
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
+    private final StreamUrlBuilder urlBuilder;
 
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
@@ -46,6 +48,7 @@ class DownloadOperations {
                               PlayQueueManager playQueueManager,
                               NetworkConnectionHelper connectionHelper,
                               OfflineSettingsStorage offlineSettings,
+                              StreamUrlBuilder urlBuilder,
                               @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.strictSSLHttpClient = httpClient;
         this.fileStorage = fileStorage;
@@ -53,6 +56,7 @@ class DownloadOperations {
         this.playQueueManager = playQueueManager;
         this.connectionHelper = connectionHelper;
         this.offlineSettings = offlineSettings;
+        this.urlBuilder = urlBuilder;
         this.scheduler = scheduler;
     }
 
@@ -81,7 +85,7 @@ class DownloadOperations {
     private DownloadResult downloadAndStore(DownloadRequest request) {
         StrictSSLHttpClient.DownloadResponse response = null;
         try {
-            response = strictSSLHttpClient.downloadFile(request.fileUrl);
+            response = strictSSLHttpClient.downloadFile(urlBuilder.buildHttpsStreamUrl(request.track));
             if (response.isUnavailable()) {
                 return DownloadResult.unavailable(request);
             }

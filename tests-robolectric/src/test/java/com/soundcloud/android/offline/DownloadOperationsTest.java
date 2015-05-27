@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.crypto.EncryptionException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
+import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
@@ -37,18 +38,20 @@ public class DownloadOperationsTest {
     @Mock private InputStream downloadStream;
     @Mock private NetworkConnectionHelper connectionHelper;
     @Mock private OfflineSettingsStorage offlineSettings;
+    @Mock private StreamUrlBuilder streamUrlBuilder;
 
     private DownloadOperations operations;
 
     private final Urn trackUrn = Urn.forTrack(123L);
     private final String streamUrl = "http://stream1.url";
     private final long trackDuration = 12345;
-    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, streamUrl, trackDuration);
+    private final DownloadRequest downloadRequest = new DownloadRequest(trackUrn, trackDuration);
 
     @Before
     public void setUp() throws Exception {
         operations = new DownloadOperations(httpClient, fileStorage, deleteOfflineContent, playQueueManager,
-                connectionHelper, offlineSettings, Schedulers.immediate());
+                connectionHelper, offlineSettings, streamUrlBuilder, Schedulers.immediate());
+        when(streamUrlBuilder.buildHttpsStreamUrl(trackUrn)).thenReturn(streamUrl);
         when(httpClient.downloadFile(streamUrl)).thenReturn(response);
         when(response.isFailure()).thenReturn(false);
         when(response.isUnavailable()).thenReturn(false);
@@ -64,7 +67,8 @@ public class DownloadOperationsTest {
 
         operations.download(downloadRequest);
 
-        InOrder inOrder = inOrder(fileStorage, response);
+        InOrder inOrder = inOrder(streamUrlBuilder, fileStorage, response);
+        inOrder.verify(streamUrlBuilder).buildHttpsStreamUrl(downloadRequest.track);
         inOrder.verify(fileStorage).storeTrack(trackUrn, downloadStream);
         inOrder.verify(response).close();
     }

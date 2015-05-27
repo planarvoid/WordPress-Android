@@ -65,6 +65,7 @@ public enum ApiEndpoints {
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
     HTTP_STREAM("/tracks/%s/streams/http"),
+    HTTPS_STREAM("/tracks/%s/streams/https"),
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
