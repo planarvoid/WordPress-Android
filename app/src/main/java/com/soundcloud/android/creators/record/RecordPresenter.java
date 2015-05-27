@@ -420,11 +420,10 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
     }
 
     void configureStateBasedOnRecorder() {
-        CreateState newState = null;
+        CreateState newState = currentState;
         if (recorder.isRecording()) {
             newState = RECORD;
         } else {
-
             if (recorder.isPlaying()) {
                 // is this after orientation change during edit playback
                 if (currentState != EDIT_PLAYBACK) {
