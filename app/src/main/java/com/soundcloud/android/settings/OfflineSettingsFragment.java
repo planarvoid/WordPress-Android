@@ -161,7 +161,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         @Override
         public void onNext(List<Urn> result) {
             if (!result.isEmpty()){
-                ((OfflineStoragePreference) findPreference(OFFLINE_STORAGE_LIMIT)).updateAndRefresh();
+                refreshStoragePreference();
             }
         }
     }
@@ -170,9 +170,13 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
         @Override
         public void onNext(final CurrentDownloadEvent event) {
             if (event.kind == DownloadState.DOWNLOADED) {
-                ((OfflineStoragePreference) findPreference(OFFLINE_STORAGE_LIMIT)).updateAndRefresh();
+                refreshStoragePreference();
             }
         }
+    }
+
+    private void refreshStoragePreference() {
+        ((OfflineStoragePreference) findPreference(OFFLINE_STORAGE_LIMIT)).updateAndRefresh();
     }
 
 }

@@ -10,6 +10,7 @@ import static com.soundcloud.propeller.query.ColumnFunctions.field;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.Sharing;
+import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
@@ -26,6 +27,8 @@ import com.soundcloud.propeller.query.Query;
 import com.soundcloud.propeller.rx.PropellerRx;
 import com.soundcloud.propeller.rx.RxResultMapper;
 import rx.Observable;
+
+import android.provider.BaseColumns;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -112,16 +115,9 @@ class SoundStreamStorage {
 
     public Observable<Urn> trackUrns() {
         Query query = Query.from(Table.SoundStreamView.name())
-                .select(SoundStreamView.SOUND_ID)
+                .select(field(SoundStreamView.SOUND_ID).as(BaseColumns._ID))
                 .whereEq(SoundStreamView.SOUND_TYPE, Sounds.TYPE_TRACK);
         return propellerRx.query(query).map(new TrackUrnMapper());
-    }
-
-    private static final class TrackUrnMapper extends RxResultMapper<Urn> {
-        @Override
-        public Urn map(CursorReader cursorReader) {
-            return Urn.forTrack(cursorReader.getLong(SoundStreamView.SOUND_ID));
-        }
     }
 
     private static class StreamItemMapper extends RxResultMapper<PropertySet> {

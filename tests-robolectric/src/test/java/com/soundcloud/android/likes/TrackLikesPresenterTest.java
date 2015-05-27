@@ -72,7 +72,6 @@ public class TrackLikesPresenterTest {
     private TestSubscriber testSubscriber = new TestSubscriber();
     private Provider expandPlayerSubscriberProvider = providerOf(testSubscriber);
     private TestEventBus eventBus = new TestEventBus();
-    private ApiTrack track;
 
     @Before
     public void setup() {
@@ -86,8 +85,6 @@ public class TrackLikesPresenterTest {
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
         when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(Observable.just(true));
-
-        track = ModelFixtures.create(ApiTrack.class);
     }
 
     @Test
@@ -142,6 +139,7 @@ public class TrackLikesPresenterTest {
 
     @Test
     public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         final DownloadRequest downloadRequest = new DownloadRequest(track.getUrn(), "http://track1", 0, true, Collections.<Urn>emptyList());
         final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(downloadRequest);
 

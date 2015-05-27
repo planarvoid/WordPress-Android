@@ -1,17 +1,14 @@
 package com.soundcloud.android.offline.commands;
 
-import static android.provider.BaseColumns._ID;
-
 import com.soundcloud.android.commands.Command;
+import com.soundcloud.android.commands.PlaylistUrnMapper;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.SecureFileStorage;
 import com.soundcloud.android.storage.Table;
-import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.TxnResult;
 import com.soundcloud.propeller.query.Query;
-import com.soundcloud.propeller.rx.RxResultMapper;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -31,20 +28,23 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
 
     @Override
     public List<Urn> call(Void input) {
-        List<Urn> removedEntities = queryEntitiesToRemove(propeller);
+        final List<Urn> removedEntities = queryEntitiesToRemove(propeller);
 
-        TxnResult txnResult = propeller.runTransaction(new PropellerDatabase.Transaction() {
+        final TxnResult txnResult = propeller.runTransaction(new PropellerDatabase.Transaction() {
             @Override
             public void steps(PropellerDatabase propeller) {
-
                 step(propeller.delete(Table.TrackDownloads));
                 step(propeller.delete(Table.OfflineContent));
-
-                secureFileStorage.deleteAllTracks();
             }
         });
 
-        return txnResult.success() ? removedEntities : Collections.<Urn>emptyList();
+
+        if (txnResult.success()) {
+            secureFileStorage.deleteAllTracks();
+            return removedEntities;
+        }
+
+        return Collections.emptyList();
     }
 
     private List<Urn> queryEntitiesToRemove(PropellerDatabase propeller) {
@@ -63,10 +63,4 @@ public class ClearTrackDownloadsCommand extends Command<Void, List<Urn>> {
         return propeller.query(Query.from(Table.OfflineContent.name())).toList(new PlaylistUrnMapper());
     }
 
-    private final class PlaylistUrnMapper extends RxResultMapper<Urn> {
-        @Override
-        public Urn map(CursorReader cursorReader) {
-            return Urn.forPlaylist(cursorReader.getLong(_ID));
-        }
-    }
 }
