@@ -11,10 +11,12 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import com.soundcloud.android.screens.WhyAdsScreen;
+import com.soundcloud.android.tests.AdsTest;
 import com.soundcloud.android.tests.TestConsts;
 
 import android.net.Uri;
 
+@AdsTest
 public class AudioAdTest extends AdBaseTest {
 
     @Override
