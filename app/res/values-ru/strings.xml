@@ -42,8 +42,6 @@
     <string name="track_by">от</string>
     <string name="display_name">Отображаемое имя</string>
     <string name="website">Сайт</string>
-    <string name="what_hint">Что</string>
-    <string name="where_hint">Где</string>
     <string name="like">Нравится</string>
     <string name="unlike">Не нравится</string>
 
@@ -153,7 +151,6 @@
     <string name="empty_user_tracks_text">%1$s пока не загрузил никаких публичных аудио.</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">Произошла ошибка во время записи.\n Устройство может не поддерживать текущую конфигурацию записи. Вы можете изменить конфигурации в настройках приложения.</string>
     <string name="error_unauthorized_message">У нас возникли проблемы с вашей учетной записью. Вам нужно снова войти в SoundCloud, прежде чем вы можете продолжать использовать приложение.</string>
     <string name="error_unauthorized_title">Ошибка</string>
     <string name="error_loading_url">Возникла проблема при загрузке URL</string>
@@ -164,7 +161,6 @@
     <string name="crop_image_error">Ошибка кадрирования изображения.</string>
     <string name="error_server_problems_message">Проблема при обработке вашего запроса. Пожалуйста, повторите попытку позднее.</string>
     <string name="connection_list_error">Там, кажется, проблема с подключением. Пожалуйста, попробуйте еще раз в ближайшее время.</string>
-    <string name="connect_failure">Сбой соединения с %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Упс! Мы не смогли зарегистрировать вас\nПожалуйста, попробуйте обновить приложение или зарегистрироваться через SoundCloud.com.</string>
 
@@ -367,74 +363,25 @@
     <string name="myspace">MySpace</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">Пожалуйста, подождите...</string>
     <string name="rec_title_idle_rec">Запись</string>
     <string name="rec_title_recording">Запись</string>
     <string name="rec_title_idle_play">Приостановлено</string>
     <string name="rec_title_playing">Играет</string>
     <string name="rec_title_editing">Правка</string>
-    <string name="record_another_sound">Записать другой звук</string>
     <string name="record_insert_sd_card">Пожалуйста, вставьте SD-карту для записи.</string>
     <string name="record_instructions">Поделитесь своими Звуками</string>
     <string name="record_storage_is_full">Хранилище заполнено</string>
     <string name="recorded_afternoon">%s дня</string>
-    <string name="recorded_at">%1$s в %2$s</string>
     <string name="recorded_evening">%s вечера</string>
     <string name="recorded_morning">%s утра</string>
     <string name="recorded_night">%s ночи</string>
-    <string name="recording_not_found">Запись не найдена</string>
-    <string name="rec_your_sound_is_saved_locally_at">Ваше аудио сохранено локально</string>
     <string name="dialog_confirm_delete_recording_message">Вы уверены, что хотите удалить эту запись?</string>
-    <string name="dialog_reset_recording_message">Сброс? Запись будет удалена.</string>
-    <string name="dialog_unsaved_recordings_message">Найдены несохраненные записи. Отмеченные элементы будут сохранены.</string>
     <string name="btn_revert_to_original">Возврат к оригиналу</string>
     <string name="fade_toggle_on">Эффект Fade in/out</string>
-    <string name="fade_toggle_off">Без эффекта Fade in/out</string>
-    <string name="optimize_toggle_on">Оптимизированный</string>
-    <string name="optimize_toggle_off">Не оптимизировано</string>
-    <string name="create_autosave_message">Ваши записи будут автоматически сохранены после их создания. Вы можете найти их в вашем списке звуков.</string>
-    <string name="create_regenerating_waveform_message">Восстановление сигнала, пожалуйста, подождите.</string>
     <string name="dialog_revert_recording_message">Вы потеряете все ваши изменения. Продолжить?</string>
     <string name="cloud_recorder_event_message">Запись %s</string>
     <string name="cloud_recorder_event_title">Запись в процессе</string>
     <string name="cloud_recorder_playback_event_title">Воспроизводится</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-    <item>Почему бы вам не записать звуки вашей улицы?</item>
-    <item>Запись голосовых заметок, как удобные напоминания.</item>
-    <item>Используйте кнопку REC, чтобы создать голосовой блог. Чем вы поделитесь сегодня?</item>
-    <item>Что вы делаете сейчас?</item>
-    <item>Поймайте момент: первые слова ребенка</item>
-    <item>Поймайте момент: звуки вашего питомца</item>
-    <item>Поймайте момент: голос того, о ком вы заботитесь</item>
-    <item>Собрались за покупками? Запишите напоминания, чтобы не забыть, что купить.</item>
-    <item>Возникла прекрасная идея? Запишите ее с помощью кнопки REC.</item>
-    <item>Слышали недавно хорошую шутку? Поделитесь ею!</item>
-    <item>Участвуете в интересном разговоре? Почему бы не записать его для потомков?</item>
-    <item>Захватите веселый момент в звуке</item>
-    <item>Знаете ли вы, что вы можете сохранять записи приватно, если не хотите делиться ими?</item>
-    <item>Иногда самым лучшим записывающим устройством является именно то, которое сейчас лежит рядом с вами.</item>
-    <item>Заставьте звучать себя!</item>
-    <item>Заставьте интернет звучать.</item>
-    <item>Заставьте звучать мир.</item>
-    <item>Выразите себя!</item>
-    <item>Почему бы не записать вашу следующую встречу?</item>
-    <item>Нажмите REC и сохраните идеи на будущее.</item>
-    <item>Используйте кнопку REC в качестве помощи в учебе: сохраняйте заметки на ходу.</item>
-    <item>Вы можете использовать кнопку REC, чтобы записывать интервью и встречи.</item>
-    <item>Запишите звук океанских волн на пляже</item>
-    <item>Запишите звуки оживленного города в час пик</item>
-    <item>Услышали сумасшедший звук? Захватите его с помощью кнопки REC!</item>
-    <item>Чувствуете вдохновение? Захватите вашу идею с помощью кнопки REC.</item>
-    <item>Есть идея для следующей записи? Сохраните ее, нажав кнопку REC</item>
-    <item>Мелодия крутится у вас в голове? Запишите ее, нажав кнопку REC</item>
-    <item>Идеи для текстов песен? Запишите их тут же с помощью кнопки REC.</item>
-    <item>Что происходит прямо сейчас?</item>
-    <item>Записывайте текущие события и делитесь ими с миром.</item>
-    <item>Происходит что-то интересное? Сохраните момент в аудио.</item>
-    <item>Работаете на Citizen? Расскажите миру, что происходит там, где вы находитесь.</item>
-  </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Поиск на SoundCloud</string>
@@ -559,11 +506,8 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Обрабатывается</string>
-    <string name="uploader_event_processing_percent">Обрабатывается: %d %%</string>
-    <string name="uploader_event_not_yet_uploading">Еще не загружено</string>
     <string name="uploader_event_uploading_percent">Загружается: %d %%</string>
     <string name="uploader_event_cancelling">Отмена</string>
-    <string name="uploader_event_processing_finished">Обработка закончена</string>
     <string name="cloud_upload_clear_artwork">Удерживайте, чтобы очистить изображение</string>
     <string name="cloud_uploader_notification_error_message">Ошибка при загрузке %s</string>
     <string name="cloud_uploader_notification_error_ticker">Ошибка загрузки</string>
@@ -571,15 +515,9 @@
     <string name="cloud_uploader_notification_finished_message">%s было загружено</string>
     <string name="cloud_uploader_notification_finished_ticker">Загрузка завершена</string>
     <string name="cloud_uploader_notification_finished_title">Загрузка завершена</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">Ошибка перекодировки %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Ошибка перекодировки</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Ошибка перекодировки</string>
     <string name="dialog_cancel_upload_message">Отменить загрузку?</string>
-    <string name="sc_upload_add_image">Добавить\nизображение</string>
     <string name="sc_upload_private">Приватное</string>
     <string name="sc_upload_public">Публичное</string>
-    <string name="sc_upload_sharing_options_private">Ваше аудио будет приватным на SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">Ваше аудио будет обнародовано на SoundCloud. В каких еще социальных сетях вы хотели бы поделиться им?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Нажмите, чтобы открыть SoundCloud</string>

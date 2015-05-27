@@ -42,8 +42,6 @@
     <string name="track_by">por</string>
     <string name="display_name">Exibir nome</string>
     <string name="website">Site</string>
-    <string name="what_hint">O que</string>
-    <string name="where_hint">Onde</string>
     <string name="like">Curtir</string>
     <string name="unlike">Descurtir</string>
 
@@ -153,7 +151,6 @@
     <string name="empty_user_tracks_text">%1$s ainda não fez uploads de sons públicos</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">Ocorreu um erro durante a gravação\nSeu dispositivo pode não ter suporte para a configuração de gravação atual. Você pode alterar as configurações no seu aplicativo.</string>
     <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você se conecte ao SoundCloud antes que possa continuar usando o app.</string>
     <string name="error_unauthorized_title">Erro na conta</string>
     <string name="error_loading_url">Ocorreu um problema ao carregar essa URL</string>
@@ -164,7 +161,6 @@
     <string name="crop_image_error">Ocorreu um erro ao recortar sua imagem</string>
     <string name="error_server_problems_message">Ocorreu um problema ao processar sua solicitação Tente novamente mais tarde.</string>
     <string name="connection_list_error">Parece estar havendo um problema na conexão. Tente novamente daqui a pouco.</string>
-    <string name="connect_failure">Falan ao se conectar a %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Opa! Na foi possível conectá-lo.\nTente atualizar o app ou acessar via SoundCloud.com.</string>
 
@@ -367,74 +363,25 @@
     <string name="myspace">MeuEspaço</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">Aguarde...</string>
     <string name="rec_title_idle_rec">Gravar</string>
     <string name="rec_title_recording">Gravando</string>
     <string name="rec_title_idle_play">Em pausa</string>
     <string name="rec_title_playing">Tocando</string>
     <string name="rec_title_editing">Editar</string>
-    <string name="record_another_sound">Gravar outro som</string>
     <string name="record_insert_sd_card">Insira o cartão SD para gravar.</string>
     <string name="record_instructions">Compartilhe seus sons</string>
     <string name="record_storage_is_full">Armazenagem lotada</string>
     <string name="recorded_afternoon">%s tarde</string>
-    <string name="recorded_at">%1$s em %2$s</string>
     <string name="recorded_evening">%s noite</string>
     <string name="recorded_morning">%s manhã</string>
     <string name="recorded_night">%s noite</string>
-    <string name="recording_not_found">Gravação não encontrada</string>
-    <string name="rec_your_sound_is_saved_locally_at">Seu som foi salva localmente</string>
     <string name="dialog_confirm_delete_recording_message">Tem certeza de que quer excluir essa gravação?</string>
-    <string name="dialog_reset_recording_message">Reiniciar? A gravação será apagada.</string>
-    <string name="dialog_unsaved_recordings_message">Gravações não salvas encontradas. Os itens marcados serão salvos.</string>
     <string name="btn_revert_to_original">Reverter para o original</string>
     <string name="fade_toggle_on">Fade in/out</string>
-    <string name="fade_toggle_off">Sem fade in/out</string>
-    <string name="optimize_toggle_on">Otimizado</string>
-    <string name="optimize_toggle_off">Não otimizado</string>
-    <string name="create_autosave_message">Suas gravações serão salvas automaticamente à medida que forem criadas. Elas podem ser encontradas em sua lista de sons.</string>
-    <string name="create_regenerating_waveform_message">Regeneração de forma de onda. Aguarde.</string>
     <string name="dialog_revert_recording_message">Todas as alterações serão perdidas. Prosseguir?</string>
     <string name="cloud_recorder_event_message">Gravando para %s</string>
     <string name="cloud_recorder_event_title">Gravação em andamento</string>
     <string name="cloud_recorder_playback_event_title">Playback em andamento</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-    <item>Por que você não grava os sons da sua rua?</item>
-    <item>Grave notas de voz como lembretes úteis.</item>
-    <item>Use o botão REC para criar um blog de voz - o que você compartilhará hoje?</item>
-    <item>O que você está fazendo agora?</item>
-    <item>Capture este momento: as primeiras palavras de uma criança</item>
-    <item>Capture este momento: os sons de seu animal de estimação</item>
-    <item>Capture este momento: a voz de alguém que você ama</item>
-    <item>Vai às compras? Grave lembretes para que não esqueça o que comprar.</item>
-    <item>Teve uma ótima ideia? Capture-a com o botão REC</item>
-    <item>Ouviu uma boa piada? Compartilhe-a!</item>
-    <item>Está gostando da conversa? Por que não gravá-la para a posteridade?</item>
-    <item>Capture o som de um momento hilário</item>
-    <item>Você sabia que pode salvar gravações particulares se não quiser compartilhá-las?</item>
-    <item>Às vezes o melhor dispositivo de gravação é aquele que você leva no bolso.</item>
-    <item>Não fique mudo!</item>
-    <item>Não deixa a internet emudecer.</item>
-    <item>Não deixe o mundo emudecer.</item>
-    <item>Expresse-se!</item>
-    <item>Por que não gravar a ata de sua próxima reunião?</item>
-    <item>Use o botão REC para gravar ideias para mais tarde.</item>
-    <item>Use o botão REC como assistente de estudo: grave suas notas durante as aulas.</item>
-    <item>Você pode usar o botão REC para gravar entrevistas e reuniões.</item>
-    <item>Grave o som das ondas do mar na praia</item>
-    <item>Capture os sons de uma cidade vibrante na hora do rush</item>
-    <item>Ouviu um som maluco? Capture-o com o botão REC!</item>
-    <item>Está inspirado? Capture sua ideia com o botão REC.</item>
-    <item>Teve uma nova ideia para uma música? Grave-a com o botão REC.</item>
-    <item>Está com uma música que não sai da cabeça? Capture-a com o botão REC.</item>
-    <item>Ideias para letras de músicas? Capture-as instantaneamente com o botão REC.</item>
-    <item>O que está acontecendo agora?</item>
-    <item>Grave eventos atuais enquanto eles acontecem e compartilhe-os com o mundo.</item>
-    <item>Há algo de interessante acontecendo? Capture o momento em áudio.</item>
-    <item>Cidadão Repórter? Conte ao mundo o que esta acontecendo onde você está.</item>
-  </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Pesquisar no SoundCloud</string>
@@ -559,11 +506,8 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Processando</string>
-    <string name="uploader_event_processing_percent">Processando: %d%%</string>
-    <string name="uploader_event_not_yet_uploading">O upload ainda não começou</string>
     <string name="uploader_event_uploading_percent">Upload: %d%%</string>
     <string name="uploader_event_cancelling">Cancelando</string>
-    <string name="uploader_event_processing_finished">Processamento concluído</string>
     <string name="cloud_upload_clear_artwork">Mantenha pressionado para limpar a arte</string>
     <string name="cloud_uploader_notification_error_message">Ocorreu um erro no upload %s</string>
     <string name="cloud_uploader_notification_error_ticker">Erro de upload</string>
@@ -571,15 +515,9 @@
     <string name="cloud_uploader_notification_finished_message">%s do upload concluído</string>
     <string name="cloud_uploader_notification_finished_ticker">Upload concluído</string>
     <string name="cloud_uploader_notification_finished_title">Upload concluído</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">Ocorreu um erro de transcodificação %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Erro de transcodificação</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Erro de transcodificação</string>
     <string name="dialog_cancel_upload_message">Cancelar upload?</string>
-    <string name="sc_upload_add_image">Acrescentar\nImagem</string>
     <string name="sc_upload_private">Privativo</string>
     <string name="sc_upload_public">Público</string>
-    <string name="sc_upload_sharing_options_private">Seu som será privativo no SoundCloud</string>
-    <string name="sc_upload_sharing_options_public">Se som será público no SoundCloud. Em que outras redes você que compartilhá-lo?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Toque para abrir o SoundCloud</string>
