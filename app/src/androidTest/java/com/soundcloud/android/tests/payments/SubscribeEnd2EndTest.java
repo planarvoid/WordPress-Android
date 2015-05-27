@@ -1,10 +1,12 @@
 package com.soundcloud.android.tests.payments;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.framework.annotation.PaymentTest;
 import com.soundcloud.android.framework.helpers.ConfigurationHelper;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.screens.PaymentErrorScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.SubscribeSuccessScreen;
@@ -47,18 +49,14 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
     @PaymentTest
     public void testInvalidPayment() {
         PaymentStateHelper.resetTestAccount();
-        settingsScreen
+        PaymentErrorScreen errorScreen = settingsScreen
                 .clickOfflineSettings()
                 .clickSubscribe()
-                .clickBuy();
+                .clickBuyForFailure();
         waiter.waitTwoSeconds();
         BillingResponse.invalid().insertInto(solo.getCurrentActivity());
-        assertTrue(waiter.expectToastWithText(toastObserver, "Verification failed"));
-    }
-
-    @Override
-    protected void observeToastsHelper() {
-        toastObserver.observe();
+        errorScreen.waitForDialog();
+        assertEquals(errorScreen.getMessage(), solo.getString(R.string.payments_error_verification_issue));
     }
 
 }

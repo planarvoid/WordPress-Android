@@ -315,20 +315,27 @@
     <string name="user_commented_at">%1$s at %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Unknown error</string>
-    <string name="payments_connection_error">Connection error</string>
-    <string name="payments_connection_unavailable">Google Play billing is not available</string>
-    <string name="payments_user_cancelled">User cancelled</string>
-    <string name="payments_none_available">No subscription available</string>
-    <string name="payments_verifying">Verifying</string>
-    <string name="payments_verify_fail">Verification failed</string>
-    <string name="payments_verify_timeout">Unable to verify purchase</string>
     <string name="payments_success">Success</string>
-    <string name="payments_error_title">Payment error</string>
-    <string name="payments_error_already_subscribed">There is already a subscription associated with your account. Continued problems? Contact support.</string>
-    <string name="payments_error_stale_checkout">It was not possible to restore your subscription.</string>
-    <string name="payments_error_wrong_user">You have an active subscription, but it is linked to a different user.</string>
+
+    <string name="payments_error_title_unavailable">Product unavailable</string>
+    <string name="payments_error_title_no_billing">Billing unavailable</string>
+    <string name="payments_error_title_already_subscribed">There is already an active subscription</string>
+    <string name="payments_error_title_canceled">Purchase failed</string>
+    <string name="payments_error_title_stale">Payment validation failed</string>
+    <string name="payments_error_title_wrong_user">Wrong user subscription</string>
+    <string name="payments_error_title_verification_fail">Payment verification failure</string>
+    <string name="payments_error_title_verification_timeout">Payment verification timeout</string>
+
+    <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
+    <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
+    <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
+    <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
+    <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
+    <string name="payments_error_wrong_user">Your subscription is associated with a different user. Sign in with the other account to continue using it.</string>
+    <string name="payments_error_verification_issue">We were unable to verify your payment. Please try again later.</string>
+
     <string name="payments_error_contact_support">Contact support</string>
+    <string name="payments_sign_out">Sign out</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
@@ -554,7 +561,7 @@
     <string name="age_verify_button">Verify age</string>
 
     <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">You\'ve reached the registered device limit.</string>
+    <string name="device_management_limit">You\'ve reached the registered device limit</string>
     <string name="device_management_login_message">Your subscription is limited to 3 devices. You can register this device and sign out of the device you used last by selecting continue.</string>
     <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
     <string name="device_management_continue">Continue</string>

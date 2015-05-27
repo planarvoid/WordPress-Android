@@ -109,8 +109,7 @@
     <string name="facebook_authentication_failed_message">يرجى المحاولة مرة أخرى قريبًا أو تسجيل الدخول باستخدام اسم مستخدم وكلمة مرور SoundCloud</string>
     <string name="authentication_recover_password_msg">أدخل عنوان بريدك الالكتروني وسنرسل لك رابطًًا يسمح لك بتغيير كلمة المرور. هل هناك مشكلات؟ اتصل بخدمة الدعم.</string>
     <string name="authentication_blocked_title">تعذر علينا تسجيل إشتراكك</string>
-    <string name="authentication_blocked_message">تعتقد الروبوتات لدينا أن هذا الاشتراك يبدو كثيرًا مثل البريد المزعج. إذا كنت تعتقد أن هذا خطأ، يرجى <a href="http://help.soundcloud.com/customer/portal/emails/new">الاتصال بدعمنا</a>
-  </string>
+    <string name="authentication_blocked_message">تعتقد الروبوتات لدينا أن هذا الاشتراك يبدو كثيرًا مثل البريد المزعج. إذا كنت تعتقد أن هذا خطأ، يرجى <a href="http://help.soundcloud.com/customer/portal/emails/new">الاتصال بدعمنا</a></string>
     <string name="authentication_captcha_message">واجهنا بعض المتاعب في تسجيل دخولك. الرجاء تسجيل الدخول من خلال موقع الجوال لدينا، وقبل تسجيل الدخول مرة أخرى.</string>
     <string name="authentication_email_taken_message">تم تسجيل عنوان البريد الإلكتروني هذا بالفعل مع أحد الحسابات. أدخل عنوان بريد إلكتروني آخر أو حاول تسجيل الدخول</string>
     <string name="authentication_email_invalid_message">يبدو أن المجال الذي أدخلته غير قادر على استقبال رسائل البريد الإلكتروني. هل كتبته بشكل صحيح؟</string>
@@ -317,20 +316,7 @@
     <string name="user_commented_at">%1$s في %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">خطأ غير معروف</string>
-    <string name="payments_connection_error">خطأ في الاتصال</string>
-    <string name="payments_connection_unavailable">فوترة Google Play غير متوفرة</string>
-    <string name="payments_user_cancelled">تم إلغاء المستخدم</string>
-    <string name="payments_none_available">لا توجد اشتراكات متاحة</string>
-    <string name="payments_verifying">جارِ التحقق</string>
-    <string name="payments_verify_fail">فشل التحقق</string>
-    <string name="payments_verify_timeout">تعذر التحقق من الشراء</string>
     <string name="payments_success">نجاح</string>
-    <string name="payments_error_title">خطأ في الدفع</string>
-    <string name="payments_error_already_subscribed">هناك بالفعل اشتراك مرتبط بحسابك. هل لا تزال المشاكل مستمرة؟ اتصل بالدعم.</string>
-    <string name="payments_error_stale_checkout">لم يكن من الممكن استعادة اشتراكك.</string>
-    <string name="payments_error_wrong_user">لديك اشتراك نشط، ولكنه مرتبط بمستخدك آخر.</string>
-    <string name="payments_error_contact_support">اتصل بالدعم</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">قوائم التشغيل</string>
@@ -422,9 +408,9 @@
     <string name="cache_clearing">مسح ذاكرة التخزين المؤقت</string>
     <string name="cache_clearing_message">جارِ حذف الملفات المخزنة مؤقتًا ...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>مضغوط</item>
-    <item>خام</item>
-  </string-array>
+        <item>مضغوط</item>
+        <item>خام</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">سوف تحتاج إلى إعادة الاتصال بحساب SoundCloud لديك.</string>
@@ -457,11 +443,11 @@
     <string name="pref_notifications_reposts">إعادة منشورات</string>
     <string name="pref_notifications_reposts_description">تلقي التحديثات حول إعادة المنشورات الجديدة على الأصوات الخاصة بك</string>
     <string-array name="pref_notifications_frequency">
-    <item>كل ساعة</item>
-    <item>كل 4 ساعات</item>
-    <item>كل 12 ساعة</item>
-    <item>كل 24 ساعة</item>
-  </string-array>
+        <item>كل ساعة</item>
+        <item>كل 4 ساعات</item>
+        <item>كل 12 ساعة</item>
+        <item>كل 24 ساعة</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">إجبار المشغل التجريبي</string>

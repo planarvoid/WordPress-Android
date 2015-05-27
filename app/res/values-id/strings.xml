@@ -109,8 +109,7 @@
     <string name="facebook_authentication_failed_message">Silakan coba sebentar lagi atau masuk menggunakan nama pengguna dan kata sandi SoundCloud Anda.</string>
     <string name="authentication_recover_password_msg">Masukkan alamat email Anda dan kami akan mengirimkan tautan untuk mengubah kata sandi Anda. Ada masalah? Hubungi bagian dukungan.</string>
     <string name="authentication_blocked_title">Kami tidak dapat mendaftarkan Anda</string>
-    <string name="authentication_blocked_message">Robot kami mengira pendaftaran ini mirip dengan spam. Jika menurut Anda ini merupakan kesalahan, mohon <a href="http://help.soundcloud.com/customer/portal/emails/new">hubungi bagian dukungan kami</a>
-  </string>
+    <string name="authentication_blocked_message">Robot kami mengira pendaftaran ini mirip dengan spam. Jika menurut Anda ini merupakan kesalahan, mohon <a href="http://help.soundcloud.com/customer/portal/emails/new">hubungi bagian dukungan kami</a></string>
     <string name="authentication_captcha_message">Kami mendapatkan masalah saat memasukkan Anda. Mohon masuk melalui situs web mobile kami dan sebelum masuk kembali.</string>
     <string name="authentication_email_taken_message">Email ini sudah terdaftar pada sebuah akun. Masukkan email yang lain atau cobalah untuk masuk</string>
     <string name="authentication_email_invalid_message">Domain yang Anda masukkan tampaknya tidak dapat menerima email. Apakah Anda mengejanya dengan benar?</string>
@@ -317,20 +316,7 @@
     <string name="user_commented_at">%1$s di %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Galat tidak dikenal</string>
-    <string name="payments_connection_error">Kesalahan koneksi</string>
-    <string name="payments_connection_unavailable">Penagihan Google Play tidak tersedia</string>
-    <string name="payments_user_cancelled">Pengguna dibatalkan</string>
-    <string name="payments_none_available">Tidak ada langganan tersedia</string>
-    <string name="payments_verifying">Memverifikasi</string>
-    <string name="payments_verify_fail">Verifikasi gagal</string>
-    <string name="payments_verify_timeout">Tidak dapat memverifikasi pembelian</string>
     <string name="payments_success">Berhasil</string>
-    <string name="payments_error_title">Kesalahan pembayaran</string>
-    <string name="payments_error_already_subscribed">Sudah ada berlangganan yang terkait dengan akun Anda. Masalah berlanjut? Hubungi bagian dukungan.</string>
-    <string name="payments_error_stale_checkout">Tidak memungkinkan untuk memulihkan berlangganan Anda.</string>
-    <string name="payments_error_wrong_user">Anda memiliki status berlangganan aktif, tetapi status tersebut terkait dengan pengguna yang berbeda.</string>
-    <string name="payments_error_contact_support">Hubungi dukungan</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Daftar Putar</string>
@@ -422,9 +408,9 @@
     <string name="cache_clearing">Membersihkan cache</string>
     <string name="cache_clearing_message">Menghapus berkas cache...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Dikompresi</item>
-    <item>Mentah</item>
-  </string-array>
+        <item>Dikompresi</item>
+        <item>Mentah</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Anda perlu menghubungkan kembali akun SoundCloud Anda.</string>

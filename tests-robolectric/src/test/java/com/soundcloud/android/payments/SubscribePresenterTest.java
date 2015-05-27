@@ -30,19 +30,21 @@ import android.view.View;
 import android.widget.TextView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SubscribeControllerTest {
+public class SubscribePresenterTest {
 
     @Mock private PaymentOperations paymentOperations;
-    @Mock private PaymentErrorController paymentErrorController;
+    @Mock private PaymentErrorPresenter paymentErrorPresenter;
+    @Mock private PaymentErrorView paymentErrorView;
     @Mock private ConfigurationOperations configurationOperations;
+
     @Mock private AppCompatActivity activity;
 
-    private SubscribeController controller;
+    private SubscribePresenter controller;
     private View contentView;
 
     @Before
     public void setUp() throws Exception {
-        controller = new SubscribeController(paymentOperations, paymentErrorController, configurationOperations);
+        controller = new SubscribePresenter(paymentOperations, paymentErrorPresenter, configurationOperations);
         contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.subscribe_activity, null, false);
         when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.findViewById(anyInt())).thenReturn(contentView);
@@ -64,7 +66,7 @@ public class SubscribeControllerTest {
     @Test
     public void onCreateBindsErrorHandler() {
         controller.onCreate(activity, null);
-        verify(paymentErrorController).bind(activity);
+        verify(paymentErrorPresenter).setActivity(activity);
     }
 
     @Test
@@ -92,6 +94,7 @@ public class SubscribeControllerTest {
         controller.handleBillingResult(TestBillingResults.cancelled());
 
         verify(paymentOperations).cancel("payment failed");
+        verify(paymentErrorPresenter).showCancelled();
     }
 
     @Test
@@ -111,6 +114,7 @@ public class SubscribeControllerTest {
         controller.onCreate(activity, null);
 
         verify(paymentOperations, never()).queryProduct();
+        verify(paymentErrorPresenter).showBillingUnavailable();
     }
 
     @Test
@@ -122,6 +126,7 @@ public class SubscribeControllerTest {
 
         verify(paymentOperations).queryStatus();
     }
+
 
     @Test
     public void queriesProductDetailsWhenPurchaseStatusIsNone() throws Exception {
@@ -148,6 +153,17 @@ public class SubscribeControllerTest {
     }
 
     @Test
+    public void displaysConnectionErrorIfProductIsNotAvailable() {
+        when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
+        when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
+        when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromNoProduct()));
+
+        controller.onCreate(activity, null);
+
+        verify(paymentErrorPresenter).showConnectionError();
+    }
+
+    @Test
     public void requestsConfigurationUpdateWhenPurchaseIsSuccess() {
         when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.SUCCESS));
 
@@ -166,6 +182,26 @@ public class SubscribeControllerTest {
 
         verify(activity).finish();
         verify(activity).startActivity(eq(new Intent(activity, SubscribeSuccessActivity.class)));
+    }
+
+    @Test
+    public void displaysErrorOnVerificationFail() {
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFY_FAIL));
+
+        controller.onCreate(activity, null);
+        controller.handleBillingResult(TestBillingResults.success());
+
+        verify(paymentErrorPresenter).showVerifyFail();
+    }
+
+    @Test
+    public void displaysErrorOnVerificationTimeout() {
+        when(paymentOperations.verify(any(Payload.class))).thenReturn(Observable.just(PurchaseStatus.VERIFY_TIMEOUT));
+
+        controller.onCreate(activity, null);
+        controller.handleBillingResult(TestBillingResults.success());
+
+        verify(paymentErrorPresenter).showVerifyTimeout();
     }
 
     private String getText(int id) {

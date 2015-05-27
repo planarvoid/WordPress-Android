@@ -109,8 +109,7 @@
     <string name="facebook_authentication_failed_message">Por favor intenté nuevo en breve o inicie sesión usando su nombre de usuario y contraseña de SoundCloud.</string>
     <string name="authentication_recover_password_msg">Introduzca su dirección de correo y le enviaremos un enlace que le permitirá cambiar su contraseña. \n¿Problemas? Contacte a soporte.</string>
     <string name="authentication_blocked_title">No pudimos iniciar su sesión</string>
-    <string name="authentication_blocked_message">Nuestros robots piensan que este inicio de sesión parece mucho a spam. Si cree que es un error, por favor <a href="http://help.soundcloud.com/customer/portal/emails/new">contacte a soporte </a>
-  </string>
+    <string name="authentication_blocked_message">Nuestros robots piensan que este inicio de sesión parece mucho a spam. Si cree que es un error, por favor <a href="http://help.soundcloud.com/customer/portal/emails/new">contacte a soporte </a></string>
     <string name="authentication_captcha_message">Tenemos problemas para iniciar su sesión. Por favor inicie sesión por medio de nuestro sitio web móvil antes de iniciar sesión de nuevo.</string>
     <string name="authentication_email_taken_message">Este correo electrónico ya está registrado en una cuenta. Introduzca un correo electrónico diferente o intente iniciar sesión</string>
     <string name="authentication_email_invalid_message">El dominio que ingresado no parece ser capaz de recibir correos electrónicos. ¿Lo escribió correctamente?</string>
@@ -317,20 +316,7 @@
     <string name="user_commented_at">%1$s en %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Error desconocido</string>
-    <string name="payments_connection_error">Error de conexión</string>
-    <string name="payments_connection_unavailable">La facturación de Google Play no está disponible</string>
-    <string name="payments_user_cancelled">Cancelado por el usuario</string>
-    <string name="payments_none_available">No hay suscripciones disponibles</string>
-    <string name="payments_verifying">Comprobando</string>
-    <string name="payments_verify_fail">La comprobación falló</string>
-    <string name="payments_verify_timeout">No se pudo comprobar la compra</string>
     <string name="payments_success">Éxito</string>
-    <string name="payments_error_title">Error de pago</string>
-    <string name="payments_error_already_subscribed">Ya existe una suscripción asociada con su cuenta. ¿Problemas persistentes? Contacte a soporte.</string>
-    <string name="payments_error_stale_checkout">No fue posible restaurar su suscripción.</string>
-    <string name="payments_error_wrong_user">Tiene una suscripción activa, pero está vinculada a un usuario diferente.</string>
-    <string name="payments_error_contact_support">Contacte a soporte</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Listas de reproducción</string>
@@ -422,9 +408,9 @@
     <string name="cache_clearing">Limpiando el caché</string>
     <string name="cache_clearing_message">Eliminando archivos en caché...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Comprimido</item>
-    <item>Sin procesar</item>
-  </string-array>
+        <item>Comprimido</item>
+        <item>Sin procesar</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Tendrá que reconectarse con su cuenta SoundCloud.</string>
@@ -457,11 +443,11 @@
     <string name="pref_notifications_reposts">Publicaciones de nuevo</string>
     <string name="pref_notifications_reposts_description">Recibir actualizaciones sobre nuevas publicaciones de sus sonidos</string>
     <string-array name="pref_notifications_frequency">
-    <item>Cada hora</item>
-    <item>Cada 4 horas</item>
-    <item>Cada 12 horas</item>
-    <item>Cada 24 horas</item>
-  </string-array>
+        <item>Cada hora</item>
+        <item>Cada 4 horas</item>
+        <item>Cada 12 horas</item>
+        <item>Cada 24 horas</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Forzar reproductor experimental</string>

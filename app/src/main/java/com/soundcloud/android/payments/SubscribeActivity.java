@@ -11,7 +11,7 @@ import javax.inject.Inject;
 
 public class SubscribeActivity extends ScActivity {
 
-    @Inject @LightCycle SubscribeController controller;
+    @Inject @LightCycle SubscribePresenter controller;
 
     @VisibleForTesting
     @Override
