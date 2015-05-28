@@ -19,28 +19,28 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
     protected final List<ItemT> items;
-    protected final SparseArray<CellPresenter<?>> cellPresenters;
+    protected final SparseArray<CellRenderer<?>> cellRenderers;
 
     private View.OnClickListener onClickListener;
     private int backgroundResId = Consts.NOT_SET;
 
-    protected RecyclerViewAdapter(CellPresenterBinding<? extends ItemT>... cellPresenterBindings) {
+    protected RecyclerViewAdapter(CellRendererBinding<? extends ItemT>... cellRendererBindings) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
-        this.cellPresenters = new SparseArray<>(cellPresenterBindings.length);
-        for (CellPresenterBinding<? extends ItemT> entity : cellPresenterBindings) {
-            this.cellPresenters.put(entity.itemViewType, entity.cellPresenter);
+        this.cellRenderers = new SparseArray<>(cellRendererBindings.length);
+        for (CellRendererBinding<? extends ItemT> entity : cellRendererBindings) {
+            this.cellRenderers.put(entity.itemViewType, entity.cellRenderer);
         }
     }
 
-    protected RecyclerViewAdapter(CellPresenter<? extends ItemT> cellPresenter) {
+    protected RecyclerViewAdapter(CellRenderer<? extends ItemT> cellRenderer) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
-        this.cellPresenters = new SparseArray<>(1);
-        this.cellPresenters.put(DEFAULT_VIEW_TYPE, cellPresenter);
+        this.cellRenderers = new SparseArray<>(1);
+        this.cellRenderers.put(DEFAULT_VIEW_TYPE, cellRenderer);
     }
 
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View itemView = cellPresenters.get(viewType).createItemView(parent);
+        final View itemView = cellRenderers.get(viewType).createItemView(parent);
         itemView.setOnClickListener(onClickListener);
         itemView.setBackgroundResource(getBackgroundResourceId(parent.getContext()));
         return createViewHolder(itemView);
@@ -64,7 +64,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(final VH holder, final int position) {
-        cellPresenters.get(getItemViewType(position)).bindItemView(position, holder.itemView, (List) items);
+        cellRenderers.get(getItemViewType(position)).bindItemView(position, holder.itemView, (List) items);
     }
 
     @Override

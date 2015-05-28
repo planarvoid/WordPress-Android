@@ -24,10 +24,10 @@ import java.util.Arrays;
 import java.util.Locale;
 
 @RunWith(SoundCloudTestRunner.class)
-public class GenreCellPresenterTest {
+public class GenreCellRendererTest {
 
     @InjectMocks
-    private GenreCellPresenter presenter;
+    private GenreCellRenderer presenter;
 
     @Mock
     private ViewGroup parentView;
@@ -92,7 +92,7 @@ public class GenreCellPresenterTest {
 
     @Test
     public void shouldSetMusicGenreCategoryAsPartOfScreenValueTag() {
-        when(section.getSectionId()).thenReturn(GenreCellPresenter.MUSIC_SECTION);
+        when(section.getSectionId()).thenReturn(GenreCellRenderer.MUSIC_SECTION);
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 
@@ -103,7 +103,7 @@ public class GenreCellPresenterTest {
 
     @Test
     public void shouldSetAudioGenreCategoryAsPartOfScreenValueTag() {
-        when(section.getSectionId()).thenReturn(GenreCellPresenter.AUDIO_SECTION);
+        when(section.getSectionId()).thenReturn(GenreCellRenderer.AUDIO_SECTION);
         presenter.setSectionForPosition(0, section, false);
         ExploreGenre exploreGenre = new ExploreGenre("Religion & Spirituality");
 

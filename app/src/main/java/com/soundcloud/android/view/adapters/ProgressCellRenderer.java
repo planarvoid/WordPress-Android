@@ -5,12 +5,12 @@ import com.soundcloud.android.R;
 import android.content.Context;
 import android.view.View;
 
-class ProgressCellPresenter {
+class ProgressCellRenderer {
 
     private final int layoutResId;
     private View.OnClickListener retryListener;
 
-    public ProgressCellPresenter(int layoutResId) {
+    public ProgressCellRenderer(int layoutResId) {
         this.layoutResId = layoutResId;
     }
 

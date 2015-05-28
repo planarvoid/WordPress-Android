@@ -19,7 +19,7 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistItemPresenter implements CellPresenter<PlaylistItem> {
+public class PlaylistItemRenderer implements CellRenderer<PlaylistItem> {
 
     private final Resources resources;
     private final ImageOperations imageOperations;
@@ -27,8 +27,8 @@ public class PlaylistItemPresenter implements CellPresenter<PlaylistItem> {
     private boolean allowOfflineOptions;
 
     @Inject
-    public PlaylistItemPresenter(Resources resources, ImageOperations imageOperations,
-                                 PlaylistItemMenuPresenter playlistItemMenuPresenter) {
+    public PlaylistItemRenderer(Resources resources, ImageOperations imageOperations,
+                                PlaylistItemMenuPresenter playlistItemMenuPresenter) {
         this.resources = resources;
         this.imageOperations = imageOperations;
         this.playlistItemMenuPresenter = playlistItemMenuPresenter;

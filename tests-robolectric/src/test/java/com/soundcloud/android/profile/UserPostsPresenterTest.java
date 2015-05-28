@@ -15,7 +15,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableAdapter;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
@@ -52,7 +52,7 @@ public class UserPostsPresenterTest {
     @Mock private View itemView;
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;
-    @Mock private TrackItemPresenter trackPresenter;
+    @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlayableListUpdater.Factory playableListUpdaterFactory;
     @Mock private PlayableListUpdater playableListUpdater;
 
@@ -68,8 +68,8 @@ public class UserPostsPresenterTest {
         when(fragment.getArguments()).thenReturn(arguments);
         when(mixedClickListenerFactory.create(screen, searchQuerySourceInfo)).thenReturn(itemClickListener);
         when(profileOperations.pagedPostItems(user)).thenReturn(Observable.just(new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), "next-href")));
-        when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
-        when(playableListUpdaterFactory.create(adapter, trackPresenter)).thenReturn(playableListUpdater);
+        when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
+        when(playableListUpdaterFactory.create(adapter, trackRenderer)).thenReturn(playableListUpdater);
 
         arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);

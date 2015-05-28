@@ -1,7 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.view.adapters.PlaylistGridPresenter.ItemViewHolder;
+import static com.soundcloud.android.view.adapters.PlaylistGridRenderer.ItemViewHolder;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiPlaylist;
@@ -23,21 +23,20 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistGridPresenterTest {
+public class PlaylistGridRendererTest {
 
-    private PlaylistGridPresenter presenter;
+    private PlaylistGridRenderer renderer;
 
-    @Mock
-    private ImageOperations imageOperations;
+    @Mock private ImageOperations imageOperations;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new PlaylistGridPresenter(imageOperations);
+        renderer = new PlaylistGridRenderer(imageOperations);
     }
 
     @Test
     public void shouldCreateItemView() {
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        View itemView = renderer.createItemView(new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
         expect(itemView.findViewById(R.id.image)).not.toBeNull();
@@ -49,8 +48,8 @@ public class PlaylistGridPresenterTest {
     public void shouldBindItemView() throws CreateModelException {
         PlaylistItem playlistItem = PlaylistItem.from(ModelFixtures.create(ApiPlaylist.class));
 
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        View itemView = renderer.createItemView(new FrameLayout(Robolectric.application));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.title.getText()).toEqual(playlistItem.getTitle());
@@ -65,8 +64,8 @@ public class PlaylistGridPresenterTest {
         playlist.setTags(Arrays.asList("tag1"));
         PlaylistItem playlistItem = PlaylistItem.from(playlist);
 
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        View itemView = renderer.createItemView(new FrameLayout(Robolectric.application));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.tagList.getText()).toEqual("#tag1");
@@ -78,8 +77,8 @@ public class PlaylistGridPresenterTest {
         playlist.setTags(Collections.<String>emptyList());
         PlaylistItem playlistItem = PlaylistItem.from(playlist);
 
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        View itemView = renderer.createItemView(new FrameLayout(Robolectric.application));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         ItemViewHolder viewHolder = (ItemViewHolder) itemView.getTag();
         expect(viewHolder.tagList.getText()).toEqual("");

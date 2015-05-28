@@ -18,12 +18,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class PlaylistGridPresenter implements CellPresenter<PlaylistItem> {
+public class PlaylistGridRenderer implements CellRenderer<PlaylistItem> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    public PlaylistGridPresenter(ImageOperations imageOperations) {
+    public PlaylistGridRenderer(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 

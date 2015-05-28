@@ -26,12 +26,12 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class PagingRecyclerViewAdapterTest {
 
-    @Mock private CellPresenter<String> cellPresenter;
+    @Mock private CellRenderer<String> cellRenderer;
     @Mock private RecyclerView recyclerView;
     @Mock private ViewGroup parent;
     @Mock private Context context;
     @Mock private View rowView;
-    @Mock private ProgressCellPresenter progressCellPresenter;
+    @Mock private ProgressCellRenderer progressCellRenderer;
 
     private PagingRecyclerViewAdapter<String, TestViewHolder> adapter;
     private List<String> items = Arrays.asList("one", "two", "three");
@@ -39,7 +39,7 @@ public class PagingRecyclerViewAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new PagingRecyclerViewAdapter<String, TestViewHolder>(progressCellPresenter, cellPresenter) {
+        adapter = new PagingRecyclerViewAdapter<String, TestViewHolder>(progressCellRenderer, cellRenderer) {
             @Override
             protected TestViewHolder createViewHolder(View itemView) {
                 return new TestViewHolder(itemView);
@@ -49,7 +49,7 @@ public class PagingRecyclerViewAdapterTest {
         Observable.just(items).subscribe(adapter);
 
         when(parent.getContext()).thenReturn(Robolectric.application);
-        when(progressCellPresenter.createView(Robolectric.application)).thenReturn(rowView);
+        when(progressCellRenderer.createView(Robolectric.application)).thenReturn(rowView);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class PagingRecyclerViewAdapterTest {
 
         adapter.onBindViewHolder(new TestViewHolder(rowView), items.size());
 
-        verify(progressCellPresenter).bindView(rowView, false);
+        verify(progressCellRenderer).bindView(rowView, false);
     }
 
     @Test
@@ -74,18 +74,18 @@ public class PagingRecyclerViewAdapterTest {
 
         adapter.onBindViewHolder(new TestViewHolder(rowView), items.size());
 
-        verify(progressCellPresenter).bindView(rowView, true);
+        verify(progressCellRenderer).bindView(rowView, true);
     }
 
     @Test
     public void shouldCreateNormalItemRowUsingPresenter() {
-        when(cellPresenter.createItemView(parent)).thenReturn(rowView);
+        when(cellRenderer.createItemView(parent)).thenReturn(rowView);
 
         final int viewType = 0;
         adapter.onCreateViewHolder(parent, viewType);
 
-        verify(cellPresenter).createItemView(parent);
-        verifyZeroInteractions(progressCellPresenter);
+        verify(cellRenderer).createItemView(parent);
+        verifyZeroInteractions(progressCellRenderer);
     }
 
     @Test
@@ -94,8 +94,8 @@ public class PagingRecyclerViewAdapterTest {
 
         adapter.onCreateViewHolder(parent, PagingAwareAdapter.PROGRESS_VIEW_TYPE);
 
-        verify(progressCellPresenter).createView(any(Context.class));
-        verifyZeroInteractions(cellPresenter);
+        verify(progressCellRenderer).createView(any(Context.class));
+        verifyZeroInteractions(cellRenderer);
     }
 
     @Test
@@ -103,9 +103,9 @@ public class PagingRecyclerViewAdapterTest {
         final int position = items.size() - 1;
         adapter.onBindViewHolder(new TestViewHolder(rowView), position);
 
-        verify(cellPresenter).bindItemView(position, rowView, items);
+        verify(cellRenderer).bindItemView(position, rowView, items);
 
-        verifyZeroInteractions(progressCellPresenter);
+        verifyZeroInteractions(progressCellRenderer);
     }
 
     @Test
@@ -113,7 +113,7 @@ public class PagingRecyclerViewAdapterTest {
         View.OnClickListener listener = mock(View.OnClickListener.class);
         adapter.setOnErrorRetryListener(listener);
 
-        verify(progressCellPresenter).setRetryListener(listener);
+        verify(progressCellRenderer).setRetryListener(listener);
     }
 
     private static class TestViewHolder extends RecyclerView.ViewHolder {

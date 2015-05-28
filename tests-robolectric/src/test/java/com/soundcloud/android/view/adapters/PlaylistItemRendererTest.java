@@ -29,9 +29,9 @@ import android.widget.TextView;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PlaylistItemPresenterTest {
+public class PlaylistItemRendererTest {
 
-    private PlaylistItemPresenter presenter;
+    private PlaylistItemRenderer renderer;
 
     @Mock private ImageOperations imageOperations;
     @Mock private PlaylistItemMenuPresenter playlistItemMenuPresenter;
@@ -56,33 +56,33 @@ public class PlaylistItemPresenterTest {
         final Context context = Robolectric.application;
         final LayoutInflater layoutInflater = LayoutInflater.from(context);
         itemView = layoutInflater.inflate(R.layout.playlist_list_item, new FrameLayout(context), false);
-        presenter = new PlaylistItemPresenter(context.getResources(), imageOperations, playlistItemMenuPresenter);
+        renderer = new PlaylistItemRenderer(context.getResources(), imageOperations, playlistItemMenuPresenter);
     }
 
     @Test
     public void shouldBindTitleToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.list_item_subheader).getText()).toEqual("title");
     }
 
     @Test
     public void shouldBindCreatorToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.list_item_header).getText()).toEqual("creator");
     }
 
     @Test
     public void shouldBindTrackCountToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.list_item_right_info).getText()).toEqual("11 tracks");
     }
 
     @Test
     public void shouldShowLikesCountToViewIfAny() {
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
         expect(textView(R.id.list_item_counter).getText()).toEqual("5");
@@ -91,7 +91,7 @@ public class PlaylistItemPresenterTest {
     @Test
     public void shouldHideLikesCountToViewIfPlaylistHasZeroLikes() {
         propertySet.put(PlayableProperty.LIKES_COUNT, 0);
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
     }
@@ -99,25 +99,25 @@ public class PlaylistItemPresenterTest {
     @Test
     public void shouldNotBindLikesCountToViewIfLikesCountNotSet() {
         propertySet.put(PlayableProperty.LIKES_COUNT, Consts.NOT_SET);
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
     }
 
     @Test
     public void shouldBindLikeStatusToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
         expect(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).toEqual(0);
 
         propertySet.put(PlayableProperty.IS_LIKED, true);
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
         expect(textView(R.id.list_item_counter).getCompoundDrawables()[0].getLevel()).toEqual(1);
     }
 
     @Test
     public void shouldBindReposterIfAny() {
         propertySet.put(PlayableProperty.REPOSTER, "reposter");
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.reposter).getVisibility()).toBe(View.VISIBLE);
         expect(textView(R.id.reposter).getText()).toEqual("reposter");
@@ -125,7 +125,7 @@ public class PlaylistItemPresenterTest {
 
     @Test
     public void shouldNotBindReposterIfNone() {
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.reposter).getVisibility()).toBe(View.GONE);
     }
@@ -133,7 +133,7 @@ public class PlaylistItemPresenterTest {
     @Test
     public void shouldShowPrivateIndicatorIfPlaylistIsPrivate() {
         propertySet.put(PlayableProperty.IS_PRIVATE, true);
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.VISIBLE);
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
@@ -142,7 +142,7 @@ public class PlaylistItemPresenterTest {
     @Test
     public void shouldHidePrivateIndicatorIfPlaylistIsPublic() {
         propertySet.put(PlayableProperty.IS_PRIVATE, false);
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
 
         expect(textView(R.id.private_indicator).getVisibility()).toEqual(View.GONE);
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.VISIBLE);
@@ -150,7 +150,7 @@ public class PlaylistItemPresenterTest {
 
     @Test
     public void shouldLoadIcon() {
-        presenter.bindItemView(0, itemView, Arrays.asList(playlistItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(playlistItem));
         verify(imageOperations).displayInAdapterView(
                 Urn.forPlaylist(123),
                 ApiImageSize.getListItemImageSize(itemView.getContext()),

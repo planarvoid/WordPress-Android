@@ -4,7 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.CellRenderer;
 import com.soundcloud.propeller.PropertySet;
 
 import android.content.res.Resources;
@@ -18,12 +18,12 @@ import javax.inject.Inject;
 import java.util.Date;
 import java.util.List;
 
-public class ActivityItemPresenter implements CellPresenter<PropertySet> {
+public class ActivityItemRenderer implements CellRenderer<PropertySet> {
     private final Resources resources;
     private final ImageOperations imageOperations;
 
     @Inject
-    public ActivityItemPresenter(Resources resources, ImageOperations imageOperations) {
+    public ActivityItemRenderer(Resources resources, ImageOperations imageOperations) {
         this.resources = resources;
         this.imageOperations = imageOperations;
     }

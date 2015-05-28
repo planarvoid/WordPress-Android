@@ -5,7 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.CellRenderer;
 
 import android.text.TextUtils;
 import android.view.View;
@@ -16,12 +16,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class TrackGridPresenter implements CellPresenter<TrackItem> {
+public class TrackGridRenderer implements CellRenderer<TrackItem> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    TrackGridPresenter(ImageOperations imageOperations) {
+    TrackGridRenderer(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 

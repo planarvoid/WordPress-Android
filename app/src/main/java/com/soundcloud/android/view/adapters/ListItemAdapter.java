@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * A better version of Android's ArrayAdapter. It also works on ArrayLists internally, but does not hold references
  * to Context and so is safe to be used in retained fragments. It forwards cell rendering to the given
- * {@link com.soundcloud.android.view.adapters.CellPresenter}
+ * {@link CellRenderer}
  *
  * Keep this class lean and clean: it provides basic adapter functionality around a list of items, that's it.
  */
@@ -21,20 +21,20 @@ public class ListItemAdapter<ItemT> extends BaseAdapter implements ItemAdapter<I
     protected static final int DEFAULT_VIEW_TYPE = 0;
 
     protected final List<ItemT> items;
-    protected final SparseArray<CellPresenter<?>> cellPresenters;
+    protected final SparseArray<CellRenderer<?>> cellRenderers;
 
-    public ListItemAdapter(CellPresenterBinding<? extends ItemT>... cellPresenterBindings) {
+    public ListItemAdapter(CellRendererBinding<? extends ItemT>... cellRendererBindings) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
-        this.cellPresenters = new SparseArray<>(cellPresenterBindings.length);
-        for (CellPresenterBinding<?> entity : cellPresenterBindings) {
-            this.cellPresenters.put(entity.itemViewType, entity.cellPresenter);
+        this.cellRenderers = new SparseArray<>(cellRendererBindings.length);
+        for (CellRendererBinding<?> entity : cellRendererBindings) {
+            this.cellRenderers.put(entity.itemViewType, entity.cellRenderer);
         }
     }
 
-    public ListItemAdapter(CellPresenter<ItemT> cellPresenter) {
+    public ListItemAdapter(CellRenderer<ItemT> cellRenderer) {
         this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
-        this.cellPresenters = new SparseArray<>(1);
-        this.cellPresenters.put(DEFAULT_VIEW_TYPE, cellPresenter);
+        this.cellRenderers = new SparseArray<>(1);
+        this.cellRenderers.put(DEFAULT_VIEW_TYPE, cellRenderer);
     }
 
     @Override
@@ -83,12 +83,12 @@ public class ListItemAdapter<ItemT> extends BaseAdapter implements ItemAdapter<I
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final CellPresenter<?> presenter = cellPresenters.get(getItemViewType(position));
+        final CellRenderer<?> renderer = cellRenderers.get(getItemViewType(position));
         View itemView = convertView;
         if (itemView == null) {
-            itemView = presenter.createItemView(parent);
+            itemView = renderer.createItemView(parent);
         }
-        presenter.bindItemView(position, itemView, (List) items);
+        renderer.bindItemView(position, itemView, (List) items);
         return itemView;
     }
 

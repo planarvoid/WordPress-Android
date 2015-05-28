@@ -9,26 +9,26 @@ import android.view.ViewGroup;
 public abstract class PagingRecyclerViewAdapter<T, VH extends ViewHolder> extends RecyclerViewAdapter<T, VH>
         implements PagingAwareAdapter<T> {
 
-    private final ProgressCellPresenter progressCellPresenter;
+    private final ProgressCellRenderer progressCellRenderer;
     private AppendState appendState = AppendState.IDLE;
 
     protected enum AppendState {
         IDLE, LOADING, ERROR
     }
 
-    public PagingRecyclerViewAdapter(ProgressCellPresenter progressCellPresenter, CellPresenter<T> cellPresenter) {
-        super(cellPresenter);
-        this.progressCellPresenter = progressCellPresenter;
+    public PagingRecyclerViewAdapter(ProgressCellRenderer progressCellRenderer, CellRenderer<T> cellRenderer) {
+        super(cellRenderer);
+        this.progressCellRenderer = progressCellRenderer;
     }
 
-    public PagingRecyclerViewAdapter(ProgressCellPresenter progressCellPresenter, CellPresenterBinding<? extends T>... cellPresenterEntities) {
+    public PagingRecyclerViewAdapter(ProgressCellRenderer progressCellRenderer, CellRendererBinding<? extends T>... cellPresenterEntities) {
         super(cellPresenterEntities);
-        this.progressCellPresenter = progressCellPresenter;
+        this.progressCellRenderer = progressCellRenderer;
     }
 
     @Override
     public void setOnErrorRetryListener(View.OnClickListener onErrorRetryListener) {
-        progressCellPresenter.setRetryListener(onErrorRetryListener);
+        progressCellRenderer.setRetryListener(onErrorRetryListener);
     }
 
     @Override
@@ -43,7 +43,7 @@ public abstract class PagingRecyclerViewAdapter<T, VH extends ViewHolder> extend
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == PROGRESS_VIEW_TYPE) {
-            return createViewHolder(progressCellPresenter.createView(parent.getContext()));
+            return createViewHolder(progressCellRenderer.createView(parent.getContext()));
         } else {
             return super.onCreateViewHolder(parent, viewType);
         }
@@ -52,7 +52,7 @@ public abstract class PagingRecyclerViewAdapter<T, VH extends ViewHolder> extend
     @Override
     public void onBindViewHolder(VH holder, int position) {
         if (getItemViewType(position) == PROGRESS_VIEW_TYPE) {
-            progressCellPresenter.bindView(holder.itemView, appendState == AppendState.ERROR);
+            progressCellRenderer.bindView(holder.itemView, appendState == AppendState.ERROR);
         } else {
             super.onBindViewHolder(holder, position);
         }

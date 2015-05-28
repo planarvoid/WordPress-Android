@@ -1,17 +1,17 @@
 package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.view.adapters.CellPresenterBinding;
+import com.soundcloud.android.tracks.TrackItemRenderer;
+import com.soundcloud.android.view.adapters.CellRendererBinding;
+import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.tracks.TrackItemPresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
-import com.soundcloud.android.view.adapters.UserItemPresenter;
 import org.jetbrains.annotations.Nullable;
 import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
@@ -31,19 +31,19 @@ class SearchResultsAdapter extends PagingItemAdapter<ListItem> implements Suppor
     static final int TYPE_PLAYLIST = 2;
 
     private final EventBus eventBus;
-    private final TrackItemPresenter trackPresenter;
+    private final TrackItemRenderer trackRenderer;
     private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
-    SearchResultsAdapter(UserItemPresenter userPresenter,
-                         TrackItemPresenter trackPresenter,
-                         PlaylistItemPresenter playlistPresenter,
+    SearchResultsAdapter(UserItemRenderer userRenderer,
+                         TrackItemRenderer trackRenderer,
+                         PlaylistItemRenderer playlistRenderer,
                          EventBus eventBus) {
-        super(new CellPresenterBinding<>(TYPE_USER, userPresenter),
-                new CellPresenterBinding<>(TYPE_TRACK, trackPresenter),
-                new CellPresenterBinding<>(TYPE_PLAYLIST, playlistPresenter));
+        super(new CellRendererBinding<>(TYPE_USER, userRenderer),
+                new CellRendererBinding<>(TYPE_TRACK, trackRenderer),
+                new CellRendererBinding<>(TYPE_PLAYLIST, playlistRenderer));
         this.eventBus = eventBus;
-        this.trackPresenter = trackPresenter;
+        this.trackRenderer = trackRenderer;
     }
 
     @Override
@@ -78,7 +78,7 @@ class SearchResultsAdapter extends PagingItemAdapter<ListItem> implements Suppor
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackPresenter)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackRenderer)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(this))
         );
     }

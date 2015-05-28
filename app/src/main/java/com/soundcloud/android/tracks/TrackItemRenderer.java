@@ -12,7 +12,7 @@ import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.CellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -27,7 +27,7 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class TrackItemPresenter implements CellPresenter<TrackItem> {
+public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     private final ImageOperations imageOperations;
     private final EventBus eventBus;
@@ -38,8 +38,8 @@ public class TrackItemPresenter implements CellPresenter<TrackItem> {
     private Urn playingTrack = Urn.NOT_SET;
 
     @Inject
-    public TrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
-                              EventBus eventBus, ScreenProvider screenProvider) {
+    public TrackItemRenderer(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
+                             EventBus eventBus, ScreenProvider screenProvider) {
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;

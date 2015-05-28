@@ -18,11 +18,11 @@ public class ExploreGenresAdapterTest {
     private ExploreGenresAdapter adapter;
 
     @Mock
-    private GenreCellPresenter cellPresenter;
+    private GenreCellRenderer renderer;
 
     @Before
     public void setUp() throws Exception {
-        adapter = new ExploreGenresAdapter(cellPresenter);
+        adapter = new ExploreGenresAdapter(renderer);
     }
 
     @Test
@@ -31,8 +31,8 @@ public class ExploreGenresAdapterTest {
         adapter.onNext(genres);
         GenreSection section = new GenreSection(0, 0, genres);
         adapter.demarcateSection(section);
-        InOrder inOrder = inOrder(cellPresenter);
-        inOrder.verify(cellPresenter).setSectionForPosition(0, section, true);
-        inOrder.verify(cellPresenter).setSectionForPosition(1, section, false);
+        InOrder inOrder = inOrder(renderer);
+        inOrder.verify(renderer).setSectionForPosition(0, section, true);
+        inOrder.verify(renderer).setSectionForPosition(1, section, false);
     }
 }

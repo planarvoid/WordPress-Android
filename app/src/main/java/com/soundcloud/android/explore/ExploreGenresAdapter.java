@@ -7,25 +7,25 @@ import javax.inject.Inject;
 
 class ExploreGenresAdapter extends ListItemAdapter<ExploreGenre> {
 
-    private final GenreCellPresenter cellPresenter;
+    private final GenreCellRenderer cellRenderer;
 
     @Inject
-    ExploreGenresAdapter(GenreCellPresenter cellPresenter) {
-        super(cellPresenter);
-        this.cellPresenter = cellPresenter;
+    ExploreGenresAdapter(GenreCellRenderer cellRenderer) {
+        super(cellRenderer);
+        this.cellRenderer = cellRenderer;
     }
 
     @Override
     public void clear() {
         super.clear();
-        cellPresenter.clearSections();
+        cellRenderer.clearSections();
     }
 
     void demarcateSection(GenreSection<ExploreGenre> section) {
         boolean isSectionHeader = true; // true only for the first item in a section
         final int itemCount = items.size();
         for (int i = itemCount - section.getSize(); i < itemCount; i++) {
-            cellPresenter.setSectionForPosition(i, section, isSectionHeader);
+            cellRenderer.setSectionForPosition(i, section, isSectionHeader);
             isSectionHeader = false;
         }
     }

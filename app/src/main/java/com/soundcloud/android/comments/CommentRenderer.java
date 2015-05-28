@@ -5,7 +5,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.CellRenderer;
 
 import android.content.res.Resources;
 import android.text.TextUtils;
@@ -20,13 +20,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class CommentPresenter implements CellPresenter<Comment> {
+public class CommentRenderer implements CellRenderer<Comment> {
 
     private final Resources resources;
     private final ImageOperations imageOperations;
 
     @Inject
-    public CommentPresenter(Resources resources, ImageOperations imageOperations) {
+    public CommentRenderer(Resources resources, ImageOperations imageOperations) {
         this.resources = resources;
         this.imageOperations = imageOperations;
     }

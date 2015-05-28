@@ -3,7 +3,7 @@ package com.soundcloud.android.view.adapters;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -15,14 +15,14 @@ public class MixedPlayableRecyclerViewAdapter extends PagingRecyclerViewAdapter<
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
 
-    private final TrackItemPresenter trackPresenter;
+    private final TrackItemRenderer trackRenderer;
 
     @Inject
-    public MixedPlayableRecyclerViewAdapter(TrackItemPresenter trackPresenter, PlaylistItemPresenter playlistPresenter) {
-        super(new ProgressCellPresenter(R.layout.list_loading_item),
-                new CellPresenterBinding<>(TRACK_ITEM_TYPE, trackPresenter),
-                new CellPresenterBinding<>(PLAYLIST_ITEM_TYPE, playlistPresenter));
-        this.trackPresenter = trackPresenter;
+    public MixedPlayableRecyclerViewAdapter(TrackItemRenderer trackRenderer, PlaylistItemRenderer playlistRenderer) {
+        super(new ProgressCellRenderer(R.layout.list_loading_item),
+                new CellRendererBinding<>(TRACK_ITEM_TYPE, trackRenderer),
+                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistRenderer));
+        this.trackRenderer = trackRenderer;
     }
 
     @Override
@@ -37,8 +37,8 @@ public class MixedPlayableRecyclerViewAdapter extends PagingRecyclerViewAdapter<
         }
     }
 
-    public TrackItemPresenter getTrackPresenter() {
-        return trackPresenter;
+    public TrackItemRenderer getTrackRenderer() {
+        return trackRenderer;
     }
 
     @Override

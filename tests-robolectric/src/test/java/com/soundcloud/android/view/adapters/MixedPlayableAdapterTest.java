@@ -6,7 +6,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,12 +17,12 @@ public class MixedPlayableAdapterTest {
 
     private MixedPlayableAdapter adapter;
 
-    @Mock private TrackItemPresenter trackItemPresenter;
-    @Mock private PlaylistItemPresenter playlistItemPresenter;
+    @Mock private TrackItemRenderer trackItemRenderer;
+    @Mock private PlaylistItemRenderer playlistItemRenderer;
 
     @Before
     public void setup() {
-        adapter = new MixedPlayableAdapter(trackItemPresenter, playlistItemPresenter);
+        adapter = new MixedPlayableAdapter(trackItemRenderer, playlistItemRenderer);
     }
 
     @Test

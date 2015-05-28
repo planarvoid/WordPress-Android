@@ -16,12 +16,12 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.List;
 
-public class UserItemPresenter implements CellPresenter<UserItem> {
+public class UserItemRenderer implements CellRenderer<UserItem> {
 
     private final ImageOperations imageOperations;
 
     @Inject
-    public UserItemPresenter(ImageOperations imageOperations) {
+    public UserItemRenderer(ImageOperations imageOperations) {
         this.imageOperations = imageOperations;
     }
 

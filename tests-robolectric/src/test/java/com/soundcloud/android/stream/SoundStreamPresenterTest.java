@@ -30,7 +30,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
@@ -63,7 +63,7 @@ public class SoundStreamPresenterTest {
     @Mock private MixedPlayableRecyclerViewAdapter adapter;
     @Mock private RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
-    @Mock private TrackItemPresenter trackPresenter;
+    @Mock private TrackItemRenderer trackRenderer;
     @Mock private DateProvider dateProvider;
 
     @Mock private Fragment fragment;
@@ -83,7 +83,7 @@ public class SoundStreamPresenterTest {
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        when(adapter.getTrackPresenter()).thenReturn(trackPresenter);
+        when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(dateProvider.getCurrentTime()).thenReturn(100L);
     }
 
@@ -201,7 +201,7 @@ public class SoundStreamPresenterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
 
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -212,7 +212,7 @@ public class SoundStreamPresenterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
 
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test

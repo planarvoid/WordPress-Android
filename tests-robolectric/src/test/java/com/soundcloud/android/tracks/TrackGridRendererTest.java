@@ -1,7 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.tracks.TrackGridPresenter.ItemViewHolder;
+import static com.soundcloud.android.tracks.TrackGridRenderer.ItemViewHolder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,17 +25,15 @@ import android.widget.TextView;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackGridPresenterTest {
+public class TrackGridRendererTest {
 
-    @InjectMocks
-    private TrackGridPresenter presenter;
+    @InjectMocks private TrackGridRenderer renderer;
 
-    @Mock
-    private ImageOperations imageOperations;
+    @Mock private ImageOperations imageOperations;
 
     @Test
     public void shouldCreateItemView() {
-        View itemView = presenter.createItemView(new FrameLayout(Robolectric.application));
+        View itemView = renderer.createItemView(new FrameLayout(Robolectric.application));
         expect(itemView).not.toBeNull();
         expect(itemView.getTag()).not.toBeNull(); // contains the private ViewHolder instance
         expect(itemView.findViewById(R.id.image)).not.toBeNull();
@@ -52,7 +50,7 @@ public class TrackGridPresenterTest {
         ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(viewHolder.title.getText()).toEqual(trackItem.getTitle());
         expect(viewHolder.username.getText()).toEqual(trackItem.getCreatorName());
@@ -66,10 +64,10 @@ public class TrackGridPresenterTest {
 
         View itemView = mock(View.class);
         when(itemView.getResources()).thenReturn(Robolectric.application.getResources());
-        TrackGridPresenter.ItemViewHolder viewHolder = createItemViewHolder();
+        TrackGridRenderer.ItemViewHolder viewHolder = createItemViewHolder();
         when(itemView.getTag()).thenReturn(viewHolder);
 
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(viewHolder.genre.getVisibility()).toEqual(View.GONE);
     }

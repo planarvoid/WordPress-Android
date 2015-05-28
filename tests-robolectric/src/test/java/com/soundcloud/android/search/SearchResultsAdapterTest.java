@@ -22,10 +22,10 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
-import com.soundcloud.android.view.adapters.UserItemPresenter;
+import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
+import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -44,9 +44,9 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsAdapterTest {
 
-    @Mock private UserItemPresenter userPresenter;
-    @Mock private TrackItemPresenter trackPresenter;
-    @Mock private PlaylistItemPresenter playlistPresenter;
+    @Mock private UserItemRenderer userRenderer;
+    @Mock private TrackItemRenderer trackRenderer;
+    @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private ViewGroup itemView;
     @Mock private Fragment fragment;
 
@@ -57,7 +57,7 @@ public class SearchResultsAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new SearchResultsAdapter(userPresenter, trackPresenter, playlistPresenter, eventBus);
+        adapter = new SearchResultsAdapter(userRenderer, trackRenderer, playlistRenderer, eventBus);
     }
 
     @Test
@@ -89,7 +89,7 @@ public class SearchResultsAdapterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
 
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class SearchResultsAdapterTest {
         adapter.onViewCreated(fragment, null, null);
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -116,7 +116,7 @@ public class SearchResultsAdapterTest {
         final int playlistPosition = 2;
         adapter.getView(playlistPosition, itemView, new FrameLayout(Robolectric.application));
 
-        verify(playlistPresenter).bindItemView(eq(playlistPosition), refEq(itemView), playlistItemCaptor.capture());
+        verify(playlistRenderer).bindItemView(eq(playlistPosition), refEq(itemView), playlistItemCaptor.capture());
         expect(playlistItemCaptor.getValue().get(playlistPosition).isLiked()).toBeTrue();
     }
 

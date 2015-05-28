@@ -6,7 +6,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
-import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.CellRenderer;
 
 import android.content.Context;
 import android.view.View;
@@ -15,12 +15,12 @@ import android.view.ViewGroup;
 import javax.inject.Inject;
 import java.util.List;
 
-class EmptyPlaylistTracksPresenter implements CellPresenter<TrackItem>, EmptyViewAware {
+class EmptyPlaylistTracksRenderer implements CellRenderer<TrackItem>, EmptyViewAware {
 
     private int emptyViewStatus = EmptyView.Status.WAITING;
 
     @Inject
-    EmptyPlaylistTracksPresenter() {
+    EmptyPlaylistTracksRenderer() {
         // for Dagger.
     }
 

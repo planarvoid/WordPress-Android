@@ -116,12 +116,12 @@ public class ExploreGenresFragmentTest {
     }
 
     private GenreSection<ExploreGenre> buildMusicSection(List<ExploreGenre> categories) {
-        return new GenreSection<>(GenreCellPresenter.MUSIC_SECTION,
+        return new GenreSection<>(GenreCellRenderer.MUSIC_SECTION,
                 R.string.explore_genre_header_music, categories);
     }
 
     private GenreSection<ExploreGenre> buildAudioSection(List<ExploreGenre> categories) {
-        return new GenreSection<>(GenreCellPresenter.AUDIO_SECTION,
+        return new GenreSection<>(GenreCellRenderer.AUDIO_SECTION,
                 R.string.explore_genre_header_audio, categories);
     }
 

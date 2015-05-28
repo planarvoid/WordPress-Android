@@ -6,16 +6,16 @@ import com.soundcloud.android.view.adapters.ItemAdapter;
 
 public final class UpdatePlayingTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
     private final ItemAdapter adapter;
-    private final TrackItemPresenter trackPresenter;
+    private final TrackItemRenderer trackRenderer;
 
-    public UpdatePlayingTrackSubscriber(ItemAdapter adapter, TrackItemPresenter trackPresenter) {
+    public UpdatePlayingTrackSubscriber(ItemAdapter adapter, TrackItemRenderer trackRenderer) {
         this.adapter = adapter;
-        this.trackPresenter = trackPresenter;
+        this.trackRenderer = trackRenderer;
     }
 
     @Override
     public void onNext(CurrentPlayQueueTrackEvent event) {
-        trackPresenter.setPlayingTrack(event.getCurrentTrackUrn());
+        trackRenderer.setPlayingTrack(event.getCurrentTrackUrn());
         adapter.notifyDataSetChanged();
     }
 }

@@ -61,7 +61,7 @@ class UserPostsPresenter extends ListPresenter<PlayableItem> {
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
-        this.listUpdater = updaterFactory.create(adapter, adapter.getTrackPresenter());
+        this.listUpdater = updaterFactory.create(adapter, adapter.getTrackRenderer());
     }
 
     @Override

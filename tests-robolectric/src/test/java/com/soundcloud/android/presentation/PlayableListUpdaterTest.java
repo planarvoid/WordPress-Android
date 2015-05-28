@@ -15,7 +15,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -35,13 +35,13 @@ public class PlayableListUpdaterTest {
     private PlayableListUpdater updater;
 
     @Mock ItemAdapter<PlayableItem> adapter;
-    @Mock private TrackItemPresenter trackItemPresenter;
+    @Mock private TrackItemRenderer trackItemRenderer;
     @Mock private Fragment fragment;
     private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
-        updater = new PlayableListUpdater(eventBus, adapter, trackItemPresenter);
+        updater = new PlayableListUpdater(eventBus, adapter, trackItemRenderer);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class PlayableListUpdaterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
 
-        verify(trackItemPresenter).setPlayingTrack(playingTrack);
+        verify(trackItemRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class PlayableListUpdaterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
 
-        verify(trackItemPresenter, never()).setPlayingTrack(playingTrack);
+        verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -72,7 +72,7 @@ public class PlayableListUpdaterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
 
-        verify(trackItemPresenter).setPlayingTrack(playingTrack);
+        verify(trackItemRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -83,7 +83,7 @@ public class PlayableListUpdaterTest {
 
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
 
-        verify(trackItemPresenter, never()).setPlayingTrack(playingTrack);
+        verify(trackItemRenderer, never()).setPlayingTrack(playingTrack);
     }
 
     @Test

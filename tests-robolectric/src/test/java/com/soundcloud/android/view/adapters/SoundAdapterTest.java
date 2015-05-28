@@ -32,7 +32,7 @@ import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -60,8 +60,8 @@ public class SoundAdapterTest {
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private TrackItemPresenter trackPresenter;
-    @Mock private PlaylistItemPresenter playlistPresenter;
+    @Mock private TrackItemRenderer trackRenderer;
+    @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private ViewGroup itemView;
 
     @Captor private ArgumentCaptor<List<PlayableItem>> itemCaptor;
@@ -70,7 +70,7 @@ public class SoundAdapterTest {
     public void setup() {
         when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class))).thenReturn(Observable.<PlaybackResult>empty());
         adapter = new SoundAdapter(Content.ME_LIKES.uri, playbackOperations,
-                trackPresenter, playlistPresenter, eventBus, TestSubscribers.expandPlayerSubscriber());
+                trackRenderer, playlistRenderer, eventBus, TestSubscribers.expandPlayerSubscriber());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class SoundAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), anyList());
+        verify(trackRenderer).bindItemView(eq(0), refEq(itemView), anyList());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class SoundAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), anyList());
+        verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), anyList());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class SoundAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), anyList());
+        verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), anyList());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class SoundAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         TrackItem convertedTrack = (TrackItem) itemCaptor.getValue().get(0);
         expect(convertedTrack.getEntityUrn()).toEqual(track.getUrn());
         expect(convertedTrack.getTitle()).toEqual(track.getTitle());
@@ -132,7 +132,7 @@ public class SoundAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(track2));
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter, times(2)).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(trackRenderer, times(2)).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem convertedTrack = itemCaptor.getAllValues().get(1).get(0);
         expect(convertedTrack.getEntityUrn()).toEqual(track2.getUrn());
     }
@@ -170,7 +170,7 @@ public class SoundAdapterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class SoundAdapterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -192,7 +192,7 @@ public class SoundAdapterTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(unlikedPlaylist.getUrn(), true, 1));
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         expect(itemCaptor.getValue().get(0).isLiked()).toBeTrue();
     }
 

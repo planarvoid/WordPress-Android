@@ -5,7 +5,7 @@ import android.view.ViewGroup;
 
 import java.util.List;
 
-public interface CellPresenter<ItemT> {
+public interface CellRenderer<ItemT> {
 
     View createItemView(ViewGroup parent);
     void bindItemView(int position, View itemView, List<ItemT> items);

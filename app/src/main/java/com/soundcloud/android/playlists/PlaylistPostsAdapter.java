@@ -26,9 +26,9 @@ public class PlaylistPostsAdapter extends PagingItemAdapter<PlaylistItem>
     private Subscription eventSubscriptions = Subscriptions.empty();
 
     @Inject
-    public PlaylistPostsAdapter(DownloadablePlaylistItemPresenter playlistPresenter,
+    public PlaylistPostsAdapter(DownloadablePlaylistItemRenderer playlistRenderer,
                                 final EventBus eventBus) {
-        super(playlistPresenter);
+        super(playlistRenderer);
         this.lifeCycleHandler = createLifeCycleHandler(eventBus);
     }
 

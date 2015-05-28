@@ -16,7 +16,7 @@ class DefaultController extends PlaylistDetailsController {
 
     @Inject
     DefaultController(InlinePlaylistTracksAdapter itemAdapter, EventBus eventBus) {
-        super(itemAdapter.getPlaylistItemPresenter(), itemAdapter, eventBus);
+        super(itemAdapter.getPlaylistItemRenderer(), itemAdapter, eventBus);
         this.adapter = itemAdapter;
     }
 

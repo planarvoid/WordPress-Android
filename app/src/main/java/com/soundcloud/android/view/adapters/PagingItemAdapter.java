@@ -19,17 +19,17 @@ public class PagingItemAdapter<T> extends ListItemAdapter<T> implements Reactive
         IDLE, LOADING, ERROR
     }
 
-    public PagingItemAdapter(CellPresenter<T> cellPresenter) {
-        this(R.layout.list_loading_item, cellPresenter);
+    public PagingItemAdapter(CellRenderer<T> cellRenderer) {
+        this(R.layout.list_loading_item, cellRenderer);
     }
 
-    public PagingItemAdapter(int progressItemLayoutResId, CellPresenter<T> cellPresenter) {
-        super(cellPresenter);
+    public PagingItemAdapter(int progressItemLayoutResId, CellRenderer<T> cellRenderer) {
+        super(cellRenderer);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    public PagingItemAdapter(CellPresenterBinding<? extends T>... cellPresenterEntities) {
-        super(cellPresenterEntities);
+    public PagingItemAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
+        super(cellRendererBindings);
         this.progressItemLayoutResId = R.layout.list_loading_item;
     }
 

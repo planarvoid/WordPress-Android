@@ -24,13 +24,13 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class ListItemAdapterTest {
 
-    @Mock private CellPresenter<String> cellPresenter;
+    @Mock private CellRenderer<String> cellRenderer;
 
     private ListItemAdapter<String> adapter;
 
     @Before
     public void setup() {
-        adapter = new ListItemAdapter<>(cellPresenter);
+        adapter = new ListItemAdapter<>(cellRenderer);
     }
 
     @Test
@@ -100,17 +100,17 @@ public class ListItemAdapterTest {
         FrameLayout parent = mock(FrameLayout.class);
         adapter.addItem("item");
         adapter.getView(0, null, parent);
-        verify(cellPresenter).createItemView(parent);
+        verify(cellRenderer).createItemView(parent);
     }
 
     @Test
     public void shouldCreateItemViewForTwoDifferentViewTypes() {
         FrameLayout parent = mock(FrameLayout.class);
-        CellPresenter presenterOne = mock(CellPresenter.class);
-        CellPresenter presenterTwo = mock(CellPresenter.class);
+        CellRenderer presenterOne = mock(CellRenderer.class);
+        CellRenderer presenterTwo = mock(CellRenderer.class);
         adapter = new ListItemAdapter<String>(
-                new CellPresenterBinding<String>(0, presenterOne),
-                new CellPresenterBinding<String>(1, presenterTwo)) {
+                new CellRendererBinding<String>(0, presenterOne),
+                new CellRendererBinding<String>(1, presenterTwo)) {
             @Override
             public int getItemViewType(int position) {
                 return position;
@@ -128,11 +128,11 @@ public class ListItemAdapterTest {
     public void shouldBindItemView() {
         FrameLayout parent = mock(FrameLayout.class);
         View itemView = mock(View.class);
-        when(cellPresenter.createItemView(parent)).thenReturn(itemView);
+        when(cellRenderer.createItemView(parent)).thenReturn(itemView);
         adapter.addItem("item");
 
         adapter.getView(0, null, parent);
-        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList("item"));
+        verify(cellRenderer).bindItemView(0, itemView, Arrays.asList("item"));
     }
 
     @Test
@@ -143,8 +143,8 @@ public class ListItemAdapterTest {
 
         View itemView = adapter.getView(0, convertView, parent);
         expect(itemView).toBe(convertView);
-        verify(cellPresenter, never()).createItemView(any(ViewGroup.class));
-        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList("item"));
+        verify(cellRenderer, never()).createItemView(any(ViewGroup.class));
+        verify(cellRenderer).bindItemView(0, itemView, Arrays.asList("item"));
     }
 
 }

@@ -19,9 +19,9 @@ import android.widget.FrameLayout;
 import java.util.Collections;
 
 @RunWith(SoundCloudTestRunner.class)
-public class EmptyPlaylistTracksPresenterTest {
+public class EmptyPlaylistTracksRendererTest {
 
-    private EmptyPlaylistTracksPresenter presenter;
+    private EmptyPlaylistTracksRenderer renderer;
     private ViewGroup parent = new FrameLayout(Robolectric.application);
 
     @Mock
@@ -29,25 +29,25 @@ public class EmptyPlaylistTracksPresenterTest {
 
     @Before
     public void setup() {
-        presenter = new EmptyPlaylistTracksPresenter();
+        renderer = new EmptyPlaylistTracksRenderer();
     }
 
     @Test
     public void createsEmptyListViewWithNoDataForIgnoredItemType() throws Exception {
-        View view = presenter.createItemView(parent);
+        View view = renderer.createItemView(parent);
         expect(view).toBeInstanceOf(EmptyView.class);
     }
 
     @Test
     public void bindsEmptyViewWithWaitingStateByDefault() throws Exception {
-        presenter.bindItemView(0, emptyView, Collections.<TrackItem>emptyList());
+        renderer.bindItemView(0, emptyView, Collections.<TrackItem>emptyList());
         verify(emptyView).setStatus(EmptyView.Status.WAITING);
     }
 
     @Test
     public void bindsEmptyViewWithCustomState() throws Exception {
-        presenter.setEmptyViewStatus(EmptyView.Status.ERROR);
-        presenter.bindItemView(0, emptyView, Collections.<TrackItem>emptyList());
+        renderer.setEmptyViewStatus(EmptyView.Status.ERROR);
+        renderer.bindItemView(0, emptyView, Collections.<TrackItem>emptyList());
         verify(emptyView).setStatus(EmptyView.Status.ERROR);
     }
 }

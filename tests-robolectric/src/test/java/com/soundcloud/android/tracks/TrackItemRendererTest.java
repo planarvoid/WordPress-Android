@@ -34,10 +34,10 @@ import android.widget.TextView;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class TrackItemPresenterTest {
+public class TrackItemRendererTest {
 
     @InjectMocks
-    private TrackItemPresenter presenter;
+    private TrackItemRenderer renderer;
 
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
@@ -65,28 +65,28 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldBindTitleToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_subheader).getText()).toEqual("title");
     }
 
     @Test
     public void shouldBindDurationToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_right_info).getText()).toEqual("3:47");
     }
 
     @Test
     public void shouldBindCreatorToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_header).getText()).toEqual("creator");
     }
 
     @Test
     public void shouldBindPlayCountToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter).getText()).toEqual("870");
     }
@@ -94,7 +94,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldHidePlayCountIfPlayCountNotSet() {
         propertySet.put(TrackProperty.PLAY_COUNT, Consts.NOT_SET);
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeInvisible();
     }
@@ -102,7 +102,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldHidePlayCountIfEqualOrLessZero() {
         propertySet.put(TrackProperty.PLAY_COUNT, 0);
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeInvisible();
     }
@@ -110,7 +110,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldBindReposterIfAny() {
         propertySet.put(TrackProperty.REPOSTER, "reposter");
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.reposter)).toBeVisible();
         expect(textView(R.id.reposter).getText()).toEqual("reposter");
@@ -118,7 +118,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldNotBindReposterIfNone() {
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.reposter)).toBeGone();
     }
@@ -126,7 +126,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldShowPrivateIndicatorIfTrackIsPrivate() {
         propertySet.put(TrackProperty.IS_PRIVATE, true);
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.private_indicator)).toBeVisible();
         expect(textView(R.id.now_playing)).toBeInvisible();
@@ -136,7 +136,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldHidePrivateIndicatorIfTrackIsPublic() {
         propertySet.put(TrackProperty.IS_PRIVATE, false);
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.private_indicator)).toBeGone();
         expect(textView(R.id.now_playing)).toBeInvisible();
@@ -145,8 +145,8 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldHighlightCurrentlyPlayingTrack() {
-        presenter.setPlayingTrack(Urn.forTrack(123));
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.setPlayingTrack(Urn.forTrack(123));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeInvisible();
         expect(textView(R.id.now_playing)).toBeVisible();
@@ -154,8 +154,8 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldNotHighlightTrackRowIfNotCurrentlyPlayingTrack() {
-        presenter.setPlayingTrack(Urn.forTrack(-1));
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.setPlayingTrack(Urn.forTrack(-1));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
 
         expect(textView(R.id.list_item_counter)).toBeVisible();
         expect(textView(R.id.now_playing)).toBeInvisible();
@@ -163,7 +163,7 @@ public class TrackItemPresenterTest {
 
     @Test
     public void shouldLoadTrackArtwork() {
-        presenter.bindItemView(0, itemView, Arrays.asList(trackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(trackItem));
         verify(imageOperations).displayInAdapterView(
                 Urn.forTrack(123),
                 ApiImageSize.getListItemImageSize(itemView.getContext()),
@@ -173,7 +173,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldShowPromotedIndicator() {
         TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrackWithoutPromoter());
-        presenter.bindItemView(0, itemView, Arrays.asList(promotedTrackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(promotedTrackItem));
 
         expect(textView(R.id.promoted_track)).toBeVisible();
         expect(textView(R.id.promoted_track)).toHaveText("Promoted");
@@ -182,7 +182,7 @@ public class TrackItemPresenterTest {
     @Test
     public void shouldShowPromotedIndicatorWithPromoter() {
         TrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        presenter.bindItemView(0, itemView, Arrays.asList(promotedTrackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(promotedTrackItem));
 
         expect(textView(R.id.promoted_track)).toBeVisible();
         expect(textView(R.id.promoted_track)).toHaveText("Promoted by SoundCloud");
@@ -192,7 +192,7 @@ public class TrackItemPresenterTest {
     public void clickingOnPromotedIndicatorFiresTrackingEvent() {
         when(screenProvider.getLastScreenTag()).thenReturn("stream");
         PromotedTrackItem promotedTrackItem = PromotedTrackItem.from(TestPropertySets.expectedPromotedTrack());
-        presenter.bindItemView(0, itemView, Arrays.asList((TrackItem) promotedTrackItem));
+        renderer.bindItemView(0, itemView, Arrays.asList((TrackItem) promotedTrackItem));
 
         itemView.findViewById(R.id.promoted_track).performClick();
 

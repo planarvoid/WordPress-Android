@@ -2,7 +2,7 @@ package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import javax.inject.Inject;
 
@@ -11,13 +11,13 @@ public class MixedPlayableAdapter extends PagingItemAdapter<PlayableItem> {
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
 
-    private final TrackItemPresenter trackPresenter;
+    private final TrackItemRenderer trackRenderer;
 
     @Inject
-    public MixedPlayableAdapter(TrackItemPresenter trackPresenter, PlaylistItemPresenter playlistPresenter) {
-        super(new CellPresenterBinding<>(TRACK_ITEM_TYPE, trackPresenter),
-                new CellPresenterBinding<>(PLAYLIST_ITEM_TYPE, playlistPresenter));
-        this.trackPresenter = trackPresenter;
+    public MixedPlayableAdapter(TrackItemRenderer trackRenderer, PlaylistItemRenderer playlistRenderer) {
+        super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackRenderer),
+                new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistRenderer));
+        this.trackRenderer = trackRenderer;
     }
 
     @Override
@@ -37,8 +37,8 @@ public class MixedPlayableAdapter extends PagingItemAdapter<PlayableItem> {
         return 2;
     }
 
-    public TrackItemPresenter getTrackPresenter() {
-        return trackPresenter;
+    public TrackItemRenderer getTrackRenderer() {
+        return trackRenderer;
     }
 
 }

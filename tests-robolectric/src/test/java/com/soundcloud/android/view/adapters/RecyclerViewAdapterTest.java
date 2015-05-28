@@ -25,7 +25,7 @@ public class RecyclerViewAdapterTest {
 
     @Mock private View itemView;
     @Mock private ViewGroup parent;
-    @Mock private CellPresenter<String> cellPresenter;
+    @Mock private CellRenderer<String> cellRenderer;
     @Mock private View.OnClickListener clickListener;
 
     private RecyclerViewAdapter<String, TestViewHolder> adapter;
@@ -33,7 +33,7 @@ public class RecyclerViewAdapterTest {
 
     @Before
     public void setUp() throws Exception {
-        adapter = buildAdapter(cellPresenter);
+        adapter = buildAdapter(cellRenderer);
         viewHolder = new TestViewHolder(itemView);
         when(parent.getContext()).thenReturn(Robolectric.application);
     }
@@ -67,41 +67,41 @@ public class RecyclerViewAdapterTest {
 
     @Test
     public void shouldCreateItemViewWithPresenter() {
-        when(cellPresenter.createItemView(parent)).thenReturn(itemView);
+        when(cellRenderer.createItemView(parent)).thenReturn(itemView);
         adapter.addItem("item");
         adapter.onCreateViewHolder(parent, 0);
-        verify(cellPresenter).createItemView(parent);
+        verify(cellRenderer).createItemView(parent);
     }
 
     @Test
     public void shouldCreateItemViewForTwoDifferentViewTypes() {
-        CellPresenter presenterOne = mock(CellPresenter.class);
-        CellPresenter presenterTwo = mock(CellPresenter.class);
-        adapter = buildAdapter(new CellPresenterBinding<String>(0, presenterOne), new CellPresenterBinding<String>(1, presenterTwo));
+        CellRenderer rendererOne = mock(CellRenderer.class);
+        CellRenderer rendererTwo = mock(CellRenderer.class);
+        adapter = buildAdapter(new CellRendererBinding<>(0, rendererOne), new CellRendererBinding<>(1, rendererTwo));
 
-        when(presenterOne.createItemView(parent)).thenReturn(itemView);
-        when(presenterTwo.createItemView(parent)).thenReturn(itemView);
+        when(rendererOne.createItemView(parent)).thenReturn(itemView);
+        when(rendererTwo.createItemView(parent)).thenReturn(itemView);
 
         adapter.onCreateViewHolder(parent, 0);
-        verify(presenterOne).createItemView(parent);
+        verify(rendererOne).createItemView(parent);
 
         adapter.onCreateViewHolder(parent, 1);
-        verify(presenterTwo).createItemView(parent);
+        verify(rendererTwo).createItemView(parent);
     }
 
     @Test
     public void shouldBindItemView() {
-        when(cellPresenter.createItemView(parent)).thenReturn(itemView);
+        when(cellRenderer.createItemView(parent)).thenReturn(itemView);
         adapter.addItem("item");
 
         adapter.onBindViewHolder(viewHolder, 0);
-        verify(cellPresenter).bindItemView(0, itemView, Arrays.asList("item"));
+        verify(cellRenderer).bindItemView(0, itemView, Arrays.asList("item"));
     }
 
     @Test
     public void shouldSetCustomClickListenerOnItemView() throws Exception {
         adapter.setOnItemClickListener(clickListener);
-        when(cellPresenter.createItemView(parent)).thenReturn(itemView);
+        when(cellRenderer.createItemView(parent)).thenReturn(itemView);
 
         final TestViewHolder testViewHolder = adapter.onCreateViewHolder(parent, 0);
         adapter.onBindViewHolder(testViewHolder, 1);
@@ -109,7 +109,7 @@ public class RecyclerViewAdapterTest {
         verify(itemView).setOnClickListener(clickListener);
     }
 
-    private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(final CellPresenterBinding... bindings) {
+    private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(final CellRendererBinding... bindings) {
         return new RecyclerViewAdapter<String, TestViewHolder>(bindings) {
             @Override
             public int getItemViewType(int position) {
@@ -123,8 +123,8 @@ public class RecyclerViewAdapterTest {
         };
     }
 
-    private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(CellPresenter<String> cellPresenter) {
-        return new RecyclerViewAdapter<String, TestViewHolder>(cellPresenter) {
+    private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(CellRenderer<String> cellRenderer) {
+        return new RecyclerViewAdapter<String, TestViewHolder>(cellRenderer) {
             @Override
             protected TestViewHolder createViewHolder(View itemView) {
                 return new TestViewHolder(itemView);

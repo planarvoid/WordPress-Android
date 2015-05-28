@@ -23,7 +23,7 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class PagingItemAdapterTest {
 
-    @Mock private CellPresenter cellPresenter;
+    @Mock private CellRenderer cellRenderer;
     @Mock private AbsListView absListView;
     @Mock private View rowView;
 
@@ -31,7 +31,7 @@ public class PagingItemAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new PagingItemAdapter(R.layout.list_loading_item, cellPresenter);
+        adapter = new PagingItemAdapter(R.layout.list_loading_item, cellRenderer);
         Observable.just(Arrays.asList("one", "two", "three")).subscribe(adapter);
     }
 
@@ -71,7 +71,7 @@ public class PagingItemAdapterTest {
     public void shouldCreateNormalItemRowUsingPresenter() {
         final FrameLayout parent = new FrameLayout(Robolectric.application);
         adapter.getView(0, null, parent);
-        verify(cellPresenter).createItemView(parent);
+        verify(cellRenderer).createItemView(parent);
     }
 
     @Test

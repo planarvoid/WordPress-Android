@@ -2,7 +2,7 @@ package com.soundcloud.android.explore;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.view.adapters.CellPresenter;
+import com.soundcloud.android.view.adapters.CellRenderer;
 
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -14,14 +14,14 @@ import javax.inject.Inject;
 import java.util.List;
 import java.util.Locale;
 
-class GenreCellPresenter implements CellPresenter<ExploreGenre> {
+class GenreCellRenderer implements CellRenderer<ExploreGenre> {
 
     static final int AUDIO_SECTION = 0;
     static final int MUSIC_SECTION = 1;
     private final SparseArray<RowDescriptor> listPositionsToSections;
 
     @Inject
-    GenreCellPresenter() {
+    GenreCellRenderer() {
         this.listPositionsToSections = new SparseArray<RowDescriptor>();
     }
 

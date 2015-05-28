@@ -28,9 +28,9 @@ import android.widget.TextView;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class UserItemPresenterTest {
+public class UserItemRendererTest {
 
-    @InjectMocks private UserItemPresenter presenter;
+    @InjectMocks private UserItemRenderer renderer;
 
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
@@ -55,21 +55,21 @@ public class UserItemPresenterTest {
 
     @Test
     public void shouldBindUsernameToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(userItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
         expect(textView(R.id.list_item_header).getText()).toEqual("forss");
     }
 
     @Test
     public void shouldBindCountryToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(userItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
         expect(textView(R.id.list_item_subheader).getText()).toEqual("Germany");
     }
 
     @Test
     public void shouldBindFollowersCountToView() {
-        presenter.bindItemView(0, itemView, Arrays.asList(userItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
         expect(textView(R.id.list_item_counter).getText()).toEqual("42");
     }
@@ -77,7 +77,7 @@ public class UserItemPresenterTest {
     @Test
     public void shouldNotBindFollowersCountToViewIfNotSet() {
         propertySet.put(UserProperty.FOLLOWERS_COUNT, Consts.NOT_SET);
-        presenter.bindItemView(0, itemView, Arrays.asList(userItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(userItem));
 
         expect(textView(R.id.list_item_counter).getVisibility()).toEqual(View.GONE);
     }
@@ -89,13 +89,13 @@ public class UserItemPresenterTest {
                 UserProperty.USERNAME.bind("forss"),
                 UserProperty.FOLLOWERS_COUNT.bind(42)
         ));
-        presenter.bindItemView(0, itemView, Arrays.asList(homelessUser));
+        renderer.bindItemView(0, itemView, Arrays.asList(homelessUser));
         expect(textView(R.id.list_item_subheader).getText()).toEqual("");
     }
 
     @Test
     public void shouldLoadUserImage() {
-        presenter.bindItemView(0, itemView, Arrays.asList(userItem));
+        renderer.bindItemView(0, itemView, Arrays.asList(userItem));
         verify(imageOperations).displayInAdapterView(
                 Urn.forUser(2),
                 ApiImageSize.getListItemImageSize(itemView.getContext()),

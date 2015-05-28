@@ -7,7 +7,7 @@ import javax.inject.Inject;
 public class PlaylistLikesAdapter extends PagingItemAdapter<PlaylistItem> {
 
     @Inject
-    public PlaylistLikesAdapter(DownloadablePlaylistItemPresenter playlistPresenter) {
-        super(playlistPresenter);
+    public PlaylistLikesAdapter(DownloadablePlaylistItemRenderer playlistRenderer) {
+        super(playlistRenderer);
     }
 }

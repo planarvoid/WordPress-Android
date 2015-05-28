@@ -44,7 +44,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     @Inject ImageOperations imageOperations;
     @Inject PlaybackOperations playbackOperations;
-    @Inject ActivityItemPresenter activityItemPresenter;
+    @Inject ActivityItemRenderer itemRenderer;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
 
@@ -55,12 +55,12 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     @VisibleForTesting
-    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemPresenter presenter) {
+    ActivitiesAdapter(Uri uri, ImageOperations imageOperations, PlaybackOperations playbackOperations, ActivityItemRenderer itemRenderer) {
         super(uri);
         this.activitiesStorage = new ActivitiesStorage();
         this.imageOperations = imageOperations;
         this.playbackOperations = playbackOperations;
-        this.activityItemPresenter = presenter;
+        this.itemRenderer = itemRenderer;
     }
 
     @Override
@@ -93,12 +93,12 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
 
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
-        return activityItemPresenter.createItemView(parent);
+        return itemRenderer.createItemView(parent);
     }
 
     @Override
     protected void bindRow(int index, View rowView) {
-        activityItemPresenter.bindItemView(index, rowView, toPropertySets(getItems()));
+        itemRenderer.bindItemView(index, rowView, toPropertySets(getItems()));
     }
 
     private List<PropertySet> toPropertySets(List<Activity> activities) {

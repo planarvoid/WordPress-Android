@@ -5,7 +5,7 @@ import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.offline.DownloadState;
-import com.soundcloud.android.view.adapters.PlaylistItemPresenter;
+import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 
 import android.content.res.Resources;
 import android.view.View;
@@ -13,15 +13,15 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class DownloadablePlaylistItemPresenter extends PlaylistItemPresenter {
+public class DownloadablePlaylistItemRenderer extends PlaylistItemRenderer {
 
     private final FeatureOperations featureOperations;
 
     @Inject
-    public DownloadablePlaylistItemPresenter(Resources resources,
-                                             ImageOperations imageOperations,
-                                             PlaylistItemMenuPresenter playlistItemMenuPresenter,
-                                             FeatureOperations featureOperations) {
+    public DownloadablePlaylistItemRenderer(Resources resources,
+                                            ImageOperations imageOperations,
+                                            PlaylistItemMenuPresenter playlistItemMenuPresenter,
+                                            FeatureOperations featureOperations) {
         super(resources, imageOperations, playlistItemMenuPresenter);
         this.featureOperations = featureOperations;
         allowOfflineOptions();

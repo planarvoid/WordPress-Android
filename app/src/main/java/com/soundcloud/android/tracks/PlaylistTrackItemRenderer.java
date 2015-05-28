@@ -12,14 +12,14 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistTrackItemPresenter extends DownloadableTrackItemPresenter {
+public class PlaylistTrackItemRenderer extends DownloadableTrackItemRenderer {
 
     private RemoveTrackListener removeTrackListener;
 
     @Inject
-    public PlaylistTrackItemPresenter(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
-                                      EventBus eventBus, FeatureOperations featureOperations,
-                                      ScreenProvider screenProvider) {
+    public PlaylistTrackItemRenderer(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
+                                     EventBus eventBus, FeatureOperations featureOperations,
+                                     ScreenProvider screenProvider) {
         super(imageOperations, trackItemMenuPresenter, eventBus, featureOperations, screenProvider);
     }
 

@@ -23,18 +23,18 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class ActivityItemPresenterTest {
+public class ActivityItemRendererTest {
     @Mock private LayoutInflater inflater;
     @Mock private ImageOperations imageOperations;
     private View itemView;
 
-    private ActivityItemPresenter presenter;
+    private ActivityItemRenderer renderer;
 
     @Before
     public void setUp() throws Exception {
         final Context context = Robolectric.application;
         itemView = LayoutInflater.from(context).inflate(R.layout.engagement_list_item, new FrameLayout(context), false);
-        presenter = new ActivityItemPresenter(context.getResources(), imageOperations);
+        renderer = new ActivityItemRenderer(context.getResources(), imageOperations);
     }
 
     @Test
@@ -46,7 +46,7 @@ public class ActivityItemPresenterTest {
                 ActivityProperty.USER_NAME.bind("follower"),
                 ActivityProperty.DATE.bind(oneHourAgo)
         ));
-        presenter.bindItemView(0, itemView, propertySets);
+        renderer.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "follower");
         expect(R.id.body, "started following you");
@@ -63,7 +63,7 @@ public class ActivityItemPresenterTest {
                 ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
                 ActivityProperty.SOUND_TITLE.bind("Sound title")
         ));
-        presenter.bindItemView(0, itemView, propertySets);
+        renderer.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "User name");
         expect(R.id.body, "liked Sound title");
@@ -80,7 +80,7 @@ public class ActivityItemPresenterTest {
                 ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
                 ActivityProperty.SOUND_TITLE.bind("Sound title")
         ));
-        presenter.bindItemView(0, itemView, propertySets);
+        renderer.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "User name");
         expect(R.id.body, "reposted Sound title");
@@ -98,7 +98,7 @@ public class ActivityItemPresenterTest {
                 ActivityProperty.DATE.bind(fiftyTwoMinutesAgo),
                 ActivityProperty.SOUND_TITLE.bind("Sound title")
         ));
-        presenter.bindItemView(0, itemView, propertySets);
+        renderer.bindItemView(0, itemView, propertySets);
 
         expect(R.id.username, "User name");
         expect(R.id.body, "commented on Sound title");

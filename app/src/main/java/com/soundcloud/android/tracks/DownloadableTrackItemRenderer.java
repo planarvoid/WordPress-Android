@@ -13,16 +13,16 @@ import android.view.View;
 import javax.inject.Inject;
 import java.util.List;
 
-public class DownloadableTrackItemPresenter extends TrackItemPresenter {
+public class DownloadableTrackItemRenderer extends TrackItemRenderer {
 
     private final FeatureOperations featureOperations;
 
     @Inject
-    public DownloadableTrackItemPresenter(ImageOperations imageOperations,
-                                          TrackItemMenuPresenter trackItemMenuPresenter,
-                                          EventBus eventBus,
-                                          FeatureOperations featureOperations,
-                                          ScreenProvider screenProvider) {
+    public DownloadableTrackItemRenderer(ImageOperations imageOperations,
+                                         TrackItemMenuPresenter trackItemMenuPresenter,
+                                         EventBus eventBus,
+                                         FeatureOperations featureOperations,
+                                         ScreenProvider screenProvider) {
         super(imageOperations, trackItemMenuPresenter, eventBus, screenProvider);
         this.featureOperations = featureOperations;
     }
