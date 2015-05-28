@@ -310,14 +310,15 @@
         </activity>
 
         <!-- settings -->
-        <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity"/>
+        <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_offline_settings" android:name=".settings.OfflineSettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_about" android:name=".settings.LicensesActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_legal" android:name=".settings.LegalActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
 
-        <activity android:label="@string/title_offline_settings" android:name=".settings.OfflineSettingsActivity" />
-
-        <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity"/>
+        <!-- developer settings -->
         <activity android:enabled="@bool/debug_feature_screen" android:label="@string/dev_configuration_features" android:name=".settings.ConfigurationFeaturesActivity"/>
-        <activity android:label="@string/title_about" android:name=".settings.LicensesActivity"/>
-        <activity android:label="@string/title_legal" android:name=".settings.LegalActivity"/>
+
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
@@ -326,7 +327,6 @@
         <activity android:label="@string/payments_success" android:name=".payments.SubscribeSuccessActivity"/>
 
         <!-- for testing purposes -->
-
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 
         <!-- providers -->
