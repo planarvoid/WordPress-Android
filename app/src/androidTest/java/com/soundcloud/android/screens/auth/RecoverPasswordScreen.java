@@ -1,17 +1,16 @@
 package com.soundcloud.android.screens.auth;
 
-import android.R.id;
-
 import com.soundcloud.android.R;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EditTextElement;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.auth.RecoverActivity;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.framework.viewelements.EditTextElement;
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.with.With;
+
+import android.R.id;
 
 public class RecoverPasswordScreen extends Screen {
     private static final Class ACTIVITY = RecoverActivity.class;
-
 
     public RecoverPasswordScreen(Han solo) {
         super(solo);
@@ -29,7 +28,7 @@ public class RecoverPasswordScreen extends Screen {
     }
 
     public void clickOkButton () {
-        testDriver.clickOnText(android.R.string.ok);
+        testDriver.findElement(With.id(R.id.btn_ok)).click();
     }
 
     @Override
