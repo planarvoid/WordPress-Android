@@ -13,7 +13,7 @@ class OfflineUsage {
 
     private long deviceTotal;
     private long deviceAvailable;
-    private long offlineTotal;
+    private long offlineLimit;
     private long offlineUsed;
 
     @Inject
@@ -25,12 +25,12 @@ class OfflineUsage {
     public void update() {
         this.deviceTotal = fileStorage.getStorageCapacity();
         this.deviceAvailable = fileStorage.getStorageAvailable();
-        this.offlineTotal = offlineSettings.getStorageLimit();
+        this.offlineLimit = offlineSettings.getStorageLimit();
         this.offlineUsed = fileStorage.getStorageUsed();
     }
 
     public long getOfflineLimit() {
-        return Math.min(offlineTotal, deviceAvailable + offlineUsed);
+        return Math.min(offlineLimit, deviceAvailable + offlineUsed);
     }
 
     public long getOfflineUsed() {
@@ -58,12 +58,20 @@ class OfflineUsage {
     }
 
     public int getOfflineLimitPercentage() {
-        return (int) (offlineTotal * 100 / deviceTotal);
+        return (int) (offlineLimit * 100 / deviceTotal);
     }
 
-    public void setOfflineLimitPercentage(int percentage) {
+    public boolean setOfflineLimitPercentage(int percentage) {
         int steps = (int) Math.max(Math.ceil(percentage / getStepPercentage()), 1);
-        offlineTotal = Math.min((long) (steps * STEP_IN_BYTES), deviceTotal);
+        long calculatedLimit = Math.min((long) (steps * STEP_IN_BYTES), deviceTotal);
+
+        if (calculatedLimit < offlineUsed) {
+            offlineLimit = offlineUsed;
+            return false;
+        }
+
+        offlineLimit = calculatedLimit;
+        return true;
     }
 
     public double getStepPercentage() {
@@ -71,7 +79,7 @@ class OfflineUsage {
     }
 
     public boolean isMaximumLimit() {
-        return offlineTotal > (deviceTotal - STEP_IN_BYTES);
+        return offlineLimit > (deviceTotal - STEP_IN_BYTES);
     }
 
 }
