@@ -77,7 +77,7 @@
 
     <style name="Widget.PreferenceListView" parent="android:Widget">
         <item name="android:divider">@android:color/transparent</item>
-        <item name="android:dividerHeight">4dip</item>
+        <item name="android:dividerHeight">4dp</item>
     </style>
 
 </resources>
