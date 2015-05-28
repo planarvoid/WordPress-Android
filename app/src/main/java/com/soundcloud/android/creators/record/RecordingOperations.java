@@ -1,13 +1,7 @@
 package com.soundcloud.android.creators.record;
 
-import com.soundcloud.android.Actions;
-import com.soundcloud.android.api.legacy.model.Recording;
-import com.soundcloud.android.creators.upload.UploadService;
 import rx.Observable;
 import rx.Scheduler;
-
-import android.content.Context;
-import android.content.Intent;
 
 import javax.inject.Inject;
 import javax.inject.Named;

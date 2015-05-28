@@ -16,7 +16,6 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
 
 public class RecordStream {
@@ -62,25 +61,6 @@ public class RecordStream {
         } catch (IOException e) {
             Log.w(SoundRecorder.TAG, "error reading amplitude data", e);
         }
-    }
-
-    public boolean hasValidAmplitudeData() {
-        // we may have never used the encoder in which case getDuration() is 0,
-        // so make sure to use the audioreader duration
-        long playDuration = 0;
-        try {
-            playDuration = writer.getAudioReader().getDuration();
-        } catch (IOException ignored) {
-        }
-        final long requiredSize = (long) (((int) (SoundRecorder.PIXELS_PER_SECOND *
-                SoundCloudApplication.instance.getResources().getDisplayMetrics().density) * playDuration)
-                * .95); // 5 percent tolerance
-
-
-        Log.i("asdf","Required size vs amp size " + requiredSize + " vs " + amplitudeData.size());
-        int delta = (int) ((requiredSize / 1000d) - amplitudeData.size());
-
-        return Math.abs(delta) <= 5;
     }
 
     private int getBufferSize(Resources resources) {
