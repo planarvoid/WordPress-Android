@@ -19,7 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 
 class FacebookSessionCallback implements Session.StatusCallback {
-    static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends");
+    static final List<String> DEFAULT_FACEBOOK_READ_PERMISSIONS = Arrays.asList("public_profile", "email", "user_birthday", "user_friends", "user_likes");
     static final String DEFAULT_FACEBOOK_PUBLISH_PERMISSION = "publish_actions";
 
     private final WeakReference<OnboardActivity> activityRef;
