@@ -170,9 +170,10 @@ public class LoginFlowTest extends LoginTest {
     * So that I know what went wrong
     */
     public void testRecoverPasswordNoInput() {
-        loginScreen = homeScreen.clickLogInButton();
-        loginScreen.clickForgotPassword();
-        loginScreen.clickOkButton();
+        homeScreen
+                .clickLogInButton()
+                .clickForgotPassword()
+                .clickOkButton();
 
         String message = solo.getString(R.string.authentication_error_incomplete_fields);
         assertTrue(waiter.expectToastWithText(toastObserver, message));
