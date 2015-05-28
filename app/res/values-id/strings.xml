@@ -4,7 +4,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Ya</string>
     <string name="no">Tidak</string>
-    <string name="close">Tutup</string>
     <string name="post">Poskan</string>
     <string name="view">Lihat</string>
     <string name="btn_apply">Terapkan</string>
@@ -17,6 +16,7 @@
     <string name="btn_continue">Lanjutkan</string>
     <string name="imprint">Jejak</string>
     <string name="privacy">Privasi</string>
+    <string name="contact_support">Hubungi bagian dukungan</string>
     <string name="legal">Legal</string>
     <string name="legal_summary">Informasi legal</string>
     <string name="terms_of_use">Ketentuan Penggunaan</string>
@@ -87,14 +87,12 @@
     <string name="authentication_log_in_with_facebook">Masuk dengan Facebook</string>
     <string name="authentication_login_error_password_message">Kami tidak dapat memasukkan Anda. Anda yakin telah memasukkan email dan kata sandi yang benar?</string>
     <string name="authentication_login_progress_message">Sedang memasukkan Anda</string>
-    <string name="authentication_recover_password">Pulihkan kata sandi</string>
     <string name="authentication_recover_password_failure">Kami tidak dapat memulihkan kata sandi Anda saat ini. Silakan coba sebentar lagi</string>
     <string name="authentication_recover_password_failure_reason">Pemulihan kata sandi gagal: %s</string>
     <string name="authentication_recover_password_success">Periksa email Anda! Sebentar lagi Anda akan menerima email berisi petunjuk cara mengatur ulang kata sandi</string>
     <string name="authentication_recover_progress_message">Meminta pengaturan ulang kata sandi</string>
     <string name="authentication_sign_up">Mendaftar di SoundCloud</string>
     <string name="authentication_signup_error_message">Tampaknya ada masalah. Mohon coba untuk mendaftar di SoundCloud.com.</string>
-    <string name="authentication_support">Dukungan</string>
     <string name="authentication_terms_of_use">Ketentuan Penggunaan</string>
     <string name="authentication_your_email_address">Alamat email Anda</string>
     <string name="authentication_your_password">Kata sandi Anda</string>
@@ -443,11 +441,11 @@
     <string name="pref_notifications_reposts">Pos ulang</string>
     <string name="pref_notifications_reposts_description">Menerima pembaruan untuk pos ulang suara Anda</string>
     <string-array name="pref_notifications_frequency">
-    <item>Setiap jam</item>
-    <item>Setiap 4 jam</item>
-    <item>Setiap 12 jam</item>
-    <item>Setiap 24 jam</item>
-  </string-array>
+        <item>Setiap jam</item>
+        <item>Setiap 4 jam</item>
+        <item>Setiap 12 jam</item>
+        <item>Setiap 24 jam</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Gunakan Pemutar Eksperimental</string>
@@ -541,7 +539,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Tidak dapat memasukkan trek</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Apa yang ingin Anda laporkan?</string>
     <string name="feedback_playback_issue">Masalah pemutaran</string>

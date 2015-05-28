@@ -4,7 +4,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Sim</string>
     <string name="no">Não</string>
-    <string name="close">Fechar</string>
     <string name="post">Postar</string>
     <string name="view">Visualizar</string>
     <string name="btn_apply">Aplicar</string>
@@ -17,6 +16,7 @@
     <string name="btn_continue">Continuar</string>
     <string name="imprint">Imprimir</string>
     <string name="privacy">Privacidade</string>
+    <string name="contact_support">Fale com o suporte</string>
     <string name="legal">Legal</string>
     <string name="legal_summary">Informações legais</string>
     <string name="terms_of_use">Termos de Uso</string>
@@ -87,14 +87,12 @@
     <string name="authentication_log_in_with_facebook">Acessar via Facebook</string>
     <string name="authentication_login_error_password_message">Não foi possível conectar. Tem certeza de que usou o e-mail e a senha corretos?</string>
     <string name="authentication_login_progress_message">Acessando</string>
-    <string name="authentication_recover_password">Recuperar senha</string>
     <string name="authentication_recover_password_failure">Não foi possível recuperar sua senha. Tente novamente daqui a pouco</string>
     <string name="authentication_recover_password_failure_reason">Falha na recuperação da senha: %s</string>
     <string name="authentication_recover_password_success">Verifica suas mensagens! Você receberá um e-mail com as instruções para redefinir sua senha em breve.</string>
     <string name="authentication_recover_progress_message">Solicitação de redefinição de senha</string>
     <string name="authentication_sign_up">Registre-se no SoundCloud</string>
     <string name="authentication_signup_error_message">Parece estar havendo um problema. Tente registrar-se em SoundCloud.com</string>
-    <string name="authentication_support">Suporte</string>
     <string name="authentication_terms_of_use">Termos de Uso</string>
     <string name="authentication_your_email_address">Seu e-mail</string>
     <string name="authentication_your_password">Sua senha</string>
@@ -444,11 +442,11 @@
     <string name="pref_notifications_reposts">Reenvios</string>
     <string name="pref_notifications_reposts_description">Receba atualizações sobre novos reenvios de seus sons</string>
     <string-array name="pref_notifications_frequency">
-    <item>A cada hora</item>
-    <item>A cada 4 horas</item>
-    <item>A cada 12 horas</item>
-    <item>A cada 24 horas</item>
-  </string-array>
+        <item>A cada hora</item>
+        <item>A cada 4 horas</item>
+        <item>A cada 12 horas</item>
+        <item>A cada 24 horas</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Forçar Player Experimental</string>
@@ -542,7 +540,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Não foi possível compor a faixa</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">O que você gostaria de relatar?</string>
     <string name="feedback_playback_issue">Problema de playbak</string>

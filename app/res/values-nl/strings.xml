@@ -4,7 +4,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Ja</string>
     <string name="no">Nee</string>
-    <string name="close">Sluiten</string>
     <string name="post">Plaatsen</string>
     <string name="view">Bekijken</string>
     <string name="btn_apply">Toepassen</string>
@@ -87,14 +86,12 @@
     <string name="authentication_log_in_with_facebook">Log in met Facebook</string>
     <string name="authentication_login_error_password_message">We konden u niet inloggen. Weet u zeker dat dit het juiste e-mailadres en wachtwoord is?</string>
     <string name="authentication_login_progress_message">U aan het inloggen</string>
-    <string name="authentication_recover_password">Wachtwoord herstellen</string>
     <string name="authentication_recover_password_failure">We kunnen op het moment uw wachtwoord niet herstellen. Probeer het snel nog eens.</string>
     <string name="authentication_recover_password_failure_reason">Herstellen van het wachtwoord is mislukt: %s</string>
     <string name="authentication_recover_password_success">Check uw mail! U zult snel een e-mail met instructies ontvangen over hoe u uw wachtwoord kunt resetten.</string>
     <string name="authentication_recover_progress_message">Wachtwoord reset aanvragen</string>
     <string name="authentication_sign_up">Meld u aan voor SoundCloud</string>
     <string name="authentication_signup_error_message">Er lijkt een probleem te zijn. Probeer a.u.b. bij SoundCloud.com aan te melden.</string>
-    <string name="authentication_support">Ondersteuning</string>
     <string name="authentication_terms_of_use">Gebruiksvoorwaarden</string>
     <string name="authentication_your_email_address">Uw e-mailadres</string>
     <string name="authentication_your_password">Uw wachtwoord</string>

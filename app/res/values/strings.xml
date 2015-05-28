@@ -5,7 +5,6 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="close">Close</string>
     <string name="post">Post</string>
     <string name="view">View</string>
     <string name="btn_apply">Apply</string>
@@ -23,6 +22,7 @@
     <string name="legal_summary">Legal information</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="privacy_policy">Privacy Policy</string>
+    <string name="contact_support">Contact support</string>
     <string name="version">Version</string>
     <string name="unavailable">Unavailable</string>
     <string name="copyright_information">Copyright information</string>
@@ -72,7 +72,7 @@
     <string name="now_playing_with_args">Now Playing: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
-    <string name="authentication_I_forgot_my_password">I forgot my password</string>
+    <string name="authentication_I_forgot_my_password">Forgot your password?</string>
     <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
     <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
     <string name="authentication_add_info_username_hint">Your username</string>
@@ -89,14 +89,12 @@
     <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
     <string name="authentication_login_error_password_message">We couldn\'t sign you in. Sure you had the right email and password?</string>
     <string name="authentication_login_progress_message">Signing you in</string>
-    <string name="authentication_recover_password">Recover password</string>
     <string name="authentication_recover_password_failure">We can\'t recover your password right now. Please try again shortly</string>
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
-    <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
+    <string name="authentication_recover_password_success">Check your email! We\'ve sent you instructions on how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Sign up for SoundCloud</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
-    <string name="authentication_support">Support</string>
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>
@@ -108,14 +106,16 @@
     <string name="error_google_sign_in_failed">We couldn\'t sign you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
-    <string name="facebook_authentication_failed_message">Please try again shortly or sign in using your SoundCloud username and password.</string>
-    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+    <string name="facebook_authentication_failed_message">Please try again shortly or sign in using your email address and password.</string>
+    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link to change your password. If you still need help, visit our Help Center.</string>
+    <string name="authentication_recover_password_visit_our_Help_Center">visit our Help Center</string>
+    <string name="authentication_recover_password_send">Send</string>
     <string name="authentication_blocked_title">We couldn\'t sign you up</string>
-    <string name="authentication_blocked_message">Our robots think this signup looks too much like spam. If you believe this to be a mistake, please <a href="http://help.soundcloud.com/customer/portal/emails/new">contact our support</a></string>
+    <string name="authentication_blocked_message">Our robots think this sign-up looks too much like spam. If you believe this to be a mistake, please contact our support.</string>
     <string name="authentication_captcha_message">We\'re having some trouble signing you in. Please sign in through our mobile website and before signing in again.</string>
-    <string name="authentication_email_taken_message">This email is already registered with an account. Enter a different email or try signing in</string>
+    <string name="authentication_email_taken_message">This email is already registered with an account. Enter a different email or try signing in.</string>
     <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
-    <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided</string>
+    <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided.</string>
 
     <!-- __DEEPLINKS -->
     <string name="error_toast_user_not_logged_in">Please sign in to open this link</string>
@@ -334,7 +334,6 @@
     <string name="payments_error_wrong_user">Your subscription is associated with a different user. Sign in with the other account to continue using it.</string>
     <string name="payments_error_verification_issue">We were unable to verify your payment. Please try again later.</string>
 
-    <string name="payments_error_contact_support">Contact support</string>
     <string name="payments_sign_out">Sign out</string>
 
     <!-- __PLAYLISTS -->
@@ -568,7 +567,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>
     <string name="feedback_playback_issue">Playback issue</string>
