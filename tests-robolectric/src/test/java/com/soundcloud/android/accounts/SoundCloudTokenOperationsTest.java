@@ -1,7 +1,6 @@
 package com.soundcloud.android.accounts;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

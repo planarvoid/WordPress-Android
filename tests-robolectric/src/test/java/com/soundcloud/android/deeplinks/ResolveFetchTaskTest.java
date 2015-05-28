@@ -2,8 +2,6 @@ package com.soundcloud.android.deeplinks;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.deeplinks.ResolveFetchTask;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;

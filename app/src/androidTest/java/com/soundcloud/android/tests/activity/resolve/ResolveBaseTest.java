@@ -3,7 +3,6 @@ package com.soundcloud.android.tests.activity.resolve;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
-import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 

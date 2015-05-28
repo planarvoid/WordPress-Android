@@ -14,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -33,8 +32,6 @@ import rx.Observable;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
-
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ResolveActivityTest {

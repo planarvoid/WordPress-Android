@@ -36,8 +36,6 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-import java.util.List;
-
 @RunWith(SoundCloudTestRunner.class)
 public class ExploreTracksFragmentTest {
 

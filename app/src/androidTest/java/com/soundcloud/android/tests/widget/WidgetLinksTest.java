@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.is;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
 
 import android.content.Intent;

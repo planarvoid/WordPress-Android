@@ -1,7 +1,6 @@
 package com.soundcloud.android.onboarding.suggestions;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -17,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
-import rx.Scheduler;
 
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;

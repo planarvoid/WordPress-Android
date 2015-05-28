@@ -49,7 +49,6 @@ import android.os.Message;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-
 public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     private static final String TAG = "SkippyAdapter";

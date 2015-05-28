@@ -18,7 +18,6 @@ import rx.Subscription;
 
 import android.util.Log;
 
-import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

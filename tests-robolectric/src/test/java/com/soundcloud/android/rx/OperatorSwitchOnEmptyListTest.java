@@ -10,7 +10,6 @@ import org.junit.runner.RunWith;
 import rx.observers.TestObserver;
 import rx.subjects.PublishSubject;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 

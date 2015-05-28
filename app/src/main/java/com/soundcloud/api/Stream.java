@@ -54,10 +54,6 @@ public class Stream implements Serializable {
         this.expires = expires;
     }
 
-    public Request streamUrl() {
-        return Request.to(streamUrl);
-    }
-
     public Request url() {
         return Request.to(url);
     }

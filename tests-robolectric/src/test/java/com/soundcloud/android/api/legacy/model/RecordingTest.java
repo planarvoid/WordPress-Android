@@ -7,11 +7,7 @@ import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.record.reader.WavReader;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.utils.IOUtils;
-import com.soundcloud.api.Params;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Rule;
@@ -30,8 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
-
 
 @RunWith(SoundCloudTestRunner.class)
 public class RecordingTest {

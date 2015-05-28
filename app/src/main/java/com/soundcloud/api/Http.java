@@ -4,7 +4,6 @@ import com.google.common.base.Charsets;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HTTP;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -63,11 +62,6 @@ public final class Http {
             throw new IOException("could not parse JSON document: " + e.getMessage() + " " +
                     (json.length() > 80 ? (json.substring(0, 79) + "...") : json));
         }
-    }
-
-    public static String etag(HttpResponse resp) {
-        Header etag = resp.getFirstHeader("Etag");
-        return etag != null ? etag.getValue() : null;
     }
 
 }

@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback;
 
 import static com.pivotallabs.greatexpectations.Expect.expect;
-import static com.soundcloud.android.playback.PlaybackResult.ErrorReason.MISSING_PLAYABLE_TRACKS;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.EventQueue;

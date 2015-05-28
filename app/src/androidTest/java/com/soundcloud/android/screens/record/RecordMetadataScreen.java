@@ -5,7 +5,6 @@ import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.EditTextElement;
 import com.soundcloud.android.framework.viewelements.RadioButtonElement;
-import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.Screen;
 

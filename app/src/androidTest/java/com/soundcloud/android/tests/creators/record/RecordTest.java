@@ -4,7 +4,6 @@ import static com.soundcloud.android.framework.matcher.view.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
-import static org.hamcrest.core.StringStartsWith.startsWith;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.TestUser;

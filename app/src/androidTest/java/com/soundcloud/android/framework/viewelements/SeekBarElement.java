@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.SeekBar;
 
 public class SeekBarElement {
