@@ -76,7 +76,7 @@ public class MediaPlayerAdapterTest {
     @Captor private ArgumentCaptor<Playa.StateTransition> stateCaptor;
 
     private PropertySet track;
-    private int duration;
+    private long duration;
 
     private Urn userUrn;
     private TestEventBus eventBus = new TestEventBus();
@@ -124,7 +124,7 @@ public class MediaPlayerAdapterTest {
     @Test
     public void playUrlShouldCallBufferingState() {
         when(mediaPlayer.getCurrentPosition()).thenReturn(0);
-        when(mediaPlayer.getDuration()).thenReturn(duration);
+        when(mediaPlayer.getDuration()).thenReturn((int) duration);
         mediaPlayerAdapter.play(track);
         verify(listener).onPlaystateChanged(eq(new Playa.StateTransition(PlayaState.BUFFERING, Reason.NONE, track.get(TrackProperty.URN), 0, 20000)));
         verifyNoMoreInteractions(listener);
@@ -434,7 +434,7 @@ public class MediaPlayerAdapterTest {
     public void shouldReturnMediaPlayerProgressAfterOnSeekCompleteCalled() {
         mediaPlayerAdapter.play(track);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
-        when(mediaPlayer.getDuration()).thenReturn(duration);
+        when(mediaPlayer.getDuration()).thenReturn((int) duration);
         when(mediaPlayer.getCurrentPosition()).thenReturn(123);
         expect(mediaPlayerAdapter.seek(456l)).toEqual(456l);
         expect(mediaPlayerAdapter.getProgress()).toEqual(456l);
@@ -499,7 +499,7 @@ public class MediaPlayerAdapterTest {
     @Test
     public void onSeekCompletePublishesPlayingEventWithAdjustedPosition() {
         playUrlAndSetPrepared();
-        when(mediaPlayer.getCurrentPosition()).thenReturn(duration + 1);
+        when(mediaPlayer.getCurrentPosition()).thenReturn((int) (duration + 1));
 
         mediaPlayerAdapter.onSeekComplete(mediaPlayer);
 
@@ -625,7 +625,7 @@ public class MediaPlayerAdapterTest {
 
     @Test
     public void shouldResumePlaybackAtSpecifiedTime() {
-        when(mediaPlayer.getDuration()).thenReturn(duration);
+        when(mediaPlayer.getDuration()).thenReturn((int) duration);
 
         mediaPlayerAdapter.play(track, 123L);
         mediaPlayerAdapter.onPrepared(mediaPlayer);
@@ -694,7 +694,7 @@ public class MediaPlayerAdapterTest {
         reset(mediaPlayer);
         reset(mediaPlayerManager);
         reset(listener);
-        when(mediaPlayer.getDuration()).thenReturn(duration);
+        when(mediaPlayer.getDuration()).thenReturn((int) duration);
         when(mediaPlayerManager.create()).thenReturn(mediaPlayer);
         when(listener.requestAudioFocus()).thenReturn(true);
 

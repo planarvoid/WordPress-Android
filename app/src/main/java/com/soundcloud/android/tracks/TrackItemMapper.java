@@ -24,7 +24,7 @@ final class TrackItemMapper extends RxResultMapper<PropertySet> {
 
         propertySet.put(TrackProperty.URN, readTrackUrn(cursorReader));
         propertySet.put(PlayableProperty.TITLE, cursorReader.getString(SoundView.TITLE));
-        propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
+        propertySet.put(PlayableProperty.DURATION, cursorReader.getLong(SoundView.DURATION));
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(SoundView.PLAYBACK_COUNT));
         propertySet.put(TrackProperty.COMMENTS_COUNT, cursorReader.getInt(SoundView.COMMENT_COUNT));
         propertySet.put(TrackProperty.STREAM_URL, cursorReader.getString(SoundView.STREAM_URL));

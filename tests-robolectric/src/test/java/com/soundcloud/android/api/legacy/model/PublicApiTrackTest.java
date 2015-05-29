@@ -365,7 +365,7 @@ public class PublicApiTrackTest {
         expect(t2.permalink).toEqual(t.permalink);
         expect(t2.policy).toEqual(t.policy);
         expect(t2.isMonetizable()).toEqual(t.isMonetizable());
-        expect(t2.duration).toBeGreaterThan(0);
+        expect(t2.duration).toBeGreaterThan(0L);
         expect(t2.duration).toEqual(t.duration);
         expect(t2.created_at).toEqual(t.created_at);
         expect(t2.tag_list).toEqual(t.tag_list);

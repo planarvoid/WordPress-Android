@@ -33,7 +33,7 @@ public class ApiTrackBlueprint {
     String streamUrl = "http://media.soundcloud.com/stream/whVhoRw2gpUh";
 
     @Default(force = true)
-    int duration = 12345;
+    long duration = 12345L;
 
     @Default
     String waveformUrl = "http://waveform.url";

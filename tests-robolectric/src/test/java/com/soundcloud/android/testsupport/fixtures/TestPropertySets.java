@@ -65,7 +65,7 @@ public abstract class TestPropertySets {
                 PlayableProperty.TITLE.bind("dubstep anthem"),
                 PlayableProperty.CREATOR_NAME.bind("squirlex"),
                 PlayableProperty.CREATOR_URN.bind(Urn.forUser(456L)),
-                PlayableProperty.DURATION.bind(20000),
+                PlayableProperty.DURATION.bind(20000L),
                 PlayableProperty.IS_LIKED.bind(true),
                 PlayableProperty.LIKES_COUNT.bind(1),
                 PlayableProperty.REPOSTS_COUNT.bind(1),
@@ -120,7 +120,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(urn),
                 TrackProperty.TITLE.bind("Title " + urn),
                 TrackProperty.CREATOR_NAME.bind("Creator " + urn),
-                TrackProperty.DURATION.bind(10),
+                TrackProperty.DURATION.bind(10L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
@@ -153,7 +153,7 @@ public abstract class TestPropertySets {
                 TrackProperty.URN.bind(Urn.forTrack(123L)),
                 TrackProperty.TITLE.bind("squirlex galore"),
                 TrackProperty.CREATOR_NAME.bind("avieciie"),
-                TrackProperty.DURATION.bind(10),
+                TrackProperty.DURATION.bind(10L),
                 TrackProperty.PLAY_COUNT.bind(4),
                 TrackProperty.LIKES_COUNT.bind(2),
                 LikeProperty.CREATED_AT.bind(new Date()),
@@ -186,7 +186,7 @@ public abstract class TestPropertySets {
     // Analytics / Tracking
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, String policy, int duration) {
+    public static PropertySet expectedTrackForAnalytics(Urn trackUrn, String policy, long duration) {
         return PropertySet.from(
                 TrackProperty.URN.bind(trackUrn),
                 TrackProperty.POLICY.bind(policy),

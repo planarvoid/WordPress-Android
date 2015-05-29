@@ -27,7 +27,7 @@ class LikedTrackMapper extends RxResultMapper<PropertySet> {
         propertySet.put(TrackProperty.URN, readSoundUrn(cursorReader));
         propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TableColumns.Sounds.TITLE));
         propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(TableColumns.Users.USERNAME));
-        propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.Sounds.DURATION));
+        propertySet.put(PlayableProperty.DURATION, cursorReader.getLong(TableColumns.Sounds.DURATION));
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.Sounds.PLAYBACK_COUNT));
         propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.Sounds.LIKES_COUNT));
         propertySet.put(LikeProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.Likes.CREATED_AT));

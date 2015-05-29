@@ -13,7 +13,7 @@ public interface TrackRecord {
 
     String getTitle();
 
-    int getDuration();
+    long getDuration();
 
     String getWaveformUrl();
 
