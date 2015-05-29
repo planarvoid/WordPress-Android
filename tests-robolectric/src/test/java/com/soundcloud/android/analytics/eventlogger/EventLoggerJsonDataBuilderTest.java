@@ -30,8 +30,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -67,7 +65,6 @@ public class EventLoggerJsonDataBuilderTest {
     @Mock private ExperimentOperations experimentOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private JsonTransformer jsonTransformer;
-    @Mock private FeatureFlags featureFlags;
 
     private EventLoggerJsonDataBuilder jsonDataBuilder;
     private final TrackSourceInfo trackSourceInfo = new TrackSourceInfo(Screen.SIDE_MENU_LIKES.get(), true);
@@ -76,11 +73,10 @@ public class EventLoggerJsonDataBuilderTest {
     @Before
     public void setUp() throws Exception {
         jsonDataBuilder = new EventLoggerJsonDataBuilder(Robolectric.application.getResources(), experimentOperations,
-                deviceHelper, accountOperations, jsonTransformer, featureFlags);
+                deviceHelper, accountOperations, jsonTransformer);
 
         when(accountOperations.getLoggedInUserUrn()).thenReturn(LOGGED_IN_USER);
         when(deviceHelper.getUdid()).thenReturn(UDID);
-        when(featureFlags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)).thenReturn(true);
     }
 
     @Test
