@@ -238,7 +238,7 @@ public class ApiSyncer extends LegacySyncStrategy {
 
     /**
      * Good for syncing any generic item that doesn't require special ordering or cache handling
-     * e.g. Shortcuts, Connections
+     * e.g. Shortcuts
      *
      * @param c the content to be synced
      * @return the syncresult

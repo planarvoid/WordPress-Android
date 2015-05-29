@@ -29,7 +29,6 @@ public interface Endpoints {
     String USER_PLAYLISTS = "/users/%d/playlists";
 
     String MY_DETAILS = "/me";
-    String MY_CONNECTIONS = "/me/connections";
     String MY_ACTIVITIES = "/me/activities/tracks";
     String MY_EXCLUSIVE_TRACKS = "/me/activities/tracks/exclusive";
     String MY_NEWS = "/me/activities/all/own";
@@ -42,7 +41,6 @@ public interface Endpoints {
     String MY_FOLLOWINGS = "/me/followings";
     String MY_FOLLOWING = "/me/followings/%d";
     String MY_CONFIRMATION = "/me/email-confirmations";
-    String MY_FRIENDS = "/me/connections/friends";
     String MY_DEVICES = "/me/devices";
 
     String SUGGESTED_USERS = "/users/suggested";

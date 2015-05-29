@@ -47,7 +47,6 @@ public enum Table implements com.soundcloud.propeller.Table {
             false, DatabaseSchema.DATABASE_CREATE_COLLECTION_PAGES),
 
     Suggestions(false, DatabaseSchema.DATABASE_CREATE_SUGGESTIONS, TableColumns.Suggestions.ALL_FIELDS),
-    Connections(false, DatabaseSchema.DATABASE_CREATE_CONNECTIONS),
 
     TrackDownloads(false, DatabaseSchema.DATABASE_CREATE_TRACK_DOWNLOADS), // download state
     OfflineContent(false, DatabaseSchema.DATABASE_CREATE_OFFLINE_CONTENT), // marked for offline sync (user intent)

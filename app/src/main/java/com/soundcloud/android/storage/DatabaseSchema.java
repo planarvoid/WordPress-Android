@@ -507,17 +507,4 @@ final class DatabaseSchema {
             "UNIQUE(id, kind) ON CONFLICT REPLACE" +
             ")";
 
-    static final String DATABASE_CREATE_CONNECTIONS = "(" +
-            "_id INTEGER PRIMARY KEY," +
-            "user_id        INTEGER, " +
-            "type           VARCHAR(255)," +
-            "service        VARCHAR(255)," +
-            "created_at     INTEGER," +
-            "display_name   VARCHAR(255)," +
-            "active         BOOLEAN DEFAULT 0, " +
-            "post_publish   BOOLEAN DEFAULT 0, " +
-            "post_like      BOOLEAN DEFAULT 0, " +
-            "uri            VARCHAR(255)," +
-            "UNIQUE (_id) ON CONFLICT REPLACE" +
-            ");";
 }
