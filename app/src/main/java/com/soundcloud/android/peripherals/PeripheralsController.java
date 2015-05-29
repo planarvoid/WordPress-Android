@@ -50,7 +50,7 @@ public class PeripheralsController {
         Intent intent = new Intent(AVRCP_META_CHANGED);
         intent.putExtra("id", track.get(TrackProperty.URN).getNumericId());
         intent.putExtra("track", ScTextUtils.getClippedString(track.get(PlayableProperty.TITLE), 40));
-        intent.putExtra("duration", track.get(PlayableProperty.DURATION).intValue());
+        intent.putExtra("duration", track.get(PlayableProperty.DURATION).longValue());
         intent.putExtra("artist", getSafeClippedString(track.get(PlayableProperty.CREATOR_NAME), 30));
         context.sendBroadcast(intent);
     }

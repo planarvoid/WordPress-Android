@@ -16,7 +16,7 @@ class PlayerTrack implements PropertySetSource {
             TrackProperty.TITLE.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.CREATOR_NAME.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.CREATOR_URN.bind(Urn.NOT_SET),
-            TrackProperty.DURATION.bind(0),
+            TrackProperty.DURATION.bind(0L),
             TrackProperty.WAVEFORM_URL.bind(ScTextUtils.EMPTY_STRING),
             TrackProperty.IS_LIKED.bind(false),
             TrackProperty.IS_REPOSTED.bind(false),

@@ -128,7 +128,7 @@ class SoundStreamStorage {
 
             propertySet.put(PlayableProperty.URN, readSoundUrn(cursorReader));
             addTitle(cursorReader, propertySet);
-            propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(SoundView.DURATION));
+            propertySet.put(PlayableProperty.DURATION, cursorReader.getLong(SoundView.DURATION));
             propertySet.put(PlayableProperty.CREATOR_NAME, cursorReader.getString(SoundView.USERNAME));
             propertySet.put(PlayableProperty.CREATED_AT, cursorReader.getDateFromTimestamp(SoundStreamView.CREATED_AT));
             propertySet.put(PlayableProperty.IS_PRIVATE,

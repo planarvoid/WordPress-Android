@@ -53,7 +53,7 @@ public class TrackItemRendererTest {
         propertySet = PropertySet.from(
                 TrackProperty.TITLE.bind("title"),
                 TrackProperty.CREATOR_NAME.bind("creator"),
-                TrackProperty.DURATION.bind(227000),
+                TrackProperty.DURATION.bind(227000L),
                 TrackProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
         );

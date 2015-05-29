@@ -21,7 +21,7 @@ public class PlaylistInfoMapper extends OfflinePlaylistMapper {
 
         final Urn creatorUrn = readCreatorUrn(cursorReader);
         propertySet.put(PlaylistProperty.CREATOR_URN, creatorUrn);
-        propertySet.put(PlaylistProperty.DURATION, cursorReader.getInt(TableColumns.SoundView.DURATION));
+        propertySet.put(PlaylistProperty.DURATION, cursorReader.getLong(TableColumns.SoundView.DURATION));
         propertySet.put(PlaylistProperty.REPOSTS_COUNT, cursorReader.getInt(TableColumns.SoundView.REPOSTS_COUNT));
         propertySet.put(PlaylistProperty.CREATED_AT, cursorReader.getDateFromTimestamp(TableColumns.SoundView.CREATED_AT));
         propertySet.put(PlayableProperty.IS_LIKED, cursorReader.getBoolean(TableColumns.SoundView.USER_LIKE));

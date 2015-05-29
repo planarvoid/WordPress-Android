@@ -223,7 +223,7 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
 
 
     @Override
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 

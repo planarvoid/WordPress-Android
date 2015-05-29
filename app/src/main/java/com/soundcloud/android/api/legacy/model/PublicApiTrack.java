@@ -318,7 +318,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     }
 
     @Override
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
@@ -479,7 +479,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
 
     public int getEstimatedFileSize() {
         // 128kbps estimate
-        return duration <= 0 ? 0 : ((128 * duration) / 8) * 1024;
+        return duration <= 0 ? 0 : (int) (((128 * duration) / 8) * 1024);
     }
 
     @Override

@@ -96,7 +96,7 @@ public class PlaylistWithTracksTest {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
                 PlaylistProperty.TRACK_COUNT.bind(1),
-                PlaylistProperty.DURATION.bind((int) TimeUnit.SECONDS.toMillis(60))
+                PlaylistProperty.DURATION.bind(TimeUnit.SECONDS.toMillis(60))
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, Collections.<TrackItem>emptyList());
@@ -107,7 +107,7 @@ public class PlaylistWithTracksTest {
     public void returnsDurationFromTracklistIfTracksAreThere() throws Exception {
         final PropertySet metadata = PropertySet.from(
                 PlaylistProperty.URN.bind(Urn.forTrack(123L)),
-                PlaylistProperty.DURATION.bind((int) TimeUnit.SECONDS.toMillis(60))
+                PlaylistProperty.DURATION.bind(TimeUnit.SECONDS.toMillis(60))
         );
 
         final PlaylistWithTracks playlistWithTracks = createPlaylistMetaData(metadata, ModelFixtures.trackItems(2));

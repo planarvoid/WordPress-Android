@@ -54,7 +54,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
     @JsonView(Views.Full.class) @JsonProperty("user_favorite") public boolean user_like;
     @JsonView(Views.Full.class) public boolean user_repost;
 
-    @JsonView(Views.Full.class) public int duration = ScModel.NOT_SET;
+    @JsonView(Views.Full.class) public long duration = ScModel.NOT_SET;
     @JsonView(Views.Full.class) @Nullable public Date created_at;
 
     @JsonView(Views.Full.class) public boolean streamable;
@@ -104,7 +104,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
             setId(cursor.getLong(cursor.getColumnIndex(TableColumns.ActivityView.SOUND_ID)));
         }
         permalink = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.PERMALINK));
-        duration = cursor.getInt(cursor.getColumnIndex(TableColumns.SoundView.DURATION));
+        duration = cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.DURATION));
 
         created_at = new Date(cursor.getLong(cursor.getColumnIndex(TableColumns.SoundView.CREATED_AT)));
         tag_list = cursor.getString(cursor.getColumnIndex(TableColumns.SoundView.TAG_LIST));
@@ -228,7 +228,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         b.putString("permalink_url", permalink_url);
         b.putBoolean("user_like", user_like);
         b.putBoolean("user_repost", user_repost);
-        b.putInt("duration", duration);
+        b.putLong("duration", duration);
         b.putLong("created_at", created_at != null ? created_at.getTime() : -1l);
         b.putBoolean("streamable", streamable);
         b.putBoolean("downloadable", downloadable);
@@ -266,7 +266,7 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         permalink_url = b.getString("permalink_url");
         user_like = b.getBoolean("user_like");
         user_repost = b.getBoolean("user_repost");
-        duration = b.getInt("duration");
+        duration = b.getLong("duration");
         created_at = b.getLong("created_at") == -1l ? null : new Date(b.getLong("created_at"));
         streamable = b.getBoolean("streamable");
         downloadable = b.getBoolean("downloadable");
