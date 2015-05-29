@@ -31,11 +31,8 @@
     <string name="btn_save">Simpan</string>
     <string name="btn_skip">Lewati</string>
     <string name="configure">Konfigurasikan</string>
-    <string name="connect_progress">Memuat</string>
     <string name="delete">Hapus</string>
     <string name="comments">Komentar</string>
-    <string name="share_log_out">Keluar</string>
-    <string name="share_to_soundcloud">&lt;b&gt;Bagikan&lt;/b&gt; ke &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Suara dari %s</string>
     <string name="this_user">Pengguna ini</string>
     <string name="track">suara</string>

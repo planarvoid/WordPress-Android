@@ -6,7 +6,7 @@
     <dimen name="share_user_icon_width">33dp</dimen>
     <dimen name="share_user_icon_height">33dp</dimen>
 
-    <dimen name="share_progress_icon_width">75dp</dimen>
+    <dimen name="record_progress_icon_width">75dp</dimen>
     <dimen name="share_progress_icon_height">75dp</dimen>
 
     <dimen name="divider_vertical_width">2px</dimen>

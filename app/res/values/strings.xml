@@ -33,11 +33,8 @@
     <string name="btn_save">Save</string>
     <string name="btn_skip">Skip</string>
     <string name="configure">Configure</string>
-    <string name="connect_progress">Loading</string>
     <string name="delete">Delete</string>
     <string name="comments">Comments</string>
-    <string name="share_log_out">Sign out</string>
-    <string name="share_to_soundcloud">&lt;b&gt;Share&lt;/b&gt; to &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Sounds from %s</string>
     <string name="this_user">This user</string>
     <string name="track">sound</string>

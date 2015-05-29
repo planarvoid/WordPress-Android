@@ -6,7 +6,7 @@
     <ImageView
         android:id="@+id/artwork"
         android:layout_alignParentLeft="true"
-        android:layout_width="@dimen/share_progress_icon_width"
+        android:layout_width="@dimen/record_progress_icon_width"
         android:layout_height="@dimen/share_progress_icon_height"
         android:gravity="center_vertical"
         android:scaleType="centerCrop"
