@@ -30,7 +30,6 @@
     <string name="btn_following">Следуют</string>
     <string name="btn_save">Сохранить</string>
     <string name="btn_skip">Пропустить</string>
-    <string name="configure">Настроить</string>
     <string name="delete">Удалить</string>
     <string name="comments">Комментарии</string>
     <string name="sounds_from">Звуки из %s</string>
