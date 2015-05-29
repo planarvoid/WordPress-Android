@@ -787,8 +787,8 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         private final WeakReference<NetworkConnectivityListener> listenerRef;
 
         private ConnectivityHandler(ScListFragment fragment, NetworkConnectivityListener listener) {
-            this.fragmentRef = new WeakReference<ScListFragment>(fragment);
-            this.listenerRef = new WeakReference<NetworkConnectivityListener>(listener);
+            this.fragmentRef = new WeakReference<>(fragment);
+            this.listenerRef = new WeakReference<>(listener);
         }
 
         @Override

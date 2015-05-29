@@ -24,7 +24,6 @@ public class FullImageDialog extends Dialog {
     private final WeakReference<Activity> activityRef;
     private final Handler handler = new Handler();
 
-    private final ImageOperations imageOperations;
     private final Runnable imageError = new Runnable() {
         public void run() {
             Activity activity = activityRef.get();
@@ -41,17 +40,15 @@ public class FullImageDialog extends Dialog {
     public FullImageDialog(Activity context, final Urn resourceUrn, ImageOperations imageOperations) {
         super(context, R.style.Theme_FullImageDialog);
 
-        this.imageOperations = imageOperations;
-
         setCancelable(true);
         setCanceledOnTouchOutside(true);
         setContentView(R.layout.full_image_dialog);
         getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-        activityRef = new WeakReference<Activity>(context);
+        activityRef = new WeakReference<>(context);
         final ImageView image = (ImageView) this.findViewById(R.id.image);
         final ProgressBar progress = (ProgressBar) this.findViewById(R.id.progress);
-        this.imageOperations.displayInFullDialogView(resourceUrn, ApiImageSize.T500, image, new ImageListener() {
+        imageOperations.displayInFullDialogView(resourceUrn, ApiImageSize.T500, image, new ImageListener() {
             @Override
             public void onLoadingStarted(String imageUri, View view) {
                 if (isShowing()) {

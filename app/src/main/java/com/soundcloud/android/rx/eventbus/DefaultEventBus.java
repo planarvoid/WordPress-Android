@@ -21,11 +21,11 @@ public class DefaultEventBus implements EventBus {
     private static final boolean LOG_EVENTS = Log.isLoggable(TAG, Log.DEBUG);
     private static SparseArray<List<Reference<Observer<?>>>> loggedObservers;
 
-    private final SparseArray<Subject<?, ?>> queues = new SparseArray<Subject<?, ?>>();
+    private final SparseArray<Subject<?, ?>> queues = new SparseArray<>();
 
     static {
         if (LOG_EVENTS) {
-            loggedObservers = new SparseArray<List<Reference<Observer<?>>>>();
+            loggedObservers = new SparseArray<>();
         }
     }
 
@@ -74,7 +74,7 @@ public class DefaultEventBus implements EventBus {
     private <T> void registerObserver(Queue<T> queue, Observer<T> observer) {
         List<Reference<Observer<?>>> observerRefs = loggedObservers.get(queue.id);
         if (observerRefs == null) {
-            observerRefs = new LinkedList<Reference<Observer<?>>>();
+            observerRefs = new LinkedList<>();
             loggedObservers.put(queue.id, observerRefs);
         }
         observerRefs.add(new WeakReference<Observer<?>>(observer));

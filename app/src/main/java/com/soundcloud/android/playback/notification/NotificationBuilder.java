@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 
 public interface NotificationBuilder {
 
-    static final int NOT_SET = -1;
+    int NOT_SET = -1;
 
     void setIcon(Bitmap bitmap);
 

@@ -101,10 +101,6 @@ public class SearchResultsScreen extends Screen {
         return resultsList().getAdapter().getCount();
     }
 
-    public Object getResultItem(int position) {
-        return resultsList().getAdapter().getItem(position);
-    }
-
     private ListView resultsList() {
         return (ListView) getViewPager().getCurrentPage(ListView.class);
     }

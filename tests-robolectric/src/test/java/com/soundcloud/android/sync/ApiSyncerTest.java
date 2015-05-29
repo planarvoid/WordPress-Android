@@ -194,25 +194,6 @@ public class ApiSyncerTest {
     }
 
     @Test
-    public void shouldSyncConnections() throws Exception {
-        TestHelper.addPendingHttpResponse(getClass(), "connections.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.CHANGED);
-        expect(Content.ME_CONNECTIONS).toHaveCount(4);
-
-        TestHelper.addPendingHttpResponse(getClass(), "connections.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.UNCHANGED);
-        expect(Content.ME_CONNECTIONS).toHaveCount(4);
-
-        TestHelper.addPendingHttpResponse(getClass(), "connections_add.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.CHANGED);
-        expect(Content.ME_CONNECTIONS).toHaveCount(6);
-
-        TestHelper.addPendingHttpResponse(getClass(), "connections_delete.json");
-        expect(sync(Content.ME_CONNECTIONS.uri).change).toEqual(ApiSyncResult.CHANGED);
-        expect(Content.ME_CONNECTIONS).toHaveCount(3);
-    }
-
-    @Test
     public void shouldDoTrackLookup() throws Exception {
         TestHelper.addPendingHttpResponse(getClass(), "tracks.json");
         ApiSyncResult result = sync(Content.TRACK_LOOKUP.forQuery("10853436,10696200,10602324"));

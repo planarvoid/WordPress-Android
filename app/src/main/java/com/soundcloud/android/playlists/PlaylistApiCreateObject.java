@@ -27,7 +27,7 @@ public class PlaylistApiCreateObject {
         this.sharing =  p.getSharing() == Sharing.PRIVATE ? Params.Track.PRIVATE : Params.Track.PUBLIC;
 
         // convert to ScModel as we only want to serialize the id
-        this.tracks = new ArrayList<ScModel>();
+        this.tracks = new ArrayList<>();
         for (PublicApiTrack t : p.getTracks()) {
             tracks.add(new ScModel(t.getId()));
         }

@@ -38,7 +38,7 @@ public class PlaylistTagStorage extends ScheduledOperations {
     }
 
     public void addRecentTag(String tag) {
-        LinkedList<String> recentTags = new LinkedList<String>(getRecentTags());
+        LinkedList<String> recentTags = new LinkedList<>(getRecentTags());
         if (recentTags.contains(tag)) {
             return;
         }

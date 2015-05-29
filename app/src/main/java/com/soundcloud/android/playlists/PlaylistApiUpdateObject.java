@@ -18,7 +18,7 @@ public class PlaylistApiUpdateObject {
     List<ScModel> tracks;
 
     public PlaylistApiUpdateObject(Collection<Long> toAdd) {
-        this.tracks = new ArrayList<ScModel>(toAdd.size());
+        this.tracks = new ArrayList<>(toAdd.size());
         for (Long id : toAdd){
             this.tracks.add(new ScModel(id));
         }

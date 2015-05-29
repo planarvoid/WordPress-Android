@@ -55,7 +55,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
     };
     protected final Content content;
     protected final Uri contentUri;
-    @NotNull protected List<T> data = new ArrayList<T>();
+    @NotNull protected List<T> data = new ArrayList<>();
     protected boolean isLoadingData;
     protected int page;
 
@@ -268,9 +268,9 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
         }
 
         final boolean onWifi = IOUtils.isWifiConnected(context);
-        Set<Long> trackUpdates = new HashSet<Long>();
-        Set<Long> userUpdates = new HashSet<Long>();
-        Set<Long> playlistUpdates = new HashSet<Long>();
+        Set<Long> trackUpdates = new HashSet<>();
+        Set<Long> userUpdates = new HashSet<>();
+        Set<Long> playlistUpdates = new HashSet<>();
         for (ScModel newItem : items) {
 
             if (newItem instanceof Refreshable) {

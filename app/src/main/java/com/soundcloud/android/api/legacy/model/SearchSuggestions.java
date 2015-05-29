@@ -49,7 +49,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
     public @NotNull List<Query> suggestions;
 
     public SearchSuggestions() {
-        suggestions = new ArrayList<Query>();
+        suggestions = new ArrayList<>();
     }
 
     /**
@@ -61,7 +61,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
      *               SuggestionTable</a>
      */
     public SearchSuggestions(Cursor cursor) {
-        suggestions = new ArrayList<Query>(cursor.getCount());
+        suggestions = new ArrayList<>(cursor.getCount());
         fromLocalCursor(cursor);
     }
 
@@ -208,7 +208,7 @@ public class SearchSuggestions implements Iterable<SearchSuggestions.Query> {
         public static final String KIND_USER = "user";
         public static final String KIND_TRACK = "track";
         public static final String KIND_PLAYLIST = "playlist"; //TODO: check if it will be called that way
-        public static final Set<String> SUPPORTED_KINDS = new HashSet<String>();
+        public static final Set<String> SUPPORTED_KINDS = new HashSet<>();
 
         // Search suggest API fields
         public String query;

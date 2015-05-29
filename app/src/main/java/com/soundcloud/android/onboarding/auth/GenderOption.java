@@ -14,7 +14,7 @@ public enum GenderOption {
     private final int resId;
     @Nullable private final String apiKey;
 
-    private GenderOption(int resId, @Nullable String apiKey) {
+    GenderOption(int resId, @Nullable String apiKey) {
         this.resId = resId;
         this.apiKey = apiKey;
     }

@@ -51,7 +51,7 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
 
     @JsonView(Views.Full.class) public String playlist_type;
     @JsonView(Views.Full.class) public String tracks_uri;
-    @JsonView(Views.Full.class) public List<PublicApiTrack> tracks = new ArrayList<PublicApiTrack>(0);
+    @JsonView(Views.Full.class) public List<PublicApiTrack> tracks = new ArrayList<>(0);
     @JsonView(Views.Full.class) private int track_count;
     public boolean removed;
 

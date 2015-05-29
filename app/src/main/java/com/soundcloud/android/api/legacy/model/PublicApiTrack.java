@@ -593,7 +593,7 @@ public class PublicApiTrack extends Playable implements TrackRecord {
 
         private final String name;
 
-        private State(String name) {
+        State(String name) {
             this.name = name;
         }
 

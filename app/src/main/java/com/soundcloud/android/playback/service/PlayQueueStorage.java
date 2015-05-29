@@ -35,7 +35,7 @@ public class PlayQueueStorage {
     }
 
     public Observable<TxnResult> storeAsync(final PlayQueue playQueue) {
-        final List<ContentValues> newItems = new ArrayList<ContentValues>(playQueue.size());
+        final List<ContentValues> newItems = new ArrayList<>(playQueue.size());
         for (PlayQueueItem item : playQueue) {
             if (item.shouldPersist()) {
                 newItems.add(ContentValuesBuilder.values(3)

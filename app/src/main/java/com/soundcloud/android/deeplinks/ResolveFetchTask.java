@@ -85,7 +85,7 @@ public class ResolveFetchTask extends AsyncTask<Uri, Void, PublicApiResource> {
     }
 
     public void setListener(FetchModelTask.Listener<PublicApiResource> listener) {
-        this.listener = new WeakReference<FetchModelTask.Listener<PublicApiResource>>(listener);
+        this.listener = new WeakReference<>(listener);
     }
 
     private FetchModelTask.Listener<PublicApiResource> getListener() {

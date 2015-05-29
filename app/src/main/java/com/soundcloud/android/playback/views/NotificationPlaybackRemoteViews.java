@@ -46,7 +46,7 @@ public class NotificationPlaybackRemoteViews extends PlaybackRemoteViews {
         }
     }
 
-    public void clearIcon(){
+    public void clearIcon() {
         setViewVisibility(R.id.icon,View.GONE);
     }
 

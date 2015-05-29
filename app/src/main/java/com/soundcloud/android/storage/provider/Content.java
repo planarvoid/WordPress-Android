@@ -7,7 +7,6 @@ import static com.soundcloud.android.storage.provider.ScContentProvider.Collecti
 import static com.soundcloud.android.storage.provider.ScContentProvider.CollectionItemTypes.REPOST;
 
 import com.soundcloud.android.api.legacy.TempEndpoints;
-import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiComment;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -58,8 +57,6 @@ public enum Content {
     ME_PLAYLIST_REPOST("me/reposts/playlists/#", TempEndpoints.e1.MY_PLAYLIST_REPOST, 122, PublicApiPlaylist.class, -1, null),
     ME_PLAYLIST_LIKE("me/likes/playlists/#", TempEndpoints.e1.MY_PLAYLIST_LIKE, 123, PublicApiPlaylist.class, -1, null),
 
-    ME_CONNECTION("me/connections/#", Endpoints.MY_CONNECTIONS, 130, Connection.class, -1, Table.Connections),
-    ME_CONNECTIONS("me/connections", Endpoints.MY_CONNECTIONS, 131, Connection.class, -1, Table.Connections),
     ME_SOUNDS("me/sounds", TempEndpoints.e1.MY_SOUNDS_MINI, 132, SoundAssociation.class, -1, Table.Posts),
 
     // the ids of the following entries should not be changed, they are referenced in th db
@@ -150,8 +147,8 @@ public enum Content {
     public final Table table;
 
     static final private UriMatcher sMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    static final private SparseArray<Content> sMap = new SparseArray<Content>();
-    static final private Map<Uri, Content> sUris = new HashMap<Uri, Content>();
+    static final private SparseArray<Content> sMap = new SparseArray<>();
+    static final private Map<Uri, Content> sUris = new HashMap<>();
 
     public static final int SYNCABLE_CEILING = 190;
     public static final int MINE_CEILING = 200;

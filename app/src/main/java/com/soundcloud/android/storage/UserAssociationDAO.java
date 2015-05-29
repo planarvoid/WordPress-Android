@@ -28,7 +28,7 @@ import java.util.List;
 
     @Override
     public List<UserAssociation> queryAll() {
-        List<UserAssociation> result = new ArrayList<UserAssociation>();
+        List<UserAssociation> result = new ArrayList<>();
         result.addAll(queryAllByUri(Content.ME_FOLLOWINGS.uri));
         result.addAll(queryAllByUri(Content.ME_FOLLOWERS.uri));
         return result;

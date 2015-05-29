@@ -72,7 +72,7 @@ public abstract class AdOverlayPresenter {
         imageOperations.displayLeaveBehind(Uri.parse(data.get(LeaveBehindProperty.IMAGE_URL)), getImageView(), imageListener);
     }
 
-    public static interface Listener {
+    public interface Listener {
         void onAdImageLoaded();
         void onImageClick();
         void onCloseButtonClick();

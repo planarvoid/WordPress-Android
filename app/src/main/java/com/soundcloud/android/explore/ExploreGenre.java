@@ -52,7 +52,7 @@ public class ExploreGenre implements Parcelable {
     @VisibleForTesting
     public ExploreGenre(String title, String suggestedTracksUrl) {
         this.title = title;
-        links = new HashMap<String, Link>();
+        links = new HashMap<>();
         links.put(SUGGESTED_TRACKS_LINK_REL, new Link(suggestedTracksUrl));
     }
 

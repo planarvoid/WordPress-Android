@@ -22,7 +22,7 @@ class GenreCellRenderer implements CellRenderer<ExploreGenre> {
 
     @Inject
     GenreCellRenderer() {
-        this.listPositionsToSections = new SparseArray<RowDescriptor>();
+        this.listPositionsToSections = new SparseArray<>();
     }
 
     @Override

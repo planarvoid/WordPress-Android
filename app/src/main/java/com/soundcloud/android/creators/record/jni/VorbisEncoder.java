@@ -75,7 +75,7 @@ public class VorbisEncoder {
 
         PlaybackFilter filter = options.filter;
         ProgressListener listener = options.listener;
-        ByteBuffer bbuffer = BufferUtils.allocateAudioBuffer((int) AudioConfig.DEFAULT.bytesPerSecond * 2);
+        ByteBuffer bbuffer = BufferUtils.allocateAudioBuffer(AudioConfig.DEFAULT.bytesPerSecond * 2);
         final byte[] buffer = new byte[bbuffer.capacity()];
         int n;
         long total = 0;

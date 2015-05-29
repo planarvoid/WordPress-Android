@@ -290,23 +290,10 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         }
     }
 
-    public boolean reload() {
-        if (!state.isPlaying() && playbackStream != null) {
-            try {
-                playbackStream.reopen();
-                return true;
-            } catch (IOException e) {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
     public void onDestroy() {
         stopPlayback();
         stopRecording();
-        //release();
+        release();
     }
 
     private void release() {
@@ -428,15 +415,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
         return false;
     }
 
-    public boolean toggleOptimize() {
-        if (playbackStream != null) {
-            final boolean enabled = !playbackStream.isOptimized();
-            playbackStream.setOptimize(enabled);
-            return enabled;
-        }
-        return false;
-    }
-
     public boolean isFading() {
         return playbackStream != null && playbackStream.isFading();
     }
@@ -534,10 +512,6 @@ public class SoundRecorder implements IAudioManager.MusicFocusable {
 
         broadcastManager.sendBroadcast(intent);
         appWidgetProvider.notifyChange(context, intent);
-    }
-
-    /* package, for testing */ void setPlaybackStream(@NotNull PlaybackStream stream) {
-        playbackStream = stream;
     }
 
     public enum State {

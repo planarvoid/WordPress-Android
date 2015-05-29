@@ -11,7 +11,7 @@ class SeekHandler extends Handler {
     private final WeakReference<ScrubController> scrubControllerRef;
 
     SeekHandler(ScrubController scrubController) {
-        this.scrubControllerRef = new WeakReference<ScrubController>(scrubController);
+        this.scrubControllerRef = new WeakReference<>(scrubController);
     }
 
     @Override

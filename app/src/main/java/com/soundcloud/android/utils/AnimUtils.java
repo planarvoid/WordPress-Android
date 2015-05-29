@@ -41,12 +41,6 @@ public final class AnimUtils {
         return animation;
     }
 
-    public static Animation runFadeOutAnimationOn(Context ctx, View target) {
-        Animation animation = AnimationUtils.loadAnimation(ctx, android.R.anim.fade_out);
-        target.startAnimation(animation);
-        return animation;
-    }
-
     public static Animation runSpinClockwiseAnimationOn(Context ctx, View target) {
         Animation animation = AnimationUtils.loadAnimation(ctx, R.anim.spin_clockwise);
         target.startAnimation(animation);
@@ -151,7 +145,7 @@ public final class AnimUtils {
         animator.start();
     }
 
-    public static interface ItemRemovalCallback {
+    public interface ItemRemovalCallback {
         void onAnimationComplete(int position);
     }
 

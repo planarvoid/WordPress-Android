@@ -40,7 +40,7 @@ import java.util.Map;
 public class Request implements Iterable<NameValuePair> {
     public static final String UTF_8 = "UTF-8";
 
-    private List<NameValuePair> params = new ArrayList<NameValuePair>(); // XXX should probably be lazy
+    private List<NameValuePair> params = new ArrayList<>(); // XXX should probably be lazy
 
     private HttpEntity entity;
 
@@ -116,9 +116,9 @@ public class Request implements Iterable<NameValuePair> {
         resource = request.resource;
         token = request.token;
         listener = request.listener;
-        params = new ArrayList<NameValuePair>(request.params);
+        params = new ArrayList<>(request.params);
         if (request.headers != null) {
-            headers = new HashMap<String, String>(request.headers);
+            headers = new HashMap<>(request.headers);
         }
         ifNoneMatch = request.ifNoneMatch;
         entity = request.entity;
@@ -314,7 +314,7 @@ public class Request implements Iterable<NameValuePair> {
     }
 
     public Map<String, String> getParams() {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         for (NameValuePair p : this.params) {
             params.put(p.getName(), p.getValue());
         }

@@ -24,7 +24,7 @@ public class CollectionTask extends ParallelAsyncTask<CollectionParams, ReturnDa
 
     protected CollectionTask(PublicCloudAPI api, Callback callback, CollectionLoaderFactory collectionLoaderFactory) {
         this.api = api;
-        this.callback = new WeakReference<Callback>(callback);
+        this.callback = new WeakReference<>(callback);
         this.collectionLoaderFactory = collectionLoaderFactory;
     }
 

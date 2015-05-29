@@ -91,16 +91,6 @@ public final class IOUtils {
         }
     }
 
-    public static long getSpaceCapacity(File dir) {
-        try {
-            StatFs statFs = new StatFs(dir.getAbsolutePath());
-            return (long) statFs.getBlockSize() * (long) statFs.getBlockCount();
-        } catch (IllegalArgumentException e) {
-            // gets thrown when call to statfs fails
-            return 0;
-        }
-    }
-
     public static File getFromMediaUri(ContentResolver resolver, Uri uri) {
         if (uri == null) {
             return null;
@@ -491,7 +481,7 @@ public final class IOUtils {
     }
 
     public static List<String> parseError(ObjectReader reader, InputStream is) throws IOException {
-        List<String> errorList = new ArrayList<String>();
+        List<String> errorList = new ArrayList<>();
         try {
             final JsonNode node = reader.readTree(is);
             final JsonNode errors = node.path("errors").path("error");

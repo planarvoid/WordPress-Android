@@ -8,9 +8,9 @@ public interface IAudioManager {
     int FOCUS_TRANSIENT_DUCK = AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
 
 
-    public interface MusicFocusable {
-        public void focusGained();
-        public void focusLost(boolean isTransient, boolean canDuck);
+    interface MusicFocusable {
+        void focusGained();
+        void focusLost(boolean isTransient, boolean canDuck);
     }
 
     boolean requestMusicFocus(final MusicFocusable focusable, int durationHint);

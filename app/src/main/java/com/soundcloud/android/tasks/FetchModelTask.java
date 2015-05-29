@@ -22,7 +22,6 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
     protected PublicCloudAPI api;
     private Set<WeakReference<Listener<Model>>> listenerWeakReferences;
 
-    private Exception exception;
     private final long modelId;
 
     public FetchModelTask(PublicCloudAPI api) {
@@ -36,10 +35,10 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
 
     public void addListener(Listener<Model> listener) {
         if (listenerWeakReferences == null) {
-            listenerWeakReferences = new HashSet<WeakReference<Listener<Model>>>();
+            listenerWeakReferences = new HashSet<>();
         }
 
-        listenerWeakReferences.add(new WeakReference<Listener<Model>>(listener));
+        listenerWeakReferences.add(new WeakReference<>(listener));
     }
 
 
@@ -83,7 +82,6 @@ public abstract class FetchModelTask<Model extends PublicApiResource> extends Pa
         } catch (NotFoundException e) {
             return null;
         } catch (IOException e) {
-            exception = e;
             Log.e(TAG, "error", e);
             return null;
         }

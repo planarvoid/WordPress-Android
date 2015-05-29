@@ -14,7 +14,7 @@ public enum SignupVia {
 
     public final String name;
 
-    private SignupVia(String name) {
+    SignupVia(String name) {
         this.name = name;
     }
 
@@ -42,7 +42,4 @@ public enum SignupVia {
         return this == FACEBOOK_SSO || this == FACEBOOK_WEBFLOW;
     }
 
-    public boolean isNonFacebookSignup()  {
-        return this == API || this == GOOGLE_PLUS;
-    }
 }

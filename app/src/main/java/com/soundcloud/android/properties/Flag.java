@@ -14,7 +14,7 @@ public enum Flag {
 
     private final int resourceId;
 
-    private Flag(int resourceId) {
+    Flag(int resourceId) {
         this.resourceId = resourceId;
     }
 

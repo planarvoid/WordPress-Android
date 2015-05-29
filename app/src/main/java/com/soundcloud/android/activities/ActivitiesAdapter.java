@@ -102,7 +102,7 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
     }
 
     private List<PropertySet> toPropertySets(List<Activity> activities) {
-        List<PropertySet> propertySets = new ArrayList<PropertySet>(activities.size());
+        List<PropertySet> propertySets = new ArrayList<>(activities.size());
         for (Activity activity : activities) {
             propertySets.add(activity.toPropertySet());
         }

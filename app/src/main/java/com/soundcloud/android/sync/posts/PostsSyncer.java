@@ -70,7 +70,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         storePostResources.call(apiResources);
     }
 
-    private final Set<PropertySet> getSetDifference(Set<PropertySet> set, Set<PropertySet>... without) {
+    private Set<PropertySet> getSetDifference(Set<PropertySet> set, Set<PropertySet>... without) {
         final Set<PropertySet> difference = new TreeSet<>(PostProperty.COMPARATOR);
         difference.addAll(set);
         for (Set<PropertySet> s : without) {

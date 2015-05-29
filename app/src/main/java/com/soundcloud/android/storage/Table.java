@@ -158,7 +158,7 @@ public enum Table implements com.soundcloud.propeller.Table {
 
     public static List<String> getColumnNames(SQLiteDatabase db, String table) {
         Cursor cursor = db.rawQuery("PRAGMA table_info (" + table + ")", null);
-        List<String> cols = new ArrayList<String>();
+        List<String> cols = new ArrayList<>();
         while (cursor != null && cursor.moveToNext()) {
             cols.add(cursor.getString(1));
         }
@@ -182,8 +182,8 @@ public enum Table implements com.soundcloud.propeller.Table {
                                             final String createString,
                                             final String[] fromAppend,
                                             final String[] toAppend) {
-        List<String> toAppendCols = new ArrayList<String>();
-        List<String> fromAppendCols = new ArrayList<String>();
+        List<String> toAppendCols = new ArrayList<>();
+        List<String> fromAppendCols = new ArrayList<>();
         java.util.Collections.addAll(fromAppendCols, fromAppend);
         java.util.Collections.addAll(toAppendCols, toAppend);
 
@@ -287,10 +287,6 @@ public enum Table implements com.soundcloud.propeller.Table {
         return cv.getAsLong(BaseColumns._ID);
     }
 
-    public long upsertSingleArgs(SQLiteDatabase db, Object... args) {
-        return upsertSingle(db, build(args));
-    }
-
     public long insertOrReplace(SQLiteDatabase db, ContentValues cv) {
         return insertWithOnConflict(db, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
@@ -299,13 +295,8 @@ public enum Table implements com.soundcloud.propeller.Table {
         return db.insertWithOnConflict(name(), null, cv, conflict);
     }
 
-    public long insertOrReplaceArgs(SQLiteDatabase db, Object... args) {
-        return insertOrReplace(db, build(args));
-    }
-
-    public static
     @NotNull
-    ContentValues build(@NotNull Object... args) {
+    public static ContentValues build(@NotNull Object... args) {
         ContentValues cv = new ContentValues();
         if (args.length % 2 != 0) {
             throw new IllegalArgumentException("need even number of arguments");

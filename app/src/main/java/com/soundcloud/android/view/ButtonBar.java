@@ -50,8 +50,8 @@ public class ButtonBar extends LinearLayout {
         separatorColor = a.getColor(R.styleable.ButtonBar_separator_color, 0xFF666666);
         a.recycle();
 
-        menuItems = new ArrayList<MenuItem>();
-        menuItemMap = new SparseArray<MenuItem>();
+        menuItems = new ArrayList<>();
+        menuItemMap = new SparseArray<>();
 
         setOrientation(LinearLayout.VERTICAL);
         addView(getNewVerticalSeparator());
@@ -75,21 +75,6 @@ public class ButtonBar extends LinearLayout {
         holder.addView(menuItem.button);
         setVisibilities();
         return this;
-    }
-
-    public void toggleVisibility(int id, boolean visible, boolean updateAll) {
-        if (menuItemMap.get(id) != null) {
-            menuItemMap.get(id).visible = visible;
-            if (updateAll) {
-                setVisibilities();
-            }
-        }
-    }
-
-    public void setTextById(int id, int cs) {
-        if (menuItemMap.get(id) != null) {
-            menuItemMap.get(id).button.setText(cs);
-        }
     }
 
     private void setVisibilities() {

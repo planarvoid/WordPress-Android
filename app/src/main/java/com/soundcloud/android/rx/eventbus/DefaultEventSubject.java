@@ -20,7 +20,7 @@ class DefaultEventSubject<T> extends Subject<T, T> {
     }
 
     public static <T> DefaultEventSubject<T> create() {
-        return new DefaultEventSubject<T>(new OnSubscribeFunc<T>());
+        return new DefaultEventSubject<>(new OnSubscribeFunc<T>());
     }
 
     private DefaultEventSubject(OnSubscribeFunc<T> onSubscribeFunc) {

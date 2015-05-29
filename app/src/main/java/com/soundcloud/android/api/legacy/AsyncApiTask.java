@@ -17,7 +17,7 @@ import java.util.List;
 public abstract class AsyncApiTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result>
         implements Endpoints, HttpStatus {
-    protected final List<String> errors = new ArrayList<String>();
+    protected final List<String> errors = new ArrayList<>();
     protected final PublicCloudAPI api;
 
     public AsyncApiTask(PublicCloudAPI api) {

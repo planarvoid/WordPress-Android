@@ -471,13 +471,7 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(Table.Suggestions.id + " = " + uri.getLastPathSegment());
                 break;
 
-            case ME_CONNECTION:
-                qb.setTables(content.table.name());
-                qb.appendWhere(Table.Connections.id + " = " + uri.getLastPathSegment());
-                break;
-
             case ME_SHORTCUTS:
-            case ME_CONNECTIONS:
                 qb.setTables(content.table.name());
                 break;
 
@@ -614,7 +608,6 @@ public class ScContentProvider extends ContentProvider {
         final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
         switch (content) {
             case COLLECTIONS:
-            case ME_CONNECTIONS:
             case PLAYLISTS:
             case ME_ALL_ACTIVITIES:
             case ME_SOUNDS:
@@ -829,7 +822,7 @@ public class ScContentProvider extends ContentProvider {
         return b.toString();
     }
 
-    public static interface Parameter {
+    public interface Parameter {
         String RANDOM = "random";
         String CACHED = "cached";
         String LIMIT = "limit";
@@ -838,7 +831,7 @@ public class ScContentProvider extends ContentProvider {
         String TYPE_IDS_ONLY = "typeIdsOnly";
     }
 
-    private static interface DbOperation<V> {
+    private interface DbOperation<V> {
         V execute();
     }
 
@@ -850,9 +843,9 @@ public class ScContentProvider extends ContentProvider {
         int LIKE = 1;
         int FOLLOWING = 2;
         int FOLLOWER = 3;
-        int FRIEND = 4;
-        //int SUGGESTED_USER  = 5; //unused
-        //int SEARCH          = 6; //unused
+        //int FRIEND = 4;
+        //int SUGGESTED_USER  = 5;
+        //int SEARCH          = 6;
         int REPOST = 7;
         int PLAYLIST = 8;
     }

@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,6 @@ public class ScrubControllerTest {
     private Message message;
     private OnScrollListener scrollListener;
     private View.OnTouchListener touchListener;
-    private TestEventBus eventBus = new TestEventBus();
 
     @Before
     public void setUp() throws Exception {
@@ -45,7 +43,7 @@ public class ScrubControllerTest {
 
         when(seekHandlerFactory.create(any(ScrubController.class))).thenReturn(seekHandler);
 
-        scrubController = new ScrubController(scrollView, playbackOperations, seekHandlerFactory, eventBus);
+        scrubController = new ScrubController(scrollView, playbackOperations, seekHandlerFactory);
         scrubController.setDuration(100);
         scrubController.setProgressHelper(progressHelper);
         scrubController.addScrubListener(scrubListener);

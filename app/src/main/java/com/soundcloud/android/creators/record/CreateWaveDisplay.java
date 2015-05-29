@@ -326,7 +326,7 @@ public class CreateWaveDisplay extends TouchLayout {
         private final WeakReference<CreateWaveDisplay> viewRef;
 
         private TouchHandler(CreateWaveDisplay view) {
-            this.viewRef = new WeakReference<CreateWaveDisplay>(view);
+            this.viewRef = new WeakReference<>(view);
         }
 
         @Override @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")

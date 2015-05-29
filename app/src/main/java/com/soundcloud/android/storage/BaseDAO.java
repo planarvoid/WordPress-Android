@@ -91,7 +91,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     }
 
     public int deleteAll(Collection<T> resources) {
-        Set<Long> toRemove = new HashSet<Long>(resources.size());
+        Set<Long> toRemove = new HashSet<>(resources.size());
         for (T res : resources) {
             toRemove.add(res.getId());
         }
@@ -155,11 +155,6 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
     }
 
     @NotNull
-    public List<Long> queryIdsByUri(Uri contentUri) {
-        return new QueryBuilder(contentUri).queryIds();
-    }
-
-    @NotNull
     protected List<T> queryAllByUri(Uri contentUri) {
         return new QueryBuilder(contentUri).queryAll();
     }
@@ -172,7 +167,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         }
 
         try {
-            List<Long> ids = new ArrayList<Long>(cursor.getCount());
+            List<Long> ids = new ArrayList<>(cursor.getCount());
             while (cursor.moveToNext()) {
                 ids.add(cursor.getLong(0));
             }
@@ -190,7 +185,7 @@ public abstract class BaseDAO<T extends Identifiable & Persisted> {
         }
 
         try {
-            List<T> objects = new ArrayList<T>(cursor.getCount());
+            List<T> objects = new ArrayList<>(cursor.getCount());
             while (cursor.moveToNext()) {
                 objects.add(objFromCursor(cursor));
             }

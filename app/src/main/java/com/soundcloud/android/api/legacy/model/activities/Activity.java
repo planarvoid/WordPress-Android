@@ -255,7 +255,7 @@ public abstract class Activity extends ScModel implements Parcelable,
     public abstract void cacheDependencies();
 
     public List<PublicApiResource> getDependentModels() {
-        List<PublicApiResource> models = new ArrayList<PublicApiResource>();
+        List<PublicApiResource> models = new ArrayList<>();
         final PublicApiUser user = getUser();
         if (user != null) {
             models.add(user);
@@ -320,19 +320,6 @@ public abstract class Activity extends ScModel implements Parcelable,
         public boolean isPlaylistActivity() {
             return PLAYLIST_TYPES.contains(this);
         }
-    }
-
-    public static String getDbPlaylistTypesForQuery() {
-        StringBuilder types = new StringBuilder(200);
-        int i = 0;
-        for (Type t : Type.PLAYLIST_TYPES) {
-            types.append('\'').append(t.type).append('\'');
-            if (i < Type.PLAYLIST_TYPES.size() - 1) {
-                types.append(',');
-            }
-            i++;
-        }
-        return types.toString();
     }
 
     public PropertySet toPropertySet() {

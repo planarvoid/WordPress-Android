@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-
 public class Waiter {
     private static final String TAG = Waiter.class.getSimpleName();
     private static Han solo;

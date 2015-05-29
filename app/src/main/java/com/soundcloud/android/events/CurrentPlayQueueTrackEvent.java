@@ -39,10 +39,6 @@ public final class CurrentPlayQueueTrackEvent {
         return kind;
     }
 
-    public boolean wasNewQueue() {
-        return kind == NEW_QUEUE;
-    }
-
     public Urn getCurrentTrackUrn() {
         return currentTrackUrn;
     }

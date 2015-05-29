@@ -2,7 +2,6 @@ package com.soundcloud.android.accounts;
 
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.associations.FollowingOperations;
-import com.soundcloud.android.cache.ConnectionsCache;
 import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
@@ -71,7 +70,6 @@ class AccountCleanupAction implements Action0 {
         streamSyncStorage.clear();
         soundRecorder.reset();
         FollowingOperations.clearState();
-        ConnectionsCache.reset();
     }
 
     private void clearCollections()  {

@@ -39,7 +39,7 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
     }
 
     private void init() {
-        inputObjectPool = new ArrayBlockingQueue<InputObject>(INPUT_QUEUE_SIZE);
+        inputObjectPool = new ArrayBlockingQueue<>(INPUT_QUEUE_SIZE);
         for (int i = 0; i < INPUT_QUEUE_SIZE; i++) {
             inputObjectPool.add(new InputObject(inputObjectPool));
         }
@@ -127,7 +127,7 @@ public abstract class TouchLayout extends RelativeLayout implements View.OnTouch
         private boolean stopped = false;
 
         private TouchThread(TouchLayout touchLayout) {
-            this.mLayoutRef = new WeakReference<TouchLayout>(touchLayout);
+            this.mLayoutRef = new WeakReference<>(touchLayout);
         }
 
         public synchronized void feedInput(InputObject input) {

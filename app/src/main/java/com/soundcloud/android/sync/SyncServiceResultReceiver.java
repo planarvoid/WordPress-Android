@@ -146,7 +146,7 @@ class SyncServiceResultReceiver extends ResultReceiver {
     }
 
     public interface OnResultListener {
-        public void onResultReceived();
+        void onResultReceived();
     }
 
     public static class Factory {

@@ -5,9 +5,9 @@ import android.view.View;
 
 class SlideAnimationHelper {
 
-    private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_ARTWORK = new Pair<Float, Float>(.4f, 1f);
-    private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_FOOTER = new Pair<Float, Float>(.6f, 1f);
-    private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_FULLSCREEN = new Pair<Float, Float>(.4f, .9f);
+    private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_ARTWORK = new Pair<>(.4f, 1f);
+    private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_FOOTER = new Pair<>(.6f, 1f);
+    private static final Pair<Float, Float> SLIDE_TRANSITION_BOUNDS_FULLSCREEN = new Pair<>(.4f, .9f);
 
     void configureViewsFromSlide(float slideOffset, View footerView, Iterable<View> fullscreenViews, PlayerOverlayController... overlayController) {
         configureViewsFromSlide(slideOffset, footerView, overlayController);

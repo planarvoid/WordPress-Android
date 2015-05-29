@@ -100,7 +100,7 @@ public enum Screen {
 
     private final String trackingTag;
 
-    private Screen(String trackingTag) {
+    Screen(String trackingTag) {
         this.trackingTag = trackingTag;
     }
 

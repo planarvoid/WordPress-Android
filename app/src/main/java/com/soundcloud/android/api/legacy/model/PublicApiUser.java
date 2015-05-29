@@ -549,7 +549,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     }
 
 
-    public static interface DataKeys {
+    public interface DataKeys {
         String FRIEND_FINDER_NO_FRIENDS_SHOWN = "friend_finder_no_friends_shown";
         String SEEN_CREATE_AUTOSAVE = "seenCreateAutoSave";
 

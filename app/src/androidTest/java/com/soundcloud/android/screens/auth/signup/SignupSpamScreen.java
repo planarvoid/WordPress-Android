@@ -14,10 +14,6 @@ public class SignupSpamScreen extends Screen {
         this.solo = solo;
     }
 
-    public void clickTryAgain() {
-        testDriver.clickOnText(com.soundcloud.android.R.string.try_again);
-    }
-
     @Override
     public boolean isVisible() {
         return solo.findElement(With.text(solo.getString(com.soundcloud.android.R.string.authentication_captcha_message))).isVisible();

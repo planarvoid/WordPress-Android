@@ -8,9 +8,8 @@ public interface TempEndpoints {
     String PLAYLIST_TRACKS      = "/playlists/%d/tracks";
     String MY_PLAYLISTS         = "/me/playlists";
     String USER_PLAYLISTS       = "/users/%d/playlists";
-    String TRACK_SEARCH         = "/search/sounds";
 
-    public interface e1 {
+    interface e1 {
         String MY_STREAM           = "/e1/me/stream";
         String MY_ACTIVITIES       = "/e1/me/activities";
         String MY_TRACK_LIKE       = "/e1/me/track_likes/%d";
@@ -26,7 +25,7 @@ public interface TempEndpoints {
         String PLAYLIST_REPOSTERS  = "/e1/playlists/%d/reposters";
     }
 
-    public interface i1 {
+    interface i1 {
         String MY_SHORTCUTS       = "/i1/me/shortcuts";
     }
 }

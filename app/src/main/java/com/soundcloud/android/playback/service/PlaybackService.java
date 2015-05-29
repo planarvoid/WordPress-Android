@@ -400,7 +400,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         private float currentVolume;
 
         private FadeHandler(PlaybackService service) {
-            this.serviceRef = new WeakReference<PlaybackService>(service);
+            this.serviceRef = new WeakReference<>(service);
         }
 
         @Override

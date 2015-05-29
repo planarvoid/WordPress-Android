@@ -53,7 +53,7 @@ public class ActivitiesLoader implements CollectionLoader<Activity> {
             }
             keepGoing = success && newActivities.size() > 0;
         }
-        return new ReturnData<Activity>(newActivities.collection, params, null, responseCode,  keepGoing, success);
+        return new ReturnData<>(newActivities.collection, params, null, responseCode,  keepGoing, success);
     }
 
     private Activities getOlderActivities(ActivitiesStorage storage, CollectionParams params) {

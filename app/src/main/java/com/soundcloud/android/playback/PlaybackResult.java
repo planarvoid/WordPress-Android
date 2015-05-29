@@ -5,7 +5,7 @@ public class PlaybackResult {
     private final boolean isSuccess;
     private final ErrorReason errorReason;
 
-    public static enum ErrorReason {
+    public enum ErrorReason {
         NONE,
         UNSKIPPABLE,
         TRACK_UNAVAILABLE_OFFLINE,

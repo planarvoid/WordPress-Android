@@ -34,7 +34,7 @@ public class StreamPlaya implements PlayaListener {
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final NetworkConnectionHelper networkConnectionHelper;
 
-    private Playa currentPlaya, lastPlaya;
+    private Playa currentPlaya;
     private PlayaListener playaListener;
 
     // store start info so we can fallback and retry after Skippy failures
@@ -190,7 +190,7 @@ public class StreamPlaya implements PlayaListener {
     }
 
     public void startBufferingMode(Urn trackUrn){
-        lastPlaya = currentPlaya;
+        Playa lastPlaya = currentPlaya;
         currentPlaya = bufferingPlayaDelegate;
 
         lastStateTransition = new StateTransition(PlayaState.BUFFERING, Reason.NONE, trackUrn);

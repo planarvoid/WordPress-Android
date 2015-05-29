@@ -48,13 +48,6 @@ public final class CollectionUtils {
         return result;
     }
 
-    public static <T> Collection<T> intersect(Collection<T> items, Collection<T> toIntersectWith) {
-        final Collection<T> intersection = new ArrayList<>();
-        intersection.addAll(items);
-        intersection.retainAll(toIntersectWith);
-        return intersection;
-    }
-
     @SuppressWarnings({"PMD.LooseCoupling"}) // we need ArrayList for Parceling
     public static ArrayList<Urn> extractUrnsFromEntities(List<PropertySet> entities) {
         ArrayList<Urn> urns = new ArrayList<>(entities.size());
