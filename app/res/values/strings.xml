@@ -32,7 +32,6 @@
     <string name="btn_following">Following</string>
     <string name="btn_save">Save</string>
     <string name="btn_skip">Skip</string>
-    <string name="configure">Configure</string>
     <string name="delete">Delete</string>
     <string name="comments">Comments</string>
     <string name="sounds_from">Sounds from %s</string>
