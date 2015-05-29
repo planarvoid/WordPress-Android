@@ -425,18 +425,20 @@ final class DatabaseSchema {
                 ",SoundView.*" +
 
                 " FROM SoundStream" +
+
+                // filter out duplicates
+                " INNER JOIN (" +
+                " SELECT _id, MAX(created_at) FROM SoundStream GROUP BY sound_id, sound_type, promoted_id " +
+                ") dupes ON SoundStream._id = dupes._id " +
+
+
                 " LEFT JOIN Users ON(" +
                 "   SoundStream." + TableColumns.SoundStream.REPOSTER_ID + " = " + "Users." + TableColumns.Users._ID + ")" +
                 " LEFT JOIN SoundView ON(" +
                 "   SoundStream." + TableColumns.SoundStream.SOUND_ID + " = " + "SoundView." + TableColumns.SoundView._ID + " AND " +
                 "   SoundStream." + TableColumns.SoundStream.SOUND_TYPE + " = " + "SoundView." + TableColumns.SoundView._TYPE + ")" +
 
-                // filter out duplicates
-                " LEFT JOIN SoundStream dupe ON(" +
-                "   dupe.sound_id = SoundStream.sound_id AND dupe.sound_type = SoundStream.sound_type AND " +
-                "   SoundStream.reposter_id IS NULL AND dupe.reposter_id IS NOT NULL" +
-                ")" +
-                " WHERE dupe._id IS NULL" +
+
 
                 " ORDER BY " + TableColumns.SoundStreamView.CREATED_AT + " DESC";
 

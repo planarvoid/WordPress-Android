@@ -325,18 +325,21 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertPromotedStreamTrack(long timestamp) {
-        ApiTrack promotedTrack = insertTrack();
+        return insertPromotedStreamTrack(insertTrack(), timestamp);
+    }
+
+    public ApiTrack insertPromotedStreamTrack(ApiTrack track, long timestamp) {
         long promotedId = 26;
 
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.SoundStream.SOUND_ID, promotedTrack.getUrn().getNumericId());
+        cv.put(TableColumns.SoundStream.SOUND_ID, track.getUrn().getNumericId());
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
         cv.put(TableColumns.SoundStream.PROMOTED_ID, promotedId);
         insertInto(Table.SoundStream, cv);
 
         insertPromotedTrackMetadata(promotedId);
-        return promotedTrack;
+        return track;
     }
 
     public void insertPromotedTrackMetadata(long promotedId) {
