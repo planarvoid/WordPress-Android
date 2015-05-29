@@ -71,11 +71,9 @@ public class RecordAppWidgetProvider extends AppWidgetProvider {
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_record);
         // Connect up various buttons and touch events
         if (isRecording) {
-            views.setImageViewResource(R.id.btn_action, R.drawable.btn_rec_pause_states);
             views.setOnClickPendingIntent(R.id.btn_action,
                     PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_STOP), PendingIntent.FLAG_CANCEL_CURRENT));
         } else {
-            views.setImageViewResource(R.id.btn_action, R.drawable.btn_rec_states);
             views.setOnClickPendingIntent(R.id.btn_action,
                     PendingIntent.getActivity(context, 0, new Intent(Actions.RECORD_START), PendingIntent.FLAG_CANCEL_CURRENT));
         }
