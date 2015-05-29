@@ -127,11 +127,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertPlaylistTrack(Urn playlistUrn, int position) {
         ApiTrack apiTrack = insertTrack();
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId());
-        cv.put(TableColumns.PlaylistTracks.TRACK_ID, apiTrack.getId());
-        cv.put(TableColumns.PlaylistTracks.POSITION, position);
-        insertInto(Table.PlaylistTracks, cv);
+        insertPlaylistTrack(playlistUrn, apiTrack.getUrn(), position);
         return apiTrack;
     }
 

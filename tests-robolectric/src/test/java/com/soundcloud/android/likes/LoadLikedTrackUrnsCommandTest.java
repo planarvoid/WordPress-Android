@@ -2,9 +2,11 @@ package com.soundcloud.android.likes;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,9 +43,11 @@ public class LoadLikedTrackUrnsCommandTest extends StorageIntegrationTest {
         expect(playlistLikes).toBeEmpty();
     }
 
-    @Test // TODO: we will revisit this once we have designs for missing liked tracks
+    @Test
     public void shouldNotLoadLikesThatHaveNoTrackMetaData() throws Exception {
-        testFixtures().insertTrackLike(); // only the like, metadata missing; should not get returned.
+        final ApiPlaylist apiPlaylist = testFixtures().insertPlaylist();
+        // insert a track like with the same ID as the playlist to test that we are joining on tracks only
+        testFixtures().insertLike(apiPlaylist.getId(), TableColumns.Sounds.TYPE_TRACK, new Date());
 
         List<Urn> trackLikes = command.call();
 

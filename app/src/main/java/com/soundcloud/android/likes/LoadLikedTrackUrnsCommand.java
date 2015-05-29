@@ -1,5 +1,7 @@
 package com.soundcloud.android.likes;
 
+import static com.soundcloud.propeller.query.Filter.filter;
+
 import com.soundcloud.android.commands.LegacyCommand;
 import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
@@ -8,6 +10,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.query.ColumnFunctions;
 import com.soundcloud.propeller.query.Query;
+import com.soundcloud.propeller.query.Where;
 
 import android.provider.BaseColumns;
 
@@ -25,9 +28,13 @@ public class LoadLikedTrackUrnsCommand extends LegacyCommand<Object, List<Urn>, 
 
     @Override
     public List<Urn> call() throws Exception {
+        final Where whereTrackDataExists = filter()
+                .whereEq(Table.Likes.field(TableColumns.Likes._ID), Table.Sounds.field(TableColumns.Sounds._ID))
+                .whereEq(Table.Likes.field(TableColumns.Likes._TYPE), Table.Sounds.field(TableColumns.Sounds._TYPE));
+
         return database.query(Query.from(Table.Likes.name())
                 .select(ColumnFunctions.field("Likes._id").as(BaseColumns._ID))
-                .innerJoin("Sounds", "Likes._id", "Sounds._id")
+                .innerJoin(Table.Sounds.name(), whereTrackDataExists)
                 .whereEq("Likes." + TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK)
                 .order("Likes." + TableColumns.Likes.CREATED_AT, Query.ORDER_DESC)
                 .whereNull(TableColumns.Likes.REMOVED_AT))
