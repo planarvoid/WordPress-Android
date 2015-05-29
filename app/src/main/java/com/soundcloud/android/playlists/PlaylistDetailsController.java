@@ -6,12 +6,12 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;
@@ -28,8 +28,8 @@ import javax.inject.Inject;
 
 abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMenuPresenter.RemoveTrackListener {
 
-    private final PlaylistTrackItemPresenter trackPresenter;
-    private final ItemAdapter<TrackItem> adapter;
+    private final PlaylistTrackItemRenderer trackRenderer;
+    private final ListItemAdapter<TrackItem> adapter;
     private final EventBus eventBus;
 
     private Subscription eventSubscriptions = Subscriptions.empty();
@@ -52,12 +52,12 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         void onPlaylistContentChanged();
     }
 
-    protected PlaylistDetailsController(PlaylistTrackItemPresenter trackPresenter, ItemAdapter<TrackItem> adapter,
+    protected PlaylistDetailsController(PlaylistTrackItemRenderer trackRenderer, ListItemAdapter<TrackItem> adapter,
                                         EventBus eventBus) {
-        this.trackPresenter = trackPresenter;
+        this.trackRenderer = trackRenderer;
         this.adapter = adapter;
         this.eventBus = eventBus;
-        trackPresenter.setRemoveTrackListener(this);
+        trackRenderer.setRemoveTrackListener(this);
     }
 
     public void showTrackRemovalOptions(final Urn urn, Listener listener){
@@ -69,7 +69,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         AnimUtils.removeItemFromList(listView, position, new AnimUtils.ItemRemovalCallback() {
             @Override
             public void onAnimationComplete(int position) {
-                adapter.removeAt(position);
+                adapter.removeItem(position);
                 adapter.notifyDataSetChanged();
                 listener.onPlaylistContentChanged();
             }
@@ -80,7 +80,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
         return playlistUrn;
     }
 
-    ItemAdapter<TrackItem> getAdapter() {
+    ListItemAdapter<TrackItem> getAdapter() {
         return adapter;
     }
 
@@ -99,7 +99,7 @@ abstract class PlaylistDetailsController implements EmptyViewAware, TrackItemMen
 
     private void subscribeToContentUpdate() {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, trackPresenter)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, trackRenderer)),
                 eventBus.subscribe(CURRENT_DOWNLOAD, new UpdateCurrentDownloadSubscriber(adapter)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );

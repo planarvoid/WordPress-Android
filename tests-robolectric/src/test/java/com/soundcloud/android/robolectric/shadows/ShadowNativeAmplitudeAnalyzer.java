@@ -5,6 +5,8 @@ import com.xtremelabs.robolectric.internal.Implements;
 
 @SuppressWarnings("UnusedDeclaration")
 @Implements(NativeAmplitudeAnalyzer.class)
+// WARNING: This shadows a class we own and so depends on
+// WARNING: a 'addClassOrPackageToInstrument' line in the TestRunner's constructor
 public class ShadowNativeAmplitudeAnalyzer {
     public static int lastValue;
 

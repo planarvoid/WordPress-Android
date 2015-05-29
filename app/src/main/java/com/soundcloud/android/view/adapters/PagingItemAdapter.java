@@ -8,7 +8,7 @@ import com.soundcloud.android.utils.ErrorUtils;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdapter<Iterable<T>> {
+public class PagingItemAdapter<T> extends ListItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
 
     private final int progressItemLayoutResId;
 
@@ -19,26 +19,27 @@ public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdap
         IDLE, LOADING, ERROR
     }
 
-    public PagingItemAdapter(CellPresenter<T> cellPresenter) {
-        this(R.layout.list_loading_item, cellPresenter);
+    public PagingItemAdapter(CellRenderer<T> cellRenderer) {
+        this(R.layout.list_loading_item, cellRenderer);
     }
 
-    public PagingItemAdapter(int progressItemLayoutResId, CellPresenter<T> cellPresenter) {
-        super(cellPresenter);
+    public PagingItemAdapter(int progressItemLayoutResId, CellRenderer<T> cellRenderer) {
+        super(cellRenderer);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    public PagingItemAdapter(CellPresenterEntity<?>... cellPresenterEntities) {
-        super(cellPresenterEntities);
+    public PagingItemAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
+        super(cellRendererBindings);
         this.progressItemLayoutResId = R.layout.list_loading_item;
     }
 
+    @Override
     public void setOnErrorRetryListener(View.OnClickListener onErrorRetryListener) {
         this.onErrorRetryListener = onErrorRetryListener;
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         if (items.isEmpty()) {
             return 0;
         } else {
@@ -107,18 +108,20 @@ public class PagingItemAdapter<T> extends ItemAdapter<T> implements ReactiveAdap
         if (isIdle() && position == items.size()) {
             ErrorUtils.handleSilentException(new IllegalStateException(
                     "This position is invalid in Idle state. Tracking issue #2377; position=" + position + "; items="
-                            + items.size() + "; count=" + getCount()));
+                            + items.size() + "; count=" + getItemCount()));
         }
         
         return appendState != AppendState.IDLE && position == items.size() ? IGNORE_ITEM_VIEW_TYPE
                  : super.getItemViewType(position);
     }
 
+    @Override
     public void setLoading() {
         setNewAppendState(AppendState.LOADING);
         notifyDataSetChanged();
     }
 
+    @Override
     public boolean isIdle() {
         return appendState == AppendState.IDLE;
     }

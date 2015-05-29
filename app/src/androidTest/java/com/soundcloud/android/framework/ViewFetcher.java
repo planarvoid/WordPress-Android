@@ -5,7 +5,6 @@ import static com.google.common.collect.Collections2.filter;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
-import com.robotium.solo.Solo;
 import com.soundcloud.android.framework.viewelements.DefaultViewElement;
 import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
@@ -21,16 +20,16 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class ViewFetcher {
-    private Solo testDriver;
+    private Han testDriver;
     private View parentView;
     private ElementWaiter elementWaiter = new ElementWaiter();
     private String TAG = getClass().getSimpleName().toString();
 
-    public ViewFetcher(Solo driver){
+    public ViewFetcher(Han driver){
         testDriver = driver;
     }
 
-    public ViewFetcher(View view, Solo driver) {
+    public ViewFetcher(View view, Han driver) {
         parentView = view;
         testDriver = driver;
     }

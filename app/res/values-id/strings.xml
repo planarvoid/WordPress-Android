@@ -4,10 +4,8 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Ya</string>
     <string name="no">Tidak</string>
-    <string name="close">Tutup</string>
     <string name="post">Poskan</string>
     <string name="view">Lihat</string>
-    <string name="btn_publish">Selanjutnya</string>
     <string name="btn_apply">Terapkan</string>
     <string name="cancel">Batal</string>
     <string name="retry">Coba lagi</string>
@@ -18,6 +16,7 @@
     <string name="btn_continue">Lanjutkan</string>
     <string name="imprint">Jejak</string>
     <string name="privacy">Privasi</string>
+    <string name="contact_support">Hubungi bagian dukungan</string>
     <string name="legal">Legal</string>
     <string name="legal_summary">Informasi legal</string>
     <string name="terms_of_use">Ketentuan Penggunaan</string>
@@ -33,15 +32,9 @@
     <string name="btn_skip">Lewati</string>
     <string name="configure">Konfigurasikan</string>
     <string name="connect_progress">Memuat</string>
-    <string name="connect_success">Berhasil terhubung dengan %1$s</string>
-    <string name="connection_list_footer">Untuk mengubah opsi berbagi default Anda, buka pengaturan di SoundCloud dan pilihlah \'Koneksi\'</string>
     <string name="delete">Hapus</string>
     <string name="comments">Komentar</string>
-    <string name="new_connection_error">Terjadi masalah saat menambahkan jaringan</string>
-    <string name="reset">Buang</string>
-    <string name="share_fail_message">Oke, terjadi kesalahan.</string>
     <string name="share_log_out">Keluar</string>
-    <string name="share_success_message">Ya, berhasil!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Bagikan&lt;/b&gt; ke &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Suara dari %s</string>
     <string name="this_user">Pengguna ini</string>
@@ -49,8 +42,6 @@
     <string name="track_by">oleh</string>
     <string name="display_name">Nama Tampilan</string>
     <string name="website">Situs Web</string>
-    <string name="what_hint">Apa</string>
-    <string name="where_hint">Di mana</string>
     <string name="like">Suka</string>
     <string name="unlike">Tidak suka</string>
 
@@ -96,14 +87,12 @@
     <string name="authentication_log_in_with_facebook">Masuk dengan Facebook</string>
     <string name="authentication_login_error_password_message">Kami tidak dapat memasukkan Anda. Anda yakin telah memasukkan email dan kata sandi yang benar?</string>
     <string name="authentication_login_progress_message">Sedang memasukkan Anda</string>
-    <string name="authentication_recover_password">Pulihkan kata sandi</string>
     <string name="authentication_recover_password_failure">Kami tidak dapat memulihkan kata sandi Anda saat ini. Silakan coba sebentar lagi</string>
     <string name="authentication_recover_password_failure_reason">Pemulihan kata sandi gagal: %s</string>
     <string name="authentication_recover_password_success">Periksa email Anda! Sebentar lagi Anda akan menerima email berisi petunjuk cara mengatur ulang kata sandi</string>
     <string name="authentication_recover_progress_message">Meminta pengaturan ulang kata sandi</string>
     <string name="authentication_sign_up">Mendaftar di SoundCloud</string>
     <string name="authentication_signup_error_message">Tampaknya ada masalah. Mohon coba untuk mendaftar di SoundCloud.com.</string>
-    <string name="authentication_support">Dukungan</string>
     <string name="authentication_terms_of_use">Ketentuan Penggunaan</string>
     <string name="authentication_your_email_address">Alamat email Anda</string>
     <string name="authentication_your_password">Kata sandi Anda</string>
@@ -118,8 +107,7 @@
     <string name="facebook_authentication_failed_message">Silakan coba sebentar lagi atau masuk menggunakan nama pengguna dan kata sandi SoundCloud Anda.</string>
     <string name="authentication_recover_password_msg">Masukkan alamat email Anda dan kami akan mengirimkan tautan untuk mengubah kata sandi Anda. Ada masalah? Hubungi bagian dukungan.</string>
     <string name="authentication_blocked_title">Kami tidak dapat mendaftarkan Anda</string>
-    <string name="authentication_blocked_message">Robot kami mengira pendaftaran ini mirip dengan spam. Jika menurut Anda ini merupakan kesalahan, mohon <a href="http://help.soundcloud.com/customer/portal/emails/new">hubungi bagian dukungan kami</a>
-  </string>
+    <string name="authentication_blocked_message">Robot kami mengira pendaftaran ini mirip dengan spam. Jika menurut Anda ini merupakan kesalahan, mohon <a href="http://help.soundcloud.com/customer/portal/emails/new">hubungi bagian dukungan kami</a></string>
     <string name="authentication_captcha_message">Kami mendapatkan masalah saat memasukkan Anda. Mohon masuk melalui situs web mobile kami dan sebelum masuk kembali.</string>
     <string name="authentication_email_taken_message">Email ini sudah terdaftar pada sebuah akun. Masukkan email yang lain atau cobalah untuk masuk</string>
     <string name="authentication_email_invalid_message">Domain yang Anda masukkan tampaknya tidak dapat menerima email. Apakah Anda mengejanya dengan benar?</string>
@@ -160,7 +148,6 @@
     <string name="empty_user_tracks_text">%1$s belum mengunggah suara publik.</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">Terjadi kesalahan saat merekam.\n Perangkat Anda mungkin tidak mendukung konfigurasi rekaman saat ini. Anda dapat mengubah konfigurasi di pengaturan aplikasi.</string>
     <string name="error_unauthorized_message">Terjadi masalah dengan akun Anda dan kami meminta Anda untuk masuk kembali ke SoundCloud sebelum Anda dapat melanjutkan menggunakan aplikasi.</string>
     <string name="error_unauthorized_title">Galat Akun</string>
     <string name="error_loading_url">Terjadi masalah saat memuat url tersebut</string>
@@ -171,7 +158,6 @@
     <string name="crop_image_error">Terjadi kesalahan saat memangkas gambar Anda.</string>
     <string name="error_server_problems_message">Terjadi masalah saat memproses permintaan Anda. Silakan coba lagi nanti.</string>
     <string name="connection_list_error">Tampaknya ada masalah koneksi. Silakan coba sebentar lagi.</string>
-    <string name="connect_failure">Gagal menghubungkan dengan %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Aduh! Kami tidak dapat mendaftarkan Anda \nMohon perbarui aplikasi atau mendaftarlah di SoundCloud.com.</string>
 
@@ -328,20 +314,7 @@
     <string name="user_commented_at">%1$s di %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Galat tidak dikenal</string>
-    <string name="payments_connection_error">Kesalahan koneksi</string>
-    <string name="payments_connection_unavailable">Penagihan Google Play tidak tersedia</string>
-    <string name="payments_user_cancelled">Pengguna dibatalkan</string>
-    <string name="payments_none_available">Tidak ada langganan tersedia</string>
-    <string name="payments_verifying">Memverifikasi</string>
-    <string name="payments_verify_fail">Verifikasi gagal</string>
-    <string name="payments_verify_timeout">Tidak dapat memverifikasi pembelian</string>
     <string name="payments_success">Berhasil</string>
-    <string name="payments_error_title">Kesalahan pembayaran</string>
-    <string name="payments_error_already_subscribed">Sudah ada berlangganan yang terkait dengan akun Anda. Masalah berlanjut? Hubungi bagian dukungan.</string>
-    <string name="payments_error_stale_checkout">Tidak memungkinkan untuk memulihkan berlangganan Anda.</string>
-    <string name="payments_error_wrong_user">Anda memiliki status berlangganan aktif, tetapi status tersebut terkait dengan pengguna yang berbeda.</string>
-    <string name="payments_error_contact_support">Hubungi dukungan</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Daftar Putar</string>
@@ -374,74 +347,25 @@
     <string name="myspace">Myspace</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">Mohon Tunggu...</string>
     <string name="rec_title_idle_rec">Rekam</string>
     <string name="rec_title_recording">Merekam</string>
     <string name="rec_title_idle_play">Dijeda</string>
     <string name="rec_title_playing">Memutar</string>
     <string name="rec_title_editing">Edit</string>
-    <string name="record_another_sound">Rekam suara lain</string>
     <string name="record_insert_sd_card">Mohon masukkan Kartu SD untuk merekam.</string>
     <string name="record_instructions">Bagikan Suara Anda</string>
     <string name="record_storage_is_full">Penyimpanan sudah penuh</string>
     <string name="recorded_afternoon">%s sore</string>
-    <string name="recorded_at">%1$s di %2$s</string>
     <string name="recorded_evening">%s petang</string>
     <string name="recorded_morning">%s pagi</string>
     <string name="recorded_night">%s malam</string>
-    <string name="recording_not_found">Rekaman tidak ditemukan</string>
-    <string name="rec_your_sound_is_saved_locally_at">Suara Anda disimpan secara lokal</string>
     <string name="dialog_confirm_delete_recording_message">Apakah Anda yakin ingin menghapus rekaman ini?</string>
-    <string name="dialog_reset_recording_message">Atur ulang? Rekaman akan dihapus.</string>
-    <string name="dialog_unsaved_recordings_message">Rekaman yang belum disimpan ditemukan. Item yang dicentang akan disimpan.</string>
     <string name="btn_revert_to_original">Kembalikan ke asli</string>
     <string name="fade_toggle_on">Dari/Ke Pudar</string>
-    <string name="fade_toggle_off">Tanpa Dari/Ke Pudar</string>
-    <string name="optimize_toggle_on">Dioptimalkan</string>
-    <string name="optimize_toggle_off">Tidak Dioptimalkan</string>
-    <string name="create_autosave_message">Rekaman Anda akan disimpan secara otomatis saat Anda membuatnya. Anda dapat menemukannya di daftar suara Anda.</string>
-    <string name="create_regenerating_waveform_message">Membangun kembali waveform, mohon menunggu.</string>
     <string name="dialog_revert_recording_message">Anda akan kehilangan semua hasil edit Anda. Lanjutkan?</string>
     <string name="cloud_recorder_event_message">Merekam untuk %s</string>
     <string name="cloud_recorder_event_title">Perekaman sedang berlangsung</string>
     <string name="cloud_recorder_playback_event_title">Pemutaran sedang berlangsung</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-    <item>Mengapa tidak merekam suara di jalanan Anda?</item>
-    <item>Rekam catatan suara sebagai pengingat mudah.</item>
-    <item>Gunakan tombol REC untuk membuat blog suara – apa yang akan Anda bagikan hari ini?</item>
-    <item>Apa yang sedang Anda lakukan saat ini?</item>
-    <item>Abadikan momen: kata yang pertama kali diucapkan anak Anda</item>
-    <item>Abadikan momen: suara binatang peliharaan Anda</item>
-    <item>Abadikan momen: suara orang yang Anda kasihi</item>
-    <item>Pergi berbelanja? Rekam pengingat agar Anda tidak lupa apa saja yang harus dibeli.</item>
-    <item>Punya gagasan cemerlang? Abadikan dengan tombol REC.</item>
-    <item>Baru mendengar lelucon lucu? Bagikan!</item>
-    <item>Menikmati perbincangan seru? Mengapa tidak merekamnya untuk diturunkan kepada anak cucu?</item>
-    <item>Abadikan momen lucu dalam suara</item>
-    <item>Apakah Anda tahu bahwa Anda dapat menyimpan rekaman pribadi jika Anda tidak ingin membagikannya?</item>
-    <item>Kadang-kadang alat perekam terbaik adalah yang Anda miliki saat ini.</item>
-    <item>Suarakan diri Anda!</item>
-    <item>Suarakan internet.</item>
-    <item>Suarakan dunia.</item>
-    <item>Ekspresikan diri Anda!</item>
-    <item>Mengapa tidak merekam notula untuk rapat Anda berikutnya?</item>
-    <item>Gunakan tombol REC untuk mengabadikan ide-ide untuk nanti.</item>
-    <item>Gunakan tombol REC sebagai alat bantu belajar: simpan catatan Anda di mana pun Anda berada.</item>
-    <item>Anda dapat menggunakan tombol REC untuk merekam wawancara dan rapat.</item>
-    <item>Rekam suara ombak di pantai</item>
-    <item>Abadikan suara keramaian kota di jam sibuk</item>
-    <item>Mendengar suara aneh? Abadikan dengan tombol REC!</item>
-    <item>Merasa terinspirasi? Abadikan ide Anda dengan tombol REC.</item>
-    <item>Punya ide untuk trek baru? Simpan dengan tombol REC.</item>
-    <item>Irama terjebak hanya di pikiran Anda? Abadikan dengan tombol REC.</item>
-    <item>Ada ide untuk lirik lagu? Abadikan segera dengan tombol REC.</item>
-    <item>Apa yang sedang terjadi sekarang?</item>
-    <item>Rekam peristiwa saat terjadi dan bagikan kepada dunia.</item>
-    <item>Ada hal menarik yang sedang terjadi? Abadikan momennya dalam audio.</item>
-    <item>Reporter Warga? Beri tahu dunia tentang apa yang terjadi di lokasi Anda.</item>
-  </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Cari SoundCloud</string>
@@ -482,9 +406,9 @@
     <string name="cache_clearing">Membersihkan cache</string>
     <string name="cache_clearing_message">Menghapus berkas cache...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Dikompresi</item>
-    <item>Mentah</item>
-  </string-array>
+        <item>Dikompresi</item>
+        <item>Mentah</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Anda perlu menghubungkan kembali akun SoundCloud Anda.</string>
@@ -517,11 +441,11 @@
     <string name="pref_notifications_reposts">Pos ulang</string>
     <string name="pref_notifications_reposts_description">Menerima pembaruan untuk pos ulang suara Anda</string>
     <string-array name="pref_notifications_frequency">
-    <item>Setiap jam</item>
-    <item>Setiap 4 jam</item>
-    <item>Setiap 12 jam</item>
-    <item>Setiap 24 jam</item>
-  </string-array>
+        <item>Setiap jam</item>
+        <item>Setiap 4 jam</item>
+        <item>Setiap 12 jam</item>
+        <item>Setiap 24 jam</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Gunakan Pemutar Eksperimental</string>
@@ -566,11 +490,8 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Memproses</string>
-    <string name="uploader_event_processing_percent">Memproses: %d %%</string>
-    <string name="uploader_event_not_yet_uploading">Belum mengunggah</string>
     <string name="uploader_event_uploading_percent">Mengunggah: %d%%</string>
     <string name="uploader_event_cancelling">Membatalkan</string>
-    <string name="uploader_event_processing_finished">Pemrosesan selesai</string>
     <string name="cloud_upload_clear_artwork">Tahan untuk menghapus artwork</string>
     <string name="cloud_uploader_notification_error_message">Terjadi kesalahan saat mengunggah %s</string>
     <string name="cloud_uploader_notification_error_ticker">Galat Pengunggahan</string>
@@ -578,15 +499,9 @@
     <string name="cloud_uploader_notification_finished_message">%s telah diunggah</string>
     <string name="cloud_uploader_notification_finished_ticker">Pengunggahan Selesai</string>
     <string name="cloud_uploader_notification_finished_title">Pengunggahan Selesai</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">Terjadi kesalahan saat melakukan transcoding %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Galat Transcoding</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Galat Transcoding</string>
     <string name="dialog_cancel_upload_message">Batalkan pengunggahan?</string>
-    <string name="sc_upload_add_image">Tambahkan \nGambar</string>
     <string name="sc_upload_private">Pribadi</string>
     <string name="sc_upload_public">Publik</string>
-    <string name="sc_upload_sharing_options_private">Suara Anda akan dijadikan pribadi di SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">Suara Anda akan dijadikan publik di SoundCloud. Anda ingin membagikannya ke jaringan lain apa?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Sentuh untuk membuka SoundCloud</string>
@@ -624,7 +539,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Tidak dapat memasukkan trek</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Apa yang ingin Anda laporkan?</string>
     <string name="feedback_playback_issue">Masalah pemutaran</string>

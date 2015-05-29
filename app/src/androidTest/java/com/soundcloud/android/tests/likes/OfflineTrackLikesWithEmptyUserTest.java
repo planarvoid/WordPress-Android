@@ -68,7 +68,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
 
         final TrackLikesScreen likesScreen = menuScreen.open().clickLikes();
 
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
 
         final DownloadImageViewElement downloadElement = likesScreen
                 .clickListHeaderOverflowButton()
@@ -81,7 +81,7 @@ public class OfflineTrackLikesWithEmptyUserTest extends ActivityTest<MainActivit
         // we tried to download but it failed with connection error so its not unavailable
         assertTrue("Track should be unavailable", downloadElement.isUnavailable());
 
-        networkManager.switchWifiOn();
+        networkManagerClient.switchWifiOn();
 
         likesScreen.waitForLikesToStartDownloading();
         assertTrue("Track should be downloading", downloadElement.isDownloading() || downloadElement.isDownloaded());

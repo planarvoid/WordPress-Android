@@ -12,6 +12,8 @@ import java.io.IOException;
 
 @SuppressWarnings("UnusedDeclaration")
 @Implements(VorbisEncoder.class)
+// WARNING: This shadows a class we own and so depends on
+// WARNING: a 'addClassOrPackageToInstrument' line in the TestRunner's constructor
 public class ShadowVorbisEncoder {
     public static boolean simulateProgress, simulateCancel;
     public static IOException throwException;

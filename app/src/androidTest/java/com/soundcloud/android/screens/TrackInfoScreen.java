@@ -1,6 +1,5 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.framework.Han;

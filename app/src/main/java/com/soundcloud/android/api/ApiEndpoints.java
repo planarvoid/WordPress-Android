@@ -65,6 +65,7 @@ public enum ApiEndpoints {
     // other
     HLS_STREAM("/tracks/%s/streams/hls"),
     HTTP_STREAM("/tracks/%s/streams/http"),
+    HTTPS_STREAM("/tracks/%s/streams/https"),
     SUBSCRIPTIONS("/subscriptions"),
     LOG_PLAY("/tracks/%s/plays"),
     IMAGES("/images/%s/%s"),
@@ -78,7 +79,9 @@ public enum ApiEndpoints {
     MY_PLAYLIST_REPOSTS("/e1/me/playlist_reposts/%s"),
     BULK_FOLLOW_USERS("/me/suggested/users"),
     LEGACY_TRACKS("/tracks"),
-    TRACK_COMMENTS("/tracks/%s/comments");
+    LEGACY_TRACK("/tracks/%s"),
+    TRACK_COMMENTS("/tracks/%s/comments"),
+    USER_SOUNDS("/e1/users/%s/sounds");
 
     private final String path;
 

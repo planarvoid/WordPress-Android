@@ -4,16 +4,22 @@ import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.events.CurrentDownloadEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.offline.DownloadRequest;
+import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -38,17 +44,17 @@ import android.widget.ListView;
 
 import javax.inject.Provider;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackLikesPresenterTest {
 
-    private static final Urn TRACK_URN = Urn.forTrack(123);
-
     private TrackLikesPresenter presenter;
 
     @Mock private TrackLikeOperations likeOperations;
     @Mock private OfflinePlaybackOperations playbackOperations;
+    @Mock private OfflineContentOperations offlineContentOperations;
     @Mock private PagedTracksAdapter adapter;
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
@@ -70,7 +76,7 @@ public class TrackLikesPresenterTest {
     @Before
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
-                adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
+                offlineContentOperations, adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
                 eventBus, imageOperations, pullToRefreshWrapper);
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(listView.getHeaderViewsCount()).thenReturn(1);
@@ -78,13 +84,14 @@ public class TrackLikesPresenterTest {
         when(likeOperations.likedTracks()).thenReturn(likedTracksObservable);
         when(likeOperations.onTrackLiked()).thenReturn(Observable.<PropertySet>empty());
         when(likeOperations.onTrackUnliked()).thenReturn(Observable.<Urn>empty());
+        when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(Observable.just(true));
     }
 
     @Test
     public void shouldOnSubscribeListObserversToHeaderPresenter() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        verify(headerPresenter).onSubscribeListObservers(any(ListBinding.class));
+        verify(headerPresenter).onSubscribeListObservers(any(CollectionBinding.class));
     }
 
     @Test
@@ -96,21 +103,16 @@ public class TrackLikesPresenterTest {
     }
 
     @Test
-    public void shouldRegisterOnItemClickHandlerWithList() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        verify(listView).setOnItemClickListener(presenter);
-    }
-
-    @Test
     public void shouldPlayLikedTracksOnListItemClick() {
         PlaybackResult playbackResult = PlaybackResult.success();
         final TrackItem clickedTrack = ModelFixtures.create(TrackItem.class);
         when(adapter.getItem(0)).thenReturn(clickedTrack);
         when(playbackOperations.playLikes(eq(clickedTrack.getEntityUrn()), eq(0), isA(PlaySessionSource.class)))
                 .thenReturn(Observable.just(playbackResult));
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
 
-        presenter.onItemClick(listView, view, 1, 0);
+        presenter.onItemClicked(view, 1);
 
         testSubscriber.assertReceivedOnNext(Arrays.asList(playbackResult));
     }
@@ -118,7 +120,11 @@ public class TrackLikesPresenterTest {
     @Test
     public void shouldNotPlayTracksOnListItemClickIfItemIsNull() {
         when(listView.getItemAtPosition(0)).thenReturn(null);
-        presenter.onItemClick(listView, view, 0, 0);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        presenter.onItemClicked(view, 0);
+
         verifyZeroInteractions(playbackOperations);
     }
 
@@ -129,6 +135,34 @@ public class TrackLikesPresenterTest {
         presenter.onDestroyView(fragment);
 
         eventBus.verifyUnsubscribed();
+    }
+
+    @Test
+    public void shouldUpdateAdapterWhenLikedTrackDownloaded() {
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        final DownloadRequest downloadRequest = new DownloadRequest(track.getUrn(), 0, true, Collections.<Urn>emptyList());
+        final CurrentDownloadEvent downloadingEvent = CurrentDownloadEvent.downloading(downloadRequest);
+
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        reset(adapter);
+
+        when(adapter.getItems()).thenReturn(Arrays.asList(TrackItem.from(track)));
+        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, downloadingEvent);
+
+        verify(adapter).notifyDataSetChanged();
+    }
+
+    @Test
+    public void shouldUpdateAdapterOnOfflineLikesOrOfflineContentStateChange() {
+        PublishSubject<Boolean> featureChange = PublishSubject.create();
+        when(offlineContentOperations.getOfflineContentOrLikesStatus()).thenReturn(featureChange);
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        featureChange.onNext(true);
+
+        verify(adapter).notifyDataSetChanged();
     }
 
 }

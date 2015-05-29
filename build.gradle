@@ -38,3 +38,6 @@ allprojects {
   }
 }
 
+task clean {
+  delete "tmp/cached-robolectric-classes.jar"
+}

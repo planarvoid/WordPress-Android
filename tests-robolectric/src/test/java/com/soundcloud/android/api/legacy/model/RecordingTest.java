@@ -6,9 +6,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
 import com.soundcloud.android.creators.record.reader.WavReader;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.testsupport.TestHelper;
+import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.IOUtils;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -17,11 +15,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Parcel;
 
@@ -32,69 +27,48 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
-
-@SuppressWarnings({"ResultOfMethodCallIgnored"})
-@RunWith(DefaultTestRunner.class)
+@RunWith(SoundCloudTestRunner.class)
 public class RecordingTest {
     static final long USER_ID = 50L;
-    Resources res;
+    Resources resources;
 
     @Before
     public void setup() throws Exception {
-        res = Robolectric.application.getResources();
-        TestHelper.setUserId(USER_ID);
+        resources = Robolectric.application.getResources();
     }
 
     @Test
     public void itShouldHaveANiceSharingNote() throws Exception {
         Recording r = createRecording();
-        r.what_text = null;
-        r.where_text = null;
-        expect(r.sharingNote(res)).toEqual("Sounds from Thursday afternoon");
-    }
-
-    @Test
-    public void shouldGenerateASharingNoteWithLocation() throws Exception {
-        Recording r = createRecording();
-        r.what_text = null;
-        r.where_text = "Mars";
-        expect(r.sharingNote(res)).toEqual("Sounds from Mars");
-    }
-
-    @Test
-    public void shouldGenerateASharingNoteWithLocationAndTitle() throws Exception {
-        Recording r = createRecording();
-        r.what_text = "Party";
-        r.where_text = "Mars";
-        expect(r.sharingNote(res)).toEqual("Party at Mars");
+        r.title = null;
+        expect(r.sharingNote(resources)).toEqual("Sounds from Thursday afternoon");
     }
 
     @Test
     public void shouldGenerateASharingNoteWithTitle() throws Exception {
         Recording r = createRecording();
-        r.what_text = "Party";
-        r.where_text = null;
-        expect(r.sharingNote(res)).toEqual("Party");
+        r.setTitle("Party");
+        expect(r.sharingNote(resources)).toEqual("Party");
     }
 
     @Test
     public void shouldGenerateStatusMessageWithNotUploaded() throws Exception {
         Recording r = createRecording();
-        expect(r.getStatusMessage(res)).toMatch("Pending Upload");
+        expect(r.getStatusMessage(resources)).toMatch("Pending Upload");
     }
 
     @Test
     public void shouldGenerateStatusMessageWithError() throws Exception {
         Recording r = createRecording();
         r.upload_status = Recording.Status.ERROR;
-        expect(r.getStatusMessage(res)).toMatch("Upload Failed");
+        expect(r.getStatusMessage(resources)).toMatch("Upload failed");
     }
 
     @Test
     public void shouldGenerateStatusMessageWithCurrentlyUploading() throws Exception {
         Recording r = createRecording();
         r.upload_status = Recording.Status.UPLOADING;
-        expect(r.getStatusMessage(res)).toEqual("Uploading...");
+        expect(r.getStatusMessage(resources)).toEqual("Uploading...");
     }
 
     @Test
@@ -133,23 +107,14 @@ public class RecordingTest {
         File tmp = createRecordingFile("wav");
 
         Recording r = new Recording(tmp);
-        r.latitude = 32.3;
-        r.longitude = 23.1;
-        r.what_text = "somewhat";
-        r.where_text = "somehere";
-        r.four_square_venue_id = "foursquare";
+        r.title = "somewhat";
         r.description = "test recording";
         r.genre = "speed blues ";
         r.duration = 86 * 1000;
         r.user_id = USER_ID;
-        r.recipient_user_id = 300L;
-        r.recipient_username = "foo";
-        r.shared_emails = "foo@example.com";
-        r.shared_ids = "1,2,3,4";
         r.upload_status = Recording.Status.NOT_YET_UPLOADED;
         r.artwork_path = r.getFile();
         r.resized_artwork_path = r.artwork_path;
-        r.tip = "something";
 
         return r;
     }
@@ -183,8 +148,7 @@ public class RecordingTest {
         expect(r.description).toEqual("description");
         expect(r.genre).toEqual("genre");
         expect(r.is_private).toBeTrue();
-        expect(r.where_text).toEqual("where");
-        expect(r.what_text).toEqual("title");
+        expect(r.title).toEqual("title");
         expect(r.tagString()).toEqual("tags soundcloud:source=android-3rdparty-upload");
     }
 
@@ -196,8 +160,7 @@ public class RecordingTest {
         expect(r2).not.toBeNull();
         expect(r2.description).toEqual(r.description);
         expect(r2.is_private).toEqual(r.is_private);
-        expect(r2.where_text).toEqual(r.where_text);
-        expect(r2.what_text).toEqual(r.what_text);
+        expect(r2.title).toEqual(r.title);
     }
 
     @Test
@@ -213,29 +176,12 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldAddDedicatedTagIfPrivateMessage() throws Exception {
-        Recording r = createRecording();
-        r.recipient_user_id = 10;
-        expect(r.getTags()).toContain("soundcloud:recording-type=dedicated");
-    }
-
-    @Test
     public void shouldSetADifferentMachineTagWhenDoing3rdPartyUpload() throws Exception {
         Recording r = createRecording();
         r.external_upload = true;
         List<String> tags = r.getTags();
         expect(tags).toContain("soundcloud:source=android-3rdparty-upload");
         expect(tags).not.toContain("soundcloud:source=android-record");
-    }
-
-    @Test
-    public void shouldSetGeoMachineTags() throws Exception {
-        Recording r = createRecording();
-        r.longitude = 0.1d;
-        r.latitude = 0.2d;
-        List<String> tags = r.getTags();
-        expect(tags).toContain("geo:lon=0.1");
-        expect(tags).toContain("geo:lat=0.2");
     }
 
     @Test
@@ -249,56 +195,15 @@ public class RecordingTest {
 
         expect(r.getId()).toEqual(r2.getId());
         expect(r.user_id).toEqual(r2.user_id);
-        expect(r.what_text).toEqual(r2.what_text);
-        expect(r.where_text).toEqual(r2.where_text);
+        expect(r.title).toEqual(r2.title);
         expect(r.duration).toEqual(r2.duration);
         expect(r.description).toEqual(r2.description);
         expect(r.genre).toEqual(r2.genre);
-        expect(r.longitude).toEqual(r2.longitude);
-        expect(r.latitude).toEqual(r2.latitude);
         expect(r.getFile()).toEqual(r2.getFile());
         expect(r.getEncodedFile()).toEqual(r2.getEncodedFile());
         expect(r.artwork_path).toEqual(r2.artwork_path);
         expect(r.resized_artwork_path).toEqual(r2.resized_artwork_path);
-        expect(r.four_square_venue_id).toEqual(r2.four_square_venue_id);
-        expect(r.shared_emails).toEqual(r2.shared_emails);
-        expect(r.shared_ids).toEqual(r2.shared_ids);
-        expect(r.recipient_username).toEqual(r2.recipient_username);
-        expect(r.recipient_user_id).toEqual(r2.recipient_user_id);
         expect(r.external_upload).toEqual(r2.external_upload);
-    }
-
-    @Test
-    public void shouldMigrateRecordings() throws Exception {
-        int i = 1;
-        for (DeprecatedRecordingProfile profile : DeprecatedRecordingProfile.values()){
-            if (profile != DeprecatedRecordingProfile.UNKNOWN) {
-                final File recordingFile = createRecordingFile(profile.getExtension());
-                Recording r = new Recording(recordingFile);
-                r.setId(i);
-                shouldMigrateRecording(r);
-                i++;
-            }
-        }
-    }
-
-    private void shouldMigrateRecording(Recording r) throws Exception {
-        final File recordingFile = r.getFile();
-        expect(DeprecatedRecordingProfile.needsMigration(r)).toBeTrue();
-
-        ContentResolver resolver = Robolectric.application.getContentResolver();
-        Uri u = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-        expect(u).not.toBeNull();
-
-        final ContentValues migrationValues = DeprecatedRecordingProfile.migrate(r);
-        expect(migrationValues).not.toBeNull();
-        expect(resolver.update(r.toUri(),migrationValues,null,null)).toEqual(1);
-
-        final Cursor c = resolver.query(u, null, null, null, null);
-        expect(c.moveToNext()).toBeTrue();
-        Recording r2 = new Recording(c);
-        expect(DeprecatedRecordingProfile.migrate(r2)).toBeNull();
-        expect(r2.getFile()).not.toEqual(recordingFile);
     }
 
     @Test
@@ -330,15 +235,6 @@ public class RecordingTest {
     }
 
     @Test
-    public void shouldHavetoUri() throws Exception {
-        Recording r = createRecording();
-
-        expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings");
-        r.setId(10);
-        expect(r.toUri()).toEqual("content://com.soundcloud.android.provider.ScContentProvider/recordings/10");
-    }
-
-    @Test
     public void testIsEncodedFilename() throws Exception {
         expect(Recording.isEncodedFilename("foo.ogg")).toBeTrue();
         expect(Recording.isEncodedFilename("foo.wav")).toBeFalse();
@@ -352,13 +248,13 @@ public class RecordingTest {
 
     @Test
     public void shouldCreateRecordingWithWavFileExtensionByDefault() throws Exception {
-        Recording r = Recording.create(null);
+        Recording r = Recording.create();
         expect(IOUtils.extension(r.getFile())).toEqual(WavReader.EXTENSION);
     }
 
     @Test
     public void shouldHaveEncodedFilenameBasedOnFilename() throws Exception {
-        Recording r = Recording.create(null);
+        Recording r = Recording.create();
         expect(IOUtils.extension(r.getEncodedFile())).toEqual(VorbisReader.EXTENSION);
         expect(r.getEncodedFile().getName()).not.toContain(WavReader.EXTENSION);
     }

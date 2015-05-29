@@ -45,7 +45,7 @@ public class NoOpCastConnectionHelper extends DefaultLightCycleActivity<AppCompa
     }
 
     @Override
-    public boolean isConnected() {
+    public boolean isCasting() {
         return false;
     }
 

@@ -2,7 +2,6 @@ package com.soundcloud.android.rx;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.subscriptions.SerialSubscription;
 
 import java.util.List;
 

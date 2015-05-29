@@ -78,11 +78,6 @@ public class DefaultPlaybackStrategy implements PlaybackStrategy {
     }
 
     @Override
-    public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long withProgressPosition) {
-        throw new IllegalStateException("Reloading current queue and playing track from position not yet supported when not casting");
-    }
-
-    @Override
     public void seek(long position) {
         Intent intent = createExplicitServiceIntent(PlaybackService.Actions.SEEK);
         intent.putExtra(PlaybackService.ActionsExtras.SEEK_POSITION, position);

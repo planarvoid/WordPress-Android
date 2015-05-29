@@ -8,7 +8,6 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.playlists.PlaylistApiCreateObject;
 import com.soundcloud.android.playlists.PlaylistApiUpdateObject;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.robolectric.DefaultTestRunner;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.testsupport.TestHelper;

@@ -1,108 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar" />
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/toolbar_id"
+        android:layout_height="0dp"
+        android:layout_above="@+id/bottom_bar"
+        android:layout_alignParentTop="true"
         android:orientation="vertical">
 
-        <ScrollView
-            android:id="@+id/ScrollView01"
+        <com.soundcloud.android.creators.upload.RecordingMetaDataLayout
+            android:id="@+id/metadata_layout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_below="@id/toolbar_id"
-            android:layout_weight="1"
-            android:paddingTop="5dip">
+            android:padding="16dp"
+            android:layout_weight="5" />
+
+        <RelativeLayout
+            android:id="@+id/control_layout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3"
+            android:gravity="center|center_vertical"
+            android:clipChildren="false">
 
             <RelativeLayout
-                android:id="@+id/input_layout"
+                android:id="@+id/rec_controls"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:clipChildren="false">
 
                 <FrameLayout
-                    android:id="@+id/share_user_layout"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:paddingBottom="5dip" />
+                    android:layout_centerInParent="true"
+                    android:clipChildren="false">
 
-                <com.soundcloud.android.creators.upload.RecordingMetaDataLayout
-                    android:id="@+id/metadata_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignWithParentIfMissing="true"
-                    android:layout_below="@id/share_user_layout" />
-
-                <RadioGroup
-                    android:id="@+id/rdo_privacy"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="false"
-                    android:layout_below="@+id/metadata_layout"
-                    android:layout_marginBottom="5dip"
-                    android:layout_marginTop="5dip"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/rdo_public"
-                        style="@style/RadioButton.Dark"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="true"
-                        android:text="@string/sc_upload_public" />
-
-                    <RadioButton
-                        android:id="@+id/rdo_private"
-                        style="@style/RadioButton.Dark"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:checked="false"
-                        android:text="@string/sc_upload_private" />
-                </RadioGroup>
-
-                <TextView
-                    android:id="@+id/txt_record_options"
-                    style="@style/txt_record_share_options"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/rdo_privacy"
-                    android:background="#474747"
-                    android:gravity="left"
-                    android:padding="5dip"
-                    android:text="@string/sc_upload_sharing_options_public" />
-
-                <View
-                    android:id="@+id/share_options_separator"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dip"
-                    android:layout_below="@id/txt_record_options"
-                    android:background="@color/record_upload_border" />
-
-                <com.soundcloud.android.creators.upload.ConnectionListLayout
-                    android:id="@+id/connectionList"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/share_options_separator" />
-
+                    <ImageButton
+                        android:id="@+id/btn_action"
+                        style="@style/UploadButton" />
+                </FrameLayout>
             </RelativeLayout>
-        </ScrollView>
 
-        <com.soundcloud.android.view.ButtonBar
-            android:id="@+id/bottom_bar"
-            style="@style/dark_button_bar"
-            app:button_background="@drawable/item_background_dark"
-            app:separator_color="@color/rec_button_bar_separator" />
-
+            <TextView
+                android:id="@+id/action_text"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_below="@id/rec_controls"
+                android:layout_centerInParent="true"
+                android:layout_marginTop="32dp"
+                android:text="@string/record_tap_to_post"
+                style="?android:textAppearanceMedium" />
+        </RelativeLayout>
     </LinearLayout>
 
-    <View style="@style/ToolbarShadow" />
+    <LinearLayout
+        android:id="@+id/bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_min_height"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal" />
 
 </RelativeLayout>

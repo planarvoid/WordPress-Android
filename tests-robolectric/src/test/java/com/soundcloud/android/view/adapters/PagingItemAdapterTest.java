@@ -23,7 +23,7 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class PagingItemAdapterTest {
 
-    @Mock private CellPresenter cellPresenter;
+    @Mock private CellRenderer cellRenderer;
     @Mock private AbsListView absListView;
     @Mock private View rowView;
 
@@ -31,7 +31,7 @@ public class PagingItemAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new PagingItemAdapter(R.layout.list_loading_item, cellPresenter);
+        adapter = new PagingItemAdapter(R.layout.list_loading_item, cellRenderer);
         Observable.just(Arrays.asList("one", "two", "three")).subscribe(adapter);
     }
 
@@ -42,8 +42,8 @@ public class PagingItemAdapterTest {
 
     @Test
     public void itemRowsShouldBeClickable() {
-        expect(adapter.getCount()).toBeGreaterThan(0);
-        for (int index = 0; index < adapter.getCount(); index++) {
+        expect(adapter.getItemCount()).toBeGreaterThan(0);
+        for (int index = 0; index < adapter.getItemCount(); index++) {
             expect(adapter.isEnabled(index)).toBeTrue();
         }
     }
@@ -51,15 +51,15 @@ public class PagingItemAdapterTest {
     @Test
     public void appendRowShouldBeProgressRowWhenInLoadingState() {
         adapter.setLoading();
-        expect(adapter.isEnabled(adapter.getCount() - 1)).toBeFalse(); // progress should not be clickable
+        expect(adapter.isEnabled(adapter.getItemCount() - 1)).toBeFalse(); // progress should not be clickable
     }
 
     @Test
     public void appendRowShouldBeErrorRowWhenLoadingDataFails() {
         adapter.onError(new Exception());
 
-        expect(adapter.getCount()).toBe(4); // 3 data items + 1 error row
-        expect(adapter.isEnabled(adapter.getCount() - 1)).toBeFalse(); // error has a custom click handler
+        expect(adapter.getItemCount()).toBe(4); // 3 data items + 1 error row
+        expect(adapter.isEnabled(adapter.getItemCount() - 1)).toBeFalse(); // error has a custom click handler
     }
 
     @Test
@@ -71,14 +71,14 @@ public class PagingItemAdapterTest {
     public void shouldCreateNormalItemRowUsingPresenter() {
         final FrameLayout parent = new FrameLayout(Robolectric.application);
         adapter.getView(0, null, parent);
-        verify(cellPresenter).createItemView(0, parent);
+        verify(cellRenderer).createItemView(parent);
     }
 
     @Test
     public void shouldCreateProgressRow() {
         adapter.setLoading();
 
-        View progressView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        View progressView = adapter.getView(adapter.getItemCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(progressView).not.toBeNull();
         expect(progressView.findViewById(R.id.list_loading_view).getVisibility()).toBe(View.VISIBLE);
         expect(progressView.findViewById(R.id.list_loading_retry_view).getVisibility()).toBe(View.GONE);
@@ -89,7 +89,7 @@ public class PagingItemAdapterTest {
         adapter.setLoading();
 
         View convertView = LayoutInflater.from(Robolectric.application).inflate(R.layout.list_loading_item, null);
-        View progressView = adapter.getView(adapter.getCount() - 1, convertView, new FrameLayout(Robolectric.application));
+        View progressView = adapter.getView(adapter.getItemCount() - 1, convertView, new FrameLayout(Robolectric.application));
         expect(progressView).toBe(convertView);
     }
 
@@ -97,7 +97,7 @@ public class PagingItemAdapterTest {
     public void shouldCreateErrorRow() {
         adapter.onError(new Exception());
 
-        View errorView = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        View errorView = adapter.getView(adapter.getItemCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(errorView).not.toBeNull();
         expect(errorView.findViewById(R.id.list_loading_view).getVisibility()).toBe(View.GONE);
         expect(errorView.findViewById(R.id.list_loading_retry_view).getVisibility()).toBe(View.VISIBLE);
@@ -110,7 +110,7 @@ public class PagingItemAdapterTest {
         View.OnClickListener listener = mock(View.OnClickListener.class);
         adapter.setOnErrorRetryListener(listener);
 
-        final View errorRow = adapter.getView(adapter.getCount() - 1, null, new FrameLayout(Robolectric.application));
+        final View errorRow = adapter.getView(adapter.getItemCount() - 1, null, new FrameLayout(Robolectric.application));
         expect(Robolectric.shadowOf(errorRow).getOnClickListener()).toBe(listener);
     }
 

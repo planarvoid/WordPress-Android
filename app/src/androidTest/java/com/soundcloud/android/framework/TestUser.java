@@ -15,7 +15,7 @@ public class TestUser {
     private PublicApiUser user;
 
     public static String generateEmail() {
-        return "someemail-"+System.currentTimeMillis()+"@test.com";
+        return "someemail-"+System.currentTimeMillis()+"@tests.soundcloud";
     }
 
     public TestUser(String permalink, String email, String password) {
@@ -79,7 +79,6 @@ public class TestUser {
     }
 
     public static final TestUser defaultUser        = new TestUser("android-testing",       "jan+android-testing@soundcloud.com",   "android-testing");
-    public static final TestUser adUser             = new TestUser("scandroidad1",          "scandroidtestad1@gmail.com",           "scandtest");
     public static final TestUser scAccount          = new TestUser("steven-testowy",        "soundcloudtestuser@gmail.com",         "s0undcl0ud");
     public static final TestUser noGPlusAccount     = new TestUser("Steven Testowy",        "soundcloudtestuser@gmail.com",         "s0undcl0ud");
     public static final TestUser GPlusAccount       = new TestUser("scandroidtest",         "sccloudandroid@gmail.com",             "s0undcl0ud");
@@ -100,5 +99,11 @@ public class TestUser {
     public static final TestUser over21user         = new TestUser("over21userblah",        "over21user@soundcloud.com",            "#s0undcl0ud");
     public static final TestUser childUser          = new TestUser("childuserblah",         "childuserblah@soundcloud.com",         "passwordyeah88"); // 13 years in 2015
     public static final TestUser playlistLikesUser  = new TestUser("playlist-likes-user",   "playlist-likes-user@soundcloud.com",   "passwordyeah");
-    public static final TestUser onePlaylistUser    = new TestUser("onePlaylistUser",       "onePlaylistuser@gmail.com",            "passwordyeah88");
+    public static final TestUser addToPlaylistUser  = new TestUser("onePlaylistUser",       "onePlaylistuser@gmail.com",            "passwordyeah88");
+    public static final TestUser profileEntryUser   = new TestUser("sc-profile-entry-user", "sc-profile-entry-user@gmail.com",      "passwordyeah");
+    public static final TestUser recordUser         = new TestUser("sctestrecord",          "sctestrecord@gmail.com",               "passwordyeah88");
+
+    // not used directly in a test, but user info is kept here for documentation
+    public static final TestUser adUser             = new TestUser("scandroidad1",          "scandroidtestad1@gmail.com",           "scandtest");
+    public static final TestUser androidTestUser    = new TestUser("andtestpl",             "sc.test.user.pl1@gmail.com",           "addtest");
 }

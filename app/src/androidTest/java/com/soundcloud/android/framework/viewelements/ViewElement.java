@@ -1,6 +1,6 @@
 package com.soundcloud.android.framework.viewelements;
 
-import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
@@ -58,5 +58,5 @@ public abstract class ViewElement {
 
     /* package */ abstract View getView();
 
-    /* package */ abstract Solo getTestDriver();
+    /* package */ abstract Han getTestDriver();
 }

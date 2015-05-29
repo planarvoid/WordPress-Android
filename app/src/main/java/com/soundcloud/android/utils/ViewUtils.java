@@ -1,7 +1,9 @@
 package com.soundcloud.android.utils;
 
 import android.content.Context;
+import android.graphics.Rect;
 import android.util.TypedValue;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -12,6 +14,27 @@ public final class ViewUtils {
 
     public static int dpToPx(Context context, int dp) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
+
+    public static void extendTouchArea(final View delegate, int extendDp) {
+        final int extendPx = dpToPx(delegate.getContext(), extendDp);
+        final View parent = (View) delegate.getParent();
+        parent.post( new Runnable() {
+            public void run() {
+                final Rect r = new Rect();
+                delegate.getHitRect(r);
+                r.top -= extendPx;
+                r.left -= extendPx;
+                r.right += extendPx;
+                r.bottom += extendPx;
+                parent.setTouchDelegate(new TouchDelegate(r, delegate));
+            }
+        });
+    }
+
+    public static void clearTouchDelegate(final View delegate) {
+        final View parent = (View) delegate.getParent();
+        parent.setTouchDelegate(null);
     }
 
     public static Iterable<View> childViewsOf(final ViewGroup viewGroup) {

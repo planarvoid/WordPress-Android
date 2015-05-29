@@ -9,7 +9,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
@@ -58,16 +57,6 @@ public class RecordStreamTest {
         expect(rs.getAmplitudeData().isEmpty()).toBeTrue();
         expect(rs.getPreRecordAmplitudeData().isEmpty()).toBeTrue();
         expect(rs.getLastAmplitude()).toEqual(0f);
-    }
-
-    @Ignore // fails with JNI error on Java 7
-    @Test
-    public void shouldCreateAmplitudeFile() throws Exception {
-        File wavFile = TestFiles.PCM16_8000_1_WAV.asFile();
-        final RecordStream rs = new RecordStream(AudioConfig.DEFAULT, wavFile, null, null);
-        rs.regenerateAmplitudeData(null, null);
-        expect(rs.getAmplitudeData().isEmpty()).toBeFalse();
-        expect(rs.getAmplitudeData().size()).toEqual(31);
     }
 
     @Ignore // fails with JNI error on Java 7

@@ -42,7 +42,7 @@ public class UserAdapterTest {
 
     private UserAdapter adapter;
 
-    @Mock private UserItemPresenter userPresenter;
+    @Mock private UserItemRenderer userRenderer;
     @Mock private FollowingOperations followingOperations;
     @Mock private ViewGroup itemView;
 
@@ -50,7 +50,7 @@ public class UserAdapterTest {
 
     @Before
     public void setup() {
-        adapter = new UserAdapter(Content.ME_FOLLOWINGS.uri, userPresenter, followingOperations);
+        adapter = new UserAdapter(Content.ME_FOLLOWINGS.uri, userRenderer, followingOperations);
     }
 
     @Test
@@ -65,7 +65,7 @@ public class UserAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(userPresenter).bindItemView(eq(0), refEq(itemView), anyList());
+        verify(userRenderer).bindItemView(eq(0), refEq(itemView), anyList());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class UserAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(user));
         adapter.bindRow(0, itemView);
 
-        verify(userPresenter).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
+        verify(userRenderer).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
         UserItem userItem = itemCaptor.getValue().get(0);
         expect(userItem.getEntityUrn()).toEqual(user.getUrn());
         expect(userItem.getName()).toEqual(user.getUsername());
@@ -93,7 +93,7 @@ public class UserAdapterTest {
         adapter.addItems(Arrays.<PublicApiResource>asList(user2));
         adapter.bindRow(0, itemView);
 
-        verify(userPresenter, times(2)).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
+        verify(userRenderer, times(2)).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
         UserItem userItem = itemCaptor.getAllValues().get(1).get(0);
         expect(userItem.getEntityUrn()).toEqual(user2.getUrn());
     }
@@ -126,7 +126,7 @@ public class UserAdapterTest {
 
         adapter.bindRow(1, itemView);
 
-        verify(userPresenter).bindItemView(eq(1), refEq(itemView), itemCaptor.capture());
+        verify(userRenderer).bindItemView(eq(1), refEq(itemView), itemCaptor.capture());
         UserItem userItem = itemCaptor.getValue().get(1);
         expect(userItem.getEntityUrn()).toEqual(user2AfterUpdate.getUrn());
         expect(userItem.getName()).toEqual(user2AfterUpdate.getUsername());
@@ -153,7 +153,7 @@ public class UserAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(userPresenter).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
+        verify(userRenderer).bindItemView(eq(0), refEq(itemView), itemCaptor.capture());
         expect(itemCaptor.getValue().get(0).getEntityUrn()).toEqual(user.getUrn());
     }
 

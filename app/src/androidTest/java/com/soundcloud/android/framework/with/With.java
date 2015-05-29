@@ -7,6 +7,9 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import android.content.res.Resources;
 import android.view.View;
 
+import java.util.Arrays;
+import java.util.List;
+
 public abstract class With implements Predicate<ViewElement> {
     public static void setResources(Resources resources) {
         With.resources = resources;
@@ -20,7 +23,7 @@ public abstract class With implements Predicate<ViewElement> {
         return new WithId(viewId);
     }
 
-    public static With text(String text) {
+    public static With text(String... text) {
         return new WithText(text);
     }
 
@@ -58,16 +61,18 @@ public abstract class With implements Predicate<ViewElement> {
     }
 
     static class WithText extends With {
-        private final String searchedText;
+        private final List<String> searchedText;
 
-        WithText(String text) {
-            searchedText = text;
+        WithText(String... text) {
+            searchedText = Arrays.asList(text);
         }
 
         @Override
         public boolean apply(ViewElement viewElement) {
             try {
-                return new TextElement(viewElement).getText().equals(searchedText);
+
+                final String expected = new TextElement(viewElement).getText();
+                return searchedText.contains(expected);
             } catch (UnsupportedOperationException ignored) {
                 return false;
             }

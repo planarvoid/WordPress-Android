@@ -4,6 +4,7 @@ import com.soundcloud.android.accounts.AuthenticationModule;
 import com.soundcloud.android.activities.ActivitiesModule;
 import com.soundcloud.android.comments.CommentsModule;
 import com.soundcloud.android.creators.record.RecordModule;
+import com.soundcloud.android.creators.upload.UploadModule;
 import com.soundcloud.android.explore.ExploreModule;
 import com.soundcloud.android.likes.LikesModule;
 import com.soundcloud.android.main.MainModule;
@@ -33,6 +34,7 @@ import dagger.Module;
         PaymentModule.class,
         OfflineModule.class,
         RecordModule.class,
+        UploadModule.class,
         LikesModule.class,
         SettingsModule.class
 })

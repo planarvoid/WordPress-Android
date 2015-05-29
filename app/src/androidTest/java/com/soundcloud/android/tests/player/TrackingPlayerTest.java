@@ -30,7 +30,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
                 menuScreen
                         .open()
                         .clickStream()
-                        .clickFirstTrack();
+                        .clickTrack(1);
 
         assertThat(playerElement, is(visible()));
         assertThat(playerElement, is(playing()));

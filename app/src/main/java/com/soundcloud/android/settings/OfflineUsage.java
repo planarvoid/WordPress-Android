@@ -6,6 +6,7 @@ import com.soundcloud.android.offline.SecureFileStorage;
 import javax.inject.Inject;
 
 class OfflineUsage {
+    private final double STEP_IN_BYTES = 512 * 1024 * 1024;
 
     private final SecureFileStorage fileStorage;
     private final OfflineSettingsStorage offlineSettings;
@@ -28,7 +29,7 @@ class OfflineUsage {
         this.offlineUsed = fileStorage.getStorageUsed();
     }
 
-    public long getOfflineTotal() {
+    public long getOfflineLimit() {
         return Math.min(offlineTotal, deviceAvailable + offlineUsed);
     }
 
@@ -49,27 +50,28 @@ class OfflineUsage {
     }
 
     public long getOfflineAvailable() {
-        return Math.max(0, getOfflineTotal() - offlineUsed);
+        return Math.max(0, getOfflineLimit() - offlineUsed);
     }
 
-    public long getAvailableWithoutOfflineLimit() {
+    public long getUnused() {
         return deviceAvailable - getOfflineAvailable();
     }
 
-    public int getOfflineTotalPercentage() {
-        if (getAvailableBeforeOffline() == 0) {
-            return 0;
-        }
-
-        return Math.round(Math.max(0, Math.min(100, offlineTotal * 100 / getAvailableBeforeOffline())));
+    public int getOfflineLimitPercentage() {
+        return (int) (offlineTotal * 100 / deviceTotal);
     }
 
-    public void setOfflineTotalPercentage(int percentage) {
-        offlineTotal = Math.round(getAvailableBeforeOffline() * percentage / 100d);
+    public void setOfflineLimitPercentage(int percentage) {
+        int steps = (int) Math.max(Math.ceil(percentage / getStepPercentage()), 1);
+        offlineTotal = Math.min((long) (steps * STEP_IN_BYTES), deviceTotal);
     }
 
-    private long getAvailableBeforeOffline() {
-        return deviceAvailable + offlineUsed;
+    public double getStepPercentage() {
+        return STEP_IN_BYTES / deviceTotal * 100;
+    }
+
+    public boolean isMaximumLimit() {
+        return offlineTotal > (deviceTotal - STEP_IN_BYTES);
     }
 
 }

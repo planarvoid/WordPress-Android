@@ -32,6 +32,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     private final CastOperations castOperations;
     private final PlaybackOperations playbackOperations;
+    private final CastPlayer castPlayer;
     private final PlayQueueManager playQueueManager;
     private final VideoCastManager videoCastManager;
     private final EventBus eventBus;
@@ -41,12 +42,15 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
     @Inject
     public CastSessionController(CastOperations castOperations,
                                  PlaybackOperations playbackOperations,
+                                 CastPlayer castPlayer,
                                  PlayQueueManager playQueueManager,
-                                 VideoCastManager videoCastManager, EventBus eventBus,
+                                 VideoCastManager videoCastManager,
+                                 EventBus eventBus,
                                  PlaySessionStateProvider playSessionStateProvider,
                                  Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider) {
         this.castOperations = castOperations;
         this.playbackOperations = playbackOperations;
+        this.castPlayer = castPlayer;
         this.playQueueManager = playQueueManager;
         this.videoCastManager = videoCastManager;
         this.eventBus = eventBus;
@@ -71,7 +75,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
     private void playLocalPlayQueueOnRemote() {
         Log.d(CastOperations.TAG, "Sending current track and queue to cast receiver");
         final long fromLastProgressPosition = playSessionStateProvider.getLastProgressByUrn(playQueueManager.getCurrentTrackUrn()).getPosition();
-        playbackOperations.reloadAndPlayCurrentQueue(fromLastProgressPosition).subscribe(expandPlayerSubscriber.get());
+        castPlayer.reloadAndPlayCurrentQueue(fromLastProgressPosition).subscribe(expandPlayerSubscriber.get());
     }
 
     @Override
@@ -98,7 +102,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
             Log.d(CastOperations.TAG, "Has the same tracklist, setting remotePosition");
             playQueueManager.setPosition(remotePosition);
             if (videoCastManager.getPlaybackStatus() == MediaStatus.PLAYER_STATE_PLAYING) {
-                playbackOperations.playCurrent();
+                castPlayer.playCurrent();
             }
         } else {
             Log.d(CastOperations.TAG, "Does not have the same tracklist, updating locally");
@@ -106,7 +110,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
                     remoteTrackList.isEmpty() ? Arrays.asList(remoteCurrentUrn) : remoteTrackList,
                     PlaySessionSource.EMPTY);
             playQueueManager.setNewPlayQueue(playQueue, remotePosition, PlaySessionSource.EMPTY);
-            playbackOperations.playCurrent();
+            castPlayer.playCurrent();
         }
 
         eventBus.publish(EventQueue.PLAYER_COMMAND, PlayerUICommand.showPlayer());

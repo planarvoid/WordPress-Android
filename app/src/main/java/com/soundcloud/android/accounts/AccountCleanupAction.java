@@ -13,6 +13,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
+import com.soundcloud.android.sync.stream.StreamSyncStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropellerWriteException;
 import rx.functions.Action0;
@@ -31,6 +32,7 @@ class AccountCleanupAction implements Action0 {
     private final FeatureStorage featureStorage;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     private final OfflineSettingsStorage offlineSettingsStorage;
+    private final StreamSyncStorage streamSyncStorage;
     private final RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
     private final ClearTableCommand clearTableCommand;
 
@@ -39,7 +41,7 @@ class AccountCleanupAction implements Action0 {
                          ActivitiesStorage activitiesStorage, UserAssociationStorage userAssociationStorage,
                          PlaylistTagStorage tagStorage, SoundRecorder soundRecorder, FeatureStorage featureStorage,
                          UnauthorisedRequestRegistry unauthorisedRequestRegistry,
-                         OfflineSettingsStorage offlineSettingsStorage,
+                         OfflineSettingsStorage offlineSettingsStorage, StreamSyncStorage streamSyncStorage,
                          RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand, ClearTableCommand clearTableCommand) {
         this.syncStateManager = syncStateManager;
         this.activitiesStorage = activitiesStorage;
@@ -49,6 +51,7 @@ class AccountCleanupAction implements Action0 {
         this.featureStorage = featureStorage;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.offlineSettingsStorage = offlineSettingsStorage;
+        this.streamSyncStorage = streamSyncStorage;
         this.removeLocalPlaylistsCommand = removeLocalPlaylistsCommand;
         this.clearTableCommand = clearTableCommand;
     }
@@ -65,6 +68,7 @@ class AccountCleanupAction implements Action0 {
         tagStorage.clear();
         offlineSettingsStorage.clear();
         featureStorage.clear();
+        streamSyncStorage.clear();
         soundRecorder.reset();
         FollowingOperations.clearState();
         ConnectionsCache.reset();
@@ -75,10 +79,11 @@ class AccountCleanupAction implements Action0 {
             clearTableCommand.call(Table.Likes);
             clearTableCommand.call(Table.Posts);
             clearTableCommand.call(Table.SoundStream);
+            clearTableCommand.call(Table.PromotedTracks);
             removeLocalPlaylistsCommand.call(null);
         } catch (PropellerWriteException e) {
             Log.e(TAG, "Could not clear collections ", e);
         }
-
     }
+
 }

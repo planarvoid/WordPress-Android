@@ -13,7 +13,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.commands.UrnMapper;
+import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadRequest;
 import com.soundcloud.android.offline.OfflineContentRequests;
@@ -75,18 +75,18 @@ public class LoadOfflineContentUpdatesCommand extends Command<Collection<Downloa
 
         return propellerDatabase.query(Query.from(TrackDownloads.name())
                 .where(isPendingDownloads))
-                .toList(new UrnMapper());
+                .toList(new TrackUrnMapper());
     }
 
     private List<Urn> getDownloaded() {
         final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT).whereNull(REMOVED_AT);
-        return propellerDatabase.query(query).toList(new UrnMapper());
+        return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
     private List<Urn> getPendingRemovals() {
         final long pendingRemovalThreshold = dateProvider.getCurrentDate().getTime() - PENDING_REMOVAL_DELAY;
         final Query query = Query.from(TrackDownloads.name()).whereNotNull(DOWNLOADED_AT).whereGt(REMOVED_AT, pendingRemovalThreshold);
-        return propellerDatabase.query(query).toList(new UrnMapper());
+        return propellerDatabase.query(query).toList(new TrackUrnMapper());
     }
 
     private List<Urn> getNewPendingRemovals(Collection<Urn> expectedContent, List<Urn> downloadedTracks, Collection<Urn> downloadRequests) {

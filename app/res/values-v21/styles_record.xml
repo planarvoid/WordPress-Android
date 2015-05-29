@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="MetadataContainer">
+        <item name="android:background">@color/white</item>
+        <item name="android:elevation">5dp</item>
+    </style>
+
+    <style name="RecordOrangeButtonBase">
+        <item name="android:background">@drawable/rec_button_ripple_selector</item>
+        <item name="android:elevation">@dimen/button_z_material</item>
+        <item name="android:stateListAnimator">@anim/button_state_list_anim_material</item>
+        <item name="android:transitionName">actionButtonTransition</item>
+    </style>
+
+    <style name="RecordDarkButtonBase" parent="android:Widget.Material.Button.Borderless" />
+
+</resources>

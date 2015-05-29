@@ -4,10 +4,8 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Да</string>
     <string name="no">Нет</string>
-    <string name="close">Закрыть</string>
     <string name="post">Сообщение</string>
     <string name="view">Вид</string>
-    <string name="btn_publish">Далее</string>
     <string name="btn_apply">Применить</string>
     <string name="cancel">Отмена</string>
     <string name="retry">Повторить</string>
@@ -18,6 +16,7 @@
     <string name="btn_continue">Продолжить</string>
     <string name="imprint">Печать</string>
     <string name="privacy">Конфиденциальность</string>
+    <string name="contact_support">Связаться с Центром поддержки</string>
     <string name="legal">Условия</string>
     <string name="legal_summary">Юридическая информация</string>
     <string name="terms_of_use">Условия использования</string>
@@ -33,15 +32,9 @@
     <string name="btn_skip">Пропустить</string>
     <string name="configure">Настроить</string>
     <string name="connect_progress">Загрузка</string>
-    <string name="connect_success">Успешно соединено с %1$s</string>
-    <string name="connection_list_footer">Чтобы изменить параметры доступа по умолчанию, перейдите к настройкам SoundCloud и выберите \"Connections\"</string>
     <string name="delete">Удалить</string>
     <string name="comments">Комментарии</string>
-    <string name="new_connection_error">Проблема при добавлении сети</string>
-    <string name="reset">Удалить</string>
-    <string name="share_fail_message">ОК, что-то пошло не так.</string>
     <string name="share_log_out">Выйти</string>
-    <string name="share_success_message">Ура, сработало!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Поделиться&lt;/b&gt; на &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Звуки из %s</string>
     <string name="this_user">Этот пользователь</string>
@@ -49,8 +42,6 @@
     <string name="track_by">от</string>
     <string name="display_name">Отображаемое имя</string>
     <string name="website">Сайт</string>
-    <string name="what_hint">Что</string>
-    <string name="where_hint">Где</string>
     <string name="like">Нравится</string>
     <string name="unlike">Не нравится</string>
 
@@ -96,14 +87,12 @@
     <string name="authentication_log_in_with_facebook">Войти с помощью Facebook</string>
     <string name="authentication_login_error_password_message">Мы не смогли авторизовать вас. Вы уверены, что адрес электронной почты и пароль указаны верно?</string>
     <string name="authentication_login_progress_message">Осуществляется вход</string>
-    <string name="authentication_recover_password">Восстановить пароль</string>
     <string name="authentication_recover_password_failure">Мы не можем восстановить ваш пароль в сейчас. Пожалуйста, попробуйте еще раз в ближайшее время</string>
     <string name="authentication_recover_password_failure_reason">Восстановление пароля не удалось: %s</string>
     <string name="authentication_recover_password_success">Проверьте вашу почту! Вы получите электронное письмо с инструкциями о том, как восстановить пароль в ближайшее время</string>
     <string name="authentication_recover_progress_message">Запрос на восстановление пароля</string>
     <string name="authentication_sign_up">Подпишитесь на SoundCloud</string>
     <string name="authentication_signup_error_message">Кажется, возникла проблема. Пожалуйста, попробуйте зарегистрироваться на SoundCloud.com.</string>
-    <string name="authentication_support">Поддержка</string>
     <string name="authentication_terms_of_use">Условия использования</string>
     <string name="authentication_your_email_address">Ваш адрес электронной почты</string>
     <string name="authentication_your_password">Ваш пароль</string>
@@ -118,8 +107,7 @@
     <string name="facebook_authentication_failed_message">Пожалуйста, попробуйте еще раз в ближайшее время или войдите, используя имя пользователя и пароль SoundCloud.</string>
     <string name="authentication_recover_password_msg">Введите свой адрес электронной почты, и мы вышлем вам ссылку, которая позволит вам изменить ваш пароль. Есть проблемы? Свяжитесь со службой поддержки.</string>
     <string name="authentication_blocked_title">Мы не смогли авторизовать Вас</string>
-    <string name="authentication_blocked_message">Наши роботы считают, что эта регистрация слишком похожа на спам. Если вы считаете, что это ошибка, пожалуйста, <a href="http://help.soundcloud.com/customer/portal/emails/new">свяжитесь с нашей поддержкой</a>
-  </string>
+    <string name="authentication_blocked_message">Наши роботы считают, что эта регистрация слишком похожа на спам. Если вы считаете, что это ошибка, пожалуйста, <a href="http://help.soundcloud.com/customer/portal/emails/new">свяжитесь с нашей поддержкой</a></string>
     <string name="authentication_captcha_message">У нас возникли некоторые проблемы с вашей авторизацией. Пожалуйста, войдите через наш мобильный сайт, перед тем как попробовать войти снова.</string>
     <string name="authentication_email_taken_message">Этот адрес уже используется в учетной записи. Введите другой адрес, или попробуйте войти в</string>
     <string name="authentication_email_invalid_message">Домен, который Вы ввели, кажется, не может получать электронные письма. Вы правильно ввели его?</string>
@@ -160,7 +148,6 @@
     <string name="empty_user_tracks_text">%1$s пока не загрузил никаких публичных аудио.</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">Произошла ошибка во время записи.\n Устройство может не поддерживать текущую конфигурацию записи. Вы можете изменить конфигурации в настройках приложения.</string>
     <string name="error_unauthorized_message">У нас возникли проблемы с вашей учетной записью. Вам нужно снова войти в SoundCloud, прежде чем вы можете продолжать использовать приложение.</string>
     <string name="error_unauthorized_title">Ошибка</string>
     <string name="error_loading_url">Возникла проблема при загрузке URL</string>
@@ -171,7 +158,6 @@
     <string name="crop_image_error">Ошибка кадрирования изображения.</string>
     <string name="error_server_problems_message">Проблема при обработке вашего запроса. Пожалуйста, повторите попытку позднее.</string>
     <string name="connection_list_error">Там, кажется, проблема с подключением. Пожалуйста, попробуйте еще раз в ближайшее время.</string>
-    <string name="connect_failure">Сбой соединения с %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Упс! Мы не смогли зарегистрировать вас\nПожалуйста, попробуйте обновить приложение или зарегистрироваться через SoundCloud.com.</string>
 
@@ -328,20 +314,7 @@
     <string name="user_commented_at">%1$s на %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Неизвестная ошибка</string>
-    <string name="payments_connection_error">Ошибка соединения</string>
-    <string name="payments_connection_unavailable">Счет Google Play не доступен</string>
-    <string name="payments_user_cancelled">Отменено пользователем</string>
-    <string name="payments_none_available">Нет доступных подписок</string>
-    <string name="payments_verifying">Проверка</string>
-    <string name="payments_verify_fail">Проверка не удалась</string>
-    <string name="payments_verify_timeout">Невозможно подтвердить покупку</string>
     <string name="payments_success">Успешно</string>
-    <string name="payments_error_title">Ошибка платежа</string>
-    <string name="payments_error_already_subscribed">Уже существует подписка, связанная с вашей учетной записью. Остаются проблемы? Свяжитесь со службой поддержки.</string>
-    <string name="payments_error_stale_checkout">Невозможно восстановить вашу подписку.</string>
-    <string name="payments_error_wrong_user">У вас есть активные подписки, но они связаны с другим пользователем.</string>
-    <string name="payments_error_contact_support">Связаться со службой поддержки</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Плейлисты</string>
@@ -374,74 +347,25 @@
     <string name="myspace">MySpace</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">Пожалуйста, подождите...</string>
     <string name="rec_title_idle_rec">Запись</string>
     <string name="rec_title_recording">Запись</string>
     <string name="rec_title_idle_play">Приостановлено</string>
     <string name="rec_title_playing">Играет</string>
     <string name="rec_title_editing">Правка</string>
-    <string name="record_another_sound">Записать другой звук</string>
     <string name="record_insert_sd_card">Пожалуйста, вставьте SD-карту для записи.</string>
     <string name="record_instructions">Поделитесь своими Звуками</string>
     <string name="record_storage_is_full">Хранилище заполнено</string>
     <string name="recorded_afternoon">%s дня</string>
-    <string name="recorded_at">%1$s в %2$s</string>
     <string name="recorded_evening">%s вечера</string>
     <string name="recorded_morning">%s утра</string>
     <string name="recorded_night">%s ночи</string>
-    <string name="recording_not_found">Запись не найдена</string>
-    <string name="rec_your_sound_is_saved_locally_at">Ваше аудио сохранено локально</string>
     <string name="dialog_confirm_delete_recording_message">Вы уверены, что хотите удалить эту запись?</string>
-    <string name="dialog_reset_recording_message">Сброс? Запись будет удалена.</string>
-    <string name="dialog_unsaved_recordings_message">Найдены несохраненные записи. Отмеченные элементы будут сохранены.</string>
     <string name="btn_revert_to_original">Возврат к оригиналу</string>
     <string name="fade_toggle_on">Эффект Fade in/out</string>
-    <string name="fade_toggle_off">Без эффекта Fade in/out</string>
-    <string name="optimize_toggle_on">Оптимизированный</string>
-    <string name="optimize_toggle_off">Не оптимизировано</string>
-    <string name="create_autosave_message">Ваши записи будут автоматически сохранены после их создания. Вы можете найти их в вашем списке звуков.</string>
-    <string name="create_regenerating_waveform_message">Восстановление сигнала, пожалуйста, подождите.</string>
     <string name="dialog_revert_recording_message">Вы потеряете все ваши изменения. Продолжить?</string>
     <string name="cloud_recorder_event_message">Запись %s</string>
     <string name="cloud_recorder_event_title">Запись в процессе</string>
     <string name="cloud_recorder_playback_event_title">Воспроизводится</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-    <item>Почему бы вам не записать звуки вашей улицы?</item>
-    <item>Запись голосовых заметок, как удобные напоминания.</item>
-    <item>Используйте кнопку REC, чтобы создать голосовой блог. Чем вы поделитесь сегодня?</item>
-    <item>Что вы делаете сейчас?</item>
-    <item>Поймайте момент: первые слова ребенка</item>
-    <item>Поймайте момент: звуки вашего питомца</item>
-    <item>Поймайте момент: голос того, о ком вы заботитесь</item>
-    <item>Собрались за покупками? Запишите напоминания, чтобы не забыть, что купить.</item>
-    <item>Возникла прекрасная идея? Запишите ее с помощью кнопки REC.</item>
-    <item>Слышали недавно хорошую шутку? Поделитесь ею!</item>
-    <item>Участвуете в интересном разговоре? Почему бы не записать его для потомков?</item>
-    <item>Захватите веселый момент в звуке</item>
-    <item>Знаете ли вы, что вы можете сохранять записи приватно, если не хотите делиться ими?</item>
-    <item>Иногда самым лучшим записывающим устройством является именно то, которое сейчас лежит рядом с вами.</item>
-    <item>Заставьте звучать себя!</item>
-    <item>Заставьте интернет звучать.</item>
-    <item>Заставьте звучать мир.</item>
-    <item>Выразите себя!</item>
-    <item>Почему бы не записать вашу следующую встречу?</item>
-    <item>Нажмите REC и сохраните идеи на будущее.</item>
-    <item>Используйте кнопку REC в качестве помощи в учебе: сохраняйте заметки на ходу.</item>
-    <item>Вы можете использовать кнопку REC, чтобы записывать интервью и встречи.</item>
-    <item>Запишите звук океанских волн на пляже</item>
-    <item>Запишите звуки оживленного города в час пик</item>
-    <item>Услышали сумасшедший звук? Захватите его с помощью кнопки REC!</item>
-    <item>Чувствуете вдохновение? Захватите вашу идею с помощью кнопки REC.</item>
-    <item>Есть идея для следующей записи? Сохраните ее, нажав кнопку REC</item>
-    <item>Мелодия крутится у вас в голове? Запишите ее, нажав кнопку REC</item>
-    <item>Идеи для текстов песен? Запишите их тут же с помощью кнопки REC.</item>
-    <item>Что происходит прямо сейчас?</item>
-    <item>Записывайте текущие события и делитесь ими с миром.</item>
-    <item>Происходит что-то интересное? Сохраните момент в аудио.</item>
-    <item>Работаете на Citizen? Расскажите миру, что происходит там, где вы находитесь.</item>
-  </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Поиск на SoundCloud</string>
@@ -482,9 +406,9 @@
     <string name="cache_clearing">Очистка кэша</string>
     <string name="cache_clearing_message">Удаление файлов кэша...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Сжатые</item>
-    <item>Несжатые</item>
-  </string-array>
+        <item>Сжатые</item>
+        <item>Несжатые</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Вам придется заново подключиться к Вашему аккаунту SoundCloud.</string>
@@ -517,11 +441,11 @@
     <string name="pref_notifications_reposts">Репосты</string>
     <string name="pref_notifications_reposts_description">Получать обновления о новых репостах ваших аудио</string>
     <string-array name="pref_notifications_frequency">
-    <item>Каждый час</item>
-    <item>Каждые 4 часа</item>
-    <item>Каждые 12 часов</item>
-    <item>Каждые 24 часа</item>
-  </string-array>
+        <item>Каждый час</item>
+        <item>Каждые 4 часа</item>
+        <item>Каждые 12 часов</item>
+        <item>Каждые 24 часа</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Использовать экспериментальный плеер</string>
@@ -566,11 +490,8 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Обрабатывается</string>
-    <string name="uploader_event_processing_percent">Обрабатывается: %d %%</string>
-    <string name="uploader_event_not_yet_uploading">Еще не загружено</string>
     <string name="uploader_event_uploading_percent">Загружается: %d %%</string>
     <string name="uploader_event_cancelling">Отмена</string>
-    <string name="uploader_event_processing_finished">Обработка закончена</string>
     <string name="cloud_upload_clear_artwork">Удерживайте, чтобы очистить изображение</string>
     <string name="cloud_uploader_notification_error_message">Ошибка при загрузке %s</string>
     <string name="cloud_uploader_notification_error_ticker">Ошибка загрузки</string>
@@ -578,15 +499,9 @@
     <string name="cloud_uploader_notification_finished_message">%s было загружено</string>
     <string name="cloud_uploader_notification_finished_ticker">Загрузка завершена</string>
     <string name="cloud_uploader_notification_finished_title">Загрузка завершена</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">Ошибка перекодировки %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Ошибка перекодировки</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Ошибка перекодировки</string>
     <string name="dialog_cancel_upload_message">Отменить загрузку?</string>
-    <string name="sc_upload_add_image">Добавить\nизображение</string>
     <string name="sc_upload_private">Приватное</string>
     <string name="sc_upload_public">Публичное</string>
-    <string name="sc_upload_sharing_options_private">Ваше аудио будет приватным на SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">Ваше аудио будет обнародовано на SoundCloud. В каких еще социальных сетях вы хотели бы поделиться им?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Нажмите, чтобы открыть SoundCloud</string>
@@ -624,7 +539,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Не удается передать трек</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">Что бы вы хотели сообщить?</string>
     <string name="feedback_playback_issue">Ошибка воспроизведения</string>

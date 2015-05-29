@@ -12,7 +12,6 @@
     <bool name="debug_feature_screen">false</bool>
     <bool name="google_plus_enabled">false</bool>
 
-    <string name="api_mobile_base_uri_path">/app/mobileapps</string>
     <string name="public_api_base_url">https://api.soundcloud.com</string>
     <string name="mobile_api_base_url">https://api-mobile.soundcloud.com</string>
     <string name="event_logger_base_url">http://eventlogger.soundcloud.com</string>
@@ -31,4 +30,5 @@
     <bool name="feature_google_cast">false</bool>
     <bool name="feature_offline_sync">false</bool>
     <bool name="feature_promoted_in_stream">false</bool>
+    <bool name="new_profile_fragments">false</bool>
 </resources>

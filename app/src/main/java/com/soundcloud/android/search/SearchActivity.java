@@ -8,12 +8,12 @@ import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.app.SearchManager;
 import android.content.Intent;
@@ -21,7 +21,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import javax.inject.Inject;
@@ -103,8 +102,6 @@ public class SearchActivity extends ScActivity implements PlaylistTagsFragment.T
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowCustomEnabled(false);
         getMenuInflater().inflate(R.menu.search, menu);
 
         searchActionBarController.configureSearchState(this, menu);

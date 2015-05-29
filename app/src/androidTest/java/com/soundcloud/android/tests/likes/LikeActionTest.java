@@ -79,7 +79,7 @@ public class LikeActionTest extends ActivityTest<MainActivity> {
 
         final String actualTitle = streamScreen
                 .openMenu()
-                .clickPlaylist()
+                .clickPlaylists()
                 .touchLikedPlaylistsTab()
                 .get(0)
                 .getTitle();

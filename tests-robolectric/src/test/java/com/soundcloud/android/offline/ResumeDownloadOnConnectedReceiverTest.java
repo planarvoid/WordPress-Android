@@ -83,7 +83,7 @@ public class ResumeDownloadOnConnectedReceiverTest {
         receiver.onReceive(Robolectric.application, null);
 
         final Intent startService = Robolectric.getShadowApplication().peekNextStartedService();
-        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START_DOWNLOAD);
+        expect(startService.getAction()).toEqual(OfflineContentService.ACTION_START);
         expect(startService.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 

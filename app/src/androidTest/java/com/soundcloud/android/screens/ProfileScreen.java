@@ -1,13 +1,19 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.profile.ProfileActivity;
-import com.soundcloud.android.screens.elements.TrackItemMenuElement;
-import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.screens.elements.TrackItemMenuElement;
+import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.screens.elements.SlidingTabs;
+import com.soundcloud.android.screens.elements.ViewPagerElement;
+
+import android.widget.ListView;
+
+import java.util.List;
 
 public class ProfileScreen extends Screen {
     private static Class ACTIVITY = ProfileActivity.class;
@@ -32,7 +38,58 @@ public class ProfileScreen extends Screen {
         return new TrackItemMenuElement(testDriver);
     }
 
-    private java.util.List<ViewElement> tracks() {
+    public String getFirstTrackTitle() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return new TextElement(trackTitle(tracks().get(0))).getText();
+    }
+
+    public void scrollToBottomOfCurrentListAndLoadMoreItems() {
+        testDriver.scrollToBottom(currentList());
+        waiter.waitForContentAndRetryIfLoadingFailed();
+    }
+
+    public int getCurrentListItemCount() {
+        waiter.waitForItemCountToIncrease(currentList().getAdapter(), 0);
+        return currentList().getAdapter().getCount();
+    }
+
+    private ListView currentList() {
+        return (ListView) getViewPager().getCurrentPage(ListView.class);
+    }
+
+    private ViewPagerElement getViewPager() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return new ViewPagerElement(testDriver);
+    }
+
+    public ViewElement emptyUserPostsMessage(String username){
+        return emptyView().findElement(With.text(testDriver.getString(R.string.empty_user_tracks_text, username)));
+    }
+
+    public ViewElement emptyUserLikesMessage(String username){
+        return emptyView().findElement(With.text(testDriver.getString(R.string.empty_user_likes_text, username)));
+    }
+
+    public ProfileScreen touchLikesTab() {
+        tabs().getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public ProfileScreen touchFollowingsTab() {
+        final SlidingTabs tabs = tabs();
+        // TODO we have to go to the middle to even see the next tab. tabs should scroll as necessary
+        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_likes).toUpperCase()).click();
+        tabs.getTabWithText(testDriver.getString(R.string.tab_title_user_followings).toUpperCase()).click();
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    private SlidingTabs tabs() {
+        return testDriver.findElement(With.id(R.id.indicator)).toSlidingTabs();
+    }
+
+    private List<ViewElement> tracks() {
         return testDriver.findElements(With.id(R.id.track_list_item));
     }
 
@@ -48,12 +105,16 @@ public class ProfileScreen extends Screen {
         return testDriver.findElement(With.id(R.id.location));
     }
 
-    private ViewElement followersMessage(){
+    private ViewElement followersMessage() {
         return testDriver.findElement(With.id(R.id.followers_message));
     }
 
     private String getFollowButtonText() {
         return testDriver.getString(R.string.btn_following);
+    }
+
+    private ViewElement trackTitle(ViewElement track) {
+        return track.findElement(With.id(R.id.list_item_subheader));
     }
 
     @Override

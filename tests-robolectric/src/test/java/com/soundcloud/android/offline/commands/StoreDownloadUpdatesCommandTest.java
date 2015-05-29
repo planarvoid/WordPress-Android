@@ -49,7 +49,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
     public void storesNewDownloadRequestsAsPendingDownload() {
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(new DownloadRequest(TRACK, "http://url.biz", 12345L)),
+                Arrays.asList(new DownloadRequest(TRACK, 12345L)),
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<Urn>emptyList()
         );
@@ -65,7 +65,7 @@ public class StoreDownloadUpdatesCommandTest extends StorageIntegrationTest {
         final OfflineContentRequests offlineContentRequests = getOfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(new DownloadRequest(TRACK, "http://url.biz", 12345L)),
+                Arrays.asList(new DownloadRequest(TRACK, 12345L)),
                 Collections.<Urn>emptyList()
         );
 

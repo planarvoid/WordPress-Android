@@ -9,7 +9,6 @@ import com.soundcloud.android.onboarding.suggestions.OnboardSuggestedUsersSyncFr
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFragment;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryFragment;
-import com.soundcloud.android.profile.MyTracksAdapter;
 import com.soundcloud.android.sync.ApiSyncer;
 import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
@@ -23,7 +22,6 @@ import dagger.Module;
                 ActivitiesAdapter.class,
                 SoundAdapter.class,
                 PostsAdapter.class,
-                MyTracksAdapter.class,
                 ApiSyncer.class,
                 SuggestedUsersCategoryFragment.class,
                 SuggestedUsersCategoryActivity.class,

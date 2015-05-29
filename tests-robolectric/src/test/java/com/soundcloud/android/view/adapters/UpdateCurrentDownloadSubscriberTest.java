@@ -44,7 +44,7 @@ public class UpdateCurrentDownloadSubscriberTest {
         when(adapter.getItems()).thenReturn(
                 Lists.newArrayList(TrackItem.from(track1), TrackItem.from(track2)));
 
-        final DownloadRequest request = new DownloadRequest.Builder(TRACK1, "http://sctream", 12345L).build();
+        final DownloadRequest request = new DownloadRequest.Builder(TRACK1, 12345L).build();
         final CurrentDownloadEvent event = CurrentDownloadEvent.downloading(request);
         subscriber.onNext(event);
 

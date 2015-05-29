@@ -14,7 +14,7 @@ import static com.soundcloud.android.storage.TableColumns.TrackDownloads.REQUEST
 import static com.soundcloud.android.storage.TableColumns.TrackDownloads.UNAVAILABLE_AT;
 import static com.soundcloud.propeller.query.Filter.filter;
 
-import com.soundcloud.android.commands.UrnMapper;
+import com.soundcloud.android.commands.TrackUrnMapper;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -62,7 +62,7 @@ class OfflineTracksStorage {
                 .whereNotNull(TrackDownloads.field(DOWNLOADED_AT))
                 .whereNull(TrackDownloads.field(REMOVED_AT))
                 .order(PlaylistTracks.field(POSITION), Query.ORDER_ASC);
-        return propellerRx.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     /**
@@ -78,7 +78,7 @@ class OfflineTracksStorage {
                 .whereNull(TrackDownloads.field(REMOVED_AT))
                 .order(Likes.field(CREATED_AT), Query.ORDER_DESC);
 
-        return propellerRx.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingLikedTracksUrns() {
@@ -91,7 +91,7 @@ class OfflineTracksStorage {
                 .whereNotNull(TrackDownloads.field(REQUESTED_AT))
                 .whereEq(TableColumns.Likes._TYPE, TableColumns.Sounds.TYPE_TRACK);
 
-        return propellerRx.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> pendingPlaylistTracksUrns(Urn playlist) {
@@ -104,7 +104,7 @@ class OfflineTracksStorage {
                 .whereNull(TrackDownloads.field(UNAVAILABLE_AT))
                 .whereNotNull(TrackDownloads.field(REQUESTED_AT));
 
-        return propellerRx.query(query).map(new UrnMapper()).toList();
+        return propellerRx.query(query).map(new TrackUrnMapper()).toList();
     }
 
     Observable<List<Urn>> getTracksToRemove() {
@@ -112,7 +112,7 @@ class OfflineTracksStorage {
         return propellerRx.query(Query.from(Table.TrackDownloads.name())
                 .select(_ID)
                 .whereLe(REMOVED_AT, removalDelayedTimestamp))
-                .map(new UrnMapper())
+                .map(new TrackUrnMapper())
                 .toList();
     }
 

@@ -8,7 +8,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +25,7 @@ public class DefaultControllerTest {
 
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock private PlaylistTrackItemPresenter trackPresenter;
+    @Mock private PlaylistTrackItemRenderer trackRenderer;
     @Mock private InlinePlaylistTracksAdapter adapter;
     @Mock private ListView listView;
     @Mock private Resources resources;
@@ -34,7 +34,7 @@ public class DefaultControllerTest {
     @Before
     public void setUp() throws Exception {
         when(layout.findViewById(android.R.id.list)).thenReturn(listView);
-        when(adapter.getPlaylistItemPresenter()).thenReturn(trackPresenter);
+        when(adapter.getPlaylistItemRenderer()).thenReturn(trackRenderer);
         controller = new DefaultController(adapter, eventBus);
         controller.onViewCreated(layout, null);
     }
@@ -43,14 +43,14 @@ public class DefaultControllerTest {
     public void shouldListenForTrackPositionChangeEventsAndUpdateTrackPresenter() {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(Urn.forTrack(123L)));
 
-        verify(trackPresenter).setPlayingTrack(Urn.forTrack(123L));
+        verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }
 
     @Test
     public void shouldListenForNewPlayQueueEventsAndUpdateTrackPresenter() {
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(Urn.forTrack(123L)));
 
-        verify(trackPresenter).setPlayingTrack(Urn.forTrack(123L));
+        verify(trackRenderer).setPlayingTrack(Urn.forTrack(123L));
     }
 
     @Test

@@ -1,11 +1,11 @@
 package com.soundcloud.android.framework.viewelements;
 
-import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.Han;
 
 import android.widget.EditText;
 
 public class EditTextElement extends TextElement {
-    private final Solo testDriver;
+    private final Han testDriver;
 
     public EditTextElement(ViewElement element) {
         super(element);

@@ -50,17 +50,12 @@ public class ConnectionItemLayout extends RelativeLayout {
             public void onClick(View v) {
                 if (connection.isActive()) {
                     postPublish.toggle();
-                } else {
-                    configureService(connection.service());
                 }
             }
         };
         display_name.setOnClickListener(toggle);
         configure.setOnClickListener(toggle);
         setOnClickListener(toggle);
-    }
-
-    public void configureService(Connection.Service service) {
     }
 
     public void progress(boolean finished) {

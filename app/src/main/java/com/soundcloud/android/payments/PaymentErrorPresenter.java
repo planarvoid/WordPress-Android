@@ -1,53 +1,79 @@
 package com.soundcloud.android.payments;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.payments.error.AlreadySubscribedDialog;
-import com.soundcloud.android.payments.error.StaleCheckoutDialog;
-import com.soundcloud.android.payments.error.WrongUserDialog;
+import com.soundcloud.android.api.ApiRequestException;
 
-import android.content.Context;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.widget.Toast;
 
 import javax.inject.Inject;
 
 class PaymentErrorPresenter {
 
-    private final Context context;
-    private FragmentManager fragmentManager;
+    private static final String ERROR_KEY_ALREADY_SUBSCRIBED = "already_subscribed";
+    private static final String ERROR_KEY_WRONG_USER = "wrong_user";
+
+    private PaymentErrorView errorView;
 
     @Inject
-    PaymentErrorPresenter(Context context) {
-        this.context = context;
+    PaymentErrorPresenter(PaymentErrorView errorView) {
+        this.errorView = errorView;
     }
 
     public void setActivity(FragmentActivity activity) {
-        fragmentManager = activity.getSupportFragmentManager();
+        errorView.bind(activity);
     }
 
-    public void showAlreadySubscribed() {
-        AlreadySubscribedDialog.show(fragmentManager);
+    public void onError(Throwable e) {
+        if (e instanceof ApiRequestException) {
+            handleApiException((ApiRequestException) e);
+        } else {
+            errorView.showUnknownError();
+        }
     }
 
-    public void showStaleCheckout() {
-        StaleCheckoutDialog.show(fragmentManager);
+    private void handleApiException(ApiRequestException e) {
+        switch (e.reason()) {
+            case BAD_REQUEST:
+                handleBadRequest(e);
+                break;
+            case NOT_FOUND:
+                errorView.showStaleCheckout();
+                break;
+            default:
+                errorView.showConnectionError();
+        }
     }
 
-    public void showWrongUser() {
-        WrongUserDialog.show(fragmentManager);
+    private void handleBadRequest(ApiRequestException e) {
+        switch (e.errorKey()) {
+            case ERROR_KEY_ALREADY_SUBSCRIBED:
+                errorView.showAlreadySubscribed();
+                break;
+            case ERROR_KEY_WRONG_USER:
+                errorView.showWrongUser();
+                break;
+            default:
+                errorView.showConnectionError();
+        }
+    }
+
+    public void showCancelled() {
+        errorView.showCancelled();
+    }
+
+    public void showBillingUnavailable() {
+        errorView.showBillingUnavailable();
     }
 
     public void showConnectionError() {
-        showText(R.string.payments_connection_error);
+        errorView.showConnectionError();
     }
 
-    public void showUnknownError() {
-        showText(R.string.payments_unknown_error);
+    public void showVerifyFail() {
+        errorView.showVerifyFail();
     }
 
-    private void showText(int messageId) {
-        Toast.makeText(context, messageId, Toast.LENGTH_SHORT).show();
+    public void showVerifyTimeout() {
+        errorView.showVerifyTimeout();
     }
 
 }

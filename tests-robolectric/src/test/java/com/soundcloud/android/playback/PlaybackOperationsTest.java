@@ -259,13 +259,6 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void reloadAndPlayCurrentQueueRedirectsCallToPlaybackStrategy() {
-        playbackOperations.reloadAndPlayCurrentQueue(123L);
-
-        verify(playbackStrategy).reloadAndPlayCurrentQueue(123L);
-    }
-
-    @Test
     public void shouldUpdatePlayPositionToGivenIndex() {
         playbackOperations.setPlayQueuePosition(5);
 

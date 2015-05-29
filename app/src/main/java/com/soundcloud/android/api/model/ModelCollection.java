@@ -41,8 +41,8 @@ public class ModelCollection<T> implements Iterable<T> {
     }
 
     @JsonProperty("_links")
-    public void setLinks(Map<String, Link> mLinks) {
-        this.links = mLinks;
+    public void setLinks(Map<String, Link> links) {
+        this.links = links;
     }
 
     public Optional<Link> getNextLink() {

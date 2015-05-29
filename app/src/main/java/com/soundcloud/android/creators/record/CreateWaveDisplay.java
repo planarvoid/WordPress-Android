@@ -1,11 +1,11 @@
 package com.soundcloud.android.creators.record;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.InputObject;
 import com.soundcloud.android.view.TouchLayout;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,8 +28,8 @@ public class CreateWaveDisplay extends TouchLayout {
     private final TrimHandleView rightHandle, leftHandle;
     private final Handler touchHandler = new TouchHandler(this);
     private long lastTrimAction;
-    private int leftHandleTouchIndex;
-    private int rightHandleTouchIndex;
+    private int leftHandleTouchIndex = Consts.NOT_SET;
+    private int rightHandleTouchIndex = Consts.NOT_SET;
     private boolean seekMode;
     private int mode;
     private boolean isEditing;
@@ -87,7 +87,6 @@ public class CreateWaveDisplay extends TouchLayout {
             waveformView.setIsEditing(isEditing);
             if (this.isEditing) {
                 setTrimHandles();
-                waveformView.setBackgroundColor(Color.BLACK);
             } else {
                 if (leftHandle.getParent() == this) {
                     removeView(leftHandle);
@@ -95,8 +94,6 @@ public class CreateWaveDisplay extends TouchLayout {
                 if (rightHandle.getParent() == this) {
                     removeView(rightHandle);
                 }
-                //noinspection deprecation
-                waveformView.setBackgroundDrawable(null);
             }
         }
     }
@@ -124,7 +121,7 @@ public class CreateWaveDisplay extends TouchLayout {
         super.onLayout(changed, l, t, r, b);
 
         if (changed && getWidth() > 0 && waveformView != null && waveformView.getWidth() > 0) {
-            calcualteWaveformRect();
+            calculateWaveformRect();
 
             leftHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_LEFT, waveformView.getId());
             rightHandle.getLayoutParams().addRule(RelativeLayout.ALIGN_RIGHT, waveformView.getId());
@@ -138,15 +135,12 @@ public class CreateWaveDisplay extends TouchLayout {
     @Override
     protected void processDownInput(InputObject input) {
         setTouchMode(input);
-        final int x = input.actionIndex == 0 ? input.x : input.pointerX;
 
         if (seekMode) {
             seekTouch(input.x);
         } else if (leftHandleTouchIndex > -1 && input.actionIndex == leftHandleTouchIndex) {
-            leftDragOffsetX = x - leftHandle.getLeft();
             queueUnique(UI_ON_TRIM_STATE);
         } else if (rightHandleTouchIndex > -1 && input.actionIndex == rightHandleTouchIndex) {
-            rightDragOffsetX = x - rightHandle.getRight();
             queueUnique(UI_ON_TRIM_STATE);
         }
     }
@@ -156,7 +150,11 @@ public class CreateWaveDisplay extends TouchLayout {
         if (seekMode) {
             seekTouch(input.x);
         } else {
+            final int x = input.actionIndex == 0 ? input.x : input.pointerX;
             if (leftHandleTouchIndex > -1) {
+                if (leftDragOffsetX == Consts.NOT_SET){
+                    leftDragOffsetX = x - leftHandle.getLeft();
+                }
                 newTrimActionLeft = new TrimAction(System.currentTimeMillis(),
                         Math.max(0, Math.min(rightHandle.getLeft() - leftHandle.getWidth(),
                                 (leftHandleTouchIndex == 0 ? input.x : input.pointerX) - leftDragOffsetX)));
@@ -164,6 +162,9 @@ public class CreateWaveDisplay extends TouchLayout {
             }
 
             if (rightHandleTouchIndex > -1) {
+                if (rightDragOffsetX == Consts.NOT_SET){
+                    rightDragOffsetX = x - rightHandle.getRight();
+                }
                 newTrimActionRight = new TrimAction(System.currentTimeMillis(),
                         Math.min(getWidth(), Math.max(leftHandle.getRight() + rightHandle.getWidth(),
                                 (rightHandleTouchIndex == 0 ? input.x : input.pointerX) - rightDragOffsetX)));
@@ -227,16 +228,16 @@ public class CreateWaveDisplay extends TouchLayout {
     private void processHandleUpFromPointer(int pointerIndex) {
         if (leftHandleTouchIndex == pointerIndex) {
             newTrimActionLeft = null;
-            leftHandleTouchIndex = -1;
-            leftDragOffsetX = 0;
+            leftHandleTouchIndex = Consts.NOT_SET;
+            leftDragOffsetX = Consts.NOT_SET;
             if (rightHandleTouchIndex > pointerIndex) {
                 rightHandleTouchIndex--;
             }
         }
         if (rightHandleTouchIndex == pointerIndex) {
             newTrimActionRight = null;
-            rightHandleTouchIndex = -1;
-            rightDragOffsetX = 0;
+            rightHandleTouchIndex = Consts.NOT_SET;
+            rightDragOffsetX = Consts.NOT_SET;
             if (leftHandleTouchIndex > pointerIndex) {
                 leftHandleTouchIndex--;
             }
@@ -290,7 +291,7 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    private void calcualteWaveformRect() {
+    private void calculateWaveformRect() {
         if (waveformView != null) {
             waveformRect = new Rect();
             waveformView.getHitRect(waveformRect);
@@ -312,7 +313,7 @@ public class CreateWaveDisplay extends TouchLayout {
         }
     }
 
-    public static interface Listener {
+    public interface Listener {
         void onSeek(float pos);
 
         void onAdjustTrimLeft(float newPos, long moveTimeMs);

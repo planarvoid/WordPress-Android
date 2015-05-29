@@ -1,5 +1,6 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.never;
@@ -8,8 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.utils.DateProvider;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +20,9 @@ import org.mockito.Mock;
 import rx.Observable;
 
 import android.app.Activity;
+import android.content.Intent;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -34,6 +39,8 @@ public class PolicyUpdateControllerTest {
     private long now;
     private long tomorrow;
     private long online27DaysAgo;
+    private long online30DaysAgo;
+    private long online33DaysAgo;
 
     @Before
     public void setUp() throws Exception {
@@ -41,19 +48,25 @@ public class PolicyUpdateControllerTest {
         yesterday = now - TimeUnit.DAYS.toMillis(1);
         tomorrow = now + TimeUnit.DAYS.toMillis(1);
         controller = new PolicyUpdateController(
+                Robolectric.application,
                 featureOperations,
                 offlineContentOperations,
                 offlineSettingsStorage,
                 dateProvider,
-                goOnlinePresenter);
+                goOnlinePresenter
+        );
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(yesterday));
         when(dateProvider.getCurrentTime()).thenReturn(now);
+        when(offlineContentOperations.clearOfflineContent()).thenReturn(Observable.<List<Urn>>empty());
+
         online27DaysAgo = now - TimeUnit.DAYS.toMillis(27L);
+        online30DaysAgo = now - TimeUnit.DAYS.toMillis(30L);
+        online33DaysAgo = now - TimeUnit.DAYS.toMillis(33L);
     }
 
     @Test
-    public void shouldCheckPoliciesOnlyOnceADay() {
+    public void checksPoliciesOnlyOnceADay() {
         when(offlineSettingsStorage.getPolicyUpdateCheckTime()).thenReturn(now);
         controller.onResume(null);
 
@@ -61,7 +74,7 @@ public class PolicyUpdateControllerTest {
     }
 
     @Test
-    public void shouldCheckPoliciesEveryDay() {
+    public void checksPoliciesEveryDay() {
         when(dateProvider.getCurrentTime()).thenReturn(yesterday);
         controller.onResume(null);
         when(dateProvider.getCurrentTime()).thenReturn(tomorrow);
@@ -71,7 +84,7 @@ public class PolicyUpdateControllerTest {
     }
 
     @Test
-    public void shouldUpdateTheNextTimeIfTheFirstTimeFailed() {
+    public void updatesTheNextTimeIfTheFirstTimeFailed() {
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.<Long>error(new RuntimeException("Test exception")));
 
         controller.onResume(null);
@@ -81,7 +94,7 @@ public class PolicyUpdateControllerTest {
     }
 
     @Test
-    public void shouldShowGoBackOnlineDialogWhenLastUpdate27DaysAgo() {
+    public void showsGoBackOnlineDialogWhenLastUpdate27DaysAgo() {
         when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(online27DaysAgo));
 
         controller.onResume(null);
@@ -97,5 +110,39 @@ public class PolicyUpdateControllerTest {
         controller.onResume(null);
 
         verify(goOnlinePresenter, never()).show(any(Activity.class), anyLong());
+    }
+
+    @Test
+    public void doesNotDeleteOfflineContentWhenLastUpdate27DaysAgo() {
+        when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(online27DaysAgo));
+
+        controller.onResume(null);
+
+        expect(wasServiceStarted()).toBeFalse();
+    }
+
+    @Test
+    public void deletesOfflineContentWhenLastUpdate30DaysAgo() {
+        when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(online30DaysAgo));
+
+        controller.onResume(null);
+
+        expect(wasServiceStarted()).toBeTrue();
+    }
+
+    @Test
+    public void deletesOfflineContentWhenLastUpdate33DaysAgo() {
+        when(offlineContentOperations.tryToUpdateAndLoadLastPoliciesUpdateTime()).thenReturn(Observable.just(online33DaysAgo));
+
+        controller.onResume(null);
+
+        expect(wasServiceStarted()).toBeTrue();
+    }
+
+    private boolean wasServiceStarted() {
+        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
+        return intent != null &&
+                intent.getAction().equals(OfflineContentService.ACTION_START) &&
+                intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
     }
 }

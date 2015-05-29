@@ -1,7 +1,6 @@
 package com.soundcloud.android.activities;
 
 import static com.soundcloud.android.Expect.expect;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -44,7 +43,7 @@ import java.util.Date;
 public class ActivitiesAdapterTest {
     @Mock private ImageOperations imageOperations;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private ActivityItemPresenter activityItemPresenter;
+    @Mock private ActivityItemRenderer itemRenderer;
     @Mock private EventBus eventBus;
 
     @InjectMocks
@@ -137,7 +136,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(createTrackActivity(TrackActivity.class)));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     @Test
@@ -145,7 +144,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(createTrackActivity(TrackSharingActivity.class)));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     @Test
@@ -153,7 +152,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(createTrackActivity(TrackRepostActivity.class)));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     @Test
@@ -161,7 +160,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(createPlaylistActivity(PlaylistRepostActivity.class)));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     @Test
@@ -172,7 +171,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(commentActivity));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     @Test
@@ -180,7 +179,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(createTrackActivity(TrackLikeActivity.class)));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     @Test
@@ -188,7 +187,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(createPlaylistActivity(PlaylistLikeActivity.class)));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     @Test
@@ -199,7 +198,7 @@ public class ActivitiesAdapterTest {
         adapter.addItems(Arrays.<Activity>asList(activity));
         adapter.getView(0, null, parent);
 
-        verify(activityItemPresenter).createItemView(anyInt(), eq(parent));
+        verify(itemRenderer).createItemView(eq(parent));
     }
 
     // We can't use ModelCitizen unless we add a setter to Track.

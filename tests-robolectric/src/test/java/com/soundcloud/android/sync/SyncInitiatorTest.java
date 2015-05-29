@@ -80,6 +80,17 @@ public class SyncInitiatorTest {
     }
 
     @Test
+    public void shouldCreateIntentForInitialSoundStream() {
+        initiator.initialSoundStream().subscribe(legacySyncSubscriber);
+
+        Intent intent = Robolectric.getShadowApplication().getNextStartedService();
+        expect(intent).not.toBeNull();
+        expect(intent.getData()).toBe(Content.ME_SOUND_STREAM.uri);
+        expect(intent.getBooleanExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, false)).toBeTrue();
+        expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
+    }
+
+    @Test
     public void shouldResetSoundStreamSyncMissesOnChangedSync() {
         initiator.refreshSoundStream().subscribe(legacySyncSubscriber);
         final Uri uri = Content.ME_SOUND_STREAM.uri;

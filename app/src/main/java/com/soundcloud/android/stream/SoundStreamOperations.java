@@ -112,7 +112,7 @@ class SoundStreamOperations {
         return new Func1<List<PropertySet>, Observable<List<PropertySet>>>() {
             @Override
             public Observable<List<PropertySet>> call(List<PropertySet> result) {
-                if (result.isEmpty()) {
+                if (result.isEmpty() || containsOnlyPromotedTrack(result)) {
                     return handleEmptyLocalResult(timestamp, syncCompleted);
                 } else {
                     updateLastSeen(result);
@@ -123,6 +123,10 @@ class SoundStreamOperations {
         };
     }
 
+    private boolean containsOnlyPromotedTrack(List<PropertySet> result) {
+        return result.size() == 1 && result.get(0).contains(PromotedTrackProperty.AD_URN);
+    }
+
     private Observable<List<PropertySet>> handleEmptyLocalResult(long timestamp, boolean syncCompleted) {
         Log.d(TAG, "Received empty set from local storage");
         if (syncCompleted) {
@@ -131,7 +135,7 @@ class SoundStreamOperations {
         } else {
             if (timestamp == INITIAL_TIMESTAMP) {
                 Log.d(TAG, "First page; triggering full sync");
-                return syncInitiator.refreshSoundStream().flatMap(handleSyncResult(timestamp));
+                return syncInitiator.initialSoundStream().flatMap(handleSyncResult(timestamp));
             } else {
                 Log.d(TAG, "Not on first page; triggering backfill sync");
                 return syncInitiator.backfillSoundStream().flatMap(handleSyncResult(timestamp));
@@ -170,7 +174,7 @@ class SoundStreamOperations {
 
     private void updateLastSeen(List<PropertySet> result) {
         final PropertySet firstNonPromotedItem = getFirstNonPromotedItem(result);
-        if (firstNonPromotedItem != null){
+        if (firstNonPromotedItem != null) {
             contentStats.setLastSeen(Content.ME_SOUND_STREAM,
                     firstNonPromotedItem.get(PlayableProperty.CREATED_AT).getTime());
         }
@@ -179,7 +183,7 @@ class SoundStreamOperations {
     @Nullable
     private PropertySet getFirstNonPromotedItem(List<PropertySet> result) {
         for (PropertySet propertySet : result){
-            if (!propertySet.contains(PromotedTrackProperty.AD_URN)){
+            if (!propertySet.contains(PromotedTrackProperty.AD_URN)) {
                 return propertySet;
             }
         }

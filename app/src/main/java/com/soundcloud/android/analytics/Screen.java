@@ -64,6 +64,7 @@ public enum Screen {
     RECORD_MAIN("record:main"),
     RECORD_EDIT("record:edit"),
     RECORD_UPLOAD("record:share"),
+    RECORD_PROGRESS("record:progress"),
 
     // playlists
     PLAYLIST_DETAILS("playlists:main"),

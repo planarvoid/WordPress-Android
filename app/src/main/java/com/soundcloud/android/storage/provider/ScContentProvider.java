@@ -112,7 +112,6 @@ public class ScContentProvider extends ContentProvider {
         switch (content) {
             case TRACKS:
             case USERS:
-            case RECORDINGS:
             case SOUNDS:
             case PLAYLISTS:
                 content.table.upsert(db, values);
@@ -224,12 +223,6 @@ public class ScContentProvider extends ContentProvider {
 
             case SEARCH_ITEM:
                 return "vnd.soundcloud/search_item";
-
-
-            case RECORDING:
-            case RECORDINGS:
-                return "vnd.soundcloud/recording";
-
             default:
                 return null;
         }
@@ -443,36 +436,6 @@ public class ScContentProvider extends ContentProvider {
                 qb.appendWhere(TableColumns.TrackMetadata.USER_ID + " = " + userId);
                 break;
 
-            case RECORDINGS:
-                qb.setTables(content.table.name() +
-                        " LEFT OUTER JOIN " + Table.Users +
-                        " ON " + content.table.field(TableColumns.Recordings.PRIVATE_USER_ID) +
-                        "=" + Table.Users.field(TableColumns.Users._ID));
-                String user_selection = TableColumns.Recordings.USER_ID + "=" + userId;
-                if (selection != null) {
-                    user_selection += (" AND " + selection);
-                }
-                query = qb.buildQuery(
-                        new String[]{content.table.allFields(), TableColumns.Users.USERNAME},
-                        user_selection,
-                        null,
-                        null,
-                        _sortOrder, null);
-                break;
-            case RECORDING:
-                qb.setTables(content.table.name() +
-                        " LEFT OUTER JOIN " + Table.Users +
-                        " ON " + content.table.field(TableColumns.Recordings.PRIVATE_USER_ID) +
-                        "=" + Table.Users.field(TableColumns.Users._ID));
-
-                qb.appendWhere(Table.Recordings.id + " = " + uri.getLastPathSegment());
-                query = qb.buildQuery(new String[]{content.table.allFields(), TableColumns.Users.USERNAME},
-                        selection,
-                        null,
-                        null,
-                        _sortOrder, null);
-                break;
-
             case ME_SOUND_STREAM:
                 if (_columns == null) {
                     _columns = getSoundViewColumns(Table.ActivityView,
@@ -568,7 +531,6 @@ public class ScContentProvider extends ContentProvider {
             case COLLECTION:
             case COLLECTIONS:
             case USER_ASSOCIATIONS:
-            case RECORDINGS:
             case ME_SOUNDS:
             case ME_PLAYLISTS:
             case ME_SHORTCUTS:
@@ -623,7 +585,6 @@ public class ScContentProvider extends ContentProvider {
             case TRACK:
             case USER:
             case PLAYLIST:
-            case RECORDING:
                 if (content.table.upsert(db, new ContentValues[]{values}) != -1) {
                     getContext().getContentResolver().notifyChange(uri, null, false);
                 } else {
@@ -653,7 +614,6 @@ public class ScContentProvider extends ContentProvider {
         final long userId = SoundCloudApplication.fromContext(getContext()).getAccountOperations().getLoggedInUserId();
         switch (content) {
             case COLLECTIONS:
-            case RECORDINGS:
             case ME_CONNECTIONS:
             case PLAYLISTS:
             case ME_ALL_ACTIVITIES:
@@ -668,11 +628,6 @@ public class ScContentProvider extends ContentProvider {
 
             case PLAYLIST_TRACKS:
                 where = (!TextUtils.isEmpty(where) ? where + " AND " : "") + TableColumns.PlaylistTracks.PLAYLIST_ID + "=" + uri.getPathSegments().get(1);
-                break;
-
-
-            case RECORDING:
-                where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 break;
 
             case ME_ACTIVITIES:
@@ -729,17 +684,10 @@ public class ScContentProvider extends ContentProvider {
             case TRACK:
             case USER:
             case PLAYLIST:
-            case RECORDING:
                 where = TextUtils.isEmpty(where) ? "_id=" + uri.getLastPathSegment() : where + " AND _id=" + uri.getLastPathSegment();
                 count = db.update(content.table.name(), values, where, whereArgs);
                 getContext().getContentResolver().notifyChange(uri, null, false);
                 return count;
-
-            case RECORDINGS:
-                count = db.update(content.table.name(), values, where, whereArgs);
-                getContext().getContentResolver().notifyChange(uri, null, false);
-                return count;
-
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }

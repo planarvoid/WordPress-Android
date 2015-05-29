@@ -39,37 +39,32 @@ public class StreamScreen extends Screen {
         return ACTIVITY;
     }
 
-    public TrackItemElement firstTrack() {
-        waitForContentWithTracks();
-        return trackItemElements().get(0);
+    public TrackItemElement getTrack(int index) {
+        return trackItemElements().get(index);
     }
 
     public VisualPlayerElement clickFirstTrack() {
-        waitForContentWithTracks();
-        getViewElementWithId(R.id.track_list_item).click();
+        return clickTrack(0);
+    }
+
+    public VisualPlayerElement clickTrack(int index) {
+        getTrack(index).click();
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        getViewElementWithId(R.id.overflow_button).click();
+        getTrack(0).findElement(With.id(R.id.overflow_button)).click();
         return new TrackItemMenuElement(testDriver);
     }
 
-    private void waitForContentWithTracks() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        waiter.waitForElements(R.id.track_list_item);
+    public boolean isFirstTrackPromoted() {
+        return getTrack(0).isPromotedTrack();
     }
 
-    private StreamList streamList() {
-        ViewElement list = testDriver.findElement(With.id(android.R.id.list));
-        return new StreamList(list);
-    }
-
-    private ViewElement getViewElementWithId(int viewId) {
-        return testDriver.findElements(With.id(viewId)).get(0);
+    public boolean isPromotedTrackWithPromoter() {
+        return getTrack(0).hasPromoter();
     }
 
     public MenuScreen openMenu() {
@@ -80,7 +75,13 @@ public class StreamScreen extends Screen {
         return menuScreen.open().clickExplore();
     }
 
+    private StreamList streamList() {
+        ViewElement list = testDriver.findElement(With.id(R.id.recycler_view));
+        return new StreamList(list);
+    }
+
     private List<TrackItemElement> trackItemElements() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
     }
 

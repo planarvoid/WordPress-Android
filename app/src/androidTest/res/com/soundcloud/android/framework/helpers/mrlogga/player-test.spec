@@ -16,7 +16,6 @@ expected_events:
   name: audio
   params:
     trigger: manual
-    monetization_type: audio_ad
     duration: '[0-9]+'
     protocol: hls
     ts: '[0-9]+'
@@ -38,7 +37,6 @@ expected_events:
     reason: pause
     anonymous_id: (\w|-)+
     connection_type: wifi
-    monetization_type: audio_ad
     duration: '[0-9]+'
     sound: soundcloud:sounds:[0-9]+
     player_type: Skippy

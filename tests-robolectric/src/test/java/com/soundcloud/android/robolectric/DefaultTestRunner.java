@@ -40,8 +40,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
         super(testClass, new RobolectricConfig(MANIFEST, RESOURCES, ASSETS));
 
         // remove native calls + replace with shadows
-        addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.VorbisEncoder");
-        addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.VorbisDecoder");
         addClassOrPackageToInstrument("com.soundcloud.android.creators.record.jni.NativeAmplitudeAnalyzer");
     }
 
@@ -85,7 +83,6 @@ public class DefaultTestRunner extends RobolectricTestRunner {
 
     @Override
     protected void bindShadowClasses() {
-        Robolectric.bindShadowClass(ShadowVorbisEncoder.class);
         Robolectric.bindShadowClass(ShadowNativeAmplitudeAnalyzer.class);
         Robolectric.bindShadowClass(ShadowMediaPlayer.class);
         Robolectric.bindShadowClass(ShadowSCAccountManager.class);

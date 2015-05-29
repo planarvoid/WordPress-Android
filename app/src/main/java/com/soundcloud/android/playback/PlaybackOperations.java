@@ -154,10 +154,6 @@ public class PlaybackOperations {
         };
     }
 
-    public Observable<PlaybackResult> reloadAndPlayCurrentQueue(long fromLastProgressPosition) {
-        return playbackStrategyProvider.get().reloadAndPlayCurrentQueue(fromLastProgressPosition);
-    }
-
     public Observable<PlaybackResult> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
         modelManager.cache(track);
         return playTracksList(Observable.just(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), true);

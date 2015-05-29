@@ -7,7 +7,6 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
-import com.soundcloud.android.screens.elements.ViewPagerElement;
 
 import android.widget.ListView;
 
@@ -32,7 +31,6 @@ public class PlaylistsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen clickPlaylistAt(int index) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         playlistsList().getItemAt(index).click();
         return new PlaylistDetailsScreen(testDriver);
     }
@@ -57,7 +55,6 @@ public class PlaylistsScreen extends Screen {
     }
 
     public int getLoadedTrackCount(){
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return playlistsList().getAdapter().getCount();
     }
 
@@ -66,9 +63,8 @@ public class PlaylistsScreen extends Screen {
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 
-    private ViewPagerElement getViewPager() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return new ViewPagerElement(testDriver);
+    public PlaylistItemElement getPlaylistWithTitle(String title) {
+        return new PlaylistItemElement(testDriver, playlistsList().scrollToItem(With.text(title)));
     }
 
     @Override
@@ -77,6 +73,7 @@ public class PlaylistsScreen extends Screen {
     }
 
     private ListElement playlistsList() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver.findElement(With.id(android.R.id.list)).toListView();
     }
 

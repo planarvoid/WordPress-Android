@@ -2,7 +2,9 @@ package com.soundcloud.android.events;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.ads.AdProperty;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
@@ -13,6 +15,8 @@ import com.soundcloud.propeller.PropertySet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+
+import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackSessionEventTest {
@@ -51,36 +55,36 @@ public class PlaybackSessionEventTest {
     }
 
     @Test
-    public void aPlayEventWithProgressZeroIsAFirstPlay() throws Exception {
+    public void playEventWithProgressZeroIsAFirstPlay() throws Exception {
         long progress = 0L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         expect(playEvent.isFirstPlay()).toBeTrue();
     }
 
     @Test
-    public void aPlayEventWithProgressOtherThanZeroIsNotAFirstPlay() {
+    public void playEventWithProgressOtherThanZeroIsNotAFirstPlay() {
         long progress = 1000L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         expect(playEvent.isFirstPlay()).toBeFalse();
     }
 
     @Test
-    public void aStopEventWithProgressZeroIsNotAFirstPlay() {
+    public void stopEventWithProgressZeroIsNotAFirstPlay() {
         long progress = 0L;
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
-        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED
-        );
+        PlaybackSessionEvent stopEvent = PlaybackSessionEvent.forStop(TRACK_DATA, USER_URN, trackSourceInfo, playEvent, progress, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, PlaybackSessionEvent.STOP_REASON_TRACK_FINISHED);
         expect(stopEvent.isFirstPlay()).toBeFalse();
     }
 
     @Test
-    public void noAdUrnIndicatesNoAd() {
+    public void noMonetizationTypeIndicatesNoAudioAdOrPromotedTrack() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(TRACK_DATA, USER_URN, trackSourceInfo, PROGRESS, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE);
         expect(playEvent.isAd()).toBeFalse();
+        expect(playEvent.isPromotedTrack()).toBeFalse();
     }
 
     @Test
-    public void anEventWithAnAdUrnIndicatesAnAd() {
+    public void eventWithAudioAdMonetizationTypeIndicatesAnAudioAd() {
         PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
                 AUDIO_AD_TRACK_DATA,
                 USER_URN,
@@ -92,7 +96,21 @@ public class PlaybackSessionEventTest {
     }
 
     @Test
-    public void shouldPopulateAdAttributesFromAdPlaybackEvent() {
+    public void eventWithPromotedMonetizationTypeIndicatesAPromotedTrack() {
+        PromotedSourceInfo promotedInfo = new PromotedSourceInfo("ad:urn:123", Urn.forTrack(123L), Optional.<Urn>absent(), Arrays.asList("url"));
+
+        PlaybackSessionEvent playEvent = PlaybackSessionEvent.forPlay(
+                AUDIO_AD_TRACK_DATA,
+                USER_URN,
+                trackSourceInfo, 0L, "hls",
+                PLAYER_TYPE,
+                CONNECTION_TYPE).withPromotedTrack(promotedInfo);
+
+        expect(playEvent.isPromotedTrack()).toBeTrue();
+    }
+
+    @Test
+    public void populatesAdAttributesFromAdPlaybackEvent() {
         final PropertySet audioAd = TestPropertySets.audioAdProperties(TRACK_URN);
 
         PlaybackSessionEvent event = PlaybackSessionEvent.forPlay(

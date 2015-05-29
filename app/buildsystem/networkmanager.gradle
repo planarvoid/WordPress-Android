@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 
-def version   = '21'
+def version   = rootProject.ext.networkManager
+def pkgName   = 'com.soundcloud.androidnetworkmanager'
 def file      = "androidnetworkmanager-${version}.apk"
 def destDir   = "$project.buildDir/outputs/apk/"
 def destFile  = "$destDir/$file"
@@ -17,7 +18,12 @@ task downloadNetworkManagerApk(type:Exec, dependsOn: ["assemble${project.buildTy
   commandLine "/usr/local/bin/wget", "-P", destDir, srcFile
 }
 
-task installNetworkManagerApk(type:Exec, dependsOn: 'downloadNetworkManagerApk') {
+task uninstallNetworkManagerApk(type:Exec) {
+  description 'Uninstalls any existing Android Network Manager APK from the connected device.'
+  commandLine "/usr/local/bin/adb", "uninstall", pkgName
+}
+
+task installNetworkManagerApk(type:Exec, dependsOn: ['uninstallNetworkManagerApk', 'downloadNetworkManagerApk']) {
   description 'Downloads and installs the Android Network Manager APK from the Maven repo.'
   commandLine "/usr/local/bin/adb", "install", "-r", destFile
 }

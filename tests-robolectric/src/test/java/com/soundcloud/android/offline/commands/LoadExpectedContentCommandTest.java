@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
@@ -45,7 +46,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         final Collection<DownloadRequest> pending = command.call(null);
 
-        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), apiTrack.getDuration(), true, Collections.<Urn>emptyList()));
+        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.<Urn>emptyList()));
     }
 
     @Test
@@ -59,7 +60,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> pending = command.call(null);
 
-        expect(pending).toContainExactly(new DownloadRequest(track1.getUrn(), track1.getStreamUrl(), track1.getDuration(), false, Arrays.asList(playlist.getUrn())));
+        expect(pending).toContainExactly(new DownloadRequest(track1.getUrn(), track1.getDuration(), false, Arrays.asList(playlist.getUrn())));
     }
 
     @Test
@@ -108,9 +109,9 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(apiTrack3.getUrn(), apiTrack1.getStreamUrl(), apiTrack1.getDuration(), true, Collections.<Urn>emptyList()),
-                new DownloadRequest(apiTrack2.getUrn(), apiTrack2.getStreamUrl(), apiTrack2.getDuration(), true, Collections.<Urn>emptyList()),
-                new DownloadRequest(apiTrack1.getUrn(), apiTrack3.getStreamUrl(), apiTrack3.getDuration(), true, Collections.<Urn>emptyList())
+                new DownloadRequest(apiTrack3.getUrn(), apiTrack1.getDuration(), true, Collections.<Urn>emptyList()),
+                new DownloadRequest(apiTrack2.getUrn(), apiTrack2.getDuration(), true, Collections.<Urn>emptyList()),
+                new DownloadRequest(apiTrack1.getUrn(), apiTrack3.getDuration(), true, Collections.<Urn>emptyList())
         );
     }
 
@@ -131,8 +132,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(playlistTrack0.getUrn(), playlistTrack0.getStreamUrl(), playlistTrack0.getDuration(), false, Arrays.asList(playlist.getUrn())),
-                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getStreamUrl(), playlistTrack1.getDuration(), false, Arrays.asList(playlist.getUrn()))
+                new DownloadRequest(playlistTrack0.getUrn(), playlistTrack0.getDuration(), false, Arrays.asList(playlist.getUrn())),
+                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getDuration(), false, Arrays.asList(playlist.getUrn()))
         );
     }
 
@@ -157,8 +158,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getStreamUrl(), playlistTrack1.getDuration(), false, Arrays.asList(apiPlaylist1.getUrn())),
-                new DownloadRequest(playlistTrack2.getUrn(), playlistTrack2.getStreamUrl(), playlistTrack2.getDuration(), false, Arrays.asList(apiPlaylist2.getUrn()))
+                new DownloadRequest(playlistTrack1.getUrn(), playlistTrack1.getDuration(), false, Arrays.asList(apiPlaylist1.getUrn())),
+                new DownloadRequest(playlistTrack2.getUrn(), playlistTrack2.getDuration(), false, Arrays.asList(apiPlaylist2.getUrn()))
         );
     }
 
@@ -176,8 +177,8 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
         Collection<DownloadRequest> pending = command.call(null);
 
         expect(pending).toContainExactly(
-                new DownloadRequest(playlistTrack.getUrn(), playlistTrack.getStreamUrl(), playlistTrack.getDuration(), false, Arrays.asList(playlist.getUrn())),
-                new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), apiTrack.getDuration(), true, Collections.<Urn>emptyList())
+                new DownloadRequest(playlistTrack.getUrn(), playlistTrack.getDuration(), false, Arrays.asList(playlist.getUrn())),
+                new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Collections.<Urn>emptyList())
         );
     }
 
@@ -191,7 +192,7 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         Collection<DownloadRequest> pending = command.call(null);
 
-        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getStreamUrl(), apiTrack.getDuration(), true, Arrays.asList(playlist.getUrn())));
+        expect(pending).toContainExactly(new DownloadRequest(apiTrack.getUrn(), apiTrack.getDuration(), true, Arrays.asList(playlist.getUrn())));
     }
 
     @Test
@@ -207,6 +208,46 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     public void doesNotReturnBlockedTacks() {
         final ApiTrack apiTrack = testFixtures().insertLikedTrackPendingDownload(new Date(100));
         testFixtures().insertPolicyBlock(apiTrack.getUrn());
+
+        Collection<DownloadRequest> pending = command.call(null);
+
+        expect(pending).toBeEmpty();
+    }
+
+    @Test
+    public void doesNotReturnTracksWithoutStreamUrl() {
+        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
+        Urn urn = apiTrack.getUrn();
+        testFixtures().insertTrackPendingDownload(urn, 100);
+        testFixtures().insertPolicyAllow(urn, NOW);
+
+        database().execSQL("UPDATE Sounds SET stream_url=null"
+                + " WHERE _id=" + apiTrack.getUrn().getNumericId());
+
+        Collection<DownloadRequest> pending = command.call(null);
+
+        expect(pending).toBeEmpty();
+    }
+
+    @Test
+    public void doesNotReturnLikedTrackWhenPolicyUpdateHappenedAfterTheLast30Days() {
+        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
+        testFixtures().insertTrackPendingDownload(apiTrack.getUrn(), 100);
+        testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW - TimeUnit.DAYS.toMillis(30));
+
+        final Collection<DownloadRequest> pending = command.call(null);
+
+        expect(pending).toBeEmpty();
+    }
+    
+    @Test
+    public void doesNotReturnOfflinePlaylistTracksWhenPolicyUpdateHappenedAfterTheLast30Days() throws Exception {
+        when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);
+        final ApiPlaylist playlist = testFixtures().insertPlaylistMarkedForOfflineSync();
+        final ApiTrack track1 = testFixtures().insertPlaylistTrack(playlist, 0);
+        Urn urn = track1.getUrn();
+        testFixtures().insertTrackPendingDownload(urn, 100);
+        testFixtures().insertPolicyAllow(urn, NOW - TimeUnit.DAYS.toMillis(30));
 
         Collection<DownloadRequest> pending = command.call(null);
 

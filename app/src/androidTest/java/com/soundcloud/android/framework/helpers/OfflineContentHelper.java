@@ -8,6 +8,8 @@ import com.soundcloud.android.utils.IOUtils;
 import android.content.Context;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Date;
 
 public class OfflineContentHelper {
@@ -28,6 +30,17 @@ public class OfflineContentHelper {
         testsFixtures.clearOfflineContent(context);
         // remove actual files
         IOUtils.cleanDir(OFFLINE_DIR);
+    }
+
+    public void addFakeOfflineTrack(Context context, Urn track, int sizeInMB) throws IOException {
+        testsFixtures.insertOfflineTrack(context, track);
+        IOUtils.mkdirs(OFFLINE_DIR);
+
+        final File file = new File(OFFLINE_DIR, track.toEncodedString());
+        file.createNewFile();
+
+        final RandomAccessFile randomAccessFile = new RandomAccessFile(file, "rw");
+        randomAccessFile.setLength(sizeInMB * 1024L * 1024L);
     }
 
     public void setOfflinePlaylistAndTrackWithPolicy(Context context, Urn playlist, Urn track, Date date) {

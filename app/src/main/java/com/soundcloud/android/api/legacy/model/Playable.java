@@ -28,13 +28,20 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Deprecated
 public abstract class Playable extends PublicApiResource implements PlayableHolder, RelatesToUser, Refreshable, Parcelable, PropertySetSource {
     public static final int DB_TYPE_TRACK = 0; // TODO should not be exposed
     public static final int DB_TYPE_PLAYLIST = 1;
+
+    private static final Pattern TAG_PATTERN = Pattern.compile("(\"([^\"]+)\")");
 
     @JsonView(Views.Mini.class) public String title;
     @JsonView(Views.Mini.class) @Nullable public PublicApiUser user;
@@ -425,6 +432,24 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
 
     protected static boolean isTrackCursor(Cursor cursor) {
         return cursor.getInt(cursor.getColumnIndex(TableColumns.Sounds._TYPE)) == DB_TYPE_TRACK;
+    }
+
+    public List<String> humanTags() {
+        List<String> tags = new ArrayList<>();
+        if (tag_list == null) {
+            return tags;
+        }
+        Matcher m = TAG_PATTERN.matcher(tag_list);
+        while (m.find()) {
+            tags.add(tag_list.substring(m.start(2), m.end(2)).trim());
+        }
+        String singlewords = m.replaceAll("");
+        for (String t : singlewords.split("\\s")) {
+            if (!TextUtils.isEmpty(t) && t.indexOf(':') == -1 && t.indexOf('=') == -1) {
+                tags.add(t);
+            }
+        }
+        return tags;
     }
 
     @Override

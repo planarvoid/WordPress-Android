@@ -31,6 +31,7 @@ import rx.functions.Func1;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -313,6 +314,10 @@ public class ImageOperations {
         imageLoader.resume();
     }
 
+    public void pause() {
+        imageLoader.resume();
+    }
+
     public AbsListView.OnScrollListener createScrollPauseListener(boolean pauseOnScroll, boolean pauseOnFling,
                                                                   AbsListView.OnScrollListener customListener) {
         return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling, customListener);
@@ -324,6 +329,16 @@ public class ImageOperations {
 
     public String getUrlForLargestImage(Resources resources, Urn urn){
         return buildUrlIfNotPreviouslyMissing(urn, ApiImageSize.getFullImageSize(resources));
+    }
+
+    @Nullable
+    public Bitmap decodeResource(Resources resources, int resId){
+        try {
+            return BitmapFactory.decodeResource(resources, resId);
+        } catch (OutOfMemoryError e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**

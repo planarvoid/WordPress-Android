@@ -1,24 +1,17 @@
 package com.soundcloud.android.screens.search;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
-import com.soundcloud.android.screens.elements.PlaylistItemElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
-import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.search.SearchActivity;
 
 import android.widget.ListView;
-
-import java.util.List;
 
 public class SearchResultsScreen extends Screen {
     private static final Class ACTIVITY = SearchActivity.class;
@@ -28,20 +21,6 @@ public class SearchResultsScreen extends Screen {
     private static final String TRACKS_TAB_TEXT = "TRACKS";
     private static final String PLAYLISTS_TAB_TEXT = "PLAYLISTS";
     private static final String PEOPLE_TAB_TEXT = "PEOPLE";
-
-    private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {
-        @Override
-        public TrackItemElement apply(ViewElement viewElement) {
-            return new TrackItemElement(testDriver, viewElement);
-        }
-    };
-
-    private final Function<ViewElement, PlaylistItemElement> toPlaylistItemElement = new Function<ViewElement, PlaylistItemElement>() {
-        @Override
-        public PlaylistItemElement apply(ViewElement viewElement) {
-            return new PlaylistItemElement(testDriver, viewElement);
-        }
-    };
 
     public SearchResultsScreen(Han solo) {
         super(solo);
@@ -55,20 +34,6 @@ public class SearchResultsScreen extends Screen {
         VisualPlayerElement visualPlayerElement = new VisualPlayerElement(testDriver);
         visualPlayerElement.waitForExpandedPlayer();
         return visualPlayerElement;
-    }
-
-    public List<TrackItemElement> getTracks() {
-        return Lists.transform(
-                testDriver.findElements(With.id(R.id.track_list_item)),
-                toTrackItemElement
-        );
-    }
-
-    public List<PlaylistItemElement> getPlaylists() {
-        return Lists.transform(
-                testDriver.findElements(With.id(R.id.playlist_list_item)),
-                toPlaylistItemElement
-        );
     }
 
     public void clickFirstPlaylistItem() {

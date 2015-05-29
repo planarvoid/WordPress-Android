@@ -1,6 +1,7 @@
 package com.soundcloud.android.actionbar;
 
 import static com.soundcloud.android.rx.TestPager.pagerWithNextPage;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
@@ -81,7 +82,7 @@ public class PullToRefreshControllerTest {
         controller.setRefreshListener(listener);
         controller.onViewCreated(fragment, layout, bundle);
 
-        verify(wrapper).attach(same(layout), same(listener));
+        verify(wrapper).attach(same(layout), same(listener), any(int[].class));
     }
 
     @Test
@@ -90,7 +91,7 @@ public class PullToRefreshControllerTest {
         controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
         controller.onViewCreated(fragment, layout, bundle);
 
-        verify(wrapper).attach(same(layout), isA(OnRefreshListener.class));
+        verify(wrapper).attach(same(layout), isA(OnRefreshListener.class), any(int[].class));
     }
 
     @Test
@@ -214,7 +215,7 @@ public class PullToRefreshControllerTest {
 
     private void triggerRefresh() {
         controller.onViewCreated(fragment, layout, bundle);
-        verify(wrapper).attach(refEq(layout), refreshListenerCaptor.capture());
+        verify(wrapper).attach(refEq(layout), refreshListenerCaptor.capture(), any(int[].class));
         refreshListenerCaptor.getValue().onRefresh();
     }
 

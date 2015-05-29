@@ -5,6 +5,9 @@
     android:versionName="15.05.26"
     package="com.soundcloud.android">
 
+    <!-- required for Robolectric to use the correct values -->
+    <uses-sdk android:minSdkVersion="14" android:targetSdkVersion="21"/>
+
     <supports-screens android:anyDensity="true"/>
 
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -258,7 +261,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="@string/side_menu_record" android:launchMode="singleTask" android:name=".creators.record.RecordActivity" android:theme="@style/Theme.ScCreate">
+        <activity android:label="@string/side_menu_record" android:launchMode="singleTask" android:name=".creators.record.RecordActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -278,29 +281,21 @@
                 <data android:host="soundcloud.com" android:path="/upload" android:scheme="http"/>
                 <data android:host="soundcloud.com" android:path="/upload" android:scheme="https"/>
             </intent-filter>
-        </activity>
-        <activity android:name=".creators.upload.UploadMonitorActivity" android:theme="@style/Theme.SoundCloud.NoActionBar">
             <intent-filter>
                 <action android:name="com.soundcloud.android.actions.upload.monitor"/>
                 <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="vnd.soundcloud/recording"/>
             </intent-filter>
-        </activity>
-
-        <activity android:name=".creators.upload.UploadActivity" android:theme="@style/Theme.ScCreate" android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.SEND"/>
                 <data android:mimeType="audio/*"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
-
             <intent-filter>
                 <action android:name="com.soundcloud.android.SHARE"/>
                 <!--<data android:mimeType="audio/*"/>-->
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-
         <activity android:label="@string/comments" android:name=".comments.TrackCommentsActivity"/>
         <activity android:name=".playlists.PlaylistDetailActivity">
             <intent-filter>
@@ -315,14 +310,15 @@
         </activity>
 
         <!-- settings -->
-        <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity"/>
+        <activity android:label="@string/title_settings" android:name=".settings.SettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_offline_settings" android:name=".settings.OfflineSettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_about" android:name=".settings.LicensesActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
+        <activity android:label="@string/title_legal" android:name=".settings.LegalActivity" android:theme="@style/Theme.SoundCloud.Settings"/>
 
-        <activity android:label="@string/title_offline_settings" android:name=".settings.OfflineSettingsActivity" />
-
-        <activity android:label="@string/title_notification_settings" android:name=".settings.NotificationSettingsActivity"/>
+        <!-- developer settings -->
         <activity android:enabled="@bool/debug_feature_screen" android:label="@string/dev_configuration_features" android:name=".settings.ConfigurationFeaturesActivity"/>
-        <activity android:label="@string/title_about" android:name=".settings.LicensesActivity"/>
-        <activity android:label="@string/title_legal" android:name=".settings.LegalActivity"/>
+
         <activity android:name=".accounts.LogoutActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
@@ -331,7 +327,6 @@
         <activity android:label="@string/payments_success" android:name=".payments.SubscribeSuccessActivity"/>
 
         <!-- for testing purposes -->
-
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>
 
         <!-- providers -->

@@ -4,6 +4,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 
 public class AddToPlaylistScreen extends Screen {
@@ -28,13 +29,12 @@ public class AddToPlaylistScreen extends Screen {
         return new CreatePlaylistScreen(testDriver);
     }
 
-    public StreamScreen clickPlaylistWithTitleFromStream(String title) {
-        testDriver.findElements(With.text(title)).get(0).click();
-        return new StreamScreen(testDriver);
+    public VisualPlayerElement clickPlaylistWithTitleFromPlayer(String title) {
+        playlists().scrollToItem(With.text(title)).click();
+        return new VisualPlayerElement(testDriver);
     }
 
-    public VisualPlayerElement clickPlaylistWithTitleFromPlayer(String title) {
-        testDriver.findElements(With.text(title)).get(0).click();
-        return new VisualPlayerElement(testDriver);
+    private ListElement playlists() {
+        return testDriver.findElement(With.id(R.id.select_dialog_listview)).toListView();
     }
 }

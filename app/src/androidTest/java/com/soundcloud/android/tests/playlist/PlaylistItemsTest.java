@@ -6,14 +6,13 @@ import static org.hamcrest.core.Is.is;
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
-import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
-    private static final String TEST_PLAYLIST = "MyPlaylist";
+    private String playlist;
 
     public PlaylistItemsTest() {
         super(MainActivity.class);
@@ -21,43 +20,51 @@ public class PlaylistItemsTest extends ActivityTest<MainActivity> {
 
     @Override
     protected void logInHelper() {
-        TestUser.onePlaylistUser.logIn(getInstrumentation().getTargetContext());
+        TestUser.addToPlaylistUser.logIn(getInstrumentation().getTargetContext());
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        playlist = "Playlist " + System.currentTimeMillis();
     }
 
     public void testAddTrackToPlaylistFromStream() {
         StreamScreen streamScreen = new StreamScreen(solo);
-        String trackAddedTitle = streamScreen.firstTrack().getTitle();
+        String trackAddedTitle = streamScreen.getTrack(0).getTitle();
 
         streamScreen
                 .clickFirstTrackOverflowButton()
                 .clickAddToPlaylist()
-                .clickPlaylistWithTitleFromStream(TEST_PLAYLIST);
+                .clickCreateNewPlaylist()
+                .enterTitle(playlist)
+                .clickDoneAndReturnToStream();
 
         assertPlaylistContainsTrack(trackAddedTitle);
     }
 
     public void testAddTrackToPlaylistFromPlayer() {
         StreamScreen streamScreen = new StreamScreen(solo);
-        String trackAddedTitle = streamScreen.firstTrack().getTitle();
+        String trackAddedTitle = streamScreen.getTrack(0).getTitle();
 
-        VisualPlayerElement player = streamScreen.clickFirstTrack();
+        VisualPlayerElement player = streamScreen.clickTrack(0);
         player.clickMenu()
                 .clickAddToPlaylist()
-                .clickPlaylistWithTitleFromPlayer(TEST_PLAYLIST)
+                .clickCreateNewPlaylist()
+                .enterTitle(playlist)
+                .clickDoneAndReturnToPlayer()
                 .pressBackToCollapse();
 
         assertPlaylistContainsTrack(trackAddedTitle);
     }
 
     private void assertPlaylistContainsTrack(String trackTitle) {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
-        PlaylistDetailsScreen playlistDetailsScreen = playlistsScreen.clickPlaylistAt(0);
+        PlaylistDetailsScreen playlistDetailsScreen = menuScreen.open()
+                .clickPlaylists()
+                .getPlaylistWithTitle(playlist)
+                .click();
 
-        assertThat(playlistDetailsScreen.getTitle(), is(TEST_PLAYLIST));
+        assertThat(playlistDetailsScreen.getTitle(), is(playlist));
         assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(true));
-
-        playlistDetailsScreen.clickLastTrackOverflowButton().clickRemoveFromPlaylist();
-
-        assertThat(playlistDetailsScreen.containsTrackWithTitle(trackTitle), is(false));
     }
 }

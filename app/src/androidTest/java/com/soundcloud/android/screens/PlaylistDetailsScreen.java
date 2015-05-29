@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
@@ -20,7 +21,6 @@ import java.util.List;
 public class PlaylistDetailsScreen extends Screen {
 
     private static final Class ACTIVITY = PlaylistDetailActivity.class;
-    private static final int TITLE = R.id.title;
 
     public PlaylistDetailsScreen(Han solo) {
         super(solo);
@@ -29,10 +29,6 @@ public class PlaylistDetailsScreen extends Screen {
     public PlaylistDetailsScreen scrollToBottom() {
         tracksListElement().scrollToBottom();
         return this;
-    }
-
-    public void clickBack() {
-        testDriver.goBack();
     }
 
     public PlaylistOverflowMenu clickPlaylistOverflowButton() {
@@ -48,40 +44,12 @@ public class PlaylistDetailsScreen extends Screen {
                 .findElement(With.id(R.id.header_download_state)));
     }
 
-    @Override
-    protected Class getActivity() {
-        return ACTIVITY;
-    }
-
     public String getTitle() {
         return title().getText();
     }
 
-    private TextElement title() {
-        return new TextElement(testDriver.findElement(With.id(TITLE)));
-    }
-
-    private ViewElement headerPlayToggle() {
-        return testDriver.findElement(With.id(R.id.toggle_play_pause));
-    }
-
-    /**
-     * Use this method with caution, {@link Han} (TestDriver) might not
-     * be able to find tracks in long or paginated lists.
-     */
     public boolean containsTrackWithTitle(String title) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        tracksListElement().scrollToBottom();
-        for (TrackItemElement trackItemElement: trackItemElements()) {
-            if (trackItemElement.getTitle().equals(title)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private ViewElement likeToggle() {
-        return testDriver.findElement(With.id(R.id.toggle_like));
+        return !(tracksListElement().scrollToItem(With.text(title)) instanceof EmptyViewElement);
     }
 
     public void clickHeaderPlay() {
@@ -98,23 +66,12 @@ public class PlaylistDetailsScreen extends Screen {
         return headerPlayToggle().isChecked();
     }
 
-    public boolean isLiked() {
-        return likeToggle().isChecked();
-    }
-
     public void touchToggleLike() {
         likeToggle().click();
     }
 
     public VisualPlayerElement clickFirstTrack() {
         return clickNthTrack(0);
-    }
-
-    private VisualPlayerElement clickNthTrack(int trackIndex) {
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return trackItemElements()
-                .get(trackIndex)
-                .click();
     }
 
     public PlaylistDetailsScreen scrollToFirstTrackItem() {
@@ -124,13 +81,11 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public PlaylistDetailsScreen scrollToLastTrackItem() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         testDriver.scrollListToLine(tracksListElement().getItemCount() - 1);
         return this;
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return scrollToFirstTrackItem()
                 .trackItemElements()
                 .get(0)
@@ -138,20 +93,44 @@ public class PlaylistDetailsScreen extends Screen {
     }
 
     public TrackItemMenuElement clickLastTrackOverflowButton() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return scrollToLastTrackItem()
                 .trackItemElements()
                 .get(trackItemElements().size() - 1)
                 .clickOverflowButton();
     }
 
+    @Override
+    protected Class getActivity() {
+        return ACTIVITY;
+    }
+
+    private TextElement title() {
+        return new TextElement(testDriver.findElement(With.id(R.id.title)));
+    }
+
+    private ViewElement headerPlayToggle() {
+        return testDriver.findElement(With.id(R.id.toggle_play_pause));
+    }
+
+    private ViewElement likeToggle() {
+        return testDriver.findElement(With.id(R.id.toggle_like));
+    }
+
+    private VisualPlayerElement clickNthTrack(int trackIndex) {
+        return trackItemElements()
+                .get(trackIndex)
+                .click();
+    }
+
     private ListElement tracksListElement() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return testDriver
                 .findElement(With.id(android.R.id.list))
                 .toListView();
     }
 
     private List<TrackItemElement> trackItemElements() {
+        waiter.waitForContentAndRetryIfLoadingFailed();
         return Lists.transform(
                 testDriver
                         .findElement(With.id(android.R.id.list))

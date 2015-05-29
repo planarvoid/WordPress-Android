@@ -2,6 +2,8 @@ package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.configuration.FeatureOperations;
+import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
@@ -30,12 +32,13 @@ public class OfflineContentOperations {
     private final LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies;
     private final LoadExpectedContentCommand loadExpectedContentCommand;
     private final LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand;
+
     private final ClearTrackDownloadsCommand clearTrackDownloadsCommand;
 
     private final OfflineTracksStorage tracksStorage;
-    private final SecureFileStorage secureFileStorage;
     private final OfflinePlaylistStorage playlistStorage;
     private final OfflineSettingsStorage settingsStorage;
+    private final FeatureOperations featureOperations;
     private final PolicyOperations policyOperations;
     private final EventBus eventBus;
     private final Scheduler scheduler;
@@ -64,24 +67,17 @@ public class OfflineContentOperations {
         }
     };
 
-    private final Action1<WriteResult> removeFilesFromStorage = new Action1<WriteResult>() {
-        @Override
-        public void call(WriteResult writeResult) {
-            secureFileStorage.deleteAllTracks();
-        }
-    };
-
-    private final Action1<WriteResult> disableOfflineLikes = new Action1<WriteResult>() {
-        @Override
-        public void call(WriteResult writeResult) {
-            setOfflineLikesEnabled(false);
-        }
-    };
-
     private final Func1<Void, Observable<Long>> toLastPolicyUpdateDate = new Func1<Void, Observable<Long>>() {
         @Override
         public Observable<Long> call(Void ignored) {
             return tracksStorage.getLastPolicyUpdate();
+        }
+    };
+    
+    private final Action1<List<Urn>> publishOfflineContentRemoved = new Action1<List<Urn>>() {
+        @Override
+        public void call(List<Urn> urns) {
+            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.offlineContentRemoved(urns));
         }
     };
 
@@ -95,8 +91,7 @@ public class OfflineContentOperations {
                                     PolicyOperations policyOperations,
                                     LoadExpectedContentCommand loadExpectedContentCommand,
                                     LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
-                                    OfflineTracksStorage tracksStorage,
-                                    SecureFileStorage secureFileStorage,
+                                    FeatureOperations featureOperations, OfflineTracksStorage tracksStorage,
                                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
@@ -107,8 +102,8 @@ public class OfflineContentOperations {
         this.policyOperations = policyOperations;
         this.loadExpectedContentCommand = loadExpectedContentCommand;
         this.loadOfflineContentUpdatesCommand = loadOfflineContentUpdatesCommand;
+        this.featureOperations = featureOperations;
         this.tracksStorage = tracksStorage;
-        this.secureFileStorage = secureFileStorage;
         this.scheduler = scheduler;
     }
 
@@ -134,14 +129,19 @@ public class OfflineContentOperations {
                 .subscribeOn(scheduler);
     }
 
+    public Observable<Boolean> getOfflineContentOrLikesStatus() {
+        return featureOperations.offlineContentEnabled()
+                .concatWith(settingsStorage.getOfflineLikedTracksStatusChange());
+    }
+
     public Observable<Boolean> getOfflineLikesSettingsStatus() {
         return settingsStorage.getOfflineLikedTracksStatusChange();
     }
 
-    public Observable<WriteResult> clearOfflineContent() {
+    public Observable<List<Urn>> clearOfflineContent() {
+        setOfflineLikesEnabled(false);
         return clearTrackDownloadsCommand.toObservable(null)
-                .doOnNext(removeFilesFromStorage)
-                .doOnNext(disableOfflineLikes)
+                .doOnNext(publishOfflineContentRemoved)
                 .subscribeOn(scheduler);
     }
 
@@ -163,6 +163,7 @@ public class OfflineContentOperations {
 
     Observable<OfflineContentRequests> loadOfflineContentUpdates() {
         return updateOfflineContentStalePolicies()
+                .onErrorResumeNext(Observable.<Void>just(null))
                 .flatMap(loadExpectedContentCommand.toContinuation())
                 .flatMap(loadOfflineContentUpdatesCommand.toContinuation())
                 .doOnNext(storeDownloadUpdatesCommand.toAction())

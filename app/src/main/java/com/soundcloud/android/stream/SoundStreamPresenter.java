@@ -3,10 +3,11 @@ package com.soundcloud.android.stream;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
+import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -14,17 +15,19 @@ import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
-import com.soundcloud.android.presentation.ListBinding;
+import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -36,15 +39,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
-import android.widget.AdapterView;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SoundStreamPresenter extends ListPresenter<PlayableItem>
-        implements AdapterView.OnItemClickListener {
+public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     @VisibleForTesting
     static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
@@ -84,22 +85,24 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
 
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
-    private final SoundStreamAdapter adapter;
+    private final MixedPlayableRecyclerViewAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
 
     private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
 
+
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
-                         SoundStreamAdapter adapter,
-                         ImageOperations imageOperations,
+                         MixedPlayableRecyclerViewAdapter adapter,
+                         RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
                          PullToRefreshWrapper pullToRefreshWrapper,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
-                         EventBus eventBus) {
-        super(imageOperations, pullToRefreshWrapper);
+                         EventBus eventBus,
+                         DividerItemDecoration dividerItemDecoration) {
+        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener, dividerItemDecoration);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
@@ -110,7 +113,7 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         super.onCreate(fragment, bundle);
-        getListBinding().connect();
+        getBinding().connect();
     }
 
     public void setOnboardingSuccess(boolean onboardingSuccess) {
@@ -118,16 +121,16 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     }
 
     @Override
-    protected ListBinding<PlayableItem> onBuildListBinding(Bundle fragmentArgs) {
-        return ListBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+    protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
+        return CollectionBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
     }
 
     @Override
-    protected ListBinding<PlayableItem> onBuildRefreshBinding() {
-        return ListBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+    protected CollectionBinding<PlayableItem> onRefreshBinding() {
+        return CollectionBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
@@ -136,12 +139,9 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-
-        getListView().setOnItemClickListener(this);
         configureEmptyView();
-
         viewLifeCycle = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackPresenter())),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
         );
     }
@@ -165,24 +165,30 @@ public class SoundStreamPresenter extends ListPresenter<PlayableItem>
     }
 
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+    protected void onItemClicked(View view, int position) {
         final ListItem item = adapter.getItem(position);
         final Urn playableUrn = item.getEntityUrn();
-        if (playableUrn.isTrack()) {
-            playbackOperations
-                    .playTracks(streamOperations.trackUrnsForPlayback(),
-                            playableUrn,
-                            position,
-                            new PlaySessionSource(Screen.SIDE_MENU_STREAM))
-                    .subscribe(subscriberProvider.get());
-            if (item instanceof PromotedTrackItem) {
-                PromotedTrackItem promotedTrack = (PromotedTrackItem) item;
-                eventBus.publish(EventQueue.TRACKING,
-                        PromotedTrackEvent.forTrackClick(promotedTrack, Screen.SIDE_MENU_STREAM.get()));
-            }
+        if (item instanceof PromotedTrackItem) {
+            playFromPromotedTrack(position, (PromotedTrackItem) item, playableUrn);
+        } else if (playableUrn.isTrack()) {
+            playTracks(position, playableUrn, new PlaySessionSource(Screen.SIDE_MENU_STREAM));
         } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(view.getContext(), playableUrn, Screen.SIDE_MENU_STREAM);
         }
+    }
+
+    private void playFromPromotedTrack(int position, PromotedTrackItem promotedTrack, Urn playableUrn) {
+        eventBus.publish(EventQueue.TRACKING,
+                PromotedTrackEvent.forTrackClick(promotedTrack, Screen.SIDE_MENU_STREAM.get()));
+        PlaySessionSource source = new PlaySessionSource(Screen.SIDE_MENU_STREAM);
+        source.setPromotedSourceInfo(PromotedSourceInfo.fromTrack(promotedTrack));
+        playTracks(position, playableUrn, source);
+    }
+
+    private void playTracks(int position, Urn playableUrn, PlaySessionSource playSessionSource) {
+        playbackOperations
+                .playTracks(streamOperations.trackUrnsForPlayback(), playableUrn, position, playSessionSource)
+                .subscribe(subscriberProvider.get());
     }
 
 }

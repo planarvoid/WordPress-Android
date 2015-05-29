@@ -4,12 +4,11 @@
     <style name="BaseTheme" parent="@style/Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowSoftInputMode">adjustPan</item>
         <item name="android:windowBackground">@android:color/white</item>
-
         <item name="android:popupAnimationStyle">@style/Animation.Popup</item>
-        <item name="android:listViewStyle">@style/ListView</item>
+        <!-- required because of the bug inside support lib v22.1-->
+        <item name="android:autoCompleteTextViewStyle">@style/Widget.AppCompat.AutoCompleteTextView</item>
 
         <item name="searchViewStyle">@style/SearchView.SoundCloud</item>
-
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorPrimary">@color/primary</item>
         <item name="colorAccent">@color/sc_orange</item>
@@ -50,6 +49,10 @@
         <item name="windowActionBar">false</item>
     </style>
 
+    <style name="Theme.SoundCloud.Settings">
+        <item name="android:listViewStyle">@style/Widget.PreferenceListView</item>
+    </style>
+
     <style name="Theme.ScAuth" parent="Theme.SoundCloud.NoActionBar">
         <item name="android:buttonStyle">@style/btn_default</item>
         <item name="android:windowBackground">@color/dark_bg</item>
@@ -70,6 +73,11 @@
     <style name="Widget.CropImageView" parent="android:Widget">
         <item name="showHandles">always</item>
         <item name="highlightColor">@color/white</item>
+    </style>
+
+    <style name="Widget.PreferenceListView" parent="android:Widget">
+        <item name="android:divider">@android:color/transparent</item>
+        <item name="android:dividerHeight">4dp</item>
     </style>
 
 </resources>

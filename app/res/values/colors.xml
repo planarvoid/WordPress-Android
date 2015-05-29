@@ -20,9 +20,6 @@
     <!-- New cells -->
     <color name="list_primary">#333333</color>
     <color name="list_secondary">#999999</color>
-    <color name="record_list_item_background">#e5e5e5</color>
-    <color name="record_list_item_background_pressed">#dadada</color>
-    <color name="record_list_item_text">#666666</color>
     <color name="playlist_tracks">#e5e5e5</color>
 
     <!-- Player -->
@@ -47,9 +44,6 @@
     <!-- Creators -->
     <color name="record_upload_border">#525252</color>
 
-    <color name="btn_dark_flat">#242424</color>
-    <color name="rec_button_bar_separator">@color/black</color>
-
     <color name="cloud_progress_background_start">#444444</color>
     <color name="cloud_progress_background_center">#666666</color>
     <color name="cloud_progress_background_end">#444444</color>
@@ -71,9 +65,6 @@
     <color name="cloud_progress_round_end">#f92600</color>
 
     <color name="cloud_progress_round_border">#4b504c</color>
-
-    <color name="upload_monitor_text">@color/black</color>
-    <color name="upload_monitor_text_inactive">#9e9e9e</color>
 
     <!-- Onboarding -->
     <color name="tour_overlay">#cc000000</color>
@@ -132,5 +123,15 @@
     <!-- Notifications -->
     <color name="notification_title">@color/white</color>
     <color name="notification_user">#c5c5c5</color>
+
+    <!-- Notifications -->
+    <color name="rec_wave_gray_above">#aaaaaa</color>
+    <color name="rec_wave_gray_below">#cccccc</color>
+    <color name="rec_wave_dark_gray_above">#444444</color>
+    <color name="rec_wave_dark_gray_below">#777777</color>
+    <color name="rec_wave_orange_above_start">#ff7700</color>
+    <color name="rec_wave_orange_above_end">#ff3300</color>
+    <color name="rec_wave_orange_below">#ffbf99</color>
+    <color name="rec_wave_trim_color">#33000000</color>
 
 </resources>

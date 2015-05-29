@@ -1,7 +1,7 @@
 package com.soundcloud.android.explore;
 
-import static com.soundcloud.android.explore.GenreCellPresenter.AUDIO_SECTION;
-import static com.soundcloud.android.explore.GenreCellPresenter.MUSIC_SECTION;
+import static com.soundcloud.android.explore.GenreCellRenderer.AUDIO_SECTION;
+import static com.soundcloud.android.explore.GenreCellRenderer.MUSIC_SECTION;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.soundcloud.android.R;

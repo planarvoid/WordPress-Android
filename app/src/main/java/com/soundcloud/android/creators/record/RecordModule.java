@@ -1,14 +1,15 @@
 package com.soundcloud.android.creators.record;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.creators.upload.UploadActivity;
-import com.soundcloud.android.creators.upload.UploadMonitorActivity;
+import com.soundcloud.android.creators.upload.MetadataFragment;
+import com.soundcloud.android.creators.upload.UploadMonitorFragment;
 import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                UploadActivity.class,
-                UploadMonitorActivity.class
+                RecordFragment.class,
+                MetadataFragment.class,
+                UploadMonitorFragment.class
         })
 public class RecordModule {
 }

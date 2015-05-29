@@ -1,18 +1,20 @@
 package com.soundcloud.android.screens.elements;
 
-import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.DefaultViewElement;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
 
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
 
 public class ListElement {
-    private final Solo testDriver;
+    private final Han testDriver;
     private final AbsListView absListView;
 
-    public ListElement(View element, Solo driver) {
+    public ListElement(View element, Han driver) {
         testDriver = driver;
         absListView = (AbsListView)element;
     }
@@ -34,6 +36,17 @@ public class ListElement {
     }
 
     public void scrollToBottom() {
-        testDriver.scrollListToBottom(absListView);
+        testDriver.scrollToBottom(absListView);
+    }
+
+    public ViewElement scrollToItem(With with) {
+        ViewElement result = testDriver.findElement(with);
+        while (result instanceof EmptyViewElement) {
+            if (!testDriver.scrollDown()) {
+                return new EmptyViewElement("Unable to scroll to item; item not in list");
+            }
+            result = testDriver.findElement(with);
+        }
+        return result;
     }
 }

@@ -14,7 +14,6 @@ import android.widget.RelativeLayout;
 public class TrimHandleView extends ImageButton {
 
     private final HandleType type;
-    private final int marginOffset;
 
     public TrimHandleView(Context context, HandleType type) {
         super(context);
@@ -22,7 +21,6 @@ public class TrimHandleView extends ImageButton {
         setBackgroundResource(type.backgroundResId);
         setClickable(false);
         this.type = type;
-        marginOffset = (int) context.getResources().getDimension(type.marginOffsetDimenId);
     }
 
     @Override
@@ -32,10 +30,11 @@ public class TrimHandleView extends ImageButton {
 
     public void update(int position) {
         if (type == HandleType.LEFT) {
-            getLayoutParams().leftMargin = position + marginOffset;
+            getLayoutParams().leftMargin = position;
         } else {
-            getLayoutParams().rightMargin = position + marginOffset;
+            getLayoutParams().rightMargin = position;
         }
+
         requestLayout();
     }
 
@@ -54,17 +53,15 @@ public class TrimHandleView extends ImageButton {
     }
 
     public enum HandleType {
-        LEFT(getLeftLayoutParams(), R.drawable.left_handle_states, R.dimen.trim_handle_left_margin_offset),
-        RIGHT(getRightLayoutParams(), R.drawable.right_handle_states, R.dimen.trim_handle_right_margin_offset);
+        LEFT(getLeftLayoutParams(), R.drawable.ic_record_handle_l),
+        RIGHT(getRightLayoutParams(), R.drawable.ic_record_handle_r);
 
         private final RelativeLayout.LayoutParams layoutParams;
         private final int backgroundResId;
-        private final int marginOffsetDimenId;
 
-        HandleType(RelativeLayout.LayoutParams layoutParams, int backgroundResId, int marginOffsetDimenId) {
+        HandleType(RelativeLayout.LayoutParams layoutParams, int backgroundResId) {
             this.layoutParams = layoutParams;
             this.backgroundResId = backgroundResId;
-            this.marginOffsetDimenId = marginOffsetDimenId;
         }
     }
 }

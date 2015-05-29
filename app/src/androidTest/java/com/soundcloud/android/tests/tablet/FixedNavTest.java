@@ -8,7 +8,6 @@ import com.soundcloud.android.screens.MenuScreenTablet;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
-import com.soundcloud.android.framework.AccountAssistant;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TabletTest;
 
@@ -51,7 +50,7 @@ public class FixedNavTest extends ActivityTest<MainActivity> {
     }
 
     public void ignoreFixedNavShowsPlaylists() {
-        PlaylistsScreen playlistsScreen = tabletMenu.clickPlaylist();
+        PlaylistsScreen playlistsScreen = tabletMenu.clickPlaylists();
         assertEquals("Should go to Likes screen", true, playlistsScreen.isVisible());
         assertEquals("Nav should be visible on tablet PLAYLISTS", true, tabletMenu.isOpened());
     }

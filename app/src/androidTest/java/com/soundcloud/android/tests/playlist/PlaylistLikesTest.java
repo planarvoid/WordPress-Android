@@ -22,7 +22,7 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testDrawerShowsPlaylists() {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylists();
         playlistsScreen.touchLikedPlaylistsTab();
         if(!playlistsScreen.hasLikes()) {
             playlistsScreen.pullToRefresh();
@@ -32,7 +32,7 @@ public class PlaylistLikesTest extends ActivityTest<MainActivity> {
     }
 
     public void testLoadsNextPage() {
-        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylist();
+        PlaylistsScreen playlistsScreen = menuScreen.open().clickPlaylists();
         playlistsScreen.touchLikedPlaylistsTab();
         if(!playlistsScreen.hasLikes()) {
             playlistsScreen.pullToRefresh();

@@ -13,8 +13,8 @@ import dagger.Provides;
 public class CommentsModule {
 
     @Provides
-    PagingItemAdapter<Comment> provideCommentsAdapter(CommentPresenter presenter) {
-        return new PagingItemAdapter<>(presenter);
+    PagingItemAdapter<Comment> provideCommentsAdapter(CommentRenderer renderer) {
+        return new PagingItemAdapter<>(renderer);
     }
 
 }

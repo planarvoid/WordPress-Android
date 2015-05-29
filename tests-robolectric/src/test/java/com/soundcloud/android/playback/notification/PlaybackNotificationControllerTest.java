@@ -11,6 +11,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -36,6 +37,7 @@ import rx.Subscription;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
@@ -56,9 +58,11 @@ public class PlaybackNotificationControllerTest {
     @Mock private NotificationManager notificationManager;
     @Mock private NotificationBuilder notificationBuilder;
     @Mock private Bitmap bitmap;
+    @Mock private Bitmap loadingBitmap;
     @Mock private Uri uri;
     @Mock private Subscription subscription;
     @Mock private PlaybackStateProvider playbackStateProvider;
+    @Mock private Resources resources;
     @Captor private ArgumentCaptor<PropertySet> propertySetCaptor;
     private PropertySet trackProperties;
 
@@ -66,8 +70,10 @@ public class PlaybackNotificationControllerTest {
     public void setUp() throws Exception {
         trackProperties = expectedTrackForPlayer();
         when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
+        when(imageOperations.decodeResource(resources, R.drawable.notification_loading)).thenReturn(loadingBitmap);
 
         controller = new PlaybackNotificationController(
+                resources,
                 trackRepository,
                 playbackNotificationPresenter,
                 notificationManager,
@@ -185,7 +191,7 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
-    public void playQueueEventClearsExistingBitmapWhenArtworkCapableAndNoCachedBitmap() {
+    public void playQueueEventSetsDefaultBitmapWhenArtworkCapableAndNoCachedBitmap() {
         when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
         when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
 
@@ -193,7 +199,7 @@ public class PlaybackNotificationControllerTest {
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        verify(notificationBuilder).clearIcon();
+        verify(notificationBuilder).setIcon(loadingBitmap);
     }
 
     @Test

@@ -4,10 +4,8 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Sí</string>
     <string name="no">No</string>
-    <string name="close">Cerrar</string>
     <string name="post">Publicar</string>
     <string name="view">Ver</string>
-    <string name="btn_publish">Siguiente</string>
     <string name="btn_apply">Aplicar</string>
     <string name="cancel">Cancelar</string>
     <string name="retry">Reintentar</string>
@@ -18,6 +16,7 @@
     <string name="btn_continue">Continuar</string>
     <string name="imprint">Imprimir</string>
     <string name="privacy">Privacidad</string>
+    <string name="contact_support">Contactarse con el área de soporte</string>
     <string name="legal">Legal</string>
     <string name="legal_summary">Información legal</string>
     <string name="terms_of_use">Términos de uso</string>
@@ -33,15 +32,9 @@
     <string name="btn_skip">Omitir</string>
     <string name="configure">Configurar</string>
     <string name="connect_progress">Cargando</string>
-    <string name="connect_success">Conectado correctamente con %1$s</string>
-    <string name="connection_list_footer">Para cambiar los ajustes de compartir predeterminados, vaya a ajustes de SoundCloud y seleccione \"Conexiones\"</string>
     <string name="delete">Eliminar</string>
     <string name="comments">Comentarios</string>
-    <string name="new_connection_error">Ocurrió un problema al añadir la red</string>
-    <string name="reset">Descartar</string>
-    <string name="share_fail_message">Bueno, eso salió mal.</string>
     <string name="share_log_out">Cerrar sesión</string>
-    <string name="share_success_message">Ok, ¡eso funcionó!</string>
     <string name="share_to_soundcloud">&lt;b&gt;Compartir&lt;/b&gt; a &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Sonidos de %s</string>
     <string name="this_user">Este usuario</string>
@@ -49,8 +42,6 @@
     <string name="track_by">por</string>
     <string name="display_name">Mostrar nombre</string>
     <string name="website">Sitio web</string>
-    <string name="what_hint">Qué</string>
-    <string name="where_hint">Dónde</string>
     <string name="like">Me gusta</string>
     <string name="unlike">Quitar me gusta</string>
 
@@ -96,14 +87,12 @@
     <string name="authentication_log_in_with_facebook">Iniciar sesión con Facebook</string>
     <string name="authentication_login_error_password_message">No pudimos iniciar su sesión. ¿Está seguro que tiene el correo electrónico y contraseña correctas?</string>
     <string name="authentication_login_progress_message">Iniciando su sesión</string>
-    <string name="authentication_recover_password">Recuperar contraseña</string>
     <string name="authentication_recover_password_failure">En el momento no podemos recuperar su contraseña. Por favor intenté dentro de poco</string>
     <string name="authentication_recover_password_failure_reason">No se pudo recuperar la contraseña: %s</string>
     <string name="authentication_recover_password_success">¡Compruebe su correo electrónico! En breve recibirá un correo electrónico con instrucciones sobre cómo restablecer su contraseña</string>
     <string name="authentication_recover_progress_message">Solicitando restablecimiento de contraseña</string>
     <string name="authentication_sign_up">Registrarse en SoundCloud</string>
     <string name="authentication_signup_error_message">Parece haber un problema. Por favor intente registrarse en SoundCloud.com.</string>
-    <string name="authentication_support">Soporte</string>
     <string name="authentication_terms_of_use">Términos de uso</string>
     <string name="authentication_your_email_address">Su dirección de correo electrónico</string>
     <string name="authentication_your_password">Su contraseña</string>
@@ -118,8 +107,7 @@
     <string name="facebook_authentication_failed_message">Por favor intenté nuevo en breve o inicie sesión usando su nombre de usuario y contraseña de SoundCloud.</string>
     <string name="authentication_recover_password_msg">Introduzca su dirección de correo y le enviaremos un enlace que le permitirá cambiar su contraseña. \n¿Problemas? Contacte a soporte.</string>
     <string name="authentication_blocked_title">No pudimos iniciar su sesión</string>
-    <string name="authentication_blocked_message">Nuestros robots piensan que este inicio de sesión parece mucho a spam. Si cree que es un error, por favor <a href="http://help.soundcloud.com/customer/portal/emails/new">contacte a soporte </a>
-  </string>
+    <string name="authentication_blocked_message">Nuestros robots piensan que este inicio de sesión parece mucho a spam. Si cree que es un error, por favor <a href="http://help.soundcloud.com/customer/portal/emails/new">contacte a soporte </a></string>
     <string name="authentication_captcha_message">Tenemos problemas para iniciar su sesión. Por favor inicie sesión por medio de nuestro sitio web móvil antes de iniciar sesión de nuevo.</string>
     <string name="authentication_email_taken_message">Este correo electrónico ya está registrado en una cuenta. Introduzca un correo electrónico diferente o intente iniciar sesión</string>
     <string name="authentication_email_invalid_message">El dominio que ingresado no parece ser capaz de recibir correos electrónicos. ¿Lo escribió correctamente?</string>
@@ -160,7 +148,6 @@
     <string name="empty_user_tracks_text">%1$s no ha actualizado ningún sonido público aún.</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">Ocurrió un error durante la grabación. Su dispositivo puede no ser compatible con la actual configuración de grabación. Puede cambiar la configuración en los ajustes de la aplicación.</string>
     <string name="error_unauthorized_message">Estamos teniendo un problema con su cuenta y debe iniciar sesión de nuevo en SoundCloud antes de continuar usando la app.</string>
     <string name="error_unauthorized_title">Error de cuenta</string>
     <string name="error_loading_url">Ocurrió un problema al cargar esa URL</string>
@@ -171,7 +158,6 @@
     <string name="crop_image_error">Ocurrió un error al recortar su imagen.</string>
     <string name="error_server_problems_message">Ocurrió un problema al procesar su solicitud. Por favor intenté más tarde.</string>
     <string name="connection_list_error">Parece haber un problema de conexión. Por favor intente dentro de poco.</string>
-    <string name="connect_failure">No se pudo conectar con %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">¡Oh! No pudimos iniciar su sesión. Por favor intente actualizar la app o iniciar sesión en Soundcloud.com.</string>
 
@@ -328,20 +314,7 @@
     <string name="user_commented_at">%1$s en %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Error desconocido</string>
-    <string name="payments_connection_error">Error de conexión</string>
-    <string name="payments_connection_unavailable">La facturación de Google Play no está disponible</string>
-    <string name="payments_user_cancelled">Cancelado por el usuario</string>
-    <string name="payments_none_available">No hay suscripciones disponibles</string>
-    <string name="payments_verifying">Comprobando</string>
-    <string name="payments_verify_fail">La comprobación falló</string>
-    <string name="payments_verify_timeout">No se pudo comprobar la compra</string>
     <string name="payments_success">Éxito</string>
-    <string name="payments_error_title">Error de pago</string>
-    <string name="payments_error_already_subscribed">Ya existe una suscripción asociada con su cuenta. ¿Problemas persistentes? Contacte a soporte.</string>
-    <string name="payments_error_stale_checkout">No fue posible restaurar su suscripción.</string>
-    <string name="payments_error_wrong_user">Tiene una suscripción activa, pero está vinculada a un usuario diferente.</string>
-    <string name="payments_error_contact_support">Contacte a soporte</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Listas de reproducción</string>
@@ -374,74 +347,25 @@
     <string name="myspace">Myspace</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">Por favor espere...</string>
     <string name="rec_title_idle_rec">Grabar</string>
     <string name="rec_title_recording">Grabando</string>
     <string name="rec_title_idle_play">En pausa</string>
     <string name="rec_title_playing">Reproduciendo</string>
     <string name="rec_title_editing">Editar</string>
-    <string name="record_another_sound">Grabar otro sonido</string>
     <string name="record_insert_sd_card">Por favor inserte una tarjeta SD para grabar.</string>
     <string name="record_instructions">Compartir sus sonidos</string>
     <string name="record_storage_is_full">El almacenamiento está lleno</string>
     <string name="recorded_afternoon">%s tarde</string>
-    <string name="recorded_at">%1$s a %2$s</string>
     <string name="recorded_evening">%s tarde</string>
     <string name="recorded_morning">%s mañana</string>
     <string name="recorded_night">%s noche</string>
-    <string name="recording_not_found">Grabación no encontrada</string>
-    <string name="rec_your_sound_is_saved_locally_at">Su sonido se guardó localmente</string>
     <string name="dialog_confirm_delete_recording_message">¿Está seguro que desea eliminar esta grabación?</string>
-    <string name="dialog_reset_recording_message">¿Reiniciar? La grabación será eliminada.</string>
-    <string name="dialog_unsaved_recordings_message">Se encontraron grabaciones sin guardar. Los elementos marcados serán guardados.</string>
     <string name="btn_revert_to_original">Restablecer el original</string>
     <string name="fade_toggle_on">Fundido de entrada / salida</string>
-    <string name="fade_toggle_off">Sin fundido de entrada / salida</string>
-    <string name="optimize_toggle_on">Optimizado</string>
-    <string name="optimize_toggle_off">Sin optimizar</string>
-    <string name="create_autosave_message">Sus grabaciones serán guardadas automáticamente a medida que las crea. Puede encontrarlas en su lista de sonidos.</string>
-    <string name="create_regenerating_waveform_message">Regenerando la forma de onda, por favor espere.</string>
     <string name="dialog_revert_recording_message">Perderá todos los cambios. ¿Proceder?</string>
     <string name="cloud_recorder_event_message">Grabando para %s</string>
     <string name="cloud_recorder_event_title">Grabación en curso</string>
     <string name="cloud_recorder_playback_event_title">Reproducción en curso</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-    <item>¿Por qué no graba sonidos de su calle?</item>
-    <item>Grabe notas de voz como recordatorios útiles.</item>
-    <item>Use el botón REC para crear un blog de voz. ¿Qué desea compartir hoy?</item>
-    <item>¿Qué está haciendo ahora?</item>
-    <item>Capture el momento: las primeras palabras del niño</item>
-    <item>Capture el momento: los sonidos que hace su mascota</item>
-    <item>Capture el momento: la voz de alguien que quiere</item>
-    <item>¿Va de compras? Grabe recordatorios para que no olvide lo que tiene que comprar.</item>
-    <item>¿Tuvo una idea genial? Captúrela con el botón REC.</item>
-    <item>¿Últimamente ha escuchado un buen chiste? ¡Compártalo!</item>
-    <item>¿Disfruta una buena conversación? ¿Por qué no la registra para la posteridad?</item>
-    <item>Capture los momentos divertidos con sonido</item>
-    <item>¿Sabía que ahora puede mantener privadas las grabaciones si no las quiere compartir?</item>
-    <item>Algunas veces el mejor dispositivo de grabación es aquel que tiene a la mano.</item>
-    <item>¡Quítese el silencio!</item>
-    <item>Quite el silencio de internet.</item>
-    <item>Quite el silencio del mundo.</item>
-    <item>¡Exprésese!</item>
-    <item>¿Por qué no registra los minutos de su siguiente reunión?</item>
-    <item>Use el botón REC para capturar ideas para después.</item>
-    <item>Use el botón REC como ayuda para estudiar: almacene notas en el camino.</item>
-    <item>Puede usar el botón REC para grabar entrevistas y reuniones.</item>
-    <item>Grabe el sonido de las olas del mar en la playa</item>
-    <item>Capture los sonidos de la vibrante ciudad a la hora pico</item>
-    <item>¿Escuchó un sonido raro? ¡Captúrelo con el botón REC!</item>
-    <item>¿Se siente inspirado? Capture su idea con el botón REC.</item>
-    <item>¿Tiene una idea para una nueva pista? Guárdela con el botón REC.</item>
-    <item>¿Tiene una tonada pegada en la mente? Captúrela con el botón REC.</item>
-    <item>¿Ideas para letras musicales? Captúrelas instantáneamente con el botón REC.</item>
-    <item>¿Qué está pasando ahora?</item>
-    <item>Registre los eventos actuales a medida que suceden y compártalos con el mundo.</item>
-    <item>¿Está pasando algo interesante? Capture el momento en audio.</item>
-    <item>¿Reportero ciudadano? Dígale al mundo lo que sucede donde se encuentra.</item>
-  </string-array>
 
     <!-- __SEARCH -->
     <string name="search_hint">Buscar en SoundCloud</string>
@@ -482,9 +406,9 @@
     <string name="cache_clearing">Limpiando el caché</string>
     <string name="cache_clearing_message">Eliminando archivos en caché...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Comprimido</item>
-    <item>Sin procesar</item>
-  </string-array>
+        <item>Comprimido</item>
+        <item>Sin procesar</item>
+    </string-array>
 
     <!-- __SETTINGS LOG OUT -->
     <string name="menu_clear_user_desc">Tendrá que reconectarse con su cuenta SoundCloud.</string>
@@ -517,11 +441,11 @@
     <string name="pref_notifications_reposts">Publicaciones de nuevo</string>
     <string name="pref_notifications_reposts_description">Recibir actualizaciones sobre nuevas publicaciones de sus sonidos</string>
     <string-array name="pref_notifications_frequency">
-    <item>Cada hora</item>
-    <item>Cada 4 horas</item>
-    <item>Cada 12 horas</item>
-    <item>Cada 24 horas</item>
-  </string-array>
+        <item>Cada hora</item>
+        <item>Cada 4 horas</item>
+        <item>Cada 12 horas</item>
+        <item>Cada 24 horas</item>
+    </string-array>
 
     <!-- __SKIPPY -->
     <string name="pref_extras_skippy">Forzar reproductor experimental</string>
@@ -566,11 +490,8 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Procesando</string>
-    <string name="uploader_event_processing_percent">Procesando: %d %%</string>
-    <string name="uploader_event_not_yet_uploading">No está cargando aún</string>
     <string name="uploader_event_uploading_percent">Cargando: %d %%</string>
     <string name="uploader_event_cancelling">Cancelando</string>
-    <string name="uploader_event_processing_finished">Procesamiento terminado</string>
     <string name="cloud_upload_clear_artwork">Mantenga presionado para borrar el arte</string>
     <string name="cloud_uploader_notification_error_message">Ocurrió un error al cargar %s</string>
     <string name="cloud_uploader_notification_error_ticker">Error de carga</string>
@@ -578,15 +499,9 @@
     <string name="cloud_uploader_notification_finished_message">%s  ha sido cargado</string>
     <string name="cloud_uploader_notification_finished_ticker">Carga finalizada</string>
     <string name="cloud_uploader_notification_finished_title">Carga finalizada</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">Ocurrió un error al transcodificar %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Error de transcodificación</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Error de transcodificación</string>
     <string name="dialog_cancel_upload_message">¿Cancelar la carga?</string>
-    <string name="sc_upload_add_image">Agregar imagen</string>
     <string name="sc_upload_private">Privado</string>
     <string name="sc_upload_public">Público</string>
-    <string name="sc_upload_sharing_options_private">Su sonido será privado en SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">Su sonido será público en SoundCloud. ¿Con qué otras redes desea compartirlo?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Toque para abrir SoundCloud</string>
@@ -624,7 +539,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">No se pudo emitir la pista</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">¿Qué le gustaría informar?</string>
     <string name="feedback_playback_issue">Problema de reproducción</string>

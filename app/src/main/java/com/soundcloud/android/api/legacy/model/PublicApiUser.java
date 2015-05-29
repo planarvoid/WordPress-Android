@@ -37,7 +37,7 @@ import android.text.TextUtils;
 @SuppressWarnings({"UnusedDeclaration"})
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
-public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource {
+public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource, UserRecord {
     public static final int TYPE = 0;
     public static final String EXTRA = "user";
     public static final Parcelable.Creator<PublicApiUser> CREATOR = new Parcelable.Creator<PublicApiUser>() {
@@ -375,6 +375,11 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Nullable
     public String getCountry() {
         return country;
+    }
+
+    @Override
+    public int getFollowersCount() {
+        return followers_count;
     }
 
     public final void setCountry(@Nullable String country) {

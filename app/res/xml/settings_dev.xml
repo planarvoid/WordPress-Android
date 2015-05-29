@@ -32,11 +32,6 @@
             android:title="@string/pref_dev_crash" />
 
         <Preference
-            android:key="@string/key_dev_clear_recordings"
-            android:summary="@string/pref_dev_clear_recordings_summary"
-            android:title="@string/pref_dev_clear_recordings" />
-
-        <Preference
             android:key="@string/key_dev_features"
             android:title="@string/pref_dev_features"
             android:summary="@string/pref_dev_features_summary"

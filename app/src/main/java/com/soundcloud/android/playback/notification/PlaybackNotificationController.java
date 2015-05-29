@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.notification;
 
 import static com.soundcloud.android.playback.notification.NotificationBuilder.NOT_SET;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -10,8 +11,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
 import rx.Observable;
@@ -23,6 +24,7 @@ import rx.subscriptions.Subscriptions;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 
 import javax.inject.Inject;
@@ -34,6 +36,7 @@ public class PlaybackNotificationController {
 
     public static final int PLAYBACKSERVICE_STATUS_ID = 1;
 
+    private final Resources resources;
     private final PlaybackNotificationPresenter presenter;
     private final TrackRepository trackRepository;
     private final NotificationManager notificationManager;
@@ -77,9 +80,10 @@ public class PlaybackNotificationController {
     private NotificationBuilder notificationBuilder;
 
     @Inject
-    public PlaybackNotificationController(TrackRepository trackRepository, PlaybackNotificationPresenter presenter,
+    public PlaybackNotificationController(Resources resources, TrackRepository trackRepository, PlaybackNotificationPresenter presenter,
                                           NotificationManager notificationManager, EventBus eventBus, ImageOperations imageOperations,
                                           Provider<NotificationBuilder> builderProvider, PlaybackStateProvider playbackStateProvider) {
+        this.resources = resources;
         this.trackRepository = trackRepository;
         this.presenter = presenter;
         this.notificationManager = notificationManager;
@@ -111,7 +115,7 @@ public class PlaybackNotificationController {
         if (cachedBitmap != null) {
             notificationBuilder.setIcon(cachedBitmap);
         } else {
-            notificationBuilder.clearIcon();
+            notificationBuilder.setIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
             imageSubscription = getBitmap(trackUrn, notificationBuilder)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override
@@ -134,11 +138,7 @@ public class PlaybackNotificationController {
     }
 
     private Observable<Bitmap> getBitmap(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
-        if (notificationBuilder.getTargetImageSize() == NOT_SET) {
-            return imageOperations.artwork(trackUrn, notificationBuilder.getImageSize());
-        } else {
-            return imageOperations.artwork(trackUrn, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
-        }
+        return imageOperations.artwork(trackUrn, notificationBuilder.getImageSize(), notificationBuilder.getTargetImageSize(), notificationBuilder.getTargetImageSize());
     }
 
     void createNotificationBuilder() {

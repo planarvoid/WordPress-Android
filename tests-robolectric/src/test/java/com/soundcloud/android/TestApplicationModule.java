@@ -193,6 +193,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(StorageModule.STREAM_SYNC)
+    public SharedPreferences provideStreamSync() {
+        return provideSharedPreferences();
+    }
+
+    @Provides
     @Named(ApplicationModule.HIGH_PRIORITY)
     public Scheduler provideHighPrioScheduler() {
         return Schedulers.immediate();

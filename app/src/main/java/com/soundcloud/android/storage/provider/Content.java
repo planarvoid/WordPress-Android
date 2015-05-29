@@ -14,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
@@ -110,9 +109,6 @@ public enum Content {
     COLLECTION("collections/#", null, 1001, null, -1, Table.Collections),
 
     USER_ASSOCIATIONS("user_associations", null, 1010, null, -1, Table.UserAssociations),
-
-    RECORDINGS("recordings", null, 1100, Recording.class, -1, Table.Recordings),
-    RECORDING("recordings/#", null, 1101, Recording.class, -1, Table.Recordings),
 
     TRACK_METADATA("track_metadata", null, 1302, null, -1, Table.TrackMetadata),
 

@@ -35,15 +35,15 @@ public class OfflineSettingsTest extends ActivityTest<MainActivity> {
         assertEquals("1.0 GB", offlineSettingsScreen.getSliderLimitText());
         assertEquals("1.0 GB", offlineSettingsScreen.getLegendLimitText());
 
-        offlineSettingsScreen.tapOnSlider(0);
-        assertEquals("0.0 GB", offlineSettingsScreen.getSliderLimitText());
-        assertEquals("0.0 GB", offlineSettingsScreen.getLegendLimitText());
+        offlineSettingsScreen.tapOnSlider(0); // minimum is 0.5
+        assertEquals("0.5 GB", offlineSettingsScreen.getSliderLimitText());
+        assertEquals("0.5 GB", offlineSettingsScreen.getLegendLimitText());
 
         offlineSettingsScreen.tapOnSlider(80);
         String sliderLastValue = offlineSettingsScreen.getSliderLimitText();
         String legendLastValue = offlineSettingsScreen.getLegendLimitText();
-        assertNotSame("0.0 GB", sliderLastValue);
-        assertNotSame("0.0 GB", legendLastValue);
+        assertNotSame("0.5 GB", sliderLastValue);
+        assertNotSame("0.5 GB", legendLastValue);
 
         solo.goBack();
         settingsScreen.clickOfflineSettings();

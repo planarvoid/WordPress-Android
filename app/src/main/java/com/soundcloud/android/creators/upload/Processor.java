@@ -2,25 +2,34 @@ package com.soundcloud.android.creators.upload;
 
 import static com.soundcloud.android.creators.upload.UploadService.TAG;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.jni.EncoderException;
 import com.soundcloud.android.creators.record.jni.VorbisEncoder;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UploadEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
 
-import android.content.Context;
-import android.content.Intent;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import javax.inject.Inject;
 import java.io.File;
 
 public class Processor implements Runnable {
     private final Recording recording;
-    private final LocalBroadcastManager broadcastManager;
 
+    @Inject EventBus eventBus;
 
-    public Processor(Context context, Recording recording) {
+    public Processor(Recording recording) {
         this.recording = recording;
-        broadcastManager = LocalBroadcastManager.getInstance(context);
+        SoundCloudApplication.getObjectGraph().inject(this);
+    }
+
+    @VisibleForTesting
+    public Processor(Recording recording, EventBus eventBus) {
+        this.recording = recording;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -36,21 +45,16 @@ public class Processor implements Runnable {
 
         if (start > 0 || end != -1) {
             try {
-                broadcast(UploadService.PROCESSING_STARTED);
+                eventBus.publish(EventQueue.UPLOAD, UploadEvent.processingStarted(recording));
                 VorbisEncoder.extract(recording.getEncodedFile(), processFile, start / 1000d, end / 1000d);
-                broadcast(UploadService.PROCESSING_SUCCESS);
+                eventBus.publish(EventQueue.UPLOAD, UploadEvent.processingSuccess(recording));
             } catch (EncoderException e) {
                 Log.w(TAG, "error processing "+encoded, e);
-                broadcast(UploadService.PROCESSING_ERROR);
+                eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
             }
         } else {
             Log.d(TAG, "no processing to be done");
-            broadcast(UploadService.PROCESSING_SUCCESS);
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.processingSuccess(recording));
         }
-    }
-
-    private void broadcast(String action) {
-        broadcastManager.sendBroadcast(new Intent(action)
-                .putExtra(UploadService.EXTRA_RECORDING, recording));
     }
 }

@@ -6,16 +6,22 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+
+import android.content.res.Resources;
 
 import java.util.concurrent.TimeUnit;
 
 @RunWith(SoundCloudTestRunner.class)
 public class GoBackOnlineDialogPresenterTest {
+
+    @Mock private Resources resources;
+
     private GoBackOnlineDialogPresenter presenter;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new GoBackOnlineDialogPresenter();
+        presenter = new GoBackOnlineDialogPresenter(resources);
     }
 
     @Test

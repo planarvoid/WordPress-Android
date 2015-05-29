@@ -8,9 +8,9 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,14 +23,14 @@ public class PlaylistDetailsControllerTest {
 
     PlaylistDetailsController controller;
 
-    @Mock private PlaylistTrackItemPresenter trackItemPresenter;
-    @Mock private ItemAdapter<TrackItem> itemAdapter;
+    @Mock private PlaylistTrackItemRenderer trackItemRenderer;
+    @Mock private ListItemAdapter<TrackItem> itemAdapter;
     private EventBus eventBus = new TestEventBus();
     private PlaylistWithTracks playlist;
 
     @Before
     public void setUp() throws Exception {
-        controller = new PlaylistDetailsControllerImpl(trackItemPresenter, itemAdapter, eventBus);
+        controller = new PlaylistDetailsControllerImpl(trackItemRenderer, itemAdapter, eventBus);
         playlist = createPlaylist();
     }
 
@@ -64,8 +64,8 @@ public class PlaylistDetailsControllerTest {
 
     private static class PlaylistDetailsControllerImpl extends PlaylistDetailsController {
 
-        protected PlaylistDetailsControllerImpl(PlaylistTrackItemPresenter trackPresenter,
-                                                ItemAdapter<TrackItem> adapter, EventBus eventBus) {
+        protected PlaylistDetailsControllerImpl(PlaylistTrackItemRenderer trackPresenter,
+                                                ListItemAdapter<TrackItem> adapter, EventBus eventBus) {
             super(trackPresenter, adapter, eventBus);
         }
 

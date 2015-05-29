@@ -65,13 +65,6 @@ public class CastPlaybackStrategyTest {
     }
 
     @Test
-    public void reloadAndPlayCurrentQueueRedirectsCallToCastPlayer() {
-        strategy.reloadAndPlayCurrentQueue(123L);
-
-        verify(castPlayer).reloadAndPlayCurrentQueue(123L);
-    }
-
-    @Test
     public void seekCallsSeekWithPositionOnCastPlayer() {
         strategy.seek(123L);
 

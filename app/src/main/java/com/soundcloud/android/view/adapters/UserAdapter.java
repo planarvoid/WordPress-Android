@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements FollowingOperations.FollowStatusChangedListener {
 
-    @Inject UserItemPresenter presenter;
+    @Inject UserItemRenderer itemRenderer;
     @Inject FollowingOperations followingOperations;
 
     private final List<UserItem> users = new ArrayList<>(Consts.LIST_PAGE_SIZE);
@@ -49,9 +49,9 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
     }
 
     @VisibleForTesting
-    UserAdapter(Uri uri, UserItemPresenter userItemPresenter, FollowingOperations followingOperations) {
+    UserAdapter(Uri uri, UserItemRenderer itemRenderer, FollowingOperations followingOperations) {
         super(uri);
-        this.presenter = userItemPresenter;
+        this.itemRenderer = itemRenderer;
         this.followingOperations = followingOperations;
         init();
     }
@@ -62,12 +62,12 @@ public class UserAdapter extends ScBaseAdapter<PublicApiResource> implements Fol
 
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
-        return presenter.createItemView(position, parent);
+        return itemRenderer.createItemView(parent);
     }
 
     @Override
     protected void bindRow(int position, View rowView) {
-        presenter.bindItemView(position, rowView, users);
+        itemRenderer.bindItemView(position, rowView, users);
     }
 
     @Override

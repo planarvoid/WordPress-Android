@@ -1,14 +1,15 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.configuration.FeatureOperations;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.DateProvider;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
 import android.app.Activity;
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
@@ -24,15 +25,17 @@ public class PolicyUpdateController extends DefaultLightCycleActivity<AppCompatA
     private final OfflineSettingsStorage offlineSettingsStorage;
     private final DateProvider dateProvider;
     private final GoBackOnlineDialogPresenter goBackOnlineDialogPresenter;
+    private final Context context;
 
     private Subscription subscription = Subscriptions.empty();
 
     @Inject
-    public PolicyUpdateController(FeatureOperations featureOperations,
+    public PolicyUpdateController(Context context, FeatureOperations featureOperations,
                                   OfflineContentOperations offlineContentOperations,
                                   OfflineSettingsStorage offlineSettingsStorage,
                                   DateProvider dateProvider,
                                   GoBackOnlineDialogPresenter goBackOnlineDialogPresenter) {
+        this.context = context;
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
         this.offlineSettingsStorage = offlineSettingsStorage;
@@ -73,11 +76,20 @@ public class PolicyUpdateController extends DefaultLightCycleActivity<AppCompatA
             if (shouldNotifyUser(lastPolicyUpdateDate)) {
                 goBackOnlineDialogPresenter.show(activity, lastPolicyUpdateDate);
             }
+
+            if (shouldDeleteOfflineContent(lastPolicyUpdateDate)) {
+                OfflineContentService.start(context);
+            }
         }
 
         private boolean shouldNotifyUser(Long lastUpdate) {
             final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - lastUpdate);
             return daysElapsed >= OFFLINE_DAYS_WARNING_THRESHOLD;
+        }
+
+        private boolean shouldDeleteOfflineContent(Long lastUpdate) {
+            final long daysElapsed = TimeUnit.MILLISECONDS.toDays(dateProvider.getCurrentTime() - lastUpdate);
+            return daysElapsed >= OFFLINE_DAYS_ERROR_THRESHOLD;
         }
 
         @Override

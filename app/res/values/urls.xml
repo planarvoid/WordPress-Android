@@ -7,5 +7,6 @@
     <string name="url_imprint">https://soundcloud.com/imprint</string>
     <string name="url_terms">http://pages.soundcloud.com/legal/plain/terms-of-use-ios.html?format=ios</string>
     <string name="url_privacy">http://pages.soundcloud.com/legal/plain/privacy-policy.html?format=ios</string>
+    <string name="url_forgot_email_help">http://help.soundcloud.com/customer/portal/articles/531472</string>
 
 </resources>

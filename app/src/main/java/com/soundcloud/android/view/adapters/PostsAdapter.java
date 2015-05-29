@@ -17,7 +17,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.storage.provider.ScContentProvider;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import rx.Subscription;
@@ -46,8 +46,8 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
     private final String relatedUsername;
 
     @Inject PlaybackOperations playbackOperations;
-    @Inject TrackItemPresenter trackPresenter;
-    @Inject PlaylistItemPresenter playlistPresenter;
+    @Inject TrackItemRenderer trackRenderer;
+    @Inject PlaylistItemRenderer playlistPresenter;
     @Inject EventBus eventBus;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
 
@@ -60,13 +60,13 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
-    PostsAdapter(Uri uri, String relatedUsername, PlaybackOperations playbackOperations, TrackItemPresenter trackPresenter,
-                 PlaylistItemPresenter playlistPresenter, EventBus eventBus, Provider<ExpandPlayerSubscriber> subscriberProvider) {
+    PostsAdapter(Uri uri, String relatedUsername, PlaybackOperations playbackOperations, TrackItemRenderer trackRenderer,
+                 PlaylistItemRenderer playlistRenderer, EventBus eventBus, Provider<ExpandPlayerSubscriber> subscriberProvider) {
         super(uri);
         this.relatedUsername = relatedUsername;
         this.playbackOperations = playbackOperations;
-        this.trackPresenter = trackPresenter;
-        this.playlistPresenter = playlistPresenter;
+        this.trackRenderer = trackRenderer;
+        this.playlistPresenter = playlistRenderer;
         this.eventBus = eventBus;
         this.subscriberProvider = subscriberProvider;
     }
@@ -89,17 +89,17 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
     @Override
     protected View createRow(Context context, int position, ViewGroup parent) {
         if (isTrack(position)) {
-            return trackPresenter.createItemView(position, parent);
+            return trackRenderer.createItemView(parent);
         } else {
             // We assume this is a playlist
-            return playlistPresenter.createItemView(position, parent);
+            return playlistPresenter.createItemView(parent);
         }
     }
 
     @Override
     protected void bindRow(int position, View rowView) {
         if (isTrack(position)) {
-            trackPresenter.bindItemView(position, rowView, (List) listItems);
+            trackRenderer.bindItemView(position, rowView, (List) listItems);
         } else {
             // We assume this is a playlist
             playlistPresenter.bindItemView(position, rowView, (List) listItems);
@@ -163,7 +163,7 @@ public class PostsAdapter extends LegacyAdapterBridge<SoundAssociation> {
     @Override
     public void onViewCreated() {
         eventSubscriptions = new CompositeSubscription(
-                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackPresenter)),
+                eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(this, trackRenderer)),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new PlayableChangedSubscriber())
         );
     }

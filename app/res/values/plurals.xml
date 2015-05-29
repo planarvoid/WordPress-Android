@@ -162,14 +162,6 @@
         <item quantity="one">1 year ago</item>
         <item quantity="other">%d years ago</item>
     </plurals>
-    <plurals name="minutes_available">
-        <item quantity="one">1 minute available</item>
-        <item quantity="other">%d minutes available</item>
-    </plurals>
-    <plurals name="seconds_available">
-        <item quantity="one">1 second available</item>
-        <item quantity="other">%d seconds available</item>
-    </plurals>
 
     <!-- __OFFLINE_SYNC -->
     <plurals name="downloading_track_of_tracks">

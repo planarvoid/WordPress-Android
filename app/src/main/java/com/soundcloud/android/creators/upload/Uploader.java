@@ -12,7 +12,10 @@ import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.creators.record.reader.VorbisReader;
-import com.soundcloud.android.storage.RecordingStorage;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.UploadEvent;
+import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncStateManager;
@@ -21,64 +24,52 @@ import com.soundcloud.android.sync.posts.StorePostsCommand;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.Params;
 import com.soundcloud.propeller.PropertySet;
+import rx.Subscription;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class Uploader extends BroadcastReceiver implements Runnable {
-
+public class Uploader implements Runnable {
     static final String PARAM_TITLE = "track[title]";          // required
     static final String PARAM_TYPE = "track[track_type]";
     static final String PARAM_DESCRIPTION = "track[description]";
-    static final String PARAM_POST_TO = "track[post_to][][id]";
-    static final String PARAM_POST_TO_EMPTY = "track[post_to][]";
     static final String PARAM_TAG_LIST = "track[tag_list]";
     static final String PARAM_SHARING = "track[sharing]";
     static final String PARAM_STREAMABLE = "track[streamable]";
     static final String PARAM_DOWNLOADABLE = "track[downloadable]";
     static final String PARAM_GENRE = "track[genre]";
-    static final String PARAM_SHARED_EMAILS = "track[shared_to][emails][][address]";
-    static final String PARAM_SHARED_IDS = "track[shared_to][users][][id]";
-    static final String PARAM_SHARING_NOTE = "track[sharing_note]";
     static final String PARAM_ASSET_DATA = "track[asset_data]";
     static final String PARAM_ARTWORK_DATA = "track[artwork_data]";
 
     private final TrackStorage trackStorage = new TrackStorage();
     private final StorePostsCommand storePostsCommand;
-
-    private final RecordingStorage recordingStorage = new RecordingStorage();
     private final SyncStateManager syncStateManager;
 
     private final ApiClient apiClient;
     private final Recording recording;
     private volatile boolean canceled;
-    private final LocalBroadcastManager broadcastManager;
     private final Resources resources;
+    private final Subscription subscription;
 
-    public Uploader(Context context, ApiClient apiClient, Recording recording, StorePostsCommand storePostsCommand) {
+    private final EventBus eventBus;
+
+    public Uploader(Context context, ApiClient apiClient, Recording recording, StorePostsCommand storePostsCommand, EventBus eventBus) {
         this.apiClient = apiClient;
         this.recording = recording;
         this.storePostsCommand = storePostsCommand;
-        broadcastManager = LocalBroadcastManager.getInstance(context);
-        broadcastManager.registerReceiver(this, new IntentFilter(UploadService.UPLOAD_CANCEL));
-        resources = context.getResources();
-        syncStateManager = new SyncStateManager(context);
+        this.resources = context.getResources();
+        this.syncStateManager = new SyncStateManager(context);
+        this.subscription = eventBus.subscribe(EventQueue.UPLOAD, new EventSubscriber());
+        this.eventBus = eventBus;
     }
 
     public boolean isCancelled() {
@@ -98,7 +89,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         } catch (IllegalArgumentException e) {
             onUploadFailed(e);
         } finally {
-            broadcastManager.unregisterReceiver(this);
+            subscription.unsubscribe();
         }
     }
 
@@ -117,15 +108,12 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             }
             Log.v(TAG, "starting upload of " + recordingFile);
 
-            broadcast(UploadService.TRANSFER_STARTED);
+            eventBus.publish(EventQueue.UPLOAD, UploadEvent.transferStarted(recording));
 
             final ApiRequest request = buildUploadRequest(resources, recording);
             onUploadFinished(apiClient.fetchMappedResponse(request, PublicApiTrack.class));
-
         } catch (IOException | ApiMapperException | ApiRequestException e) {
-            if(isCancelled()) {
-                onUploadCancelled();
-            } else {
+            if (!isCancelled()) {
                 onUploadFailed(e);
             }
         }
@@ -175,29 +163,6 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         if (!TextUtils.isEmpty(recording.genre)) {
             data.put(PARAM_GENRE, recording.genre);
         }
-
-        if (!TextUtils.isEmpty(recording.service_ids)) {
-            List<String> ids = new ArrayList<>();
-            Collections.addAll(ids, recording.service_ids.split(","));
-            data.put(PARAM_POST_TO, ids);
-            data.put(PARAM_SHARING_NOTE, recording.title);
-        } else {
-            data.put(PARAM_POST_TO_EMPTY, "");
-        }
-
-        if (!TextUtils.isEmpty(recording.shared_emails)) {
-            List<String> ids = new ArrayList<>();
-            Collections.addAll(ids, recording.shared_emails.split(","));
-            data.put(PARAM_SHARED_EMAILS, ids);
-        }
-
-        if (recording.recipient_user_id > 0) {
-            data.put(PARAM_SHARED_IDS, recording.recipient_user_id);
-        } else if (!TextUtils.isEmpty(recording.shared_ids)) {
-            List<String> ids = new ArrayList<>();
-            Collections.addAll(ids, recording.shared_ids.split(","));
-            data.put(PARAM_SHARED_IDS, ids);
-        }
         return data;
     }
 
@@ -214,13 +179,9 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         }
     }
 
-    private void onUploadCancelled() {
-        broadcast(UploadService.TRANSFER_CANCELLED);
-    }
-
     private void onUploadFailed(Exception e) {
         Log.e(TAG, "Error uploading", e);
-        broadcast(UploadService.TRANSFER_ERROR);
+        eventBus.publish(EventQueue.UPLOAD, UploadEvent.error(recording));
     }
 
     private void onUploadFinished(PublicApiTrack track) {
@@ -244,9 +205,7 @@ public class Uploader extends BroadcastReceiver implements Runnable {
             IOUtils.deleteFile(artworkPath);
         }
 
-        recordingStorage.updateStatus(recording);
-
-        broadcast(UploadService.TRANSFER_SUCCESS, track);
+        eventBus.publish(EventQueue.UPLOAD, UploadEvent.transferSuccess(recording, track));
     }
 
     private void createNewTrackPost(PublicApiTrack track) {
@@ -259,20 +218,15 @@ public class Uploader extends BroadcastReceiver implements Runnable {
         )).call();
     }
 
-    private void broadcast(String action, PublicApiTrack... track) {
-        final Intent intent = new Intent(action).putExtra(UploadService.EXTRA_RECORDING, recording);
-        if (track.length > 0) {
-            intent.putExtra(PublicApiTrack.EXTRA, track[0]);
-        }
-        broadcastManager.sendBroadcast(intent);
-    }
-
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Recording recording = intent.getParcelableExtra(UploadService.EXTRA_RECORDING);
-        if (this.recording.equals(recording)) {
-            Log.d(TAG, "canceling upload of " + this.recording);
-            cancel();
+    private final class EventSubscriber extends DefaultSubscriber<UploadEvent> {
+        @Override
+        public void onNext(UploadEvent uploadEvent) {
+            if (uploadEvent.isCancelled()) {
+                if (recording.getId() == uploadEvent.getRecording().getId()) {
+                    Log.d(TAG, "canceling upload of " + recording);
+                    cancel();
+                }
+            }
         }
     }
 
@@ -286,18 +240,13 @@ public class Uploader extends BroadcastReceiver implements Runnable {
 
         @Override
         public void update(long bytesWritten, long totalBytes) throws IOException {
-            if(isCancelled()) {
+            if (isCancelled()) {
                 throw new UserCanceledException();
             }
 
-            if (System.currentTimeMillis() - lastPublished > 1000) {
+            if (System.currentTimeMillis() - lastPublished > 500) {
                 final int progress = (int) Math.min(100, (100 * bytesWritten) / totalBytes);
-                broadcastManager.sendBroadcast(new Intent(UploadService.TRANSFER_PROGRESS)
-                        .putExtra(UploadService.EXTRA_RECORDING, recording)
-                        .putExtra(UploadService.EXTRA_TRANSFERRED, bytesWritten)
-                        .putExtra(UploadService.EXTRA_PROGRESS, progress)
-                        .putExtra(UploadService.EXTRA_TOTAL, totalBytes));
-
+                eventBus.publish(EventQueue.UPLOAD, UploadEvent.transferProgress(recording, progress));
                 lastPublished = System.currentTimeMillis();
             }
         }

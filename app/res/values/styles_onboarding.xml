@@ -276,7 +276,7 @@
         <item name="android:imeOptions">actionNext</item>
         <item name="android:cursorVisible">true</item>
         <item name="android:textCursorDrawable">@null</item>
-        <item name="custom_font">fonts/Interstate-Light.ttf</item>
+        <item name="custom_font">fonts/Roboto-Regular.ttf</item>
     </style>
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">

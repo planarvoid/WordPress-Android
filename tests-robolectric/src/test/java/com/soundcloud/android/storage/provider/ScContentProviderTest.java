@@ -9,7 +9,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.legacy.model.Recording;
 import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
 import com.soundcloud.android.api.model.ApiTrack;
@@ -53,18 +52,6 @@ public class ScContentProviderTest {
         activitiesStorage = new ActivitiesStorage(Robolectric.application);
         writableDatabase = DatabaseManager.getInstance(Robolectric.application).getWritableDatabase();
         testFixtures = new DatabaseFixtures(writableDatabase);
-    }
-
-    @Test
-    public void shouldInsertAndQueryRecordings() throws Exception {
-        Recording r = Recording.create(null);
-        r.user_id = USER_ID;
-
-        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-        expect(uri).not.toBeNull();
-
-        Cursor c = resolver.query(Content.RECORDINGS.uri, null, null, null, null);
-        expect(c.getCount()).toEqual(1);
     }
 
     @Test
@@ -139,19 +126,6 @@ public class ScContentProviderTest {
         expect(c.moveToFirst()).toBeTrue();
         expect(c.getLong(0)).toEqual(USER_ID);
     }
-
-    @Test
-    public void shouldCreateAndDeleteARecording() throws Exception {
-        Recording r = Recording.create(null);
-        r.user_id = USER_ID;
-        Uri uri = resolver.insert(Content.RECORDINGS.uri, r.buildContentValues());
-        expect(uri).not.toBeNull();
-
-        expect(Content.RECORDINGS).toHaveCount(1);
-        expect(resolver.delete(uri, null, null)).toEqual(1);
-        expect(Content.RECORDINGS).toBeEmpty();
-    }
-
 
     @Test
     public void shouldInsertTrackMetadata() throws Exception {

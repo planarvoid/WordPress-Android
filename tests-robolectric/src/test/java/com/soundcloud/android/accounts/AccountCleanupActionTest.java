@@ -20,6 +20,7 @@ import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.sync.SyncStateManager;
 import com.soundcloud.android.sync.playlists.RemoveLocalPlaylistsCommand;
+import com.soundcloud.android.sync.stream.StreamSyncStorage;
 import com.soundcloud.propeller.PropellerWriteException;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,12 +51,14 @@ public class AccountCleanupActionTest {
     @Mock private FeatureStorage featureStorage;
     @Mock private RemoveLocalPlaylistsCommand removeLocalPlaylistsCommand;
     @Mock private ClearTableCommand clearTableCommand;
+    @Mock private StreamSyncStorage streamSyncStorage;
 
     @Before
     public void setup() {
         action = new AccountCleanupAction(syncStateManager,
                 activitiesStorage, userAssociationStorage, tagStorage, soundRecorder,
-                featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, removeLocalPlaylistsCommand, clearTableCommand);
+                featureStorage, unauthorisedRequestRegistry, offlineSettingsStorage, streamSyncStorage,
+                removeLocalPlaylistsCommand, clearTableCommand);
 
         when(context.getSharedPreferences(anyString(), anyInt())).thenReturn(sharedPreferences);
         when(sharedPreferences.edit()).thenReturn(editor);
@@ -118,9 +121,21 @@ public class AccountCleanupActionTest {
     }
 
     @Test
+    public void shouldClearStreamSyncStorage() {
+        action.call();
+        verify(streamSyncStorage).clear();
+    }
+
+    @Test
     public void shouldClearSoundStreamStorage() throws PropellerWriteException {
         action.call();
         verify(clearTableCommand).call(Table.SoundStream);
+    }
+
+    @Test
+    public void shouldClearPromotedTracks() throws PropellerWriteException {
+        action.call();
+        verify(clearTableCommand).call(Table.PromotedTracks);
     }
 
     @Test
@@ -140,4 +155,5 @@ public class AccountCleanupActionTest {
         action.call();
         verify(removeLocalPlaylistsCommand).call(null);
     }
+
 }

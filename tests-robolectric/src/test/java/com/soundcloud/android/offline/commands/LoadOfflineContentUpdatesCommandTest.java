@@ -44,10 +44,10 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualPendingRemovals(TRACK_URN_1, now.getTime());
         actualPendingRemovals(TRACK_URN_2, now.getTime());
 
-        final List<DownloadRequest> expectedRequests = Arrays.asList(new DownloadRequest(TRACK_URN_2, "http://2", TRACK_DURATION));
+        final List<DownloadRequest> expectedRequests = Arrays.asList(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 
-        expect(offlineContentRequests.newRestoredRequests).toContainExactly(new DownloadRequest(TRACK_URN_2, "http://2", TRACK_DURATION));
+        expect(offlineContentRequests.newRestoredRequests).toContainExactly(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
         expect(offlineContentRequests.allDownloadRequests).toBeEmpty();
         expect(offlineContentRequests.newDownloadRequests).toBeEmpty();
         expect(offlineContentRequests.newRemovedTracks).toBeEmpty();
@@ -57,12 +57,12 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
     public void doesNotReturnPendingRemovalsRemovedAfter3Minutes() {
         actualPendingRemovals(TRACK_URN_1, now.getTime() - TimeUnit.MINUTES.toMillis(4));
 
-        final List<DownloadRequest> expectedRequests = Arrays.asList(new DownloadRequest(TRACK_URN_2, "http://2", TRACK_DURATION));
+        final List<DownloadRequest> expectedRequests = Arrays.asList(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 
         expect(offlineContentRequests.newRestoredRequests).toBeEmpty();
-        expect(offlineContentRequests.allDownloadRequests).toContainExactly(new DownloadRequest(TRACK_URN_2, "http://2", TRACK_DURATION));
-        expect(offlineContentRequests.newDownloadRequests).toContainExactly(new DownloadRequest(TRACK_URN_2, "http://2", TRACK_DURATION));
+        expect(offlineContentRequests.allDownloadRequests).toContainExactly(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
+        expect(offlineContentRequests.newDownloadRequests).toContainExactly(new DownloadRequest(TRACK_URN_2, TRACK_DURATION));
         expect(offlineContentRequests.newRemovedTracks).toBeEmpty();
     }
 
@@ -71,7 +71,7 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualDownloadedTracks(TRACK_URN_1);
         actualDownloadRequests(TRACK_URN_2);
 
-        final DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, "http://2", TRACK_DURATION);
+        final DownloadRequest downloadRequest = new DownloadRequest(TRACK_URN_2, TRACK_DURATION);
         final List<DownloadRequest> expectedRequests = Arrays.asList(downloadRequest);
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 
@@ -86,9 +86,9 @@ public class LoadOfflineContentUpdatesCommandTest extends StorageIntegrationTest
         actualDownloadedTracks(TRACK_URN_1);
         actualDownloadRequests(TRACK_URN_2);
 
-        final DownloadRequest downloadRequest1 = new DownloadRequest(TRACK_URN_1, "http://1", TRACK_DURATION);
-        final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, "http://2", TRACK_DURATION);
-        final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, "http://3", TRACK_DURATION);
+        final DownloadRequest downloadRequest1 = new DownloadRequest(TRACK_URN_1, TRACK_DURATION);
+        final DownloadRequest downloadRequest2 = new DownloadRequest(TRACK_URN_2, TRACK_DURATION);
+        final DownloadRequest downloadRequest3 = new DownloadRequest(TRACK_URN_3, TRACK_DURATION);
         final List<DownloadRequest> expectedRequests = Arrays.asList(downloadRequest1, downloadRequest2, downloadRequest3);
         final OfflineContentRequests offlineContentRequests = command.call(expectedRequests);
 

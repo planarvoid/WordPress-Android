@@ -30,7 +30,7 @@ public class DownloadNotificationControllerTest {
     private static final String DOWNLOAD_COMPLETED = getString(R.string.offline_update_completed_title);
     private static final String DOWNLOAD_PAUSED = getString(R.string.offline_update_paused);
 
-    private final DownloadRequest downloadRequest = new DownloadRequest(Urn.forTrack(123L), "http://", 12L);
+    private final DownloadRequest downloadRequest = new DownloadRequest(Urn.forTrack(123L), 12L);
     private final DownloadResult successfulDownloadResult = DownloadResult.success(downloadRequest);
     private final DownloadResult failedDownloadResult = DownloadResult.error(downloadRequest);
     private final DownloadResult storageLimitResult = DownloadResult.notEnoughSpace(downloadRequest);

@@ -2,13 +2,6 @@
 <resources>
 
     <!-- list styles -->
-
-    <style name="ListView" parent="@android:style/Widget.ListView">
-        <item name="android:divider">@drawable/divider_list_grey</item>
-        <item name="android:dividerHeight">1px</item>
-        <item name="android:listSelector">@drawable/list_selector_gray</item>
-    </style>
-
     <style name="ListItemLayout">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>

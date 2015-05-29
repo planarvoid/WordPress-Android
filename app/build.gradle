@@ -13,10 +13,13 @@ ext {
 
 buildscript {
   repositories {
+    mavenCentral()
     maven { url 'https://maven.fabric.io/public' }
+    maven { url 'http://maven.int.s-cloud.net/content/repositories/releases' }
   }
   dependencies {
     classpath 'io.fabric.tools:gradle:1.+'
+    classpath 'com.soundcloud.gandalf:gandalf-plugin:0.1.1'
   }
 }
 
@@ -33,6 +36,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'maven'
 apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
+apply plugin: 'com.soundcloud.gandalf'
 
 def globalConfiguration = rootProject.extensions.getByName('ext')
 
@@ -222,12 +226,14 @@ dependencies {
   compile libraries.androidSupportLibrary
   compile libraries.androidAppCompatLibrary
   compile libraries.androidMediaRouterLibrary
+  compile libraries.androidRecyclerView
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesCast
 
   /* Acceptance Tests */
   androidTestCompile acceptanceTestLibraries.hamcrest
   androidTestCompile acceptanceTestLibraries.robotium
+  androidTestCompile acceptanceTestLibraries.networkManagerClient
 }
 
 int getNewVersionCode() {

@@ -33,7 +33,7 @@ public final class OnboardingEvent {
     private static final String TYPE = "type";
     private static final String ACTION = "action";
     private static final String SIGN_UP = "sign up";
-    private static final String LOG_IN = "log in";
+    private static final String LOG_IN = "sign in";
     private static final String NATIVE = "native";
     private static final String GOOGLE_PLUS = "google_plus";
     private static final String FACEBOOK = "facebook";

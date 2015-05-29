@@ -21,6 +21,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.crop.Crop;
+import com.soundcloud.android.dialog.ImageAlertDialog;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -86,7 +87,6 @@ public class OnboardActivity extends FragmentActivity
         PHOTOS, LOGIN, SIGN_UP_METHOD, SIGN_UP_BASICS, SIGN_UP_DETAILS, ACCEPT_TERMS
     }
 
-    public static final int DIALOG_PICK_IMAGE = 1;
     private static final String SIGNUP_DIALOG_TAG = "signup_dialog";
     private static final String BUNDLE_STATE = "BUNDLE_STATE";
     private static final String BUNDLE_USER = "BUNDLE_USER";
@@ -230,16 +230,9 @@ public class OnboardActivity extends FragmentActivity
         setButtonListeners();
 
         if (configurationOperations.shouldDisplayDeviceConflict()) {
-            showDeviceConflictDialog();
+            showDeviceConflictLogoutDialog();
             configurationOperations.clearDeviceConflict();
         }
-    }
-
-    private void showDeviceConflictDialog() {
-        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
-                .setMessage(R.string.device_management_conflict_message)
-                .setPositiveButton(R.string.device_management_continue, null);
-        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflictLoggedOut());
     }
 
     private void showPhotos(boolean isNotConfigChange) {
@@ -880,7 +873,15 @@ public class OnboardActivity extends FragmentActivity
     public void onBlocked() {
         final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.authentication_blocked_title)
                 .setMessage(R.string.authentication_blocked_message)
-                .setPositiveButton(R.string.close, null);
+                .setPositiveButton(R.string.contact_support, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivity(new Intent(Intent.ACTION_VIEW)
+                                .setData(Uri.parse(getString(R.string.url_contact_support))));
+                        dialogInterface.dismiss();
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, null);
         showDialogWithHyperlinksAndTrackEvent(dialogBuilder, OnboardingEvent.signupDenied());
     }
 
@@ -905,8 +906,10 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onDeviceConflict(final Bundle loginBundle) {
-        final AlertDialog.Builder dialogBuilder = createDefaultAuthErrorDialogBuilder(R.string.device_management_limit)
-                .setMessage(R.string.device_management_login_message)
+        final AlertDialog.Builder builder = new ImageAlertDialog(this)
+                .setContent(R.drawable.dialog_device_management,
+                        R.string.device_management_limit,
+                        R.string.device_management_login_message)
                 .setPositiveButton(R.string.device_management_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -914,7 +917,16 @@ public class OnboardActivity extends FragmentActivity
                     }
                 })
                 .setNegativeButton(R.string.cancel, null);
-        showDialogAndTrackEvent(dialogBuilder, OnboardingEvent.deviceConflictOnLogin());
+        showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictOnLogin());
+    }
+
+    private void showDeviceConflictLogoutDialog() {
+        final AlertDialog.Builder builder = new ImageAlertDialog(this)
+                .setContent(R.drawable.dialog_device_management,
+                        R.string.device_management_limit,
+                        R.string.device_management_conflict_message)
+                .setPositiveButton(R.string.device_management_continue, null);
+        showDialogAndTrackEvent(builder, OnboardingEvent.deviceConflictLoggedOut());
     }
 
     private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {

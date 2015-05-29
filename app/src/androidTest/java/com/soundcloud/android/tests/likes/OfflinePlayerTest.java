@@ -41,14 +41,14 @@ public class OfflinePlayerTest extends ActivityTest<MainActivity> {
                 .clickListHeaderOverflowButton()
                 .clickMakeAvailableOffline()
                 .clickKeepLikesSyncedAndWaitToFinish();
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
 
         assertTrue(likesScreen.clickTrack(0).isExpandedPlayerPlaying());
     }
 
     public void testShowToastWhenContentNotDownloaded() throws Exception {
-        networkManager.switchWifiOff();
-        likesScreen.clickTrack(0);
+        networkManagerClient.switchWifiOff();
+        likesScreen.clickOfflineTrack(0);
 
         assertTrue(waiter.expectToastWithText(toastObserver, "Track is not available offline"));
     }

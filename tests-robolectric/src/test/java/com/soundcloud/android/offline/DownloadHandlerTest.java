@@ -39,7 +39,7 @@ public class DownloadHandlerTest {
 
     @Before
     public void setUp() throws Exception {
-        downloadRequest = new DownloadRequest(Urn.forTrack(123), "http://", 12345);
+        downloadRequest = new DownloadRequest(Urn.forTrack(123), 12345);
         downloadResultSuccess = DownloadResult.success(downloadRequest);
         downloadResultFailed = DownloadResult.connectionError(downloadRequest, ConnectionState.NOT_ALLOWED);
         downloadResultUnavailable = DownloadResult.unavailable(downloadRequest);

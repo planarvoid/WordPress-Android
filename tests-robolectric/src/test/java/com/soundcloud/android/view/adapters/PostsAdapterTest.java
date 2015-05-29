@@ -34,7 +34,7 @@ import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.tracks.TrackItemPresenter;
+import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowApplication;
@@ -65,8 +65,8 @@ public class PostsAdapterTest {
     private SearchQuerySourceInfo searchQuerySourceInfo;
 
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private TrackItemPresenter trackPresenter;
-    @Mock private PlaylistItemPresenter playlistPresenter;
+    @Mock private TrackItemRenderer trackRenderer;
+    @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private ViewGroup itemView;
 
     @Captor private ArgumentCaptor<List<PlayableItem>> itemCaptor;
@@ -76,7 +76,7 @@ public class PostsAdapterTest {
         when(playbackOperations.playTracksFromUri(any(Uri.class), anyInt(), any(Urn.class), any(PlaySessionSource.class)))
                 .thenReturn(Observable.<PlaybackResult>empty());
         adapter = new PostsAdapter(Content.ME_LIKES.uri, RELATED_USERNAME, playbackOperations,
-                trackPresenter, playlistPresenter, eventBus, TestSubscribers.expandPlayerSubscriber());
+                trackRenderer, playlistRenderer, eventBus, TestSubscribers.expandPlayerSubscriber());
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("soundcloud:search:urn"), 0, new Urn("soundcloud:click:123"));
     }
 
@@ -88,7 +88,7 @@ public class PostsAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), anyList());
+        verify(trackRenderer).bindItemView(eq(0), refEq(itemView), anyList());
     }
 
     @Test
@@ -98,7 +98,7 @@ public class PostsAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), anyList());
+        verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), anyList());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class PostsAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         TrackItem trackItem = (TrackItem) itemCaptor.getValue().get(0);
         expect(trackItem.getEntityUrn()).toEqual(track.getUrn());
         expect(trackItem.getTitle()).toEqual(track.getTitle());
@@ -128,7 +128,7 @@ public class PostsAdapterTest {
         adapter.addItems(Arrays.asList(new SoundAssociation(track2)));
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter, times(2)).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(trackRenderer, times(2)).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem convertedTrack = itemCaptor.getAllValues().get(1).get(0);
         expect(convertedTrack.getEntityUrn()).toEqual(track2.getUrn());
     }
@@ -169,7 +169,7 @@ public class PostsAdapterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(playingTrack));
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -177,7 +177,7 @@ public class PostsAdapterTest {
         final Urn playingTrack = Urn.forTrack(123L);
         adapter.onViewCreated();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(playingTrack));
-        verify(trackPresenter).setPlayingTrack(playingTrack);
+        verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
     @Test
@@ -191,7 +191,7 @@ public class PostsAdapterTest {
         eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromLike(unlikedPlaylist.getUrn(), true, 1));
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         expect(itemCaptor.getValue().get(0).isLiked()).toBeTrue();
     }
 
@@ -202,7 +202,7 @@ public class PostsAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
         expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
     }
@@ -215,7 +215,7 @@ public class PostsAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(trackPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(trackRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
         expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
     }
@@ -228,7 +228,7 @@ public class PostsAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
         expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
     }
@@ -240,7 +240,7 @@ public class PostsAdapterTest {
 
         adapter.bindRow(0, itemView);
 
-        verify(playlistPresenter).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
+        verify(playlistRenderer).bindItemView(eq(0), refEq(itemView), (List) itemCaptor.capture());
         PlayableItem respostedTrackPropertySet = itemCaptor.getValue().get(0);
         expect(respostedTrackPropertySet.getReposter().get()).toEqual(RELATED_USERNAME);
     }

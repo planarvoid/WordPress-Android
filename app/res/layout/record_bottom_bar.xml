@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/btn_min_height"
+    android:gravity="end"
+    android:id="@+id/bottom_bar"
+    android:layout_alignParentBottom="true"
+    tools:showIn="@layout/sc_create">
+
+    <Button
+        android:id="@+id/btn_delete"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/gray_text"
+        android:text="@string/delete" />
+
+    <Button
+        android:id="@+id/btn_next"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/sc_orange"
+        android:text="@string/next" />
+
+    <Button
+        android:id="@+id/btn_revert"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/gray_text"
+        android:text="@string/btn_revert_to_original" />
+
+    <Button
+        android:id="@+id/btn_apply"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/sc_orange"
+        android:text="@string/btn_apply" />
+
+</LinearLayout>

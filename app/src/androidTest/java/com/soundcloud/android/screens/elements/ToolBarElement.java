@@ -9,6 +9,7 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
+import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.WhoToFollowScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
@@ -56,6 +57,11 @@ public class ToolBarElement extends Element {
     public SettingsScreen clickSettingsOverflowButton() {
         clickOverflowButton("Settings");
         return new SettingsScreen(testDriver);
+    }
+
+    public RecordScreen clickRecordButton() {
+        clickOverflowButton("Record");
+        return new RecordScreen(testDriver);
     }
 
     public SearchResultsScreen doSearch(String query) {

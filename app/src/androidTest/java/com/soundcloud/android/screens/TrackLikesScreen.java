@@ -28,6 +28,13 @@ public class TrackLikesScreen extends Screen {
         super(solo);
     }
 
+    public TrackLikesScreen clickOfflineTrack(int index) {
+        tracks()
+                .get(index)
+                .click();
+        return this;
+    }
+
     public VisualPlayerElement clickTrack(int index) {
         VisualPlayerElement visualPlayerElement = tracks()
                 .get(index)

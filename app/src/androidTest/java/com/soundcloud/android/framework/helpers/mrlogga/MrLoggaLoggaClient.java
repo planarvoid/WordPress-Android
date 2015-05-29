@@ -29,10 +29,10 @@ class MrLoggaLoggaClient {
     private static final String ACTION_START_RECORDING = "start_recording";
     private static final String ACTION_FINISH_RECORDING = "finish_recording";
 
-
     private final OkHttpClient httpClient;
-    private final String deviceUDID;
     private final String loggingEndpoint;
+
+    public final String deviceUDID;
 
     public MrLoggaLoggaClient(Context context, DeviceHelper deviceHelper, OkHttpClient client) {
         this.httpClient = client;

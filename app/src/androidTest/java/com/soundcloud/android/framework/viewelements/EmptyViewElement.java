@@ -1,6 +1,6 @@
 package com.soundcloud.android.framework.viewelements;
 
-import com.robotium.solo.Solo;
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.offline.DownloadImageView;
 import com.soundcloud.android.screens.elements.ListElement;
@@ -130,5 +130,5 @@ public final class EmptyViewElement extends ViewElement {
     /* package */ View getView() { throw new ViewNotFoundException(selector); }
 
     @Override
-    /* package */ Solo getTestDriver() { throw new ViewNotFoundException(selector); }
+    /* package */ Han getTestDriver() { throw new ViewNotFoundException(selector); }
 }

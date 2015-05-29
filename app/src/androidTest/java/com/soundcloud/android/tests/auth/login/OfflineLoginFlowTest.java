@@ -18,12 +18,12 @@ public class OfflineLoginFlowTest extends LoginTest {
     public void setUp() throws Exception {
         super.setUp();
         homeScreen = new HomeScreen(solo);
-        networkManager.switchWifiOff();
+        networkManagerClient.switchWifiOff();
     }
 
     @Override
     public void tearDown() throws Exception {
-        networkManager.switchWifiOn();
+        networkManagerClient.switchWifiOn();
         super.tearDown();
     }
 

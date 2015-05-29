@@ -63,7 +63,7 @@ public class PullToRefreshController extends DefaultSupportFragmentLightCycle {
             swipeRefreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
         }
 
-        wrapper.attach(swipeRefreshLayout, refreshListener);
+        wrapper.attach(swipeRefreshLayout, refreshListener, new int[]{ android.R.id.list, android.R.id.empty });
         wrapper.setRefreshing(wasRefreshing);
     }
 

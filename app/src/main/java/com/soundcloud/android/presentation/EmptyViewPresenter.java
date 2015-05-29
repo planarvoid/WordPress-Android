@@ -19,8 +19,8 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
 
     @Override
     public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
-        super.onCreate(fragment, bundle);
         LightCycleBinder.bind(this);
+        super.onCreate(fragment, bundle);
     }
 
     @Override

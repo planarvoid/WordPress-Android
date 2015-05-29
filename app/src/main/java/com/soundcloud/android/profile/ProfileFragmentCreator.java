@@ -3,6 +3,10 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.collections.ScListFragment;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,23 +16,37 @@ import android.support.v4.app.Fragment;
 
 import javax.inject.Inject;
 
-/***
+/**
  * This class is just to serve as a bridge for ScListFragment and a new profile list fragments. It will go away with new profiles
  */
 class ProfileFragmentCreator {
 
+    private final FeatureFlags featureFlags;
+
     @Inject
-    ProfileFragmentCreator() {
+    ProfileFragmentCreator(FeatureFlags featureFlags) {
         // for DI
+        this.featureFlags = featureFlags;
     }
 
-    Fragment create(Context context, String userName, Uri contentUri, Screen screen, SearchQuerySourceInfo searchQuerySource) {
-        return createScListFragment(context, contentUri, screen, userName, searchQuerySource);
+    Fragment create(Context context, Content content, Urn userUrn, String userName, Uri contentUri, Screen screen, SearchQuerySourceInfo searchQuerySource) {
+        if (featureFlags.isEnabled(Flag.NEW_PROFILE_FRAGMENTS)) {
+            switch (content) {
+                case USER_SOUNDS:
+                    return UserPostsFragment.create(userUrn, userName, screen, searchQuerySource);
+                default:
+                    return createScListFragment(context, contentUri, screen, userName, searchQuerySource);
+            }
+
+        } else {
+            return createScListFragment(context, contentUri, screen, userName, searchQuerySource);
+        }
+
     }
 
     @NotNull
     private Fragment createScListFragment(Context context, Uri contentUri, Screen screen, String username, SearchQuerySourceInfo searchQuerySource) {
-        ScListFragment listFragment = ScListFragment.newInstance(contentUri, username,screen, searchQuerySource);
+        ScListFragment listFragment = ScListFragment.newInstance(contentUri, username, screen, searchQuerySource);
         listFragment.setEmptyViewFactory(new EmptyViewBuilder().forContent(context, contentUri, username));
         return listFragment;
     }

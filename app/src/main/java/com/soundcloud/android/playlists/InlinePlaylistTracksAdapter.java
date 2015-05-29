@@ -2,24 +2,25 @@ package com.soundcloud.android.playlists;
 
 
 import com.soundcloud.android.rx.observers.EmptyViewAware;
-import com.soundcloud.android.tracks.PlaylistTrackItemPresenter;
+import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.CellRendererBinding;
+import com.soundcloud.android.view.adapters.ListItemAdapter;
 
 import javax.inject.Inject;
 
-class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements EmptyViewAware {
+class InlinePlaylistTracksAdapter extends ListItemAdapter<TrackItem> implements EmptyViewAware {
 
-    private final EmptyViewAware emptyViewPresenter;
-    private final PlaylistTrackItemPresenter playlistItemPresenter;
+    private final EmptyViewAware emptyViewRenderer;
+    private final PlaylistTrackItemRenderer playlistItemRenderer;
 
     @Inject
-    InlinePlaylistTracksAdapter(PlaylistTrackItemPresenter playlistItemPresenter,
-                                EmptyPlaylistTracksPresenter emptyViewPresenter) {
-        super(new CellPresenterEntity<>(DEFAULT_VIEW_TYPE, playlistItemPresenter),
-                new CellPresenterEntity<>(IGNORE_ITEM_VIEW_TYPE, emptyViewPresenter));
-        this.emptyViewPresenter = emptyViewPresenter;
-        this.playlistItemPresenter = playlistItemPresenter;
+    InlinePlaylistTracksAdapter(PlaylistTrackItemRenderer playlistItemRenderer,
+                                EmptyPlaylistTracksRenderer emptyViewRenderer) {
+        super(new CellRendererBinding<>(DEFAULT_VIEW_TYPE, playlistItemRenderer),
+                new CellRendererBinding<>(IGNORE_ITEM_VIEW_TYPE, emptyViewRenderer));
+        this.emptyViewRenderer = emptyViewRenderer;
+        this.playlistItemRenderer = playlistItemRenderer;
     }
 
     @Override
@@ -37,7 +38,7 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements Empt
     }
 
     @Override
-    public int getCount() {
+    public int getItemCount() {
         return Math.max(1, items.size()); // at least 1 for the empty view
     }
 
@@ -48,10 +49,10 @@ class InlinePlaylistTracksAdapter extends ItemAdapter<TrackItem> implements Empt
 
     @Override
     public void setEmptyViewStatus(int status) {
-        emptyViewPresenter.setEmptyViewStatus(status);
+        emptyViewRenderer.setEmptyViewStatus(status);
     }
 
-    PlaylistTrackItemPresenter getPlaylistItemPresenter() {
-        return playlistItemPresenter;
+    PlaylistTrackItemRenderer getPlaylistItemRenderer() {
+        return playlistItemRenderer;
     }
 }

@@ -5,13 +5,12 @@
     <string name="app_name">SoundCloud</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="close">Close</string>
     <string name="post">Post</string>
     <string name="view">View</string>
-    <string name="btn_publish">Next</string>
     <string name="btn_apply">Apply</string>
     <string name="cancel">Cancel</string>
     <string name="retry">Retry</string>
+    <string name="upload">Upload</string>
     <string name="shuffle">Shuffle</string>
     <string name="done">Done</string>
     <string name="email">Email</string>
@@ -23,6 +22,7 @@
     <string name="legal_summary">Legal information</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="privacy_policy">Privacy Policy</string>
+    <string name="contact_support">Contact support</string>
     <string name="version">Version</string>
     <string name="unavailable">Unavailable</string>
     <string name="copyright_information">Copyright information</string>
@@ -34,15 +34,9 @@
     <string name="btn_skip">Skip</string>
     <string name="configure">Configure</string>
     <string name="connect_progress">Loading</string>
-    <string name="connect_success">Successfully connected with %1$s</string>
-    <string name="connection_list_footer">To change your default sharing options, go to your settings on SoundCloud and select \'Connections\'</string>
     <string name="delete">Delete</string>
     <string name="comments">Comments</string>
-    <string name="new_connection_error">There was a problem adding the network</string>
-    <string name="reset">Discard</string>
-    <string name="share_fail_message">OK, that went wrong.</string>
-    <string name="share_log_out">Log out</string>
-    <string name="share_success_message">Yay, that worked!</string>
+    <string name="share_log_out">Sign out</string>
     <string name="share_to_soundcloud">&lt;b&gt;Share&lt;/b&gt; to &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Sounds from %s</string>
     <string name="this_user">This user</string>
@@ -50,8 +44,6 @@
     <string name="track_by">by</string>
     <string name="display_name">Display Name</string>
     <string name="website">Website</string>
-    <string name="what_hint">What</string>
-    <string name="where_hint">Where</string>
     <string name="like">Like</string>
     <string name="unlike">Unlike</string>
 
@@ -80,7 +72,7 @@
     <string name="now_playing_with_args">Now Playing: %1$s (%2$s)</string>
 
     <!-- __AUTHENTICATION -->
-    <string name="authentication_I_forgot_my_password">I forgot my password</string>
+    <string name="authentication_I_forgot_my_password">Forgot your password?</string>
     <string name="authentication_add_info_add_image_msg">Smile! This image will appear on your profile.</string>
     <string name="authentication_add_info_msg">Almost done. Now choose a username and add a photo to personalize your profile.</string>
     <string name="authentication_add_info_username_hint">Your username</string>
@@ -93,40 +85,40 @@
     <string name="authentication_error_password_too_short">Your Password must have 6 or more characters.</string>
     <string name="authentication_error_age_not_valid">You must be at least 13 years old.</string>
     <string name="authentication_error_title">Error</string>
-    <string name="authentication_log_in">Log In</string>
+    <string name="authentication_log_in">Sign In</string>
     <string name="authentication_log_in_with_facebook">Sign in with Facebook</string>
-    <string name="authentication_login_error_password_message">We couldn\'t log you in. Sure you had the right email and password?</string>
-    <string name="authentication_login_progress_message">Logging you in</string>
-    <string name="authentication_recover_password">Recover password</string>
+    <string name="authentication_login_error_password_message">We couldn\'t sign you in. Sure you had the right email and password?</string>
+    <string name="authentication_login_progress_message">Signing you in</string>
     <string name="authentication_recover_password_failure">We can\'t recover your password right now. Please try again shortly</string>
     <string name="authentication_recover_password_failure_reason">Password recovery failed: %s</string>
-    <string name="authentication_recover_password_success">Go check your mail! You\'ll receive an email with instructions on how to reset your password shortly</string>
+    <string name="authentication_recover_password_success">Check your email! We\'ve sent you instructions on how to change your password.</string>
     <string name="authentication_recover_progress_message">Requesting password reset</string>
     <string name="authentication_sign_up">Sign up for SoundCloud</string>
     <string name="authentication_signup_error_message">There seems to be a problem. Please try signing up at SoundCloud.com.</string>
-    <string name="authentication_support">Support</string>
     <string name="authentication_terms_of_use">Terms of Use</string>
     <string name="authentication_your_email_address">Your email address</string>
     <string name="authentication_your_password">Your password</string>
     <string name="authentication_clear_image">Hold to clear image</string>
-    <string name="dialog_select_google_account">Please select a Google account to Sign in with</string>
-    <string name="authentication_login_error_message">We couldn\'t log you in. Please try again.</string>
+    <string name="dialog_select_google_account">Please select a Google account to sign in with</string>
+    <string name="authentication_login_error_message">We couldn\'t sign you in. Please try again.</string>
     <string name="authentication_no_google_accounts">Please setup a google account first.</string>
     <string name="authentication_log_in_with_google">Sign in with Google</string>
-    <string name="error_google_sign_in_failed">We couldn\'t log you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
+    <string name="error_google_sign_in_failed">We couldn\'t sign you in with Google+. Visit plus.google.com to activate your Google+ account and try again</string>
     <string name="auth_disclaimer_title">One more step</string>
     <string name="auth_disclaimer_message">By tapping \"Continue\", you agree to the Terms of Use and Privacy policy of SoundCloud.</string>
-    <string name="facebook_authentication_failed_message">Please try again shortly or log in using your SoundCloud username and password.</string>
-    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link that\'ll allow you to change your password. Problems? Contact support.</string>
+    <string name="facebook_authentication_failed_message">Please try again shortly or sign in using your email address and password.</string>
+    <string name="authentication_recover_password_msg">Enter your email address and we\'ll send you a link to change your password. If you still need help, visit our Help Center.</string>
+    <string name="authentication_recover_password_visit_our_Help_Center">visit our Help Center</string>
+    <string name="authentication_recover_password_send">Send</string>
     <string name="authentication_blocked_title">We couldn\'t sign you up</string>
-    <string name="authentication_blocked_message">Our robots think this signup looks too much like spam. If you believe this to be a mistake, please <a href="http://help.soundcloud.com/customer/portal/emails/new">contact our support</a></string>
+    <string name="authentication_blocked_message">Our robots think this sign-up looks too much like spam. If you believe this to be a mistake, please contact our support.</string>
     <string name="authentication_captcha_message">We\'re having some trouble signing you in. Please sign in through our mobile website and before signing in again.</string>
-    <string name="authentication_email_taken_message">This email is already registered with an account. Enter a different email or try signing in</string>
+    <string name="authentication_email_taken_message">This email is already registered with an account. Enter a different email or try signing in.</string>
     <string name="authentication_email_invalid_message">The domain you have entered seems to not be capable of receiving emails. Did you spell it correctly?</string>
-    <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided</string>
+    <string name="authentication_email_other_error_message">Sorry we couldn\'t sign you up with the details you provided.</string>
 
     <!-- __DEEPLINKS -->
-    <string name="error_toast_user_not_logged_in">Please log in to open this link</string>
+    <string name="error_toast_user_not_logged_in">Please sign in to open this link</string>
 
     <!-- __EMAIL OPT-IN -->
     <string name="optin_title">SoundCloud Newsletter</string>
@@ -138,7 +130,7 @@
     <!-- __EMPTY STATES -->
     <string name="info_empty_other_message">This person hasn\'t added a profile description yet.</string>
     <string name="info_empty_you_message">Your profile is empty</string>
-    <string name="info_empty_you_secondary">Please log in to SoundCloud on your desktop to edit your profile</string>
+    <string name="info_empty_you_secondary">Please sign in to SoundCloud on your desktop to edit your profile</string>
     <string name="list_empty_activity_message">You don\'t have any activities yet</string>
     <string name="list_empty_activity_secondary">Find out more about sharing sounds with our 101s</string>
     <string name="list_empty_stream_action">Find people to follow</string>
@@ -160,8 +152,7 @@
     <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
 
     <!-- __ERRORS -->
-    <string name="error_recording_message">There was an error during recording.\n Your device may not support the current record configuration. You can change configurations in the application settings.</string>
-    <string name="error_unauthorized_message">We\'re having a problem with your account and need you to log back into SoundCloud before you can continue using the app.</string>
+    <string name="error_unauthorized_message">We\'re having a problem with your account and need you to sign back into SoundCloud before you can continue using the app.</string>
     <string name="error_unauthorized_title">Account Error</string>
     <string name="error_loading_url">There was a problem loading that url</string>
     <string name="error_soundcloud_no_response">SoundCloud isn\'t responding.</string>
@@ -171,7 +162,6 @@
     <string name="crop_image_error">There was an error cropping your image.</string>
     <string name="error_server_problems_message">There was a problem processing your request. Please try again later.</string>
     <string name="connection_list_error">There seems to be a connection problem. Please try again shortly.</string>
-    <string name="connect_failure">Failed connecting with %1$s</string>
     <!-- signup scope was revoked on server side -->
     <string name="signup_scope_revoked">Oops! We couldn\'t sign you up\nPlease try updating the app or sign up at SoundCloud.com.</string>
 
@@ -289,9 +279,6 @@
 
     <!-- __PLAYABLE -->
     <string name="private_indicator">Private</string>
-    <string name="recording_pending_upload">Pending Upload</string>
-    <string name="recording_uploading">Uploading...</string>
-    <string name="recording_upload_failed">Upload Failed</string>
     <string name="title_now_playing">Now Playing</string>
     <string name="like_toast_overflow_action">Saved to your likes</string>
     <string name="unlike_toast_overflow_action">Removed from your likes</string>
@@ -328,20 +315,26 @@
     <string name="user_commented_at">%1$s at %2$s</string>
 
     <!-- __PAYMENTS -->
-    <string name="payments_unknown_error">Unknown error</string>
-    <string name="payments_connection_error">Connection error</string>
-    <string name="payments_connection_unavailable">Google Play billing is not available</string>
-    <string name="payments_user_cancelled">User cancelled</string>
-    <string name="payments_none_available">No subscription available</string>
-    <string name="payments_verifying">Verifying</string>
-    <string name="payments_verify_fail">Verification failed</string>
-    <string name="payments_verify_timeout">Unable to verify purchase</string>
     <string name="payments_success">Success</string>
-    <string name="payments_error_title">Payment error</string>
-    <string name="payments_error_already_subscribed">There is already a subscription associated with your account. Continued problems? Contact support.</string>
-    <string name="payments_error_stale_checkout">It was not possible to restore your subscription.</string>
-    <string name="payments_error_wrong_user">You have an active subscription, but it is linked to a different user.</string>
-    <string name="payments_error_contact_support">Contact support</string>
+
+    <string name="payments_error_title_unavailable">Product unavailable</string>
+    <string name="payments_error_title_no_billing">Billing unavailable</string>
+    <string name="payments_error_title_already_subscribed">There is already an active subscription</string>
+    <string name="payments_error_title_canceled">Purchase failed</string>
+    <string name="payments_error_title_stale">Payment validation failed</string>
+    <string name="payments_error_title_wrong_user">Wrong user subscription</string>
+    <string name="payments_error_title_verification_fail">Payment verification failure</string>
+    <string name="payments_error_title_verification_timeout">Payment verification timeout</string>
+
+    <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
+    <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
+    <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
+    <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
+    <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
+    <string name="payments_error_wrong_user">Your subscription is associated with a different user. Sign in with the other account to continue using it.</string>
+    <string name="payments_error_verification_issue">We were unable to verify your payment. Please try again later.</string>
+
+    <string name="payments_sign_out">Sign out</string>
 
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
@@ -374,81 +367,32 @@
     <string name="myspace">Myspace</string>
 
     <!-- __RECORD -->
-    <string name="rec_title_generating_waveform">Please Wait...</string>
     <string name="rec_title_idle_rec">Record</string>
     <string name="rec_title_recording">Recording</string>
     <string name="rec_title_idle_play">Paused</string>
     <string name="rec_title_playing">Playing</string>
     <string name="rec_title_editing">Edit</string>
-    <string name="record_another_sound">Record another sound</string>
     <string name="record_insert_sd_card">Please insert an SD card to record.</string>
-    <string name="record_instructions">Share your Sounds</string>
+    <string name="record_instructions">Record</string>
     <string name="record_storage_is_full">Storage is full</string>
     <string name="recorded_afternoon">%s afternoon</string>
-    <string name="recorded_at">%1$s at %2$s</string>
     <string name="recorded_evening">%s evening</string>
     <string name="recorded_morning">%s morning</string>
     <string name="recorded_night">%s night</string>
-    <string name="recording_not_found">Recording not found</string>
-    <string name="rec_your_sound_is_saved_locally_at">Your sound is saved locally</string>
     <string name="dialog_confirm_delete_recording_message">Are you sure you want to delete this recording?</string>
-    <string name="dialog_reset_recording_message">Reset? Recording will be deleted.</string>
-    <string name="dialog_unsaved_recordings_message">Unsaved recordings found. Checked items will be saved.</string>
     <string name="btn_revert_to_original">Revert to original</string>
     <string name="fade_toggle_on">Fade in/out</string>
-    <string name="fade_toggle_off">No Fade in/out</string>
-    <string name="optimize_toggle_on">Optimized</string>
-    <string name="optimize_toggle_off">Not Optimized</string>
-    <string name="create_autosave_message">Your recordings will automatically be saved as you create them. You can find them in your list of sounds.</string>
-    <string name="create_regenerating_waveform_message">Regenerating waveform, please wait.</string>
     <string name="dialog_revert_recording_message">You will lose all of your edits. Proceed?</string>
     <string name="cloud_recorder_event_message">Recording for %s</string>
     <string name="cloud_recorder_event_title">Recording in progress</string>
     <string name="cloud_recorder_playback_event_title">Playback in progress</string>
-
-    <!-- __RECORD TIPS -->
-    <string-array name="record_suggestions">
-        <item>Why don\'t you record the sounds of your street?</item>
-
-        <item>Record voice notes as handy reminders.</item>
-        <item>Use the REC button to create a voice blog – what will you share today?</item>
-        <item>What are you doing right now?</item>
-        <item>Capture the moment: a child\’s first words</item>
-        <item>Capture the moment: the sounds your pet makes</item>
-        <item>Capture the moment: the voice of someone you care about</item>
-        <item>Going shopping?  Record reminders so you don\’t forget what to buy.</item>
-        <item>Had a great idea?  Capture it with the REC button.</item>
-
-        <item>Heard a good joke lately? Share it!</item>
-        <item>Enjoying a great conversation?  Why not record it for posterity?</item>
-        <item>Capture a hilarious moment in sound</item>
-
-        <item>Did you know you can save private recordings if you don\’t want to share them?</item>
-        <item>Sometimes the best recording device is the one you have with you.</item>
-        <item>Unmute yourself!</item>
-        <item>Unmute the internet.</item>
-        <item>Unmute the world.</item>
-        <item>Express yourself!</item>
-
-        <item>Why not record the minutes of your next meeting?</item>
-        <item>Use the REC button to capture ideas for later.</item>
-        <item>Use the REC button as a study aid: store your notes on the go.</item>
-        <item>You can use the REC button to record interviews and meetings.</item>
-
-        <item>Record the sound of the ocean waves at the beach</item>
-        <item>Capture the sounds of a vibrant city at rush hour</item>
-        <item>Heard a crazy sound?  Capture it with the REC button!</item>
-
-        <item>Feel inspired? Capture your idea with the REC button.</item>
-        <item>Got an idea for a new track? Save it with the REC button.</item>
-        <item>Tune stuck in your head? Capture it with the REC button.</item>
-        <item>Ideas for song lyrics? Capture them instantly with the REC button.</item>
-
-        <item>What’s going on right now?</item>
-        <item>Record current events as they happen and share them with the world.</item>
-        <item>Is something interesting happening?  Capture the moment in audio.</item>
-        <item>Citizen Reporter?  Tell the world what\’s happening where you are.</item>
-    </string-array>
+    <string name="record_track_title">Track title</string>
+    <string name="recording_pending_upload">Pending Upload</string>
+    <string name="recording_uploading">Uploading...</string>
+    <string name="recording_upload_failed">Upload failed</string>
+    <string name="recording_upload_finished">Upload finished</string>
+    <string name="record_privacy_header">Track will be</string>
+    <string name="record_tap_to_post">Tap to post your recording</string>
 
     <!-- __SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
@@ -473,8 +417,8 @@
     <string name="pref_connection_and_data">Connection and data</string>
     <string name="pref_help">Help</string>
     <string name="pref_help_desc">Access the SoundCloud support site</string>
-    <string name="pref_revoke_access">Log Out</string>
-    <string name="pref_revoke_desc">Log out current user</string>
+    <string name="pref_revoke_access">Sign Out</string>
+    <string name="pref_revoke_desc">Sign out current user</string>
     <string name="pref_sync_wifi_only">Only update data over Wi-Fi</string>
     <string name="pref_sync_wifi_only_description">Only update new likes etc. over Wi-Fi</string>
     <string name="pref_analytics">Analytics</string>
@@ -493,7 +437,7 @@
         <item>Raw</item>
     </string-array>
 
-    <!-- __SETTINGS LOG OUT -->
+    <!-- __SETTINGS SIGN OUT -->
     <string name="menu_clear_user_desc">You will have to re-connect your SoundCloud account.</string>
     <string name="menu_clear_user_title">Clear user data?</string>
 
@@ -573,11 +517,9 @@
 
     <!-- __UPLOAD -->
     <string name="uploader_event_processing">Processing</string>
-    <string name="uploader_event_processing_percent">Processing: %d%%</string>
-    <string name="uploader_event_not_yet_uploading">Not yet uploading</string>
+    <string name="uploader_event_processing_your_sound">Processing your Sound</string>
     <string name="uploader_event_uploading_percent">Uploading: %d%%</string>
     <string name="uploader_event_cancelling">Cancelling</string>
-    <string name="uploader_event_processing_finished">Processing finished</string>
     <string name="cloud_upload_clear_artwork">Hold to clear artwork</string>
     <string name="cloud_uploader_notification_error_message">There was an error uploading %s</string>
     <string name="cloud_uploader_notification_error_ticker">Upload Error</string>
@@ -585,15 +527,9 @@
     <string name="cloud_uploader_notification_finished_message">%s has been uploaded</string>
     <string name="cloud_uploader_notification_finished_ticker">Upload Finished</string>
     <string name="cloud_uploader_notification_finished_title">Upload Finished</string>
-    <string name="cloud_uploader_notification_transcoding_error_message">There was an error transcoding %s</string>
-    <string name="cloud_uploader_notification_transcoding_error_ticker">Transcoding Error</string>
-    <string name="cloud_uploader_notification_transcoding_error_title">Transcoding Error</string>
     <string name="dialog_cancel_upload_message">Cancel upload?</string>
-    <string name="sc_upload_add_image">Add\nImage</string>
     <string name="sc_upload_private">\u00A0Private</string>
     <string name="sc_upload_public">\u00A0Public</string>
-    <string name="sc_upload_sharing_options_private">Your sound will be made private on SoundCloud.</string>
-    <string name="sc_upload_sharing_options_public">Your sound will be made public on SoundCloud. Which other networks would you like to share it to?</string>
 
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Touch to open SoundCloud</string>
@@ -624,14 +560,14 @@
     <string name="age_verify_button">Verify age</string>
 
     <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">You\'ve reached the registered device limit.</string>
+    <string name="device_management_limit">You\'ve reached the registered device limit</string>
     <string name="device_management_login_message">Your subscription is limited to 3 devices. You can register this device and sign out of the device you used last by selecting continue.</string>
     <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
     <string name="device_management_continue">Continue</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
-    
+
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>
     <string name="feedback_playback_issue">Playback issue</string>
@@ -639,10 +575,15 @@
     <string name="feedback_other_issue">Other issue</string>
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
+    <string name="record_change_artwork">Change Artwork</string>
+    <string name="record_tap_to_record">Tap to start recording</string>
+    <string name="record_tap_to_pause">Tap to pause recording</string>
+    <string name="record_tap_to_resume">Tap to resume recording</string>
     <string name="feedback_unable_to_get_logs">Unable to get logs</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
+    <string name="unlimited">unlimited</string>
 
 </resources>

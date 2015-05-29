@@ -21,7 +21,7 @@ import com.soundcloud.android.tests.auth.LoginTest;
 
 /*
  * As a User
- * I want to log in to SoundCloud application
+ * I want to sign in to SoundCloud application
  * So that I can listen to my favourite tracks
  */
 public class LoginFlowTest extends LoginTest {
@@ -137,7 +137,7 @@ public class LoginFlowTest extends LoginTest {
 
     /*
      * As a User
-     * I want to log out from the app
+     * I want to sign out from the app
      * So that I am sure no one can modify my account
      */
     public void testLoginAndLogout() {
@@ -170,9 +170,10 @@ public class LoginFlowTest extends LoginTest {
     * So that I know what went wrong
     */
     public void testRecoverPasswordNoInput() {
-        loginScreen = homeScreen.clickLogInButton();
-        loginScreen.clickForgotPassword();
-        loginScreen.clickOkButton();
+        homeScreen
+                .clickLogInButton()
+                .clickForgotPassword()
+                .clickOkButton();
 
         String message = solo.getString(R.string.authentication_error_incomplete_fields);
         assertTrue(waiter.expectToastWithText(toastObserver, message));

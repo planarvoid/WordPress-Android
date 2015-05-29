@@ -21,13 +21,13 @@ import com.soundcloud.android.configuration.experiments.Assignment;
 import com.soundcloud.android.configuration.experiments.ExperimentOperations;
 import com.soundcloud.android.configuration.experiments.Layer;
 import com.soundcloud.android.configuration.features.Feature;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.InjectionSupport;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.propeller.WriteResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +39,7 @@ import rx.subjects.PublishSubject;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class ConfigurationOperationsTest {
@@ -139,7 +140,7 @@ public class ConfigurationOperationsTest {
                 .thenReturn(Observable.just(configurationWithDeviceConflict));
 
         final PublishSubject<Void> logoutSubject = PublishSubject.create();
-        final PublishSubject<WriteResult> clearOfflineContentSubject = PublishSubject.create();
+        final PublishSubject<List<Urn>> clearOfflineContentSubject = PublishSubject.create();
         when(accountOperations.logout()).thenReturn(logoutSubject);
         when(offlineContentOperations.clearOfflineContent()).thenReturn(clearOfflineContentSubject);
 

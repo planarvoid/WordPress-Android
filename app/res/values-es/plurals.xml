@@ -108,14 +108,6 @@
         <item quantity="one">Hace un año</item>
         <item quantity="other">Hace %d años</item>
     </plurals>
-    <plurals name="minutes_available">
-        <item quantity="one">1 minuto disponible</item>
-        <item quantity="other">%d minutos disponibles</item>
-    </plurals>
-    <plurals name="seconds_available">
-        <item quantity="one">1 segundo disponible</item>
-        <item quantity="other">%d segundos disponibles</item>
-    </plurals>
 
     <!-- __ACCESSIBILITY -->
     <plurals name="accessibility_stats_likes">

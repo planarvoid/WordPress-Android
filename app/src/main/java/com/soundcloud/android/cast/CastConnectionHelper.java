@@ -26,7 +26,7 @@ public interface CastConnectionHelper extends ActivityLightCycle<AppCompatActivi
 
     boolean onDispatchVolumeEvent(KeyEvent event);
 
-    boolean isConnected();
+    boolean isCasting();
 
     String getDeviceName();
 

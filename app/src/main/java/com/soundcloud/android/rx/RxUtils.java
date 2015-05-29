@@ -1,6 +1,5 @@
 package com.soundcloud.android.rx;
 
-import com.soundcloud.android.model.Urn;
 import rx.Observable;
 import rx.Observer;
 import rx.functions.Func1;

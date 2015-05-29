@@ -21,10 +21,10 @@ public class PullToRefreshWrapper {
         // For Dagger.
     }
 
-    public void attach(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener) {
+    public void attach(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener, int[] swipeToRefreshViewIds) {
         this.swipeRefreshLayout = pullToRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(listener);
-        swipeRefreshLayout.setSwipeableChildren(android.R.id.list, android.R.id.empty);
+        swipeRefreshLayout.setSwipeableChildren(swipeToRefreshViewIds);
         swipeRefreshLayout.setColorSchemeResources(R.color.sc_orange);
     }
 
