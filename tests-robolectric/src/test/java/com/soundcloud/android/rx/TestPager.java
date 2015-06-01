@@ -1,7 +1,6 @@
 package com.soundcloud.android.rx;
 
 import rx.Observable;
-import rx.android.Pager;
 import rx.android.LegacyPager;
 
 public class TestPager {

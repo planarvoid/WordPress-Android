@@ -4,11 +4,11 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
 import rx.functions.Func1;
 
 import javax.inject.Inject;

@@ -1,4 +1,4 @@
-package rx.android;
+package com.soundcloud.android.rx;
 
 import rx.Observable;
 import rx.Subscriber;

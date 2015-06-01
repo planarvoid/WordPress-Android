@@ -8,6 +8,8 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.model.ContentStats;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.Pager;
+import com.soundcloud.android.rx.Pager.PagingFunction;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
@@ -15,8 +17,6 @@ import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
-import rx.android.Pager.PagingFunction;
 import rx.functions.Func1;
 
 import android.support.annotation.Nullable;

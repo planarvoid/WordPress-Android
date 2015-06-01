@@ -1,4 +1,4 @@
-package rx.android;
+package com.soundcloud.android.rx;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -36,7 +36,7 @@ public class PagerTest {
         @Override
         public Observable<List<String>> call(List<String> page) {
             if (page == lastPage) {
-                return Pager.finish(); // no next page
+                return com.soundcloud.android.rx.Pager.finish(); // no next page
             } else {
                 return remainingPages.pop(); // return the following page
             }

@@ -9,6 +9,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.OperatorSwitchOnEmptyList;
+import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.sync.SyncResult;
@@ -16,7 +17,6 @@ import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
-import rx.android.Pager;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
