@@ -38,6 +38,7 @@ import android.text.TextUtils;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Model
 public class PublicApiUser extends PublicApiResource implements UserHolder, PropertySetSource, UserRecord {
+    public static final int CRAWLER_USER_ID = -2;
     public static final int TYPE = 0;
     public static final String EXTRA = "user";
     public static final Parcelable.Creator<PublicApiUser> CREATOR = new Parcelable.Creator<PublicApiUser>() {
@@ -49,6 +50,9 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
             return new PublicApiUser[size];
         }
     };
+
+    public static final PublicApiUser CRAWLER_USER = new PublicApiUser(CRAWLER_USER_ID, "SoundCloud");
+
     @Nullable @JsonView(Views.Mini.class) public String username;
     @Nullable @JsonView(Views.Mini.class) public String uri;
     @Nullable @JsonView(Views.Mini.class) public String avatar_url;
@@ -92,6 +96,12 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         username = suggestedUser.getUsername();
         city = suggestedUser.getCity();
         country = suggestedUser.getCountry();
+    }
+
+    public PublicApiUser(long id, String permalink) {
+        super(id);
+        this.username = permalink;
+        this.permalink = permalink;
     }
 
     public PublicApiUser(Parcel in) {
@@ -424,6 +434,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Override
     public boolean isIncomplete() {
         return getId() <= 0;
+    }
+
+    public boolean isCrawler() {
+        return getId() == CRAWLER_USER_ID;
     }
 
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")

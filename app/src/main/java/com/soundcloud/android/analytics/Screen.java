@@ -121,7 +121,7 @@ public enum Screen {
     }
 
     public static Screen fromIntent(Intent intent) {
-        return values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, -1)];
+        return values()[intent.getIntExtra(Screen.ORDINAL_EXTRA, 0)];
     }
 
     public static Screen fromBundle(Bundle bundle) {

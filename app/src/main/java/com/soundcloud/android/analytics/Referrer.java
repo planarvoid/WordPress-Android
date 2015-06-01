@@ -18,7 +18,8 @@ public enum Referrer {
     STREAM_NOTIFICATION("stream_notification"),
     ACTIVITIES_NOTIFICATION("activities_notification"),
     PLAYBACK_NOTIFICATION("playback_notification"),
-    PLAYBACK_WIDGET("playback_widget");
+    PLAYBACK_WIDGET("playback_widget"),
+    GOOGLE_CRAWLER("google_crawler");
 
     private static final String HOST_GOOGLE = "google.com";
     private static final String HOST_FACEBOOK = "facebook.com";
@@ -39,7 +40,7 @@ public enum Referrer {
     }
 
     public static Referrer fromIntent(Intent intent) {
-        return values()[intent.getIntExtra(Referrer.ORDINAL_EXTRA, Consts.NOT_SET)];
+        return values()[intent.getIntExtra(Referrer.ORDINAL_EXTRA, 0)];
     }
 
     public static Referrer fromOrigin(@NotNull String referrer) {

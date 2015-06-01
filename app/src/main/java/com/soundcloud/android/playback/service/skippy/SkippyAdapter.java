@@ -194,9 +194,14 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
             return secureFileStorage.getFileUriForOfflineTrack(currentTrackUrn).toString();
         } else {
             Token token = accountOperations.getSoundCloudToken();
-            return urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn)
-                    .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
-                    .build();
+
+            ApiUrlBuilder builder = urlBuilder.from(ApiEndpoints.HLS_STREAM, currentTrackUrn);
+
+            if (token.valid()) {
+                builder.withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken());
+            }
+
+            return builder.build();
         }
     }
 

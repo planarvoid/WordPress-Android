@@ -16,6 +16,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
+import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -37,14 +38,16 @@ import android.os.Parcelable;
 public class ResolveActivityTest {
     private ResolveActivity activity;
     private TestEventBus eventBus;
+
     @Mock private PlaybackOperations playbackOperations;
     @Mock private AccountOperations accountOperations;
+    @Mock private PlayQueueManager playQueueManager;
 
     @Before
     public void setUp() throws Exception {
         eventBus = new TestEventBus();
-        activity = new ResolveActivity(playbackOperations, new ReferrerResolver(), eventBus, accountOperations);
-        when(playbackOperations.startPlaybackWithRecommendations(any(PublicApiTrack.class), any(Screen.class))).thenReturn(Observable.<PlaybackResult>empty());
+        activity = new ResolveActivity(playbackOperations, new ReferrerResolver(), eventBus, accountOperations, playQueueManager);
+        when(playbackOperations.startPlayback(any(PublicApiTrack.class), any(Screen.class), any(boolean.class))).thenReturn(Observable.<PlaybackResult>empty());
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
     }
 
@@ -74,7 +77,7 @@ public class ResolveActivityTest {
         activity.setIntent(new Intent());
         activity.onSuccess(track);
 
-        verify(playbackOperations).startPlaybackWithRecommendations(track, Screen.DEEPLINK);
+        verify(playbackOperations).startPlayback(track, Screen.DEEPLINK, PlaybackOperations.WITH_RELATED);
     }
 
     @Test
