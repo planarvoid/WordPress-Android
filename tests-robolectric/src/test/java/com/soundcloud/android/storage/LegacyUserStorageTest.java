@@ -14,9 +14,9 @@ import rx.Observer;
 import rx.schedulers.Schedulers;
 
 @RunWith(SoundCloudTestRunner.class)
-public class UserStorageTest {
+public class LegacyUserStorageTest {
 
-    private UserStorage userStorage;
+    private LegacyUserStorage userStorage;
     private PublicApiUser user = new PublicApiUser();
 
     @Mock
@@ -27,7 +27,7 @@ public class UserStorageTest {
 
     @Before
     public void setup() {
-        userStorage = new UserStorage(userDAO, Schedulers.immediate());
+        userStorage = new LegacyUserStorage(userDAO, Schedulers.immediate());
     }
 
     @Test

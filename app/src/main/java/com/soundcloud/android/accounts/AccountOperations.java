@@ -22,7 +22,7 @@ import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
@@ -53,7 +53,7 @@ public class AccountOperations extends ScheduledOperations {
     private final AccountManager accountManager;
     private final SoundCloudTokenOperations tokenOperations;
     private final ScModelManager modelManager;
-    private final UserStorage userStorage;
+    private final LegacyUserStorage userStorage;
     private final EventBus eventBus;
     private final Lazy<AccountCleanupAction> accountCleanupAction;
 
@@ -80,7 +80,7 @@ public class AccountOperations extends ScheduledOperations {
 
     @Inject
     AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
-                      ScModelManager modelManager, UserStorage userStorage, EventBus eventBus,
+                      ScModelManager modelManager, LegacyUserStorage userStorage, EventBus eventBus,
                       Lazy<AccountCleanupAction> accountCleanupAction) {
         this(context, accountManager, tokenOperations, modelManager, userStorage, eventBus, accountCleanupAction,
                 ScSchedulers.HIGH_PRIO_SCHEDULER);
@@ -88,7 +88,7 @@ public class AccountOperations extends ScheduledOperations {
 
     @VisibleForTesting
     AccountOperations(Context context, AccountManager accountManager, SoundCloudTokenOperations tokenOperations,
-                      ScModelManager modelManager, UserStorage userStorage, EventBus eventBus,
+                      ScModelManager modelManager, LegacyUserStorage userStorage, EventBus eventBus,
                       Lazy<AccountCleanupAction> accountCleanupAction, Scheduler scheduler) {
         super(scheduler);
         this.context = context;

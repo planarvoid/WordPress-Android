@@ -18,9 +18,9 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.TrackStorage;
-import com.soundcloud.android.storage.UserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.LegacySyncStrategy;
 import com.soundcloud.android.utils.ErrorUtils;
@@ -56,7 +56,7 @@ public class ApiSyncer extends LegacySyncStrategy {
     private static final int MAX_LOOKUP_COUNT = 100; // each time we sync, lookup a maximum of this number of items
 
     @Inject ActivitiesStorage activitiesStorage;
-    @Inject UserStorage userStorage;
+    @Inject LegacyUserStorage userStorage;
     @Inject EventBus eventBus;
     @Inject ApiClient apiClient;
 
@@ -69,7 +69,7 @@ public class ApiSyncer extends LegacySyncStrategy {
     ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, ApiClient apiClient) {
         super(context, resolver);
         activitiesStorage = new ActivitiesStorage();
-        userStorage = new UserStorage();
+        userStorage = new LegacyUserStorage();
         this.eventBus = eventBus;
         this.apiClient = apiClient;
     }
@@ -112,7 +112,7 @@ public class ApiSyncer extends LegacySyncStrategy {
                 case TRACK:
                 case USER:
                     // sucks, but we'll kick out CP anyway
-                    Storage<? extends PublicApiResource> storage = c == Content.TRACK ? new TrackStorage() : new UserStorage();
+                    Storage<? extends PublicApiResource> storage = c == Content.TRACK ? new TrackStorage() : new LegacyUserStorage();
                     result = doResourceFetchAndInsert(uri, storage);
                     break;
 

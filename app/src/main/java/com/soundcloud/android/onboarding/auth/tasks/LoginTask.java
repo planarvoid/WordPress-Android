@@ -14,7 +14,7 @@ import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -37,7 +37,7 @@ public class LoginTask extends AuthTask {
     private final AccountOperations accountOperations;
 
     protected LoginTask(@NotNull SoundCloudApplication application, TokenInformationGenerator tokenUtils,
-                        FetchUserTask fetchUserTask, UserStorage userStorage, ConfigurationOperations configurationOperations,
+                        FetchUserTask fetchUserTask, LegacyUserStorage userStorage, ConfigurationOperations configurationOperations,
                         EventBus eventBus, AccountOperations accountOperations) {
         super(application, userStorage);
         this.tokenUtils = tokenUtils;
@@ -50,7 +50,7 @@ public class LoginTask extends AuthTask {
     public LoginTask(@NotNull SoundCloudApplication application, ConfigurationOperations configurationOperations,
                      EventBus eventBus, AccountOperations accountOperations){
         this(application, new TokenInformationGenerator(new PublicApi(application)),
-                new FetchUserTask(new PublicApi(application)), new UserStorage(), configurationOperations, eventBus, accountOperations);
+                new FetchUserTask(new PublicApi(application)), new LegacyUserStorage(), configurationOperations, eventBus, accountOperations);
     }
 
     @Override

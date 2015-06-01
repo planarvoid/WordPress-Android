@@ -8,7 +8,7 @@ import android.content.ContentResolver;
 import javax.inject.Inject;
 
 /**
- * Table object for users. Do not use outside this package, use {@link UserStorage} instead.
+ * Table object for users. Do not use outside this package, use {@link LegacyUserStorage} instead.
  */
 /* package */ class UserDAO extends BaseDAO<PublicApiUser> {
 

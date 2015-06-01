@@ -5,7 +5,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.AuthTaskFragment;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.tasks.ParallelAsyncTask;
@@ -20,10 +20,10 @@ public abstract class AuthTask extends ParallelAsyncTask<Bundle, Void, AuthTaskR
     private static final int ME_SYNC_DELAY_MILLIS = 30 * 1000;
 
     private final SoundCloudApplication app;
-    private final UserStorage userStorage;
+    private final LegacyUserStorage userStorage;
     private AuthTaskFragment fragment;
 
-    public AuthTask(SoundCloudApplication application, UserStorage userStorage) {
+    public AuthTask(SoundCloudApplication application, LegacyUserStorage userStorage) {
         this.app = application;
         this.userStorage = userStorage;
     }

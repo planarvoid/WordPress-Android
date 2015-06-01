@@ -14,21 +14,21 @@ import android.net.Uri;
 import javax.inject.Inject;
 
 @Deprecated
-public class UserStorage extends ScheduledOperations implements Storage<PublicApiUser> {
+public class LegacyUserStorage extends ScheduledOperations implements Storage<PublicApiUser> {
     private UserDAO userDAO;
 
     @Deprecated // use @Inject instead
-    public UserStorage() {
+    public LegacyUserStorage() {
         this(new UserDAO(SoundCloudApplication.instance.getContentResolver()));
     }
 
     @Inject
-    public UserStorage(UserDAO userDAO) {
+    public LegacyUserStorage(UserDAO userDAO) {
         this(userDAO, ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
     @VisibleForTesting
-    UserStorage(UserDAO userDAO, Scheduler scheduler) {
+    LegacyUserStorage(UserDAO userDAO, Scheduler scheduler) {
         super(scheduler);
         this.userDAO = userDAO;
     }

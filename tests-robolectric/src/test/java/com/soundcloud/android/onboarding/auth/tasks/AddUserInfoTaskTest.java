@@ -13,7 +13,7 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +26,7 @@ import java.io.File;
 public class AddUserInfoTaskTest  {
 
     @Mock private ApiClient apiClient;
-    @Mock private UserStorage userStorage;
+    @Mock private LegacyUserStorage userStorage;
     @Mock private SoundCloudApplication application;
     @Mock private AccountOperations accountOperations;
 

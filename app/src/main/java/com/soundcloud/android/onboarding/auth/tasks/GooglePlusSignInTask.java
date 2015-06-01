@@ -9,7 +9,7 @@ import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.android.api.oauth.OAuth;
@@ -33,11 +33,11 @@ public class GooglePlusSignInTask extends LoginTask {
                                 ConfigurationOperations configurationOperations, EventBus eventBus, AccountOperations accountOperations) {
         this(application, accountName, scope, new TokenInformationGenerator(new PublicApi(application)),
                 new FetchUserTask(new PublicApi(application)),
-                new UserStorage(), accountOperations, configurationOperations, eventBus);
+                new LegacyUserStorage(), accountOperations, configurationOperations, eventBus);
     }
 
     protected GooglePlusSignInTask(SoundCloudApplication application, String accountName, String scope,
-                                   TokenInformationGenerator tokenInformationGenerator, FetchUserTask fetchUserTask, UserStorage userStorage,
+                                   TokenInformationGenerator tokenInformationGenerator, FetchUserTask fetchUserTask, LegacyUserStorage userStorage,
                                    AccountOperations accountOperations, ConfigurationOperations configurationOperations, EventBus eventBus) {
         super(application, tokenInformationGenerator, fetchUserTask, userStorage, configurationOperations, eventBus, accountOperations);
         this.accountName = accountName;

@@ -11,7 +11,7 @@ import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.profile.BirthdayInfo;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
@@ -36,7 +36,7 @@ public class SignupTask extends AuthTask {
     private PublicCloudAPI publicApi;
 
     protected SignupTask(SoundCloudApplication application, TokenInformationGenerator tokenInformationGenerator,
-                         UserStorage userStorage, PublicCloudAPI publicApi) {
+                         LegacyUserStorage userStorage, PublicCloudAPI publicApi) {
         super(application, userStorage);
         this.tokenInformationGenerator = tokenInformationGenerator;
         this.publicApi = publicApi;
@@ -44,7 +44,7 @@ public class SignupTask extends AuthTask {
 
     public SignupTask(SoundCloudApplication soundCloudApplication){
         this(soundCloudApplication, new TokenInformationGenerator(new PublicApi(soundCloudApplication)),
-                new UserStorage(), new PublicApi(soundCloudApplication));
+                new LegacyUserStorage(), new PublicApi(soundCloudApplication));
     }
 
     @Override

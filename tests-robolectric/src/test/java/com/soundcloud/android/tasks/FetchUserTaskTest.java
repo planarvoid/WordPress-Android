@@ -7,7 +7,7 @@ import static com.xtremelabs.robolectric.Robolectric.addHttpResponseRule;
 
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.api.Endpoints;
 import com.soundcloud.api.Request;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -43,7 +43,7 @@ public class FetchUserTaskTest {
         expect(user[0].username).toEqual("SoundCloud Android @ MWC");
         expect(user[0].isPrimaryEmailConfirmed()).toBeFalse();
 
-        PublicApiUser u = new UserStorage().getUser(3135930);
+        PublicApiUser u = new LegacyUserStorage().getUser(3135930);
         expect(u).not.toBeNull();
         expect(u.username).toEqual("SoundCloud Android @ MWC");
     }

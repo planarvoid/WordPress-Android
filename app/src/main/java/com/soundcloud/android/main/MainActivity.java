@@ -6,7 +6,6 @@ import static rx.android.observables.AndroidObservable.bindActivity;
 
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
-import com.soundcloud.android.accounts.UserRepository;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Referrer;
@@ -28,6 +27,7 @@ import com.soundcloud.android.playlists.PlaylistsFragment;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.SoundStreamFragment;
+import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.lightcycle.LightCycle;
 import rx.subscriptions.CompositeSubscription;
 

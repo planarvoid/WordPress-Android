@@ -57,6 +57,23 @@ public class DatabaseFixtures {
         return id;
     }
 
+    public long insertFollowing(Urn followedUrn) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
+        cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
+        return insertInto(Table.UserAssociations, cv);
+    }
+
+    public long insertFollowingPendingRemoval(Urn followedUrn) {
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING);
+        cv.put(TableColumns.UserAssociations.TARGET_ID, followedUrn.getNumericId());
+        cv.put(TableColumns.UserAssociations.CREATED_AT, System.currentTimeMillis());
+        cv.put(TableColumns.UserAssociations.REMOVED_AT, System.currentTimeMillis());
+        return insertInto(Table.UserAssociations, cv);
+    }
+
     private long insertPolicy(ApiTrack track) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.TrackPolicies.TRACK_ID, track.getId());
@@ -173,6 +190,8 @@ public class DatabaseFixtures {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Users._ID, user.getUrn().getNumericId());
         cv.put(TableColumns.Users.USERNAME, user.getUsername());
+        cv.put(TableColumns.Users.COUNTRY, user.getCountry());
+        cv.put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
 
         final long id = insertInto(Table.Users, cv);
         user.setId(id);

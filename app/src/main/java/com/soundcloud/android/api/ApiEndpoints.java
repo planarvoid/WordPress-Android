@@ -71,6 +71,7 @@ public enum ApiEndpoints {
     IMAGES("/images/%s/%s"),
     STREAM("/stream"),
     TRACKS_FETCH("/tracks/fetch"),
+    USERS_FETCH("/users/fetch"),
     CONFIGURATION("/configuration/android"),
 
     // public API (DEPRECATED)

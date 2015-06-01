@@ -23,7 +23,7 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.tasks.FetchUserTask;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
@@ -46,7 +46,7 @@ public class GooglePlusSignInTaskTest {
     @Mock private SoundCloudApplication app;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
     @Mock private FetchUserTask fetchUserTask;
-    @Mock private UserStorage userStorage;
+    @Mock private LegacyUserStorage userStorage;
     @Mock private Bundle bundle;
     @Mock private AccountOperations accountOperations;
     @Mock private PublicApiUser user;

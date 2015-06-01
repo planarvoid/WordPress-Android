@@ -1,5 +1,7 @@
 package com.soundcloud.android.storage;
 
+import com.soundcloud.android.storage.provider.ScContentProvider;
+
 import android.app.SearchManager;
 import android.provider.BaseColumns;
 
@@ -154,6 +156,9 @@ public final class TableColumns {
         public static final String ADDED_AT = "added_at"; // when was this added locally (pre-api sync)
         public static final String REMOVED_AT = "removed_at"; // when was this removed locally (pre-api sync)
         public static final String TOKEN = "token"; // when was this removed locally (pre-api sync)
+
+        public static final String TYPE_FOLLOWING = String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWING);
+        public static final String TYPE_FOLLOWER = String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWER);
     }
 
     /**
