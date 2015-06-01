@@ -38,7 +38,7 @@ import java.util.Set;
     }
 
     public int insert(Content content, Activities activities) {
-        Set<PublicApiResource> models = new HashSet<PublicApiResource>();
+        Set<PublicApiResource> models = new HashSet<>();
         for (Activity a : activities) {
             try {
                 models.addAll(a.getDependentModels());
@@ -55,7 +55,7 @@ import java.util.Set;
             }
         }
 
-        Map<Uri, List<ContentValues>> values = new HashMap<Uri, List<ContentValues>>();
+        Map<Uri, List<ContentValues>> values = new HashMap<>();
         for (PublicApiResource m : models) {
             final Uri uri = m.getBulkInsertUri();
             if (values.get(uri) == null) {

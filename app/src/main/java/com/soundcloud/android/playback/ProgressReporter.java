@@ -43,7 +43,7 @@ public class ProgressReporter extends Handler {
         }
     }
 
-    public static interface ProgressPusher {
-        public void pushProgress();
+    public interface ProgressPusher {
+        void pushProgress();
     }
 }

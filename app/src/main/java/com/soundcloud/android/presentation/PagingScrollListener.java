@@ -2,8 +2,8 @@ package com.soundcloud.android.presentation;
 
 import static android.widget.AbsListView.OnScrollListener;
 
+import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.view.adapters.PagingAwareAdapter;
-import rx.android.Pager;
 
 import android.widget.AbsListView;
 

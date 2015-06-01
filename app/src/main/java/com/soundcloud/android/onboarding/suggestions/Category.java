@@ -137,15 +137,15 @@ public class Category extends ScModel {
                 '}';
     }
 
-    public static final Category progress() {
+    public static Category progress() {
         return new Category(DisplayType.PROGRESS);
     }
 
-    public static final Category empty() {
+    public static Category empty() {
         return new Category(DisplayType.EMPTY);
     }
 
-    public static final Category error() {
+    public static Category error() {
         return new Category(DisplayType.ERROR);
     }
 

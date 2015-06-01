@@ -32,7 +32,7 @@ public interface Playa {
     // MediaPlayer specific. We can drop these when we drop mediaplayer, as they will be constant booleans in skippy
     boolean isSeekable();
 
-    static class StateTransition {
+    class StateTransition {
         public static final int EXTRA_PLAYBACK_PROTOCOL = 0;
         public static final int EXTRA_PLAYER_TYPE = 1;
         public static final int EXTRA_CONNECTION_TYPE = 2;
@@ -48,7 +48,7 @@ public interface Playa {
         private final Urn trackUrn;
 
         // used to pass various additional meta data with the event, often for tracking/analytics
-        private final SparseArray<String> extraAttributes = new SparseArray<String>(2);
+        private final SparseArray<String> extraAttributes = new SparseArray<>(2);
 
         public static final StateTransition DEFAULT = new StateTransition(PlayaState.IDLE, Reason.NONE, Urn.NOT_SET);
 
@@ -186,7 +186,7 @@ public interface Playa {
      * BUFFERING : there is intent to play, but sound is not coming out of the speakers
      * Note : there is no state for buffering with no intent to play. We should just report that as IDLE
      */
-    public enum PlayaState {
+    enum PlayaState {
         BUFFERING, PLAYING, IDLE;
 
         @VisibleForTesting
@@ -219,7 +219,7 @@ public interface Playa {
         }
     }
 
-    public enum Reason {
+    enum Reason {
         NONE, TRACK_COMPLETE, PLAY_QUEUE_COMPLETE, ERROR_FAILED, ERROR_NOT_FOUND, ERROR_FORBIDDEN;
 
         public static final EnumSet<Reason> ERRORS =
@@ -236,14 +236,14 @@ public interface Playa {
         }
     }
 
-    public interface PlayaListener {
+    interface PlayaListener {
         void onPlaystateChanged(StateTransition stateTransition);
         void onProgressEvent(long progress, long duration);
         // we might be able to get rid of this, if we just request focus before setting data source, however this is a change in behavior
         boolean requestAudioFocus();
     }
 
-    public enum Error {
+    enum Error {
         FAILED,
         MEDIA_NOT_FOUND,
         FORBIDDEN

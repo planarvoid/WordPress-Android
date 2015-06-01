@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- __PAYMENTS -->
+    <string name="payments_success">Success</string>
+
+    <string name="payments_error_title_unavailable">Product unavailable</string>
+    <string name="payments_error_title_no_billing">Billing unavailable</string>
+    <string name="payments_error_title_already_subscribed">There is already an active subscription</string>
+    <string name="payments_error_title_canceled">Purchase failed</string>
+    <string name="payments_error_title_stale">Payment validation failed</string>
+    <string name="payments_error_title_wrong_user">Wrong user subscription</string>
+    <string name="payments_error_title_verification_fail">Payment verification failure</string>
+    <string name="payments_error_title_verification_timeout">Payment verification timeout</string>
+
+    <string name="payments_error_unavailable">There was a problem trying to connect to the app store. Please try again.</string>
+    <string name="payments_error_no_billing">There seems to be no valid app store on this device.</string>
+    <string name="payments_error_already_subscribed">It seems that there is already an active subscription linked to your account.</string>
+    <string name="payments_error_cancelled">We were unable to complete the purchase. Please try again.</string>
+    <string name="payments_error_stale">Too much time has passed to validate your payment. If the problem persists, please contact our support team.</string>
+    <string name="payments_error_wrong_user">Your subscription is associated with a different user. Sign in with the other account to continue using it.</string>
+    <string name="payments_error_verification_issue">We were unable to verify your payment. Please try again later.</string>
+
+    <string name="payments_sign_out">Sign out</string>
+
+    <!-- __OFFLINE_SYNC -->
+    <string name="offline_track_not_available">Track is not available offline</string>
+    <string name="offline_update_completed_title">All tracks synced!</string>
+    <string name="offline_update_completed_message">Ready for offline listening!</string>
+    <string name="offline_update_storage_limit_reached_title">Storage limit reached</string>
+    <string name="offline_update_storage_limit_reached_message">Tap here to view storage settings</string>
+    <string name="offline_update_in_progress">Syncing your tracks</string>
+    <string name="offline_likes_dialog_title">Make your Likes available offline</string>
+    <string name="offline_likes_dialog_message">This will keep your current and future Likes available offline so you can listen without an Internet or data connection.</string>
+    <string name="make_offline_available">Make available offline</string>
+    <string name="make_offline_unavailable">Remove from offline listening</string>
+    <string name="offline_dialog_go_online_continue">Continue</string>
+    <string name="offline_dialog_go_online_error_title">Your subscription can not be verified</string>
+    <string name="offline_dialog_go_online_error_content">Because this device has been offline for more than 30 days, we have not been able to verify your subscription. Please go online to reconnect this device to your subscription and reenable your offline content. </string>
+    <string name="offline_update_paused">Offline syncing paused</string>
+    <string name="no_network_connection">no network connection</string>
+    <string name="no_wifi_connection">no Wi-Fi connection</string>
+
+    <!-- __OFFLINE SETTINGS -->
+    <string name="pref_offline_settings">Offline Sync Settings</string>
+    <string name="pref_offline_wifi_only_sync">Only offline sync over Wi-Fi</string>
+    <string name="pref_offline_wifi_only_description">Sync your likes and playlists only using Wi-Fi connection</string>
+    <string name="pref_offline_settings_summary">Manage your Offline Sync settings</string>
+    <string name="pref_offline_storage_limit">Storage Limit</string>
+    <string name="pref_offline_storage_limit_description">How much of your storage we can\nuse to sync your tracks</string>
+    <string name="pref_offline_storage_free_gb">%1$.1f GB free of %2$.1f GB</string>
+    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
+    <string name="pref_offline_storage_usage">Storage Usage</string>
+    <string name="pref_offline_used_by_other_apps">Used by other apps</string>
+    <string name="pref_offline_used">Used</string>
+    <string name="pref_offline_limit">Limit</string>
+    <string name="pref_offline_remove_all_offline_content">Remove all offline content</string>
+    <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device</string>
+
+    <!-- __DEVICE MANAGEMENT -->
+    <string name="device_management_limit">You\'ve reached the registered device limit</string>
+    <string name="device_management_login_message">Your subscription is limited to 3 devices. You can register this device and sign out of the device you used last by selecting continue.</string>
+    <string name="device_management_conflict_message">Your subscription has reached the device limit. This device was signed out and any offline content has been removed. You can log back in to re-register this device.</string>
+    <string name="device_management_continue">Continue</string>
+</resources>

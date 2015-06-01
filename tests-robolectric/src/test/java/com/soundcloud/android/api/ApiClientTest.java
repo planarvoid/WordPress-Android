@@ -3,18 +3,21 @@ package com.soundcloud.android.api;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHttpResponses;
@@ -52,6 +55,7 @@ public class ApiClientTest {
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private OAuth oAuth;
     @Mock private Call httpCall;
+    @Mock private AccountOperations accountOperations;
 
     @Captor private ArgumentCaptor<Request> apiRequestCaptor;
     @Captor private ArgumentCaptor<com.squareup.okhttp.Request> httpRequestCaptor;
@@ -67,8 +71,9 @@ public class ApiClientTest {
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
+        when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         apiClient = new ApiClient(httpClient, apiUrlBuilder, jsonTransformer,
-                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry);
+                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry, accountOperations);
     }
 
     @Test
@@ -208,17 +213,31 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldRegister401sWithUnauthorizedRequestRegistry() throws IOException {
+    public void shouldRegister401sWithUnauthorizedRequestRegistryWithValidToken() throws IOException {
         when(httpCall.execute()).thenReturn(
                 TestHttpResponses.response(200).build(),
                 TestHttpResponses.response(401).build());
         ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
         mockRequestBuilderFor(request);
+        when(accountOperations.hasValidToken()).thenReturn(true);
 
         apiClient.fetchResponse(request); // 200 -- no interaction with registry expected
         verifyZeroInteractions(unauthorisedRequestRegistry);
         apiClient.fetchResponse(request); // 401 -- interaction with registry expected
         verify(unauthorisedRequestRegistry).updateObservedUnauthorisedRequestTimestamp();
+    }
+
+    @Test
+    public void shouldNotRegister401sWithUnauthorizedRequestRegistryWithoutValidToken() throws IOException {
+        when(httpCall.execute()).thenReturn(
+                TestHttpResponses.response(200).build(),
+                TestHttpResponses.response(401).build());
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        mockRequestBuilderFor(request);
+        when(accountOperations.hasValidToken()).thenReturn(false);
+
+        apiClient.fetchResponse(request);
+        verify(unauthorisedRequestRegistry, never()).updateObservedUnauthorisedRequestTimestamp();
     }
 
     @Test

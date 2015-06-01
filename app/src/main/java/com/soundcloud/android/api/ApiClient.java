@@ -9,6 +9,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.net.HttpHeaders;
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
@@ -43,13 +44,14 @@ public class ApiClient {
     private final AdIdHelper adIdHelper;
     private final OAuth oAuth;
     private final UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    private final AccountOperations accountOperations;
 
     private boolean assertBackgroundThread;
 
     @Inject
     public ApiClient(OkHttpClient httpClient, ApiUrlBuilder urlBuilder,
                      JsonTransformer jsonTransformer, DeviceHelper deviceHelper, AdIdHelper adIdHelper,
-                     OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry) {
+                     OAuth oAuth, UnauthorisedRequestRegistry unauthorisedRequestRegistry, AccountOperations accountOperations) {
         this.httpClient = httpClient;
         this.urlBuilder = urlBuilder;
         this.jsonTransformer = jsonTransformer;
@@ -57,6 +59,7 @@ public class ApiClient {
         this.adIdHelper = adIdHelper;
         this.oAuth = oAuth;
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
+        this.accountOperations = accountOperations;
     }
 
     public void setAssertBackgroundThread(boolean assertBackgroundThread) {
@@ -95,7 +98,9 @@ public class ApiClient {
             logRequest(httpRequest);
             final Response response = httpClient.newCall(httpRequest).execute();
             if (response.code() == HttpStatus.SC_UNAUTHORIZED) {
-                unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+                if (accountOperations.hasValidToken()) {
+                    unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+                }
             }
             logResponse(response);
             return new ApiResponse(request, response.code(), response.body().string());
@@ -119,7 +124,10 @@ public class ApiClient {
         // default headers
         builder.header(HttpHeaders.ACCEPT, request.getAcceptMediaType());
         builder.header(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent());
-        builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
+
+        if (accountOperations.getSoundCloudToken().valid()) {
+            builder.header(HttpHeaders.AUTHORIZATION, oAuth.getAuthorizationHeaderValue());
+        }
 
         // user identifiers
         if (deviceHelper.hasUdid()) {

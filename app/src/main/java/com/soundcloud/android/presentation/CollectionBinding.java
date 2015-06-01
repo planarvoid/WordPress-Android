@@ -2,12 +2,12 @@ package com.soundcloud.android.presentation;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.soundcloud.android.view.adapters.PagingAwareAdapter;
+import com.soundcloud.android.rx.Pager;
+import com.soundcloud.android.rx.Pager.PagingFunction;
 import com.soundcloud.android.view.adapters.ItemAdapter;
+import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import rx.Observable;
 import rx.Subscription;
-import rx.android.Pager;
-import rx.android.Pager.PagingFunction;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.internal.util.UtilityFunctions;

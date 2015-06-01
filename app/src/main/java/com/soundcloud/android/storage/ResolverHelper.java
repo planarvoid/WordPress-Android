@@ -27,7 +27,7 @@ public class ResolverHelper {
         if (c == null) {
             return Collections.emptyList();
         }
-        List<Long> ids = new ArrayList<Long>(c.getCount());
+        List<Long> ids = new ArrayList<>(c.getCount());
         while (c.moveToNext()) {
             ids.add(c.getLong(0));
         }

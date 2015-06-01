@@ -79,7 +79,7 @@ class SoundCloudTokenOperations {
 
         private String key;
 
-        private TokenDataKeys(String key) {
+        TokenDataKeys(String key) {
             this.key = key;
         }
 

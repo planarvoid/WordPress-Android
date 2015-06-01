@@ -1,7 +1,6 @@
 package com.soundcloud.android.playback.ui.progress;
 
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.view.ListenableHorizontalScrollView;
 
 import android.graphics.Rect;
@@ -22,10 +21,9 @@ public class ScrubController {
     static final int MSG_PERFORM_SEEK = 0;
     static final int SEEK_DELAY = 250;
 
-    private final EventBus eventBus;
     private final Handler seekHandler;
     private final PlaybackOperations playbackOperations;
-    private final Set<OnScrubListener> listeners = new HashSet<OnScrubListener>();
+    private final Set<OnScrubListener> listeners = new HashSet<>();
     private final Rect scrubViewBounds = new Rect();
 
     private ProgressHelper progressHelper;
@@ -59,9 +57,8 @@ public class ScrubController {
     }
 
     ScrubController(ListenableHorizontalScrollView scrubView, PlaybackOperations playbackOperations,
-                    SeekHandler.Factory seekHandlerFactory, EventBus eventBus) {
+                    SeekHandler.Factory seekHandlerFactory) {
 
-        this.eventBus = eventBus;
         this.playbackOperations = playbackOperations;
         this.seekHandler = seekHandlerFactory.create(this);
 
@@ -137,19 +134,16 @@ public class ScrubController {
 
         private final PlaybackOperations playbackOperations;
         private final SeekHandler.Factory seekHandlerFactory;
-        private final EventBus eventBus;
 
         @Inject
         public Factory(PlaybackOperations playbackOperations,
-                       SeekHandler.Factory seekHandlerFactory,
-                       EventBus eventBus) {
+                       SeekHandler.Factory seekHandlerFactory) {
             this.playbackOperations = playbackOperations;
             this.seekHandlerFactory = seekHandlerFactory;
-            this.eventBus = eventBus;
         }
 
         public ScrubController create(ListenableHorizontalScrollView scrubView) {
-            return new ScrubController(scrubView, playbackOperations, seekHandlerFactory, eventBus);
+            return new ScrubController(scrubView, playbackOperations, seekHandlerFactory);
         }
 
     }

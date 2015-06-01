@@ -83,7 +83,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
             keepGoing = newItems.size() > 0;
         }
 
-        return new ReturnData<T>(newItems, params, null, responseCode, keepGoing, true);
+        return new ReturnData<>(newItems, params, null, responseCode, keepGoing, true);
     }
 
     // TODO: this is horrible, leftover from ScModelManager
@@ -92,7 +92,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
                                                                 Class<T> resourceType,
                                                                 Uri localUri) {
         Cursor itemsCursor = resolver.query(localUri, null, null, null, null);
-        List<ScModel> items = new ArrayList<ScModel>();
+        List<ScModel> items = new ArrayList<>();
         if (itemsCursor != null) {
             while (itemsCursor.moveToNext())
                 if (PublicApiTrack.class.equals(resourceType)) {
@@ -157,7 +157,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
         }
 
         // copy so we don't modify the original
-        List<Long> ids = new ArrayList<Long>(modelIds);
+        List<Long> ids = new ArrayList<>(modelIds);
         if (!ignoreStored) {
             ids.removeAll(getStoredIds(resolver, content, modelIds));
         }
@@ -185,7 +185,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
     @Deprecated
     public Set<Long> getStoredIds(ContentResolver resolver, final Content content, List<Long> ids) {
         BaseDAO<PublicApiResource> dao = getDaoForContent(resolver, content);
-        Set<Long> storedIds = new HashSet<Long>();
+        Set<Long> storedIds = new HashSet<>();
         for (int i = 0; i < ids.size(); i += BaseDAO.RESOLVER_BATCH_SIZE) {
             List<Long> batch = ids.subList(i, Math.min(i + BaseDAO.RESOLVER_BATCH_SIZE, ids.size()));
             List<Long> newIds = dao.buildQuery()

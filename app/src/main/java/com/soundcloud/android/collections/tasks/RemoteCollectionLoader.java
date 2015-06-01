@@ -43,7 +43,7 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
 
             storeTracks(holder);
 
-            return new ReturnData<T>(holder.getCollection(),
+            return new ReturnData<>(holder.getCollection(),
                     params,
                     holder.getNextHref(),
                     HttpStatus.SC_OK,
@@ -52,10 +52,10 @@ public class RemoteCollectionLoader<T extends PublicApiResource> implements Coll
 
         } catch (PublicCloudAPI.UnexpectedResponseException e){
             Log.e(TAG, "error", e);
-            return new ReturnData.Error<T>(params, e.getStatusCode());
+            return new ReturnData.Error<>(params, e.getStatusCode());
         } catch (IOException e) {
             Log.e(TAG, "error", e);
-            return new ReturnData.Error<T>(params);
+            return new ReturnData.Error<>(params);
         }
     }
 

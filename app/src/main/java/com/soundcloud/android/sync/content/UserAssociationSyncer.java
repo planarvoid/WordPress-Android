@@ -1,19 +1,14 @@
 package com.soundcloud.android.sync.content;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
+import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -26,7 +21,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.UserAssociation;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.rx.observers.SuccessSubscriber;
@@ -45,14 +39,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.schedulers.Schedulers;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.support.v4.app.NotificationCompat;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import static com.soundcloud.android.api.ApiRequestException.Reason.NOT_ALLOWED;
 
 public class UserAssociationSyncer extends LegacySyncStrategy {
 
@@ -63,24 +64,29 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     private final FollowingOperations followingOperations;
     private final NotificationManager notificationManager;
     private final JsonTransformer jsonTransformer;
+    private final Navigator navigator;
+
     private int bulkInsertBatchSize = BULK_INSERT_BATCH_SIZE;
 
     public UserAssociationSyncer(Context context, AccountOperations accountOperations,
-                                 FollowingOperations followingOperations, NotificationManager notificationManager, JsonTransformer jsonTransformer) {
+                                 FollowingOperations followingOperations, NotificationManager notificationManager,
+                                 JsonTransformer jsonTransformer, Navigator navigator) {
         this(context, context.getContentResolver(),
                 new UserAssociationStorage(Schedulers.immediate(), context.getContentResolver()),
-                followingOperations, accountOperations, notificationManager, jsonTransformer);
+                followingOperations, accountOperations, notificationManager, jsonTransformer, navigator);
     }
 
     @VisibleForTesting
     protected UserAssociationSyncer(Context context, ContentResolver resolver, UserAssociationStorage userAssociationStorage,
                                     FollowingOperations followingOperations, AccountOperations accountOperations,
-                                    NotificationManager notificationManager, JsonTransformer jsonTransformer) {
+                                    NotificationManager notificationManager, JsonTransformer jsonTransformer,
+                                    Navigator navigator) {
         super(context, resolver, accountOperations);
         this.userAssociationStorage = userAssociationStorage;
         this.followingOperations = followingOperations;
         this.notificationManager = notificationManager;
         this.jsonTransformer = jsonTransformer;
+        this.navigator = navigator;
     }
 
     public void setBulkInsertBatchSize(int bulkInsertBatchSize) {
@@ -259,9 +265,7 @@ public class UserAssociationSyncer extends LegacySyncStrategy {
     }
 
     private PendingIntent buildReturnToProfileIntent(UserAssociation userAssociation) {
-        Intent launchProfileActivity = ProfileActivity.getIntent(context, userAssociation.getUser().getUrn());
-        launchProfileActivity.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        return PendingIntent.getActivity(context, 0, launchProfileActivity, 0);
+        return navigator.openProfileFromNotification(context, userAssociation.getUser().getUrn());
     }
 
     private boolean pushUserAssociationRemoval(UserAssociation userAssociation, Request request) throws IOException {

@@ -29,7 +29,7 @@ public enum AudioConfig {
 
     private static AudioConfig detected;
 
-    private AudioConfig(int bitsPerSample, int sampleRate, int channels) {
+    AudioConfig(int bitsPerSample, int sampleRate, int channels) {
         if (bitsPerSample != 8 && bitsPerSample != 16) {
             throw new IllegalArgumentException("invalid bitsPerSample:" + bitsPerSample);
         }
@@ -121,10 +121,6 @@ public enum AudioConfig {
 
     public long validBytePosition(long offset) {
         return offset - (offset % ((bitsPerSample / 8) * channels));
-    }
-
-    public int getvalidBufferSizeForValueRate(int valuesPerSecond) {
-        return (int) validBytePosition((long) (bytesPerSecond / valuesPerSecond));
     }
 
     /**

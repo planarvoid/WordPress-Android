@@ -119,7 +119,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
         if (recording.hasArtwork()) {
             ImageUtils.setImage(recording.getArtwork(), icon,
-                    getDimension(R.dimen.share_progress_icon_width),
+                    getDimension(R.dimen.record_progress_icon_width),
                     getDimension(R.dimen.share_progress_icon_height));
         } else {
             icon.setImageDrawable(placeholderGenerator.generateDrawable(String.valueOf(recording.hashCode())));

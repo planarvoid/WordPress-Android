@@ -1,12 +1,10 @@
 package com.soundcloud.android.onboarding.suggestions;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
-import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.os.Bundle;
-import android.view.Menu;
 
 import javax.inject.Inject;
 
@@ -24,9 +22,4 @@ public class SuggestedUsersSyncActivity extends ScActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.onboard, menu);
-        return true;
-    }
 }

@@ -1,7 +1,7 @@
 package com.soundcloud.android.presentation;
 
+import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.view.adapters.PagingAwareAdapter;
-import rx.android.Pager;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;

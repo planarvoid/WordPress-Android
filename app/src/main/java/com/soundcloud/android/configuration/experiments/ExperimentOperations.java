@@ -54,7 +54,7 @@ public class ExperimentOperations {
     }
 
     public Map<String, Integer> getTrackingParams() {
-        HashMap<String, Integer> params = new HashMap<String, Integer>();
+        HashMap<String, Integer> params = new HashMap<>();
         for (Layer layer : assignment.getLayers()) {
             if (activeExperiments.isActive(layer.getExperimentId())) {
                 params.put(EXPERIMENT_PREFIX + layer.getLayerName(), layer.getVariantId());

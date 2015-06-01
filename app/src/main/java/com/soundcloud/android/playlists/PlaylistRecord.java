@@ -11,7 +11,7 @@ public interface PlaylistRecord {
 
     String getTitle();
 
-    int getDuration();
+    long getDuration();
 
     Date getCreatedAt();
 

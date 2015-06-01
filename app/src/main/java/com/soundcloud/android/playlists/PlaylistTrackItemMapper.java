@@ -23,7 +23,7 @@ class PlaylistTrackItemMapper extends RxResultMapper<PropertySet> {
 
         propertySet.put(TrackProperty.URN, readTrackUrn(cursorReader));
         propertySet.put(PlayableProperty.TITLE, cursorReader.getString(TableColumns.Sounds.TITLE));
-        propertySet.put(PlayableProperty.DURATION, cursorReader.getInt(TableColumns.Sounds.DURATION));
+        propertySet.put(PlayableProperty.DURATION, cursorReader.getLong(TableColumns.Sounds.DURATION));
         propertySet.put(TrackProperty.PLAY_COUNT, cursorReader.getInt(TableColumns.Sounds.PLAYBACK_COUNT));
         propertySet.put(PlayableProperty.LIKES_COUNT, cursorReader.getInt(TableColumns.Sounds.LIKES_COUNT));
         propertySet.put(PlayableProperty.IS_PRIVATE, SHARING_PRIVATE.equalsIgnoreCase(cursorReader.getString(TableColumns.Sounds.SHARING)));

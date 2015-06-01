@@ -29,12 +29,8 @@
     <string name="btn_following">Personen die u volgt</string>
     <string name="btn_save">Opslaan</string>
     <string name="btn_skip">Overslaan</string>
-    <string name="configure">Configureer</string>
-    <string name="connect_progress">Aan het laden</string>
     <string name="delete">Verwijderen</string>
     <string name="comments">Reacties</string>
-    <string name="share_log_out">Afmelden</string>
-    <string name="share_to_soundcloud">&lt;b&gt;Deel&lt;/b&gt; op &lt;b&gt;SoundCloud&lt;/b&gt;</string>
     <string name="sounds_from">Geluiden van %s</string>
     <string name="this_user">Deze gebruiker</string>
     <string name="track">geluid</string>
@@ -313,9 +309,6 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s op %2$s</string>
 
-    <!-- __PAYMENTS -->
-    <string name="payments_success">Succes</string>
-
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Afspeellijsten</string>
     <string name="activity_title_playlist">Afspeellijst</string>
@@ -458,22 +451,6 @@
     <string name="title_subscribe">Abonneren</string>
     <string name="subscribe_buy">Kopen</string>
 
-    <!-- __OFFLINE SETTINGS -->
-    <string name="pref_offline_settings">Offline sync Instellingen</string>
-    <string name="pref_offline_wifi_only_sync">Alleen offlinesynchronisatie via wifi</string>
-    <string name="pref_offline_wifi_only_description">Synchroniseer uw favorieten en afspeellijsten alleen via een wifi-verbinding</string>
-    <string name="pref_offline_settings_summary">Beheer uw offline sync-instellingen</string>
-    <string name="pref_offline_storage_limit">Opslaglimiet</string>
-    <string name="pref_offline_storage_limit_description">Hoeveel van uw opslag kunnen we\ngebruiken om uw nummers te synchroniseren</string>
-    <string name="pref_offline_storage_free_gb">%1$.1f GB beschikbaar van %2$.1f GB</string>
-    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
-    <string name="pref_offline_storage_usage">Opslag Gebruik</string>
-    <string name="pref_offline_used_by_other_apps">Gebruikt door andere applicaties</string>
-    <string name="pref_offline_used">Gebruikt</string>
-    <string name="pref_offline_limit">Limiet</string>
-    <string name="pref_offline_remove_all_offline_content">Verwijder alle offline inhoud</string>
-    <string name="pref_offline_remove_all_offline_content_description">Dit zal alle inhoud die u offline beschikbaar heeft gemaakt van uw apparaat verwijderen</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
@@ -506,36 +483,12 @@
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Raak aan om SoundCloud te openen</string>
 
-    <!-- __OFFLINE_SYNC -->
-    <string name="offline_track_not_available">Nummer is niet offline beschikbaar</string>
-    <string name="offline_update_completed_title">Alle nummers zijn gesynchroniseerd!</string>
-    <string name="offline_update_completed_message">Klaar voor offline luisteren!</string>
-    <string name="offline_update_storage_limit_reached_title">Opslaglimiet bereikt</string>
-    <string name="offline_update_storage_limit_reached_message">Tik hier om opslaginstellingen te bekijken</string>
-    <string name="offline_update_in_progress">Uw tracks zijn aan het synchroniseren</string>
-    <string name="offline_likes_dialog_title">Maak uw Vind Ik Leuk offline beschikbaar</string>
-    <string name="offline_likes_dialog_message">Dit zal ervoor zorgen dat uw huidige en toekomstige Vind Ik Leuk offline beschikbaar blijven, zodat u ook zonder internet of een dataverbinding kunt luisteren.</string>
-    <string name="make_offline_available">Maak offline beschikbaar</string>
-    <string name="make_offline_unavailable">Verwijderen uit offline luisteren</string>
-    <string name="offline_dialog_go_online_continue">Ga door</string>
-    <string name="offline_dialog_go_online_error_title">Uw abonnement kan niet worden geverifieerd</string>
-    <string name="offline_dialog_go_online_error_content">Omdat dit apparaat offline is geweest voor meer dan 30 dagen, waren wij niet in staat om uw abonnement te verifiëren. Ga online om dit apparaat opnieuw met uw abonnement te verbinden en maak uw offline inhoud opnieuw beschikbaar.</string>
-    <string name="offline_update_paused">Offline synchronisatie gestopt</string>
-    <string name="no_network_connection">geen netwerkverbinding</string>
-    <string name="no_wifi_connection">geen Wi-Fi-verbinding</string>
-
     <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Geef leeftijd aan</string>
     <string name="age_verify_title">Geef a.u.b. uw leeftijd aan</string>
     <string name="age_verify_warning">De inhoud van dit profiel is mogelijk ongeschikt voor personen onder een bepaalde leeftijd.</string>
     <string name="age_verify_info">Deze informatie wordt op uw profiel opgeslagen.</string>
     <string name="age_verify_button">Geef uw leeftijd aan</string>
-
-    <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">U hebt de limiet voor geregistreerde apparaten bereikt.</string>
-    <string name="device_management_login_message">Uw abonnement is beperkt tot 3 apparaten. U kunt dit apparaat registreren en u afmelden op het laatste gebruikte apparaat door \"doorgaan\" te selecteren.</string>
-    <string name="device_management_conflict_message">Uw abonnement heeft de apparaatlimiet bereikt. Dit apparaat is afgemeld en eventuele offline-inhoud is verwijderd. U kunt opnieuw inloggen om dit apparaat opnieuw te registreren.</string>
-    <string name="device_management_continue">Doorgaan</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Niet in staat om nummer uit te brengen</string>

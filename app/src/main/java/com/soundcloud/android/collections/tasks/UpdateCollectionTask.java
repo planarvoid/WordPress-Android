@@ -38,11 +38,11 @@ public class UpdateCollectionTask extends ParallelAsyncTask<String, String, Bool
         this.api = api;
         this.endpoint = endpoint;
         this.resourceIds = resourceIds;
-        updatedResources = new HashMap<Urn, PublicApiResource>(resourceIds.size());
+        updatedResources = new HashMap<>(resourceIds.size());
     }
 
     public void setAdapter(ScBaseAdapter adapter) {
-        adapterReference = new WeakReference<ScBaseAdapter>(adapter);
+        adapterReference = new WeakReference<>(adapter);
     }
 
     @Override

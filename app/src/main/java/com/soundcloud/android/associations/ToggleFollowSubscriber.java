@@ -11,7 +11,7 @@ public final class ToggleFollowSubscriber extends DefaultSubscriber<Boolean> {
     private final WeakReference<ToggleButton> toggleButtonRef;
 
     public ToggleFollowSubscriber(ToggleButton toggleButton) {
-        this.toggleButtonRef = new WeakReference<ToggleButton>(toggleButton);
+        this.toggleButtonRef = new WeakReference<>(toggleButton);
     }
 
     @Override

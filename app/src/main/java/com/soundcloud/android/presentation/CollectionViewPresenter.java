@@ -92,13 +92,11 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
 
         MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
         if (refreshLayout != null){
-            refreshWrapper.attach(refreshLayout, new PullToRefreshListener(), getSwipeToRefreshViewIds());
+            refreshWrapper.attach(refreshLayout, new PullToRefreshListener(), getSwipeToRefreshViews());
         }
 
         subscribeBinding();
     }
-
-    protected abstract int[] getSwipeToRefreshViewIds();
 
     protected abstract void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState);
 
@@ -108,8 +106,22 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
     public void onDestroyView(Fragment fragment) {
         Log.d(TAG, "onDestroyView");
         viewLifeCycle.unsubscribe();
-        refreshWrapper.detach();
+        detachRefreshWrapper();
         super.onDestroyView(fragment);
+    }
+
+    public void attachExternalRefreshLayout(MultiSwipeRefreshLayout refreshLayout){
+        refreshWrapper.attach(refreshLayout, new PullToRefreshListener(), getSwipeToRefreshViews());
+        if (refreshBinding != null){
+            refreshLayout.setRefreshing(true);
+        }
+    }
+
+    protected abstract View[] getSwipeToRefreshViews();
+
+    public void detachRefreshWrapper() {
+        refreshWrapper.setRefreshing(false);
+        refreshWrapper.detach();
     }
 
     @Override
@@ -128,6 +140,7 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
             adapter.clear();
 
             resetBindingTo(refreshBinding);
+            refreshBinding = null;
             subscribeBinding();
 
             refreshWrapper.setRefreshing(false);

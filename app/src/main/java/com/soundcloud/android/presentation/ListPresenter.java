@@ -70,8 +70,10 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
     }
 
     @Override
-    protected int[] getSwipeToRefreshViewIds() {
-        return new int[]{ android.R.id.list, android.R.id.empty };
+    protected View[] getSwipeToRefreshViews() {
+        return new View[] {
+                listView, getEmptyView()
+        };
     }
 
     private void configureScrollListener() {

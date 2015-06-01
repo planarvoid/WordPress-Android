@@ -1,8 +1,8 @@
 package com.soundcloud.android.presentation;
 
+import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import rx.Observable;
-import rx.android.Pager;
 
 public class PagedCollectionBinding<ItemT, Items extends Iterable<ItemT>> extends CollectionBinding<ItemT> {
 

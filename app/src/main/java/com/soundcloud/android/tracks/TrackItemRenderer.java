@@ -1,6 +1,7 @@
 package com.soundcloud.android.tracks;
 
 import com.google.common.base.Optional;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
@@ -8,7 +9,6 @@ import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.ViewUtils;
@@ -32,6 +32,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
     private final ImageOperations imageOperations;
     private final EventBus eventBus;
     private final ScreenProvider screenProvider;
+    private final Navigator navigator;
 
     protected final TrackItemMenuPresenter trackItemMenuPresenter;
 
@@ -39,11 +40,12 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
 
     @Inject
     public TrackItemRenderer(ImageOperations imageOperations, TrackItemMenuPresenter trackItemMenuPresenter,
-                             EventBus eventBus, ScreenProvider screenProvider) {
+                             EventBus eventBus, ScreenProvider screenProvider, Navigator navigator) {
         this.imageOperations = imageOperations;
         this.trackItemMenuPresenter = trackItemMenuPresenter;
         this.eventBus = eventBus;
         this.screenProvider = screenProvider;
+        this.navigator = navigator;
     }
 
     @Override
@@ -129,7 +131,7 @@ public class TrackItemRenderer implements CellRenderer<TrackItem> {
             promoted.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    context.startActivity(ProfileActivity.getIntent(context, track.getPromoterUrn().get()));
+                    navigator.openProfile(context, track.getPromoterUrn().get());
                     eventBus.publish(EventQueue.TRACKING,
                             PromotedTrackEvent.forPromoterClick(track, screenProvider.getLastScreenTag()));
                 }

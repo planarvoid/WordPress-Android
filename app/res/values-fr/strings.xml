@@ -313,9 +313,6 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s à %2$s</string>
 
-    <!-- __PAYMENTS -->
-    <string name="payments_success">Succès</string>
-
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
     <string name="activity_title_playlist">Playlist</string>
@@ -456,10 +453,6 @@
     <string name="title_subscribe">S\'abonner</string>
     <string name="subscribe_buy">Acheter</string>
 
-    <!-- __SETTINGS OFFLINE -->
-    <string name="pref_offline_wifi_only_sync">Ne synchroniser hors ligne que via un réseau Wi-Fi</string>
-    <string name="pref_offline_wifi_only_description">Synchronisez vos likes et listes de lecture en utilisant la connexion Wi-Fi</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
@@ -492,30 +485,12 @@
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Touchez pour ouvrir SoundCloud</string>
 
-    <!-- __OFFLINE_SYNC -->
-    <string name="offline_track_not_available">La piste n\'est pas disponible hors connexion</string>
-    <string name="offline_update_completed_title">Toutes les pistes sont synchronisées !</string>
-    <string name="offline_update_completed_message">Prêt pour l\'écoute hors connexion !</string>
-    <string name="offline_update_in_progress">Synchronisation des pistes en cours</string>
-    <string name="offline_likes_dialog_title">Rendre disponible hors connexion</string>
-    <string name="offline_likes_dialog_message">Ceci rendra vos Favoris accessibles pour une écoute hors connexion, y compris vos futures pistes préférées.</string>
-    <string name="make_offline_available">Rendre disponible hors connexion</string>
-    <string name="make_offline_unavailable">Retirer de l\'écoute hors connexion</string>
-    <string name="no_network_connection">pas de connexion réseau</string>
-    <string name="no_wifi_connection">pas de connexion Wi-Fi</string>
-
-    <!-- AGE VERFICATION -->
+    <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Vérification de votre âge</string>
     <string name="age_verify_title">Veuillez valider votre âge</string>
     <string name="age_verify_warning">Le contenu de ce profil pourrait être inapproprié pour un public sous la limite d\'âge</string>
     <string name="age_verify_info">Cette information sera sauvegardée sur votre profil.</string>
     <string name="age_verify_button">Vérifier votre âge</string>
-
-    <!-- DEVICE MANAGEMENT -->
-    <string name="device_management_limit">Vous avez atteint la limite de périphérique enregistré.</string>
-    <string name="device_management_login_message">Votre abonnement est limité à trois appareils. Vous pouvez enregistrer cet appareil et vous déconnecter de l\'appareil que vous avez utilisé en dernier en sélectionnant continuer.</string>
-    <string name="device_management_conflict_message">Votre abonnement a atteint la limite d\'appareil. Cet appareil a été déconnecté et tout le contenu hors connexion a été supprimé. Vous pouvez vous connecter avant de ré-enregistrer cet appareil.</string>
-    <string name="device_management_continue">Continuer</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Impossible de jeter le morceau</string>

@@ -29,11 +29,11 @@ class ReplayEventSubject<T> extends Subject<T, T> {
     }
 
     public static <T> ReplayEventSubject<T> create() {
-        return new ReplayEventSubject<T>(new OnSubscribeFunc<T>(null));
+        return new ReplayEventSubject<>(new OnSubscribeFunc<T>(null));
     }
 
     public static <T> ReplayEventSubject<T> create(T defaultEvent) {
-        return new ReplayEventSubject<T>(new OnSubscribeFunc<T>(defaultEvent));
+        return new ReplayEventSubject<>(new OnSubscribeFunc<>(defaultEvent));
     }
 
     private ReplayEventSubject(OnSubscribeFunc<T> onSubscribeFunc) {

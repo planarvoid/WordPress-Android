@@ -243,9 +243,6 @@
 
         <activity android:label="@string/app_name" android:name="com.facebook.LoginActivity" android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
 
-        <activity android:configChanges="orientation|keyboardHidden" android:label="Connect" android:name=".onboarding.auth.ConnectActivity" android:theme="@style/Theme.SoundCloud.NoActionBar">
-        </activity>
-
         <activity android:label="@string/age_verify_label" android:name=".profile.VerifyAgeActivity" android:theme="@style/Theme.SoundCloud"/>
         <activity android:label="" android:name=".profile.ProfileActivity" android:theme="@style/Theme.SoundCloud.NoBg">
             <intent-filter>
@@ -260,6 +257,8 @@
                 <data android:mimeType="vnd.soundcloud/user"/>
             </intent-filter>
         </activity>
+
+        <activity android:label="" android:name=".profile.NewProfileActivity" android:theme="@style/Theme.SoundCloud" />
 
         <activity android:label="@string/side_menu_record" android:launchMode="singleTask" android:name=".creators.record.RecordActivity">
             <intent-filter>

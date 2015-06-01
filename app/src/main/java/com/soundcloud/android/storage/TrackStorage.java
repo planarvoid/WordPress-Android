@@ -155,7 +155,7 @@ public class TrackStorage extends ScheduledOperations implements Storage<PublicA
 
             private List<Urn> toTrackUrns(String idColumn, Cursor cursor) {
                 if (cursor == null) {
-                    return Collections.<Urn>emptyList();
+                    return Collections.emptyList();
                 }
 
                 List<Urn> newQueue = Lists.newArrayListWithExpectedSize(cursor.getCount());

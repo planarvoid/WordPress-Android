@@ -25,8 +25,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.TestEvents;
@@ -50,7 +48,6 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Mock private EventTracker eventTracker;
     @Mock private EventLoggerJsonDataBuilder dataBuilder;
-    @Mock private FeatureFlags featureFlags;
     @Mock private SharedPreferences sharedPreferences;
 
     private Urn userUrn = Urn.forUser(123L);
@@ -59,7 +56,7 @@ public class EventLoggerAnalyticsProviderTest {
 
     @Before
     public void setUp() throws Exception {
-        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilder, featureFlags, sharedPreferences);
+        eventLoggerAnalyticsProvider = new EventLoggerAnalyticsProvider(eventTracker, dataBuilder, sharedPreferences);
         trackSourceInfo = new TrackSourceInfo("origin screen", true);
         searchQuerySourceInfo = new SearchQuerySourceInfo(new Urn("some:search:urn"), 5, new Urn("some:clicked:urn"));
     }
@@ -261,7 +258,6 @@ public class EventLoggerAnalyticsProviderTest {
     }
 
     private String searchEventUrlCaptor(String name, SearchEvent event) {
-        when(featureFlags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)).thenReturn(true);
         when(dataBuilder.build(event)).thenReturn(name);
 
         eventLoggerAnalyticsProvider.handleTrackingEvent(event);

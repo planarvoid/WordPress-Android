@@ -287,14 +287,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
         return upload_status == Status.UPLOADED;
     }
 
-    public boolean isUploading() {
-        return upload_status == Status.UPLOADING;
-    }
-
-    public boolean isNotUploadingYet() {
-        return upload_status == Status.NOT_YET_UPLOADED;
-    }
-
     public void setUploadFailed(boolean cancelled) {
         upload_status = cancelled ? Status.NOT_YET_UPLOADED : Status.ERROR;
     }
@@ -384,12 +376,6 @@ public class Recording implements Comparable<Recording>, Parcelable {
 
     public void markUploaded() {
         upload_status = Status.UPLOADED;
-    }
-
-    public static void clearRecordingFromIntent(Intent intent) {
-        intent.removeExtra(EXTRA);
-        intent.removeExtra(Intent.EXTRA_STREAM);
-        intent.setData(null);
     }
 
     public static Recording create() {
@@ -557,11 +543,11 @@ public class Recording implements Comparable<Recording>, Parcelable {
         }
     }
 
-    public static interface Status {
-        int NOT_YET_UPLOADED = 0; // not yet uploaded, or canceled by user
-        int UPLOADING = 1; // currently uploading
-        int UPLOADED = 2; // successfully uploaded
-        int ERROR = 4; // network / api error
+    public static abstract class Status {
+        public static final int NOT_YET_UPLOADED = 0; // not yet uploaded, or canceled by user
+        public static final int UPLOADING = 1; // currently uploading
+        public static final int UPLOADED = 2; // successfully uploaded
+        public static final int ERROR = 4; // network / api error
     }
 
     public static class RecordingFilter implements FilenameFilter {

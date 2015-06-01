@@ -44,12 +44,12 @@ public final class Queue<T> {
             if (name == null) {
                 name = eventType.getSimpleName() + "Queue";
             }
-            return new Queue<T>(name, eventType, replayLast, defaultEvent);
+            return new Queue<>(name, eventType, replayLast, defaultEvent);
         }
     }
 
     public static <T> Builder<T> of(Class<T> eventType) {
-        return new Builder<T>(eventType);
+        return new Builder<>(eventType);
     }
 
     Queue(@NotNull String name, @NotNull Class<T> eventType, boolean replayLast, @Nullable T defaultEvent) {

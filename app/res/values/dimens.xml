@@ -21,11 +21,7 @@
     <dimen name="button_bar_text_size">15sp</dimen>
     <dimen name="button_bar_button_padding">16dp</dimen>
 
-    <dimen name="share_user_header_height">30dip</dimen>
-    <dimen name="share_user_header_text_size">16sp</dimen>
-    <dimen name="share_user_icon_width">32px</dimen>
-    <dimen name="share_user_icon_height">32px</dimen>
-    <dimen name="share_progress_icon_width">67px</dimen>
+    <dimen name="record_progress_icon_width">67px</dimen>
     <dimen name="share_progress_icon_height">67px</dimen>
 
     <dimen name="tour_bottom_bar_height">80dp</dimen>
@@ -137,6 +133,12 @@
     <dimen name="rec_upload_progress_dimension">66dp</dimen>
 
     <!-- Toolbar -->
-    <dimen name="toolbar_elevation">4dip</dimen>
+    <dimen name="toolbar_elevation">4dp</dimen>
+    <dimen name="toolbar_title_left_margin">72dp</dimen>
+
+    <!-- Profile -->
+    <dimen name="profile_header_expanded_height">240dp</dimen>
+    <dimen name="profile_tab_height">48dp</dimen>
+    <dimen name="profile_header_bottom_padding">5dp</dimen>
 
 </resources>

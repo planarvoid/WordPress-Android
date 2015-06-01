@@ -20,8 +20,6 @@ import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.utils.DeviceHelper;
 
 import android.content.res.Resources;
@@ -46,18 +44,16 @@ public class EventLoggerJsonDataBuilder {
     protected final AccountOperations accountOperations;
 
     private final JsonTransformer jsonTransformer;
-    private final FeatureFlags flags;
 
     @Inject
     public EventLoggerJsonDataBuilder(Resources resources, ExperimentOperations experimentOperations,
                                       DeviceHelper deviceHelper, AccountOperations accountOperations,
-                                      JsonTransformer jsonTransformer, FeatureFlags flags) {
+                                      JsonTransformer jsonTransformer) {
         this.accountOperations = accountOperations;
         this.appId = resources.getString(R.string.app_id);
         this.experimentOperations = experimentOperations;
         this.deviceHelper = deviceHelper;
         this.jsonTransformer = jsonTransformer;
-        this.flags = flags;
     }
 
     public String build(ScreenEvent event) {
@@ -245,12 +241,10 @@ public class EventLoggerJsonDataBuilder {
             data.playlistPosition(String.valueOf(trackSourceInfo.getPlaylistPosition()));
         }
 
-        if (flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
-            if (trackSourceInfo.isFromSearchQuery()) {
-                SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
-                data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
-                data.queryPosition(String.valueOf(searchQuerySourceInfo.getUpdatedResultPosition(urn)));
-            }
+        if (trackSourceInfo.isFromSearchQuery()) {
+            SearchQuerySourceInfo searchQuerySourceInfo = trackSourceInfo.getSearchQuerySourceInfo();
+            data.queryUrn(searchQuerySourceInfo.getQueryUrn().toString());
+            data.queryPosition(String.valueOf(searchQuerySourceInfo.getUpdatedResultPosition(urn)));
         }
         return data;
     }

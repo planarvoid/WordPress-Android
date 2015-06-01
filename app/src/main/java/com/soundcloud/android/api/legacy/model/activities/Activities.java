@@ -46,7 +46,7 @@ public class Activities extends CollectionHolder<Activity> {
     public static final Activities EMPTY = new Activities();
 
     public Activities() {
-        this.collection = new ArrayList<Activity>();
+        this.collection = new ArrayList<>();
     }
 
     public Activities(List<Activity> collection) {
@@ -83,7 +83,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public List<PublicApiUser> getUniqueUsers() {
-        List<PublicApiUser> users = new ArrayList<PublicApiUser>();
+        List<PublicApiUser> users = new ArrayList<>();
         for (Activity a : this) {
             if (a.getUser() != null && !users.contains(a.getUser())) {
                 users.add(a.getUser());
@@ -93,7 +93,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public List<Playable> getUniquePlayables() {
-        List<Playable> playables = new ArrayList<Playable>();
+        List<Playable> playables = new ArrayList<>();
         for (Activity a : this) {
             if (a.getPlayable() != null && !playables.contains(a.getPlayable())) {
                 playables.add(a.getPlayable());
@@ -103,7 +103,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public Activities selectType(Class<? extends Activity>... types) {
-        List<Activity> activities = new ArrayList<Activity>();
+        List<Activity> activities = new ArrayList<>();
         for (Activity e : this) {
             for (Class<? extends Activity> type : types) {
                 if (type.isAssignableFrom(e.getClass())) {
@@ -135,7 +135,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public Map<Playable, Activities> groupedByPlayable() {
-        Map<Playable, Activities> grouped = new HashMap<Playable, Activities>();
+        Map<Playable, Activities> grouped = new HashMap<>();
 
         for (Activity e : this) {
             Activities activities = grouped.get(e.getPlayable());
@@ -160,7 +160,7 @@ public class Activities extends CollectionHolder<Activity> {
             return this;
         }
 
-        Activities merged = new Activities(new ArrayList<Activity>(collection));
+        Activities merged = new Activities(new ArrayList<>(collection));
         merged.future_href = future_href;
         merged.next_href = old.next_href;
 
@@ -192,18 +192,6 @@ public class Activities extends CollectionHolder<Activity> {
         } else {
             return collection.get(0).getCreatedAt().getTime();
         }
-    }
-
-    public static int getUniqueTrackCount(Activities... activities) {
-        Set<Long> ids = new HashSet<Long>(10);
-        for (Activities a : activities) {
-            for (Activity e : a) {
-                if (e.getPlayable() != null) {
-                    ids.add(e.getPlayable().getId());
-                }
-            }
-        }
-        return ids.size();
     }
 
     public static Activities fetchRecent(PublicCloudAPI api,
@@ -277,7 +265,7 @@ public class Activities extends CollectionHolder<Activity> {
     }
 
     public Set<String> artworkUrls() {
-        Set<String> artworkUrls = new HashSet<String>();
+        Set<String> artworkUrls = new HashSet<>();
         for (Activity a : this) {
             Playable playable = a.getPlayable();
             if (playable != null) {

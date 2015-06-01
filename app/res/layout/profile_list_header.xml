@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/profile_header"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Profile.HeaderContainer">
+
+    <RelativeLayout
+        android:id="@+id/header_info_layout"
+        style="@style/Profile.HeaderInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_above="@+id/sliding_tabs"
+        android:layout_below="@id/toolbar_id"
+        android:background="@android:color/white">
+
+        <ImageView
+            android:id="@+id/image"
+            style="@style/Profile.HeaderImage" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/username"
+            style="@style/Profile.Username"
+            android:layout_alignTop="@id/image"
+            android:layout_marginTop="-4dp"
+            android:layout_toRightOf="@id/image"
+            android:layout_toEndOf="@id/image"
+            android:textColor="@color/list_primary" />
+
+        <com.soundcloud.android.view.CustomFontTextView
+            android:id="@+id/followers_count"
+            style="@style/Profile.Stats"
+            android:layout_below="@id/username"
+            android:layout_toRightOf="@id/image"
+            android:layout_toEndOf="@id/image"
+            android:drawableLeft="@drawable/stats_followers"
+            android:drawableStart="@drawable/stats_followers"/>
+
+        <Button
+            style="@style/Profile.Button"
+            android:layout_below="@id/followers_count"
+            android:layout_marginTop="10dp"
+            android:layout_toRightOf="@id/image"
+            android:layout_toEndOf="@id/image"/>
+
+    </RelativeLayout>
+
+    <com.soundcloud.android.view.SlidingTabLayout
+        android:id="@+id/sliding_tabs"
+        style="@style/Profile.Tabs" />
+
+    <include
+        layout="@layout/toolbar_white_flat"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/profile_tab_height"
+        android:layout_alignParentTop="true" />
+
+    <TextView
+        android:id="@+id/fake_toolbar_title"
+        style="@style/Profile.Toolbar.Username" />
+
+    <View
+        android:id="@+id/toolbar_shadow"
+        style="@style/ToolbarShadow"
+        android:layout_below="@id/sliding_tabs" />
+
+</RelativeLayout>

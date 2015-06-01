@@ -25,7 +25,7 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<PublicApiCom
 
     public LoadCommentsTask(PublicCloudAPI api) {
         super(api);
-        listenerRefs = new ArrayList<WeakReference<LoadCommentsListener>>();
+        listenerRefs = new ArrayList<>();
     }
 
     public void addListener(LoadCommentsListener listener) {
@@ -34,7 +34,7 @@ public class LoadCommentsTask extends AsyncApiTask<Long, Void, List<PublicApiCom
                 return;
             }
         }
-        listenerRefs.add(new WeakReference<LoadCommentsListener>(listener));
+        listenerRefs.add(new WeakReference<>(listener));
     }
 
     @Override

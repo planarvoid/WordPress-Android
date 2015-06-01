@@ -108,7 +108,7 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
 
         suggestionsHandlerThread = new HandlerThread("SuggestionsHandler", THREAD_PRIORITY_DEFAULT);
         suggestionsHandlerThread.start();
-        suggestionsHandler = new SuggestionsHandler(this, contentResolver, api, suggestionsHandlerThread.getLooper());
+        suggestionsHandler = new SuggestionsHandler(this, api, suggestionsHandlerThread.getLooper());
     }
 
     public void onDestroy() {
@@ -262,12 +262,12 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
             return;
         }
 
-        final List<Long> trackIds = new ArrayList<Long>();
-        final List<Long> userIds = new ArrayList<Long>();
-        final List<Long> playlistIds = new ArrayList<Long>();
+        final List<Long> trackIds = new ArrayList<>();
+        final List<Long> userIds = new ArrayList<>();
+        final List<Long> playlistIds = new ArrayList<>();
         suggestions.putRemoteIds(trackIds, userIds, playlistIds);
 
-        ArrayList<Uri> toSync = new ArrayList<Uri>();
+        ArrayList<Uri> toSync = new ArrayList<>();
         if (!trackIds.isEmpty()) {
             toSync.add(Content.TRACK_LOOKUP.forQuery(TextUtils.join(",", trackIds)));
         }
@@ -469,15 +469,13 @@ public class SuggestionsAdapter extends CursorAdapter implements DetachableResul
     }
 
     private static final class SuggestionsHandler extends Handler {
-        private final ContentResolver resolver;
         private final WeakReference<SuggestionsAdapter> adapterRef;
         private final PublicCloudAPI api;
 
 
-        public SuggestionsHandler(SuggestionsAdapter adapter, ContentResolver resolver, PublicCloudAPI api, Looper looper) {
+        public SuggestionsHandler(SuggestionsAdapter adapter, PublicCloudAPI api, Looper looper) {
             super(looper);
-            this.resolver = resolver;
-            adapterRef = new WeakReference<SuggestionsAdapter>(adapter);
+            adapterRef = new WeakReference<>(adapter);
             this.api = api;
         }
 

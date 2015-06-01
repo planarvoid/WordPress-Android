@@ -172,7 +172,7 @@ public class PublicApiPlaylistTest {
         expect(playlist1.getId()).toEqual(playlist.getId());
         expect(playlist1.title).toEqual(playlist.title);
         expect(playlist1.permalink).toEqual(playlist.permalink);
-        expect(playlist1.duration).toBeGreaterThan(0);
+        expect(playlist1.duration).toBeGreaterThan(0L);
         expect(playlist1.duration).toEqual(playlist.duration);
         expect(playlist1.created_at).toEqual(playlist.created_at);
         expect(playlist1.tag_list).toEqual(playlist.tag_list);

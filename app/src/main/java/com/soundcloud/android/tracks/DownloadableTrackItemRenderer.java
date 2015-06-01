@@ -1,5 +1,6 @@
 package com.soundcloud.android.tracks;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -22,8 +23,9 @@ public class DownloadableTrackItemRenderer extends TrackItemRenderer {
                                          TrackItemMenuPresenter trackItemMenuPresenter,
                                          EventBus eventBus,
                                          FeatureOperations featureOperations,
-                                         ScreenProvider screenProvider) {
-        super(imageOperations, trackItemMenuPresenter, eventBus, screenProvider);
+                                         ScreenProvider screenProvider,
+                                         Navigator navigator) {
+        super(imageOperations, trackItemMenuPresenter, eventBus, screenProvider, navigator);
         this.featureOperations = featureOperations;
     }
 

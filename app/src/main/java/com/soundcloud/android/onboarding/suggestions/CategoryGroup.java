@@ -34,7 +34,7 @@ public class CategoryGroup extends ScModel {
 
     @NotNull
     public List<SuggestedUser> getAllSuggestedUsers() {
-        List<SuggestedUser> allUsers = new ArrayList<SuggestedUser>();
+        List<SuggestedUser> allUsers = new ArrayList<>();
         for (Category category : categories) {
             allUsers.addAll(category.getUsers());
         }

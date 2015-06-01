@@ -3,15 +3,15 @@ package com.soundcloud.android.comments;
 import static com.soundcloud.android.comments.CommentsOperations.TO_COMMENT_VIEW_MODEL;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleSupportFragment;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
 import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Observable;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
@@ -32,6 +32,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
 
     @Inject CommentsOperations operations;
     @Inject PagingItemAdapter<Comment> adapter;
+    @Inject Navigator navigator;
     @Inject @LightCycle ListViewController listViewController;
 
     private ConnectableObservable<List<Comment>> comments;
@@ -57,7 +58,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        startActivity(ProfileActivity.getIntent(getActivity(), adapter.getItem(position).getUserUrn()));
+        navigator.openProfile(getActivity(), adapter.getItem(position).getUserUrn());
     }
 
     @Override

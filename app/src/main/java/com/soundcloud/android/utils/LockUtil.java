@@ -4,7 +4,6 @@ import javax.inject.Inject;
 
 public class LockUtil {
 
-    public static final String WIFI_LOCK_TAG = "LockUtilWifiLock";
     public static final String WAKE_LOCK_TAG = "LockUtilWakeLock";
     private final PowerManagerWakeLockWrapper wakeLock;
 

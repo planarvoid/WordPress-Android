@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenProvider;
 import com.soundcloud.android.events.EventQueue;
@@ -43,6 +44,7 @@ public class TrackItemRendererTest {
     @Mock private ImageOperations imageOperations;
     @Mock private EventBus eventBus;
     @Mock private ScreenProvider screenProvider;
+    @Mock private Navigator navigator;
 
     private View itemView;
     private PropertySet propertySet;
@@ -53,7 +55,7 @@ public class TrackItemRendererTest {
         propertySet = PropertySet.from(
                 TrackProperty.TITLE.bind("title"),
                 TrackProperty.CREATOR_NAME.bind("creator"),
-                TrackProperty.DURATION.bind(227000),
+                TrackProperty.DURATION.bind(227000L),
                 TrackProperty.URN.bind(Urn.forTrack(123)),
                 TrackProperty.PLAY_COUNT.bind(870)
         );
@@ -196,6 +198,7 @@ public class TrackItemRendererTest {
 
         itemView.findViewById(R.id.promoted_track).performClick();
 
+        verify(navigator).openProfile(any(Context.class), eq(Urn.forUser(193L)));
         verify(eventBus).publish(eq(EventQueue.TRACKING), any(PromotedTrackEvent.class));
     }
 

@@ -87,7 +87,7 @@ public class AnalyticsProviderFactory {
 
     // A list of providers that should always be enabled, regardless of user preference
     private List<AnalyticsProvider> getBaseProviders() {
-        List<AnalyticsProvider> providers = new ArrayList<AnalyticsProvider>(EXPECTED_PROVIDER_COUNT);
+        List<AnalyticsProvider> providers = new ArrayList<>(EXPECTED_PROVIDER_COUNT);
         providers.add(eventLoggerAnalyticsProvider);
         providers.add(playCountAnalyticsProvider);
         providers.add(promotedAnalyticsProvider);

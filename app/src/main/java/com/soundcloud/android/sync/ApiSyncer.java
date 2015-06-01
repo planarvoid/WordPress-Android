@@ -8,7 +8,6 @@ import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
-import com.soundcloud.android.api.legacy.model.Connection;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.activities.Activities;
@@ -19,7 +18,6 @@ import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.BaseDAO;
-import com.soundcloud.android.storage.ConnectionDAO;
 import com.soundcloud.android.storage.Storage;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.UserStorage;
@@ -42,9 +40,7 @@ import android.preference.PreferenceManager;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -122,10 +118,6 @@ public class ApiSyncer extends LegacySyncStrategy {
 
                 case ME_SHORTCUTS:
                     result = syncMyGenericResource(c);
-                    break;
-
-                case ME_CONNECTIONS:
-                    result = syncMyConnections();
                     break;
             }
         }
@@ -246,7 +238,7 @@ public class ApiSyncer extends LegacySyncStrategy {
 
     /**
      * Good for syncing any generic item that doesn't require special ordering or cache handling
-     * e.g. Shortcuts, Connections
+     * e.g. Shortcuts
      *
      * @param c the content to be synced
      * @return the syncresult
@@ -263,7 +255,7 @@ public class ApiSyncer extends LegacySyncStrategy {
             List<ScModel> models = api.getMapper().readValue(resp.getEntity().getContent(),
                     api.getMapper().getTypeFactory().constructCollectionType(List.class, c.modelType));
 
-            List<ContentValues> cvs = new ArrayList<ContentValues>(models.size());
+            List<ContentValues> cvs = new ArrayList<>(models.size());
             for (ScModel model : models) {
                 ContentValues cv = model.buildContentValues();
                 if (cv != null) {
@@ -282,30 +274,6 @@ public class ApiSyncer extends LegacySyncStrategy {
         } else {
             Log.w(TAG, "request " + request + " returned " + resp.getStatusLine());
         }
-        return result;
-    }
-
-    private ApiSyncResult syncMyConnections() throws IOException {
-        log("Syncing my connections");
-
-        ApiSyncResult result = new ApiSyncResult(Content.ME_CONNECTIONS.uri);
-        // compare local vs remote connections
-        List<Connection> list = api.readList(Content.ME_CONNECTIONS.request());
-        Set<Connection> remoteConnections = new HashSet<Connection>(list);
-        ConnectionDAO connectionDAO = new ConnectionDAO(resolver);
-        Set<Connection> storedConnections = new HashSet<Connection>(connectionDAO.queryAll());
-
-        if (storedConnections.equals(remoteConnections)) {
-            result.change = ApiSyncResult.UNCHANGED;
-        } else {
-            result.change = ApiSyncResult.CHANGED;
-            // remove unneeded connections
-            storedConnections.removeAll(remoteConnections);
-            connectionDAO.deleteAll(storedConnections);
-        }
-        int inserted = connectionDAO.createCollection(remoteConnections);
-        result.setSyncData(System.currentTimeMillis(), inserted);
-        result.success = true;
         return result;
     }
 

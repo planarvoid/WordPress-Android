@@ -2,19 +2,18 @@ package com.soundcloud.android.collections;
 
 import static com.soundcloud.android.Expect.expect;
 
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.api.legacy.model.Shortcut;
 import com.soundcloud.android.api.legacy.model.activities.TrackActivity;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
-import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
+import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.collections.views.IconLayout;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +21,7 @@ import org.junit.runner.RunWith;
 
 import android.content.Context;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +35,7 @@ public class ScBaseAdapterTest {
     public void setup() throws Exception {
         adapter = new ScBaseAdapter<PublicApiUser>(Content.USER.uri) {
             @Override
-            protected IconLayout createRow(Context context, int position, ViewGroup parent) {
+            protected LinearLayout createRow(Context context, int position, ViewGroup parent) {
                 return null;
             }
 

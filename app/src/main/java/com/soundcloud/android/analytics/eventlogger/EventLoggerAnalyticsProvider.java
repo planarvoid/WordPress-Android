@@ -18,8 +18,6 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.events.VisualAdImpressionEvent;
-import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.settings.SettingKey;
 
 import android.content.SharedPreferences;
@@ -33,15 +31,13 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
 
     private final EventTracker eventTracker;
     private final EventLoggerJsonDataBuilder dataBuilder;
-    private final FeatureFlags flags;
     private final SharedPreferences sharedPreferences;
 
     @Inject
-    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerJsonDataBuilder dataBuilder, FeatureFlags flags, SharedPreferences sharedPreferences) {
+    public EventLoggerAnalyticsProvider(EventTracker eventTracker, EventLoggerJsonDataBuilder dataBuilder, SharedPreferences sharedPreferences) {
         this.sharedPreferences = sharedPreferences;
         this.dataBuilder = dataBuilder;
         this.eventTracker = eventTracker;
-        this.flags = flags;
     }
 
     @Override
@@ -127,17 +123,15 @@ public class EventLoggerAnalyticsProvider implements AnalyticsProvider {
     }
 
     private void handleSearchEvent(SearchEvent event) {
-        if (flags.isEnabled(Flag.EVENTLOGGER_SEARCH_EVENTS)) {
-            switch (event.getKind()) {
-                case SearchEvent.KIND_RESULTS:
-                case SearchEvent.KIND_SUBMIT:
-                case SearchEvent.KIND_SUGGESTION:
-                    trackEvent(event.getTimestamp(), dataBuilder.build(event));
-                    break;
-                default:
-                    // no-op, ignoring certain types
-                    break;
-            }
+        switch (event.getKind()) {
+            case SearchEvent.KIND_RESULTS:
+            case SearchEvent.KIND_SUBMIT:
+            case SearchEvent.KIND_SUGGESTION:
+                trackEvent(event.getTimestamp(), dataBuilder.build(event));
+                break;
+            default:
+                // no-op, ignoring certain types
+                break;
         }
     }
 

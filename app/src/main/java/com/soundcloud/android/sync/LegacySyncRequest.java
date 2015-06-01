@@ -30,7 +30,7 @@ import java.util.Set;
 @Deprecated
 /* package */  class LegacySyncRequest implements SyncRequest {
     private final String action;
-    private final List<LegacySyncJob> legacySyncItems = new ArrayList<LegacySyncJob>();
+    private final List<LegacySyncJob> legacySyncItems = new ArrayList<>();
     private final Set<LegacySyncJob> requestsRemaining;
 
     private final boolean isUIRequest; // used for queueing priorities
@@ -47,7 +47,7 @@ import java.util.Set;
 
         ArrayList<Uri> syncUris = intent.getParcelableArrayListExtra(ApiSyncService.EXTRA_SYNC_URIS);
         if (syncUris == null) {
-            syncUris = new ArrayList<Uri>();
+            syncUris = new ArrayList<>();
         }
 
         if (intent.getData() != null) {
@@ -56,7 +56,7 @@ import java.util.Set;
         for (Uri uri : syncUris) {
             legacySyncItems.add(collectionSyncRequestFactory.create(uri, action, isUIRequest));
         }
-        requestsRemaining = new HashSet<LegacySyncJob>(legacySyncItems);
+        requestsRemaining = new HashSet<>(legacySyncItems);
     }
 
 

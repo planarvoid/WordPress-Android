@@ -21,7 +21,7 @@ import java.util.Arrays;
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackSessionEventTest {
 
-    private static final int DURATION = 1000;
+    private static final long DURATION = 1000L;
     private static final long PROGRESS = 12345L;
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private static final Urn USER_URN = Urn.forUser(1L);

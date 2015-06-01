@@ -24,7 +24,6 @@ import java.util.List;
         @JsonSubTypes.Type(value = PublicApiUser.class, name = "user"),
         @JsonSubTypes.Type(value = PublicApiPlaylist.class, name = "playlist"),
         @JsonSubTypes.Type(value = SoundAssociation.class, name = "stream_item"),
-        @JsonSubTypes.Type(value = Connection.class, name = "connection"),
         @JsonSubTypes.Type(value = Like.class, name = "like"),
         @JsonSubTypes.Type(value = Friend.class, name = "friend")})
 public abstract class PublicApiResource

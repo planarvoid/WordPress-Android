@@ -40,7 +40,6 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     @Inject SuggestedUsersOperations suggestedUserOps;
     @Inject FollowingOperations followingOperations;
 
-    private DisplayMode mode = DisplayMode.LOADING;
     private Subscription subscription;
     private Observer<CategoryGroup> observer;
     private ListView listView;
@@ -163,7 +162,6 @@ public class SuggestedUsersCategoriesFragment extends Fragment implements Adapte
     }
 
     private void setDisplayMode(DisplayMode mode) {
-        this.mode = mode;
         switch (mode) {
             case LOADING:
                 emptyView.setStatus(EmptyView.Status.WAITING);

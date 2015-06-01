@@ -38,7 +38,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
     private static final String MONETIZATION_PROMOTED = "promoted";
 
     private final Urn trackUrn;
-    private final int duration;
+    private final long duration;
     private final long progress;
 
     private int stopReason;
@@ -145,7 +145,7 @@ public class PlaybackSessionEvent extends TrackingEvent {
         return progress;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 

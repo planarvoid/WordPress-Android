@@ -32,7 +32,7 @@ public class PlaylistTagsScreen extends Screen {
 
     public List<String> getRecentTags() {
         waiter.waitForContentAndRetryIfLoadingFailed();
-        return getTagStringsFromContainer(R.id.recent_tags);
+        return getTagStringsFromContainer();
     }
 
     public boolean isKeyboardShown() {
@@ -49,7 +49,7 @@ public class PlaylistTagsScreen extends Screen {
         return waiter.waitForElement(R.id.all_tags);
     }
 
-    private List<String> getTagStringsFromContainer(int containerId) {
+    private List<String> getTagStringsFromContainer() {
         return Lists.transform(getTags(), new Function<ViewElement, String>() {
             @Override
             public String apply(ViewElement input) {
@@ -66,9 +66,6 @@ public class PlaylistTagsScreen extends Screen {
         return null;
     }
 
-    public List<ViewElement> getRecenjtTags() {
-        return recentTagsContainer().findElements(With.className(TextView.class));
-    }
 
     public StreamScreen pressBack() {
         testDriver.goBack();
@@ -77,10 +74,6 @@ public class PlaylistTagsScreen extends Screen {
 
     private ViewElement tagsContainer() {
         return testDriver.findElement(With.id(R.id.all_tags));
-    }
-
-    private ViewElement recentTagsContainer() {
-        return testDriver.findElement(With.id(R.id.recent_tags));
     }
 
     @Override

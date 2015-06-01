@@ -86,6 +86,7 @@ public class CastSessionController extends VideoCastConsumerImpl implements Vide
 
     @Override
     public void onRemoteMediaPlayerMetadataUpdated() {
+        Log.d(CastOperations.TAG, "On metadata updated.");
         final RemotePlayQueue remotePlayQueue = castOperations.loadRemotePlayQueue();
         if (!remotePlayQueue.getTrackList().isEmpty()) {
             updateLocalPlayQueueAndPlayState(remotePlayQueue);

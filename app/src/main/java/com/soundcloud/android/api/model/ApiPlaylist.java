@@ -23,7 +23,7 @@ public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistR
     private String artworkUrl;
     private Date createdAt;
     private PlayableStats stats;
-    private int duration;
+    private long duration;
     private Sharing sharing;
     private String permalinkUrl;
 
@@ -83,11 +83,11 @@ public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistR
         this.stats = stats;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 

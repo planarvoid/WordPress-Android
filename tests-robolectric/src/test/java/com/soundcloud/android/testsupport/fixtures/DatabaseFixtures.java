@@ -127,11 +127,7 @@ public class DatabaseFixtures {
 
     public ApiTrack insertPlaylistTrack(Urn playlistUrn, int position) {
         ApiTrack apiTrack = insertTrack();
-        ContentValues cv = new ContentValues();
-        cv.put(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistUrn.getNumericId());
-        cv.put(TableColumns.PlaylistTracks.TRACK_ID, apiTrack.getId());
-        cv.put(TableColumns.PlaylistTracks.POSITION, position);
-        insertInto(Table.PlaylistTracks, cv);
+        insertPlaylistTrack(playlistUrn, apiTrack.getUrn(), position);
         return apiTrack;
     }
 
@@ -329,18 +325,21 @@ public class DatabaseFixtures {
     }
 
     public ApiTrack insertPromotedStreamTrack(long timestamp) {
-        ApiTrack promotedTrack = insertTrack();
+        return insertPromotedStreamTrack(insertTrack(), timestamp);
+    }
+
+    public ApiTrack insertPromotedStreamTrack(ApiTrack track, long timestamp) {
         long promotedId = 26;
 
         ContentValues cv = new ContentValues();
-        cv.put(TableColumns.SoundStream.SOUND_ID, promotedTrack.getUrn().getNumericId());
+        cv.put(TableColumns.SoundStream.SOUND_ID, track.getUrn().getNumericId());
         cv.put(TableColumns.SoundStream.SOUND_TYPE, TableColumns.Sounds.TYPE_TRACK);
         cv.put(TableColumns.SoundStream.CREATED_AT, timestamp);
         cv.put(TableColumns.SoundStream.PROMOTED_ID, promotedId);
         insertInto(Table.SoundStream, cv);
 
         insertPromotedTrackMetadata(promotedId);
-        return promotedTrack;
+        return track;
     }
 
     public void insertPromotedTrackMetadata(long promotedId) {

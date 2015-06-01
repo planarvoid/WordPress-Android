@@ -11,14 +11,13 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -27,13 +26,14 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;
@@ -99,6 +99,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     @Inject PlaybackOperations playbackOperations;
     @Inject EventBus eventBus;
     @Inject Provider<ExpandPlayerSubscriber> subscriberProvider;
+    @Inject Navigator navigator;
     @Inject @LightCycle ListViewController listViewController;
     @Inject @LightCycle SearchResultsAdapter adapter;
 
@@ -140,7 +141,8 @@ public class SearchResultsFragment extends LightCycleSupportFragment
                           SearchResultsAdapter adapter,
                           Provider<ExpandPlayerSubscriber> subscriberProvider,
                           EventBus eventBus,
-                          SearchOperations.SearchResultPager pager) {
+                          SearchOperations.SearchResultPager pager,
+                          Navigator navigator) {
         this.searchOperations = operations;
         this.playbackOperations = playbackOperations;
         this.listViewController = listViewController;
@@ -148,6 +150,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
         this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
         this.pager = pager;
+        this.navigator = navigator;
     }
 
     @Override
@@ -226,7 +229,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
             PlaylistDetailActivity.start(getActivity(), urn, getTrackingScreen(), false, searchQuerySourceInfo);
         } else if (urn.isUser()) {
             eventBus.publish(EventQueue.TRACKING, SearchEvent.tapUserOnScreen(getTrackingScreen(), searchQuerySourceInfo));
-            startActivity(ProfileActivity.getIntent(getActivity(), urn, searchQuerySourceInfo));
+            navigator.openProfile(getActivity(), urn, searchQuerySourceInfo);
         }
     }
 

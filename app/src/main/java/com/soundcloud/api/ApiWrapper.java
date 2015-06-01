@@ -661,7 +661,7 @@ public class ApiWrapper implements CloudAPI {
      */
     protected HttpUriRequest addHeaders(HttpUriRequest req) {
         HttpUriRequest request = addEncodingHeader(req);
-        if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
+        if (!request.containsHeader(AUTH.WWW_AUTH_RESP) && getToken().valid()) {
             request.addHeader(AUTH.WWW_AUTH_RESP, oAuth.getAuthorizationHeaderValue());
         }
         return addAcceptHeader(request);

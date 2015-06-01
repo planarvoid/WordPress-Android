@@ -60,7 +60,7 @@ public class ResolveTask extends AsyncApiTask<Uri, Void, Uri> {
     }
 
     public void setListener(ResolveListener listener) {
-        this.listener = new WeakReference<ResolveListener>(listener);
+        this.listener = new WeakReference<>(listener);
     }
 
     @Override

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
@@ -68,12 +69,13 @@ public class UserAssociationSyncerTest {
     @Mock private ApiResponse apiResponse;
     @Mock private NotificationManager notificationManager;
     @Mock private JsonTransformer jsonTransformer;
+    @Mock private Navigator navigator;
 
     @Before
     public void before() {
         TestHelper.setUserId(133201L);
         userAssociationSyncer = new UserAssociationSyncer(Robolectric.application,
-                resolver, userAssociationStorage, followingOperations, accountOperations, notificationManager, null);
+                resolver, userAssociationStorage, followingOperations, accountOperations, notificationManager, jsonTransformer, navigator);
         when(userAssociation.getUser()).thenReturn(user);
         when(userAssociation.getLocalSyncState()).thenReturn(UserAssociation.LocalState.NONE);
         when(accountOperations.isUserLoggedIn()).thenReturn(true);
@@ -328,7 +330,8 @@ public class UserAssociationSyncerTest {
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(ApiSyncServiceTest.class, fixtures);
         UserAssociationSyncer syncer = new UserAssociationSyncer(
-                Robolectric.application, accountOperations, followingOperations, notificationManager, jsonTransformer);
+                Robolectric.application, accountOperations, followingOperations, notificationManager, jsonTransformer,
+                navigator);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 

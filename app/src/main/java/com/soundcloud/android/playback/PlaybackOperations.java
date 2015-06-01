@@ -35,6 +35,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class PlaybackOperations {
+    public static final boolean WITH_RELATED = true;
+    public static final boolean WITHOUT_RELATED = false;
+
     private static final long PROGRESS_THRESHOLD_FOR_TRACK_CHANGE = TimeUnit.SECONDS.toMillis(3L);
     private static final long SEEK_POSITION_RESET = 0L;
 
@@ -84,29 +87,29 @@ public class PlaybackOperations {
 
     public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, Urn trackUrn, int position,
                                             PlaySessionSource playSessionSource) {
-        return playTracksList(Observable.from(trackUrns).toList(), trackUrn, position, playSessionSource, false);
+        return playTracksList(Observable.from(trackUrns).toList(), trackUrn, position, playSessionSource, WITHOUT_RELATED);
     }
 
     public Observable<PlaybackResult> playTracks(Observable<List<Urn>> allTracks, Urn initialTrack, int position,
                                             PlaySessionSource playSessionSource) {
-        return playTracksList(allTracks, initialTrack, position, playSessionSource, false);
+        return playTracksList(allTracks, initialTrack, position, playSessionSource, WITHOUT_RELATED);
     }
 
     @Deprecated
     public Observable<PlaybackResult> playTracksFromUri(Uri uri, int startPosition, Urn initialTrack,
                                                         PlaySessionSource playSessionSource) {
         return playTracksList(trackStorage.getTracksForUriAsync(uri), initialTrack, startPosition,
-                playSessionSource, false);
+                playSessionSource, WITHOUT_RELATED);
     }
 
     public Observable<PlaybackResult> playTrackWithRecommendations(Urn track, PlaySessionSource playSessionSource) {
-        return playTracksList(Observable.just(track).toList(), track, 0, playSessionSource, true);
+        return playTracksList(Observable.just(track).toList(), track, 0, playSessionSource, WITH_RELATED);
     }
 
     public Observable<PlaybackResult> playTracksShuffled(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
         List<Urn> shuffled = Lists.newArrayList(trackUrns);
         Collections.shuffle(shuffled);
-        return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, false);
+        return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, WITHOUT_RELATED);
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
@@ -116,7 +119,7 @@ public class PlaybackOperations {
         } else {
             return trackUrnsObservable
                     .map(SHUFFLE_TRACKS)
-                    .flatMap(playNewQueue(playbackStrategyProvider.get(), Urn.NOT_SET, 0, playSessionSource, false))
+                    .flatMap(playNewQueue(playbackStrategyProvider.get(), Urn.NOT_SET, 0, playSessionSource, WITHOUT_RELATED))
                     .observeOn(AndroidSchedulers.mainThread());
         }
     }
@@ -154,15 +157,20 @@ public class PlaybackOperations {
         };
     }
 
-    public Observable<PlaybackResult> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
+    public Observable<PlaybackResult> startPlayback(PublicApiTrack track, Screen screen, boolean withRecommendations) {
+        playQueueManager.clearAll();
         modelManager.cache(track);
-        return playTracksList(Observable.just(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), true);
+        return playTracksList(Observable.just(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), withRecommendations);
+    }
+
+    public Observable<PlaybackResult> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
+        return startPlayback(track, screen, WITH_RELATED);
     }
 
     public Observable<PlaybackResult> startPlaybackWithRecommendations(Urn urn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
-        return playTracksList(Observable.just(urn).toList(), urn, 0, playSessionSource, true);
+        return playTracksList(Observable.just(urn).toList(), urn, 0, playSessionSource, WITH_RELATED);
     }
 
     public void togglePlayback() {

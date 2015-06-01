@@ -93,24 +93,6 @@
 
     <!-- misc -->
 
-    <style name="txt_share_header">
-        <item name="android:textColor">#ffffffff</item>
-        <item name="android:textSize">@dimen/share_user_header_text_size</item>
-        <item name="android:paddingLeft">5dip</item>
-        <item name="android:paddingRight">5dip</item>
-    </style>
-
-    <style name="txt_share_header_username" parent="txt_share_header">
-        <item name="android:textStyle">bold</item>
-    </style>
-
-    <style name="txt_share_header_title" parent="txt_share_header">
-        <item name="android:shadowColor">#ff777777</item>
-        <item name="android:shadowDx">0</item>
-        <item name="android:shadowDy">-1</item>
-        <item name="android:shadowRadius">1</item>
-    </style>
-
     <style name="dark_button_bar">
         <item name="android:layout_height">@dimen/button_bar_height</item>
         <item name="android:layout_width">match_parent</item>
@@ -200,6 +182,14 @@
         <item name="android:layout_height">5dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_below">@id/toolbar_id</item>
+    </style>
+
+    <style name="Profile.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="backgroundTint">?attr/colorAccent</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:text">@string/btn_follow</item>
     </style>
 
 </resources>

@@ -1,10 +1,10 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.content.SyncStrategy;
 import com.soundcloud.android.sync.content.UserAssociationSyncer;
@@ -29,30 +29,31 @@ public class ApiSyncerFactory {
     private final Provider<FollowingOperations> followingOpsProvider;
     private final Provider<AccountOperations> accountOpsProvider;
     private final Provider<NotificationManager> notificationManagerProvider;
-    private final FeatureFlags featureFlags;
     private final Lazy<SoundStreamSyncer> lazySoundStreamSyncer;
     private final Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer;
     private final Lazy<MyLikesSyncer> lazyMyLikesSyncer;
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final JsonTransformer jsonTransformer;
+    private final Navigator navigator;
 
     @Inject
     public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
-                            FeatureFlags featureFlags, Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
+                            Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
-                            Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory, JsonTransformer jsonTransformer) {
+                            Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
+                            JsonTransformer jsonTransformer, Navigator navigator) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
-        this.featureFlags = featureFlags;
         this.lazySoundStreamSyncer = lazySoundStreamSyncer;
         this.lazyPlaylistsSyncer = lazyPlaylistsSyncer;
         this.lazyMyLikesSyncer = lazyMyLikesSyncer;
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.jsonTransformer = jsonTransformer;
+        this.navigator = navigator;
     }
 
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -68,7 +69,8 @@ public class ApiSyncerFactory {
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
                 return new UserAssociationSyncer(
-                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(), jsonTransformer);
+                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(),
+                        jsonTransformer, navigator);
 
             case ME_PLAYLISTS:
                 return lazyPlaylistsSyncer.get();

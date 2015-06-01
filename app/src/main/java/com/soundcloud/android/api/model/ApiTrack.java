@@ -35,7 +35,7 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
     private String genre;
     private ApiUser user;
     private boolean commentable;
-    private int duration = Consts.NOT_SET;
+    private long duration = Consts.NOT_SET;
     private String streamUrl;
     private String waveformUrl;
     private List<String> userTags;
@@ -57,7 +57,7 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
         this.genre = in.readString();
         this.user = in.readParcelable(ApiUser.class.getClassLoader());
         this.commentable = in.readByte() != 0;
-        this.duration = in.readInt();
+        this.duration = in.readLong();
         this.streamUrl = in.readString();
         this.waveformUrl = in.readString();
         this.artworkUrl = in.readString();
@@ -110,11 +110,11 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
         this.commentable = commentable;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return duration;
     }
 
-    public void setDuration(int duration) {
+    public void setDuration(long duration) {
         this.duration = duration;
     }
 
@@ -254,7 +254,7 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
         dest.writeString(this.genre);
         dest.writeParcelable(this.user, flags);
         dest.writeByte(this.commentable ? (byte) 1 : (byte) 0);
-        dest.writeInt(this.duration);
+        dest.writeLong(this.duration);
         dest.writeString(this.streamUrl);
         dest.writeString(this.waveformUrl);
         dest.writeString(this.artworkUrl);

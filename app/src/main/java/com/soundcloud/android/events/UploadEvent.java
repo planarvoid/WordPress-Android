@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.Recording;
 
-
 public final class UploadEvent {
     private static final String IDLE = "idle";
     private static final String UPLOAD_SUCCESS = "upload_success";

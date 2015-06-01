@@ -265,7 +265,7 @@ public class NavigationFragment extends Fragment {
         private final int textId;
         private final int imageId;
 
-        private NavItem(int textId, int imageId) {
+        NavItem(int textId, int imageId) {
             this.textId = textId;
             this.imageId = imageId;
         }
@@ -274,7 +274,7 @@ public class NavigationFragment extends Fragment {
     /**
      * Callbacks interface that all activities using this fragment must implement.
      */
-    public static interface NavigationCallbacks {
+    public interface NavigationCallbacks {
 
         void onSmoothSelectItem(int position);
 

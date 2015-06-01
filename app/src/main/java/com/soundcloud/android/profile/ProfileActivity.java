@@ -64,7 +64,6 @@ public class ProfileActivity extends ScActivity implements
         FollowingOperations.FollowStatusChangedListener,
         ActionBar.OnNavigationListener, FetchModelTask.Listener<PublicApiUser>, ViewPager.OnPageChangeListener {
 
-    public static final String EXTRA_USER_ID = "userId";
     public static final String EXTRA_USER_URN = "userUrn";
     public static final String EXTRA_USER = "user";
     public static final String EXTRA_QUERY_SOURCE_INFO = "searchQuerySourceInfo";
@@ -92,21 +91,6 @@ public class ProfileActivity extends ScActivity implements
     private UserInfoFragment userInfoFragment;
     private int initialOtherFollowers;
     private SearchQuerySourceInfo searchQuerySourceInfo;
-
-    @Deprecated
-    public static boolean start(Context context, Urn urn) {
-        context.startActivity(getIntent(context, urn));
-        return true;
-    }
-
-    public static Intent getIntent(Context context, Urn userUrn, SearchQuerySourceInfo searchQuerySourceInfo) {
-        return ProfileActivity.getIntent(context, userUrn)
-                .putExtra(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
-    }
-
-    public static Intent getIntent(Context context, Urn userUrn) {
-        return new Intent(context, ProfileActivity.class).putExtra(EXTRA_USER_URN, userUrn);
-    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -310,8 +294,6 @@ public class ProfileActivity extends ScActivity implements
     protected void handleIntent(Intent intent) {
         if (intent.hasExtra(EXTRA_USER)) {
             loadUserByObject((PublicApiUser) intent.getParcelableExtra(EXTRA_USER));
-        } else if (intent.hasExtra(EXTRA_USER_ID)) {
-            loadUserById(intent.getLongExtra(EXTRA_USER_ID, -1));
         } else if (intent.hasExtra(EXTRA_USER_URN)) {
             Urn urn = intent.getParcelableExtra(EXTRA_USER_URN);
             loadUserById(urn.getNumericId());

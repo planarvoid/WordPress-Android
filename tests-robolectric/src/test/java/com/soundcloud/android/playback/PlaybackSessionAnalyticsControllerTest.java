@@ -37,7 +37,7 @@ public class PlaybackSessionAnalyticsControllerTest {
     private static final Urn TRACK_URN = Urn.forTrack(1L);
     private static final Urn USER_URN = Urn.forUser(2L);
     private static final long PROGRESS = 123L;
-    private static final int DURATION = 456;
+    private static final long DURATION = 456L;
 
     private PlaybackSessionAnalyticsController analyticsController;
     private TestEventBus eventBus = new TestEventBus();

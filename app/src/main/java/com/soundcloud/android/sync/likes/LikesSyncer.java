@@ -101,7 +101,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
         }
     }
 
-    private final Set<PropertySet> getSetDifference(Set<PropertySet> set, Set<PropertySet>... without) {
+    private Set<PropertySet> getSetDifference(Set<PropertySet> set, Set<PropertySet>... without) {
         final Set<PropertySet> difference = new TreeSet<>(LIKES_COMPARATOR);
         difference.addAll(set);
         for (Set<PropertySet> s : without) {

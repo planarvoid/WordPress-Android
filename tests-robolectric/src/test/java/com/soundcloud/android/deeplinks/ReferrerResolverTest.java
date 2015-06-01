@@ -147,4 +147,28 @@ public class ReferrerResolverTest {
     public void shouldDetectOtherReferrerAsDefault() throws Exception {
         expect(resolver.getReferrerFromIntent(new Intent(), resources)).toEqual(Referrer.OTHER);
     }
+
+    @Test
+    public void shouldDetectGoogleCrawlerForReferrer() throws Exception {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
+        intent.putExtra("android.intent.extra.REFERRER", Uri.parse("android-app://com.google.appcrawler"));
+
+        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.GOOGLE_CRAWLER);
+    }
+
+    @Test
+    public void shouldDetectGoogleCrawlerForReferrerName() throws Exception {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
+        intent.putExtra("android.intent.extra.REFERRER_NAME", "android-app://com.google.appcrawler");
+
+        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.GOOGLE_CRAWLER);
+    }
+
+    @Test
+    public void shouldNotThrowWhenExpectedTypesDontMatch() throws Exception {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("soundcloud://sounds:1234"));
+        intent.putExtra("android.intent.extra.REFERRER_NAME", Uri.parse("android-app://com.google.appcrawler"));
+
+        expect(resolver.getReferrerFromIntent(intent, resources)).toEqual(Referrer.OTHER);
+    }
 }

@@ -32,6 +32,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.accounts.Account;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -83,6 +84,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private Context context;
     private String userAgent;
     private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    private AccountOperations accountOperations;
 
     public synchronized static PublicApiWrapper getInstance(Context context) {
         if (instance == null) {
@@ -119,6 +121,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.applicationProperties = applicationProperties;
         this.context = context;
+        this.accountOperations = accountOperations;
         objectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(accountOperations));
         userAgent = deviceHelper.getUserAgent();
@@ -199,7 +202,9 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
         if (responseIsUnauthorised(response)) {
-            unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+            if(accountOperations.hasValidToken()) {
+                unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+            }
         }
     }
 
@@ -302,7 +307,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     @SuppressWarnings(UNCHECKED)
     public <T extends PublicApiResource> List<T> readListFromIds(Request request, List<Long> ids) throws IOException {
-        List<PublicApiResource> resources = new ArrayList<PublicApiResource>(ids.size());
+        List<PublicApiResource> resources = new ArrayList<>(ids.size());
         int i = 0;
         while (i < ids.size()) {
             List<Long> batch = ids.subList(i, Math.min(i + API_LOOKUP_BATCH_SIZE, ids.size()));
@@ -324,7 +329,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     @NotNull
     <T, C extends CollectionHolder<T>> List<T> readFullCollection(Request request,
                                                                   Class<C> ch) throws IOException {
-        List<T> objects = new ArrayList<T>();
+        List<T> objects = new ArrayList<>();
         C holder = null;
         do {
             Request r = holder == null ? request : Request.to(holder.next_href);
@@ -452,7 +457,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
          */
         private final DateFormat dateFormat;
         // SimpleDateFormat & co are not threadsafe - use thread local instance for static access
-        private static ThreadLocal<CloudDateFormat> threadLocal = new ThreadLocal<CloudDateFormat>();
+        private static ThreadLocal<CloudDateFormat> threadLocal = new ThreadLocal<>();
 
         private static CloudDateFormat instance() {
             CloudDateFormat fmt = threadLocal.get();
