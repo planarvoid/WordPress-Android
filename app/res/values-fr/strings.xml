@@ -71,14 +71,14 @@
 
     <!-- __AUTHENTICATION -->
     <string name="authentication_I_forgot_my_password">J\'ai oublié mon mot de passe</string>
-    <string name="authentication_add_info_add_image_msg">Souriez ! Cette image apparaîtra sur votre profil.</string>
+    <string name="authentication_add_info_add_image_msg">Souriez! Cette image apparaîtra sur votre profil.</string>
     <string name="authentication_add_info_msg">C\'est presque fini. Choisissez maintenant un nom d\'utilisateur et ajoutez une photo pour personnaliser votre profil.</string>
     <string name="authentication_add_info_username_hint">Votre nom d\'utilisateur</string>
     <string name="onboarding_agreement_statement">En vous inscrivant, vous acceptez les Conditions générales d\'utilisation et les règles en matière de vie privée de SoundCloud.</string>
     <string name="authentication_choose_a_password">Au moins 6 caractères</string>
     <string name="authentication_error_incomplete_fields">Veuillez remplir tous les champs.</string>
     <string name="authentication_error_invalid_email">Veuillez entrer un email valide.</string>
-    <string name="authentication_error_generic">Oups ! Une erreur inattendue s\'est produite. Veuillez essayer à nouveau.</string>
+    <string name="authentication_error_generic">Oups! Une erreur inattendue s\'est produite. Veuillez essayer à nouveau.</string>
     <string name="authentication_error_no_connection_message">Il y a un problème avec votre connexion de données. Veuillez vérifier vos paramètres réseau.</string>
     <string name="authentication_error_password_too_short">Votre mot de passe doit compter 6 caractères ou plus.</string>
     <string name="authentication_error_age_not_valid">Vous devez être âgé d\'au moins 13 ans.</string>
@@ -89,7 +89,7 @@
     <string name="authentication_login_progress_message">En cours de connection</string>
     <string name="authentication_recover_password_failure">Nous ne pouvons pas récupérer votre mot de passe dans l\'immédiat. Veuillez réessayer dans quelques instants</string>
     <string name="authentication_recover_password_failure_reason">La récupération de mot du passe a échoué : %s</string>
-    <string name="authentication_recover_password_success">Consultez votre courrier ! Vous recevrez un e-mail avec des instructions sur la réinitialisation de votre mot de passe sous peu</string>
+    <string name="authentication_recover_password_success">Consultez votre courrier! Vous recevrez un e-mail avec des instructions sur la réinitialisation de votre mot de passe sous peu</string>
     <string name="authentication_recover_progress_message">Demande de réinitialisation de mot de passe</string>
     <string name="authentication_sign_up">Inscrivez-vous à SoundCloud</string>
     <string name="authentication_signup_error_message">Il semble y avoir un problème. Veuillez essayer de vous inscrire à SoundCloud.com.</string>
@@ -160,7 +160,7 @@
     <string name="error_server_problems_message">Un problème est survenu lors du traitement de votre demande. Veuillez réessayer plus tard.</string>
     <string name="connection_list_error">Il semble y avoir un problème de connexion. Veuillez réessayer dans quelques instants.</string>
     <!-- signup scope was revoked on server side -->
-    <string name="signup_scope_revoked">Oups ! Nous n\'avons pas pu vous inscrire\nVeuillez essayer de mettre à jour l\'application ou inscrivez-vous à SoundCloud.com.</string>
+    <string name="signup_scope_revoked">Oups! Nous n\'avons pas pu vous inscrire\nVeuillez essayer de mettre à jour l\'application ou inscrivez-vous à SoundCloud.com.</string>
 
     <string name="follow_blocked_title">Suivre les profils bloqués</string>
     <string name="follow_blocked_content">%s vous a bloqué.</string>
@@ -230,7 +230,7 @@
     <string name="and_conjunction">%1$s et %2$s</string>
     <string name="try_again">Essayer à nouveau</string>
     <string name="finish">Terminer</string>
-    <string name="error_onboarding_fail">Nous travaillons toujours à remplir le flot de donneés. Nous continuerons jusqu\'à ce que cela fonctionne ! En attendant, vous pouvez rechercher et découvrir d\'autres musiques et audio.</string>
+    <string name="error_onboarding_fail">Nous travaillons toujours à remplir le flot de donneés. Nous continuerons jusqu\'à ce que cela fonctionne! En attendant, vous pouvez rechercher et découvrir d\'autres musiques et audio.</string>
     <string name="age">Âge</string>
     <string name="enter_age_hint">Entrez votre âge</string>
     <string name="gender">Sexe</string>
@@ -402,8 +402,8 @@
     <string name="cache_clearing">Nettoyage du cache en cours</string>
     <string name="cache_clearing_message">Suppression du cache en cours...</string>
     <string-array name="pref_dev_record_type_entries">
-    <item>Compressé</item>
-    <item>Brut</item>
+        <item>Compressé</item>
+        <item>Brut</item>
     </string-array>
 
     <!-- __SETTINGS LOG OUT -->
@@ -436,10 +436,10 @@
     <string name="pref_notifications_reposts">Republications</string>
     <string name="pref_notifications_reposts_description">Recevez des mises à jour des nouvelles republications sur vos fichiers audio</string>
     <string-array name="pref_notifications_frequency">
-    <item>Toutes les heures</item>
-    <item>Toutes les 4 heures</item>
-    <item>Toutes les 12 heures</item>
-    <item>Toutes les 24 heures</item>
+        <item>Toutes les heures</item>
+        <item>Toutes les 4 heures</item>
+        <item>Toutes les 12 heures</item>
+        <item>Toutes les 24 heures</item>
     </string-array>
 
     <!-- __SKIPPY -->
