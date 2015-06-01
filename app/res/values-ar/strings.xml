@@ -308,9 +308,6 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s في %2$s</string>
 
-    <!-- __PAYMENTS -->
-    <string name="payments_success">نجاح</string>
-
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">قوائم التشغيل</string>
     <string name="activity_title_playlist">قائمة التشغيل</string>
@@ -453,22 +450,6 @@
     <string name="title_subscribe">اشتراك</string>
     <string name="subscribe_buy">شراء</string>
 
-    <!-- __OFFLINE SETTINGS -->
-    <string name="pref_offline_settings">إعدادات المزامنة بدون اتصال</string>
-    <string name="pref_offline_wifi_only_sync">مزامنة دون اتصال فقط عبر الواي فاي</string>
-    <string name="pref_offline_wifi_only_description">قم بمزامنة إعجاباتك وقوائم التشغيل الخاصة بك باستخدام اتصال واي فاي</string>
-    <string name="pref_offline_settings_summary">إدارة إعدادات المزامنة دون اتصال</string>
-    <string name="pref_offline_storage_limit">حد التخزين</string>
-    <string name="pref_offline_storage_limit_description">مساحة التخزين التي يمكنك استخدامها لمزامنة مساراتك</string>
-    <string name="pref_offline_storage_free_gb">%1$.1f جييجابايت خالية من %2$.1f جييجابايت</string>
-    <string name="pref_offline_storage_limit_gb">%1$.1f جييجابايت</string>
-    <string name="pref_offline_storage_usage">استخدام مساحة التخزين</string>
-    <string name="pref_offline_used_by_other_apps">مستخدمة من تطبيقات أخرى</string>
-    <string name="pref_offline_used">مستخدمة</string>
-    <string name="pref_offline_limit">الحد</string>
-    <string name="pref_offline_remove_all_offline_content">إزالة كافة المحتويات دون اتصال</string>
-    <string name="pref_offline_remove_all_offline_content_description">سيؤدي هذا إلى إزالة كافة المحتويات التي قمت بها دون اتصال من جهازك</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d ثانية</string>
     <string name="format_abbreviated_minutes">%d دقيقة</string>
@@ -501,36 +482,12 @@
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">المس لفتح SoundCloud</string>
 
-    <!-- __OFFLINE_SYNC -->
-    <string name="offline_track_not_available">المسار ليس متوفرًا دون اتصال</string>
-    <string name="offline_update_completed_title">جميع المسارات متزامنة!</string>
-    <string name="offline_update_completed_message">جاهز للاستماع دون اتصال!</string>
-    <string name="offline_update_storage_limit_reached_title">تم الوصول إلى حد التخزين</string>
-    <string name="offline_update_storage_limit_reached_message">اضغط هنا لعرض إعدادات التخزين</string>
-    <string name="offline_update_in_progress">مزامنة مساراتك</string>
-    <string name="offline_likes_dialog_title">اجعل إعجاباتك متاحة دون اتصال</string>
-    <string name="offline_likes_dialog_message">ستُبقي هذه الخاصية إعجاباتك الحالية والمستقبلية متاحة بحيث يمكنك الاستماع دون اتصال بالإنترنت أو اتصال بيانات.</string>
-    <string name="make_offline_available">إتاحة دون اتصال</string>
-    <string name="make_offline_unavailable">إزالة من الاستماع دون اتصال</string>
-    <string name="offline_dialog_go_online_continue">استمر</string>
-    <string name="offline_dialog_go_online_error_title">لا يمكن التحقق من اشتراكك</string>
-    <string name="offline_dialog_go_online_error_content">نظرًا لأن هذا الجهاز كان غير متصل لأكثر من 30 يومًا، فلم تتمكن من التحقق من اشتراكك. يرجى الاتصال بالإنترنت لإعادة توصيل هذا الجهاز باشتراكك وأعد تفعيل المحتوى غير المتصل لك.</string>
-    <string name="offline_update_paused">تم إيقاف المزامنة دون اتصال مؤقتًا</string>
-    <string name="no_network_connection">لا يوجد اتصال بالشبكة</string>
-    <string name="no_wifi_connection">لا يوجد اتصال واي فاي</string>
-
     <!-- __AGE VERFICATION -->
     <string name="age_verify_label">تحقق من العمر</string>
     <string name="age_verify_title">يرجى التحقق من عمرك</string>
     <string name="age_verify_warning">المحتوى الموجود على هذا الملف قد يكون غير مناسب لمن هم دون سن معينة.</string>
     <string name="age_verify_info">سيتم حفظ هذه المعلومات في ملفك الشخصي.</string>
     <string name="age_verify_button">تحقق من العمر</string>
-
-    <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">لقد وصلت إلى حد الجهاز المسجل.</string>
-    <string name="device_management_login_message">اشتراكك يقتصر على 3 أجهزة. يمكنك تسجيل هذا الجهاز وتسجيل الخروج من آخر جهاز استخدمته عن طريق اختيار متابعة.</string>
-    <string name="device_management_conflict_message"> وصل اشتراكك إلى الحد الأقصى للأجهزة. تم تسجيل خروج هذا الجهاز  وتمت إزالة أي محتوى غير متصل. يمكنك تسجيل الدخول مرة أخرى لإعادة تسجيل هذا الجهاز.</string>
-    <string name="device_management_continue">استمر</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">غير قادر على إسناد المسار</string>

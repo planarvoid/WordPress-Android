@@ -309,9 +309,6 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s di %2$s</string>
 
-    <!-- __PAYMENTS -->
-    <string name="payments_success">Berhasil</string>
-
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Daftar Putar</string>
     <string name="activity_title_playlist">Daftar Putar</string>
@@ -454,22 +451,6 @@
     <string name="title_subscribe">Berlangganan</string>
     <string name="subscribe_buy">Beli</string>
 
-    <!-- __OFFLINE SETTINGS -->
-    <string name="pref_offline_settings">Pengaturan Sinkronisasi Offline</string>
-    <string name="pref_offline_wifi_only_sync">Hanya lakukan sinkronisasi offline melalui Wi-Fi</string>
-    <string name="pref_offline_wifi_only_description">Sinkronkan suka dan daftar putar Anda hanya melalui koneksi Wi-Fi</string>
-    <string name="pref_offline_settings_summary">Kelola pengaturan Sinkronisasi Offline Anda</string>
-    <string name="pref_offline_storage_limit">Batas Penyimpanan</string>
-    <string name="pref_offline_storage_limit_description">Seberapa banyak penyimpanan Anda yang dapat kami gunakan untuk menyinkronkan trek Anda</string>
-    <string name="pref_offline_storage_free_gb">%1$.1f GB kosong dari %2$.1f GB</string>
-    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
-    <string name="pref_offline_storage_usage">Penggunaan Penyimpanan</string>
-    <string name="pref_offline_used_by_other_apps">Digunakan oleh aplikasi lain</string>
-    <string name="pref_offline_used">Digunakan</string>
-    <string name="pref_offline_limit">Batas</string>
-    <string name="pref_offline_remove_all_offline_content">Hapus semua konten offline</string>
-    <string name="pref_offline_remove_all_offline_content_description">Ini akan menghapus semua konten yang Anda sediakan secara offline dari perangkat Anda</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d dtk.</string>
     <string name="format_abbreviated_minutes">%d mnt.</string>
@@ -502,23 +483,6 @@
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Sentuh untuk membuka SoundCloud</string>
 
-    <!-- __OFFLINE_SYNC -->
-    <string name="offline_track_not_available">Trek tidak tersedia secara offline</string>
-    <string name="offline_update_completed_title">Semua trek telah disinkronkan!</string>
-    <string name="offline_update_completed_message">Siap untuk mendengarkan secara offline!</string>
-    <string name="offline_update_storage_limit_reached_title">Batas penyimpanan telah tercapai</string>
-    <string name="offline_update_storage_limit_reached_message">Ketuk di sini untuk melihat pengaturan penyimpanan</string>
-    <string name="offline_update_in_progress">Menyinkronkan trek Anda</string>
-    <string name="offline_likes_dialog_title">Membuat Suka Anda tersedia secara offline</string>
-    <string name="offline_likes_dialog_message">Ini akan membuat Suka Anda saat ini dan yang mendatang tersedia secara offline sehingga Anda dapat mendengarkan tanpa koneksi Internet atau data.</string>
-    <string name="make_offline_available">Buat menjadi tersedia secara offline</string>
-    <string name="make_offline_unavailable">Hapus dari mendengarkan secara offline</string>
-    <string name="offline_dialog_go_online_continue">Lanjutkan</string>
-    <string name="offline_dialog_go_online_error_title">Langganan Anda tidak dapat diverifikasi</string>
-    <string name="offline_dialog_go_online_error_content">Karena perangkat ini telah offline selama lebih dari 30 hari, kami tidak dapat memverifikasi langganan Anda. Mohon masuk ke status online untuk menghubungkan kembali perangkat ini dengan langganan Anda dan mengaktifkan kembali konten offline Anda.</string>
-    <string name="offline_update_paused">Sinkronisasi offline dijeda</string>
-    <string name="no_network_connection">tidak ada koneksi jaringan</string>
-    <string name="no_wifi_connection">tidak ada koneksi Wi-Fi</string>
 
     <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Verifikasi Usia</string>
@@ -526,12 +490,6 @@
     <string name="age_verify_warning">Konten dalam profil ini mungkin tidak pantas bagi mereka yang berusia di bawah umur tertentu.</string>
     <string name="age_verify_info">Informasi ini akan disimpan pada profil Anda.</string>
     <string name="age_verify_button">Verifikasikan usia</string>
-
-    <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">Anda telah mencapai batas perangkat terdaftar.</string>
-    <string name="device_management_login_message">Langganan Anda terbatas untuk 3 perangkat. Anda dapat mendaftarkan perangkat ini dan keluar dari perangkat yang Anda gunakan terakhir dengan memilih lanjutkan.</string>
-    <string name="device_management_conflict_message">Langganan Anda telah mencapai batas perangkat. Perangkat ini telah keluar dan setiap konten offline telah dihapus. Anda dapat masuk kembali untuk mendaftarkan ulang perangkat ini.</string>
-    <string name="device_management_continue">Lanjutkan</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Tidak dapat memasukkan trek</string>

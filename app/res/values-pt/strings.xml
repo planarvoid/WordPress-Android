@@ -310,9 +310,6 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s em %2$s</string>
 
-    <!-- __PAYMENTS -->
-    <string name="payments_success">Sucesso</string>
-
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Playlists</string>
     <string name="activity_title_playlist">Playlist</string>
@@ -455,22 +452,6 @@
     <string name="title_subscribe">Assinar</string>
     <string name="subscribe_buy">Comprar</string>
 
-    <!-- __OFFLINE SETTINGS -->
-    <string name="pref_offline_settings">Configurações de sincronização off-line</string>
-    <string name="pref_offline_wifi_only_sync">Apenas sincronize offline se conectado por Wi-Fi</string>
-    <string name="pref_offline_wifi_only_description">Sincronize suas curtidas e playlists usando apenas conexão Wi-Fi</string>
-    <string name="pref_offline_settings_summary">Gerencie suas configurações de sincronização off-line</string>
-    <string name="pref_offline_storage_limit">Limite de armazenamento</string>
-    <string name="pref_offline_storage_limit_description">Quanto de seu armazenamento pode ser \nutilizado para sincronizar suas faixas</string>
-    <string name="pref_offline_storage_free_gb">%1$.1f GB livre de %2$.1f GB</string>
-    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
-    <string name="pref_offline_storage_usage">Uso do armazenamento</string>
-    <string name="pref_offline_used_by_other_apps">Utilizado por outros apps</string>
-    <string name="pref_offline_used">Em uso</string>
-    <string name="pref_offline_limit">Limite</string>
-    <string name="pref_offline_remove_all_offline_content">Remover todo o conteúdo off-line</string>
-    <string name="pref_offline_remove_all_offline_content_description">Isto removerá todo o conteúdo que você disponibilizou off-line em seu dispositivo</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d seg.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
@@ -503,36 +484,12 @@
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Toque para abrir o SoundCloud</string>
 
-    <!-- __OFFLINE_SYNC -->
-    <string name="offline_track_not_available">A faixa não está disponível off-line</string>
-    <string name="offline_update_completed_title">Todas as faixas sincronizadas</string>
-    <string name="offline_update_completed_message">Pronto para ouvir offline!</string>
-    <string name="offline_update_storage_limit_reached_title">Limite de armazenamento atingido</string>
-    <string name="offline_update_storage_limit_reached_message">Toque aqui para ver as configurações de armazenamento</string>
-    <string name="offline_update_in_progress">Sincronizando suas faixas</string>
-    <string name="offline_likes_dialog_title">Disponibilize suas curtidas off-line</string>
-    <string name="offline_likes_dialog_message">Isto mantém suas curtidas atuais e futuras disponíveis off-line para que você possa ouvir os sons sem internet ou conexão de dados.</string>
-    <string name="make_offline_available">Disponibilizar offline</string>
-    <string name="make_offline_unavailable">Remover permissão de ouvir offline</string>
-    <string name="offline_dialog_go_online_continue">Continuar</string>
-    <string name="offline_dialog_go_online_error_title">Sua assinatura não pode ser confirmada</string>
-    <string name="offline_dialog_go_online_error_content">Este dispositivo esteve off-line por mais de 30 dias, portanto, não foi possível verificar sua assinatura. Conecte-se com este dispositivo usando sua assinatura para reabilitar seu conteúdo off-line.</string>
-    <string name="offline_update_paused">Sincronização off-line em pausa</string>
-    <string name="no_network_connection">Não existe conexão de rede</string>
-    <string name="no_wifi_connection">Não existe conexão Wi-Fi</string>
-
     <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Verificar idade</string>
     <string name="age_verify_title">Confirme sua idade</string>
     <string name="age_verify_warning">O conteúdo neste perfil pode ser inadequado para pessoas abaixo de determinada idade.</string>
     <string name="age_verify_info">Essa informação será gravada em seu perfil.</string>
     <string name="age_verify_button">Verificar idade</string>
-
-    <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">Você atingiu o limite registrado do dispositivo.</string>
-    <string name="device_management_login_message">Sua assinatura é limitada a 3 dispositivos. Você pode registrar este dispositivo e sair do dispositivo utilizado pela última vez selecionando continuar.</string>
-    <string name="device_management_conflict_message">Sua assinatura atingiu o limite de dispositivos. Este dispositivo foi descadastrado e todo o conteúdo off-line foi removido. Você poder se conectar e recadastrar este dispositivo.</string>
-    <string name="device_management_continue">Continuar</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Não foi possível compor a faixa</string>

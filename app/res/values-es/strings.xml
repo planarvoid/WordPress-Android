@@ -309,9 +309,6 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s en %2$s</string>
 
-    <!-- __PAYMENTS -->
-    <string name="payments_success">Éxito</string>
-
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Listas de reproducción</string>
     <string name="activity_title_playlist">Lista de reproducción</string>
@@ -454,22 +451,6 @@
     <string name="title_subscribe">Suscribirse</string>
     <string name="subscribe_buy">Comprar</string>
 
-    <!-- __OFFLINE SETTINGS -->
-    <string name="pref_offline_settings">Ajustes de sincronización sin conexión</string>
-    <string name="pref_offline_wifi_only_sync">Solo sincronizar sin conexión por Wi-Fi</string>
-    <string name="pref_offline_wifi_only_description">Sincronice sus me gusta y listas de reproducción solo usando una conexión Wi-Fi</string>
-    <string name="pref_offline_settings_summary">Administre sus ajustes de sincronización sin conexión</string>
-    <string name="pref_offline_storage_limit">Límite de almacenamiento</string>
-    <string name="pref_offline_storage_limit_description">¿Cuánto almacenamiento podemos usar para sincronizar sus pistas?</string>
-    <string name="pref_offline_storage_free_gb">%1$.1f GB libres de %2$.1f GB</string>
-    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
-    <string name="pref_offline_storage_usage">Uso de almacenamiento</string>
-    <string name="pref_offline_used_by_other_apps">Usado por otras aplicaciones</string>
-    <string name="pref_offline_used">Usado</string>
-    <string name="pref_offline_limit">Límite</string>
-    <string name="pref_offline_remove_all_offline_content">Quitar todo el contenido sin conexión</string>
-    <string name="pref_offline_remove_all_offline_content_description">Esto eliminará todo el contenido que tiene sin conexión en su dispositivo</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d s</string>
     <string name="format_abbreviated_minutes">%d m</string>
@@ -502,36 +483,12 @@
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Toque para abrir SoundCloud</string>
 
-    <!-- __OFFLINE_SYNC -->
-    <string name="offline_track_not_available">La pista no está disponible sin conexión</string>
-    <string name="offline_update_completed_title">¡Todas las pistas están sincronizadas!</string>
-    <string name="offline_update_completed_message">¡Listo para escuchar sin conexión!</string>
-    <string name="offline_update_storage_limit_reached_title">Se alcanzó el límite de almacenamiento</string>
-    <string name="offline_update_storage_limit_reached_message">Toque aquí para ver sus ajustes de almacenamiento</string>
-    <string name="offline_update_in_progress">Sincronizando sus pistas</string>
-    <string name="offline_likes_dialog_title">Haga que sus me gusta estén disponibles sin conexión</string>
-    <string name="offline_likes_dialog_message">Esto mantendrá sus me gusta actuales y futuros disponibles sin conexión para que pueda escucharlos con o sin una conexión a internet.</string>
-    <string name="make_offline_available">Hacer disponible sin conexión</string>
-    <string name="make_offline_unavailable">Retirar de escuchar sin conexión</string>
-    <string name="offline_dialog_go_online_continue">Continuar</string>
-    <string name="offline_dialog_go_online_error_title">Su suscripción no se pudo verificar</string>
-    <string name="offline_dialog_go_online_error_content">Debido a que este dispositivo ha estado sin conexión por más de 30 días, no pudimos verificar su suscripción. Por favor conéctese para poder reconectar este dispositivo a su suscripción y rehabilitar su contenido sin conexión.</string>
-    <string name="offline_update_paused">Sincronización sin conexión en pausa</string>
-    <string name="no_network_connection">no hay conexión de red</string>
-    <string name="no_wifi_connection">no hay conexión Wi-Fi</string>
-
     <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Verificar edad</string>
     <string name="age_verify_title">Por favor verifique su edad</string>
     <string name="age_verify_warning">El contenido de este perfil puede no ser apropiado para los menores de cierta edad.</string>
     <string name="age_verify_info">Esta información será guardada en su perfil.</string>
     <string name="age_verify_button">Verificar edad</string>
-
-    <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">Ha llegado al límite de dispositivos registrados.</string>
-    <string name="device_management_login_message">Su suscripción tiene un límite de 3 dispositivos. Puede registrar este dispositivo y cerrar sesión eligiendo continuar en el último dispositivo que usó.</string>
-    <string name="device_management_conflict_message">Su suscripción ha llegado al límite de dispositivos. Este dispositivo ha cerrado sesión y el contenido sin conexión ha sido eliminado. Puede iniciar sesión de nuevo para registrar este dispositivo nuevamente.</string>
-    <string name="device_management_continue">Continuar</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">No se pudo emitir la pista</string>

@@ -309,9 +309,6 @@
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s à %2$s</string>
 
-    <!-- __PAYMENTS -->
-    <string name="payments_success">Succès</string>
-
     <!-- __PLAYLISTS -->
     <string name="tab_title_user_playlists">Listes de lecture</string>
     <string name="activity_title_playlist">Liste de lecture</string>
@@ -454,22 +451,6 @@
     <string name="title_subscribe">S\'abonner</string>
     <string name="subscribe_buy">Acheter</string>
 
-    <!-- __OFFLINE SETTINGS -->
-    <string name="pref_offline_settings">Paramètres de synchronisation hors ligne</string>
-    <string name="pref_offline_wifi_only_sync">Synchronisation hors ligne seulement via une connexion Wi-Fi</string>
-    <string name="pref_offline_wifi_only_description">Synchronisez vos goûts et listes de lecture uniquement à l\'aide d\'une connexion Wi-Fi</string>
-    <string name="pref_offline_settings_summary">Gérer vos paramètres de synchronisation hors ligne</string>
-    <string name="pref_offline_storage_limit">Limite de stockage</string>
-    <string name="pref_offline_storage_limit_description">Combien de place de votre stockage pouvons-nous\nutiliser pour synchroniser vos pistes</string>
-    <string name="pref_offline_storage_free_gb">%1$.1f Go d\'espace libre sur %2$.1f Go</string>
-    <string name="pref_offline_storage_limit_gb">%1$.1f GB</string>
-    <string name="pref_offline_storage_usage">Utilisation du stockage</string>
-    <string name="pref_offline_used_by_other_apps">Utilisé par d\'autres applications</string>
-    <string name="pref_offline_used">Utilisé</string>
-    <string name="pref_offline_limit">Limite</string>
-    <string name="pref_offline_remove_all_offline_content">Retirez tout le contenu hors connexion</string>
-    <string name="pref_offline_remove_all_offline_content_description">Cela éliminera tout le contenu que vous avez rendu disponible hors connexion de votre appareil</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>
@@ -502,36 +483,12 @@
     <!-- __WIDGET -->
     <string name="widget_touch_to_open">Touchez pour ouvrir SoundCloud</string>
 
-    <!-- __OFFLINE_SYNC -->
-    <string name="offline_track_not_available">Morceau non disponible hors connexion</string>
-    <string name="offline_update_completed_title">Tous les morceaux sont synchronisés !</string>
-    <string name="offline_update_completed_message">Prêt pour écouter déconnecté !</string>
-    <string name="offline_update_storage_limit_reached_title">Limite de stockage atteinte</string>
-    <string name="offline_update_storage_limit_reached_message">Appuyez ici pour afficher les paramètres de stockage</string>
-    <string name="offline_update_in_progress">Synchroniser vos morceaux</string>
-    <string name="offline_likes_dialog_title">Rendez vos \"Likes\" disponibles hors ligne</string>
-    <string name="offline_likes_dialog_message">Cela permettra de garder vos \"Likes\" actuels et futurs disponibles hors connexion, vous pouvez écouter sans connexion Internet ou de données.</string>
-    <string name="make_offline_available">Rendre disponible hors connexion</string>
-    <string name="make_offline_unavailable">Retirer de l\'écoute hors-ligne</string>
-    <string name="offline_dialog_go_online_continue">Continuer</string>
-    <string name="offline_dialog_go_online_error_title">Votre abonnement ne peut être vérifié</string>
-    <string name="offline_dialog_go_online_error_content">Suite au fait que cet appareil a été hors ligne pendant plus de 30 jours, nous n\'avons pu vérifier votre abonnement. Veuillez entrer en ligne pour reconnecter cet appreil à votre abonnement et réactiver votre contenu hors ligne.</string>
-    <string name="offline_update_paused">Synchronisation hors ligne en pause</string>
-    <string name="no_network_connection">pas de connexion réseau</string>
-    <string name="no_wifi_connection">pas de connexion Wi-Fi</string>
-
     <!-- __AGE VERFICATION -->
     <string name="age_verify_label">Vérification de votre âge</string>
     <string name="age_verify_title">Veuillez valider votre âge</string>
     <string name="age_verify_warning">Le contenu de ce profil peut être inapproprié pour les personnes en dessous d\'un certain âge.</string>
     <string name="age_verify_info">Cette information sera sauvegardée sur votre profil.</string>
     <string name="age_verify_button">Confirmer l\'âge</string>
-
-    <!-- __DEVICE MANAGEMENT -->
-    <string name="device_management_limit">Vous avez atteint la limite de périphérique enregistré.</string>
-    <string name="device_management_login_message">Votre abonnement est limitée à 3 périphériques. Vous pouvez enregistrer ce périphérique et vous déconnecter de l\'appareil que vous avez récemment utilisé en sélectionnant continuer.</string>
-    <string name="device_management_conflict_message">Votre abonnement a atteint la limite de périphérique. Cet périphérique a été déconnecté et tout le contenu hors connexion a été supprimé. Vous pouvez vous connecter avant de ré-enregistrer ce périphérique.</string>
-    <string name="device_management_continue">Continuer</string>
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Impossible de jeter le morceau</string>
