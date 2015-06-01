@@ -184,4 +184,12 @@
         <item name="android:layout_below">@id/toolbar_id</item>
     </style>
 
+    <style name="Profile.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="backgroundTint">?attr/colorAccent</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:text">@string/btn_follow</item>
+    </style>
+
 </resources>

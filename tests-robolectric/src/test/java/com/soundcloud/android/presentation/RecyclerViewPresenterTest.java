@@ -4,10 +4,13 @@ import static android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import static com.soundcloud.android.Expect.expect;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
@@ -191,7 +195,7 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(SwipeRefreshLayout.OnRefreshListener.class), any(int[].class));
+        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(SwipeRefreshLayout.OnRefreshListener.class), any(View[].class));
     }
 
     @Test
@@ -204,7 +208,7 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class), any(int[].class));
+        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class), any(View[].class));
     }
 
     @Test
@@ -371,6 +375,7 @@ public class RecyclerViewPresenterTest {
         ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
         verify(adapter).registerAdapterDataObserver(captor.capture());
 
+        when(adapter.isEmpty()).thenReturn(true);
         captor.getValue().onChanged();
         verify(emptyView).setVisibility(View.VISIBLE);
     }
@@ -381,13 +386,12 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        when(adapter.getItemCount()).thenReturn(1);
-
         ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
         verify(adapter).registerAdapterDataObserver(captor.capture());
 
+        when(adapter.isEmpty()).thenReturn(false);
         captor.getValue().onChanged();
-        verify(emptyView).setVisibility(View.GONE);
+        verify(emptyView, times(2)).setVisibility(View.GONE);
     }
 
     @Test
@@ -399,6 +403,7 @@ public class RecyclerViewPresenterTest {
         ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
         verify(adapter).registerAdapterDataObserver(captor.capture());
 
+        when(adapter.isEmpty()).thenReturn(true);
         captor.getValue().onItemRangeInserted(0, 1);
         verify(emptyView).setVisibility(View.VISIBLE);
     }
@@ -409,13 +414,12 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        when(adapter.getItemCount()).thenReturn(1);
-
         ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
         verify(adapter).registerAdapterDataObserver(captor.capture());
 
+        when(adapter.isEmpty()).thenReturn(false);
         captor.getValue().onItemRangeRemoved(0, 1);
-        verify(emptyView).setVisibility(View.GONE);
+        verify(emptyView, times(2)).setVisibility(View.GONE);
     }
 
     @Test
@@ -427,6 +431,7 @@ public class RecyclerViewPresenterTest {
         ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
         verify(adapter).registerAdapterDataObserver(captor.capture());
 
+        when(adapter.isEmpty()).thenReturn(true);
         captor.getValue().onItemRangeRemoved(0, 1);
         verify(emptyView).setVisibility(View.VISIBLE);
     }
@@ -437,13 +442,12 @@ public class RecyclerViewPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        when(adapter.getItemCount()).thenReturn(1);
-
         ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
         verify(adapter).registerAdapterDataObserver(captor.capture());
 
+        when(adapter.isEmpty()).thenReturn(false);
         captor.getValue().onItemRangeRemoved(0, 1);
-        verify(emptyView).setVisibility(View.GONE);
+        verify(emptyView, times(2)).setVisibility(View.GONE);
     }
 
     @Test
@@ -454,19 +458,67 @@ public class RecyclerViewPresenterTest {
 
         View itemView = mock(View.class);
         when(recyclerView.getChildAdapterPosition(itemView)).thenReturn(2);
+        when(adapter.adjustPositionForHeader(2)).thenReturn(1); //simulate a header
 
         ArgumentCaptor<View.OnClickListener> clickListenerCaptor = ArgumentCaptor.forClass(View.OnClickListener.class);
         verify(adapter).setOnItemClickListener(clickListenerCaptor.capture());
         clickListenerCaptor.getValue().onClick(itemView);
 
         expect(lastClickedView).toBe(itemView);
-        expect(lastClickedPosition).toEqual(2);
+        expect(lastClickedPosition).toEqual(1);
+    }
+
+    @Test
+    public void attachesExternalRefreshListener() throws Exception {
+        final MultiSwipeRefreshLayout refreshLayout = mock(MultiSwipeRefreshLayout.class);
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        presenter.attachExternalRefreshLayout(refreshLayout);
+
+        verify(pullToRefreshWrapper).attach(same(refreshLayout),any(SwipeRefreshLayout.OnRefreshListener.class),
+                eq(new View[]{recyclerView, emptyView}) );
+    }
+
+    @Test
+    public void detachRefreshWrapperStopsRefreshingAndDetachesWrapper() throws Exception {
+        createPresenterWithBinding(defaultBinding());
+        presenter.detachRefreshWrapper();
+
+        InOrder inOrder = Mockito.inOrder(pullToRefreshWrapper);
+        inOrder.verify(pullToRefreshWrapper).setRefreshing(false);
+        inOrder.verify(pullToRefreshWrapper).detach();
+    }
+
+    @Test
+    public void attachExternalRefreshSetsRefreshingIfInTheMiddleOfRefresh() {
+        final MultiSwipeRefreshLayout refreshLayout = mock(MultiSwipeRefreshLayout.class);
+        final CollectionBinding<String> refreshBinding = defaultBinding();
+        createPresenterWithBinding(defaultBinding(), refreshBinding);
+
+        triggerPullToRefresh();
+        presenter.attachExternalRefreshLayout(refreshLayout);
+
+        verify(refreshLayout).setRefreshing(true);
+    }
+
+    @Test
+    public void attachExternalRefreshDoesNotSetRefreshingIfRefreshComplete() {
+        final MultiSwipeRefreshLayout refreshLayout = mock(MultiSwipeRefreshLayout.class);
+        final CollectionBinding<String> refreshBinding = defaultBinding();
+        createPresenterWithBinding(defaultBinding(), refreshBinding);
+
+        triggerPullToRefresh();
+        source.onNext(Collections.singletonList("item"));
+        presenter.attachExternalRefreshLayout(refreshLayout);
+
+        verify(refreshLayout, never()).setRefreshing(true);
     }
 
     private void triggerPullToRefresh() {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture(), any(int[].class));
+        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture(), any(View[].class));
         SwipeRefreshLayout.OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
     }

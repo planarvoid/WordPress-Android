@@ -5,6 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -38,6 +39,16 @@ public class NavigatorTest {
         appContext = Robolectric.application;
         activityContext = new Activity();
         when(flags.isEnabled(Flag.NEW_PROFILE)).thenReturn(false);
+    }
+
+    @Test
+    public void opensMyProfileActivity() {
+        navigator.openMyProfile(activityContext, USER_URN);
+
+        Intent startedActivity = Robolectric.shadowOf(activityContext).getNextStartedActivity();
+        expect(startedActivity).not.toBeNull();
+        expect(startedActivity.getComponent().getClassName()).toEqual(MeActivity.class.getCanonicalName());
+        expect(startedActivity.getExtras().get(ProfileActivity.EXTRA_USER_URN)).toEqual(USER_URN);
     }
 
     @Test

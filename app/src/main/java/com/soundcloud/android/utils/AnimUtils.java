@@ -70,6 +70,8 @@ public final class AnimUtils {
             return;
         }
 
+        view.clearAnimation();
+
         if (!animated) {
             view.setVisibility(hiddenVisibility);
         } else {
@@ -85,18 +87,18 @@ public final class AnimUtils {
     }
 
     public static void hideView(Context context, final View view, Animation.AnimationListener listener) {
-        view.clearAnimation();
         if (view.getVisibility() == View.GONE) {
             return;
         }
+        view.clearAnimation();
         Animation animation = AnimationUtils.loadAnimation(context, R.anim.fade_out);
         animation.setAnimationListener(listener);
         view.startAnimation(animation);
     }
 
     public static void showView(Context context, final View view, boolean animated) {
-        view.clearAnimation();
         if (view.getVisibility() != View.VISIBLE) {
+            view.clearAnimation();
             view.setVisibility(View.VISIBLE);
             if (animated) {
                 view.startAnimation(AnimationUtils.loadAnimation(context, R.anim.fade_in));

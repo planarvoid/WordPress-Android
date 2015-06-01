@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Profile.HeaderContainer" parent="ProfileHeaderContainerBase">
+        <!--<item name="android:elevation">@dimen/toolbar_elevation</item>-->
+    </style>
+
+    <style name="Profile.HeaderInfoLayout" parent="HeaderInfoLayoutBase">
+        <item name="android:translationZ">@dimen/toolbar_elevation</item>
+    </style>
+
+    <style name="Profile.Tabs" parent="TabsBase">
+        <item name="android:translationZ">@dimen/toolbar_elevation</item>
+    </style>
+
+    <style name="Profile.Toolbar.Username" parent="ToolbarUsernameBase">
+        <item name="android:translationZ">@dimen/toolbar_elevation</item>
+    </style>
+
+</resources>
