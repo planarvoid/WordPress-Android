@@ -59,10 +59,12 @@ public class StreamPlaya implements PlayaListener {
         }
     }
 
-    /** state storage. should be gone in player v2 **/
+    /**
+     * state storage. should be gone in player v2 *
+     */
 
     @Deprecated
-    public StateTransition  getLastStateTransition() {
+    public StateTransition getLastStateTransition() {
         return lastStateTransition;
     }
 
@@ -91,10 +93,10 @@ public class StreamPlaya implements PlayaListener {
     }
 
     public void play(PropertySet track) {
-        lastTrackPlayed = track;
-        configureNextPlayaToUse();
+        final boolean offline = isAvailableOffline(track);
+        prepareForPlay(track, offline);
 
-        if (isAvailableOffline(track)){
+        if (offline) {
             currentPlaya.playOffline(track, 0);
         } else {
             currentPlaya.play(track);
@@ -102,10 +104,10 @@ public class StreamPlaya implements PlayaListener {
     }
 
     public void play(PropertySet track, long fromPos) {
-        lastTrackPlayed = track;
-        configureNextPlayaToUse();
+        final boolean offline = isAvailableOffline(track);
+        prepareForPlay(track, offline);
 
-        if (isAvailableOffline(track)){
+        if (offline) {
             currentPlaya.playOffline(track, fromPos);
         } else {
             currentPlaya.play(track, fromPos);
@@ -113,9 +115,15 @@ public class StreamPlaya implements PlayaListener {
     }
 
     public void playUninterrupted(PropertySet track) {
-        lastTrackPlayed = track;
-        configureNextPlayaToUse();
+        final boolean offline = isAvailableOffline(track);
+        prepareForPlay(track, offline);
+
         currentPlaya.playUninterrupted(track);
+    }
+
+    private void prepareForPlay(PropertySet track, boolean isAvailableOffline) {
+        lastTrackPlayed = track;
+        configureNextPlayaToUse(isAvailableOffline);
     }
 
     public boolean resume() {
@@ -149,14 +157,14 @@ public class StreamPlaya implements PlayaListener {
     public void destroy() {
         // call stop first as it will save the queue/position
         mediaPlayaDelegate.destroy();
-        if(!skippyFailedToInitialize) {
+        if (!skippyFailedToInitialize) {
             skippyPlayaDelegate.destroy();
         }
     }
 
     public void setListener(PlayaListener playaListener) {
         this.playaListener = playaListener;
-        if (currentPlaya != null){
+        if (currentPlaya != null) {
             currentPlaya.setListener(playaListener);
         }
     }
@@ -189,7 +197,7 @@ public class StreamPlaya implements PlayaListener {
         return playaListener.requestAudioFocus();
     }
 
-    public void startBufferingMode(Urn trackUrn){
+    public void startBufferingMode(Urn trackUrn) {
         Playa lastPlaya = currentPlaya;
         currentPlaya = bufferingPlayaDelegate;
 
@@ -202,14 +210,14 @@ public class StreamPlaya implements PlayaListener {
         }
     }
 
-    private void configureNextPlayaToUse(){
-        configureNextPlayaToUse(getNextPlaya());
+    private void configureNextPlayaToUse(boolean offlinePlayback) {
+        configureNextPlayaToUse(getNextPlaya(offlinePlayback));
     }
 
-    private void configureNextPlayaToUse(Playa nextPlaya){
+    private void configureNextPlayaToUse(Playa nextPlaya) {
         Log.i(TAG, "Configuring next player to use : " + nextPlaya);
 
-        if (currentPlaya != null && currentPlaya != nextPlaya){
+        if (currentPlaya != null && currentPlaya != nextPlaya) {
             currentPlaya.stopForTrackTransition();
         }
 
@@ -217,18 +225,20 @@ public class StreamPlaya implements PlayaListener {
         currentPlaya.setListener(this);
     }
 
-
-    @SuppressWarnings({"PMD.CompareObjectsWithEquals"})
-    private Playa getNextPlaya() {
-        // TODO : What about offline tracks, when forcing media player
-        if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()){
-            return mediaPlayaDelegate;
-        } else {
+    private Playa getNextPlaya(boolean forOfflinePlayback) {
+        //there is no offline playback for media player so try to force skippy
+        if (!skippyFailedToInitialize && forOfflinePlayback) {
             return skippyPlayaDelegate;
         }
+
+        if (skippyFailedToInitialize || playerSwitcherInfo.shouldForceMediaPlayer()) {
+            return mediaPlayaDelegate;
+        }
+
+        return skippyPlayaDelegate;
     }
 
-    private boolean isAvailableOffline(PropertySet track){
+    private boolean isAvailableOffline(PropertySet track) {
         return !skippyFailedToInitialize && offlinePlaybackOperations.shouldPlayOffline(track);
     }
 
