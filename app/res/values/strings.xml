@@ -46,6 +46,7 @@
     <string name="website">Website</string>
     <string name="like">Like</string>
     <string name="unlike">Unlike</string>
+    <string name="unlimited">unlimited</string>
 
     <!-- __ACCESSIBILITY -->
     <string name="accessibility_search">Search SoundCloud</string>
@@ -309,7 +310,6 @@
     <string name="pause">Pause</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
-    <string name="casting_to">Casting to</string>
 
     <!-- __COMMENTS -->
     <string name="user_commented_at">%1$s at %2$s</string>
@@ -393,6 +393,10 @@
     <string name="recording_upload_finished">Upload finished</string>
     <string name="record_privacy_header">Track will be</string>
     <string name="record_tap_to_post">Tap to post your recording</string>
+    <string name="record_change_artwork">Change Artwork</string>
+    <string name="record_tap_to_record">Tap to start recording</string>
+    <string name="record_tap_to_pause">Tap to pause recording</string>
+    <string name="record_tap_to_resume">Tap to resume recording</string>
 
     <!-- __SEARCH -->
     <string name="search_hint">Search SoundCloud</string>
@@ -567,6 +571,7 @@
 
     <!-- GOOGLE CAST -->
     <string name="cast_unable_play_track">Unable to cast track</string>
+    <string name="casting_to">Casting to</string>
 
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string name="select_feedback_category">What would you like to report?</string>
@@ -575,15 +580,10 @@
     <string name="feedback_other_issue">Other issue</string>
     <string name="feedback_email_subject">Report: %1$s</string>
     <string name="feedback_action_chooser">Send feedback via email&#8230;</string>
-    <string name="record_change_artwork">Change Artwork</string>
-    <string name="record_tap_to_record">Tap to start recording</string>
-    <string name="record_tap_to_pause">Tap to pause recording</string>
-    <string name="record_tap_to_resume">Tap to resume recording</string>
     <string name="feedback_unable_to_get_logs">Unable to get logs</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
-    <string name="unlimited">unlimited</string>
 
 </resources>
