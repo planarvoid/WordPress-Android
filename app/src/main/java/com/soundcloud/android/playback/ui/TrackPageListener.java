@@ -2,6 +2,7 @@ package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
@@ -13,7 +14,6 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.Subscriber;
@@ -25,15 +25,17 @@ import javax.inject.Inject;
 class TrackPageListener extends PageListener {
     private final PlayQueueManager playQueueManager;
     private final LikeOperations likeOperations;
+    private final Navigator navigator;
 
     @Inject
     public TrackPageListener(PlaybackOperations playbackOperations,
                              PlayQueueManager playQueueManager,
                              PlaySessionStateProvider playSessionStateProvider,
-                             EventBus eventBus, LikeOperations likeOperations) {
+                             EventBus eventBus, LikeOperations likeOperations, Navigator navigator) {
         super(playbackOperations, playSessionStateProvider, eventBus);
         this.playQueueManager = playQueueManager;
         this.likeOperations = likeOperations;
+        this.navigator = navigator;
     }
 
     public void onToggleLike(boolean addLike, Urn trackUrn) {
@@ -62,7 +64,7 @@ class TrackPageListener extends PageListener {
         return new DefaultSubscriber<PlayerUIEvent>() {
             @Override
             public void onNext(PlayerUIEvent playerUIEvent) {
-                activityContext.startActivity(ProfileActivity.getIntent(activityContext, userUrn));
+                navigator.openProfile(activityContext, userUrn);
             }
         };
     }

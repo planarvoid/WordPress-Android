@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.associations.FollowingOperations;
@@ -34,13 +35,15 @@ public class ApiSyncerFactory {
     private final Lazy<MyPostsSyncer> lazyMyPostsSyncer;
     private final SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
     private final JsonTransformer jsonTransformer;
+    private final Navigator navigator;
 
     @Inject
     public ApiSyncerFactory(Provider<FollowingOperations> followingOpsProvider, Provider<AccountOperations> accountOpsProvider,
                             Provider<NotificationManager> notificationManagerProvider,
                             Lazy<SoundStreamSyncer> lazySoundStreamSyncer,
                             Lazy<MyPlaylistsSyncer> lazyPlaylistsSyncer, Lazy<MyLikesSyncer> lazyMyLikesSyncer,
-                            Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory, JsonTransformer jsonTransformer) {
+                            Lazy<MyPostsSyncer> lazyMyPostsSyncer, SinglePlaylistSyncerFactory singlePlaylistSyncerFactory,
+                            JsonTransformer jsonTransformer, Navigator navigator) {
         this.followingOpsProvider = followingOpsProvider;
         this.accountOpsProvider = accountOpsProvider;
         this.notificationManagerProvider = notificationManagerProvider;
@@ -50,6 +53,7 @@ public class ApiSyncerFactory {
         this.lazyMyPostsSyncer = lazyMyPostsSyncer;
         this.singlePlaylistSyncerFactory = singlePlaylistSyncerFactory;
         this.jsonTransformer = jsonTransformer;
+        this.navigator = navigator;
     }
 
     public static final String TAG = ApiSyncService.LOG_TAG;
@@ -65,7 +69,8 @@ public class ApiSyncerFactory {
             case ME_FOLLOWINGS:
             case ME_FOLLOWERS:
                 return new UserAssociationSyncer(
-                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(), jsonTransformer);
+                        context, accountOpsProvider.get(), followingOpsProvider.get(), notificationManagerProvider.get(),
+                        jsonTransformer, navigator);
 
             case ME_PLAYLISTS:
                 return lazyPlaylistsSyncer.get();

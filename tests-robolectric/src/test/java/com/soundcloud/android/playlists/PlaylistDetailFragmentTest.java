@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.actionbar.PullToRefreshController;
@@ -28,7 +29,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.PlaybackService;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -49,6 +49,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -80,6 +81,7 @@ public class PlaylistDetailFragmentTest {
     @Mock private Intent intent;
     @Mock private FeatureFlags featureFlags;
     @Mock private AccountOperations accountOperations;
+    @Mock private Navigator navigator;
 
     @Before
     public void setUp() throws Exception {
@@ -96,7 +98,8 @@ public class PlaylistDetailFragmentTest {
                 new PlaylistPresenter(imageOperations),
                 TestSubscribers.expandPlayerSubscriber(),
                 featureFlags,
-                accountOperations
+                accountOperations,
+                navigator
         );
 
         Robolectric.shadowOf(fragment).setActivity(activity);
@@ -275,10 +278,7 @@ public class PlaylistDetailFragmentTest {
         View usernameView = layout.findViewById(R.id.username);
         usernameView.performClick();
 
-        Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
-        expect(intent).not.toBeNull();
-        expect(intent.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
-        expect(intent.getParcelableExtra(ProfileActivity.EXTRA_USER_URN)).toEqual(playlistWithTracks.getCreatorUrn());
+        verify(navigator).openProfile(any(Context.class), eq(playlistWithTracks.getCreatorUrn()));
     }
 
     @Test

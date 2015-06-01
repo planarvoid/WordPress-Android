@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Actions;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
@@ -22,7 +24,6 @@ import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -41,6 +42,7 @@ import org.mockito.Mock;
 import rx.Observable;
 import rx.Subscription;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -59,6 +61,7 @@ public class SearchResultsFragmentTest {
     private static final Urn USER_URN = Urn.forUser(5L);
 
     private SearchResultsFragment fragment;
+    private SearchQuerySourceInfo searchQuerySourceInfo;
     private TestEventBus eventBus = new TestEventBus();
 
     @Mock private SearchOperations operations;
@@ -67,7 +70,7 @@ public class SearchResultsFragmentTest {
     @Mock private Subscription subscription;
     @Mock private ListViewController listViewController;
     @Mock private SearchResultsAdapter adapter;
-    private SearchQuerySourceInfo searchQuerySourceInfo;
+    @Mock private Navigator navigator;
 
     @Before
     public void setUp() {
@@ -179,14 +182,11 @@ public class SearchResultsFragmentTest {
     @Test
     public void userItemClickShouldOpenProfileActivity() {
         when(adapter.getItem(0)).thenReturn(UserItem.from(PropertySet.from(UserProperty.URN.bind(USER_URN))));
-        when(pager.getSearchQuerySourceInfo()).thenReturn(searchQuerySourceInfo);
+        when(pager.getSearchQuerySourceInfo(0, USER_URN)).thenReturn(searchQuerySourceInfo);
 
         fragment.onItemClick(mock(AdapterView.class), mock(View.class), 0, 0);
 
-        Intent nextStartedActivity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
-        expect(nextStartedActivity).not.toBeNull();
-        expect(nextStartedActivity.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
-        expect(nextStartedActivity.getExtras().get(ProfileActivity.EXTRA_USER_URN)).toEqual(USER_URN);
+        verify(navigator).openProfile(any(Context.class), eq(USER_URN), eq(searchQuerySourceInfo));
     }
 
     @Test
@@ -250,7 +250,8 @@ public class SearchResultsFragmentTest {
 
     private SearchResultsFragment createFragment(int searchType, boolean fromSearch) {
         SearchResultsFragment fragment = new SearchResultsFragment(
-                operations, playbackOperations, listViewController, adapter, TestSubscribers.expandPlayerSubscriber(), eventBus, pager);
+                operations, playbackOperations, listViewController, adapter, TestSubscribers.expandPlayerSubscriber(),
+                eventBus, pager, navigator);
 
         Robolectric.shadowOf(fragment).setActivity(new FragmentActivity());
 

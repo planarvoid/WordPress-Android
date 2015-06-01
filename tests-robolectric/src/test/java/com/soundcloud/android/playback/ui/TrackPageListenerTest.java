@@ -1,9 +1,12 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.PlayerUICommand;
@@ -16,7 +19,6 @@ import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.progress.ScrubController;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -28,7 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
-import android.content.Intent;
+import android.content.Context;
 
 @RunWith(SoundCloudTestRunner.class)
 public class TrackPageListenerTest {
@@ -40,6 +42,7 @@ public class TrackPageListenerTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private FeatureFlags featureFlags;
     @Mock private LikeOperations likeOperations;
+    @Mock private Navigator navigator;
 
     private TestEventBus eventBus = new TestEventBus();
 
@@ -47,9 +50,8 @@ public class TrackPageListenerTest {
 
     @Before
     public void setUp() throws Exception {
-        listener = new TrackPageListener(playbackOperations,
-                playQueueManager,
-                playSessionStateProvider, eventBus, likeOperations);
+        listener = new TrackPageListener(playbackOperations, playQueueManager, playSessionStateProvider, eventBus,
+                likeOperations, navigator);
     }
 
     @Test
@@ -133,10 +135,7 @@ public class TrackPageListenerTest {
         listener.onGotoUser(Robolectric.application, userUrn);
         eventBus.publish(EventQueue.PLAYER_UI, PlayerUIEvent.fromPlayerCollapsed());
 
-        final Intent nextStartedActivity = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
-        expect(nextStartedActivity).not.toBeNull();
-        expect(nextStartedActivity.getComponent().getClassName()).toEqual(ProfileActivity.class.getCanonicalName());
-        expect(nextStartedActivity.getExtras().get("userUrn")).toEqual(userUrn);
+        verify(navigator).openProfile(any(Context.class), eq(userUrn));
     }
 
     private void expectUIEvent(UIEvent expectedEvent) {

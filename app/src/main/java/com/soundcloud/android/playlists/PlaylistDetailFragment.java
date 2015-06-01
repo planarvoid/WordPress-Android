@@ -5,6 +5,7 @@ import static rx.android.observables.AndroidObservable.bindFragment;
 import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -16,8 +17,6 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.lightcycle.LightCycle;
-import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -28,7 +27,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -37,6 +35,8 @@ import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
@@ -82,6 +82,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Inject Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider;
     @Inject FeatureFlags featureFlags;
     @Inject AccountOperations accountOperations;
+    @Inject Navigator navigator;
 
     private PlaylistDetailsController controller;
 
@@ -117,7 +118,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     private final View.OnClickListener onHeaderTextClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ProfileActivity.start(getActivity(), playlistWithTracks.getCreatorUrn());
+            navigator.openProfile(getActivity(), playlistWithTracks.getCreatorUrn());
         }
     };
 
@@ -167,7 +168,8 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                            PlaylistPresenter playlistPresenter,
                            Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
                            FeatureFlags featureFlags,
-                           AccountOperations accountOperations) {
+                           AccountOperations accountOperations,
+                           Navigator navigator) {
         this.controllerProvider = controllerProvider;
         this.playbackOperations = playbackOperations;
         this.playlistOperations = playlistOperations;
@@ -181,6 +183,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;
         this.featureFlags = featureFlags;
         this.accountOperations = accountOperations;
+        this.navigator = navigator;
         addLifeCycleComponents();
     }
 

@@ -1,5 +1,6 @@
 package com.soundcloud.android.playback.widget;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
@@ -9,7 +10,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.external.PlaybackAction;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playback.views.PlaybackRemoteViews;
-import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.app.PendingIntent;
@@ -50,9 +51,8 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
                 PENDING_INTENT_REQUEST_CODE, createLaunchIntent(context, trackUrn), PendingIntent.FLAG_CANCEL_CURRENT));
         if (!trackUrn.equals(Urn.NOT_SET)) {
 
-            final Intent userProfile = ProfileActivity.getIntent(context, userUrn);
-            setOnClickPendingIntent(R.id.user_txt, PendingIntent.getActivity(context,
-                    PENDING_INTENT_REQUEST_CODE, userProfile, PendingIntent.FLAG_CANCEL_CURRENT));
+            Navigator navigator = new Navigator(new FeatureFlags(context.getResources())); // Can't inject here :(
+            setOnClickPendingIntent(R.id.user_txt, navigator.openProfileFromWidget(context, userUrn, PENDING_INTENT_REQUEST_CODE));
 
             final Intent toggleLike = new Intent(PlayerWidgetController.ACTION_LIKE_CHANGED);
             toggleLike.putExtra(PlayerWidgetController.EXTRA_ADD_LIKE, addLike);
