@@ -32,6 +32,7 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import android.accounts.Account;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -83,6 +84,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
     private Context context;
     private String userAgent;
     private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
+    private AccountOperations accountOperations;
 
     public synchronized static PublicApiWrapper getInstance(Context context) {
         if (instance == null) {
@@ -119,6 +121,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         this.unauthorisedRequestRegistry = unauthorisedRequestRegistry;
         this.applicationProperties = applicationProperties;
         this.context = context;
+        this.accountOperations = accountOperations;
         objectMapper = mapper;
         setTokenListener(new SoundCloudTokenListener(accountOperations));
         userAgent = deviceHelper.getUserAgent();
@@ -199,7 +202,9 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
     private void recordUnauthorisedRequestIfRequired(HttpResponse response) {
         if (responseIsUnauthorised(response)) {
-            unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+            if(accountOperations.hasValidToken()) {
+                unauthorisedRequestRegistry.updateObservedUnauthorisedRequestTimestamp();
+            }
         }
     }
 

@@ -25,6 +25,11 @@ class ReferrerResolver {
     private static final String EXTRA_BROWSER_REFERER = "Referer";
     private static final String EXTRA_FACEBOOK_APP_ID = "app_id";
 
+    private static final String ANDROID_INTENT_EXTRA_REFERRER = "android.intent.extra.REFERRER";
+    private static final String ANDROID_INTENT_EXTRA_REFERRER_NAME = "android.intent.extra.REFERRER_NAME";
+    private static final String GOOGLE_APPCRAWLER_PACKAGE_NAME = "com.google.appcrawler";
+    private static final String ANDROID_APP_SCHEME = "android-app";
+
     private static final String PARAM_ORIGIN = "origin";
 
     @Inject
@@ -33,17 +38,23 @@ class ReferrerResolver {
     }
 
     public Referrer getReferrerFromIntent(Intent intent, Resources resources) {
-        if (isOriginIntent(intent)) {
-            return referrerFromOrigin(intent);
-        } else if (isFacebookIntent(intent, resources)) {
-            return Referrer.FACEBOOK;
-        } else if (isTwitterIntent(intent)) {
-            return Referrer.TWITTER;
-        } else if (isGooglePlusIntent(intent)) {
-            return Referrer.GOOGLE_PLUS;
-        } else if (isBrowserIntent(intent)) {
-            return referrerFromBrowser(intent);
-        } else {
+        try {
+            if (isOriginIntent(intent)) {
+                return referrerFromOrigin(intent);
+            } else if (isFacebookIntent(intent, resources)) {
+                return Referrer.FACEBOOK;
+            } else if (isTwitterIntent(intent)) {
+                return Referrer.TWITTER;
+            } else if (isGooglePlusIntent(intent)) {
+                return Referrer.GOOGLE_PLUS;
+            } else if (isGoogleCrawlerIntent(intent)) {
+                return Referrer.GOOGLE_CRAWLER;
+            } else if (isBrowserIntent(intent)) {
+                return referrerFromBrowser(intent);
+            } else {
+                return Referrer.OTHER;
+            }
+        } catch(ClassCastException exception) {
             return Referrer.OTHER;
         }
     }
@@ -161,5 +172,22 @@ class ReferrerResolver {
 
     private String getFacebookAppId(Resources resources) {
         return resources.getString(R.string.production_facebook_app_id);
+    }
+
+    private boolean isGoogleCrawlerIntent(Intent intent) {
+        Uri referrerUri = getAndroidReferrer(intent);
+
+        return ANDROID_APP_SCHEME.equals(referrerUri.getScheme())
+                && GOOGLE_APPCRAWLER_PACKAGE_NAME.equals(referrerUri.getHost());
+    }
+
+    private Uri getAndroidReferrer(Intent intent) {
+        if (intent.hasExtra(ANDROID_INTENT_EXTRA_REFERRER)) {
+            return intent.getParcelableExtra(ANDROID_INTENT_EXTRA_REFERRER);
+        } else if (intent.hasExtra(ANDROID_INTENT_EXTRA_REFERRER_NAME)) {
+            return Uri.parse(intent.getStringExtra(ANDROID_INTENT_EXTRA_REFERRER_NAME));
+        } else {
+            return Uri.EMPTY;
+        }
     }
 }

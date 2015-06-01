@@ -33,4 +33,6 @@ public final class TestConsts {
 
     public static final Uri AUDIO_AD_AND_LEAVE_BEHIND_PLAYLIST_URI = Uri.parse("https://soundcloud.com/scandroidad1/sets/monetizable-playlist");
     public static final Uri INTERSTITIAL_PLAYLIST_URI = Uri.parse("https://soundcloud.com/scandroidad1/sets/monetizable2");
+
+    public static final Uri HOME_URI = Uri.parse("soundcloud://home");
 }

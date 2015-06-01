@@ -3,6 +3,7 @@ package com.soundcloud.android.accounts;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
+import static com.soundcloud.android.api.legacy.model.PublicApiUser.CRAWLER_USER;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -174,7 +175,7 @@ public class AccountOperations extends ScheduledOperations {
 
     //TODO: now that this class is a singleton, we should probably cache the current account?
     public boolean isUserLoggedIn() {
-        return !getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
+        return !isAnonymousUser() || isCrawler();
     }
 
     public void triggerLoginFlow(Activity currentActivityContext) {
@@ -218,6 +219,13 @@ public class AccountOperations extends ScheduledOperations {
         } else {
             return null;
         }
+    }
+
+    public void loginCrawlerUser() {
+        Account account = new Account(CRAWLER_USER.getPermalink(), context.getString(R.string.account_type));
+        updateLoggedInUser(CRAWLER_USER);
+        tokenOperations.storeSoundCloudTokenData(account, Token.EMPTY);
+        eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(CRAWLER_USER));
     }
 
     @Nullable
@@ -313,4 +321,15 @@ public class AccountOperations extends ScheduledOperations {
         tokenOperations.storeSoundCloudTokenData(getSoundCloudAccount(), token);
     }
 
+    public boolean hasValidToken() {
+        return getSoundCloudToken().valid();
+    }
+
+    public boolean isCrawler() {
+        return loggedInUser != null && loggedInUser.isCrawler();
+    }
+
+    private boolean isAnonymousUser() {
+        return getLoggedInUserUrn().equals(ANONYMOUS_USER_URN);
+    }
 }

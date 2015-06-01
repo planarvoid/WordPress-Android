@@ -9,12 +9,14 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 import com.google.common.reflect.TypeToken;
+import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdIdHelper;
 import com.soundcloud.android.api.ApiRequest.ProgressListener;
 import com.soundcloud.android.api.json.JsonTransformer;
 import com.soundcloud.android.api.legacy.model.UnknownResource;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
+import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.TestHttpResponses;
@@ -52,6 +54,7 @@ public class ApiClientTest {
     @Mock private UnauthorisedRequestRegistry unauthorisedRequestRegistry;
     @Mock private OAuth oAuth;
     @Mock private Call httpCall;
+    @Mock private AccountOperations accountOperations;
 
     @Captor private ArgumentCaptor<Request> apiRequestCaptor;
     @Captor private ArgumentCaptor<com.squareup.okhttp.Request> httpRequestCaptor;
@@ -67,8 +70,9 @@ public class ApiClientTest {
         when(oAuth.getClientId()).thenReturn(CLIENT_ID);
         when(oAuth.getAuthorizationHeaderValue()).thenReturn("OAuth 12345");
         when(httpClient.newCall(httpRequestCaptor.capture())).thenReturn(httpCall);
+        when(accountOperations.getSoundCloudToken()).thenReturn(new Token("access", "refresh"));
         apiClient = new ApiClient(httpClient, apiUrlBuilder, jsonTransformer,
-                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry);
+                deviceHelper, adIdHelper, oAuth, unauthorisedRequestRegistry, accountOperations);
     }
 
     @Test
