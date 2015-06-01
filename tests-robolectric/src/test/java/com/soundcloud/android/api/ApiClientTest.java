@@ -3,6 +3,7 @@ package com.soundcloud.android.api;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -212,17 +213,31 @@ public class ApiClientTest {
     }
 
     @Test
-    public void shouldRegister401sWithUnauthorizedRequestRegistry() throws IOException {
+    public void shouldRegister401sWithUnauthorizedRequestRegistryWithValidToken() throws IOException {
         when(httpCall.execute()).thenReturn(
                 TestHttpResponses.response(200).build(),
                 TestHttpResponses.response(401).build());
         ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
         mockRequestBuilderFor(request);
+        when(accountOperations.hasValidToken()).thenReturn(true);
 
         apiClient.fetchResponse(request); // 200 -- no interaction with registry expected
         verifyZeroInteractions(unauthorisedRequestRegistry);
         apiClient.fetchResponse(request); // 401 -- interaction with registry expected
         verify(unauthorisedRequestRegistry).updateObservedUnauthorisedRequestTimestamp();
+    }
+
+    @Test
+    public void shouldNotRegister401sWithUnauthorizedRequestRegistryWithoutValidToken() throws IOException {
+        when(httpCall.execute()).thenReturn(
+                TestHttpResponses.response(200).build(),
+                TestHttpResponses.response(401).build());
+        ApiRequest request = ApiRequest.get(URL).forPrivateApi(1).build();
+        mockRequestBuilderFor(request);
+        when(accountOperations.hasValidToken()).thenReturn(false);
+
+        apiClient.fetchResponse(request);
+        verify(unauthorisedRequestRegistry, never()).updateObservedUnauthorisedRequestTimestamp();
     }
 
     @Test
