@@ -49,7 +49,7 @@ public class RecyclerViewHeaderAdapterTest {
     public void shouldCreateHeaderView() {
         when(headerCellRenderer.createView(context)).thenReturn(itemView);
 
-        final View rowView = adapter.onCreateViewHolder(parent, RecyclerViewAdapter.HEADER_VIEW_TYPE).itemView;
+        final View rowView = adapter.onCreateViewHolder(parent, ViewTypes.HEADER_VIEW_TYPE).itemView;
 
         expect(rowView).toBe(itemView);
     }
@@ -58,7 +58,7 @@ public class RecyclerViewHeaderAdapterTest {
     public void shouldCreateNormalView() {
         when(cellRenderer.createItemView(parent)).thenReturn(itemView);
 
-        final View rowView = adapter.onCreateViewHolder(parent, RecyclerViewAdapter.DEFAULT_VIEW_TYPE).itemView;
+        final View rowView = adapter.onCreateViewHolder(parent, ViewTypes.DEFAULT_VIEW_TYPE).itemView;
 
         expect(rowView).toBe(itemView);
     }

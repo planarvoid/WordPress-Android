@@ -4,6 +4,7 @@ import com.soundcloud.android.tracks.DownloadableTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.adapters.PagingRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.ViewTypes;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -27,7 +28,7 @@ class RecyclerViewPagedTracksAdapter extends PagingRecyclerViewAdapter<TrackItem
 
     @Override
     public int getBasicItemViewType(int position) {
-        return DEFAULT_VIEW_TYPE;
+        return ViewTypes.DEFAULT_VIEW_TYPE;
     }
 
     TrackItemRenderer getTrackRenderer() {

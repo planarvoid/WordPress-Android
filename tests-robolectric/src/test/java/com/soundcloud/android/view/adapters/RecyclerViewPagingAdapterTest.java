@@ -45,7 +45,7 @@ public class RecyclerViewPagingAdapterTest {
         when(progressCellRenderer.createView(Robolectric.application)).thenReturn(itemView);
         adapter.setLoading();
 
-        expect(adapter.onCreateViewHolder(parent, RecyclerViewAdapter.PROGRESS_VIEW_TYPE).itemView).toBe(itemView);
+        expect(adapter.onCreateViewHolder(parent, ViewTypes.PROGRESS_VIEW_TYPE).itemView).toBe(itemView);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class RecyclerViewPagingAdapterTest {
         Observable.just(items).subscribe(adapter);
         adapter.setLoading();
 
-        adapter.onCreateViewHolder(parent, RecyclerViewAdapter.PROGRESS_VIEW_TYPE);
+        adapter.onCreateViewHolder(parent, ViewTypes.PROGRESS_VIEW_TYPE);
 
         verify(progressCellRenderer).createView(Robolectric.application);
         verifyZeroInteractions(cellRenderer);
