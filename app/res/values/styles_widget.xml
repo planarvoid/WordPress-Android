@@ -1,36 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="Widget" />
-    <style name="Widget.TextView">
-        <item name="android:textColor">#ffffffff</item>
-        <item name="android:textSize">15sp</item>
-        <item name="android:paddingLeft">0dip</item>
-        <item name="android:paddingRight">5dip</item>
-        <item name="android:layout_margin">0dip</item>
+
+    <style name="Widget.Container">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:baselineAligned">false</item>
+        <item name="android:orientation">horizontal</item>
     </style>
+
+    <style name="Widget.Image">
+        <item name="android:src">@drawable/appwidget_artwork_placeholder</item>
+        <item name="android:layout_width">@dimen/widget_image_estimated_width</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:scaleType">centerCrop</item>
+        <item name="android:adjustViewBounds">true</item>
+    </style>
+
+    <style name="Widget.TextView">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingLeft">0dp</item>
+        <item name="android:paddingRight">5dp</item>
+        <item name="android:layout_margin">0dp</item>
+    </style>
+
     <style name="Widget.TextView.Clickable">
         <item name="android:textColor">@drawable/widget_text_states</item>
     </style>
-    <style name="Widget.TextView.Secondary">
-        <item name="android:paddingRight">10dip</item>
-        <item name="android:textColor">#ff626262</item>
+
+    <style name="Widget.TextView.Separator">
+        <item name="android:paddingRight">6dp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
-    <style name="btn_sc_widget">
-        <item name="android:padding">0dip</item>
-        <item name="android:layout_margin">0dip</item>
-        <item name="android:background">@android:color/transparent</item>
+    <style name="Widget.OrangeLine">
+        <item name="android:layout_height">3dp</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@color/sc_orange</item>
     </style>
-
-    <style name="btn_sc_widget_transport" parent="Widget.AppCompat.ActionButton">
-        <item name="android:layout_width">50dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@android:color/transparent</item>
-    </style>
-
-    <style name="btn_sc_widget_like" parent="btn_sc_widget">
-        <item name="android:layout_width">40dip</item>
-        <item name="android:layout_height">40dip</item>
-    </style>
-
 </resources>

@@ -10,7 +10,10 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageSize;
+import com.nostra13.universalimageloader.core.assist.ViewScaleType;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 import com.nostra13.universalimageloader.core.imageaware.ImageViewAware;
+import com.nostra13.universalimageloader.core.imageaware.NonViewAware;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 import com.nostra13.universalimageloader.utils.MemoryCacheUtils;
@@ -81,7 +84,7 @@ public class ImageOperations {
     @Inject
     public ImageOperations(ApiUrlBuilder urlBuilder, PlaceholderGenerator placeholderGenerator,
                            FallbackBitmapLoadingAdapter.Factory adapterFactory, ImageProcessor imageProcessor) {
-        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory,imageProcessor,
+        this(ImageLoader.getInstance(), urlBuilder, placeholderGenerator, adapterFactory, imageProcessor,
                 CacheBuilder.newBuilder().weakValues().maximumSize(50).<String, TransitionDrawable>build(),
                 CacheBuilder.newBuilder().weakValues().maximumSize(10).<Urn, Bitmap>build(),
                 new HashCodeFileNameGenerator());
@@ -189,10 +192,9 @@ public class ImageOperations {
     }
 
     private void load(Urn urn, ApiImageSize apiImageSize, int targetWidth, int targetHeight, ImageListener imageListener) {
-        imageLoader.loadImage(
-                buildUrlIfNotPreviouslyMissing(urn, apiImageSize),
-                new ImageSize(targetWidth, targetHeight),
-                new ImageListenerUILAdapter(imageListener));
+        ImageSize targetSize = new ImageSize(targetWidth, targetHeight);
+        ImageAware imageAware = new NonViewAware(targetSize, ViewScaleType.CROP);
+        imageLoader.displayImage(buildUrlIfNotPreviouslyMissing(urn, apiImageSize), imageAware, new ImageListenerUILAdapter(imageListener));
     }
 
     @Deprecated // use the variants that take URNs instead
@@ -225,7 +227,7 @@ public class ImageOperations {
     public Observable<Bitmap> blurredPlayerArtwork(final Resources resources, final Urn resourceUrn,
                                                    Scheduler scheduleOn, Scheduler observeOn) {
         final Bitmap cachedBlurImage = blurredImageCache.getIfPresent(resourceUrn);
-        if (cachedBlurImage != null){
+        if (cachedBlurImage != null) {
             return Observable.just(cachedBlurImage);
         } else {
             final Bitmap cached = getCachedListItemBitmap(resources, resourceUrn);
@@ -265,7 +267,7 @@ public class ImageOperations {
     }
 
     @Nullable
-    public Bitmap getCachedListItemBitmap(Resources resources, Urn resourceUrn){
+    public Bitmap getCachedListItemBitmap(Resources resources, Urn resourceUrn) {
         return getCachedBitmap(resourceUrn, ApiImageSize.getListItemImageSize(resources),
                 resources.getDimensionPixelSize(R.dimen.list_item_image_dimension),
                 resources.getDimensionPixelSize(R.dimen.list_item_image_dimension));
@@ -300,9 +302,9 @@ public class ImageOperations {
         return imageLoader.getMemoryCache().get(key);
     }
 
-    public Uri getLocalImageUri(Urn resourceUrn, ApiImageSize apiImageSize){
+    public Uri getLocalImageUri(Urn resourceUrn, ApiImageSize apiImageSize) {
         final String imageUri = buildUrlIfNotPreviouslyMissing(resourceUrn, apiImageSize);
-        if (imageUri != null){
+        if (imageUri != null) {
             final File cacheDir = imageLoader.getDiskCache().getDirectory().getAbsoluteFile();
             final File imageFile = new File(cacheDir, fileNameGenerator.generate(imageUri));
             return Uri.fromFile(imageFile);
@@ -327,7 +329,7 @@ public class ImageOperations {
         return new PauseOnScrollListener(imageLoader, pauseOnScroll, pauseOnFling);
     }
 
-    public String getUrlForLargestImage(Resources resources, Urn urn){
+    public String getUrlForLargestImage(Resources resources, Urn urn) {
         return buildUrlIfNotPreviouslyMissing(urn, ApiImageSize.getFullImageSize(resources));
     }
 
