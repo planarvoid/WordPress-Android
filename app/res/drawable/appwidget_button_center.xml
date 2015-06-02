@@ -15,9 +15,9 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/appwidget_inner_pressed_c"
+    <item android:drawable="@drawable/appwidget_inner_pressed"
         android:state_pressed="true" />
-    <item android:drawable="@drawable/appwidget_inner_focused_c"
+    <item android:drawable="@drawable/appwidget_inner_focused"
         android:state_focused="true"
         android:state_enabled="true"
         android:state_window_focused="true" />
