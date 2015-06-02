@@ -19,6 +19,7 @@ import com.soundcloud.android.events.SkippyPlayEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,10 +66,10 @@ public class LocalyticsAnalyticsProviderTest {
 
     @Test
     public void shouldSetCustomerIdToUserIdWhenUserIsUpdated() {
-        PublicApiUser user = new PublicApiUser(456L);
+        PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
         CurrentUserChangedEvent userEvent = CurrentUserChangedEvent.forUserUpdated(user);
         localyticsProvider.handleCurrentUserChangedEvent(userEvent);
-        verify(localyticsSession).setCustomerId(Long.toString(456L));
+        verify(localyticsSession).setCustomerId(Long.toString(user.getId()));
     }
 
     @Test

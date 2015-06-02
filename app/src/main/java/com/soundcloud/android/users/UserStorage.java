@@ -38,6 +38,11 @@ public class UserStorage {
                         TableColumns.Users.USERNAME,
                         TableColumns.Users.COUNTRY,
                         TableColumns.Users.FOLLOWERS_COUNT,
+                        TableColumns.Users.DESCRIPTION,
+                        TableColumns.Users.WEBSITE_URL,
+                        TableColumns.Users.WEBSITE_NAME,
+                        TableColumns.Users.MYSPACE_NAME,
+                        TableColumns.Users.DISCOGS_NAME,
                         exists(followingQuery(userUrn)).as(IS_FOLLOWING)
                 )
                 .whereEq(TableColumns.SoundView._ID, userUrn.getNumericId());
@@ -59,12 +64,35 @@ public class UserStorage {
             propertySet.put(UserProperty.USERNAME, cursorReader.getString(TableColumns.Users.USERNAME));
             propertySet.put(UserProperty.FOLLOWERS_COUNT, cursorReader.getInt(TableColumns.Users.FOLLOWERS_COUNT));
             propertySet.put(UserProperty.IS_FOLLOWED_BY_ME, cursorReader.getBoolean(IS_FOLLOWING));
+            putOptionalFields(cursorReader, propertySet);
 
+            return propertySet;
+        }
+
+        private void putOptionalFields(CursorReader cursorReader, PropertySet propertySet) {
             if (cursorReader.isNotNull(TableColumns.Users.COUNTRY)){
                 propertySet.put(UserProperty.COUNTRY, cursorReader.getString(TableColumns.Users.COUNTRY));
             }
 
-            return propertySet;
+            if (cursorReader.isNotNull(TableColumns.Users.DESCRIPTION)){
+                propertySet.put(UserProperty.DESCRIPTION, cursorReader.getString(TableColumns.Users.DESCRIPTION));
+            }
+
+            if (cursorReader.isNotNull(TableColumns.Users.WEBSITE_URL)){
+                propertySet.put(UserProperty.WEBSITE_URL, cursorReader.getString(TableColumns.Users.WEBSITE_URL));
+            }
+
+            if (cursorReader.isNotNull(TableColumns.Users.WEBSITE_NAME)){
+                propertySet.put(UserProperty.WEBSITE_NAME, cursorReader.getString(TableColumns.Users.WEBSITE_NAME));
+            }
+
+            if (cursorReader.isNotNull(TableColumns.Users.DISCOGS_NAME)){
+                propertySet.put(UserProperty.DISCOGS_NAME, cursorReader.getString(TableColumns.Users.DISCOGS_NAME));
+            }
+
+            if (cursorReader.isNotNull(TableColumns.Users.MYSPACE_NAME)){
+                propertySet.put(UserProperty.MYSPACE_NAME, cursorReader.getString(TableColumns.Users.MYSPACE_NAME));
+            }
         }
     }
 }

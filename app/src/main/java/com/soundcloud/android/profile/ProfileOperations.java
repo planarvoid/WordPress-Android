@@ -6,6 +6,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
+import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
@@ -20,6 +21,7 @@ public class ProfileOperations {
     private final ProfileApi profileApi;
     private final Scheduler scheduler;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
+    private final UserRepository userRepository;
 
     private final Pager.PagingFunction<PagedRemoteCollection> pagingFunction =
             new Pager.PagingFunction<PagedRemoteCollection>() {
@@ -49,10 +51,29 @@ public class ProfileOperations {
 
     @Inject
     public ProfileOperations(ProfileApi profileApi, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                             LoadPlaylistLikedStatuses loadPlaylistLikedStatuses) {
+                             LoadPlaylistLikedStatuses loadPlaylistLikedStatuses, UserRepository userRepository) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
+        this.userRepository = userRepository;
+    }
+
+    public Observable<ProfileUser> getUserDetails(Urn user) {
+        return userRepository.localAndSyncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
+            @Override
+            public ProfileUser call(PropertySet properties) {
+                return new ProfileUser(properties);
+            }
+        });
+    }
+
+    public Observable<ProfileUser> updatedUserDetails(Urn user) {
+        return userRepository.syncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
+            @Override
+            public ProfileUser call(PropertySet properties) {
+                return new ProfileUser(properties);
+            }
+        });
     }
 
     public Observable<PagedRemoteCollection> pagedPostItems(Urn user) {

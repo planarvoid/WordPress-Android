@@ -330,7 +330,7 @@
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">معلومات</string>
-    <string name="tab_title_user_sounds">منشورات</string>
+    <string name="tab_title_user_posts">منشورات</string>
     <string name="tab_title_user_likes">الإعجابات</string>
     <string name="tab_title_user_followers">متابعون</string>
     <string name="tab_title_user_followings">متابعة</string>

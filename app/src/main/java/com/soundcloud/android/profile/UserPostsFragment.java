@@ -21,17 +21,15 @@ import javax.inject.Inject;
 public class UserPostsFragment extends LightCycleSupportFragment implements RefreshAware, ScrollableProfileItem {
 
     static final String USER_URN_KEY = "user_urn_key";
-    static final String USER_NAME_KEY = "user_name_key";
     static final String SCREEN_KEY = "screen_key";
     static final String SEARCH_QUERY_SOURCE_INFO_KEY = "search_query_source_info_key";
 
     @Inject @LightCycle UserPostsPresenter presenter;
     @Inject FeatureFlags featureFlags;
 
-    public static UserPostsFragment create(Urn userUrn, String username, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
+    public static UserPostsFragment create(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         Bundle bundle = new Bundle();
         bundle.putParcelable(USER_URN_KEY, userUrn);
-        bundle.putString(USER_NAME_KEY, username);
         bundle.putSerializable(SCREEN_KEY, screen);
         bundle.putParcelable(SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
 

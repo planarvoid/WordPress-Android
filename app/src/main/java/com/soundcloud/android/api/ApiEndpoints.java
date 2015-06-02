@@ -71,7 +71,6 @@ public enum ApiEndpoints {
     IMAGES("/images/%s/%s"),
     STREAM("/stream"),
     TRACKS_FETCH("/tracks/fetch"),
-    USERS_FETCH("/users/fetch"),
     CONFIGURATION("/configuration/android"),
 
     // public API (DEPRECATED)
@@ -81,6 +80,7 @@ public enum ApiEndpoints {
     BULK_FOLLOW_USERS("/me/suggested/users"),
     LEGACY_TRACKS("/tracks"),
     LEGACY_TRACK("/tracks/%s"),
+    LEGACY_USERS("/users"),
     TRACK_COMMENTS("/tracks/%s/comments"),
     USER_SOUNDS("/e1/users/%s/sounds");
 

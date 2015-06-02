@@ -5,11 +5,12 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.propeller.PropertySet;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -166,15 +167,18 @@ public class NavigationFragment extends Fragment {
         }
     }
 
-    public void updateProfileItem(PublicApiUser user) {
-        profileViewHolder.username.setText(user.getUsername());
-        int followersCount = user.followers_count < 0 ? 0 : user.followers_count;
-        profileViewHolder.followers.setText(getResources().getQuantityString(
-                R.plurals.number_of_followers, followersCount, followersCount));
-
-        imageOperations.displayWithPlaceholder(user.getUrn(),
+    public void updateProfileItem(PropertySet user) {
+        profileViewHolder.username.setText(user.get(UserProperty.USERNAME));
+        imageOperations.displayWithPlaceholder(user.get(UserProperty.URN),
                 ApiImageSize.getFullImageSize(getResources()),
                 profileViewHolder.imageView);
+        setFollowerCount(user);
+    }
+
+    private void setFollowerCount(PropertySet user) {
+        final int followersCount = Math.max(0, user.get(UserProperty.FOLLOWERS_COUNT));
+        profileViewHolder.followers.setText(getResources().getQuantityString(
+                R.plurals.number_of_followers, followersCount, followersCount));
     }
 
     protected void configureLocalContextActionBar() {
@@ -237,7 +241,7 @@ public class NavigationFragment extends Fragment {
         profileViewHolder.username = (TextView) view.findViewById(R.id.username);
         profileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
-        updateProfileItem(accountOperations.getLoggedInUser());
+        updateProfileItem(accountOperations.getLoggedInUser().toPropertySet());
 
         return view;
     }

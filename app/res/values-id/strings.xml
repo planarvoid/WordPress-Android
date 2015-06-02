@@ -331,7 +331,7 @@
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Info</string>
-    <string name="tab_title_user_sounds">Pos</string>
+    <string name="tab_title_user_posts">Pos</string>
     <string name="tab_title_user_likes">Suka</string>
     <string name="tab_title_user_followers">Pengikut</string>
     <string name="tab_title_user_followings">Mengikuti</string>

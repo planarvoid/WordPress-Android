@@ -331,7 +331,7 @@
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Информация</string>
-    <string name="tab_title_user_sounds">Сообщения</string>
+    <string name="tab_title_user_posts">Сообщения</string>
     <string name="tab_title_user_likes">Лайки</string>
     <string name="tab_title_user_followers">Подписчики</string>
     <string name="tab_title_user_followings">Подписки</string>

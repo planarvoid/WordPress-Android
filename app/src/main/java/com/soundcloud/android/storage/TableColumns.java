@@ -175,8 +175,8 @@ public final class TableColumns {
         public static final String FULL_NAME = "full_name";
         public static final String MYSPACE_NAME = "myspace_name";
         public static final String TRACK_COUNT = "track_count";
-        public static final String WEBSITE = "website";
-        public static final String WEBSITE_TITLE = "website_title";
+        public static final String WEBSITE_URL = "website";
+        public static final String WEBSITE_NAME = "website_title";
         public static final String DESCRIPTION = "description";
         public static final String USER_FOLLOWING = "user_following";
         public static final String USER_FOLLOWER = "user_follower";
@@ -191,7 +191,7 @@ public final class TableColumns {
         public static final String[] ALL_FIELDS = {
                 _ID, USERNAME, AVATAR_URL, CITY, COUNTRY, DISCOGS_NAME,
                 FOLLOWERS_COUNT, FOLLOWINGS_COUNT, FULL_NAME, MYSPACE_NAME,
-                TRACK_COUNT, WEBSITE, WEBSITE_TITLE, DESCRIPTION, PERMALINK,
+                TRACK_COUNT, WEBSITE_URL, WEBSITE_NAME, DESCRIPTION, PERMALINK,
                 LAST_UPDATED, PERMALINK_URL, PRIMARY_EMAIL_CONFIRMED, PUBLIC_LIKES_COUNT,
                 PRIVATE_TRACKS_COUNT, PLAN
         };

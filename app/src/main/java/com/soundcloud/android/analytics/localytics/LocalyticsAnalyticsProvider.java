@@ -24,6 +24,7 @@ import com.soundcloud.android.events.TrackingEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.events.UserSessionEvent;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.Log;
 
 import android.support.v4.util.ArrayMap;
@@ -84,7 +85,7 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
     public void handleCurrentUserChangedEvent(CurrentUserChangedEvent event) {
         int eventKind = event.getKind();
         if (eventKind == CurrentUserChangedEvent.USER_UPDATED) {
-            session.setCustomerId(Long.toString(event.getCurrentUser().getId()));
+            session.setCustomerId(Long.toString(event.getCurrentUser().get(UserProperty.URN).getNumericId()));
         } else if (eventKind == CurrentUserChangedEvent.USER_REMOVED) {
             session.setCustomerId(null);
         }

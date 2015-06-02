@@ -1,5 +1,6 @@
 package com.soundcloud.android.commands;
 
+import com.google.common.base.Optional;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
@@ -31,11 +32,28 @@ public class StoreUsersCommand extends DefaultWriteStorageCommand<Iterable<? ext
     }
 
     public static ContentValues buildUserContentValues(UserRecord user) {
+        final ContentValuesBuilder baseBuilder = getBaseBuilder(user);
+
+        putOptionalString(baseBuilder, user.getDescription(), TableColumns.Users.DESCRIPTION);
+        putOptionalString(baseBuilder, user.getWebsiteUrl(), TableColumns.Users.WEBSITE_URL);
+        putOptionalString(baseBuilder, user.getWebsiteName(), TableColumns.Users.WEBSITE_NAME);
+        putOptionalString(baseBuilder, user.getDiscogsName(), TableColumns.Users.DISCOGS_NAME);
+        putOptionalString(baseBuilder, user.getMyspaceName(), TableColumns.Users.MYSPACE_NAME);
+
+        return baseBuilder.get();
+    }
+
+    private static ContentValuesBuilder getBaseBuilder(UserRecord user) {
         return ContentValuesBuilder.values()
                 .put(TableColumns.Users._ID, user.getUrn().getNumericId())
                 .put(TableColumns.Users.USERNAME, user.getUsername())
                 .put(TableColumns.Users.COUNTRY, user.getCountry())
-                .put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount())
-                .get();
+                .put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
+    }
+
+    private static void putOptionalString(ContentValuesBuilder baseBuilder, Optional<String> value, String column) {
+        if (value.isPresent()) {
+            baseBuilder.put(column, value.get());
+        }
     }
 }

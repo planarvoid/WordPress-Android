@@ -2,8 +2,8 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.profile.NewProfileActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -35,7 +35,7 @@ public class Navigator {
 
     public void openProfile(Context activityContext, Urn user, SearchQuerySourceInfo searchQuerySourceInfo) {
         activityContext.startActivity(createProfileIntent(activityContext, user)
-                .putExtra(ProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
+                .putExtra(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo));
     }
 
     public PendingIntent openProfileFromNotification(Context context, Urn user) {
@@ -54,13 +54,13 @@ public class Navigator {
     }
 
     private Intent createProfileIntent(Context context, Urn user) {
-        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? NewProfileActivity.class : ProfileActivity.class)
-                .putExtra(ProfileActivity.EXTRA_USER_URN, user);
+        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : LegacyProfileActivity.class)
+                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
     }
 
     private Intent createMyProfileIntent(Context context, Urn user) {
-        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? NewProfileActivity.class : MeActivity.class)
-                .putExtra(ProfileActivity.EXTRA_USER_URN, user);
+        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : MeActivity.class)
+                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
     }
 
 }

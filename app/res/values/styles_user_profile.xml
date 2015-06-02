@@ -60,6 +60,8 @@
         <item name="android:drawablePadding">8dp</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:textColor">@drawable/txt_blue_states</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
     </style>
 
     <!-- NEW PROFILE -->
@@ -95,8 +97,8 @@
     <style name="Profile.Tabs" parent="TabsBase" />
 
     <style name="Profile.HeaderImage">
-        <item name="android:layout_width">130dp</item>
-        <item name="android:layout_height">130dp</item>
+        <item name="android:layout_width">120dp</item>
+        <item name="android:layout_height">120dp</item>
         <item name="android:layout_marginRight">16dp</item>
         <item name="android:scaleType"> centerCrop</item>
     </style>
