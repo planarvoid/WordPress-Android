@@ -36,7 +36,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'maven'
 apply plugin: 'android-apt'
 apply plugin: 'io.fabric'
-apply plugin: 'com.soundcloud.gandalf'
 
 def globalConfiguration = rootProject.extensions.getByName('ext')
 
