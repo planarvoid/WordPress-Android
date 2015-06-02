@@ -4,18 +4,18 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.DividerItemDecoration;
+import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.view.adapters.MixedPlayableAdapter;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -29,10 +29,10 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
-class UserPostsPresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
+class UserPostsPresenter extends ListPresenter<PlayableItem> {
 
     private final ProfileOperations profileOperations;
-    private final MixedPlayableRecyclerViewAdapter adapter;
+    private final MixedPlayableAdapter adapter;
     private final MixedPlayableItemClickListener.Factory clickListenerFactory;
     private MixedPlayableItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
@@ -54,11 +54,10 @@ class UserPostsPresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
     };
 
     @Inject
-    UserPostsPresenter(RecyclerViewPauseOnScrollListener pauseOnScrollListener, PullToRefreshWrapper pullToRefreshWrapper,
-                       DividerItemDecoration dividerItemDecoration,
-                       ProfileOperations profileOperations, MixedPlayableRecyclerViewAdapter adapter,
+    UserPostsPresenter(ImageOperations imageOperations, PullToRefreshWrapper pullToRefreshWrapper,
+                       ProfileOperations profileOperations, MixedPlayableAdapter adapter,
                        MixedPlayableItemClickListener.Factory clickListenerFactory, PlayableListUpdater.Factory updaterFactory) {
-        super(pullToRefreshWrapper, pauseOnScrollListener, dividerItemDecoration);
+        super(imageOperations, pullToRefreshWrapper);
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;

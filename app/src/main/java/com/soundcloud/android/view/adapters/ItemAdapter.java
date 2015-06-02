@@ -14,8 +14,6 @@ public interface ItemAdapter<ItemT> extends Observer<Iterable<ItemT>> {
 
     ItemT getItem(int position);
 
-    boolean isEmpty();
-
     void removeItem(int position);
 
     void clear();

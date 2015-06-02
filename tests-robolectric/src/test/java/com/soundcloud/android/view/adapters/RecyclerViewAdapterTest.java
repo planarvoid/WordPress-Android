@@ -77,7 +77,7 @@ public class RecyclerViewAdapterTest {
     public void shouldCreateItemViewForTwoDifferentViewTypes() {
         CellRenderer rendererOne = mock(CellRenderer.class);
         CellRenderer rendererTwo = mock(CellRenderer.class);
-        adapter = buildAdapter(new CellRendererBinding<String>(0, rendererOne), new CellRendererBinding<String>(1, rendererTwo));
+        adapter = buildAdapter(new CellRendererBinding<>(0, rendererOne), new CellRendererBinding<>(1, rendererTwo));
 
         when(rendererOne.createItemView(parent)).thenReturn(itemView);
         when(rendererTwo.createItemView(parent)).thenReturn(itemView);
@@ -109,16 +109,11 @@ public class RecyclerViewAdapterTest {
         verify(itemView).setOnClickListener(clickListener);
     }
 
-    @Test
-    public void adjustPositionForHeaderReturnsAdapterPosition() throws Exception {
-        expect(adapter.adjustPositionForHeader(1)).toEqual(1);
-    }
-
     private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(final CellRendererBinding... bindings) {
         return new RecyclerViewAdapter<String, TestViewHolder>(bindings) {
             @Override
-            public int getBasicItemViewType(int position) {
-                return 0;
+            public int getItemViewType(int position) {
+                return position;
             }
 
             @Override
@@ -133,11 +128,6 @@ public class RecyclerViewAdapterTest {
             @Override
             protected TestViewHolder createViewHolder(View itemView) {
                 return new TestViewHolder(itemView);
-            }
-
-            @Override
-            public int getBasicItemViewType(int position) {
-                return 0;
             }
         };
     }

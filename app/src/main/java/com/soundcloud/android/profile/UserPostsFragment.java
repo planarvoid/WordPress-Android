@@ -5,7 +5,6 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -16,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserPostsFragment extends LightCycleSupportFragment implements RefreshAware, ScrollableProfileItem {
+public class UserPostsFragment extends LightCycleSupportFragment {
 
     static final String USER_URN_KEY = "user_urn_key";
     static final String USER_NAME_KEY = "user_name_key";
@@ -44,26 +43,7 @@ public class UserPostsFragment extends LightCycleSupportFragment implements Refr
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.profile_recycle_view, container, false);
-    }
-
-    @Override
-    public void attachRefreshLayout(MultiSwipeRefreshLayout refreshLayout) {
-        presenter.attachRefreshLayout(refreshLayout);
-    }
-
-    @Override
-    public void detachRefreshLayout() {
-        presenter.detachRefreshLayout();
-    }
-
-    @Override
-    public void setScrollListener(Listener scrollListener) {
-        presenter.setScrollListener(scrollListener);
-    }
-
-    @Override
-    public void configureOffsets(int currentHeaderHeight, int maxHeaderHeight) {
-        presenter.configureOffsets(currentHeaderHeight, maxHeaderHeight);
+        return inflater.inflate(R.layout.default_list_with_refresh, container, false);
     }
 }
+

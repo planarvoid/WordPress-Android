@@ -16,8 +16,6 @@ import android.view.View;
 public class MultiSwipeRefreshLayout extends SwipeRefreshLayout {
 
     private View[] swipeableChildren;
-    private boolean measured;
-    private boolean preMeasureRefreshing;
 
     public MultiSwipeRefreshLayout(Context context) {
         super(context);
@@ -25,29 +23,6 @@ public class MultiSwipeRefreshLayout extends SwipeRefreshLayout {
 
     public MultiSwipeRefreshLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    /**
-     * Hack to overcome refreshing before measurement (after orientation change this happens)
-     * https://code.google.com/p/android/issues/detail?id=77712
-     */
-
-    @Override
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        if (!measured) {
-            measured = true;
-            setRefreshing(preMeasureRefreshing);
-        }
-    }
-
-    @Override
-    public void setRefreshing(boolean refreshing) {
-        if (measured) {
-            super.setRefreshing(refreshing);
-        } else {
-            preMeasureRefreshing = refreshing;
-        }
     }
 
     /**
@@ -62,13 +37,6 @@ public class MultiSwipeRefreshLayout extends SwipeRefreshLayout {
         for (int i = 0; i < ids.length; i++) {
             swipeableChildren[i] = findViewById(ids[i]);
         }
-    }
-
-    public void setSwipeableChildren(final View... views) {
-        assert views != null;
-
-        // Iterate through the ids and find the Views
-        swipeableChildren = views;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.soundcloud.android.view.adapters;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -14,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import rx.Observable;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,58 +24,62 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class RecyclerViewPagingAdapterTest {
+public class PagingRecyclerViewAdapterTest {
 
-    @Mock private View itemView;
-    @Mock private ViewGroup parent;
     @Mock private CellRenderer<String> cellRenderer;
+    @Mock private RecyclerView recyclerView;
+    @Mock private ViewGroup parent;
+    @Mock private Context context;
+    @Mock private View rowView;
     @Mock private ProgressCellRenderer progressCellRenderer;
 
-    private List<String> items = Arrays.asList("one", "two", "three");
     private PagingRecyclerViewAdapter<String, TestViewHolder> adapter;
+    private List<String> items = Arrays.asList("one", "two", "three");
+
 
     @Before
-    public void setUp() throws Exception {
-        adapter = buildPagingAdapter(cellRenderer);
+    public void setup() {
+        adapter = new PagingRecyclerViewAdapter<String, TestViewHolder>(progressCellRenderer, cellRenderer) {
+            @Override
+            protected TestViewHolder createViewHolder(View itemView) {
+                return new TestViewHolder(itemView);
+            }
+        };
+
         Observable.just(items).subscribe(adapter);
+
         when(parent.getContext()).thenReturn(Robolectric.application);
+        when(progressCellRenderer.createView(Robolectric.application)).thenReturn(rowView);
     }
 
     @Test
     public void shouldCreateProgressRowWhenInLoadingState() {
-        adapter = buildPagingAdapter(cellRenderer);
-        when(progressCellRenderer.createView(Robolectric.application)).thenReturn(itemView);
         adapter.setLoading();
 
-        expect(adapter.onCreateViewHolder(parent, RecyclerViewAdapter.PROGRESS_VIEW_TYPE).itemView).toBe(itemView);
+        expect(adapter.onCreateViewHolder(parent, PagingAwareAdapter.PROGRESS_VIEW_TYPE).itemView).toBe(rowView);
     }
 
     @Test
     public void shouldBindProgressRowWithWasErrorFalseInLoadingState() throws Exception {
-        adapter = buildPagingAdapter(cellRenderer);
-        Observable.just(items).subscribe(adapter);
         adapter.setLoading();
 
-        adapter.onBindViewHolder(new TestViewHolder(itemView), items.size());
+        adapter.onBindViewHolder(new TestViewHolder(rowView), items.size());
 
-        verify(progressCellRenderer).bindView(itemView, false);
+        verify(progressCellRenderer).bindView(rowView, false);
     }
 
     @Test
     public void shouldBindProgressRowWithErrorTrueInErrorState() throws Exception {
-        adapter = buildPagingAdapter(cellRenderer);
-        Observable.just(items).subscribe(adapter);
         adapter.onError(new Throwable());
 
-        adapter.onBindViewHolder(new TestViewHolder(itemView), items.size());
+        adapter.onBindViewHolder(new TestViewHolder(rowView), items.size());
 
-        verify(progressCellRenderer).bindView(itemView, true);
+        verify(progressCellRenderer).bindView(rowView, true);
     }
 
     @Test
     public void shouldCreateNormalItemRowUsingPresenter() {
-        adapter = buildPagingAdapter(cellRenderer);
-        when(cellRenderer.createItemView(parent)).thenReturn(itemView);
+        when(cellRenderer.createItemView(parent)).thenReturn(rowView);
 
         final int viewType = 0;
         adapter.onCreateViewHolder(parent, viewType);
@@ -84,52 +90,34 @@ public class RecyclerViewPagingAdapterTest {
 
     @Test
     public void shouldCreateProgressRow() {
-        adapter = buildPagingAdapter(cellRenderer);
-        Observable.just(items).subscribe(adapter);
         adapter.setLoading();
 
-        adapter.onCreateViewHolder(parent, RecyclerViewAdapter.PROGRESS_VIEW_TYPE);
+        adapter.onCreateViewHolder(parent, PagingAwareAdapter.PROGRESS_VIEW_TYPE);
 
-        verify(progressCellRenderer).createView(Robolectric.application);
+        verify(progressCellRenderer).createView(any(Context.class));
         verifyZeroInteractions(cellRenderer);
     }
 
     @Test
     public void shouldBindNormalItemRowUsingPresenter() {
-        adapter = buildPagingAdapter(cellRenderer);
-        Observable.just(items).subscribe(adapter);
         final int position = items.size() - 1;
-        adapter.onBindViewHolder(new TestViewHolder(itemView), position);
+        adapter.onBindViewHolder(new TestViewHolder(rowView), position);
 
-        verify(cellRenderer).bindItemView(position, itemView, items);
+        verify(cellRenderer).bindItemView(position, rowView, items);
 
         verifyZeroInteractions(progressCellRenderer);
     }
 
     @Test
     public void shouldSetCustomOnErrorRetryListenerForErrorRow() {
-        adapter = buildPagingAdapter(cellRenderer);
         View.OnClickListener listener = mock(View.OnClickListener.class);
         adapter.setOnErrorRetryListener(listener);
 
         verify(progressCellRenderer).setRetryListener(listener);
     }
 
-    private PagingRecyclerViewAdapter<String, TestViewHolder> buildPagingAdapter(CellRenderer<String> cellRenderer) {
-        return new PagingRecyclerViewAdapter<String, TestViewHolder>(cellRenderer, progressCellRenderer) {
-            @Override
-            protected TestViewHolder createViewHolder(View itemView) {
-                return new TestViewHolder(itemView);
-            }
-
-            @Override
-            public int getBasicItemViewType(int position) {
-                return 0;
-            }
-        };
-    }
-
     private static class TestViewHolder extends RecyclerView.ViewHolder {
+
         public TestViewHolder(View itemView) {
             super(itemView);
         }

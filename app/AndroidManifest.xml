@@ -258,8 +258,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:label="" android:name=".profile.NewProfileActivity" android:theme="@style/Theme.SoundCloud" />
-
         <activity android:label="@string/side_menu_record" android:launchMode="singleTask" android:name=".creators.record.RecordActivity">
             <intent-filter>
                 <action android:name="com.soundcloud.android.action.RECORD"/>

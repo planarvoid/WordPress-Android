@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.view.View;
 
 import javax.inject.Inject;
 
@@ -23,19 +22,10 @@ public class PullToRefreshWrapper {
     }
 
     public void attach(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener, int[] swipeToRefreshViewIds) {
-        attachInternal(pullToRefreshLayout, listener);
-        swipeRefreshLayout.setSwipeableChildren(swipeToRefreshViewIds);
-    }
-
-    private void attachInternal(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener) {
         this.swipeRefreshLayout = pullToRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(listener);
+        swipeRefreshLayout.setSwipeableChildren(swipeToRefreshViewIds);
         swipeRefreshLayout.setColorSchemeResources(R.color.sc_orange);
-    }
-
-    public void attach(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener, View[] swipeToRefreshViews) {
-        attachInternal(pullToRefreshLayout, listener);
-        swipeRefreshLayout.setSwipeableChildren(swipeToRefreshViews);
     }
 
     public void detach() {

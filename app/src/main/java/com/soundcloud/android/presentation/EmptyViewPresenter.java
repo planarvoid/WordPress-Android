@@ -45,7 +45,7 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
         super.onDestroyView(fragment);
     }
 
-    public EmptyView getEmptyView() {
+    protected EmptyView getEmptyView() {
         return emptyView;
     }
 
