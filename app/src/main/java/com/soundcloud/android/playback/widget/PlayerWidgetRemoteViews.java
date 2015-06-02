@@ -29,7 +29,7 @@ public class PlayerWidgetRemoteViews extends PlaybackRemoteViews {
 
     public PlayerWidgetRemoteViews(Context context) {
         super(context.getPackageName(), R.layout.appwidget_player,
-                R.drawable.ic_play_states, R.drawable.ic_pause_states);
+                R.drawable.ic_play_arrow_black_36dp, R.drawable.ic_pause_black_36dp);
     }
 
     /* package */  void setEmptyState(Context context) {

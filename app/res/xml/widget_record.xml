@@ -4,4 +4,4 @@
     android:minHeight="56dp"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/appwidget_record"
-    android:previewImage="@drawable/widget_record_preview"/>
+    android:previewImage="@drawable/appwidget_record_preview"/>

@@ -5,4 +5,5 @@
         <item>@string/feedback_crash</item>
         <item>@string/feedback_other_issue</item>
     </string-array>
+    <string name="hyphen">-</string>
 </resources>
