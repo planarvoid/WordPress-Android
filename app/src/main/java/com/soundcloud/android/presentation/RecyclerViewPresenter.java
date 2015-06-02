@@ -9,6 +9,7 @@ import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import com.soundcloud.android.view.adapters.RecyclerViewAdapter;
 
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,13 +23,10 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     private RecyclerView.OnScrollListener externalScrollListener;
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView.AdapterDataObserver emptyViewObserver;
-    private android.support.v7.widget.RecyclerView.ItemDecoration dividerItemDecoration;
 
-    protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
-                                    DividerItemDecoration dividerItemDecoration) {
+    protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener) {
         super(pullToRefreshWrapper);
         this.recyclerViewPauseOnScrollListener = recyclerViewPauseOnScrollListener;
-        this.dividerItemDecoration = dividerItemDecoration;
     }
 
     public void setOnScrollListener(OnScrollListener scrollListener) {
@@ -55,8 +53,8 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
 
         linearLayoutManager = new LinearLayoutManager(fragment.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.addItemDecoration(dividerItemDecoration);
 
+        setupDividers(view);
         configureScrollListener();
 
         final RecyclerViewAdapter adapter = (RecyclerViewAdapter) collectionBinding.adapter();
@@ -71,6 +69,12 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         emptyViewObserver = createEmptyViewObserver();
         adapter.registerAdapterDataObserver(emptyViewObserver);
         configureEmptyView();
+    }
+
+    private void setupDividers(View view) {
+        Drawable divider = view.getResources().getDrawable(R.drawable.divider_list_grey);
+        int dividerHeight = view.getResources().getDimensionPixelSize(R.dimen.divider_horizontal_height);
+        recyclerView.addItemDecoration(new DividerItemDecoration(divider, dividerHeight));
     }
 
     @Override

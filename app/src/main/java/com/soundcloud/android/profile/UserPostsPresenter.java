@@ -9,7 +9,6 @@ import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
@@ -55,10 +54,9 @@ class UserPostsPresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
 
     @Inject
     UserPostsPresenter(RecyclerViewPauseOnScrollListener pauseOnScrollListener, PullToRefreshWrapper pullToRefreshWrapper,
-                       DividerItemDecoration dividerItemDecoration,
                        ProfileOperations profileOperations, MixedPlayableRecyclerViewAdapter adapter,
                        MixedPlayableItemClickListener.Factory clickListenerFactory, PlayableListUpdater.Factory updaterFactory) {
-        super(pullToRefreshWrapper, pauseOnScrollListener, dividerItemDecoration);
+        super(pullToRefreshWrapper, pauseOnScrollListener);
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;

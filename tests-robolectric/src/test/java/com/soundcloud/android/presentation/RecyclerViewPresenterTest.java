@@ -21,6 +21,7 @@ import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.adapters.PagingRecyclerViewAdapter;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,6 +76,7 @@ public class RecyclerViewPresenterTest {
         when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
+        when(view.getResources()).thenReturn(Robolectric.application.getResources());
     }
 
     @Test
@@ -532,7 +534,7 @@ public class RecyclerViewPresenterTest {
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final CollectionBinding refreshBinding,
                                             final Observer... observers) {
-        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener, dividerItemDecoration) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;
@@ -561,7 +563,7 @@ public class RecyclerViewPresenterTest {
     private void createPresenterWithPendingBindings(final CollectionBinding... collectionBindings) {
         final List<CollectionBinding> pendingBindings = new LinkedList<>();
         pendingBindings.addAll(Arrays.asList(collectionBindings));
-        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener, dividerItemDecoration) {
+        presenter = new RecyclerViewPresenter<String>(pullToRefreshWrapper, recyclerViewPauseOnScrollListener) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return pendingBindings.remove(0);

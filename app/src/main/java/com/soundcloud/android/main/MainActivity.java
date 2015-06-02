@@ -294,11 +294,6 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void displayProfile() {
         navigator.openMyProfile(this, accountOperations.getLoggedInUserUrn());
-
-        // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
-        // don't forget to search for the TODOs related to this in NavigationFragment.
-        // --Your friend.
-        getSupportActionBar().setDisplayShowTitleEnabled(false); // prevents title text change flashing
     }
 
     private void displayPlaylists() {
