@@ -13,7 +13,6 @@ import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
@@ -22,6 +21,7 @@ import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,7 +58,6 @@ public class UserPostsPresenterTest {
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlayableListUpdater.Factory playableListUpdaterFactory;
     @Mock private PlayableListUpdater playableListUpdater;
-    @Mock private DividerItemDecoration dividerItemDecoration;
     @Mock private RecyclerViewPauseOnScrollListener pauseOnScrollListener;
 
     private final Bundle arguments = new Bundle();
@@ -75,11 +74,12 @@ public class UserPostsPresenterTest {
         when(profileOperations.pagedPostItems(user)).thenReturn(Observable.just(new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), "next-href")));
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(playableListUpdaterFactory.create(adapter, trackRenderer)).thenReturn(playableListUpdater);
+        when(fragmentView.getResources()).thenReturn(Robolectric.application.getResources());
 
         arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
-        presenter = new UserPostsPresenter(pauseOnScrollListener, pullToRefreshWrapper, dividerItemDecoration, profileOperations, adapter, mixedClickListenerFactory, playableListUpdaterFactory);
+        presenter = new UserPostsPresenter(pauseOnScrollListener, pullToRefreshWrapper, profileOperations, adapter, mixedClickListenerFactory, playableListUpdaterFactory);
     }
 
     @Test

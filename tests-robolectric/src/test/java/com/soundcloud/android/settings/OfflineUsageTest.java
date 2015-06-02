@@ -87,6 +87,9 @@ public class OfflineUsageTest {
 
     @Test
     public void shouldRoundPercentage() {
+        when(fileStorage.getStorageUsed()).thenReturn(0L);
+        offlineUsage.update();
+
         offlineUsage.setOfflineLimitPercentage(2);
 
         expect(offlineUsage.getOfflineLimitPercentage()).toEqual(6);
@@ -99,6 +102,19 @@ public class OfflineUsageTest {
 
         expect(offlineUsage.getOfflineLimitPercentage()).toEqual(100);
         expect(offlineUsage.isMaximumLimit()).toBeTrue();
+    }
+
+    @Test
+    public void shouldBlockSettingOfflineLimitBelowAlreadyUsedSpace() {
+        final long offlineStorageUsed = (long) (0.6 * GB);
+
+        when(fileStorage.getStorageUsed()).thenReturn(offlineStorageUsed);
+        offlineUsage.update();
+
+        boolean result = offlineUsage.setOfflineLimitPercentage(5);
+
+        expect(result).toBeFalse();
+        expect(offlineUsage.getOfflineLimit()).toEqual(offlineStorageUsed);
     }
 
     @Test
@@ -128,4 +144,5 @@ public class OfflineUsageTest {
         expect(offlineUsage.getDeviceTotal()).toEqual(3500l);
         expect(offlineUsage.getOfflineLimit()).toEqual(2500l);
     }
+
 }

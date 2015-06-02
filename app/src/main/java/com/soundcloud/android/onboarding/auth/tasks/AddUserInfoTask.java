@@ -11,7 +11,7 @@ import com.soundcloud.android.api.FilePart;
 import com.soundcloud.android.api.StringPart;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.api.Params;
 
 import android.os.Bundle;
@@ -27,7 +27,7 @@ public class AddUserInfoTask extends AuthTask {
     private final File avatarFile;
     private final AccountOperations accountOperations;
 
-    public AddUserInfoTask(SoundCloudApplication app, String permalink, String username, File avatarFile, UserStorage userStorage,
+    public AddUserInfoTask(SoundCloudApplication app, String permalink, String username, File avatarFile, LegacyUserStorage userStorage,
                            ApiClient apiClient, AccountOperations accountOperations) {
         super(app, userStorage);
         this.apiClient = apiClient;

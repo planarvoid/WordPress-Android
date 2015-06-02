@@ -6,7 +6,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.onboarding.auth.tasks.AddUserInfoTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +23,7 @@ public class AddUserInfoTaskFragment extends AuthTaskFragment {
     private static final String AVATAR_EXTRA = "avatar";
 
     @Inject ApiClient apiClient;
-    @Inject UserStorage userStorage;
+    @Inject LegacyUserStorage userStorage;
 
     public static AddUserInfoTaskFragment create(String username, File avatarFile) {
         final Bundle param = new Bundle();

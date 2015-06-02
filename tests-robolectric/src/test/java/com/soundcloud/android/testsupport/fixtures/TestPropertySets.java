@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -16,6 +17,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
@@ -206,7 +208,6 @@ public abstract class TestPropertySets {
         return fromApiTrack(apiTrack, false, false, false);
     }
 
-
     public static PropertySet fromApiTrack(ApiTrack apiTrack, boolean isPrivate, boolean isLiked, boolean isReposted){
             return PropertySet.from(
                     TrackProperty.URN.bind(Urn.forTrack(apiTrack.getId())),
@@ -243,10 +244,6 @@ public abstract class TestPropertySets {
                 PlayableProperty.LIKES_COUNT.bind(likesCount),
                 PlayableProperty.IS_LIKED.bind(false)
         );
-    }
-
-    public static PropertySet fromApiPlaylist(){
-        return fromApiPlaylist(ModelFixtures.create(ApiPlaylist.class), false, false, false, false);
     }
 
     public static PropertySet fromApiPlaylist(ApiPlaylist apiPlaylist, boolean isLiked, boolean isReposted, boolean markedForOffline, boolean isPosted) {

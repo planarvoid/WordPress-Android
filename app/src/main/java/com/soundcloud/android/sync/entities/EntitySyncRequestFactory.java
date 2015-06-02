@@ -12,19 +12,29 @@ import javax.inject.Named;
 public class EntitySyncRequestFactory {
     private final Lazy<EntitySyncJob> tracksSyncJob;
     private final Lazy<EntitySyncJob> playlistSyncJob;
+    private final Lazy<EntitySyncJob> usersSyncJob;
     private final EventBus eventBus;
 
     @Inject
     public EntitySyncRequestFactory(@Named(EntitySyncModule.TRACKS_SYNC) Lazy<EntitySyncJob> trackSyncJob,
-                                    @Named(EntitySyncModule.PLAYLISTS_SYNC) Lazy<EntitySyncJob> playlistSyncJob, EventBus eventBus) {
+                                    @Named(EntitySyncModule.PLAYLISTS_SYNC) Lazy<EntitySyncJob> playlistSyncJob,
+                                    @Named(EntitySyncModule.USERS_SYNC) Lazy<EntitySyncJob> usersSyncJob, EventBus eventBus) {
         this.tracksSyncJob = trackSyncJob;
         this.playlistSyncJob = playlistSyncJob;
+        this.usersSyncJob = usersSyncJob;
         this.eventBus = eventBus;
     }
 
-    public EntitySyncRequest create(Intent intent){
-        return SyncActions.SYNC_TRACKS.equals(intent.getAction())
-                ? new EntitySyncRequest(tracksSyncJob.get(), intent, eventBus)
-                : new EntitySyncRequest(playlistSyncJob.get(), intent, eventBus);
+    public EntitySyncRequest create(Intent intent) {
+        switch (intent.getAction()) {
+            case SyncActions.SYNC_TRACKS:
+                return new EntitySyncRequest(tracksSyncJob.get(), intent, eventBus);
+            case SyncActions.SYNC_USERS:
+                return new EntitySyncRequest(usersSyncJob.get(), intent, eventBus);
+            case SyncActions.SYNC_PLAYLISTS:
+                return new EntitySyncRequest(playlistSyncJob.get(), intent, eventBus);
+            default:
+                throw new IllegalArgumentException("Unexpected action : " + intent.getAction());
+        }
     }
 }

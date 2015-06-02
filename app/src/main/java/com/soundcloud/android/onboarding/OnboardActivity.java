@@ -48,7 +48,7 @@ import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoriesFra
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import org.jetbrains.annotations.Nullable;
@@ -327,7 +327,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onSkipUserDetails() {
-        new AuthTask(getApp(), new UserStorage()) {
+        new AuthTask(getApp(), new LegacyUserStorage()) {
             @Override
             protected AuthTaskResult doInBackground(Bundle... params) {
                 addAccount(user, oldCloudAPI.getToken(), SignupVia.API);

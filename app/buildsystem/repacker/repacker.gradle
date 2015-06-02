@@ -54,6 +54,12 @@ def profiles() {
                   "group_id"    : "com.android.support",
                   "artifact_id" : "appcompat-v7",
                   "packaging"   : "aar"
+          ],
+          "facebook": [
+                  "base_package": "com/facebook",
+                  "group_id": "com.facebook.android",
+                  "artifact_id": "facebook-android-sdk",
+                  "packaging": "aar"
           ]
   ]
 }
@@ -71,7 +77,7 @@ task assembleRepackJar(type: Jar, dependsOn: 'assembleRepack') {
       // Find the JAR file of the original dependency, so we can use it for filtering later
       def sourceClassesJar
       if (isAar()) {
-        sourceClassesJar = zipTree("${aarDir()}/classes.jar")
+        sourceClassesJar = zipTree("${aarDir()}/jars/classes.jar")
       } else {
         def dependencyPath = configurations.compile.find {
           it.path.endsWith("${dependency.name}-${dependency.version}.${repackArtifactPackaging()}")
@@ -150,6 +156,12 @@ task repackInstall(type: Upload) {
       }
     }
   }
+  doLast {
+    println "-------------------------------------------------------------------"
+    println "Repack available at:"
+    println artifactCoordinates()
+    println "-------------------------------------------------------------------"
+  }
 }
 
 task repackDeploy(type: Upload) {
@@ -213,6 +225,10 @@ def repackArtifactPackaging() {
 
 def isAar() {
   repackArtifactPackaging() == 'aar'
+}
+
+def artifactCoordinates() {
+  "${repackArtifactGroupId()}:${repackArtifactId()}:${repackArtifactVersion()}"
 }
 
 def findDependency() {

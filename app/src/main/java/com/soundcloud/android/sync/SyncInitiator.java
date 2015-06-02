@@ -1,5 +1,6 @@
 package com.soundcloud.android.sync;
 
+import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.provider.Content;
@@ -90,6 +91,20 @@ public class SyncInitiator {
                         new LegacyResultReceiverAdapter(subscriber, uri));
             }
         }).doOnNext(resetSyncMissesLegacy(uri));
+    }
+
+    public Observable<SyncResult> syncUser(final Urn userUrn) {
+        return Observable.create(new Observable.OnSubscribe<SyncResult>() {
+            @Override
+            public void call(Subscriber<? super SyncResult> subscriber) {
+                ResultReceiverAdapter resultReceiver = new ResultReceiverAdapter(subscriber, Looper.getMainLooper());
+                context.startService(new Intent(context, ApiSyncService.class)
+                        .setAction(SyncActions.SYNC_USERS)
+                        .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
+                        .putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiver)
+                        .putParcelableArrayListExtra(SyncExtras.URNS, Lists.newArrayList(userUrn)));
+            }
+        });
     }
 
     private void requestSoundStreamSync(String action, LegacyResultReceiverAdapter resultReceiver) {

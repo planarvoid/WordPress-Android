@@ -37,7 +37,6 @@
     <string name="sounds_from">Sounds from %s</string>
     <string name="this_user">This user</string>
     <string name="track">sound</string>
-    <string name="track_by">by</string>
     <string name="display_name">Display Name</string>
     <string name="website">Website</string>
     <string name="like">Like</string>
@@ -519,5 +518,6 @@
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promoted</string>
     <string name="promoted_by_label">Promoted by %s</string>
+
 
 </resources>

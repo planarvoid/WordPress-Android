@@ -65,6 +65,13 @@ public class SyncRequestFactoryTest {
     }
 
     @Test
+    public void createSyncResourcesRequestFromSyncUsersIntent() {
+        final Intent intent = new Intent(SyncActions.SYNC_USERS);
+        syncRequestFactory.create(intent);
+        verify(entitySyncRequestFactory).create(intent);
+    }
+
+    @Test
     public void createSyncSinglePlaylistRequestFromSyncPlaylistIntent() throws Exception {
         final Urn playlistUrn = Urn.forPlaylist(123L);
         final Intent intent = new Intent(SyncActions.SYNC_PLAYLIST).putExtra(SyncExtras.URN, playlistUrn);

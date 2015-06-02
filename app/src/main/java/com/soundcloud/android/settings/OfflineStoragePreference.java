@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public final class OfflineStoragePreference extends Preference {
 
@@ -33,7 +34,12 @@ public final class OfflineStoragePreference extends Preference {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
             if (fromUser) {
-                offlineUsage.setOfflineLimitPercentage(progress);
+                if (!offlineUsage.setOfflineLimitPercentage(progress)) {
+                    Toast.makeText(getContext(),
+                            R.string.offline_cannot_set_limit_below_usage,
+                            Toast.LENGTH_SHORT)
+                            .show();
+                }
                 updateView();
             }
         }

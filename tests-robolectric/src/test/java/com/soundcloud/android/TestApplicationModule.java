@@ -250,6 +250,12 @@ public class TestApplicationModule {
     }
 
     @Provides
+    @Named(EntitySyncModule.USERS_SYNC)
+    EntitySyncJob provideUsersSyncJob() {
+        return mock(EntitySyncJob.class);
+    }
+
+    @Provides
     public NetworkConnectionHelper provideNetworkConnectionHelper() {
         return mock(NetworkConnectionHelper.class);
     }

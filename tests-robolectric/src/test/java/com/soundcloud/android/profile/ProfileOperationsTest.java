@@ -46,7 +46,7 @@ public class ProfileOperationsTest {
     }
 
     @Test
-    public void returnsResultFromApi() throws Exception {
+    public void returnsUserPostsResultFromApi() throws Exception {
         final PagedRemoteCollection page = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         when(profileApi.userPosts(USER_URN)).thenReturn(Observable.just(page));
 
@@ -56,7 +56,7 @@ public class ProfileOperationsTest {
     }
 
     @Test
-    public void pagerReturnsNextPage() throws Exception {
+    public void userPostsPagerReturnsNextPage() throws Exception {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         final PagedRemoteCollection page2 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page2));
@@ -67,7 +67,7 @@ public class ProfileOperationsTest {
     }
 
     @Test
-    public void mergesInPlaylistLikeInfo() throws Exception {
+    public void userPostsMergesInPlaylistLikeInfo() throws Exception {
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);

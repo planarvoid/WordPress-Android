@@ -141,4 +141,11 @@
     <dimen name="profile_tab_height">48dp</dimen>
     <dimen name="profile_header_bottom_padding">5dp</dimen>
 
+    <!-- Widget -->
+    <dimen name="widget_player_width">272dp</dimen>
+    <dimen name="widget_player_height">56dp</dimen>
+
+    <dimen name="widget_image_estimated_width">80dp</dimen>
+    <dimen name="widget_image_estimated_height">80dp</dimen>
+
 </resources>

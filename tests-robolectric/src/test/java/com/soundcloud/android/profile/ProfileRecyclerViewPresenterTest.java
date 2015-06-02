@@ -73,7 +73,7 @@ public class ProfileRecyclerViewPresenterTest {
     }
 
     private ProfileRecyclerViewPresenter buildPresenter() {
-        return new ProfileRecyclerViewPresenter(pullToRefreshWrapper, pauseOnScrollListener, dividerItemDecoration) {
+        return new ProfileRecyclerViewPresenter(pullToRefreshWrapper, pauseOnScrollListener) {
             @Override
             protected CollectionBinding onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;

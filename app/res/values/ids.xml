@@ -16,4 +16,5 @@
 
     <!-- unique numbers we use -->
     <item name="offline_syncing_request_id" type="id" />
+    <item name="player_widget_request_id" type="id" />
 </resources>

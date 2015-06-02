@@ -5,11 +5,13 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 public class PlayerWidgetRemoteViewsBuilder {
 
     private Optional<WidgetTrack> optionalTrack;
     private Optional<Boolean> optionalIsPlaying;
+    private Optional<Bitmap> optionalArtwork;
 
     public PlayerWidgetRemoteViewsBuilder() {
         optionalTrack = Optional.absent();
@@ -31,6 +33,14 @@ public class PlayerWidgetRemoteViewsBuilder {
             setPlayableProperties(context, widgetRemoteView);
         }
 
+        if (optionalArtwork != null){
+            if (optionalArtwork.isPresent()){
+                widgetRemoteView.setImageViewBitmap(R.id.icon, optionalArtwork.get());
+            } else {
+                widgetRemoteView.setImageViewResource(R.id.icon, R.drawable.appwidget_artwork_placeholder);
+            }
+        }
+
         return widgetRemoteView;
     }
 
@@ -38,7 +48,7 @@ public class PlayerWidgetRemoteViewsBuilder {
         WidgetTrack track = optionalTrack.get();
 
         widgetRemoteView.setImageViewResource(R.id.btn_like, track.isUserLike()
-                ? R.drawable.ic_widget_favorited_states : R.drawable.ic_widget_like_states);
+                ? R.drawable.widget_like_orange : R.drawable.widget_like_grey);
 
         widgetRemoteView.setCurrentTrackTitle(track.getTitle());
         widgetRemoteView.linkButtonsWidget(context, track.getUrn(), track.getUserUrn(), !track.isUserLike());
@@ -57,6 +67,11 @@ public class PlayerWidgetRemoteViewsBuilder {
 
     public PlayerWidgetRemoteViewsBuilder forTrack(WidgetTrack widgetTrack) {
         this.optionalTrack = Optional.of(widgetTrack);
+        return this;
+    }
+
+    public PlayerWidgetRemoteViewsBuilder forArtwork(Bitmap artwork) {
+        this.optionalArtwork = Optional.fromNullable(artwork);
         return this;
     }
 

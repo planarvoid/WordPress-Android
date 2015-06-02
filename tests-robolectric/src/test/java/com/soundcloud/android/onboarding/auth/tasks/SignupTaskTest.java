@@ -5,7 +5,7 @@ import static com.soundcloud.android.Expect.expect;
 import com.soundcloud.android.onboarding.auth.TokenInformationGenerator;
 import com.soundcloud.android.profile.BirthdayInfo;
 import com.soundcloud.android.robolectric.DefaultTestRunner;
-import com.soundcloud.android.storage.UserStorage;
+import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.testsupport.TestHelper;
 import com.soundcloud.android.testsupport.fixtures.JsonFixtures;
 import com.xtremelabs.robolectric.Robolectric;
@@ -24,7 +24,7 @@ public class SignupTaskTest {
 
     private SignupTask signupTask;
     @Mock private TokenInformationGenerator tokenInformationGenerator;
-    @Mock private UserStorage userStorage;
+    @Mock private LegacyUserStorage userStorage;
 
     @Before
     public void setUp() throws Exception {
