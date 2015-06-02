@@ -55,7 +55,7 @@ ext {
           slidingUpPanel              : "com.sothree.slidinguppanel:library:2.0.2-SC@aar",
           androidCrop                 : "com.soundcloud.android:android-crop:1.0.0@aar",
           facebookRebound             : "com.facebook.rebound:rebound:0.3.4",
-          facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk:3.20.0@aar",
+          facebookAndroidSdk          : "com.facebook.android:facebook-android-sdk-repack:3.20.0-15.06.02@aar",
           butterKnife                 : "com.jakewharton:butterknife:5.1.2",
           castCompanionLibrary        : "com.google.android.cast:castcompanionlibrary:2.1-SOUNDCLOUD@aar",
           undoBar                     : "com.cocosw:undobar:1.4@aar",

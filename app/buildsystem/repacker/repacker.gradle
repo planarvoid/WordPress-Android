@@ -54,6 +54,12 @@ def profiles() {
                   "group_id"    : "com.android.support",
                   "artifact_id" : "appcompat-v7",
                   "packaging"   : "aar"
+          ],
+          "facebook": [
+                  "base_package": "com/facebook",
+                  "group_id": "com.facebook.android",
+                  "artifact_id": "facebook-android-sdk",
+                  "packaging": "aar"
           ]
   ]
 }
