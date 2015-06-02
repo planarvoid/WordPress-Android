@@ -55,6 +55,7 @@
     <string name="pref_offline_limit">Limit</string>
     <string name="pref_offline_remove_all_offline_content">Remove all offline content</string>
     <string name="pref_offline_remove_all_offline_content_description">This will remove all the content you have made available offline from your device</string>
+    <string name="offline_cannot_set_limit_below_usage">Limit cannot be set below current storage usage.</string>
 
     <!-- __DEVICE MANAGEMENT -->
     <string name="device_management_limit">You\'ve reached the registered device limit</string>
