@@ -92,4 +92,15 @@ public class PlaybackPerformanceEventTest {
         expect(event.getConnectionType()).toEqual(ConnectionType.FOUR_G);
         expect(event.getUserUrn()).toEqual(userUrn);
     }
+
+    @Test
+    public void createUninterruptedPlaytimeEvent() throws Exception {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(1000L, PROTOCOL, PLAYER_TYPE, CONNECTION_TYPE, CDN_HOST);
+        expect(event.getMetric()).toEqual(PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS);
+        expect(event.getMetricValue()).toEqual(1000L);
+        expect(event.getCdnHost()).toEqual(CDN_HOST);
+        expect(event.getPlayerType()).toEqual(PLAYER_TYPE);
+        expect(event.getProtocol()).toEqual(PROTOCOL);
+        expect(event.getConnectionType()).toEqual(CONNECTION_TYPE);
+    }
 }

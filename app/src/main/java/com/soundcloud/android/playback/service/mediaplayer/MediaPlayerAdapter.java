@@ -354,7 +354,11 @@ public class MediaPlayerAdapter implements Playa, MediaPlayer.OnPreparedListener
             stateTransition.addExtraAttribute(StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE, "false");
             stateTransition.addExtraAttribute(StateTransition.EXTRA_CONNECTION_TYPE, networkConnectionHelper.getCurrentConnectionType().getValue());
             playaListener.onPlaystateChanged(stateTransition);
-            bufferUnderrunListener.onPlaystateChanged(stateTransition);
+            bufferUnderrunListener.onPlaystateChanged(stateTransition,
+                    getPlaybackProtocol(),
+                    PlayerType.MEDIA_PLAYER,
+                    networkConnectionHelper.getCurrentConnectionType()
+            );
         }
     }
 

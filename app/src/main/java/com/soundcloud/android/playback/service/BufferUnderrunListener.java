@@ -1,41 +1,73 @@
 package com.soundcloud.android.playback.service;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.events.BufferUnderrunEvent;
+import com.soundcloud.android.events.ConnectionType;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PlaybackPerformanceEvent;
+import com.soundcloud.android.events.PlayerType;
+import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackProtocol;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
-
 import android.text.TextUtils;
 
 import javax.inject.Inject;
+import java.util.Date;
 
-public class BufferUnderrunListener implements Playa.PlayaListener {
+public class BufferUnderrunListener {
     private static final String TAG = "BufferUnderrunListener";
 
     private final Detector detector;
     private final EventBus eventBus;
+    private final DateProvider dateProvider;
+    private final UninterruptedPlaytimeStorage uninterruptedPlaytimeStorage;
+    private Date enteringPlayingStateTime;
 
     @Inject
     public BufferUnderrunListener(Detector detector,
-                                  EventBus eventBus) {
+                                  EventBus eventBus,
+                                  UninterruptedPlaytimeStorage uninterruptedPlaytimeStorage,
+                                  DateProvider dateProvider) {
         this.detector = detector;
         this.eventBus = eventBus;
+        this.uninterruptedPlaytimeStorage = uninterruptedPlaytimeStorage;
+        this.dateProvider = dateProvider;
     }
 
-    @Override
-    public void onPlaystateChanged(Playa.StateTransition stateTransition) {
+    public void onPlaystateChanged(Playa.StateTransition stateTransition,
+                                   PlaybackProtocol playbackProtocol,
+                                   PlayerType playerType,
+                                   ConnectionType currentConnectionType) {
         Log.d(TAG, "StateTransition: " + stateTransition);
-        if (detector.onStateTransitionEvent(stateTransition)) {
-            checkForEmptyPlayerType(stateTransition);
-            final BufferUnderrunEvent event = new BufferUnderrunEvent(
-                    stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_CONNECTION_TYPE),
-                    stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_PLAYER_TYPE),
-                    stateTransition.getExtraAttribute(Playa.StateTransition.EXTRA_NETWORK_AND_WAKE_LOCKS_ACTIVE));
-            Log.i(TAG, "Playa buffer underrun. " + event);
-            eventBus.publish(EventQueue.TRACKING, event);
+        boolean isBufferUnderun = detector.onStateTransitionEvent(stateTransition);
+        if (stateTransition.isPlayerPlaying()) {
+            if (enteringPlayingStateTime == null) {
+                enteringPlayingStateTime = dateProvider.getCurrentDate();
+            }
+        } else if (enteringPlayingStateTime != null) {
+            long uninterruptedPlayTime = uninterruptedPlaytimeStorage.getPlayTime(playerType);
+            uninterruptedPlayTime = incrementPlaytime(uninterruptedPlayTime);
+            if (isBufferUnderun) {
+                checkForEmptyPlayerType(stateTransition);
+                emitUninterruptedPlaytimeEvent(stateTransition.getTrackUrn(), playbackProtocol, playerType, currentConnectionType, uninterruptedPlayTime);
+                uninterruptedPlayTime = 0L;
+            }
+            enteringPlayingStateTime = null;
+            uninterruptedPlaytimeStorage.setPlaytime(uninterruptedPlayTime, playerType);
         }
+    }
+
+    private long incrementPlaytime(long uninterruptedPlayTime) {
+        return uninterruptedPlayTime + (dateProvider.getCurrentDate().getTime() - enteringPlayingStateTime.getTime());
+    }
+
+    private void emitUninterruptedPlaytimeEvent(Urn track, PlaybackProtocol playbackProtocol, PlayerType playerType, ConnectionType currentConnectionType, long uninterruptedPlayTime) {
+        PlaybackPerformanceEvent event = PlaybackPerformanceEvent.uninterruptedPlaytimeMs(uninterruptedPlayTime,
+                playbackProtocol, playerType, currentConnectionType, track.toString());
+        Log.i(TAG, "Playa buffer underrun. " + event);
+        eventBus.publish(EventQueue.PLAYBACK_PERFORMANCE, event);
     }
 
     // This should be removed when we discover why we are getting empty player types
@@ -44,16 +76,6 @@ public class BufferUnderrunListener implements Playa.PlayaListener {
             ErrorUtils.handleSilentException(TAG,
                     new IllegalStateException("Buffer Underrun event with empty player type: " + stateTransition.toString()));
         }
-    }
-
-    @Override
-    public void onProgressEvent(long progress, long duration) {
-        // No op
-    }
-
-    @Override
-    public boolean requestAudioFocus() {
-        return false;
     }
 
     public void onSeek() {
