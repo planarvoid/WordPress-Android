@@ -30,8 +30,7 @@ import android.content.Context;
 @RunWith(SoundCloudTestRunner.class)
 public class StreamPlayaTest {
 
-    private static final int MAX_CONSECUTIVE_SKIPPY_PLAYS = 2;
-    private static final int MAX_CONSECUTIVE_MP_PLAYS = 4;
+    private final Urn trackUrn = Urn.forTrack(1L);
 
     private StreamPlaya streamPlayerWrapper;
     @Mock private Context context;
@@ -52,7 +51,7 @@ public class StreamPlayaTest {
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         StreamPlaya.skippyFailedToInitialize = false;
     }
 
@@ -62,13 +61,13 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void initCallsInitOnSkippy() throws Exception {
+    public void initCallsInitOnSkippy() {
         instantiateStreamPlaya();
         verify(skippyAdapter).init(context);
     }
 
     @Test
-    public void initDoesNotCallInitOnSkippyIfInitAlreadyFailed() throws Exception {
+    public void initDoesNotCallInitOnSkippyIfInitAlreadyFailed() {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
         reset(skippyAdapter);
@@ -77,28 +76,28 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOnSkippyByDefault() throws Exception {
+    public void playCallsPlayOnSkippyByDefault() {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
         verify(skippyAdapter).play(track);
     }
 
     @Test
-    public void playSetsListenerOnSkippyByDefault() throws Exception {
+    public void playSetsListenerOnSkippyByDefault() {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
         verify(skippyAdapter).setListener(streamPlayerWrapper);
     }
 
     @Test
-    public void playUninterruptedCallsPlayOnSkippyByDefault() throws Exception {
+    public void playUninterruptedCallsPlayOnSkippyByDefault() {
         instantiateStreamPlaya();
         streamPlayerWrapper.playUninterrupted(track);
         verify(skippyAdapter).playUninterrupted(track);
     }
 
     @Test
-    public void playCallsPlayOnMediaPlayerIfForced() throws Exception {
+    public void playCallsPlayOnMediaPlayerIfForced() {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
@@ -106,7 +105,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playUninterruptedCallsPlayOnMediaPlayerIfForced() throws Exception {
+    public void playUninterruptedCallsPlayOnMediaPlayerIfForced() {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         streamPlayerWrapper.playUninterrupted(track);
@@ -114,7 +113,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playPlaysOnMediaPlayerIfSkippyLoadFailed() throws Exception {
+    public void playPlaysOnMediaPlayerIfSkippyLoadFailed() {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
@@ -122,7 +121,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOfflineOnSkippyIfTrackShouldBePlayedOffline() throws Exception {
+    public void playCallsPlayOfflineOnSkippyIfTrackShouldBePlayedOffline() {
         when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(true);
         instantiateStreamPlaya();
 
@@ -132,7 +131,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOfflineOnSkippyWithResumeTimeIfTrackIsAvailableOfflineAndNotMarkedForRemoval() throws Exception {
+    public void playCallsPlayOfflineOnSkippyWithResumeTimeIfTrackIsAvailableOfflineAndNotMarkedForRemoval() {
         when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(true);
         instantiateStreamPlaya();
 
@@ -142,7 +141,19 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOnMediaPlayerIfTrackAvailableOfflineAndSkippyFailedToInitialize() throws Exception {
+    public void playCallsPlayOfflineOnSkippyEvenIfMediaPlayerIsForced() {
+        when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(true);
+        when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
+
+        instantiateStreamPlaya();
+
+        streamPlayerWrapper.play(track, 123);
+
+        verify(skippyAdapter).playOffline(track, 123);
+    }
+
+    @Test
+    public void playCallsPlayOnMediaPlayerIfTrackAvailableOfflineAndSkippyFailedToInitialize() {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
 
@@ -152,7 +163,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOnSkippyPlayerIfTrackShouldNotBePlayedOffline() throws Exception {
+    public void playCallsPlayOnSkippyPlayerIfTrackShouldNotBePlayedOffline() {
         when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(false);
         instantiateStreamPlaya();
 
@@ -162,7 +173,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void playCallsPlayOnSkippyIfTrackShouldNotBePlayedOffline() throws Exception {
+    public void playCallsPlayOnSkippyIfTrackShouldNotBePlayedOffline() {
         when(offlinePlaybackOps.shouldPlayOffline(track)).thenReturn(false);
         instantiateStreamPlaya();
 
@@ -172,7 +183,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void mediaPlayerIsStoppedPlayIsCalledAndSkippyIsConfigured() throws Exception {
+    public void mediaPlayerIsStoppedPlayIsCalledAndSkippyIsConfigured() {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
@@ -182,7 +193,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void skippyIsStoppedPlayIsCalledAndMediaPlayerIsConfigured() throws Exception {
+    public void skippyIsStoppedPlayIsCalledAndMediaPlayerIsConfigured() {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
@@ -191,68 +202,68 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void startBufferingModeCallsStateChangeWithUrn() throws Exception {
+    public void startBufferingModeCallsStateChangeWithUrn() {
         instantiateStreamPlaya();
-        streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
+        streamPlayerWrapper.startBufferingMode(trackUrn);
 
-        final Playa.StateTransition expected = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, Urn.forTrack(1L));
+        final Playa.StateTransition expected = new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, trackUrn);
         verify(playaListener).onPlaystateChanged(expected);
     }
 
     @Test
-    public void mediaPlayerIsStoppedWhenStartingBufferingMode() throws Exception {
+    public void mediaPlayerIsStoppedWhenStartingBufferingMode() {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
-        streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
+        streamPlayerWrapper.startBufferingMode(trackUrn);
         verify(mediaPlayerAdapter).stopForTrackTransition();
     }
 
     @Test
-    public void mediaPlayerIsStoppedWhenStartingBufferingModeBeforeSwitchingToSkippy() throws Exception {
+    public void mediaPlayerIsStoppedWhenStartingBufferingModeBeforeSwitchingToSkippy() {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(false);
-        streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
+        streamPlayerWrapper.startBufferingMode(trackUrn);
         verify(mediaPlayerAdapter).stopForTrackTransition();
     }
 
     @Test
-    public void mediaPlayerListenerSetToNullWhenStartingBufferingMode() throws Exception {
+    public void mediaPlayerListenerSetToNullWhenStartingBufferingMode() {
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(true);
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
         when(playerSwitcherInfo.shouldForceMediaPlayer()).thenReturn(false);
-        streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
+        streamPlayerWrapper.startBufferingMode(trackUrn);
         verify(mediaPlayerAdapter).setListener(null);
     }
 
     @Test
-    public void playSetsListenerToSkippy() throws Exception {
+    public void playSetsListenerToSkippy() {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
         verify(skippyAdapter).setListener(streamPlayerWrapper);
     }
 
     @Test
-    public void skippyPlayerIsStoppedWhenBufferingModeStarted() throws Exception {
+    public void skippyPlayerIsStoppedWhenBufferingModeStarted() {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
-        streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
+        streamPlayerWrapper.startBufferingMode(trackUrn);
         verify(skippyAdapter).stopForTrackTransition();
     }
 
     @Test
-    public void skippyPlayerListenerIsSetToNullWhenBufferingModeStarted() throws Exception {
+    public void skippyPlayerListenerIsSetToNullWhenBufferingModeStarted() {
         instantiateStreamPlaya();
         streamPlayerWrapper.play(track);
-        streamPlayerWrapper.startBufferingMode(Urn.forTrack(1L));
+        streamPlayerWrapper.startBufferingMode(trackUrn);
         verify(skippyAdapter).setListener(null);
     }
 
     @Test
-    public void resumeCallsResumeOnMediaPlayer() throws Exception {
+    public void resumeCallsResumeOnMediaPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnMediaPlayer();
         streamPlayerWrapper.resume();
@@ -260,7 +271,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void pauseCallsPauseOnMediaPlayer() throws Exception {
+    public void pauseCallsPauseOnMediaPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnMediaPlayer();
         streamPlayerWrapper.pause();
@@ -268,7 +279,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void seekCallsSeekOnMediaPlayer() throws Exception {
+    public void seekCallsSeekOnMediaPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnMediaPlayer();
         streamPlayerWrapper.seek(100, true);
@@ -276,7 +287,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void getProgressCallsGetProgressOnMediaPlayer() throws Exception {
+    public void getProgressCallsGetProgressOnMediaPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnMediaPlayer();
         streamPlayerWrapper.getProgress();
@@ -284,7 +295,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void setVolumeCallsSetVolumeOnMediaPlayer() throws Exception {
+    public void setVolumeCallsSetVolumeOnMediaPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnMediaPlayer();
         streamPlayerWrapper.setVolume(3.0f);
@@ -292,7 +303,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void stopCallsStopOnMediaPlayer() throws Exception {
+    public void stopCallsStopOnMediaPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnMediaPlayer();
         streamPlayerWrapper.stop();
@@ -300,7 +311,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void isSeekableReturnsMediaPlayerIsSeekable() throws Exception {
+    public void isSeekableReturnsMediaPlayerIsSeekable() {
         instantiateStreamPlaya();
         startPlaybackOnMediaPlayer();
         when(mediaPlayerAdapter.isSeekable()).thenReturn(true);
@@ -314,7 +325,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void resumeCallsResumeOnSkippyPlayer() throws Exception {
+    public void resumeCallsResumeOnSkippyPlayer() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         streamPlayerWrapper.resume();
@@ -322,7 +333,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void pauseCallsPauseOnSkippy() throws Exception {
+    public void pauseCallsPauseOnSkippy() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         streamPlayerWrapper.pause();
@@ -330,7 +341,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void seekCallsSeekOnSkippy() throws Exception {
+    public void seekCallsSeekOnSkippy() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         streamPlayerWrapper.seek(100, true);
@@ -338,7 +349,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void getProgressCallsGetProgressOnSkippy() throws Exception {
+    public void getProgressCallsGetProgressOnSkippy() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         streamPlayerWrapper.getProgress();
@@ -346,7 +357,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void setVolumeCallsSetVolumeOnSkippy() throws Exception {
+    public void setVolumeCallsSetVolumeOnSkippy() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         streamPlayerWrapper.setVolume(3.0f);
@@ -354,7 +365,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void stopCallsStopOnSkippy() throws Exception {
+    public void stopCallsStopOnSkippy() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         streamPlayerWrapper.stop();
@@ -362,7 +373,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void isSeekableReturnsSkippyIsSeekable() throws Exception {
+    public void isSeekableReturnsSkippyIsSeekable() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         when(skippyAdapter.isSeekable()).thenReturn(true);
@@ -370,7 +381,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void destroyCallsDestroyOnBothPlayers() throws Exception {
+    public void destroyCallsDestroyOnBothPlayers() {
         instantiateStreamPlaya();
         streamPlayerWrapper.destroy();
         verify(mediaPlayerAdapter).destroy();
@@ -378,14 +389,14 @@ public class StreamPlayaTest {
     }
 
     @Test(expected = NullPointerException.class)
-    public void onPlaystateChangeDoesThrowsNPEWithSuccessStateAndNoListener(){
+    public void onPlaystateChangeDoesThrowsNPEWithSuccessStateAndNoListener() {
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(null);
         streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
     }
 
     @Test
-    public void onPlaystateChangedPassesSuccessEventToListener() throws Exception {
+    public void onPlayStateChangedPassesSuccessEventToListener() {
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(playaListener);
 
@@ -395,7 +406,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrorsWhileConnectedToInternet() throws Exception {
+    public void autoRetriesLastPlayOnMediaPlayerIfSkippyErrorsWhileConnectedToInternet() {
         instantiateStreamPlaya();
         when(skippyAdapter.getProgress()).thenReturn(123L);
         streamPlayerWrapper.play(track);
@@ -406,7 +417,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void doesNotAutoRetryLastPlayOnMediaPlayerIfSkippyErrorsWithForbidden() throws Exception {
+    public void doesNotAutoRetryLastPlayOnMediaPlayerIfSkippyErrorsWithForbidden() {
         instantiateStreamPlaya();
         when(skippyAdapter.getProgress()).thenReturn(123L);
         streamPlayerWrapper.play(track);
@@ -417,7 +428,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void doesNotAutoRetryLastPlayOnMediaPlayerIfSkippyErrorsWithNotFound() throws Exception {
+    public void doesNotAutoRetryLastPlayOnMediaPlayerIfSkippyErrorsWithNotFound() {
         instantiateStreamPlaya();
         when(skippyAdapter.getProgress()).thenReturn(123L);
         streamPlayerWrapper.play(track);
@@ -428,7 +439,7 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void onPlaystateChangedPassesErrorEventToListenerWhenNotConnectedToInternet() throws Exception {
+    public void onPlaystateChangedPassesErrorEventToListenerWhenNotConnectedToInternet() {
         instantiateStreamPlaya();
         startPlaybackOnSkippy();
         when(skippyAdapter.getProgress()).thenReturn(1L);
@@ -439,40 +450,40 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void requestsFocusOnListener() throws Exception {
+    public void requestsFocusOnListener() {
         instantiateStreamPlaya();
         streamPlayerWrapper.requestAudioFocus();
         verify(playaListener).requestAudioFocus();
     }
 
     @Test(expected = NullPointerException.class)
-    public void requestsFocusThrowsNPEWithNoListener() throws Exception {
+    public void requestsFocusThrowsNPEWithNoListener() {
         instantiateStreamPlaya();
         streamPlayerWrapper.setListener(null);
         streamPlayerWrapper.requestAudioFocus();
     }
 
     @Test
-    public void getStateReturnsIdleByDefault() throws Exception {
+    public void getStateReturnsIdleByDefault() {
         instantiateStreamPlaya();
         expect(streamPlayerWrapper.getState()).toBe(Playa.PlayaState.IDLE);
     }
 
     @Test
-    public void getStateReturnsLastState() throws Exception {
+    public void getStateReturnsLastState() {
         instantiateStreamPlaya();
         streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
         expect(streamPlayerWrapper.getState()).toBe(Playa.PlayaState.BUFFERING);
     }
 
     @Test
-    public void getLastStateTransitionReturnsIdleNothingByDefault() throws Exception {
+    public void getLastStateTransitionReturnsIdleNothingByDefault() {
         instantiateStreamPlaya();
         expect(streamPlayerWrapper.getLastStateTransition()).toEqual(TestPlayStates.idleDefault());
     }
 
     @Test
-    public void getLastStateTransitionReturnsLastTransition() throws Exception {
+    public void getLastStateTransitionReturnsLastTransition() {
         instantiateStreamPlaya();
         final Playa.StateTransition stateTransition = TestPlayStates.buffering();
         streamPlayerWrapper.onPlaystateChanged(stateTransition);
@@ -480,35 +491,35 @@ public class StreamPlayaTest {
     }
 
     @Test
-    public void isPlayingReturnsIsPlayingFromLastTransition() throws Exception {
+    public void isPlayingReturnsIsPlayingFromLastTransition() {
         instantiateStreamPlaya();
         streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
         expect(streamPlayerWrapper.isPlaying()).toEqual(true);
     }
 
     @Test
-    public void isPlayerPlayingReturnsIsPlayerPlayingFromLastTransition() throws Exception {
+    public void isPlayerPlayingReturnsIsPlayerPlayingFromLastTransition() {
         instantiateStreamPlaya();
         streamPlayerWrapper.onPlaystateChanged(TestPlayStates.playing());
         expect(streamPlayerWrapper.isPlaying()).toEqual(true);
     }
 
     @Test
-    public void isBufferingReturnsIsPlayerPlayingFromLastTransition() throws Exception {
+    public void isBufferingReturnsIsPlayerPlayingFromLastTransition() {
         instantiateStreamPlaya();
         streamPlayerWrapper.onPlaystateChanged(TestPlayStates.buffering());
         expect(streamPlayerWrapper.isPlaying()).toEqual(true);
     }
 
     @Test
-    public void playbackHasPausedReturnTrueIfLastStateTransitionIsIdleNone() throws Exception {
+    public void playbackHasPausedReturnTrueIfLastStateTransitionIsIdleNone() {
         instantiateStreamPlaya();
         streamPlayerWrapper.onPlaystateChanged(TestPlayStates.idle());
         expect(streamPlayerWrapper.playbackHasPaused()).toEqual(true);
     }
 
     @Test
-    public void shouldNotDestroySkippyIfInitialisationFailed(){
+    public void shouldNotDestroySkippyIfInitialisationFailed() {
         when(skippyAdapter.init(context)).thenReturn(false);
         instantiateStreamPlaya();
         streamPlayerWrapper.destroy();
