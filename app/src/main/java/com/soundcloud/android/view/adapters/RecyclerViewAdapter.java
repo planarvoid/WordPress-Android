@@ -4,7 +4,6 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -43,20 +42,15 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == ViewTypes.HEADER_VIEW_TYPE) {
-            return createViewHolder(getHeaderCellRenderer().createView(parent.getContext()));
-
-        } else {
-            final View itemView = cellRenderers.get(viewType).createItemView(parent);
-            itemView.setOnClickListener(onClickListener);
-            itemView.setBackgroundResource(getBackgroundResourceId(parent.getContext()));
-            return createViewHolder(itemView);
-        }
+        final View itemView = cellRenderers.get(viewType).createItemView(parent);
+        itemView.setOnClickListener(onClickListener);
+        itemView.setBackgroundResource(getBackgroundResourceId(parent.getContext()));
+        return createViewHolder(itemView);
     }
 
     private int getBackgroundResourceId(Context context) {
         // lazy init of backgroundResId to avoid unnecessary object creation
-        if (backgroundResId == Consts.NOT_SET){
+        if (backgroundResId == Consts.NOT_SET) {
             TypedValue typedValue = new TypedValue();
             context.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
             backgroundResId = typedValue.resourceId;
@@ -70,21 +64,9 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     protected abstract VH createViewHolder(View itemView);
 
-    private boolean usesHeader(){
-        return getHeaderCellRenderer() != null;
-    }
-
-    @Nullable
-    protected HeaderCellRenderer getHeaderCellRenderer(){
-        return null;
-    }
-
     @Override
     public void onBindViewHolder(final VH holder, final int position) {
-        final int itemViewType = getItemViewType(position);
-        if (itemViewType != ViewTypes.HEADER_VIEW_TYPE) {
-            cellRenderers.get(getBasicItemViewType(position)).bindItemView(adjustPosition(position), holder.itemView, (List) items);
-        }
+        cellRenderers.get(getBasicItemViewType(position)).bindItemView(adjustPosition(position), holder.itemView, (List) items);
     }
 
     @Override
@@ -99,22 +81,18 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0 && usesHeader()) {
-            return ViewTypes.HEADER_VIEW_TYPE;
-        } else {
-            return getBasicItemViewType(position);
-        }
+        return getBasicItemViewType(position);
     }
 
     public abstract int getBasicItemViewType(int position);
 
-    public boolean isEmpty(){
+    public boolean isEmpty() {
         return items.isEmpty();
     }
 
     @Override
     public int getItemCount() {
-        return usesHeader() ? items.size() + 1 : items.size();
+        return items.size();
     }
 
     public ItemT getItem(int position) {
@@ -131,7 +109,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     }
 
     private int adjustPosition(int position) {
-        return usesHeader() ? position - 1 : position;
+        return position;
     }
 
     @Override
@@ -151,10 +129,6 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
             addItem(item);
         }
         notifyDataSetChanged();
-    }
-
-    public int adjustPositionForHeader(int adapterPosition) {
-        return usesHeader() ? adapterPosition - 1 : adapterPosition;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

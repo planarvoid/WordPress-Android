@@ -64,7 +64,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemClicked(view, adapter.adjustPositionForHeader(recyclerView.getChildAdapterPosition(view)));
+                onItemClicked(view, recyclerView.getChildAdapterPosition(view));
             }
         });
 

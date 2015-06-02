@@ -109,11 +109,6 @@ public class RecyclerViewAdapterTest {
         verify(itemView).setOnClickListener(clickListener);
     }
 
-    @Test
-    public void adjustPositionForHeaderReturnsAdapterPosition() throws Exception {
-        expect(adapter.adjustPositionForHeader(1)).toEqual(1);
-    }
-
     private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(final CellRendererBinding... bindings) {
         return new RecyclerViewAdapter<String, TestViewHolder>(bindings) {
             @Override

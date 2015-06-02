@@ -458,14 +458,13 @@ public class RecyclerViewPresenterTest {
 
         View itemView = mock(View.class);
         when(recyclerView.getChildAdapterPosition(itemView)).thenReturn(2);
-        when(adapter.adjustPositionForHeader(2)).thenReturn(1); //simulate a header
 
         ArgumentCaptor<View.OnClickListener> clickListenerCaptor = ArgumentCaptor.forClass(View.OnClickListener.class);
         verify(adapter).setOnItemClickListener(clickListenerCaptor.capture());
         clickListenerCaptor.getValue().onClick(itemView);
 
         expect(lastClickedView).toBe(itemView);
-        expect(lastClickedPosition).toEqual(1);
+        expect(lastClickedPosition).toEqual(2);
     }
 
     @Test
