@@ -4,6 +4,7 @@ import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
@@ -23,7 +24,6 @@ import com.soundcloud.android.onboarding.auth.AuthenticatorService;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.playlists.PlaylistsFragment;
-import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.SoundStreamFragment;
@@ -63,6 +63,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     @Inject FeatureFlags featureFlags;
     @Inject PlayQueueManager playQueueManager;
     @Inject CastConnectionHelper castConnectionHelper;
+    @Inject Navigator navigator;
 
     @Inject @LightCycle SlidingPlayerController playerController;
     @Inject @LightCycle AdPlayerController adPlayerController;
@@ -292,7 +293,12 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     }
 
     private void displayProfile() {
-        startActivity(new Intent(this, MeActivity.class));
+        navigator.openMyProfile(this, accountOperations.getLoggedInUserUrn());
+
+        // Hi developer! If you're removing this line to replace the user profile activity with a fragment,
+        // don't forget to search for the TODOs related to this in NavigationFragment.
+        // --Your friend.
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // prevents title text change flashing
     }
 
     private void displayPlaylists() {

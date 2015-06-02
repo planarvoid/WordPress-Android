@@ -2,6 +2,8 @@ package com.soundcloud.android;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.profile.NewProfileActivity;
 import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.properties.Flag;
@@ -21,6 +23,10 @@ public class Navigator {
     @Inject
     public Navigator(FeatureFlags featureFlags) {
         this.featureFlags = featureFlags;
+    }
+
+    public void openMyProfile(Context activityContext, Urn user) {
+        activityContext.startActivity(createMyProfileIntent(activityContext, user));
     }
 
     public void openProfile(Context activityContext, Urn user) {
@@ -48,8 +54,12 @@ public class Navigator {
     }
 
     private Intent createProfileIntent(Context context, Urn user) {
-        // TODO: replace with new profile activity from branch
-        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : ProfileActivity.class)
+        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? NewProfileActivity.class : ProfileActivity.class)
+                .putExtra(ProfileActivity.EXTRA_USER_URN, user);
+    }
+
+    private Intent createMyProfileIntent(Context context, Urn user) {
+        return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? NewProfileActivity.class : MeActivity.class)
                 .putExtra(ProfileActivity.EXTRA_USER_URN, user);
     }
 

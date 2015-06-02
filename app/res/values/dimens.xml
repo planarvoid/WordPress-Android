@@ -133,6 +133,12 @@
     <dimen name="rec_upload_progress_dimension">66dp</dimen>
 
     <!-- Toolbar -->
-    <dimen name="toolbar_elevation">4dip</dimen>
+    <dimen name="toolbar_elevation">4dp</dimen>
+    <dimen name="toolbar_title_left_margin">72dp</dimen>
+
+    <!-- Profile -->
+    <dimen name="profile_header_expanded_height">240dp</dimen>
+    <dimen name="profile_tab_height">48dp</dimen>
+    <dimen name="profile_header_bottom_padding">5dp</dimen>
 
 </resources>

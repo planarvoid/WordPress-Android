@@ -35,6 +35,14 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         this.externalScrollListener = scrollListener;
     }
 
+    protected LinearLayoutManager getLinearLayoutManager() {
+        return linearLayoutManager;
+    }
+
+    protected RecyclerView getRecyclerView() {
+        return recyclerView;
+    }
+
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         final CollectionBinding<ItemT> collectionBinding = getBinding();
@@ -56,12 +64,13 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemClicked(view, recyclerView.getChildAdapterPosition(view));
+                onItemClicked(view, adapter.adjustPositionForHeader(recyclerView.getChildAdapterPosition(view)));
             }
         });
 
-        emptyViewObserver = createEmptyViewObserver(adapter);
+        emptyViewObserver = createEmptyViewObserver();
         adapter.registerAdapterDataObserver(emptyViewObserver);
+        configureEmptyView();
     }
 
     @Override
@@ -72,9 +81,15 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         super.onDestroyView(fragment);
     }
 
+    private void configureEmptyView() {
+        getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
     @Override
-    protected int[] getSwipeToRefreshViewIds() {
-        return new int[]{ R.id.recycler_view, android.R.id.empty };
+    protected View[] getSwipeToRefreshViews() {
+        return new View[] {
+            recyclerView, getEmptyView()
+        };
     }
 
     private void configureScrollListener() {
@@ -101,7 +116,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         });
     }
 
-    private RecyclerView.AdapterDataObserver createEmptyViewObserver(final RecyclerView.Adapter adapter) {
+    private RecyclerView.AdapterDataObserver createEmptyViewObserver() {
         return new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -116,10 +131,6 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
             @Override
             public void onChanged() {
                 configureEmptyView();
-            }
-
-            private void configureEmptyView() {
-                getEmptyView().setVisibility(adapter.getItemCount() > 0 ? View.GONE : View.VISIBLE);
             }
         };
     }
