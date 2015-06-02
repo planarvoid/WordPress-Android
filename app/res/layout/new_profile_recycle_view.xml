@@ -9,12 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:headerDividersEnabled="false"
+        android:paddingTop="@dimen/profile_header_expanded_height"
+        android:clipToPadding="false"
         android:scrollbars="vertical" />
 
     <com.soundcloud.android.view.EmptyView
         android:id="@android:id/empty"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:paddingTop="@dimen/profile_header_expanded_height" />
 
 </FrameLayout>
 

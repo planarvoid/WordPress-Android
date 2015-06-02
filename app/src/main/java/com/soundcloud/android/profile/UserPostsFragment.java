@@ -5,6 +5,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
@@ -24,6 +26,7 @@ public class UserPostsFragment extends LightCycleSupportFragment implements Refr
     static final String SEARCH_QUERY_SOURCE_INFO_KEY = "search_query_source_info_key";
 
     @Inject @LightCycle UserPostsPresenter presenter;
+    @Inject FeatureFlags featureFlags;
 
     public static UserPostsFragment create(Urn userUrn, String username, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         Bundle bundle = new Bundle();
@@ -44,7 +47,9 @@ public class UserPostsFragment extends LightCycleSupportFragment implements Refr
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.profile_recycle_view, container, false);
+        final int profile_recycle_view = featureFlags.isEnabled(Flag.NEW_PROFILE) ? R.layout.new_profile_recycle_view
+                : R.layout.profile_recycle_view;
+        return inflater.inflate(profile_recycle_view, container, false);
     }
 
     @Override
