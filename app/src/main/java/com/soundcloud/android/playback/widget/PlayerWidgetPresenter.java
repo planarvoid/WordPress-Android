@@ -58,17 +58,17 @@ class PlayerWidgetPresenter {
         updateRemoveViews(context, cachedArtwork);
 
         if (cachedArtwork == null){
-            loadArtwork(context, trackProperties);
+            loadArtwork(context);
         }
     }
 
-    private void loadArtwork(Context context, PropertySet trackProperties) {
+    private void loadArtwork(Context context) {
         artworkSubscription = imageOperations.artwork(widgetTrack.getUrn(),
                 getApiImageSize(context.getResources()),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_width),
                 context.getResources().getDimensionPixelSize(R.dimen.widget_image_estimated_height))
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(getArtworkSubscriber(context, trackProperties));
+                .subscribe(getArtworkSubscriber(context));
     }
 
     private void updateRemoveViews(Context context, Bitmap artwork) {
@@ -80,7 +80,7 @@ class PlayerWidgetPresenter {
     }
 
     @NotNull
-    private DefaultSubscriber<Bitmap> getArtworkSubscriber(final Context context, final PropertySet trackProperties) {
+    private DefaultSubscriber<Bitmap> getArtworkSubscriber(final Context context) {
         return new DefaultSubscriber<Bitmap>(){
             @Override
             public void onNext(Bitmap args) {
