@@ -18,10 +18,14 @@ public class ResolveTrackTest extends ActivityTest<ResolveActivity> {
         super(ResolveActivity.class);
     }
 
-    public void testShouldLandOnLoginScreenForAnonymousUsers() {
+    @Override
+    protected void setUp() throws Exception {
         setActivityIntent(new Intent(Intent.ACTION_VIEW).setData(getUri()));
-        // We are not logged in
+        super.setUp();
+    }
 
+    public void testShouldLandOnLoginScreenForAnonymousUsers() {
+        // We are not logged in
         assertThat(new HomeScreen(solo), is(visible()));
         assertTrue(waiter.expectToastWithText(toastObserver, "Please sign in to open this link"));
     }
