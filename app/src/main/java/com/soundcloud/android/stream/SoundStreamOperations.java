@@ -5,18 +5,24 @@ import static com.google.common.collect.Iterables.getLast;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.Consts;
+import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.rx.Pager.PagingFunction;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Scheduler;
+import rx.functions.Action1;
 import rx.functions.Func1;
 
 import android.support.annotation.Nullable;
@@ -39,6 +45,7 @@ class SoundStreamOperations {
     private final SoundStreamStorage soundStreamStorage;
     private final SyncInitiator syncInitiator;
     private final ContentStats contentStats;
+    private final EventBus eventBus;
     private final Scheduler scheduler;
 
     private final PagingFunction<List<PropertySet>> pagingFunc = new PagingFunction<List<PropertySet>>() {
@@ -59,21 +66,31 @@ class SoundStreamOperations {
         }
     };
 
+    private Action1<List<PropertySet>> promotedImpressionAction = new Action1<List<PropertySet>>() {
+        @Override
+        public void call(List<PropertySet> propertySets) {
+            if (!propertySets.isEmpty()) {
+                PropertySet first = propertySets.get(0);
+                if (first.contains(PromotedTrackProperty.AD_URN)) {
+                    eventBus.publish(EventQueue.TRACKING,
+                            PromotedTrackEvent.forImpression(PromotedTrackItem.from(first), Screen.SIDE_MENU_STREAM.get()));
+                }
+            }
+        }
+    };
+
     @Inject
     SoundStreamOperations(SoundStreamStorage soundStreamStorage, SyncInitiator syncInitiator,
-                          ContentStats contentStats, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+                          ContentStats contentStats, EventBus eventBus, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.soundStreamStorage = soundStreamStorage;
         this.syncInitiator = syncInitiator;
         this.contentStats = contentStats;
         this.scheduler = scheduler;
+        this.eventBus = eventBus;
     }
 
     PagingFunction<List<PropertySet>> pagingFunction() {
         return pagingFunc;
-    }
-
-    public Observable<List<PropertySet>> updatedStreamItems() {
-        return syncInitiator.refreshSoundStream().flatMap(handleSyncResult(INITIAL_TIMESTAMP));
     }
 
     /**
@@ -81,7 +98,8 @@ class SoundStreamOperations {
      * backfill sync in case it didn't find enough.
      */
     public Observable<List<PropertySet>> initialStreamItems() {
-        return initialStreamItems(false);
+        return initialStreamItems(false)
+                .doOnNext(promotedImpressionAction);
     }
 
     private Observable<List<PropertySet>> initialStreamItems(boolean syncCompleted) {
@@ -90,6 +108,12 @@ class SoundStreamOperations {
                 .initialStreamItems(PAGE_SIZE).toList()
                 .subscribeOn(scheduler)
                 .flatMap(handleLocalResult(INITIAL_TIMESTAMP, syncCompleted));
+    }
+
+    public Observable<List<PropertySet>> updatedStreamItems() {
+        return syncInitiator.refreshSoundStream()
+                .flatMap(handleSyncResult(INITIAL_TIMESTAMP))
+                .doOnNext(promotedImpressionAction);
     }
 
     public Observable<List<Urn>> trackUrnsForPlayback() {

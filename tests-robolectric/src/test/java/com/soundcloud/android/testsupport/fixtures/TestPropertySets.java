@@ -9,7 +9,6 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
-import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -17,7 +16,6 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
-import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
@@ -142,8 +140,9 @@ public abstract class TestPropertySets {
     }
 
     private static PropertySet basePromotedTrack() {
-        return expectedTrackForListItem(Urn.forTrack(123L))
+        return expectedTrackForListItem(Urn.forTrack(12345L))
                 .put(PromotedTrackProperty.AD_URN, "ad:urn:123")
+                .put(PromotedTrackProperty.CREATED_AT, new Date(Long.MAX_VALUE))
                 .put(PromotedTrackProperty.TRACK_CLICKED_URLS, Arrays.asList("promoted1", "promoted2"))
                 .put(PromotedTrackProperty.TRACK_IMPRESSION_URLS, Arrays.asList("promoted3", "promoted4"))
                 .put(PromotedTrackProperty.TRACK_PLAYED_URLS, Arrays.asList("promoted5", "promoted6"))

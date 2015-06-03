@@ -251,15 +251,4 @@ public class SoundStreamPresenterTest {
         verify(trackRenderer).setPlayingTrack(playingTrack);
     }
 
-    @Test
-    public void addingPromotedTrackTriggersPromotedTrackImpression() {
-        PropertySet promotedProperties = TestPropertySets.expectedPromotedTrack();
-        List<PropertySet> items = Arrays.asList(promotedProperties);
-        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
-
-        presenter.onCreate(fragment, null);
-
-        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
-    }
-
 }

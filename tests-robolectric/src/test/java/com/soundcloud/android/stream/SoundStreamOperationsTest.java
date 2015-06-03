@@ -1,5 +1,6 @@
 package com.soundcloud.android.stream;
 
+import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.stream.SoundStreamOperations.PAGE_SIZE;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
@@ -7,11 +8,15 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
 import com.soundcloud.android.api.legacy.model.ContentStats;
+import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.sync.SyncInitiator;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
@@ -40,14 +45,13 @@ public class SoundStreamOperationsTest {
     @Mock private Observer<List<PropertySet>> observer;
     @Mock private ContentStats contentStats;
 
-    private final PropertySet promotedTrackProperties = PropertySet.from(
-            PlayableProperty.URN.bind(Urn.forTrack(12345L)),
-            PromotedTrackProperty.AD_URN.bind("adswizz:ad:123"),
-            PlayableProperty.CREATED_AT.bind(new Date(123L)));
+    private TestEventBus eventBus = new TestEventBus();
+
+    private final PropertySet promotedTrackProperties = TestPropertySets.expectedPromotedTrack();
 
     @Before
     public void setUp() throws Exception {
-        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats, Schedulers.immediate());
+        operations = new SoundStreamOperations(soundStreamStorage, syncInitiator, contentStats, eventBus, Schedulers.immediate());
     }
 
     @Test
@@ -65,6 +69,7 @@ public class SoundStreamOperationsTest {
         final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
         when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
                 .thenReturn(Observable.from(items));
+
 
         operations.initialStreamItems().subscribe(observer);
 
@@ -230,6 +235,35 @@ public class SoundStreamOperationsTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    public void initialStreamWithPromotedTrackTriggersPromotedTrackImpression() {
+        final List<PropertySet> itemsWithPromoted = createItems(PAGE_SIZE, 123L);
+        itemsWithPromoted.add(0, promotedTrackProperties);
+
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.<PropertySet>empty(), Observable.from(itemsWithPromoted));
+        when(syncInitiator.initialSoundStream()).thenReturn(Observable.just(true));
+
+        operations.initialStreamItems().subscribe(observer);
+
+        expect(eventBus.eventsOn(EventQueue.TRACKING)).toNumber(1);
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
+    }
+
+    @Test
+    public void updatedItemsStreamWithPromotedTrackTriggersPromotedTrackImpression() {
+        when(syncInitiator.refreshSoundStream())
+                .thenReturn(Observable.just(true));
+        final List<PropertySet> items = createItems(PAGE_SIZE, 123L);
+        items.add(0, promotedTrackProperties);
+        when(soundStreamStorage.initialStreamItems(PAGE_SIZE))
+                .thenReturn(Observable.from(items));
+
+        operations.updatedStreamItems().subscribe(observer);
+
+        expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
+    }
+
     private List<PropertySet> createItems(int length, long timestampOfLastItem) {
         final List<PropertySet> headList = Collections.nCopies(length - 1, PropertySet.from(
                 PlayableProperty.URN.bind(Urn.forTrack(1L)),
@@ -241,4 +275,5 @@ public class SoundStreamOperationsTest {
         propertySets.add(lastItem);
         return propertySets;
     }
+
 }

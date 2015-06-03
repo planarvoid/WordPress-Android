@@ -29,7 +29,6 @@ import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
-import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
@@ -66,19 +65,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
                 }
             };
 
-    private final Action1<List<PropertySet>> promotedImpression = new Action1<List<PropertySet>>() {
-        @Override
-        public void call(List<PropertySet> propertySets) {
-            if (!propertySets.isEmpty()) {
-                PropertySet first = propertySets.get(0);
-                if (first.contains(PromotedTrackProperty.AD_URN)) {
-                    eventBus.publish(EventQueue.TRACKING,
-                            PromotedTrackEvent.forImpression(PromotedTrackItem.from(first), Screen.SIDE_MENU_STREAM.get()));
-                }
-            }
-        }
-    };
-
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
     private final MixedPlayableRecyclerViewAdapter adapter;
@@ -87,7 +73,6 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     private CompositeSubscription viewLifeCycle;
     private boolean isOnboardingSuccess;
-
 
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
@@ -117,7 +102,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     @Override
     protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        return CollectionBinding.from(streamOperations.initialStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+        return CollectionBinding.from(streamOperations.initialStreamItems(), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
@@ -125,7 +110,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     @Override
     protected CollectionBinding<PlayableItem> onRefreshBinding() {
-        return CollectionBinding.from(streamOperations.updatedStreamItems().doOnNext(promotedImpression), PAGE_TRANSFORMER)
+        return CollectionBinding.from(streamOperations.updatedStreamItems(), PAGE_TRANSFORMER)
                 .withAdapter(adapter)
                 .withPager(streamOperations.pagingFunction())
                 .build();
