@@ -172,10 +172,10 @@ public class PlaySessionControllerTest {
     }
 
     @Test
-    public void onStateTransitionDoesNotTryToAdvanceTrackIfTrackEndedWhileCasting() {
+    public void onStateTransitionTriesToAdvanceTrackIfTrackEndedWhileCasting() {
         when(castConnectionHelper.isCasting()).thenReturn(true);
         eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, new Playa.StateTransition(Playa.PlayaState.IDLE, Playa.Reason.TRACK_COMPLETE, trackUrn));
-        verify(playQueueManager, never()).autoNextTrack();
+        verify(playQueueManager).autoNextTrack();
     }
 
     @Test
