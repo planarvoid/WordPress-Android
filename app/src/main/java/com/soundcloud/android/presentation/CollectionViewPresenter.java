@@ -1,15 +1,14 @@
 package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import org.jetbrains.annotations.Nullable;
+import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.View;
 
 abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
@@ -42,7 +41,7 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
     }
 
     @Override
-    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
+    public void onCreate(Fragment fragment, Bundle bundle) {
         Log.d(TAG, "onCreate");
         super.onCreate(fragment, bundle);
         this.fragmentArgs = fragment.getArguments();
@@ -83,7 +82,7 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
     }
 
     @Override
-    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         Log.d(TAG, "onViewCreated");
         super.onViewCreated(fragment, view, savedInstanceState);
 
@@ -130,7 +129,7 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         super.onDestroy(fragment);
     }
 
-    private final class RefreshSubscriber extends DefaultSubscriber<Iterable<ItemT>> {
+    private final class RefreshSubscriber extends Subscriber<Iterable<ItemT>> {
 
         @Override
         public void onNext(Iterable<ItemT> collection) {
@@ -147,11 +146,15 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         }
 
         @Override
+        public void onCompleted() {
+            // no op.
+        }
+
+        @Override
         public void onError(Throwable error) {
             Log.d(TAG, "refresh failed");
             error.printStackTrace();
             refreshWrapper.setRefreshing(false);
-            super.onError(error);
         }
     }
 
