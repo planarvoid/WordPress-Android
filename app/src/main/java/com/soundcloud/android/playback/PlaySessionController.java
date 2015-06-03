@@ -14,8 +14,8 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.playback.service.managers.IRemoteAudioManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.propeller.PropertySet;
 import com.soundcloud.propeller.rx.PropertySetFunctions;
@@ -90,8 +90,7 @@ public class PlaySessionController {
     }
 
     private void skipOnTrackFinish(StateTransition stateTransition) {
-        if (!castConnectionHelper.isCasting()
-                && stateTransition.isPlayerIdle()
+        if (stateTransition.isPlayerIdle()
                 && !stateTransition.isPlayQueueComplete()
                 && stateTransition.trackEnded()) {
             tryToSkipTrack(stateTransition);

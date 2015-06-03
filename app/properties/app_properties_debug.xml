@@ -17,7 +17,7 @@
     <string name="mobile_api_base_url">https://api-mobile-alpha.soundcloud.com</string>
     
     <string name="eventgateway_url">http://ci.mobile.s-cloud.net:4567/v1/events</string>
-    <string name="cast_receiver_app_id">9E70E41A</string>
+    <string name="cast_receiver_app_id">DCAC4134</string>
 
     <!-- Feature flags (enabled) -->
     <bool name="feature_google_cast">true</bool>
