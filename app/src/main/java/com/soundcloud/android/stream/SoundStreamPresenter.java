@@ -1,6 +1,5 @@
 package com.soundcloud.android.stream;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.PromotedSourceInfo;
@@ -46,8 +45,7 @@ import java.util.List;
 
 public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
-    @VisibleForTesting
-    static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
+    private static final Func1<List<PropertySet>, List<PlayableItem>> PAGE_TRANSFORMER =
             new Func1<List<PropertySet>, List<PlayableItem>>() {
                 @Override
                 public List<PlayableItem> call(List<PropertySet> bindings) {
@@ -68,8 +66,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
                 }
             };
 
-    @VisibleForTesting
-    final Action1<List<PropertySet>> promotedImpression = new Action1<List<PropertySet>>() {
+    private final Action1<List<PropertySet>> promotedImpression = new Action1<List<PropertySet>>() {
         @Override
         public void call(List<PropertySet> propertySets) {
             if (!propertySets.isEmpty()) {

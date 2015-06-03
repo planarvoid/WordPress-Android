@@ -19,6 +19,7 @@ import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -40,6 +41,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.Observer;
 import rx.observers.TestSubscriber;
 
 import android.content.Intent;
@@ -49,6 +51,7 @@ import android.view.View;
 
 import javax.inject.Provider;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -63,7 +66,7 @@ public class SoundStreamPresenterTest {
     @Mock private PullToRefreshWrapper pullToRefreshWrapper;
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private DateProvider dateProvider;
-
+    @Mock private Observer<Iterable<PlayableItem>> itemObserver;
     @Mock private Fragment fragment;
     @Mock private View view;
     @Mock private RecyclerView recyclerView;
@@ -84,6 +87,40 @@ public class SoundStreamPresenterTest {
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(dateProvider.getCurrentTime()).thenReturn(100L);
         when(view.getResources()).thenReturn(Robolectric.application.getResources());
+    }
+
+    @Test
+    public void canLoadStreamItems() {
+        List<PropertySet> items = Arrays.asList(
+                TestPropertySets.expectedPromotedTrack(),
+                TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L)),
+                TestPropertySets.expectedLikedPlaylistForPlaylistsScreen()
+        );
+        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
+
+        CollectionBinding<PlayableItem> binding = presenter.onBuildBinding(null);
+        binding.connect();
+        binding.items().subscribe(itemObserver);
+
+        verify(itemObserver).onNext(Arrays.asList(
+                PromotedTrackItem.from(items.get(0)),
+                TrackItem.from(items.get(1)),
+                PlaylistItem.from(items.get(2))
+        ));
+    }
+
+    @Test
+    public void canRefreshStreamItems() {
+        final PropertySet streamItem = TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L));
+        when(streamOperations.updatedStreamItems()).thenReturn(Observable.just(
+                Collections.singletonList(streamItem)
+        ));
+
+        CollectionBinding<PlayableItem> binding = presenter.onRefreshBinding();
+        binding.connect();
+        binding.items().subscribe(itemObserver);
+
+        verify(itemObserver).onNext(Collections.<PlayableItem>singletonList(TrackItem.from(streamItem)));
     }
 
     @Test
@@ -215,38 +252,12 @@ public class SoundStreamPresenterTest {
     }
 
     @Test
-    public void pageTransformerReturnsPlaylistItemForPlaylistProperties() {
-        List<PropertySet> items = Arrays.asList(TestPropertySets.expectedLikedPlaylistForPlaylistsScreen());
-
-        PlayableItem item = SoundStreamPresenter.PAGE_TRANSFORMER.call(items).get(0);
-
-        expect(item).toBeInstanceOf(PlaylistItem.class);
-    }
-
-    @Test
-    public void pageTransformerReturnsTrackItemForTrackProperties() {
-        List<PropertySet> items = Arrays.asList(TestPropertySets.expectedTrackForListItem(Urn.forTrack(123L)));
-
-        PlayableItem item = SoundStreamPresenter.PAGE_TRANSFORMER.call(items).get(0);
-
-        expect(item).toBeInstanceOf(TrackItem.class);
-    }
-
-    @Test
-    public void pageTransformerReturnsPromotedTrackItemForTrackPropertiesWithPromotedUrn() {
-        List<PropertySet> items = Arrays.asList(TestPropertySets.expectedPromotedTrack());
-
-        PlayableItem item = SoundStreamPresenter.PAGE_TRANSFORMER.call(items).get(0);
-
-        expect(item).toBeInstanceOf(PromotedTrackItem.class);
-    }
-
-    @Test
     public void addingPromotedTrackTriggersPromotedTrackImpression() {
         PropertySet promotedProperties = TestPropertySets.expectedPromotedTrack();
         List<PropertySet> items = Arrays.asList(promotedProperties);
+        when(streamOperations.initialStreamItems()).thenReturn(Observable.just(items));
 
-        presenter.promotedImpression.call(items);
+        presenter.onCreate(fragment, null);
 
         expect(eventBus.lastEventOn(EventQueue.TRACKING)).toBeInstanceOf(PromotedTrackEvent.class);
     }
