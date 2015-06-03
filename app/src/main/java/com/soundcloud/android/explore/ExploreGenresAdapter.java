@@ -1,6 +1,6 @@
 package com.soundcloud.android.explore;
 
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.presentation.ListItemAdapter;
 
 import javax.inject.Inject;
 

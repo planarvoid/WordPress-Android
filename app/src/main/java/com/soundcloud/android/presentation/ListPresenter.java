@@ -2,7 +2,6 @@ package com.soundcloud.android.presentation;
 
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;

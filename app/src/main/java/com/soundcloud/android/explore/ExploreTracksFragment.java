@@ -16,7 +16,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import rx.Subscription;
 import rx.functions.Action1;
 import rx.observables.ConnectableObservable;

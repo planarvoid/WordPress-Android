@@ -4,7 +4,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import org.jetbrains.annotations.Nullable;

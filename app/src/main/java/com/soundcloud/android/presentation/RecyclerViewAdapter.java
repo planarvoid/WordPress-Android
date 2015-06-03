@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.presentation;
 
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
@@ -66,7 +66,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     @Override
     public void onBindViewHolder(final VH holder, final int position) {
-        cellRenderers.get(getBasicItemViewType(position)).bindItemView(adjustPosition(position), holder.itemView, (List) items);
+        cellRenderers.get(getBasicItemViewType(position)).bindItemView(position, holder.itemView, (List) items);
     }
 
     @Override
@@ -96,7 +96,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     }
 
     public ItemT getItem(int position) {
-        return items.get(adjustPosition(position));
+        return items.get(position);
     }
 
     public List<ItemT> getItems() {
@@ -105,11 +105,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     @Override
     public void removeItem(int position) {
-        items.remove(adjustPosition(position));
-    }
-
-    private int adjustPosition(int position) {
-        return position;
+        items.remove(position);
     }
 
     @Override

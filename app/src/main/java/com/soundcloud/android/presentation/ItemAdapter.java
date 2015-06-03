@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.presentation;
 
 import rx.Observer;
 

@@ -6,8 +6,6 @@ import static android.support.v7.widget.RecyclerView.OnScrollListener;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
-import com.soundcloud.android.view.adapters.PagingAwareAdapter;
-import com.soundcloud.android.view.adapters.RecyclerViewAdapter;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;

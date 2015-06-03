@@ -4,8 +4,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.rx.Pager.PagingFunction;
-import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;

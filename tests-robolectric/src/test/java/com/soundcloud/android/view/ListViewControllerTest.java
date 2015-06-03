@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

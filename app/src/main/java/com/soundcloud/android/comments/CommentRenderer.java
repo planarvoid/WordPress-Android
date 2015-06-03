@@ -5,7 +5,7 @@ import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.android.view.adapters.CellRenderer;
+import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.res.Resources;
 import android.text.TextUtils;

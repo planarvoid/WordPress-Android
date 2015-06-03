@@ -8,6 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.CellRenderer;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import android.view.View;

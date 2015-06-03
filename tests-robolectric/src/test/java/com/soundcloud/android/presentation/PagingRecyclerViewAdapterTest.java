@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.presentation;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class RecyclerViewPagingAdapterTest {
+public class PagingRecyclerViewAdapterTest {
 
     @Mock private View itemView;
     @Mock private ViewGroup parent;

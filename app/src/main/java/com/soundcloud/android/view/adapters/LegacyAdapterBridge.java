@@ -13,6 +13,7 @@ import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
+import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackItem;

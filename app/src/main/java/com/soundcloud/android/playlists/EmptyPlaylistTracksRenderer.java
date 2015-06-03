@@ -6,7 +6,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ViewUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.EmptyViewBuilder;
-import com.soundcloud.android.view.adapters.CellRenderer;
+import com.soundcloud.android.presentation.CellRenderer;
 
 import android.content.Context;
 import android.view.View;

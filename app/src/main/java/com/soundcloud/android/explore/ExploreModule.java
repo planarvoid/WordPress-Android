@@ -4,7 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tracks.TrackGridRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import dagger.Module;
 import dagger.Provides;
 

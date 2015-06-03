@@ -19,7 +19,7 @@ import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;

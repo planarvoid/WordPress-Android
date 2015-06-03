@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.presentation;
 
 import static android.support.v7.widget.RecyclerView.ViewHolder;
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
@@ -15,17 +15,17 @@ public abstract class PagingRecyclerViewAdapter<T, VH extends ViewHolder> extend
 
     private AppendState appendState = AppendState.IDLE;
 
-    public PagingRecyclerViewAdapter(CellRenderer<T> CellRenderer) {
-        this(CellRenderer, createDefaultProgressCellRenderer());
+    public PagingRecyclerViewAdapter(CellRenderer<T> cellRenderer) {
+        this(cellRenderer, createDefaultProgressCellRenderer());
     }
 
-    public PagingRecyclerViewAdapter(CellRenderer<T> CellRenderer, ProgressCellRenderer progressCellRenderer) {
-        super(CellRenderer);
+    public PagingRecyclerViewAdapter(CellRenderer<T> cellRenderer, ProgressCellRenderer progressCellRenderer) {
+        super(cellRenderer);
         this.progressCellRenderer = progressCellRenderer;
     }
 
-    public PagingRecyclerViewAdapter(CellRendererBinding<? extends T>... CellRendererEntities) {
-        super(CellRendererEntities);
+    public PagingRecyclerViewAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
+        super(cellRendererBindings);
         this.progressCellRenderer = createDefaultProgressCellRenderer();
     }
 

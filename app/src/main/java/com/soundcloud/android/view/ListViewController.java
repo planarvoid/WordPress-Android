@@ -8,7 +8,7 @@ import com.google.common.base.Preconditions;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.Observable;
 import rx.android.LegacyPager;
@@ -66,7 +66,7 @@ public class ListViewController extends DefaultSupportFragmentLightCycle {
     }
 
     /**
-     * Like {@link #setAdapter(com.soundcloud.android.view.adapters.PagingItemAdapter, LegacyPager)}, but does
+     * Like {@link #setAdapter(PagingItemAdapter, LegacyPager)}, but does
      * not perform any item mapping.
      */
     public <T extends ListItem, CollT extends Iterable<T>> void setAdapter(final PagingItemAdapter<T> adapter, final LegacyPager<CollT> pager) {

@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.presentation;
 
 public class CellRendererBinding<ItemT>  {
     final int itemViewType;

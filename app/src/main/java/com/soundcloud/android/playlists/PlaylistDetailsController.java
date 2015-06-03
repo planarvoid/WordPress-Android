@@ -11,7 +11,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemMenuPresenter;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;

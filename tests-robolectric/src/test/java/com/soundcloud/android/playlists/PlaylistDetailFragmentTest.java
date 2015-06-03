@@ -36,7 +36,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.presentation.ListItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.shadows.ShadowToast;

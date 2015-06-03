@@ -1,6 +1,8 @@
 package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.presentation.CellRendererBinding;
+import com.soundcloud.android.presentation.PagingRecyclerViewAdapter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 

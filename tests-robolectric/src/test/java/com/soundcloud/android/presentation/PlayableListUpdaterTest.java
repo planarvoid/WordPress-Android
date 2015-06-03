@@ -16,7 +16,6 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;

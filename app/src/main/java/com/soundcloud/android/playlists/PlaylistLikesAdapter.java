@@ -1,6 +1,6 @@
 package com.soundcloud.android.playlists;
 
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 
 import javax.inject.Inject;
 

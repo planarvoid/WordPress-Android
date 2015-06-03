@@ -15,7 +15,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.storage.NotFoundException;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import rx.Observable;
 import rx.Subscription;

@@ -1,4 +1,4 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.presentation;
 
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.mock;

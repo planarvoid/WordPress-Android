@@ -2,14 +2,14 @@ package com.soundcloud.android.search;
 
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.view.adapters.CellRendererBinding;
+import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.lightcycle.SupportFragmentLightCycle;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import org.jetbrains.annotations.Nullable;

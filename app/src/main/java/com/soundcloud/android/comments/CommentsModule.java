@@ -1,7 +1,7 @@
 package com.soundcloud.android.comments;
 
 import com.soundcloud.android.ApplicationModule;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import dagger.Module;
 import dagger.Provides;
 

@@ -1,9 +1,10 @@
-package com.soundcloud.android.view.adapters;
+package com.soundcloud.android.presentation;
 
 import static com.soundcloud.android.utils.AndroidUtils.assertOnUiThread;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.adapters.ReactiveAdapter;
 
 import android.view.View;
 import android.view.ViewGroup;

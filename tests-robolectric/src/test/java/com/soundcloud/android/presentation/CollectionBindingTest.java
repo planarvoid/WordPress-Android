@@ -4,8 +4,6 @@ import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
-import com.soundcloud.android.view.adapters.ItemAdapter;
-import com.soundcloud.android.view.adapters.PagingItemAdapter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

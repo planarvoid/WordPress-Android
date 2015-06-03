@@ -30,7 +30,7 @@ import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.presentation.ListItemAdapter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

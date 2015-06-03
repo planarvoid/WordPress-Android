@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.presentation.ListItem;
+import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import org.junit.Before;
 import org.junit.Test;

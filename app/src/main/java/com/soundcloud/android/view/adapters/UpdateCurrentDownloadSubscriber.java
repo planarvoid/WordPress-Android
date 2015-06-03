@@ -3,6 +3,7 @@ package com.soundcloud.android.view.adapters;
 import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflineProperty;
+import com.soundcloud.android.presentation.ItemAdapter;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.propeller.PropertySet;

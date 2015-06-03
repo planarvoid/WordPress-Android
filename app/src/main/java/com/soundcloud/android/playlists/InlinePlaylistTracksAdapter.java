@@ -4,8 +4,8 @@ package com.soundcloud.android.playlists;
 import com.soundcloud.android.rx.observers.EmptyViewAware;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.view.adapters.CellRendererBinding;
-import com.soundcloud.android.view.adapters.ListItemAdapter;
+import com.soundcloud.android.presentation.CellRendererBinding;
+import com.soundcloud.android.presentation.ListItemAdapter;
 
 import javax.inject.Inject;
 

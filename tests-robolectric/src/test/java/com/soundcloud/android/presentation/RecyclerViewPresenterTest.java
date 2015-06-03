@@ -20,7 +20,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.android.view.adapters.PagingRecyclerViewAdapter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;

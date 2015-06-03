@@ -4,7 +4,6 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
-import com.soundcloud.android.view.adapters.ItemAdapter;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
 

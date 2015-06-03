@@ -12,7 +12,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.utils.ViewUtils;
-import com.soundcloud.android.view.adapters.CellRenderer;
+import com.soundcloud.android.presentation.CellRenderer;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
