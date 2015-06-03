@@ -15,7 +15,7 @@ public class ResolveSoundUriTest extends ResolveBaseTest {
 
     private static final String TRACK_NAME = "STEVE ANGELLO - CHE FLUTE [FREE SIZE DOWNLOAD]";
 
-    public void testShouldOpenPlayerScreenAndLoadRecommentations() {
+    public void testShouldOpenPlayerScreenAndLoadRecommendations() {
         VisualPlayerElement playerScreen = new VisualPlayerElement(solo);
 
         playerScreen.waitForContent();
