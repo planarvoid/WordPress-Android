@@ -6,6 +6,8 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.screens.elements.Element;
+import com.soundcloud.android.screens.elements.EmptyViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
 import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
@@ -35,8 +37,8 @@ public abstract class Screen {
         testDriver.swipeLeft();
     }
 
-    public ViewElement emptyView(){
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.empty_view_holder));
+    public EmptyViewElement emptyView(){
+       return new EmptyViewElement(testDriver, With.id(com.soundcloud.android.R.id.empty_view_holder));
     }
 
     public ViewElement errorView(){
@@ -49,7 +51,7 @@ public abstract class Screen {
     }
 
     public ViewElement emptyConnectionErrorMessage(){
-        return emptyView().findElement(With.text(testDriver.getString(com.soundcloud.android.R.string.error_no_internet)));
+        return emptyView().emptyConnectionErrorMessage();
     }
 
     public void swipeRight() {

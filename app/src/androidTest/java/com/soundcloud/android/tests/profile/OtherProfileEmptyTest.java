@@ -2,8 +2,11 @@ package com.soundcloud.android.tests.profile;
 
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.TestUser.emptyUser;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
@@ -33,18 +36,15 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testShowsEmptyPostsView() {
-        final ViewElement emptyUserPostsMessage = screen
-                .emptyUserPostsMessage(emptyUser.getPermalink());
-        assertTrue(emptyUserPostsMessage.isVisible());
+
+        assertThat("This user hasn't uploaded\nany public sounds yet.", is(screen.emptyViewMessage()));
     }
 
     // ignore until we refactor the fragment
     public void ignore_testShowsEmptyLikesViewView() {
-        final ViewElement emptyUserLikesMessage = screen
-                .touchLikesTab()
-                .emptyUserLikesMessage(emptyUser.getPermalink());
+        ProfileScreen profileScreen = screen.touchLikesTab();
 
-        assertTrue(emptyUserLikesMessage.isVisible());
+        assertThat("This user has no likes.", is(profileScreen.emptyViewMessage()));
     }
 
 }

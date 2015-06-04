@@ -6,6 +6,8 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.screens.elements.Element;
+import com.soundcloud.android.screens.elements.EmptyViewElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
@@ -62,12 +64,8 @@ public class ProfileScreen extends Screen {
         return new ViewPagerElement(testDriver);
     }
 
-    public ViewElement emptyUserPostsMessage(String username){
-        return emptyView().findElement(With.text(testDriver.getString(R.string.empty_user_tracks_text, username)));
-    }
-
-    public ViewElement emptyUserLikesMessage(String username){
-        return emptyView().findElement(With.text(testDriver.getString(R.string.empty_user_likes_text, username)));
+    public String emptyViewMessage() {
+        return emptyView().message();
     }
 
     public ProfileScreen touchLikesTab() {
