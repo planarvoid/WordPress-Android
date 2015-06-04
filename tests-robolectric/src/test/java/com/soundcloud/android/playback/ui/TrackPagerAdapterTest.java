@@ -181,6 +181,17 @@ public class TrackPagerAdapterTest {
     }
 
     @Test
+    public void onPlaybackProgressEventDoNotSetsProgressForPausedAdapter() {
+        View currentPageView = getPageView();
+        PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), TRACK1_URN);
+        adapter.onPause();
+
+        eventBus.publish(EventQueue.PLAYBACK_PROGRESS, event);
+
+        verify(trackPagePresenter, never()).setProgress(currentPageView, event.getPlaybackProgress());
+    }
+
+    @Test
     public void onPlaybackProgressEventDoNotSetProgressOnOtherTrackPage() {
         View currentPageView = getPageView();
         PlaybackProgressEvent event = new PlaybackProgressEvent(new PlaybackProgress(5l, 10l), Urn.forTrack(234L));

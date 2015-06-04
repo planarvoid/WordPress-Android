@@ -40,7 +40,7 @@ import java.util.WeakHashMap;
 
 public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHelper.OnConnectionChangeListener {
 
-    static final int TRACKVIEW_POOL_SIZE = 6;
+    static final int TRACK_VIEW_POOL_SIZE = 6;
     private static final int TYPE_TRACK_VIEW = 0;
     private static final int TYPE_AD_VIEW = 1;
     private static final int TRACK_CACHE_SIZE = 10;
@@ -53,17 +53,21 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
     private final CastConnectionHelper castConnectionHelper;
     private final EventBus eventBus;
     private final TrackPageRecycler trackPageRecycler;
+    private final Map<View, TrackPageData> trackByViews = new HashMap<>(TRACK_VIEW_POOL_SIZE);
 
     private View adView;
     private SkipListener skipListener;
     private List<TrackPageData> currentData = Collections.emptyList();
+    private ViewVisibilityProvider viewVisibilityProvider;
+
+    private CompositeSubscription foregroundSubscription = new CompositeSubscription();
+    private CompositeSubscription backgroundSubscription = new CompositeSubscription();
+    private boolean isForeground;
 
     // WeakHashSet, to avoid re-subscribing subscribed views without holding strong refs
     private final Set<View> subscribedTrackViews = Collections.newSetFromMap(new WeakHashMap<View, Boolean>());
         private final LruCache<Urn, ReplaySubject<PropertySet>> trackObservableCache =
             new LruCache<>(TRACK_CACHE_SIZE);
-    
-    private final Map<View, TrackPageData> trackByViews = new HashMap<>(TRACKVIEW_POOL_SIZE);
 
     private final Func1<PlaybackProgressEvent, Boolean> currentTrackFilter = new Func1<PlaybackProgressEvent, Boolean>() {
         @Override
@@ -78,10 +82,6 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
             trackObservableCache.remove(trackChangedEvent.getNextUrn());
         }
     };
-
-    private CompositeSubscription subscription = new CompositeSubscription();
-    private ViewVisibilityProvider viewVisibilityProvider;
-    private boolean isForeground;
 
     @Inject
     TrackPagerAdapter(PlayQueueManager playQueueManager,
@@ -125,19 +125,27 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
             getPresenter(entry.getValue()).onBackground(entry.getKey());
         }
+
+        foregroundSubscription.unsubscribe();
+        foregroundSubscription = new CompositeSubscription();
     }
 
     void onResume() {
         isForeground = true;
         for (Map.Entry<View, TrackPageData> entry : trackByViews.entrySet()) {
-            getPresenter(entry.getValue()).onForeground(entry.getKey());
+            final TrackPageData trackPageData = entry.getValue();
+            final PlayerPagePresenter presenter = getPresenter(trackPageData);
+            final View view = entry.getKey();
+
+            presenter.onForeground(view);
+            subscribeToForegroundEvents(trackPageData, presenter, view);
         }
     }
 
     void onViewCreated(ViewGroup container, SkipListener skipListener, ViewVisibilityProvider viewVisibilityProvider) {
         this.skipListener = skipListener;
         this.viewVisibilityProvider = viewVisibilityProvider;
-        for (int i = 0; i < TRACKVIEW_POOL_SIZE; i++) {
+        for (int i = 0; i < TRACK_VIEW_POOL_SIZE; i++) {
             final View itemView = trackPagePresenter.createItemView(container, skipListener);
             trackPageRecycler.addScrapView(itemView);
         }
@@ -145,8 +153,8 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
     }
 
     void onViewDestroyed() {
-        subscription.unsubscribe();
-        subscription = new CompositeSubscription();
+        backgroundSubscription.unsubscribe();
+        backgroundSubscription = new CompositeSubscription();
         subscribedTrackViews.clear();
         castConnectionHelper.removeOnConnectionChangeListener(this);
     }
@@ -243,11 +251,11 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
         }
 
         if (!subscribedTrackViews.contains(view)) {
-            subscribeToPlayEvents(presenter, view);
+            subscribeToEvents(presenter, view);
             subscribedTrackViews.add(view);
         }
 
-        getSoundObservable(trackPageData).subscribe(new TrackSubscriber(presenter, view));
+        subscribeToForegroundEvents(trackPageData, presenter, view);
         return view;
     }
 
@@ -256,13 +264,10 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
     }
 
     private Observable<PropertySet> getSoundObservable(TrackPageData viewData) {
-        final Observable<PropertySet> trackObservable;
         if (viewData.isAdPage()) {
-            trackObservable = getAdObservable(viewData.getTrackUrn(), viewData.getProperties());
-        } else {
-            trackObservable = getTrackObservable(viewData.getTrackUrn(), viewData.getProperties());
+            return getAdObservable(viewData.getTrackUrn(), viewData.getProperties());
         }
-        return trackObservable;
+        return getTrackObservable(viewData.getTrackUrn(), viewData.getProperties());
     }
 
     private Observable<PropertySet> getTrackObservable(Urn urn, final PropertySet adOverlayData) {
@@ -289,25 +294,31 @@ public class TrackPagerAdapter extends PagerAdapter implements CastConnectionHel
                 });
     }
 
-    private View subscribeToPlayEvents(PlayerPagePresenter presenter, final View trackPage) {
-        subscription.add(eventBus.subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
-        subscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED, new PlaybackStateSubscriber(presenter, trackPage)));
-        subscription.add(eventBus
+    private void subscribeToEvents(PlayerPagePresenter presenter, final View trackPage) {
+        backgroundSubscription.add(eventBus
+                .subscribe(EventQueue.PLAYER_UI, new PlayerPanelSubscriber(presenter, trackPage)));
+        backgroundSubscription.add(eventBus
                 .queue(EventQueue.ENTITY_STATE_CHANGED)
                 .filter(EntityStateChangedEvent.IS_TRACK_FILTER)
                 .doOnNext(invalidateTrackCacheAction)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new TrackChangedSubscriber(presenter, trackPage)));
-        subscription.add(eventBus
+        backgroundSubscription.add(eventBus
+                .queue(EventQueue.PLAY_QUEUE_TRACK)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new ClearAdOverlaySubscriber(presenter, trackPage)));
+    }
+
+    private void subscribeToForegroundEvents(TrackPageData data, PlayerPagePresenter presenter, final View trackPage) {
+        foregroundSubscription.add(getSoundObservable(data)
+                .subscribe(new TrackSubscriber(presenter, trackPage)));
+        foregroundSubscription.add(eventBus.subscribe(EventQueue.PLAYBACK_STATE_CHANGED,
+                new PlaybackStateSubscriber(presenter, trackPage)));
+        foregroundSubscription.add(eventBus
                 .queue(EventQueue.PLAYBACK_PROGRESS)
                 .filter(currentTrackFilter)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new PlaybackProgressSubscriber(presenter, trackPage)));
-        subscription.add(eventBus
-                .queue(EventQueue.PLAY_QUEUE_TRACK)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new ClearAdOverlaySubscriber(presenter, trackPage)));
-        return trackPage;
     }
 
     void onTrackChange() {
