@@ -6,6 +6,7 @@
     
     <!-- Brand -->
     <color name="sc_orange">#ff5500</color>
+    <color name="sc_dark_orange_solid">#e36711</color>
     <color name="sc_dark_orange">#cce36711</color>
     <color name="link_text">#4499dd</color>
 

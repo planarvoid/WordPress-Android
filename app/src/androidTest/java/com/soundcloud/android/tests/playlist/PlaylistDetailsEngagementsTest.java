@@ -14,12 +14,12 @@ import com.soundcloud.android.screens.elements.PlaylistOverflowMenu;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class PlaylistDetailsNewEngagementsTest extends ActivityTest<LauncherActivity> {
+public class PlaylistDetailsEngagementsTest extends ActivityTest<LauncherActivity> {
 
     private PlaylistsScreen playlistsScreen;
     private PlaylistDetailsScreen playlistDetailsScreen;
 
-    public PlaylistDetailsNewEngagementsTest() {
+    public PlaylistDetailsEngagementsTest() {
         super(LauncherActivity.class);
     }
 

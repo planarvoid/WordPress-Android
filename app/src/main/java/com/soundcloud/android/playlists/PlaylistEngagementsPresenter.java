@@ -4,6 +4,7 @@ import static com.soundcloud.android.events.EntityStateChangedEvent.IS_PLAYLIST_
 import static com.soundcloud.android.offline.OfflineProperty.Collection;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
@@ -14,7 +15,6 @@ import com.soundcloud.android.events.CurrentDownloadEvent;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.likes.LikeOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PlayableProperty;
@@ -27,6 +27,7 @@ import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
@@ -62,6 +63,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     private final OfflineContentOperations offlineOperations;
     private final OfflinePlaybackOperations offlinePlaybackOperations;
     private final PlaybackToastHelper playbackToastHelper;
+    private final Navigator navigator;
 
     private Subscription foregroundSubscription = Subscriptions.empty();
     private CompositeSubscription offlineStateSubscription = new CompositeSubscription();
@@ -75,7 +77,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
                                         FeatureOperations featureOperations,
                                         OfflineContentOperations offlineOperations,
                                         OfflinePlaybackOperations offlinePlaybackOperations,
-                                        PlaybackToastHelper playbackToastHelper) {
+                                        PlaybackToastHelper playbackToastHelper,
+                                        Navigator navigator) {
         this.eventBus = eventBus;
         this.repostOperations = repostOperations;
         this.accountOperations = accountOperations;
@@ -85,6 +88,7 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
         this.offlineOperations = offlineOperations;
         this.offlinePlaybackOperations = offlinePlaybackOperations;
         this.playbackToastHelper = playbackToastHelper;
+        this.navigator = navigator;
     }
 
     void bindView(View rootView) {
@@ -220,8 +224,8 @@ public class PlaylistEngagementsPresenter extends DefaultSupportFragmentLightCyc
     }
 
     @Override
-    public void onUpsell() {
-        // No-op
+    public void onUpsell(Context context) {
+        navigator.openUpgrade(context);
     }
 
     @Override

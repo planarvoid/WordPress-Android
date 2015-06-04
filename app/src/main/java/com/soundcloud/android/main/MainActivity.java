@@ -1,5 +1,6 @@
 package com.soundcloud.android.main;
 
+import static com.soundcloud.android.main.NavigationFragment.*;
 import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
 import static com.soundcloud.android.utils.ScTextUtils.isNotBlank;
 import static rx.android.observables.AndroidObservable.bindActivity;
@@ -166,7 +167,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void publishContentChangeEvent() {
         final int position = navigationFragment.getCurrentSelectedPosition();
-        switch (NavigationFragment.NavItem.values()[position]) {
+        switch (NavItem.values()[position]) {
             case STREAM:
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_STREAM));
                 break;
@@ -187,7 +188,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     private void publishNavSelectedEvent() {
         final int position = navigationFragment.getCurrentSelectedPosition();
-        switch (NavigationFragment.NavItem.values()[position]) {
+        switch (NavItem.values()[position]) {
             case STREAM:
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromStreamNav());
                 break;
@@ -231,7 +232,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
 
     @Override
     public void onSelectItem(int position) {
-        displayFragment(position);
+        displaySelectedItem(position);
     }
 
     private void displayContentDelayed(final int position) {
@@ -246,17 +247,17 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                     }
                 }
 
-                displayFragment(position);
+                displaySelectedItem(position);
             }
         }, DRAWER_SELECT_DELAY_MILLIS);
     }
 
     private boolean isProfile(int position) {
-        return NavigationFragment.NavItem.values()[position] == NavigationFragment.NavItem.PROFILE;
+        return NavItem.values()[position] == NavItem.PROFILE;
     }
 
-    protected void displayFragment(int position) {
-        final NavigationFragment.NavItem navItem = NavigationFragment.NavItem.values()[position];
+    protected void displaySelectedItem(int position) {
+        final NavItem navItem = NavItem.values()[position];
         switch (navItem) {
             case PROFILE:
                 displayProfile();
@@ -275,6 +276,9 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             case PLAYLISTS:
                 displayPlaylists();
                 break;
+            case UPSELL:
+                displayUpsell();
+                break;
             default:
                 throw new IllegalArgumentException("Unknown navItem: " + navItem);
         }
@@ -287,9 +291,13 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
             publishContentChangeEvent();
             publishNavSelectedEvent();
         }
-        if (position != NavigationFragment.NavItem.PROFILE.ordinal()) {
+        if (NavItem.isSelectable(position)) {
             lastSelection = position;
         }
+    }
+
+    private void displayUpsell() {
+        navigator.openUpgrade(this);
     }
 
     private void displayProfile() {

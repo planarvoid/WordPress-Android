@@ -1,14 +1,13 @@
 package com.soundcloud.android.playback.ui;
 
 import static com.soundcloud.android.Expect.expect;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
 import com.soundcloud.android.ads.LeaveBehindProperty;
-import com.soundcloud.android.playback.service.TrackSourceInfo;
-import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
-import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayControlEvent;
 import com.soundcloud.android.events.UIEvent;
@@ -16,8 +15,10 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
+import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.soundcloud.propeller.PropertySet;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import android.app.Activity;
 import android.content.Intent;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -39,14 +41,15 @@ public class AdPageListenerTest {
     @Mock private PlaySessionStateProvider playSessionStateProvider;
     @Mock private AdsOperations adsOperations;
     @Mock private AccountOperations accountOperations;
+    @Mock private WhyAdsDialogPresenter whyAdsPresenter;
+
+    @Mock private Activity activity;
+
     @Before
     public void setUp() throws Exception {
         listener = new AdPageListener(Robolectric.application,
-                 playSessionStateProvider,
-                 playbackOperations,
-                 playQueueManager,
-                 eventBus, adsOperations,
-                accountOperations);
+                 playSessionStateProvider, playbackOperations, playQueueManager,
+                 eventBus, adsOperations, accountOperations, whyAdsPresenter);
         when(accountOperations.getLoggedInUserUrn()).thenReturn(Urn.forUser(456L));
         when(playQueueManager.getCurrentTrackSourceInfo()).thenReturn(new TrackSourceInfo("origin screen", true));
     }
@@ -115,4 +118,11 @@ public class AdPageListenerTest {
         PlayControlEvent expectedEvent = PlayControlEvent.skipAd();
         expect(eventBus.lastEventOn(EventQueue.TRACKING)).toEqual(expectedEvent);
     }
+
+    @Test
+    public void onAboutAdsShowsDialog() {
+        listener.onAboutAds(activity);
+        verify(whyAdsPresenter).show(activity);
+    }
+
 }

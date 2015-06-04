@@ -155,7 +155,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
                 getListener().onMakeOfflineAvailable(false);
                 return true;
             case R.id.upsell_offline_content:
-                getListener().onUpsell();
+                getListener().onUpsell(context);
                 return true;
             case R.id.shuffle:
                 getListener().onPlayShuffled();
@@ -205,7 +205,7 @@ public class PlaylistEngagementsView implements PopupMenuWrapper.PopupMenuWrappe
         void onToggleRepost(boolean isReposted, boolean showResultToast);
         void onShare();
         void onMakeOfflineAvailable(boolean isMarkedForOffline);
-        void onUpsell();
+        void onUpsell(Context context);
         void onPlayShuffled();
     }
 }

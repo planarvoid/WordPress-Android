@@ -78,12 +78,8 @@ class TrackLikesHeaderView {
         updateShuffleButton(trackCount);
     }
 
-    void updateOverflowMenuButton(boolean showOfflineSyncOptions) {
-        if (showOfflineSyncOptions) {
-            overflowMenuButton.setVisibility(View.VISIBLE);
-        } else {
-            overflowMenuButton.setVisibility(View.GONE);
-        }
+    void updateOverflowMenuButton(boolean showOverflowMenu) {
+        overflowMenuButton.setVisibility(showOverflowMenu ? View.VISIBLE : View.GONE);
     }
 
     private String getHeaderText(int likedTracks) {

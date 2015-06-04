@@ -5,6 +5,7 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
@@ -39,8 +40,11 @@ public class NavigationFragment extends Fragment {
 
     @VisibleForTesting
     static final String STATE_SELECTED_POSITION = "selected_navigation_position";
+
+    private static final int NO_TEXT = -1;
     private static final int NO_IMAGE = -1;
-    // normal rows (below profile)
+
+    // Selectable nav rows
     private static final EnumSet<NavItem> TEXT_NAV_ITEMS =
             EnumSet.of(NavItem.STREAM, NavItem.EXPLORE, NavItem.LIKES, NavItem.PLAYLISTS);
 
@@ -49,20 +53,25 @@ public class NavigationFragment extends Fragment {
 
     @Inject ImageOperations imageOperations;
     @Inject AccountOperations accountOperations;
+    @Inject FeatureOperations featureOperations;
 
     private NavigationCallbacks callbacks;
     private ListView listView;
-    private int currentSelectedPosition = NavItem.STREAM.ordinal();
+    private View upsell;
     private ProfileViewHolder profileViewHolder;
+
+    private int currentSelectedPosition = NavItem.STREAM.ordinal();
 
     public NavigationFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
     }
 
     @VisibleForTesting
-    protected NavigationFragment(ImageOperations imageOperations, AccountOperations accountOperations) {
+    protected NavigationFragment(ImageOperations imageOperations, AccountOperations accountOperations,
+                                 FeatureOperations featureOperations) {
         this.imageOperations = imageOperations;
         this.accountOperations = accountOperations;
+        this.featureOperations = featureOperations;
     }
 
     @Override
@@ -129,8 +138,17 @@ public class NavigationFragment extends Fragment {
 
     private boolean shouldGoToStream(Uri data) {
         final String host = data.getHost();
-        return host != null && (STREAM.equals(host) || STREAM.equals(data.getLastPathSegment()) ||
-                (host.contains(SOUNDCLOUD_COM) && ScTextUtils.isBlank(data.getPath())));
+        return host != null && (STREAM.equals(host)
+                        || STREAM.equals(data.getLastPathSegment())
+                        || (host.contains(SOUNDCLOUD_COM) && ScTextUtils.isBlank(data.getPath())));
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        ViewGroup layout = (ViewGroup) inflater.inflate(R.layout.fragment_navigation_drawer, container, false);
+        setupListView(inflater, layout);
+        upsell = layout.findViewById(R.id.nav_upsell);
+        return layout;
     }
 
     @Override
@@ -140,13 +158,21 @@ public class NavigationFragment extends Fragment {
         // as long as the user profile opens in a new activity, since when returning via the up button would otherwise
         // not update it to the last selected content fragment
         listView.setItemChecked(currentSelectedPosition, true);
+        updateUpsellVisibility();
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        listView = setupListView(inflater, container);
-        return listView;
+    private void updateUpsellVisibility() {
+        if (!featureOperations.isOfflineContentEnabled() && featureOperations.shouldShowUpsell()) {
+            upsell.setVisibility(View.VISIBLE);
+            upsell.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    selectItem(NavItem.UPSELL.ordinal());
+                }
+            });
+        } else {
+            upsell.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -188,7 +214,7 @@ public class NavigationFragment extends Fragment {
     }
 
     protected void selectItem(int position) {
-        adjustSelectionForProfile(position);
+        adjustSelectionIfNecessary(position);
 
         if (callbacks != null) {
             callbacks.onSelectItem(position);
@@ -197,7 +223,7 @@ public class NavigationFragment extends Fragment {
     }
 
     protected void smoothSelectItem(int position) {
-        adjustSelectionForProfile(position);
+        adjustSelectionIfNecessary(position);
 
         if (callbacks != null) {
             callbacks.onSmoothSelectItem(position);
@@ -209,8 +235,8 @@ public class NavigationFragment extends Fragment {
         return ((AppCompatActivity) getActivity()).getSupportActionBar();
     }
 
-    private ListView setupListView(LayoutInflater inflater, ViewGroup container) {
-        ListView listView = (ListView) inflater.inflate(R.layout.fragment_navigation_listview, container, false);
+    private ListView setupListView(LayoutInflater inflater, ViewGroup layout) {
+        this.listView = (ListView) layout.findViewById(R.id.nav_list);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -219,7 +245,7 @@ public class NavigationFragment extends Fragment {
         });
         listView.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
 
-        View userProfileHeader = setupUserProfileHeader(inflater, container);
+        View userProfileHeader = setupUserProfileHeader(inflater, listView);
         listView.addHeaderView(userProfileHeader);
 
         int i = 0;
@@ -233,8 +259,8 @@ public class NavigationFragment extends Fragment {
         return listView;
     }
 
-    private View setupUserProfileHeader(LayoutInflater inflater, ViewGroup container) {
-        final View view = inflater.inflate(R.layout.nav_profile_item, container, false);
+    private View setupUserProfileHeader(LayoutInflater inflater, ListView listView) {
+        final View view = inflater.inflate(R.layout.nav_profile_item, listView, false);
 
         profileViewHolder = new ProfileViewHolder();
         profileViewHolder.imageView = (ImageView) view.findViewById(R.id.avatar);
@@ -248,10 +274,8 @@ public class NavigationFragment extends Fragment {
         return view;
     }
 
-    private void adjustSelectionForProfile(int position) {
-        // TODO: Since the user profile currently opens in a new activity, we must not adjust the current selection
-        // index. Remove this workaround when the user browser has become a fragment too
-        if (position != NavItem.PROFILE.ordinal()) {
+    private void adjustSelectionIfNecessary(int position) {
+        if (NavItem.isSelectable(position)) {
             currentSelectedPosition = position;
         }
     }
@@ -262,11 +286,14 @@ public class NavigationFragment extends Fragment {
     }
 
     public enum NavItem {
-        PROFILE(R.string.side_menu_profile, NO_IMAGE),
+        PROFILE(NO_TEXT, NO_IMAGE),
         STREAM(R.string.side_menu_stream, R.drawable.nav_stream_states),
         EXPLORE(R.string.side_menu_explore, R.drawable.nav_explore_states),
         LIKES(R.string.side_menu_likes, R.drawable.nav_likes_states),
-        PLAYLISTS(R.string.side_menu_playlists, R.drawable.nav_playlists_states);
+        PLAYLISTS(R.string.side_menu_playlists, R.drawable.nav_playlists_states),
+        UPSELL(NO_TEXT, NO_IMAGE);
+
+        private static final EnumSet<NavItem> SELECTABLE = EnumSet.of(STREAM, EXPLORE, LIKES, PLAYLISTS);
 
         private final int textId;
         private final int imageId;
@@ -274,6 +301,10 @@ public class NavigationFragment extends Fragment {
         NavItem(int textId, int imageId) {
             this.textId = textId;
             this.imageId = imageId;
+        }
+
+        public static boolean isSelectable(int position) {
+            return SELECTABLE.contains(NavItem.values()[position]);
         }
     }
 

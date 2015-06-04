@@ -7,6 +7,7 @@ import static com.soundcloud.android.settings.SettingKey.OFFLINE_STORAGE_LIMIT;
 import static com.soundcloud.android.settings.SettingKey.SUBSCRIBE;
 import static com.soundcloud.android.settings.SettingKey.WIFI_ONLY;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.configuration.FeatureOperations;
@@ -17,15 +18,12 @@ import com.soundcloud.android.offline.DownloadState;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.payments.SubscribeActivity;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
-import android.app.Activity;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -42,6 +40,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     @Inject OfflineContentOperations offlineContentOperations;
     @Inject FeatureOperations featureOperations;
     @Inject EventBus eventBus;
+    @Inject Navigator navigator;
 
     private CompositeSubscription subscription;
 
@@ -134,8 +133,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
     }
 
     private void openSubscribeScreen() {
-        final Activity activity = getActivity();
-        activity.startActivity(new Intent(activity, SubscribeActivity.class));
+        navigator.openUpgrade(getActivity());
     }
 
     private void showRemoveAllOfflineContentDialog() {
