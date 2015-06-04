@@ -91,7 +91,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     private Observable<PlaylistWithTracks> loadPlaylist;
     private Subscription playlistSubscription = Subscriptions.empty();
-    private final CompositeSubscription eventSubscription = new CompositeSubscription();
+    private CompositeSubscription eventSubscription = new CompositeSubscription();
 
     private View headerUsernameText;
     private ToggleButton playToggle;
@@ -262,6 +262,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
     @Override
     public void onPause() {
         eventSubscription.unsubscribe();
+        eventSubscription = new CompositeSubscription();
         super.onPause();
     }
 
@@ -338,7 +339,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         if (searchQuerySourceInfo != null) {
             playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
         }
-        
+
         offlinePlaybackOperations
                 .playPlaylist(playlistWithTracks.getUrn(), initialTrack.getEntityUrn(), trackPosition, playSessionSource)
                 .subscribe(playbackSubscriber);
@@ -397,7 +398,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            if (e instanceof PlaylistMissingException){
+            if (e instanceof PlaylistMissingException) {
                 // we successfully synced and failed to load, so the playlist is most likely gone or not accessible
                 Toast.makeText(getActivity(), R.string.playlist_load_error, Toast.LENGTH_SHORT).show();
                 getActivity().finish();
@@ -415,7 +416,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     }
 
-    private class RefreshSubscriber extends PlaylistSubscriber {
+    private final class RefreshSubscriber extends PlaylistSubscriber {
         @Override
         public void onError(Throwable e) {
             if (controller.hasContent()) {
@@ -427,7 +428,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         }
     }
 
-    private class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
+    private final class ShowPlayerAfterPlaybackSubscriber extends ShowPlayerSubscriber {
 
         public ShowPlayerAfterPlaybackSubscriber(EventBus eventBus) {
             super(eventBus, playbackToastHelper);
