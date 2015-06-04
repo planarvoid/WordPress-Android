@@ -6,9 +6,6 @@ import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 
-/**
- * Created by slawomirsmiechura on 04/06/15.
- */
 public class EmptyViewElement extends Element {
 
     public EmptyViewElement(Han solo, With matcher) {
