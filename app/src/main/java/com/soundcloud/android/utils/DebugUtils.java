@@ -27,28 +27,6 @@ import java.util.Map;
 public final class DebugUtils {
 
     public static final String UTF_8_ENC = Charsets.UTF_8.displayName();
-    private static final String EMAIL_MESSAGE_FORMAT_RFC822 = "message/rfc822";
-
-    public static void sendLogs(Context context, String toEmail, String subject, String body, String chooserText){
-
-        // save logcat in file
-        File outputFile = new File(Environment.getExternalStorageDirectory(), "logcat.txt");
-        try {
-            Runtime.getRuntime().exec("logcat -v time -df " + outputFile.getAbsolutePath());
-
-            Intent i = new Intent(Intent.ACTION_SEND);
-            i.setType(EMAIL_MESSAGE_FORMAT_RFC822);
-            i.putExtra(Intent.EXTRA_EMAIL  , new String[]{toEmail});
-            i.putExtra(Intent.EXTRA_SUBJECT, subject);
-            i.putExtra(Intent.EXTRA_TEXT   , body);
-            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(outputFile));
-            context.startActivity(Intent.createChooser(i, chooserText));
-
-        } catch (IOException e) {
-            ErrorUtils.handleSilentException(e);
-            AndroidUtils.showToast(context, R.string.feedback_unable_to_get_logs);
-        }
-    }
 
     @SuppressWarnings("UnusedDeclaration")
     public static void dumpIntent(Intent intent) {

@@ -51,6 +51,7 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.BugReporter;
 import org.jetbrains.annotations.Nullable;
 
 import android.accounts.AccountAuthenticatorResponse;
@@ -199,6 +200,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Inject ConfigurationOperations configurationOperations;
     @Inject ApplicationProperties applicationProperties;
+    @Inject BugReporter bugReporter;
     @Inject EventBus eventBus;
 
     public OnboardActivity() {
@@ -206,8 +208,11 @@ public class OnboardActivity extends FragmentActivity
     }
 
     @VisibleForTesting
-    OnboardActivity(ConfigurationOperations configurationOperations, EventBus eventBus) {
+    OnboardActivity(ConfigurationOperations configurationOperations,
+                    BugReporter bugReporter,
+                    EventBus eventBus) {
         this.configurationOperations = configurationOperations;
+        this.bugReporter = bugReporter;
         this.eventBus = eventBus;
     }
 
@@ -931,10 +936,23 @@ public class OnboardActivity extends FragmentActivity
 
     private void showDialogAndTrackEvent(AlertDialog.Builder dialogBuilder, OnboardingEvent event) {
         if (!isFinishing()) {
+            addFeedbackButton(dialogBuilder);
             dialogBuilder
                     .create()
                     .show();
             eventBus.publish(EventQueue.ONBOARDING, event);
+        }
+    }
+
+    private void addFeedbackButton(AlertDialog.Builder dialogBuilder) {
+        if (applicationProperties.shouldAllowFeedback()) {
+            dialogBuilder
+                    .setNeutralButton(R.string.title_feedback, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            bugReporter.showFeedbackDialog(getFragmentActivity());
+                        }
+                    });
         }
     }
 

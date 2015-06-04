@@ -16,6 +16,7 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
+import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,8 +33,7 @@ public class SearchActionBarControllerTest {
     @Mock private PublicCloudAPI cloudAPI;
     @Mock private SearchCallback callback;
     @Mock private PlaybackOperations playbackOps;
-    @Mock private ApplicationProperties applicationProperties;
-    @Mock private DeviceHelper deviceHelper;
+    @Mock private BugReporter bugReporter;
 
     private TestEventBus eventBus = new TestEventBus();
     private SearchActionBarController actionBarController;
@@ -41,7 +41,7 @@ public class SearchActionBarControllerTest {
     @Before
     public void setUp() throws Exception {
         actionBarController = new SearchActionBarController(cloudAPI, playbackOps, eventBus,
-                TestSubscribers.expandPlayerSubscriber(), applicationProperties, deviceHelper);
+                TestSubscribers.expandPlayerSubscriber(), bugReporter);
         actionBarController.setSearchCallback(callback);
     }
 

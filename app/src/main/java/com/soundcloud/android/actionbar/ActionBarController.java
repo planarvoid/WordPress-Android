@@ -6,18 +6,14 @@ import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.settings.SettingsActivity;
-import com.soundcloud.android.utils.DebugUtils;
-import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
@@ -25,15 +21,12 @@ import javax.inject.Inject;
 
 public class ActionBarController extends DefaultLightCycleActivity<AppCompatActivity> {
     protected EventBus eventBus;
-    private final ApplicationProperties applicationProperties;
-    private final DeviceHelper deviceHelper;
+    private final BugReporter bugReporter;
 
     @Inject
-    protected ActionBarController(EventBus eventBus, ApplicationProperties applicationProperties,
-                                  DeviceHelper deviceHelper) {
+    protected ActionBarController(EventBus eventBus, BugReporter bugReporter) {
         this.eventBus = eventBus;
-        this.applicationProperties = applicationProperties;
-        this.deviceHelper = deviceHelper;
+        this.bugReporter = bugReporter;
     }
 
     @Override
@@ -56,28 +49,11 @@ public class ActionBarController extends DefaultLightCycleActivity<AppCompatActi
                 startActivity(activity, ActivitiesActivity.class);
                 return true;
             case R.id.action_feedback:
-                showFeedbackDialog(activity);
+                bugReporter.showFeedbackDialog(activity);
                 return true;
             default:
                 return false;
         }
-    }
-
-    private void showFeedbackDialog(final AppCompatActivity activity) {
-        final String[] feedbackOptions = activity.getResources().getStringArray(R.array.feedback_options);
-        new AlertDialog.Builder(activity).setTitle(R.string.select_feedback_category)
-                .setItems(feedbackOptions, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        final String feedbackOption = feedbackOptions[which];
-                        final String subject = activity.getString(R.string.feedback_email_subject, feedbackOption);
-                        final String actionChooser = activity.getString(R.string.feedback_action_chooser);
-                        final String feedbackEmail = feedbackOption.equals(activity.getString(R.string.feedback_playback_issue)) ?
-                                applicationProperties.getPlaybackFeedbackEmail() : applicationProperties.getFeedbackEmail() ;
-
-                        DebugUtils.sendLogs(activity, feedbackEmail, subject, deviceHelper.getUserAgent(), actionChooser);
-                    }
-                }).show();
     }
 
     private void startActivity(FragmentActivity activity, Class target) {
