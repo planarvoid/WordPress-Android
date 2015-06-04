@@ -27,7 +27,7 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
 
-    private CompositeSubscription subscription = new CompositeSubscription();
+    private CompositeSubscription subscription;
     private PlayerTrackPager trackPager;
     private TrackPagerAdapter adapter;
     private boolean wasPageChange;
@@ -128,7 +128,6 @@ public class PlayerPagerScrollListener implements ViewPager.OnPageChangeListener
 
     public void unsubscribe() {
         subscription.unsubscribe();
-        subscription = new CompositeSubscription();
     }
 
     public Observable<Integer> getPageChangedObservable() {
