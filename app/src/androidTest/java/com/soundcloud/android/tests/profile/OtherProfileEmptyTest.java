@@ -3,6 +3,7 @@ package com.soundcloud.android.tests.profile;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 import static com.soundcloud.android.framework.TestUser.emptyUser;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -33,8 +34,9 @@ public class OtherProfileEmptyTest extends ActivityTest<ResolveActivity> {
     }
 
     public void testShowsEmptyPostsView() {
+        // Old profile view doesn't show username for empty Posts
         final ViewElement emptyUserPostsMessage = screen
-                .emptyUserPostsMessage(emptyUser.getPermalink());
+                .emptyUserPostsMessage(solo.getString(R.string.this_user));
         assertTrue(emptyUserPostsMessage.isVisible());
     }
 
