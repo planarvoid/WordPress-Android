@@ -31,4 +31,10 @@
             android:layout_below="@id/list_item_subheader"
             android:drawableLeft="@drawable/stats_followers" />
 
+    <ToggleButton android:id="@+id/toggle_btn_follow"
+        android:layout_alignBaseline="@id/list_item_subheader"
+        android:layout_alignParentRight="true"
+        android:focusable="false"
+        android:visibility="gone"
+        style="@style/Profile.ToggleButton.Follow"/>
 </RelativeLayout>

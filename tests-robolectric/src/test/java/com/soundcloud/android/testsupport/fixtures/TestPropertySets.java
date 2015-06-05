@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -273,4 +274,12 @@ public abstract class TestPropertySets {
         );
     }
 
+    public static PropertySet userFollowing(ApiUser user, boolean following) {
+        return PropertySet.from(
+                UserProperty.URN.bind(Urn.forUser(user.getId())),
+                UserProperty.USERNAME.bind(user.getUsername()),
+                UserProperty.COUNTRY.bind(user.getCountry()),
+                UserProperty.FOLLOWERS_COUNT.bind(user.getFollowersCount()),
+                UserProperty.IS_FOLLOWED_BY_ME.bind(following));
+    }
 }

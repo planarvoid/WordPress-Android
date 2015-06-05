@@ -4,6 +4,8 @@ import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collap
 import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
@@ -176,10 +178,11 @@ public class SearchTest extends ActivityTest<MainActivity> {
         boolean wasFollowing = user.isFollowing();
 
         user.toggleFollow();
-        assertNotSame("Should change following state", wasFollowing, user.isFollowing());
+        assertThat("Should change following state",
+                wasFollowing, is(not(equalTo(user.isFollowing()))));
 
         user = resultsScreen.touchAllTab().getFirstUser();
-        boolean isFollowing = user.isFollowing();
-        assertNotSame("Should keep changed following state when switching tabs", wasFollowing, isFollowing);
+        assertThat("Should keep changed following state when switching tabs",
+                wasFollowing, is(not(equalTo(user.isFollowing()))));
     }
 }
