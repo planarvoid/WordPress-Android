@@ -1,14 +1,9 @@
 package com.soundcloud.android.associations;
 
-import static com.soundcloud.propeller.query.ColumnFunctions.exists;
-
 import com.soundcloud.android.commands.Command;
-import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.android.storage.provider.ScContentProvider;
 import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.CursorReader;
 import com.soundcloud.propeller.PropellerDatabase;
@@ -22,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn,PropertySet>> {
+public class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn, PropertySet>> {
     private final PropellerDatabase propeller;
 
     @Inject
@@ -55,8 +50,8 @@ public class LoadFollowingCommand extends Command<Iterable<PropertySet>, Map<Urn
         return userIds;
     }
 
-    private Map<Urn,PropertySet> toFollowingSet(QueryResult result) {
-        Map<Urn,PropertySet> followingsMap = new HashMap<>();
+    private Map<Urn, PropertySet> toFollowingSet(QueryResult result) {
+        Map<Urn, PropertySet> followingsMap = new HashMap<>();
         for (CursorReader reader : result) {
             final Urn userUrn = Urn.forUser(reader.getLong(TableColumns.UserAssociations.TARGET_ID));
             followingsMap.put(userUrn, PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
