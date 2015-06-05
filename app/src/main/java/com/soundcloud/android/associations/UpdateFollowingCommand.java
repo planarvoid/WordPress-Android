@@ -55,7 +55,23 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
                 .select(TableColumns.Users.FOLLOWERS_COUNT)
                 .whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId()))
                 .first(Integer.class);
-        return params.following ? count + 1 : count - 1;
+
+        if (isFollowing(propeller, params.targetUrn) == params.following) {
+            return count;
+        } else {
+            return params.following ? count + 1 : count - 1;
+        }
+    }
+
+    private boolean isFollowing(PropellerDatabase propeller, Urn targetUrn) {
+        final int followingCount = propeller.query(from(Table.UserAssociations.name())
+                .select(TableColumns.UserAssociations.TARGET_ID)
+                .whereEq(TableColumns.UserAssociations.TARGET_ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER)
+                .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING)
+                .whereNotNull(TableColumns.UserAssociations.ADDED_AT)).getResultCount();
+
+        return followingCount == 1;
     }
 
     private ContentValues buildContentValuesForFollowing(UpdateFollowingParams params) {
