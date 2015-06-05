@@ -19,6 +19,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.SearchCollection;
+import com.soundcloud.android.associations.LoadFollowingCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -26,6 +27,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.propeller.PropellerWriteException;
 import com.soundcloud.propeller.PropertySet;
@@ -55,6 +57,7 @@ public class SearchOperationsTest {
     @Mock private StoreUsersCommand storeUsersCommand;
     @Mock private CacheUniversalSearchCommand cacheUniversalSearchCommand;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
+    @Mock private LoadFollowingCommand loadFollowingCommand;
 
     private ApiTrack track;
     private ApiPlaylist playlist;
@@ -71,7 +74,7 @@ public class SearchOperationsTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(Observable.empty());
 
         operations = new SearchOperations(apiClientRx, storeTracksCommand, storePlaylistsCommand, storeUsersCommand,
-                cacheUniversalSearchCommand, loadPlaylistLikedStatuses, Schedulers.immediate());
+                cacheUniversalSearchCommand, loadPlaylistLikedStatuses, loadFollowingCommand, Schedulers.immediate());
     }
 
     @Test
@@ -180,6 +183,32 @@ public class SearchOperationsTest {
         SearchResult searchResult = observer.getOnNextEvents().get(0);
         PropertySet playlistPropSet = searchResult.getItems().get(2);
         expect(playlistPropSet).toEqual(playlist.toPropertySet().merge(playlistIsLikedStatus));
+    }
+
+    @Test
+    public void shouldBackFillFollowingsForUsersInUniversalSearchResult() throws Exception {
+        final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
+                ApiUniversalSearchItem.forUser(user),
+                ApiUniversalSearchItem.forTrack(track),
+                ApiUniversalSearchItem.forPlaylist(playlist));
+
+        Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
+
+        PropertySet userIsFollowing = PropertySet.from(
+                UserProperty.URN.bind(user.getUrn()),
+                UserProperty.IS_FOLLOWED_BY_ME.bind(true));
+
+        final SearchResult expectedSearchResult = new SearchResult(apiUniversalSearchItems, Optional.<Link>absent(), Optional.<Urn>absent());
+        final Map<Urn,PropertySet> userFollowings = Collections.singletonMap(user.getUrn(), PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
+        when(loadFollowingCommand.call(expectedSearchResult)).thenReturn(userFollowings);
+
+        operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toNumber(1);
+        SearchResult searchResult = observer.getOnNextEvents().get(0);
+        PropertySet userPropSet = searchResult.getItems().get(0);
+        expect(userPropSet).toEqual(user.toPropertySet().merge(userIsFollowing));
     }
 
     @Test

@@ -23,6 +23,7 @@ public final class EntityStateChangedEvent {
     public static final int MARKED_FOR_OFFLINE = 4;
     public static final int TRACK_ADDED_TO_PLAYLIST = 5;
     public static final int TRACK_REMOVED_FROM_PLAYLIST = 6;
+    public static final int FOLLOWING = 7;
 
     public static final Func1<EntityStateChangedEvent, Boolean> IS_TRACK_FILTER = new Func1<EntityStateChangedEvent, Boolean>() {
         @Override
@@ -120,6 +121,10 @@ public final class EntityStateChangedEvent {
 
     public static EntityStateChangedEvent fromLike(PropertySet newLikeState) {
         return new EntityStateChangedEvent(LIKE, newLikeState);
+    }
+
+    public static EntityStateChangedEvent fromFollowing(PropertySet newFollowingState) {
+        return new EntityStateChangedEvent(FOLLOWING, newFollowingState);
     }
 
     public static EntityStateChangedEvent fromRepost(Urn urn, boolean reposted) {

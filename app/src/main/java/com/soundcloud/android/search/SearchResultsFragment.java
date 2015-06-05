@@ -32,6 +32,7 @@ import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
+import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.propeller.PropertySet;
@@ -107,6 +108,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     private boolean publishSearchSubmissionEvent;
     private ConnectableObservable<List<ListItem>> observable;
     private Subscription connectionSubscription = Subscriptions.empty();
+    private Subscription entityChangedSubscription = Subscriptions.empty();
     private SearchOperations.SearchResultPager pager;
 
     private final Action1<List<ListItem>> publishOnFirstPage = new Action1<List<ListItem>>() {
@@ -161,7 +163,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
         searchType = getArguments().getInt(EXTRA_TYPE);
         pager = searchOperations.pager(searchType);
         listViewController.setAdapter(adapter, pager, TO_PRESENTATION_MODELS);
-
+        entityChangedSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter));
         connectObservable(buildObservable());
     }
 
@@ -200,6 +202,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     @Override
     public void onDestroy() {
         connectionSubscription.unsubscribe();
+        entityChangedSubscription.unsubscribe();
         super.onDestroy();
     }
 

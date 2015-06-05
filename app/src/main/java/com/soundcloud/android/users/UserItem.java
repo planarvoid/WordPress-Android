@@ -39,4 +39,8 @@ public class UserItem implements ListItem {
     public int getFollowersCount() {
         return source.get(UserProperty.FOLLOWERS_COUNT);
     }
+
+    public boolean isFollowedByMe() {
+        return source.getOrElse(UserProperty.IS_FOLLOWED_BY_ME, false);
+    }
 }

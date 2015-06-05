@@ -13,12 +13,14 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.Link;
 import com.soundcloud.android.api.model.SearchCollection;
+import com.soundcloud.android.associations.LoadFollowingCommand;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.utils.CollectionUtils;
 import com.soundcloud.propeller.PropertySet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -45,11 +47,11 @@ class SearchOperations {
 
     static final Func1<SearchCollection<? extends PropertySetSource>, SearchResult> TO_SEARCH_RESULT =
             new Func1<SearchCollection<? extends PropertySetSource>, SearchResult>() {
-        @Override
-        public SearchResult call(SearchCollection<? extends PropertySetSource> propertySetSources) {
-            return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(), propertySetSources.getQueryUrn());
-        }
-    };
+                @Override
+                public SearchResult call(SearchCollection<? extends PropertySetSource> propertySetSources) {
+                    return new SearchResult(propertySetSources.getCollection(), propertySetSources.getNextLink(), propertySetSources.getQueryUrn());
+                }
+            };
 
     private final ApiClientRx apiClientRx;
     private final StorePlaylistsCommand storePlaylistsCommand;
@@ -57,6 +59,7 @@ class SearchOperations {
     private final StoreUsersCommand storeUsersCommand;
     private final CacheUniversalSearchCommand cacheUniversalSearchCommand;
     private final LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
+    private final LoadFollowingCommand loadFollowingCommand;
     private final Scheduler scheduler;
 
     private final Func1<SearchResult, SearchResult> mergeLocalInfo = new Func1<SearchResult, SearchResult>() {
@@ -73,11 +76,26 @@ class SearchOperations {
         }
     };
 
+    private final Func1<SearchResult, SearchResult> mergeFollowings = new Func1<SearchResult, SearchResult>() {
+        @Override
+        public SearchResult call(SearchResult input) {
+            final Map<Urn, PropertySet> userIsFollowing = loadFollowingCommand.call(input);
+            for (final PropertySet resultItem : input) {
+                final Urn itemUrn = resultItem.getOrElse(UserProperty.URN, Urn.NOT_SET);
+                if (userIsFollowing.containsKey(itemUrn)) {
+                    resultItem.update(userIsFollowing.get(itemUrn));
+                }
+            }
+            return input;
+        }
+    };
+
     @Inject
     public SearchOperations(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand,
                             StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand,
                             CacheUniversalSearchCommand cacheUniversalSearchCommand,
                             LoadPlaylistLikedStatuses loadPlaylistLikedStatuses,
+                            LoadFollowingCommand loadFollowingCommand,
                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.apiClientRx = apiClientRx;
         this.storeTracksCommand = storeTracksCommand;
@@ -85,6 +103,7 @@ class SearchOperations {
         this.storeUsersCommand = storeUsersCommand;
         this.cacheUniversalSearchCommand = cacheUniversalSearchCommand;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;
+        this.loadFollowingCommand = loadFollowingCommand;
         this.scheduler = scheduler;
     }
 
@@ -140,7 +159,7 @@ class SearchOperations {
 
             allUrns.addAll(CollectionUtils.extractUrnsFromEntities(searchResultsCollection.getItems()));
 
-            if(searchResultsCollection.queryUrn.isPresent()) {
+            if (searchResultsCollection.queryUrn.isPresent()) {
                 queryUrn = searchResultsCollection.queryUrn.get();
             }
 
@@ -227,7 +246,8 @@ class SearchOperations {
             return apiClientRx.mappedResponse(builder.build(), typeToken)
                     .subscribeOn(scheduler)
                     .doOnNext(storeUsersCommand.toAction())
-                    .map(TO_SEARCH_RESULT);
+                    .map(TO_SEARCH_RESULT)
+                    .map(mergeFollowings);
         }
     }
 
@@ -246,7 +266,8 @@ class SearchOperations {
                     .subscribeOn(scheduler)
                     .doOnNext(cacheUniversalSearchCommand.toAction())
                     .map(TO_SEARCH_RESULT)
-                    .map(mergeLocalInfo);
+                    .map(mergeLocalInfo)
+                    .map(mergeFollowings);
         }
     }
 }
