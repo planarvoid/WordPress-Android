@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import javax.inject.Inject;
-import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,7 +33,7 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
 
     private boolean showingToolbarTitle;
 
-    private Set<WeakReference<ScrollableProfileItem>> scrollableFragments;
+    private Set<ScrollableProfileItem> scrollableFragments;
     private float showTitleToleranceY;
 
     public ProfileHeaderPresenter(View headerView, ImageOperations imageOperations) {
@@ -114,8 +113,12 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
     }
 
     public void registerScrollableFragment(ScrollableProfileItem fragment) {
-        scrollableFragments.add(new WeakReference<>(fragment));
+        scrollableFragments.add(fragment);
         fragment.setScrollListener(this);
+    }
+
+    public void unregisterScrollableFragment(ScrollableProfileItem fragment) {
+        scrollableFragments.remove(fragment);
     }
 
     private int moveTabs(int dy) {
@@ -125,11 +128,8 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
         if (targetTranslation != currentTranslationY) {
             tabs.setTranslationY(targetTranslation);
             headerInfoLayout.setTranslationY(targetTranslation);
-            for (WeakReference<ScrollableProfileItem> scrollableFragmentRef : scrollableFragments) {
-                final ScrollableProfileItem scrollableProfileFragment = scrollableFragmentRef.get();
-                if (scrollableProfileFragment != null) {
-                    scrollableProfileFragment.configureOffsets((int) (maxHeaderHeight + targetTranslation), maxHeaderHeight);
-                }
+            for (ScrollableProfileItem scrollableFragment : scrollableFragments) {
+                scrollableFragment.configureOffsets((int) (maxHeaderHeight + targetTranslation), maxHeaderHeight);
             }
         }
         return (int) (currentTranslationY - targetTranslation);

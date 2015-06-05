@@ -58,6 +58,7 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
+        headerPresenter.unregisterScrollableFragment((ScrollableProfileItem) object);
         refreshHelper.removeFragment(position);
         super.destroyItem(container, position, object);
     }
