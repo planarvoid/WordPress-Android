@@ -23,6 +23,7 @@ public class BugReporter {
     private final Resources resources;
 
     private static final String EMAIL_MESSAGE_FORMAT_RFC822 = "message/rfc822";
+    private static final String LOGCAT_FILE_NAME = "logcat.txt";
 
     @Inject
     public BugReporter(ApplicationProperties applicationProperties,
@@ -51,10 +52,11 @@ public class BugReporter {
     }
 
     private void sendLogs(Context context, String toEmail, String subject, String body, String chooserText) {
-        // save logcat in file
-        File outputFile = new File(Environment.getExternalStorageDirectory(), "logcat.txt");
+        deletePreviousLogcatDump();
+        File outputFile = new File(Environment.getExternalStorageDirectory(), LOGCAT_FILE_NAME);
         try {
-            Runtime.getRuntime().exec("logcat -v time -df " + outputFile.getAbsolutePath());
+            String writeLogcatToFileCommand = String.format("logcat -v time -df %s", outputFile.getAbsolutePath());
+            Runtime.getRuntime().exec(writeLogcatToFileCommand);
 
             Intent i = new Intent(Intent.ACTION_SEND);
             i.setType(EMAIL_MESSAGE_FORMAT_RFC822);
@@ -68,6 +70,11 @@ public class BugReporter {
             ErrorUtils.handleSilentException(e);
             AndroidUtils.showToast(context, R.string.feedback_unable_to_get_logs);
         }
+    }
+
+    private void deletePreviousLogcatDump() {
+        File outputFile = new File(Environment.getExternalStorageDirectory(), LOGCAT_FILE_NAME);
+        outputFile.delete();
     }
 
 }
