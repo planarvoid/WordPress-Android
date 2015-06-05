@@ -19,6 +19,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.utils.BugReporter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
@@ -79,9 +80,8 @@ public class SearchActionBarController extends ActionBarController {
                               PlaybackOperations playbackOperations,
                               EventBus eventBus,
                               Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider,
-                              ApplicationProperties applicationProperties,
-                              DeviceHelper deviceHelper) {
-        super(eventBus, applicationProperties, deviceHelper);
+                              BugReporter bugReporter) {
+        super(eventBus, bugReporter);
         this.publicApi = publicCloudAPI;
         this.playbackOperations = playbackOperations;
         this.expandPlayerSubscriberProvider = expandPlayerSubscriberProvider;

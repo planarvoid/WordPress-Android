@@ -1,4 +1,7 @@
 import groovy.json.JsonSlurper
+import groovy.json.StringEscapeUtils
+import java.nio.file.Paths
+import java.nio.file.Files
 
 def tag   = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
 def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'
@@ -6,12 +9,25 @@ def owner = 'soundcloud'
 def repo  = 'soundcloud-android'
 
 task uploadGithub << {
+
+  // make sure we have an apk to upload
+  def apkDir = Paths.get(project.ext.apkPath).getParent()
+  println "apkDir: $apkDir"
+  def files = Files.newDirectoryStream(apkDir, "*.apk").asList()
+  if (files.size() == 0) {
+      throw new GradleException("No apks to upload in $apkDir")
+  }
+  if (files.size() > 1) {
+      throw new GradleException("Multiple apks to upload in $apkDir, so nothing will be uploaded")
+  }
+  def apkPath = files[0]
+
   // Create a new github release
-  def json = "{" +
-          "\"tag_name\" : \"$tag\", " +
-          "\"target_commitish\" : \"$project.ext.gitBranch\", " +
-          "\"name\" : \"$project.ext.releaseName\", " +
-          "\"body\" : \"$project.ext.releaseBody\"}"
+  tag = StringEscapeUtils.escapeJavaScript(tag)
+  def commitish = StringEscapeUtils.escapeJavaScript(project.ext.gitBranch)
+  def releaseName = StringEscapeUtils.escapeJavaScript(project.ext.releaseName)
+  def releaseBody = StringEscapeUtils.escapeJavaScript(project.ext.releaseBody)
+  def json = /{"tag_name" : "$tag", "target_commitish" : "$commitish", "name" : "$releaseName", "body" : "$releaseBody"}/
   def url = "https://api.github.com/repos/$owner/$repo/releases?access_token=$token"
   def result = ['curl', '-vsi', '--data', json, url].execute().text
   if (!result.contains("Status: 201 Created")) {
@@ -26,7 +42,10 @@ task uploadGithub << {
   // upload apk -> .zip to github release
   def uploadUrl = "https://uploads.github.com/repos/$owner/$repo/releases/$releaseId/assets?name=" +
           "soundcloud-android.zip&access_token=$token"
-  def cmd = ['curl', '-vsi', '-H', 'Content-Type: application/zip', '--data-binary', "@$project.ext.apkPath", uploadUrl]
+  println "uploadUrl: $uploadUrl"
+
+  def cmd = ['curl', '-vsi', '-H', 'Content-Type: application/zip', '--data-binary', "@$apkPath", uploadUrl]
+  println "uploadCmd: $cmd"
   def uploadResult = cmd.execute().text
   if (!uploadResult.contains("HTTP/1.1 201 Created")) {
     throw new GradleException("Could not upload APK to github release: $uploadResult")
