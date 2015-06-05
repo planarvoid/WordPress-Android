@@ -32,6 +32,7 @@ import com.soundcloud.android.playback.service.Playa;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.skippy.Skippy;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.utils.DebugUtils;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.LockUtil;
 import com.soundcloud.android.utils.Log;
@@ -61,6 +62,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private static final int PLAY_TYPE_OFFLINE = 2;
 
     private static final long POSITION_START = 0L;
+    public static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
 
@@ -102,7 +104,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     public boolean init(Context context) {
         boolean initSuccess = skippy.init(context, skippyFactory.createConfiguration());
-        if (initSuccess){
+        if (initSuccess) {
             eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationSucceededEvent(
                     getInitializationErrorCount(), getAndIncrementInitilizationSuccesses()));
         }
@@ -404,7 +406,6 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onErrorMessage(String category, String sourceFile, int line, String errorMsg, String uri, String cdn) {
-
         ConnectionType currentConnectionType = connectionHelper.getCurrentConnectionType();
         if (!ConnectionType.UNKNOWN.equals(currentConnectionType)){
             ErrorUtils.handleSilentException(errorMsg, new SkippyException(category, line, sourceFile));
@@ -417,7 +418,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
 
     @Override
     public void onInitializationError(Throwable throwable, String message) {
-        ErrorUtils.handleSilentException(message, throwable);
+        ErrorUtils.handleSilentException(throwable, DebugUtils.getLogDump(INIT_ERROR_CUSTOM_LOG_LINE_COUNT));
         eventBus.publish(EventQueue.TRACKING, new SkippyInitilizationFailedEvent(throwable, message,
                 getAndIncrementInitilizationErrors(), getInitializationSuccessCount()));
     }
