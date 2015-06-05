@@ -1,9 +1,11 @@
 package com.soundcloud.android.profile;
 
+import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
@@ -12,6 +14,7 @@ import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistRecord;
 import com.soundcloud.android.tracks.TrackRecord;
@@ -27,10 +30,11 @@ import java.util.List;
 public class ProfileApiPublic implements ProfileApi {
 
     private final ApiClientRx apiClientRx;
-    private final Func1<SoundAssociationHolder, PagedRemoteCollection> soundAssciationsToCollection = new Func1<SoundAssociationHolder, PagedRemoteCollection>() {
+
+    private static final Func1<CollectionHolder<? extends PropertySetSource>, PagedRemoteCollection> HOLDER_TO_COLLECTION = new Func1<CollectionHolder<? extends PropertySetSource>, PagedRemoteCollection>() {
         @Override
-        public PagedRemoteCollection call(SoundAssociationHolder soundAssociations) {
-            return new PagedRemoteCollection(soundAssociations.collection, soundAssociations.next_href);
+        public PagedRemoteCollection call(CollectionHolder<? extends PropertySetSource> playlistsHolder) {
+            return new PagedRemoteCollection(playlistsHolder.collection, playlistsHolder.next_href);
         }
     };
 
@@ -60,6 +64,15 @@ public class ProfileApiPublic implements ProfileApi {
         }
     };
 
+    private final Action1<? super CollectionHolder<PublicApiPlaylist>> writePlaylistsToStorage = new Action1<CollectionHolder<PublicApiPlaylist>>() {
+        @Override
+        public void call(CollectionHolder<PublicApiPlaylist> publicApiPlaylists) {
+            if (!publicApiPlaylists.isEmpty()){
+                storePlaylistsCommand.call(publicApiPlaylists);
+            }
+        }
+    };
+
     @Inject
     public ProfileApiPublic(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand, StorePlaylistsCommand storePlaylistsCommand) {
         this.apiClientRx = apiClientRx;
@@ -77,6 +90,26 @@ public class ProfileApiPublic implements ProfileApi {
         return getSoundAssociations(pageLink);
     }
 
+    @Override
+    public Observable<PagedRemoteCollection> userLikes(Urn user) {
+        return getSoundAssociations(ApiEndpoints.USER_LIKES.path(user.getNumericId()));
+    }
+
+    @Override
+    public Observable<PagedRemoteCollection> userLikes(String pageLink) {
+        return getSoundAssociations(pageLink);
+    }
+
+    @Override
+    public Observable<PagedRemoteCollection> userPlaylists(Urn user) {
+        return getPlaylists(ApiEndpoints.USER_PLAYLISTS.path(user.getNumericId()));
+    }
+
+    @Override
+    public Observable<PagedRemoteCollection> userPlaylists(String pageLink) {
+        return getPlaylists(pageLink);
+    }
+
     @NotNull
     private Observable<PagedRemoteCollection> getSoundAssociations(String path) {
         final ApiRequest request = ApiRequest.get(path)
@@ -87,7 +120,22 @@ public class ProfileApiPublic implements ProfileApi {
 
         return apiClientRx.mappedResponse(request, SoundAssociationHolder.class)
                 .doOnNext(writeSoundAssociationsToStorage)
-                .map(soundAssciationsToCollection);
+                .map(HOLDER_TO_COLLECTION);
     }
+
+    @NotNull
+    private Observable<PagedRemoteCollection> getPlaylists(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPublicApi()
+                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, playlistHolderToken)
+                .doOnNext(writePlaylistsToStorage)
+                .map(HOLDER_TO_COLLECTION);
+    }
+
+    private final TypeToken<CollectionHolder<PublicApiPlaylist>> playlistHolderToken = new TypeToken<CollectionHolder<PublicApiPlaylist>>() {};
 
 }

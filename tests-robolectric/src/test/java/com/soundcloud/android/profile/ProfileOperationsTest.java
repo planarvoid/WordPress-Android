@@ -43,12 +43,12 @@ public class ProfileOperationsTest {
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         operations = new ProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository);
     }
 
     @Test
-    public void returnsUserPostsResultFromApi() throws Exception {
+    public void returnsUserPostsResultFromApi() {
         final PagedRemoteCollection page = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         when(profileApi.userPosts(USER_URN)).thenReturn(Observable.just(page));
 
@@ -58,18 +58,18 @@ public class ProfileOperationsTest {
     }
 
     @Test
-    public void userPostsPagerReturnsNextPage() throws Exception {
+    public void userPostsPagerReturnsNextPage() {
         final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         final PagedRemoteCollection page2 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
         when(profileApi.userPosts(NEXT_HREF)).thenReturn(Observable.just(page2));
 
-        operations.pagingFunction().call(page1).subscribe(observer);
+        operations.postsPagingFunction().call(page1).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toContainExactly(page2);
     }
 
     @Test
-    public void userPostsMergesInPlaylistLikeInfo() throws Exception {
+    public void userPostsMergesInPlaylistLikeInfo() {
         final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
         final ApiTrack track = ModelFixtures.create(ApiTrack.class);
         final ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
@@ -90,6 +90,92 @@ public class ProfileOperationsTest {
                 track.toPropertySet(),
                 playlist2.toPropertySet().put(PlaylistProperty.IS_LIKED,true));
 
+    }
+
+    @Test
+    public void returnsUserLikesResultFromApi() {
+        final PagedRemoteCollection page = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userLikes(USER_URN)).thenReturn(Observable.just(page));
+
+        operations.pagedLikes(USER_URN).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page);
+    }
+
+    @Test
+    public void userLikesPagerReturnsNextPage() {
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page2 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userLikes(NEXT_HREF)).thenReturn(Observable.just(page2));
+
+        operations.likesPagingFunction().call(page1).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page2);
+    }
+
+    @Test
+    public void userLikesMergesInPlaylistLikeInfo() {
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiTrack track = ModelFixtures.create(ApiTrack.class);
+        final ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
+        final PagedRemoteCollection page = new PagedRemoteCollection(Arrays.asList(
+                playlist,
+                track,
+                playlist2
+        ), NEXT_HREF);
+
+        when(profileApi.userLikes(USER_URN)).thenReturn(Observable.just(page));
+        when(loadPlaylistLikedStatuses.call(page)).thenReturn(likedStatusForPlaylistLike(playlist2));
+
+        operations.pagedLikes(USER_URN).subscribe(observer);
+
+        final List<PagedRemoteCollection> onNextEvents = observer.getOnNextEvents();
+        expect(onNextEvents.get(0)).toContainExactly(
+                playlist.toPropertySet(),
+                track.toPropertySet(),
+                playlist2.toPropertySet().put(PlaylistProperty.IS_LIKED,true));
+
+    }
+
+    @Test
+    public void returnsUserPlaylistsResultFromApi() {
+        final PagedRemoteCollection page = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userPlaylists(USER_URN)).thenReturn(Observable.just(page));
+
+        operations.pagedPlaylists(USER_URN).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page);
+    }
+
+    @Test
+    public void userPlaylistsPagerReturnsNextPage() {
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page2 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userPlaylists(NEXT_HREF)).thenReturn(Observable.just(page2));
+
+        operations.playlistsPagingFunction().call(page1).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page2);
+    }
+
+    @Test
+    public void userPlaylistsMergesInPlaylistLikeInfo() {
+        final ApiPlaylist playlist = ModelFixtures.create(ApiPlaylist.class);
+        final ApiPlaylist playlist2 = ModelFixtures.create(ApiPlaylist.class);
+        final PagedRemoteCollection page = new PagedRemoteCollection(Arrays.asList(
+                playlist,
+                playlist2
+        ), NEXT_HREF);
+
+        when(profileApi.userPlaylists(USER_URN)).thenReturn(Observable.just(page));
+        when(loadPlaylistLikedStatuses.call(page)).thenReturn(likedStatusForPlaylistLike(playlist2));
+
+        operations.pagedPlaylists(USER_URN).subscribe(observer);
+
+        final List<PagedRemoteCollection> onNextEvents = observer.getOnNextEvents();
+        expect(onNextEvents.get(0)).toContainExactly(
+                playlist.toPropertySet(),
+                playlist2.toPropertySet().put(PlaylistProperty.IS_LIKED,true));
     }
 
     @NotNull

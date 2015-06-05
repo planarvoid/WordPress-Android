@@ -12,10 +12,12 @@ import android.view.ViewGroup;
 
 public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
-    public static final int FRAGMENT_COUNT = 2;
+    public static final int FRAGMENT_COUNT = 4;
 
     protected static final int TAB_INFO = 0;
     protected static final int TAB_POSTS = 1;
+    protected static final int TAB_PLAYLISTS = 2;
+    protected static final int TAB_LIKES = 3;
 
     private final ProfileHeaderPresenter headerPresenter;
     private final ProfilePagerRefreshHelper refreshHelper;
@@ -51,6 +53,12 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
             case TAB_POSTS:
                 return UserPostsFragment.create(userUrn, Screen.USER_POSTS, null /* TODO : SearchQueryInfo */);
 
+            case TAB_PLAYLISTS:
+                return UserPlaylistsFragment.create(userUrn, Screen.USER_PLAYLISTS, null /* TODO : SearchQueryInfo */);
+
+            case TAB_LIKES:
+                return UserLikesFragment.create(userUrn, Screen.USER_LIKES, null /* TODO : SearchQueryInfo */);
+
             default:
                 throw new IllegalArgumentException("Unexpected position for " + position);
         }
@@ -70,6 +78,10 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
                 return resources.getString(R.string.tab_title_user_info);
             case TAB_POSTS:
                 return resources.getString(R.string.tab_title_user_posts);
+            case TAB_PLAYLISTS:
+                return resources.getString(R.string.tab_title_user_playlists);
+            case TAB_LIKES:
+                return resources.getString(R.string.tab_title_user_likes);
             default:
                 throw new IllegalArgumentException("Unexpected position for getPageTitle " + position);
         }

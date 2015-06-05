@@ -82,7 +82,10 @@ public enum ApiEndpoints {
     LEGACY_TRACK("/tracks/%s"),
     LEGACY_USERS("/users"),
     TRACK_COMMENTS("/tracks/%s/comments"),
-    USER_SOUNDS("/e1/users/%s/sounds");
+
+    USER_SOUNDS("/e1/users/%s/sounds"),
+    USER_LIKES("/e1/users/%s/likes"),
+    USER_PLAYLISTS("/users/%s/playlists");
 
     private final String path;
 

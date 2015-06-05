@@ -12,6 +12,8 @@ import dagger.Provides;
                 ProfileActivity.class,
                 MeActivity.class,
                 UserPostsFragment.class,
+                UserPlaylistsFragment.class,
+                UserLikesFragment.class,
                 UserDetailsFragment.class
         }, includes = AssociationsModule.class)
 public class ProfileModule {

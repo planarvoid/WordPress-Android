@@ -14,4 +14,12 @@ interface ProfileApi {
     Observable<PagedRemoteCollection> userPosts(Urn user);
 
     Observable<PagedRemoteCollection> userPosts(String nextPageLink);
+
+    Observable<PagedRemoteCollection> userPlaylists(Urn user);
+
+    Observable<PagedRemoteCollection> userPlaylists(String nextPageLink);
+
+    Observable<PagedRemoteCollection> userLikes(Urn user);
+
+    Observable<PagedRemoteCollection> userLikes(String nextPageLink);
 }
