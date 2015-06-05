@@ -7,6 +7,7 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.Screen;
 import com.soundcloud.android.screens.elements.SlidingTabs;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
+import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.ViewPagerElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.search.SearchActivity;
@@ -63,9 +64,16 @@ public class SearchResultsScreen extends Screen {
         return this;
     }
 
-    public void touchPeopleTab() {
+    public SearchResultsScreen touchPeopleTab() {
         touchTab(PEOPLE_TAB_TEXT);
         waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
+    }
+
+    public SearchResultsScreen touchAllTab() {
+        touchTab(ALL_TAB_TEXT);
+        waiter.waitForContentAndRetryIfLoadingFailed();
+        return this;
     }
 
     public void scrollToBottomOfTracksListAndLoadMoreItems() {
@@ -101,13 +109,18 @@ public class SearchResultsScreen extends Screen {
         return resultsList().getAdapter().getCount();
     }
 
+    public UserItemElement getFirstUser() {
+        return getUsers().get(0);
+    }
+
     private ListView resultsList() {
         return (ListView) getViewPager().getCurrentPage(ListView.class);
     }
 
-    private SlidingTabs tabs(){
+    private SlidingTabs tabs() {
         return testDriver.findElement(With.id(R.id.sliding_tabs)).toSlidingTabs();
     }
+
     @Override
     protected Class getActivity() {
         return ACTIVITY;

@@ -10,6 +10,7 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
+import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
@@ -166,5 +167,19 @@ public class SearchTest extends ActivityTest<MainActivity> {
     public void testShouldHideSoftKeyboardWhenScrollingTagsVertically() {
         solo.getSolo().scrollDown();
         assertEquals("Keyboard should be hidden when scrolling", false, playlistTagsScreen.isKeyboardShown());
+    }
+
+    public void testShouldFollowUser() {
+        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("andtestpl");
+
+        UserItemElement user = resultsScreen.touchPeopleTab().getFirstUser();
+        boolean wasFollowing = user.isFollowing();
+
+        user.toggleFollow();
+        assertNotSame("Should change following state", wasFollowing, user.isFollowing());
+
+        user = resultsScreen.touchAllTab().getFirstUser();
+        boolean isFollowing = user.isFollowing();
+        assertNotSame("Should keep changed following state when switching tabs", wasFollowing, isFollowing);
     }
 }

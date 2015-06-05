@@ -25,7 +25,20 @@ public class UserItemElement {
         return new ProfileScreen(testDriver);
     }
 
+    public UserItemElement toggleFollow() {
+        getToggleFollowButton().click();
+        return this;
+    }
+
+    public boolean isFollowing() {
+        return getToggleFollowButton().isChecked();
+    }
+
     private String getText(ViewElement element) {
         return new TextElement(element).getText();
+    }
+
+    private ViewElement getToggleFollowButton() {
+        return wrapped.findElement(With.id(R.id.toggle_btn_follow));
     }
 }
