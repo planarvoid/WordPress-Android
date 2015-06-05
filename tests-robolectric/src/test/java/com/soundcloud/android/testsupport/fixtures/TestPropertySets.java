@@ -16,6 +16,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
@@ -263,4 +264,13 @@ public abstract class TestPropertySets {
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
                 PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));
     }
+
+    public static PropertySet followingEntityChangeSet(Urn targetUrn, int followersCount, boolean following) {
+        return PropertySet.from(
+                UserProperty.URN.bind(targetUrn),
+                UserProperty.FOLLOWERS_COUNT.bind(followersCount),
+                UserProperty.IS_FOLLOWED_BY_ME.bind(following)
+        );
+    }
+
 }
