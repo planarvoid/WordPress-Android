@@ -62,7 +62,7 @@ public class SkippyAdapter implements Playa, Skippy.PlayListener {
     private static final int PLAY_TYPE_OFFLINE = 2;
 
     private static final long POSITION_START = 0L;
-    public static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
+    private static final int INIT_ERROR_CUSTOM_LOG_LINE_COUNT = 5000;
     private final SkippyFactory skippyFactory;
     private final LockUtil lockUtil;
 
