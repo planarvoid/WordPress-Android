@@ -10,6 +10,7 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
@@ -24,6 +25,8 @@ import android.support.v4.app.DialogFragment;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
+
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public abstract class AuthTaskFragment extends DialogFragment {
     private AuthTask task;
@@ -144,6 +147,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private void deliverResultAndDismiss() {
         final OnAuthResultListener listener = listenerRef.get();
         if (listener != null) {
+            Log.i(ONBOARDING_TAG, "auth result of kind " + result.getKindString() + " sent to listener");
+
             if (result.wasSuccess()) {
                 listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
                         this instanceof SignupTaskFragment, result.getShowFacebookSuggestions());
@@ -162,6 +167,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
             } else {
                 listener.onError(getErrorFromResult((Activity) listener, result));
             }
+        } else {
+            Log.i(ONBOARDING_TAG, "auth result listener is gone");
         }
         dismiss();
     }
