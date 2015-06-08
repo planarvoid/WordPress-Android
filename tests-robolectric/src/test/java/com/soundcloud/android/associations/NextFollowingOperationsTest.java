@@ -1,37 +1,29 @@
 package com.soundcloud.android.associations;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.associations.UpdateFollowingCommand.UpdateFollowingParams;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static com.soundcloud.android.associations.UpdateFollowingCommand.UpdateFollowingParams;
 
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.sync.SyncInitiator;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
+import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import rx.Observable;
-import rx.Observer;
 import rx.Scheduler;
-import rx.functions.Action0;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
-
-import javax.inject.Named;
-import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
 public class NextFollowingOperationsTest {
@@ -56,12 +48,25 @@ public class NextFollowingOperationsTest {
     }
 
     @Test
-    public void toggleFollowingAddsNewFollowingAndEmitsEntityChangeSet() {
+    public void toggleFollowingEmitsEntityChangeSet() {
+        operations.toggleFollowing(targetUrn, true).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(TestPropertySets.followingEntityChangeSet(targetUrn, 5, true));
+    }
+
+    @Test
+    public void toggleFollowingPushesFollowingsViaSyncInitiator() {
+        operations.toggleFollowing(targetUrn, true).subscribe(observer);
+
+        verify(syncInitiator).pushFollowingsToApi();
+    }
+
+    @Test
+    public void toggleFollowingUpdateUserAssociations() {
         operations.toggleFollowing(targetUrn, true).subscribe(observer);
 
         verify(updateFollowingCommand).toObservable(commandParamsCaptor.capture());
         expect(commandParamsCaptor.getValue().following).toBeTrue();
         expect(commandParamsCaptor.getValue().targetUrn).toEqual(targetUrn);
-        expect(observer.getOnNextEvents()).toContainExactly(TestPropertySets.followingEntityChangeSet(targetUrn, 5, true));
     }
 }

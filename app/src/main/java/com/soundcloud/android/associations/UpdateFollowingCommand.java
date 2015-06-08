@@ -8,21 +8,19 @@ import com.soundcloud.android.commands.WriteStorageCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.storage.TableColumns;
-import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
 
 import android.content.ContentValues;
-import android.util.Log;
 
 import javax.inject.Inject;
 import java.util.Date;
 
 class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.UpdateFollowingParams, WriteResult, Integer> {
 
+    private final AccountOperations accountOperations;
     private int updatedFollowersCount;
-    private AccountOperations accountOperations;
 
     @Inject
     UpdateFollowingCommand(PropellerDatabase propeller, AccountOperations accountOperations) {

@@ -25,5 +25,6 @@
     <bool name="feature_offline_sync">false</bool>
     <bool name="feature_payments_test">false</bool>
     <bool name="feature_new_profile">false</bool>
+    <bool name="feature_follow_user_search">false</bool>
 
 </resources>

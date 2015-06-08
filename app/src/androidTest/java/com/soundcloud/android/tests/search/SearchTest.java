@@ -9,6 +9,7 @@ import static org.hamcrest.core.IsNot.not;
 
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
@@ -33,6 +34,7 @@ public class SearchTest extends ActivityTest<MainActivity> {
 
     @Override
     public void setUp() throws Exception {
+        setDependsOn(Flag.FOLLOW_USER_SEARCH);
         super.setUp();
 
         streamScreen = new StreamScreen(solo);

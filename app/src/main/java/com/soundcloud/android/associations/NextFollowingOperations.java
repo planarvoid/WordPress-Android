@@ -17,7 +17,7 @@ import rx.functions.Func1;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-/***
+/**
  * This class is "work in progress", and it's meant to replace {@link FollowingOperations}
  */
 public class NextFollowingOperations {
