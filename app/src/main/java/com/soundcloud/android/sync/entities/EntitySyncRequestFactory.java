@@ -5,7 +5,6 @@ import com.soundcloud.android.sync.SyncActions;
 import dagger.Lazy;
 
 import android.content.Intent;
-import android.os.ResultReceiver;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -26,14 +25,14 @@ public class EntitySyncRequestFactory {
         this.eventBus = eventBus;
     }
 
-    public EntitySyncRequest create(Intent intent, ResultReceiver resultReceiver) {
+    public EntitySyncRequest create(Intent intent) {
         switch (intent.getAction()) {
             case SyncActions.SYNC_TRACKS:
-                return new EntitySyncRequest(tracksSyncJob.get(), intent, eventBus, intent.getAction(), resultReceiver);
+                return new EntitySyncRequest(tracksSyncJob.get(), intent, eventBus);
             case SyncActions.SYNC_USERS:
-                return new EntitySyncRequest(usersSyncJob.get(), intent, eventBus, intent.getAction(), resultReceiver);
+                return new EntitySyncRequest(usersSyncJob.get(), intent, eventBus);
             case SyncActions.SYNC_PLAYLISTS:
-                return new EntitySyncRequest(playlistSyncJob.get(), intent, eventBus, intent.getAction(), resultReceiver);
+                return new EntitySyncRequest(playlistSyncJob.get(), intent, eventBus);
             default:
                 throw new IllegalArgumentException("Unexpected action : " + intent.getAction());
         }

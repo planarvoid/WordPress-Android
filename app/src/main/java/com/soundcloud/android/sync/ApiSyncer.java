@@ -3,7 +3,6 @@ package com.soundcloud.android.sync;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiMapperException;
@@ -67,8 +66,8 @@ public class ApiSyncer extends LegacySyncStrategy {
     }
 
     @VisibleForTesting
-    ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, ApiClient apiClient, AccountOperations accountOperations) {
-        super(context, resolver, accountOperations);
+    ApiSyncer(Context context, ContentResolver resolver, EventBus eventBus, ApiClient apiClient) {
+        super(context, resolver);
         activitiesStorage = new ActivitiesStorage();
         userStorage = new LegacyUserStorage();
         this.eventBus = eventBus;

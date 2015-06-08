@@ -1,7 +1,6 @@
 package com.soundcloud.android.utils;
 
 import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.PropertySetSource;
@@ -41,13 +40,6 @@ public final class CollectionUtils {
         return result;
     }
 
-    public static <T> Collection<T> addAll(Collection<T> items, Iterable<T> iterable) {
-        for (T item : iterable){
-            items.add(item);
-        }
-        return items;
-    }
-
     public static <T> Collection<T> subtract(Collection<T> items, Collection<T>... collectionsToSubtract) {
         final ArrayList<T> result = new ArrayList<>(items);
         for (Collection<T> itemsToSubtract : collectionsToSubtract) {
@@ -71,14 +63,6 @@ public final class CollectionUtils {
             urnStrings.add(urn.toString());
         }
         return urnStrings;
-    }
-
-    public static String urnsToJoinedIds(List<Urn> urns, String delimiter){
-        final ArrayList<String> idStrings = new ArrayList<>(urns.size());
-        for (Urn urn : urns) {
-            idStrings.add(String.valueOf(urn.getNumericId()));
-        }
-        return Joiner.on(delimiter).join(idStrings);
     }
 
     private CollectionUtils() {

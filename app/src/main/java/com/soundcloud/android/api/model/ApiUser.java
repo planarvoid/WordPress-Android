@@ -1,7 +1,6 @@
 package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Optional;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.users.UserRecord;
@@ -68,31 +67,6 @@ public class ApiUser extends ScModel implements PropertySetSource, UserRecord {
 
     public int getFollowersCount() {
         return followersCount;
-    }
-
-    @Override
-    public Optional<String> getDescription() {
-        return Optional.absent(); // not implement in api-mobi yet
-    }
-
-    @Override
-    public Optional<String> getWebsiteUrl() {
-        return Optional.absent(); // not implement in api-mobi yet
-    }
-
-    @Override
-    public Optional<String> getWebsiteName() {
-        return Optional.absent(); // not implement in api-mobi yet
-    }
-
-    @Override
-    public Optional<String> getDiscogsName() {
-        return Optional.absent(); // not implement in api-mobi yet
-    }
-
-    @Override
-    public Optional<String> getMyspaceName() {
-        return Optional.absent(); // not implement in api-mobi yet
     }
 
     @JsonProperty("followers_count")

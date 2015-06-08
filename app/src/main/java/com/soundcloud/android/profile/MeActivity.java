@@ -3,7 +3,7 @@ package com.soundcloud.android.profile;
 import android.content.Intent;
 import android.text.TextUtils;
 
-public class MeActivity extends LegacyProfileActivity {
+public class MeActivity extends ProfileActivity {
 
     @Override
     protected void handleIntent(Intent intent) {

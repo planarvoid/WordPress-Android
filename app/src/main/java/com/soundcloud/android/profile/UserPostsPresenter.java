@@ -83,7 +83,8 @@ class UserPostsPresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
-        getEmptyView().setMessageText(R.string.empty_user_posts_message);
+        final String username = fragment.getArguments().getString(UserPostsFragment.USER_NAME_KEY);
+        getEmptyView().setMessageText(fragment.getString(R.string.empty_user_tracks_text, username));
         getEmptyView().setImage(R.drawable.empty_sounds);
     }
 

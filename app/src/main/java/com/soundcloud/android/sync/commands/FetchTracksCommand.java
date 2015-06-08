@@ -6,6 +6,7 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CollectionUtils;
@@ -39,8 +40,8 @@ public class FetchTracksCommand extends BulkFetchCommand<ApiTrack> {
     }
 
     @Override
-    protected TypeToken<Iterable<ApiTrack>> provideResourceType() {
-        return new TypeToken<Iterable<ApiTrack>>() {
+    protected TypeToken<ModelCollection<? extends ApiTrack>> provideResourceType() {
+        return new TypeToken<ModelCollection<? extends ApiTrack>>() {
         };
     }
 }

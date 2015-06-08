@@ -331,7 +331,7 @@
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Informatie</string>
-    <string name="tab_title_user_posts">Berichten</string>
+    <string name="tab_title_user_sounds">Berichten</string>
     <string name="tab_title_user_likes">Likes</string>
     <string name="tab_title_user_followers">Volgers</string>
     <string name="tab_title_user_followings">Volgen</string>

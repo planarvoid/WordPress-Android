@@ -21,7 +21,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class FetchPlaylistsCommandTest {
 
         setupRequest(urns, playlists);
 
-        Collection<ApiPlaylist> result = command.with(urns).call();
+        List<ApiPlaylist> result = command.with(urns).call();
         expect(result).toEqual(playlists);
     }
 
@@ -57,7 +56,7 @@ public class FetchPlaylistsCommandTest {
         setupRequest(urns.subList(0, 2), playlists.subList(0, 2));
         setupRequest(urns.subList(2, 3), playlists.subList(2, 3));
 
-        Collection<ApiPlaylist> result = command.with(urns).call();
+        List<ApiPlaylist> result = command.with(urns).call();
         expect(result).toEqual(playlists);
     }
 

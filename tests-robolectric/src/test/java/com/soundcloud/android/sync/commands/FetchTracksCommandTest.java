@@ -21,7 +21,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +44,7 @@ public class FetchTracksCommandTest {
 
         setupRequest(urns, tracks);
 
-        Collection<ApiTrack> result = command.with(urns).call();
+        List<ApiTrack> result = command.with(urns).call();
         expect(result).toEqual(tracks);
     }
 
@@ -57,7 +56,7 @@ public class FetchTracksCommandTest {
         setupRequest(urns.subList(0, 2), tracks.subList(0, 2));
         setupRequest(urns.subList(2, 3), tracks.subList(2, 3));
 
-        Collection<ApiTrack> result = command.with(urns).call();
+        List<ApiTrack> result = command.with(urns).call();
         expect(result).toEqual(tracks);
     }
 

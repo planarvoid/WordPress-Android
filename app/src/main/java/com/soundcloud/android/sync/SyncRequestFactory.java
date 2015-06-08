@@ -51,7 +51,7 @@ class SyncRequestFactory {
         } else if (SyncActions.SYNC_TRACKS.equals(intent.getAction())
                 || SyncActions.SYNC_PLAYLISTS.equals(intent.getAction())
                 || SyncActions.SYNC_USERS.equals(intent.getAction())) {
-            return entitySyncRequestFactory.create(intent, getReceiverFromIntent(intent));
+            return entitySyncRequestFactory.create(intent);
 
         } else if (SyncActions.SYNC_PLAYLIST.equals(intent.getAction())) {
             Urn playlistUrn = intent.getParcelableExtra(SyncExtras.URN);

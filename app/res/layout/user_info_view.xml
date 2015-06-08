@@ -5,13 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.EmptyView
-        android:id="@android:id/empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <ScrollView
-        android:id="@+id/user_details_holder"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

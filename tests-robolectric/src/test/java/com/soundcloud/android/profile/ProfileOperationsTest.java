@@ -12,7 +12,6 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -38,13 +37,12 @@ public class ProfileOperationsTest {
 
     @Mock private ProfileApi profileApi;
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
-    @Mock private UserRepository userRepository;
 
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
     @Before
     public void setUp() throws Exception {
-        operations = new ProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository);
+        operations = new ProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses);
     }
 
     @Test

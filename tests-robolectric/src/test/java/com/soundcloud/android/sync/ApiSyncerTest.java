@@ -7,7 +7,6 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
@@ -24,7 +23,6 @@ import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.LocalCollectionDAO;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.TestHelper;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.api.CloudAPI;
 import com.xtremelabs.robolectric.Robolectric;
 import com.xtremelabs.robolectric.tester.org.apache.http.TestHttpResponse;
@@ -43,6 +41,7 @@ import java.io.IOException;
 
 @RunWith(DefaultTestRunner.class)
 public class ApiSyncerTest {
+    private static final long USER_ID = 133201L;
     private static final int TOTAL_STREAM_SIZE = 119; // 120 - 1 dup
 
     ContentResolver resolver;
@@ -52,14 +51,10 @@ public class ApiSyncerTest {
 
     @Mock private EventBus eventBus;
     @Mock private ApiClient apiClient;
-    @Mock private AccountOperations accountOperations;
 
     @Before
     public void before() {
-        final PublicApiUser value = ModelFixtures.create(PublicApiUser.class);
-        when(accountOperations.getLoggedInUserId()).thenReturn(value.getId());
-        when(accountOperations.getLoggedInUser()).thenReturn(value);
-
+        TestHelper.setUserId(USER_ID);
         resolver = DefaultTestRunner.application.getContentResolver();
         syncStateManager = new SyncStateManager(resolver, new LocalCollectionDAO(resolver));
         activitiesStorage = new ActivitiesStorage();
@@ -116,8 +111,7 @@ public class ApiSyncerTest {
 
         // hard refresh
         addPendingHttpResponse(getClass(), "e1_stream_oldest.json");
-        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver(),
-                eventBus, apiClient, accountOperations);
+        ApiSyncer syncer = new ApiSyncer(Robolectric.application, Robolectric.application.getContentResolver(), eventBus, apiClient);
         ApiSyncResult result = syncer.syncContent(Content.ME_SOUND_STREAM.uri, ApiSyncService.ACTION_HARD_REFRESH);
 
         expect(result.success).toBeTrue();
@@ -304,7 +298,7 @@ public class ApiSyncerTest {
     private ApiSyncResult sync(Uri uri, String... fixtures) throws IOException {
         addPendingHttpResponse(getClass(), fixtures);
         ApiSyncer syncer = new ApiSyncer(
-                Robolectric.application, Robolectric.application.getContentResolver(), eventBus, apiClient, accountOperations);
+                Robolectric.application, Robolectric.application.getContentResolver(), eventBus, apiClient);
         return syncer.syncContent(uri, Intent.ACTION_SYNC);
     }
 }

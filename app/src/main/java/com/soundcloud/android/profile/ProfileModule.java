@@ -8,11 +8,10 @@ import dagger.Provides;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-                LegacyProfileActivity.class,
                 ProfileActivity.class,
+                NewProfileActivity.class,
                 MeActivity.class,
-                UserPostsFragment.class,
-                UserDetailsFragment.class
+                UserPostsFragment.class
         }, includes = AssociationsModule.class)
 public class ProfileModule {
 

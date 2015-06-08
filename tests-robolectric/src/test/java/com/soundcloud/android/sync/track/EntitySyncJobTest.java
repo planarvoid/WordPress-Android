@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,28 +52,6 @@ public class EntitySyncJobTest {
         entitySyncJob.run();
 
         expect(entitySyncJob.getUpdatedEntities()).toContainExactly(tracks.get(0).toPropertySet(), tracks.get(1).toPropertySet());
-    }
-
-    @Test
-    public void savesFetchException() throws Exception {
-        final Exception exception = new IOException();
-        when(fetchResources.call()).thenThrow(exception);
-
-        entitySyncJob.setUrns(Arrays.asList(Urn.forTrack(123L)));
-        entitySyncJob.run();
-
-        expect(entitySyncJob.getException()).toBe(exception);
-    }
-
-    @Test
-    public void didNotResultInAChangeIfExceptionThrown() throws Exception {
-        final Exception exception = new IOException();
-        when(fetchResources.call()).thenThrow(exception);
-
-        entitySyncJob.setUrns(Arrays.asList(Urn.forTrack(123L)));
-        entitySyncJob.run();
-
-        expect(entitySyncJob.resultedInAChange()).toBe(false);
     }
 
 

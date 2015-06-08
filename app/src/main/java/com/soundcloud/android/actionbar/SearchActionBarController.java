@@ -14,11 +14,13 @@ import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
-import com.soundcloud.android.profile.LegacyProfileActivity;
+import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.search.suggestions.SuggestionsAdapter;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.ScTextUtils;
 import org.jetbrains.annotations.Nullable;
@@ -155,7 +157,7 @@ public class SearchActionBarController extends ActionBarController {
             final Intent intent = new Intent(Intent.ACTION_VIEW);
 
             if (urn.isUser()) {
-                intent.putExtra(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
+                intent.putExtra(ProfileActivity.EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
             }
 
             Screen.SEARCH_SUGGESTIONS.addToIntent(intent);

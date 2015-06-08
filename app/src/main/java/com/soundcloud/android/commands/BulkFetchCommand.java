@@ -5,17 +5,16 @@ import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiMapperException;
 import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.ScSchedulers;
-import com.soundcloud.android.utils.CollectionUtils;
 import rx.Observable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>, Collection<ApiModel>, BulkFetchCommand<ApiModel>> {
+public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>, List<ApiModel>, BulkFetchCommand<ApiModel>> {
 
     private static final int DEFAULT_PAGE_SIZE = 200;
 
@@ -32,27 +31,25 @@ public abstract class BulkFetchCommand<ApiModel> extends LegacyCommand<List<Urn>
     }
 
     @Override
-    public Collection<ApiModel> call() throws ApiRequestException, IOException, ApiMapperException {
+    public List<ApiModel> call() throws ApiRequestException, IOException, ApiMapperException {
         int pageIndex = 0;
-        final Collection<ApiModel> results = new ArrayList<>(input.size());
+        final List<ApiModel> results = new ArrayList<>(input.size());
         do {
             final int startIndex = pageIndex * pageSize;
             final int endIndex = Math.min(input.size(), (++pageIndex) * pageSize);
             final ApiRequest request = buildRequest(input.subList(startIndex, endIndex));
-
-            CollectionUtils.addAll(results, apiClient.fetchMappedResponse(request, provideResourceType()));
+            results.addAll(apiClient.fetchMappedResponse(request, provideResourceType()).getCollection());
 
         } while (pageIndex * pageSize < input.size());
         return results;
     }
 
     @Override
-    public Observable<Collection<ApiModel>> toObservable() {
+    public Observable<List<ApiModel>> toObservable() {
         return super.toObservable().subscribeOn(ScSchedulers.HIGH_PRIO_SCHEDULER);
     }
 
-    // TODO : When should make this use ModelCollection, as soon as we move users to api-mobile
-    protected abstract TypeToken<? extends Iterable<ApiModel>> provideResourceType();
+    protected abstract TypeToken<ModelCollection<? extends ApiModel>> provideResourceType();
 
     protected abstract ApiRequest buildRequest(List<Urn> urnPage);
 }

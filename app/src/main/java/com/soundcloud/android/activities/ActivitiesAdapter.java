@@ -20,7 +20,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
-import com.soundcloud.android.profile.LegacyProfileActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.storage.ActivitiesStorage;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.propeller.PropertySet;
@@ -157,8 +157,8 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case TRACK_LIKE:
             case TRACK_REPOST:
                 if (content == Content.ME_ACTIVITIES) {
-                    context.startActivity(new Intent(context, LegacyProfileActivity.class)
-                            .putExtra(LegacyProfileActivity.EXTRA_USER, getItem(position).getUser()));
+                    context.startActivity(new Intent(context, ProfileActivity.class)
+                            .putExtra(ProfileActivity.EXTRA_USER, getItem(position).getUser()));
                 } else {
                     playTrackOrStartPlaylistFragment(context, position);
                 }
@@ -166,16 +166,16 @@ public class ActivitiesAdapter extends ScBaseAdapter<Activity> {
             case PLAYLIST_LIKE:
             case PLAYLIST_REPOST:
                 if (content == Content.ME_ACTIVITIES) {
-                    context.startActivity(new Intent(context, LegacyProfileActivity.class)
-                            .putExtra(LegacyProfileActivity.EXTRA_USER, getItem(position).getUser()));
+                    context.startActivity(new Intent(context, ProfileActivity.class)
+                            .putExtra(ProfileActivity.EXTRA_USER, getItem(position).getUser()));
                 } else {
                     playTrackOrStartPlaylistFragment(context, position);
                 }
                 return ItemClickResults.LEAVING;
 
             case AFFILIATION:
-                context.startActivity(new Intent(context, LegacyProfileActivity.class)
-                        .putExtra(LegacyProfileActivity.EXTRA_USER, getItem(position).getUser()));
+                context.startActivity(new Intent(context, ProfileActivity.class)
+                        .putExtra(ProfileActivity.EXTRA_USER, getItem(position).getUser()));
                 return ItemClickResults.LEAVING;
 
             default:

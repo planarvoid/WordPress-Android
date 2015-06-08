@@ -10,8 +10,8 @@ import com.soundcloud.android.creators.upload.MetadataFragment;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersCategoryActivity;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUsersSyncActivity;
-import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.profile.VerifyAgeActivity;
 import com.soundcloud.android.search.SearchActivity;
 import dagger.Module;
@@ -32,7 +32,7 @@ import dagger.Module;
                 SearchActivity.class,
                 SuggestedUsersCategoryActivity.class,
                 TrackCommentsActivity.class,
-                LegacyProfileActivity.class,
+                ProfileActivity.class,
                 VerifyAgeActivity.class
         }, includes = {AssociationsModule.class, AnalyticsModule.class})
 public class MainModule { }

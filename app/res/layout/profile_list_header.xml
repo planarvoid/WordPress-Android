@@ -8,7 +8,7 @@
         style="@style/Profile.HeaderInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_above="@+id/indicator"
+        android:layout_above="@+id/sliding_tabs"
         android:layout_below="@id/toolbar_id"
         android:background="@android:color/white">
 
@@ -34,18 +34,17 @@
             android:drawableLeft="@drawable/stats_followers"
             android:drawableStart="@drawable/stats_followers"/>
 
-        <ToggleButton
-            android:id="@+id/follow_button"
-            style="@style/Profile.ToggleButton.Follow.Large"
+        <Button
+            style="@style/Profile.Button"
+            android:layout_below="@id/followers_count"
             android:layout_marginTop="10dp"
             android:layout_toRightOf="@id/image"
-            android:layout_toEndOf="@id/image"
-            android:layout_alignBottom="@id/image"/>
+            android:layout_toEndOf="@id/image"/>
 
     </RelativeLayout>
 
     <com.soundcloud.android.view.SlidingTabLayout
-        android:id="@+id/indicator"
+        android:id="@+id/sliding_tabs"
         style="@style/Profile.Tabs" />
 
     <include
@@ -61,6 +60,6 @@
     <View
         android:id="@+id/toolbar_shadow"
         style="@style/ToolbarShadow"
-        android:layout_below="@id/indicator" />
+        android:layout_below="@id/sliding_tabs" />
 
 </RelativeLayout>

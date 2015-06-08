@@ -7,7 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -66,7 +66,7 @@ public class PostsSyncer<ApiModel> implements Callable<Boolean> {
         for (PropertySet like : additions) {
             urns.add(like.get(LikeProperty.TARGET_URN));
         }
-        final Collection<ApiModel> apiResources = fetchPostResources.with(urns).call();
+        final List<ApiModel> apiResources = fetchPostResources.with(urns).call();
         storePostResources.call(apiResources);
     }
 

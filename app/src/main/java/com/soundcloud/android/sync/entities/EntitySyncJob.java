@@ -22,7 +22,6 @@ public class EntitySyncJob implements SyncJob {
 
     private List<Urn> urns = Collections.emptyList();
     private Collection<PropertySet> updatedPropertySets = Collections.emptyList();
-    private Exception exception;
 
     @Inject
     public EntitySyncJob(BulkFetchCommand fetchResources, WriteStorageCommand storeResources) {
@@ -42,13 +41,12 @@ public class EntitySyncJob implements SyncJob {
     public void run() {
         try {
             if (!urns.isEmpty()) {
-                Collection<PropertySetSource> collection = fetchResources.with(urns).call();
+                List<PropertySetSource> collection = fetchResources.with(urns).call();
                 storeResources.call(collection);
                 updatedPropertySets = Collections2.transform(collection, GuavaFunctions.toPropertySet());
             }
         } catch (Exception e) {
             ErrorUtils.handleThrowable(e, this.getClass());
-            exception = e;
         }
     }
 
@@ -60,11 +58,11 @@ public class EntitySyncJob implements SyncJob {
 
     @Override
     public boolean resultedInAChange() {
-        return exception == null;
+        return false; // unused
     }
 
     @Override
     public Exception getException() {
-        return exception;
+        return null; // unused
     }
 }

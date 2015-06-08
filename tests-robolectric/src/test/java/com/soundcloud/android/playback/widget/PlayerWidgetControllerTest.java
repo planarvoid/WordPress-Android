@@ -26,7 +26,6 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.properties.FeatureFlags;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPlayStates;
 import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
@@ -186,7 +185,7 @@ public class PlayerWidgetControllerTest {
 
     @Test
     public void doesNotResetPresentationWhenCurrentUserChangedEventReceivedForUserUpdated() {
-        CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(ModelFixtures.create(PublicApiUser.class));
+        CurrentUserChangedEvent event = CurrentUserChangedEvent.forUserUpdated(new PublicApiUser(1));
 
         controller.subscribe();
 

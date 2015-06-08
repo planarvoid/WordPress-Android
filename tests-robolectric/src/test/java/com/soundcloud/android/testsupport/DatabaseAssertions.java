@@ -4,9 +4,9 @@ import static com.soundcloud.propeller.query.Query.from;
 import static com.soundcloud.propeller.test.matchers.QueryMatchers.counts;
 import static org.junit.Assert.assertThat;
 
-import com.google.common.base.Optional;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.api.model.stream.ApiPromotedTrack;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.DownloadResult;
@@ -247,27 +247,13 @@ public class DatabaseAssertions {
                 .whereEq(TableColumns.PromotedTracks.TRACKING_PROMOTER_CLICKED_URLS, TextUtils.join(" ", promotedTrack.getTrackingPromoterClickedUrls()));
     }
 
-    public void assertUserInserted(UserRecord user) {
-        final Query query = from(Table.Users.name())
-                .whereEq(TableColumns.Users._ID, user.getUrn().getNumericId())
-                .whereEq(TableColumns.Users.USERNAME, user.getUsername())
-                .whereEq(TableColumns.Users.COUNTRY, user.getCountry())
-                .whereEq(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
-
-        assertOptionalColumn(query, TableColumns.Users.DESCRIPTION, user.getDescription());
-        assertOptionalColumn(query, TableColumns.Users.WEBSITE_URL, user.getWebsiteUrl());
-        assertOptionalColumn(query, TableColumns.Users.WEBSITE_NAME, user.getWebsiteName());
-        assertOptionalColumn(query, TableColumns.Users.DISCOGS_NAME, user.getDiscogsName());
-        assertOptionalColumn(query, TableColumns.Users.MYSPACE_NAME, user.getMyspaceName());
-        assertThat(select(query), counts(1));
-    }
-
-    private void assertOptionalColumn(Query query, String column, Optional<String> optional) {
-        if (optional.isPresent()){
-            query.whereEq(column, optional.get());
-        } else {
-            query.whereNull(column);
-        }
+    public void assertUserInserted(ApiUser user) {
+        assertThat(select(from(Table.Users.name())
+                        .whereEq(TableColumns.Users._ID, user.getId())
+                        .whereEq(TableColumns.Users.USERNAME, user.getUsername())
+                        .whereEq(TableColumns.Users.COUNTRY, user.getCountry())
+                        .whereEq(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount())
+        ), counts(1));
     }
 
     public void assertDownloadRequestsInserted(List<Urn> tracksToDownload) {

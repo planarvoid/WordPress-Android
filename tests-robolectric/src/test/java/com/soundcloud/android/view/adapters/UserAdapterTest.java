@@ -16,7 +16,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiResource;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.profile.LegacyProfileActivity;
+import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -106,8 +106,8 @@ public class UserAdapterTest {
         adapter.handleListItemClick(Robolectric.application, 0, 1L, Screen.YOUR_LIKES, null);
 
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
-        expect(intent.getComponent().getClassName()).toEqual(LegacyProfileActivity.class.getName());
-        expect(intent.getParcelableExtra(LegacyProfileActivity.EXTRA_USER)).toBe(user);
+        expect(intent.getComponent().getClassName()).toEqual(ProfileActivity.class.getName());
+        expect(intent.getParcelableExtra(ProfileActivity.EXTRA_USER)).toBe(user);
     }
 
     @Test

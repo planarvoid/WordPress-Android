@@ -5,7 +5,9 @@ import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.profile.LegacyProfileActivity;
+import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.screens.elements.Element;
+import com.soundcloud.android.screens.elements.EmptyViewElement;
 import com.soundcloud.android.screens.elements.TrackItemMenuElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.elements.SlidingTabs;
@@ -16,7 +18,7 @@ import android.widget.ListView;
 import java.util.List;
 
 public class ProfileScreen extends Screen {
-    private static Class ACTIVITY = LegacyProfileActivity.class;
+    private static Class ACTIVITY = ProfileActivity.class;
 
     public ProfileScreen(Han solo) {
         super(solo);
@@ -62,30 +64,8 @@ public class ProfileScreen extends Screen {
         return new ViewPagerElement(testDriver);
     }
 
-    public TextElement description() {
-        return new TextElement(testDriver.findElement(With.id(R.id.description)));
-    }
-
-    public TextElement website() {
-        return new TextElement(testDriver.findElement(With.id(R.id.website)));
-    }
-
-    public TextElement discogs() {
-        return new TextElement(testDriver.findElement(With.id(R.id.discogs_name)));
-    }
-
-    public TextElement myspace() {
-        return new TextElement(testDriver.findElement(With.id(R.id.myspace_name)));
-    }
-
     public String emptyViewMessage() {
         return emptyView().message();
-    }
-
-    public ProfileScreen touchInfoTab() {
-        tabs().getTabWithText(testDriver.getString(R.string.tab_title_user_info).toUpperCase()).click();
-        waiter.waitForContentAndRetryIfLoadingFailed();
-        return this;
     }
 
     public ProfileScreen touchLikesTab() {
