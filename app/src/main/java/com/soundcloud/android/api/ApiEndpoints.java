@@ -85,7 +85,9 @@ public enum ApiEndpoints {
 
     USER_SOUNDS("/e1/users/%s/sounds"),
     USER_LIKES("/e1/users/%s/likes"),
-    USER_PLAYLISTS("/users/%s/playlists");
+    USER_PLAYLISTS("/users/%s/playlists"),
+    USER_FOLLOWINGS("/users/%s/followings"),
+    USER_FOLLOWERS("/users/%s/followers");
 
     private final String path;
 

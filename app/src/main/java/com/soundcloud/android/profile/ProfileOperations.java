@@ -114,6 +114,36 @@ public class ProfileOperations {
         });
     }
 
+    public Observable<PagedRemoteCollection> pagedFollowings(Urn user) {
+        return profileApi
+                .userFollowings(user)
+                .subscribeOn(scheduler);
+    }
+
+    public Pager.PagingFunction<PagedRemoteCollection> followingsPagingFunction() {
+        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
+            @Override
+            public Observable<PagedRemoteCollection> call(String nextPageLink) {
+                return profileApi.userFollowings(nextPageLink);
+            }
+        });
+    }
+
+    public Observable<PagedRemoteCollection> pagedFollowers(Urn user) {
+        return profileApi
+                .userFollowers(user)
+                .subscribeOn(scheduler);
+    }
+
+    public Pager.PagingFunction<PagedRemoteCollection> followersPagingFunction() {
+        return pagingFunction(new Command<String, Observable<PagedRemoteCollection>>() {
+            @Override
+            public Observable<PagedRemoteCollection> call(String nextPageLink) {
+                return profileApi.userFollowers(nextPageLink);
+            }
+        });
+    }
+
     private Pager.PagingFunction<PagedRemoteCollection> pagingFunction(final Command<String, Observable<PagedRemoteCollection>> nextPage) {
         return new Pager.PagingFunction<PagedRemoteCollection>() {
             @Override

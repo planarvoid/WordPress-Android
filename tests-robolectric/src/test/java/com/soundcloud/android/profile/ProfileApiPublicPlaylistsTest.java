@@ -15,6 +15,7 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -35,6 +36,7 @@ public class ProfileApiPublicPlaylistsTest {
     @Mock private ApiClientRx apiClientRx;
     @Mock private StoreTracksCommand storeTracksCommand;
     @Mock private StorePlaylistsCommand storePlaylistsCommand;
+    @Mock private StoreUsersCommand storeUsersCommand;
 
     private ProfileApiPublic api;
     private final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
@@ -48,7 +50,7 @@ public class ProfileApiPublicPlaylistsTest {
 
     @Before
     public void setUp() throws Exception {
-        api = new ProfileApiPublic(apiClientRx, storeTracksCommand, storePlaylistsCommand);
+        api = new ProfileApiPublic(apiClientRx, storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
     }
 
     @Test

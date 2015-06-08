@@ -178,6 +178,48 @@ public class ProfileOperationsTest {
                 playlist2.toPropertySet().put(PlaylistProperty.IS_LIKED,true));
     }
 
+    @Test
+    public void returnsUserFollowingsResultFromApi() {
+        final PagedRemoteCollection page = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userFollowings(USER_URN)).thenReturn(Observable.just(page));
+
+        operations.pagedFollowings(USER_URN).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page);
+    }
+
+    @Test
+    public void userFollowingsPagerReturnsNextPage() {
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page2 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userFollowings(NEXT_HREF)).thenReturn(Observable.just(page2));
+
+        operations.followingsPagingFunction().call(page1).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page2);
+    }
+
+    @Test
+    public void returnsUserFollowersResultFromApi() {
+        final PagedRemoteCollection page = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userFollowers(USER_URN)).thenReturn(Observable.just(page));
+
+        operations.pagedFollowers(USER_URN).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page);
+    }
+
+    @Test
+    public void userFollowersPagerReturnsNextPage() {
+        final PagedRemoteCollection page1 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        final PagedRemoteCollection page2 = new PagedRemoteCollection(Collections.<PropertySetSource>emptyList(), NEXT_HREF);
+        when(profileApi.userFollowers(NEXT_HREF)).thenReturn(Observable.just(page2));
+
+        operations.followersPagingFunction().call(page1).subscribe(observer);
+
+        expect(observer.getOnNextEvents()).toContainExactly(page2);
+    }
+
     @NotNull
     private Map<Urn, PropertySet> likedStatusForPlaylistLike(ApiPlaylist playlist2) {
         final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_LIKED.bind(true));

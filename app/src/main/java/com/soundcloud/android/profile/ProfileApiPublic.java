@@ -9,11 +9,13 @@ import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.Playable;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
+import com.soundcloud.android.commands.StoreUsersCommand;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistRecord;
@@ -40,6 +42,7 @@ public class ProfileApiPublic implements ProfileApi {
 
     private final StoreTracksCommand storeTracksCommand;
     private final StorePlaylistsCommand storePlaylistsCommand;
+    private final StoreUsersCommand storeUsersCommand;
 
     private final Action1<? super SoundAssociationHolder> writeSoundAssociationsToStorage = new Action1<SoundAssociationHolder>() {
         @Override
@@ -73,11 +76,21 @@ public class ProfileApiPublic implements ProfileApi {
         }
     };
 
+    private final Action1<? super CollectionHolder<PublicApiUser>> writeUsersToStorage = new Action1<CollectionHolder<PublicApiUser>>() {
+        @Override
+        public void call(CollectionHolder<PublicApiUser> publicApiUsers) {
+            if (!publicApiUsers.isEmpty()){
+                storeUsersCommand.call(publicApiUsers);
+            }
+        }
+    };
+
     @Inject
-    public ProfileApiPublic(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand, StorePlaylistsCommand storePlaylistsCommand) {
+    public ProfileApiPublic(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand, StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand) {
         this.apiClientRx = apiClientRx;
         this.storeTracksCommand = storeTracksCommand;
         this.storePlaylistsCommand = storePlaylistsCommand;
+        this.storeUsersCommand = storeUsersCommand;
     }
 
     @Override
@@ -110,6 +123,26 @@ public class ProfileApiPublic implements ProfileApi {
         return getPlaylists(pageLink);
     }
 
+    @Override
+    public Observable<PagedRemoteCollection> userFollowings(Urn user) {
+        return getUsers(ApiEndpoints.USER_FOLLOWINGS.path(user.getNumericId()));
+    }
+
+    @Override
+    public Observable<PagedRemoteCollection> userFollowings(String pageLink) {
+        return getUsers(pageLink);
+    }
+
+    @Override
+    public Observable<PagedRemoteCollection> userFollowers(Urn user) {
+        return getUsers(ApiEndpoints.USER_FOLLOWERS.path(user.getNumericId()));
+    }
+
+    @Override
+    public Observable<PagedRemoteCollection> userFollowers(String pageLink) {
+        return getUsers(pageLink);
+    }
+
     @NotNull
     private Observable<PagedRemoteCollection> getSoundAssociations(String path) {
         final ApiRequest request = ApiRequest.get(path)
@@ -136,6 +169,21 @@ public class ProfileApiPublic implements ProfileApi {
                 .map(HOLDER_TO_COLLECTION);
     }
 
+    @NotNull
+    private Observable<PagedRemoteCollection> getUsers(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPublicApi()
+                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, userHolderToken)
+                .doOnNext(writeUsersToStorage)
+                .map(HOLDER_TO_COLLECTION);
+    }
+
     private final TypeToken<CollectionHolder<PublicApiPlaylist>> playlistHolderToken = new TypeToken<CollectionHolder<PublicApiPlaylist>>() {};
+
+    private final TypeToken<CollectionHolder<PublicApiUser>> userHolderToken = new TypeToken<CollectionHolder<PublicApiUser>>() {};
 
 }

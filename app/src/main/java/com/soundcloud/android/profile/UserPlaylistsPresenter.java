@@ -38,7 +38,7 @@ class UserPlaylistsPresenter extends ProfilePlayablePresenter {
 
     @Override
     protected void configureEmptyView(EmptyView emptyView) {
-        getEmptyView().setMessageText(R.string.list_empty_user_playlists_message);
+        getEmptyView().setMessageText(R.string.new_empty_user_playlists_message);
         getEmptyView().setImage(R.drawable.empty_playlists);
     }
 }

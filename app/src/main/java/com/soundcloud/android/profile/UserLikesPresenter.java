@@ -38,7 +38,7 @@ class UserLikesPresenter extends ProfilePlayablePresenter {
 
     @Override
     protected void configureEmptyView(EmptyView emptyView) {
-        getEmptyView().setMessageText(R.string.empty_user_likes_text);
+        getEmptyView().setMessageText(R.string.new_empty_user_likes_text);
         getEmptyView().setImage(R.drawable.empty_like);
     }
 }
