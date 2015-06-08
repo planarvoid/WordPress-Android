@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
+import android.support.annotation.Nullable;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,10 +28,10 @@ class EntitySyncRequest implements SyncRequest {
     private final EntitySyncJob entitySyncJob;
     private final EventBus eventBus;
     private final String action;
-    private final ResultReceiver resultReceiver;
     private SyncResult resultEvent;
+    @Nullable private final ResultReceiver resultReceiver;
 
-    EntitySyncRequest(EntitySyncJob entitySyncJob, Intent intent, EventBus eventBus, String action, ResultReceiver resultReceiver) {
+    EntitySyncRequest(EntitySyncJob entitySyncJob, Intent intent, EventBus eventBus, String action, @Nullable ResultReceiver resultReceiver) {
         this.entitySyncJob = entitySyncJob;
         this.eventBus = eventBus;
         this.action = action;
@@ -79,7 +80,10 @@ class EntitySyncRequest implements SyncRequest {
 
     @Override
     public void finish() {
-        resultReceiver.send(0, getResultBundle());
+        if (resultReceiver != null){
+            resultReceiver.send(0, getResultBundle());
+        }
+
         final Collection<PropertySet> updatedEntities = entitySyncJob.getUpdatedEntities();
         if (!updatedEntities.isEmpty()) {
             eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(entitySyncJob.getUpdatedEntities()));
