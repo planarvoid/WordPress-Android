@@ -7,10 +7,13 @@ import com.soundcloud.android.api.ApiUrlBuilder;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.model.Urn;
 
+import android.util.Log;
+
 import javax.inject.Inject;
 
 public class StreamUrlBuilder {
 
+    private final static String TAG = StreamUrlBuilder.class.getSimpleName();
     private final AccountOperations accountOperations;
     private final ApiUrlBuilder urlBuilder;
 
@@ -29,6 +32,7 @@ public class StreamUrlBuilder {
 
     public String buildHttpsStreamUrl(Urn trackUrn) {
         Token token = accountOperations.getSoundCloudToken();
+        Log.d(TAG, "token missing? " + (token.getAccessToken() != null));
         return urlBuilder.from(ApiEndpoints.HTTPS_STREAM, trackUrn)
                 .withQueryParam(ApiRequest.Param.OAUTH_TOKEN, token.getAccessToken())
                 .build();
