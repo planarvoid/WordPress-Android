@@ -6,6 +6,7 @@ import static android.support.v7.widget.RecyclerView.OnScrollListener;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.adapters.PagingAwareAdapter;
 import com.soundcloud.android.view.adapters.RecyclerViewAdapter;
 
@@ -62,7 +63,12 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemClicked(view, recyclerView.getChildAdapterPosition(view));
+                final int adapterPosition = recyclerView.getChildAdapterPosition(view);
+                if (adapterPosition >= 0 && adapterPosition < adapter.getItemCount()) {
+                    onItemClicked(view, adapterPosition);
+                } else {
+                    ErrorUtils.handleSilentException(new IllegalArgumentException("Invalid recycler position in click handler " + adapterPosition));
+                }
             }
         });
 
