@@ -2,6 +2,9 @@ package com.soundcloud.android.playback.widget;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -19,7 +22,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.verification.VerificationMode;
 import rx.Observable;
+import rx.subjects.PublishSubject;
 
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
@@ -49,7 +54,7 @@ public class PlayerWidgetPresenterTest {
 
         presenter.updatePlayState(context, true);
 
-        verifyUpdateViaPlayBackWidgetProvider(2); // one for track info and one for update state
+        verifyUpdateViaPlayBackWidgetProvider(times(2)); // one for track info and one for update state
     }
 
     @Test
@@ -68,9 +73,23 @@ public class PlayerWidgetPresenterTest {
         verifyUpdateViaPlayBackWidgetProvider();
     }
 
-    private void verifyUpdateViaPlayBackWidgetProvider(int noOfTimes) {
+    @Test
+    public void unsubscribesFromArtworkLoadingWhenResetting() {
+        final PropertySet trackProperties = TestPropertySets.expectedTrackForWidget();
+        final PublishSubject<Bitmap> subject = PublishSubject.create();
+        setupArtworkLoad(trackProperties, subject);
+
+        presenter.updateTrackInformation(context, trackProperties);
+        presenter.reset(context);
+        reset(appWidgetManager);
+
+        subject.onNext(mock(Bitmap.class));
+        verifyUpdateViaPlayBackWidgetProvider(never());
+    }
+
+    private void verifyUpdateViaPlayBackWidgetProvider(VerificationMode verificationMode) {
         ComponentName expectedComponentName = new ComponentName("com.soundcloud.android", PlayerAppWidgetProvider.class.getCanonicalName());
-        verify(appWidgetManager, times(noOfTimes)).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
+        verify(appWidgetManager, verificationMode).updateAppWidget(eq(expectedComponentName), any(RemoteViews.class));
     }
 
     private void verifyUpdateViaPlayBackWidgetProvider() {

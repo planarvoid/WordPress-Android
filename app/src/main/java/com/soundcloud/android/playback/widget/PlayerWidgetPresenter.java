@@ -91,6 +91,7 @@ class PlayerWidgetPresenter {
 
     /* package */ void reset(Context context) {
         Log.d(PlayerWidgetPresenter.this, "resetting widget");
+        artworkSubscription.unsubscribe();
         widgetTrack = null;
 
         pushUpdate(buildEmptyRemoteViews(context));
