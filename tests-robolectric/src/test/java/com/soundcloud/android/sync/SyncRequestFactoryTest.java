@@ -28,6 +28,7 @@ public class SyncRequestFactoryTest {
     @Mock private SyncPlaylistLikesJob syncPlaylistLikesJob;
     @Mock private EntitySyncRequestFactory entitySyncRequestFactory;
     @Mock private SinglePlaylistSyncerFactory singlePlaylistSyncerFactory;
+    @Mock private ResultReceiverAdapter resultReceiverAdapter;
 
     @Before
     public void setUp() throws Exception {
@@ -52,23 +53,23 @@ public class SyncRequestFactoryTest {
 
     @Test
     public void createSyncResourcesRequestFromSyncTracksIntent() throws Exception {
-        final Intent intent = new Intent(SyncActions.SYNC_TRACKS);
+        final Intent intent = new Intent(SyncActions.SYNC_TRACKS).putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
         syncRequestFactory.create(intent);
-        verify(entitySyncRequestFactory).create(intent);
+        verify(entitySyncRequestFactory).create(intent, resultReceiverAdapter);
     }
 
     @Test
     public void createSyncResourcesRequestFromSyncPlaylistsIntent() throws Exception {
-        final Intent intent = new Intent(SyncActions.SYNC_PLAYLISTS);
+        final Intent intent = new Intent(SyncActions.SYNC_PLAYLISTS).putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
         syncRequestFactory.create(intent);
-        verify(entitySyncRequestFactory).create(intent);
+        verify(entitySyncRequestFactory).create(intent, resultReceiverAdapter);
     }
 
     @Test
     public void createSyncResourcesRequestFromSyncUsersIntent() {
-        final Intent intent = new Intent(SyncActions.SYNC_USERS);
+        final Intent intent = new Intent(SyncActions.SYNC_USERS).putExtra(ApiSyncService.EXTRA_STATUS_RECEIVER, resultReceiverAdapter);
         syncRequestFactory.create(intent);
-        verify(entitySyncRequestFactory).create(intent);
+        verify(entitySyncRequestFactory).create(intent, resultReceiverAdapter);
     }
 
     @Test

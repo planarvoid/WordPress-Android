@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.base.Optional;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
@@ -13,7 +14,7 @@ import com.soundcloud.android.model.Model;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
-import com.soundcloud.android.profile.ProfileActivity;
+import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.provider.Content;
 import com.soundcloud.android.users.UserRecord;
@@ -165,8 +166,8 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         last_updated = cursor.getLong(cursor.getColumnIndex(TableColumns.Users.LAST_UPDATED));
         description = cursor.getString(cursor.getColumnIndex(TableColumns.Users.DESCRIPTION));
         plan = cursor.getString(cursor.getColumnIndex(TableColumns.Users.PLAN));
-        website = cursor.getString(cursor.getColumnIndex(TableColumns.Users.WEBSITE));
-        website_title = cursor.getString(cursor.getColumnIndex(TableColumns.Users.WEBSITE_TITLE));
+        website = cursor.getString(cursor.getColumnIndex(TableColumns.Users.WEBSITE_URL));
+        website_title = cursor.getString(cursor.getColumnIndex(TableColumns.Users.WEBSITE_NAME));
         primary_email_confirmed = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.PRIMARY_EMAIL_CONFIRMED)) == 1;
         public_likes_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.PUBLIC_LIKES_COUNT));
         private_tracks_count = cursor.getInt(cursor.getColumnIndex(TableColumns.Users.PRIVATE_TRACKS_COUNT));
@@ -234,10 +235,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
             cv.put(TableColumns.Users.TRACK_COUNT, track_count);
         }
         if (website != null) {
-            cv.put(TableColumns.Users.WEBSITE, website);
+            cv.put(TableColumns.Users.WEBSITE_URL, website);
         }
         if (website_title != null) {
-            cv.put(TableColumns.Users.WEBSITE_TITLE, website_title);
+            cv.put(TableColumns.Users.WEBSITE_NAME, website_title);
         }
         if (plan != null) {
             cv.put(TableColumns.Users.PLAN, plan);
@@ -346,7 +347,7 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     }
 
     public Intent getViewIntent() {
-        return new Intent(Actions.USER_BROWSER).putExtra(ProfileActivity.EXTRA_USER, this);
+        return new Intent(Actions.USER_BROWSER).putExtra(LegacyProfileActivity.EXTRA_USER, this);
     }
 
     public boolean addAFollower() {
@@ -390,6 +391,31 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
     @Override
     public int getFollowersCount() {
         return followers_count;
+    }
+
+    @Override
+    public Optional<String> getDescription() {
+        return Optional.fromNullable(description);
+    }
+
+    @Override
+    public Optional<String> getWebsiteUrl() {
+        return Optional.fromNullable(website);
+    }
+
+    @Override
+    public Optional<String> getWebsiteName() {
+        return Optional.fromNullable(website_title);
+    }
+
+    @Override
+    public Optional<String> getDiscogsName() {
+        return Optional.fromNullable(discogs_name);
+    }
+
+    @Override
+    public Optional<String> getMyspaceName() {
+        return Optional.fromNullable(myspace_name);
     }
 
     public final void setCountry(@Nullable String country) {

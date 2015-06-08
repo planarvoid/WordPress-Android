@@ -12,7 +12,6 @@ import com.soundcloud.propeller.WriteResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -96,7 +95,7 @@ public class LikesSyncer<ApiModel> implements Callable<Boolean> {
             for (PropertySet like : pendingLocalAdditions) {
                 urns.add(like.get(LikeProperty.TARGET_URN));
             }
-            final List<ApiModel> apiModels = fetchLikedResources.with(urns).call();
+            final Collection<ApiModel> apiModels = fetchLikedResources.with(urns).call();
             storeLikedResources.call(apiModels);
         }
     }

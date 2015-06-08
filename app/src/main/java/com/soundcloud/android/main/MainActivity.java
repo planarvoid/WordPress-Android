@@ -10,7 +10,6 @@ import com.soundcloud.android.actionbar.ActionBarController;
 import com.soundcloud.android.ads.AdPlayerController;
 import com.soundcloud.android.analytics.Referrer;
 import com.soundcloud.android.analytics.Screen;
-import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.campaigns.InAppCampaignController;
 import com.soundcloud.android.cast.CastConnectionHelper;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
@@ -29,6 +28,7 @@ import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.stream.SoundStreamFragment;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.lightcycle.LightCycle;
+import com.soundcloud.propeller.PropertySet;
 import rx.subscriptions.CompositeSubscription;
 
 import android.content.Intent;
@@ -125,7 +125,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
     private void handleLoggedInUser() {
         boolean justAuthenticated = getIntent() != null && getIntent().hasExtra(AuthenticatorService.KEY_ACCOUNT_RESULT);
         if (!justAuthenticated) {
-            subscription.add(bindActivity(this, userRepository.refreshCurrentUser()).subscribe(new UserSubscriber()));
+            subscription.add(bindActivity(this, userRepository.syncedUserInfo(accountOperations.getLoggedInUserUrn())).subscribe(new UserSubscriber()));
         }
     }
 
@@ -354,14 +354,14 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
         }
     }
 
-    private class UserSubscriber extends DefaultSubscriber<PublicApiUser> {
+    private class UserSubscriber extends DefaultSubscriber<PropertySet> {
         @Override
-        public void onNext(PublicApiUser user) {
+        public void onNext(PropertySet user) {
             updateUser(user);
         }
     }
 
-    private void updateUser(PublicApiUser user) {
+    private void updateUser(PropertySet user) {
         navigationFragment.updateProfileItem(user);
     }
 

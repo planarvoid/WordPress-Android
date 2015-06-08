@@ -8,7 +8,7 @@ import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.Table;
 import com.soundcloud.android.testsupport.StorageIntegrationTest;
-import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.testsupport.fixtures.TestUserRecord;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +28,7 @@ public class StoreUsersCommandTest extends StorageIntegrationTest {
 
     @Test
     public void shouldPersistUsersInDatabase() throws Exception {
-        final List<ApiUser> users = ModelFixtures.create(ApiUser.class, 2);
+        final List<TestUserRecord> users = TestUserRecord.create(2);
 
         command.call(users);
 

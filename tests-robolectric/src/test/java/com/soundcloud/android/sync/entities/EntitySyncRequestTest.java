@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import android.content.Intent;
+import android.os.ResultReceiver;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,11 +32,13 @@ import java.util.Map;
 public class EntitySyncRequestTest {
 
     private static final Urn URN = Urn.forTrack(123L);
+    private static final String ACTION = "action";
 
     private EntitySyncRequest entitySyncRequest;
 
     @Mock private EntitySyncJob entitySyncJob;
     @Mock private EntitySyncJob playlistsSyncer;
+    @Mock private ResultReceiver resultReceiver;
 
     private TestEventBus eventBus = new TestEventBus();
     private Intent intent;
@@ -44,7 +47,7 @@ public class EntitySyncRequestTest {
     public void setUp() throws Exception {
         intent = new Intent(SyncActions.SYNC_TRACKS);
         intent.putParcelableArrayListExtra(SyncExtras.URNS, Lists.newArrayList(URN));
-        entitySyncRequest = new EntitySyncRequest(entitySyncJob, intent, eventBus);
+        entitySyncRequest = new EntitySyncRequest(entitySyncJob, intent, eventBus, ACTION, resultReceiver);
     }
 
     @Test

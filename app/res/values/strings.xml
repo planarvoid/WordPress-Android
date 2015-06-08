@@ -147,6 +147,9 @@
     <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
     <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
 
+    <!-- new profile -->
+    <string name="empty_user_posts_message">This person hasn\'t uploaded\nany public sounds yet.</string>
+
     <!-- __ERRORS -->
     <string name="error_unauthorized_message">We\'re having a problem with your account and need you to sign back into SoundCloud before you can continue using the app.</string>
     <string name="error_unauthorized_title">Account Error</string>
@@ -332,7 +335,7 @@
 
     <!-- __PROFILE -->
     <string name="tab_title_user_info">Info</string>
-    <string name="tab_title_user_sounds">Posts</string>
+    <string name="tab_title_user_posts">Posts</string>
     <string name="tab_title_user_likes">Likes</string>
     <string name="tab_title_user_followers">Followers</string>
     <string name="tab_title_user_followings">Following</string>

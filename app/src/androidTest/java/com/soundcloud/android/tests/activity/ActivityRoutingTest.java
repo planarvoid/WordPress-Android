@@ -6,8 +6,8 @@ import com.soundcloud.android.associations.WhoToFollowActivity;
 import com.soundcloud.android.creators.record.RecordActivity;
 import com.soundcloud.android.deeplinks.ResolveActivity;
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
-import com.soundcloud.android.profile.ProfileActivity;
 import com.soundcloud.android.search.SearchActivity;
 
 import android.app.Activity;
@@ -45,8 +45,8 @@ public class ActivityRoutingTest extends InstrumentationTestCase {
     }
 
     public void ignore_testUserBrowser() {
-        assertActivityStarted(ProfileActivity.class, Actions.USER_BROWSER);
-        assertActivityStarted(ProfileActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
+        assertActivityStarted(LegacyProfileActivity.class, Actions.USER_BROWSER);
+        assertActivityStarted(LegacyProfileActivity.class, Intent.ACTION_VIEW, Uri.parse("content://com.soundcloud.android.provider.ScContentProvider/users/1235"));
     }
 
     public void ignore_testWhoToFollow() {

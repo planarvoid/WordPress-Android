@@ -14,6 +14,11 @@ import org.junit.runner.RunWith;
 @RunWith(SoundCloudTestRunner.class)
 public class UserStorageTest  extends StorageIntegrationTest {
 
+    private static final String DESCRIPTION = "description";
+    private static final String WEBSITE_URL = "websiteUrl";
+    private static final String WEBSITE_NAME = "websiteTitle";
+    private static final String DISCOGS_NAME = "discogsName";
+    private static final String MYSPACE_NAME = "myspaceName";
     private UserStorage storage;
 
     @Before
@@ -44,6 +49,17 @@ public class UserStorageTest  extends StorageIntegrationTest {
     }
 
     @Test
+    public void loadsExtendedUser() {
+        final ApiUser apiUser = ModelFixtures.create(ApiUser.class);
+        testFixtures().insertExtendedUser(apiUser, DESCRIPTION, WEBSITE_URL, WEBSITE_NAME, DISCOGS_NAME, MYSPACE_NAME);
+
+        PropertySet user = storage.loadUser(apiUser.getUrn()).toBlocking().single();
+
+        expect(user).toEqual(getExtendedUserProperties(apiUser)
+                .put(UserProperty.IS_FOLLOWED_BY_ME, false));
+    }
+
+    @Test
     public void loadsFollowedUser() {
         ApiUser apiUser = testFixtures().insertUser();
         testFixtures().insertFollowing(apiUser.getUrn());
@@ -65,8 +81,19 @@ public class UserStorageTest  extends StorageIntegrationTest {
                 .put(UserProperty.IS_FOLLOWED_BY_ME, false));
     }
 
+    private PropertySet getExtendedUserProperties(ApiUser apiUser) {
+        return getBaseApiUserProperties(apiUser)
+                .put(UserProperty.COUNTRY, apiUser.getCountry())
+                .put(UserProperty.DESCRIPTION, DESCRIPTION)
+                .put(UserProperty.WEBSITE_URL, WEBSITE_URL)
+                .put(UserProperty.WEBSITE_NAME, WEBSITE_NAME)
+                .put(UserProperty.DISCOGS_NAME, DISCOGS_NAME)
+                .put(UserProperty.MYSPACE_NAME, MYSPACE_NAME);
+    }
+
     private PropertySet getApiUserProperties(ApiUser apiUser) {
-        return getBaseApiUserProperties(apiUser).put(UserProperty.COUNTRY, apiUser.getCountry());
+        return getBaseApiUserProperties(apiUser)
+                .put(UserProperty.COUNTRY, apiUser.getCountry());
     }
 
     private PropertySet getBaseApiUserProperties(ApiUser apiUser) {

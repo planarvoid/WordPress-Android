@@ -5,13 +5,12 @@ import butterknife.InjectView;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.model.Urn;
 
-import android.content.res.Resources;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -19,16 +18,18 @@ import java.util.Set;
 
 public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
 
-    private static final String CREATOR_NAME = "Artist Name";
-
     private final int maxHeaderHeight;
+    private final ImageOperations imageOperations;
 
-    // Header views
     @InjectView(R.id.toolbar_id) Toolbar toolbar;
     @InjectView(R.id.fake_toolbar_title) TextView toolbarTitle;
-    @InjectView(R.id.username) TextView username;
     @InjectView(R.id.header_info_layout) View headerInfoLayout;
-    @InjectView(R.id.sliding_tabs) View tabs;
+    @InjectView(R.id.indicator) View tabs;
+
+    @InjectView(R.id.username) TextView username;
+    @InjectView(R.id.image) ImageView image;
+    @InjectView(R.id.followers_count) TextView followerCount;
+    @InjectView(R.id.follow_button) ToggleButton followButton;
 
     private boolean showingToolbarTitle;
 
@@ -36,24 +37,30 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
     private float showTitleToleranceY;
 
     public ProfileHeaderPresenter(View headerView, ImageOperations imageOperations) {
+        this.imageOperations = imageOperations;
+
         ButterKnife.inject(this, headerView);
 
-        final Resources resources = headerView.getResources();
-        maxHeaderHeight = resources.getDimensionPixelSize(R.dimen.profile_header_expanded_height);
+        maxHeaderHeight = headerView.getResources().getDimensionPixelSize(R.dimen.profile_header_expanded_height);
         scrollableFragments = new HashSet<>();
 
-        imageOperations.displayInAdapterView(Urn.forUser(172720L),
-                ApiImageSize.getNotificationLargeIconImageSize(resources),
-                (ImageView) headerView.findViewById(R.id.image));
+        setInitialTitleState();
+    }
 
+    private void setInitialTitleState() {
         toolbarTitle.setAlpha(0);
         toolbarTitle.setVisibility(View.VISIBLE);
-        toolbarTitle.setText(CREATOR_NAME);
+        showTitleToleranceY = toolbarTitle.getResources().getDisplayMetrics().density * 5;
+    }
 
-        username.setText(CREATOR_NAME);
-        ((TextView) headerView.findViewById(R.id.followers_count)).setText("97,362");
-
-        showTitleToleranceY = resources.getDisplayMetrics().density * 5;
+    public void setUserDetails(ProfileUser user) {
+        toolbarTitle.setText(user.getName());
+        username.setText(user.getName());
+        followerCount.setText(user.getFollowerCount());
+        followButton.setChecked(user.isFollowed());
+        imageOperations.displayInAdapterView(user.getUrn(),
+                ApiImageSize.getNotificationLargeIconImageSize(image.getResources()),
+                image);
     }
 
     @Override
@@ -73,18 +80,17 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
         final int stackedPosition = getMinHeaderTranslation() + toolbar.getHeight();
         toolbarTitle.setTranslationY(Math.min(0, tabs.getTranslationY() - stackedPosition));
 
-        if (tabs.getTranslationY() - stackedPosition > showTitleToleranceY ){
-            if (showingToolbarTitle){
+        if (tabs.getTranslationY() - stackedPosition > showTitleToleranceY) {
+            if (showingToolbarTitle) {
                 showingToolbarTitle = false;
                 toolbarTitle.animate().alpha(0).start();
             }
         } else {
-            if (!showingToolbarTitle){
+            if (!showingToolbarTitle) {
                 showingToolbarTitle = true;
                 toolbarTitle.animate().alpha(1).start();
             }
         }
-
     }
 
     private float getCurrentHeaderTranslation() {
@@ -100,7 +106,7 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
 
         final float currentTranslationY = toolbar.getTranslationY();
         final float targetTranslation = Math.max(-toolbar.getMeasuredHeight(), Math.min(0, currentTranslationY - dy));
-        if (targetTranslation != currentTranslationY){
+        if (targetTranslation != currentTranslationY) {
             toolbar.setTranslationY(targetTranslation);
         }
         return (int) (currentTranslationY - targetTranslation);
@@ -142,7 +148,7 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
             this.imageOperations = imageOperations;
         }
 
-        ProfileHeaderPresenter create(View headerView){
+        ProfileHeaderPresenter create(View headerView) {
             return new ProfileHeaderPresenter(headerView, imageOperations);
         }
     }

@@ -5,18 +5,17 @@ import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClient;
 import com.soundcloud.android.api.ApiEndpoints;
 import com.soundcloud.android.api.ApiRequest;
-import com.soundcloud.android.api.model.ApiUser;
-import com.soundcloud.android.api.model.ModelCollection;
+import com.soundcloud.android.api.legacy.PublicApiWrapper;
+import com.soundcloud.android.api.legacy.model.CollectionHolder;
+import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.commands.BulkFetchCommand;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.CollectionUtils;
 
-import android.support.v4.util.ArrayMap;
-
 import javax.inject.Inject;
 import java.util.List;
 
-public class FetchUsersCommand extends BulkFetchCommand<ApiUser> {
+public class FetchUsersCommand extends BulkFetchCommand<PublicApiUser> {
 
     @Inject
     public FetchUsersCommand(ApiClient apiClient) {
@@ -30,17 +29,15 @@ public class FetchUsersCommand extends BulkFetchCommand<ApiUser> {
 
     @Override
     protected ApiRequest buildRequest(List<Urn> urns) {
-        final ArrayMap<String, Object> body = new ArrayMap<>(1);
-        body.put("urns", CollectionUtils.urnsToStrings(urns));
-
-        return ApiRequest.post(ApiEndpoints.USERS_FETCH.path())
-                .forPrivateApi(1)
-                .withContent(body)
+        return ApiRequest.get(ApiEndpoints.LEGACY_USERS.path())
+                .forPublicApi()
+                .addQueryParam("ids", CollectionUtils.urnsToJoinedIds(urns, ","))
+                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
                 .build();
     }
 
     @Override
-    protected TypeToken<ModelCollection<? extends ApiUser>> provideResourceType() {
-        return new TypeToken<ModelCollection<? extends ApiUser>>() {};
+    protected TypeToken<? extends Iterable<PublicApiUser>> provideResourceType() {
+        return new TypeToken<CollectionHolder<PublicApiUser>>() {};
     }
 }

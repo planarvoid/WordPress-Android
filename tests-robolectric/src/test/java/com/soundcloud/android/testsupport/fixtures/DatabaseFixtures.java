@@ -198,6 +198,25 @@ public class DatabaseFixtures {
         return id;
     }
 
+    public long insertExtendedUser(ApiUser user, String description, String websiteUrl, String websiteTitle,
+                                   String discogsName, String myspaceName) {
+
+        ContentValues cv = new ContentValues();
+        cv.put(TableColumns.Users._ID, user.getUrn().getNumericId());
+        cv.put(TableColumns.Users.USERNAME, user.getUsername());
+        cv.put(TableColumns.Users.COUNTRY, user.getCountry());
+        cv.put(TableColumns.Users.FOLLOWERS_COUNT, user.getFollowersCount());
+        cv.put(TableColumns.Users.DESCRIPTION, description);
+        cv.put(TableColumns.Users.WEBSITE_URL, websiteUrl);
+        cv.put(TableColumns.Users.WEBSITE_NAME, websiteTitle);
+        cv.put(TableColumns.Users.DISCOGS_NAME, discogsName);
+        cv.put(TableColumns.Users.MYSPACE_NAME, myspaceName);
+
+        final long id = insertInto(Table.Users, cv);
+        user.setId(id);
+        return id;
+    }
+
     public long insertLike(long id, int type, Date createdAt) {
         ContentValues cv = new ContentValues();
         cv.put(TableColumns.Likes._ID, id);
