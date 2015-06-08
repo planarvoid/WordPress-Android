@@ -36,16 +36,12 @@ public class ActivitiesScreen extends Screen {
     }
 
     private List<ViewElement> cellElementsWithText(String text) {
-        waitForListItems();
+        waiter.waitForElement(With.textContaining(text));
         return testDriver.findElements(With.textContaining(text));
     }
 
     private ProfileScreen clickToProfile(String textToClick) {
         cellElementsWithText(textToClick).get(0).click();
         return new ProfileScreen(testDriver);
-    }
-
-    private void waitForListItems() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
     }
 }
