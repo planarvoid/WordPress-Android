@@ -147,9 +147,6 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
             playbackContext = track;
             if (lastPlayerLifecycleEvent.isServiceRunning()) {
                 currentController.setTrack(playbackContext);
-            } else {
-                // The service was stopped or destroyed and may have not notify Idle state.
-                isPlaying = false;
             }
         }
     }
@@ -159,6 +156,7 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
         public void onNext(PlayerLifeCycleEvent playerLifecycleEvent) {
             lastPlayerLifecycleEvent = playerLifecycleEvent;
             if (!playerLifecycleEvent.isServiceRunning()) {
+                isPlaying = false;
                 currentController.clear();
             }
         }
