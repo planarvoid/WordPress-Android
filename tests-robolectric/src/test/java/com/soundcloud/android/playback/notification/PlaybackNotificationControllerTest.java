@@ -1,47 +1,22 @@
 package com.soundcloud.android.playback.notification;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
-import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
-import com.soundcloud.android.image.ApiImageSize;
-import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playback.service.PlaybackStateProvider;
-import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
-import com.soundcloud.android.tracks.TrackRepository;
 import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
-import rx.Observable;
-import rx.Subscription;
-
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.net.Uri;
-
-import javax.inject.Provider;
 
 @RunWith(SoundCloudTestRunner.class)
 public class PlaybackNotificationControllerTest {
@@ -49,44 +24,12 @@ public class PlaybackNotificationControllerTest {
     private static final Urn TRACK_URN = Urn.forTrack(123L);
     private PlaybackNotificationController controller;
     private TestEventBus eventBus = new TestEventBus();
-
-    @Mock private Context context;
-    @Mock private TrackRepository trackRepository;
-    @Mock private ImageOperations imageOperations;
-    @Mock private ApplicationProperties applicationProperties;
-    @Mock private PlaybackNotificationPresenter playbackNotificationPresenter;
-    @Mock private NotificationManager notificationManager;
-    @Mock private NotificationBuilder notificationBuilder;
-    @Mock private Bitmap bitmap;
-    @Mock private Bitmap loadingBitmap;
-    @Mock private Uri uri;
-    @Mock private Subscription subscription;
-    @Mock private PlaybackStateProvider playbackStateProvider;
-    @Mock private Resources resources;
-    @Captor private ArgumentCaptor<PropertySet> propertySetCaptor;
-    private PropertySet trackProperties;
+    @Mock private BackgroundPlaybackNotificationController backgroundController;
+    @Mock private ForegroundPlaybackNotificationController foregroundController;
 
     @Before
     public void setUp() throws Exception {
-        trackProperties = expectedTrackForPlayer();
-        when(trackRepository.track(TRACK_URN)).thenReturn(Observable.just(trackProperties));
-        when(imageOperations.decodeResource(resources, R.drawable.notification_loading)).thenReturn(loadingBitmap);
-
-        controller = new PlaybackNotificationController(
-                resources,
-                trackRepository,
-                playbackNotificationPresenter,
-                notificationManager,
-                eventBus,
-                imageOperations,
-                new Provider<NotificationBuilder>() {
-                    @Override
-                    public NotificationBuilder get() {
-                        return notificationBuilder;
-                    }
-                },
-                playbackStateProvider
-        );
+        controller = new PlaybackNotificationController(eventBus, backgroundController, foregroundController, 0);
     }
 
     @Test
@@ -94,27 +37,30 @@ public class PlaybackNotificationControllerTest {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
-        verify(notificationManager, never()).notify(anyInt(), any(Notification.class));
+        verify(backgroundController, never()).setTrack(any(PropertySet.class));
     }
 
     @Test
     public void playQueueEventDoesNotCreateNotificationAfterPlaybackServiceDestroyed() {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
+        reset(backgroundController);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
-        verify(notificationManager, never()).notify(anyInt(), any(Notification.class));
+        verify(backgroundController, never()).setTrack(any(PropertySet.class));
     }
 
     @Test
     public void playQueueEventUpdatesNotificationAfterPlaybackServiceWasStoppedAndStartedAgain() {
+        final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN);
+
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, event);
 
-        verify(notificationManager).notify(eq(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID), any(Notification.class));
+        verify(backgroundController).setTrack(event.getCurrentMetaData().put(EntityProperty.URN, event.getCurrentTrackUrn()));
     }
 
     @Test
@@ -123,38 +69,18 @@ public class PlaybackNotificationControllerTest {
 
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
 
-        verify(notificationManager).cancel(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID);
+        verify(backgroundController).clear();
     }
 
     @Test
     public void playQueueEventCreatesNewNotificationFromNewPlayQueueEvent() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
-
-        verify(notificationManager).notify(eq(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID), any(Notification.class));
-    }
-
-
-    @Test
-    public void shouldMergeTrackAndAudioAdPropertiesWhenCurrentSoundIsAnAd() {
-        final PropertySet audioAdMetaDAta = audioAdProperties(Urn.forTrack(123L));
-        final PropertySet expectedProperties = audioAdMetaDAta.merge(trackProperties);
+        final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
 
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN, audioAdMetaDAta));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, event);
 
-        verify(playbackNotificationPresenter).updateTrackInfo(notificationBuilder, expectedProperties);
-    }
-
-    @Test
-    public void playQueueEventCreatesNewNotificationFromTrackChangeEvent() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(notificationManager).notify(eq(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID), any(Notification.class));
+        verify(backgroundController).setTrack(event.getCurrentMetaData().put(EntityProperty.URN, event.getCurrentTrackUrn()));
     }
 
     @Test
@@ -162,148 +88,51 @@ public class PlaybackNotificationControllerTest {
         controller.subscribe();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
-        verify(notificationManager, never()).notify(eq(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID), any(Notification.class));
-    }
-
-    @Test
-    public void playQueueEventDoesNotCheckBitmapCacheIfPresenterNotArtworkCapable() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(false);
-
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(imageOperations, never()).getCachedBitmap(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt());
-    }
-
-    @Test
-    public void playQueueEventCreatesNewNotificationWithBitmapFromImageCache() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.getCachedBitmap(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(notificationBuilder).setIcon(bitmap);
-        verify(imageOperations, never()).artwork(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt());
-    }
-
-    @Test
-    public void playQueueEventSetsDefaultBitmapWhenArtworkCapableAndNoCachedBitmap() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(notificationBuilder).setIcon(loadingBitmap);
-    }
-
-    @Test
-    public void playQueueEventSetsLoadedBitmapWithPresenterWhenArtworkCapableAndNoCachedBitmap() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(notificationBuilder).setIcon(bitmap);
-    }
-
-    @Test
-    public void playQueueEventNotifiesAgainAfterBitmapLoaded() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(notificationManager, times(2)).notify(eq(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID), any(Notification.class));
+        verify(backgroundController, never()).setTrack(any(PropertySet.class));
     }
 
     @Test
     public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceNotCreated() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
         controller.subscribe();
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        verify(notificationManager, never()).notify(anyInt(), any(Notification.class));
+        verify(backgroundController, never()).setTrack(any(PropertySet.class));
     }
 
     @Test
     public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceDestroyed() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
         controller.subscribe();
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
+        reset(backgroundController);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
         eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        verify(notificationManager, never()).notify(anyInt(), any(Notification.class));
+        verify(backgroundController, never()).setTrack(any(PropertySet.class));
     }
 
     @Test
-    public void playQueueEventUnsubscribesExistingImageLoadingObservable() {
-        Observable<Bitmap> imageObservable = TestObservables.endlessObservablefromSubscription(subscription);
-        when(imageOperations.artwork(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(imageObservable, Observable.<Bitmap>never());
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-
+    public void usesBackgroundDelegateInBackground() {
+        final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
         controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-        // loading an image for a different track should cancel existing image tasks
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
+        controller.onPause(null);
 
-        verify(subscription).unsubscribe();
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, event);
+
+        verify(foregroundController, never()).setTrack(any(PropertySet.class));
+        verify(backgroundController).setTrack(event.getCurrentMetaData().put(EntityProperty.URN, event.getCurrentTrackUrn()));
     }
 
     @Test
-    public void notifyToIdleStateCallsUpdateToIdleStateOnPresenter() {
-        when(notificationBuilder.hasPlayStateSupport()).thenReturn(true);
+    public void usesForegroundDelegateWhenInForeground() {
+        final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
         controller.subscribe();
+        controller.onResume(null);
+
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, event);
 
-        controller.notifyIdleState();
-
-        verify(playbackNotificationPresenter).updateToIdleState(notificationBuilder);
+        verify(backgroundController, never()).setTrack(any(PropertySet.class));
+        verify(foregroundController).setTrack(event.getCurrentMetaData().put(EntityProperty.URN, event.getCurrentTrackUrn()));
     }
-
-    @Test
-    public void notifyToIdleStateUpdatesNotificationViaUpdateAction() {
-        when(notificationBuilder.hasPlayStateSupport()).thenReturn(true);
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        controller.notifyIdleState();
-
-        verify(playbackNotificationPresenter).updateToIdleState(notificationBuilder);
-
-        // twice because the playqueue changed event will result in the first notification
-        verify(notificationManager, times(2)).notify(eq(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID), any(Notification.class));
-    }
-
-    @Test
-    public void notifyToIdleStateReturnsPresenterUpdateIdleState() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        when(notificationBuilder.hasPlayStateSupport()).thenReturn(true);
-        expect(controller.notifyIdleState()).toBeTrue();
-    }
-
 }

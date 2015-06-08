@@ -278,7 +278,7 @@ public class PlaybackServiceTest {
         playbackService.onCreate();
 
         when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, getTrackUrn()));
-        when(playbackNotificationController.playingNotification()).thenReturn(Mockito.mock(Notification.class));
+        when(playbackNotificationController.notifyPlaying()).thenReturn(Mockito.mock(Notification.class));
         playbackService.openCurrent(track, false);
 
         final Urn trackUrn2 = Urn.forTrack(456);

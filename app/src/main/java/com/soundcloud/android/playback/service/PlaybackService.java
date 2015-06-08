@@ -3,6 +3,7 @@ package com.soundcloud.android.playback.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
@@ -262,8 +263,10 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     private void updatePlaybackNotification(Playa.StateTransition stateTransition) {
         if (Broadcasts.PLAYSTATE_CHANGED.equals(Broadcasts.PLAYSTATE_CHANGED) && !suppressNotifications) {
             if (stateTransition.playSessionIsActive()) {
-                Notification notification = playbackNotificationController.playingNotification();
-                startForeground(PlaybackNotificationController.PLAYBACKSERVICE_STATUS_ID, notification);
+                Notification notification = playbackNotificationController.notifyPlaying();
+                if (notification != null) {
+                    startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notification);
+                }
             } else {
                 final boolean displayedNotification = playbackNotificationController.notifyIdleState();
                 stopForeground(!displayedNotification);
