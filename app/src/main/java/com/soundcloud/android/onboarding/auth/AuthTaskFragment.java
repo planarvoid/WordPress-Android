@@ -147,7 +147,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private void deliverResultAndDismiss() {
         final OnAuthResultListener listener = listenerRef.get();
         if (listener != null) {
-            Log.i(ONBOARDING_TAG, "auth result of kind " + result.getKindString() + " sent to listener");
+            Log.w(ONBOARDING_TAG, "auth result of kind " + result.getKindString() + " sent to listener");
 
             if (result.wasSuccess()) {
                 listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
@@ -168,7 +168,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 listener.onError(getErrorFromResult((Activity) listener, result));
             }
         } else {
-            Log.i(ONBOARDING_TAG, "auth result listener is gone");
+            Log.w(ONBOARDING_TAG, "auth result listener is gone");
         }
         dismiss();
     }

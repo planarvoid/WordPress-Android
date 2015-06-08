@@ -98,7 +98,7 @@ public final class AuthTaskResult {
                 loginBundle != null,
                 serverErrorMessage
         );
-        Log.i(Log.ONBOARDING_TAG, message);
+        Log.w(Log.ONBOARDING_TAG, message);
 
         this.kind = kind;
         this.user = user;
