@@ -3,6 +3,9 @@ package com.soundcloud.android.main;
 import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.main.NavigationFragment.NavItem;
 import static com.soundcloud.android.main.NavigationFragment.NavigationCallbacks;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -11,7 +14,9 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
+import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.xtremelabs.robolectric.Robolectric;
@@ -31,22 +36,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class NavigationFragmentTest {
 
-    NavigationFragment fragment;
+    private NavigationFragment fragment;
+    private ImageView avatar;
 
-    @Mock(extraInterfaces = NavigationCallbacks.class) AppCompatActivity activity;
-    @Mock Intent intent;
-    @Mock SoundCloudApplication application;
-    @Mock ViewGroup container;
-    @Mock ActionBar actionBar;
-    @Mock LayoutInflater layoutInflater;
-    @Mock ListView listView;
-    @Mock ImageOperations imageOperations;
-    @Mock AccountOperations accountOperations;
+    @Mock(extraInterfaces = NavigationCallbacks.class) private AppCompatActivity activity;
+    @Mock private Intent intent;
+    @Mock private SoundCloudApplication application;
+    @Mock private ViewGroup container;
+    @Mock private ActionBar actionBar;
+    @Mock private LayoutInflater layoutInflater;
+    @Mock private ListView listView;
+    @Mock private ImageOperations imageOperations;
+    @Mock private AccountOperations accountOperations;
 
     @Before
     public void setUp() throws Exception {
@@ -61,8 +68,10 @@ public class NavigationFragmentTest {
 
         View navProfileView = LayoutInflater.from(Robolectric.application).inflate(R.layout.nav_profile_item, null, false);
         when(layoutInflater.inflate(R.layout.nav_profile_item, container, false)).thenReturn(navProfileView);
+        avatar = (ImageView) navProfileView.findViewById(R.id.avatar);
         PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
         when(accountOperations.getLoggedInUser()).thenReturn(user);
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
     }
 
     @Test
@@ -151,6 +160,15 @@ public class NavigationFragmentTest {
     public void shouldNotSaveSelectedPositionWhenProfileClicked() throws Exception {
         getOnItemClickListener().onItemClick(listView, null, NavItem.PROFILE.ordinal(), 0l);
         expect(fragment.getCurrentSelectedPosition()).not.toBe(NavItem.PROFILE.ordinal());
+    }
+
+    @Test
+    public void shouldNotUpdateProfileAvatarWhenUserIsNotLoggedIn() {
+        when(accountOperations.isUserLoggedIn()).thenReturn(true);
+
+        fragment.onCreateView(layoutInflater, container, null);
+
+        verify(imageOperations, never()).displayWithPlaceholder(any(Urn.class), any(ApiImageSize.class), eq(avatar));
     }
 
     private void verifyPositionSelected(NavItem navItem) {

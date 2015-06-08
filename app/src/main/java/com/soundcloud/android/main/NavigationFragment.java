@@ -241,7 +241,9 @@ public class NavigationFragment extends Fragment {
         profileViewHolder.username = (TextView) view.findViewById(R.id.username);
         profileViewHolder.followers = (TextView) view.findViewById(R.id.followers_count);
 
-        updateProfileItem(accountOperations.getLoggedInUser().toPropertySet());
+        if (accountOperations.isUserLoggedIn()) {
+            updateProfileItem(accountOperations.getLoggedInUser().toPropertySet());
+        }
 
         return view;
     }
