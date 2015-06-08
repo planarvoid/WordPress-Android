@@ -68,8 +68,8 @@ public abstract class ProfileRecyclerViewPresenter<ItemT> extends RecyclerViewPr
     public void onResume(Fragment fragment) {
         super.onResume(fragment);
         isResumed = true;
-        if (pendingRefreshLayout != null){
-            attachExternalRefreshLayout(pendingRefreshLayout);
+        if (pendingRefreshLayout != null) {
+            attachSwipeToRefresh(pendingRefreshLayout, getRecyclerView(), getEmptyView());
             pendingRefreshLayout = null;
         }
     }
@@ -81,9 +81,9 @@ public abstract class ProfileRecyclerViewPresenter<ItemT> extends RecyclerViewPr
     }
 
     @Override
-    public void attachRefreshLayout(final MultiSwipeRefreshLayout refreshLayout){
+    public void attachRefreshLayout(MultiSwipeRefreshLayout refreshLayout){
         if (isResumed) {
-            attachExternalRefreshLayout(refreshLayout);
+            attachSwipeToRefresh(refreshLayout, getRecyclerView(), getEmptyView());
         } else {
             pendingRefreshLayout = refreshLayout;
         }

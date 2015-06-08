@@ -14,6 +14,7 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +27,7 @@ import rx.Observable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -39,6 +41,8 @@ public class ProfileRecyclerViewPresenterTest {
     @Mock private DividerItemDecoration dividerItemDecoration;
     @Mock private CollectionBinding collectionBinding;
     @Mock private Fragment fragment;
+    @Mock private RecyclerView recyclerView;
+    @Mock private EmptyView emptyView;
     @Captor private ArgumentCaptor<SwipeRefreshLayout.OnRefreshListener> refreshListenerCaptor;
 
     @Before
@@ -63,12 +67,14 @@ public class ProfileRecyclerViewPresenterTest {
         profileRecyclerViewPresenter.detachRefreshLayout();
         profileRecyclerViewPresenter.onResume(fragment);
 
-        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class), any(View[].class));
-        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class), any(int[].class));
+        verify(pullToRefreshWrapper, never()).attach(
+                any(SwipeRefreshLayout.OnRefreshListener.class),
+                any(MultiSwipeRefreshLayout.class), same(recyclerView), same(emptyView));
     }
 
     private void swipeToRefresh() {
-        verify(pullToRefreshWrapper).attach(same(swipeRefreshLayout), refreshListenerCaptor.capture(), any(View[].class));
+        verify(pullToRefreshWrapper).attach(
+                refreshListenerCaptor.capture(), same(swipeRefreshLayout), same(recyclerView), same(emptyView));
         refreshListenerCaptor.getValue().onRefresh();
     }
 
@@ -82,6 +88,16 @@ public class ProfileRecyclerViewPresenterTest {
             @Override
             protected void onItemClicked(View view, int position) {
 
+            }
+
+            @Override
+            public RecyclerView getRecyclerView() {
+                return recyclerView;
+            }
+
+            @Override
+            public EmptyView getEmptyView() {
+                return emptyView;
             }
         };
     }

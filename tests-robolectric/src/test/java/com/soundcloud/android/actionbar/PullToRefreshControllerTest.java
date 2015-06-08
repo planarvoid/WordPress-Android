@@ -1,7 +1,6 @@
 package com.soundcloud.android.actionbar;
 
 import static com.soundcloud.android.rx.TestPager.pagerWithNextPage;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
 import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
@@ -14,12 +13,12 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.RefreshableListComponent;
-import com.soundcloud.android.presentation.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -56,6 +55,8 @@ public class PullToRefreshControllerTest {
     @Mock private MultiSwipeRefreshLayout layout;
     @Mock private Subscription subscription;
     @Mock private ReactiveAdapter<List<String>> adapter;
+    @Mock private View listView;
+    @Mock private View emptyView;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 
     private PullToRefreshController controller;
@@ -67,6 +68,8 @@ public class PullToRefreshControllerTest {
 
         Robolectric.shadowOf(fragment).setActivity(activity);
         when(layout.findViewById(R.id.str_layout)).thenReturn(layout);
+        when(layout.findViewById(android.R.id.list)).thenReturn(listView);
+        when(layout.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(wrapper.isAttached()).thenReturn(true);
         observable = TestObservables.withSubscription(subscription, Observable.just(Arrays.asList("item"))).replay();
     }
@@ -82,7 +85,7 @@ public class PullToRefreshControllerTest {
         controller.setRefreshListener(listener);
         controller.onViewCreated(fragment, layout, bundle);
 
-        verify(wrapper).attach(same(layout), same(listener), any(int[].class));
+        verify(wrapper).attach(same(listener), same(layout), same(listView), same(emptyView));
     }
 
     @Test
@@ -91,7 +94,7 @@ public class PullToRefreshControllerTest {
         controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
         controller.onViewCreated(fragment, layout, bundle);
 
-        verify(wrapper).attach(same(layout), isA(OnRefreshListener.class), any(int[].class));
+        verify(wrapper).attach(isA(OnRefreshListener.class), same(layout), same(listView), same(emptyView));
     }
 
     @Test
@@ -215,7 +218,7 @@ public class PullToRefreshControllerTest {
 
     private void triggerRefresh() {
         controller.onViewCreated(fragment, layout, bundle);
-        verify(wrapper).attach(refEq(layout), refreshListenerCaptor.capture(), any(int[].class));
+        verify(wrapper).attach(refreshListenerCaptor.capture(), refEq(layout), same(listView), same(emptyView));
         refreshListenerCaptor.getValue().onRefresh();
     }
 

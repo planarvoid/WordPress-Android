@@ -22,20 +22,12 @@ public class PullToRefreshWrapper {
         // For Dagger.
     }
 
-    public void attach(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener, int[] swipeToRefreshViewIds) {
-        attachInternal(pullToRefreshLayout, listener);
-        swipeRefreshLayout.setSwipeableChildren(swipeToRefreshViewIds);
-    }
-
-    private void attachInternal(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener) {
-        this.swipeRefreshLayout = pullToRefreshLayout;
+    public void attach(SwipeRefreshLayout.OnRefreshListener listener, MultiSwipeRefreshLayout swipeRefreshLayout,
+                       View... refreshableChildren) {
+        this.swipeRefreshLayout = swipeRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(listener);
+        swipeRefreshLayout.setSwipeableChildren(refreshableChildren);
         swipeRefreshLayout.setColorSchemeResources(R.color.sc_orange);
-    }
-
-    public void attach(MultiSwipeRefreshLayout pullToRefreshLayout, SwipeRefreshLayout.OnRefreshListener listener, View[] swipeToRefreshViews) {
-        attachInternal(pullToRefreshLayout, listener);
-        swipeRefreshLayout.setSwipeableChildren(swipeToRefreshViews);
     }
 
     public void detach() {

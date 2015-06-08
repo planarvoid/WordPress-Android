@@ -33,7 +33,7 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
         this.scrollListener = scrollListener;
     }
 
-    protected AbsListView getListView() {
+    public AbsListView getListView() {
         return listView;
     }
 
@@ -66,13 +66,6 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
         listView.setAdapter(null);
         listView = null;
         super.onDestroyView(fragment);
-    }
-
-    @Override
-    protected View[] getSwipeToRefreshViews() {
-        return new View[] {
-                listView, getEmptyView()
-        };
     }
 
     private void configureScrollListener() {

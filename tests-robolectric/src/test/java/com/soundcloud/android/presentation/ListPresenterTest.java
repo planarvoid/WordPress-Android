@@ -5,12 +5,12 @@ import static com.soundcloud.android.Expect.expect;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.refEq;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
@@ -70,7 +70,6 @@ public class ListPresenterTest {
     public void setup() {
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
     }
 
     @Test
@@ -200,14 +199,15 @@ public class ListPresenterTest {
     }
 
     @Test
-    public void shouldAttachPullToRefreshListener() {
+    public void shouldAttachPullToRefreshListenerIfFragmentIsRefreshableScreen() {
+        Fragment refreshableFragment = mockRefreshableFragment();
         CollectionBinding<String> collectionBinding = defaultBinding();
         createPresenterWithBinding(collectionBinding);
 
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
+        presenter.onCreate(refreshableFragment, null);
+        presenter.onViewCreated(refreshableFragment, view, null);
 
-        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(OnRefreshListener.class), any(View[].class));
+        verify(pullToRefreshWrapper).attach(isA(OnRefreshListener.class), same(refreshLayout), same(listView));
     }
 
     @Test
@@ -394,9 +394,10 @@ public class ListPresenterTest {
     }
 
     private void triggerPullToRefresh() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture(), any(View[].class));
+        Fragment refreshableFragment = mockRefreshableFragment();
+        presenter.onCreate(refreshableFragment, null);
+        presenter.onViewCreated(refreshableFragment, view, null);
+        verify(pullToRefreshWrapper).attach(refreshListenerCaptor.capture(), any(MultiSwipeRefreshLayout.class), any(View[].class));
         OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
     }
@@ -407,6 +408,13 @@ public class ListPresenterTest {
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final Observer... listObservers) {
         createPresenterWithBinding(collectionBinding, collectionBinding, listObservers);
+    }
+
+    private Fragment mockRefreshableFragment() {
+        Fragment refreshableFragment = mock(Fragment.class, withSettings().extraInterfaces(RefreshableScreen.class));
+        when(((RefreshableScreen) refreshableFragment).getRefreshLayout()).thenReturn(refreshLayout);
+        when(((RefreshableScreen) refreshableFragment).getRefreshableViews()).thenReturn(new View[]{listView});
+        return refreshableFragment;
     }
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final CollectionBinding refreshBinding,

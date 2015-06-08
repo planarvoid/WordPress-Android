@@ -3,6 +3,8 @@ package com.soundcloud.android.stream;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -13,7 +15,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class SoundStreamFragment extends LightCycleSupportFragment {
+public class SoundStreamFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
     @VisibleForTesting
     static final String ONBOARDING_RESULT_EXTRA = "onboarding.result";
@@ -44,4 +46,13 @@ public class SoundStreamFragment extends LightCycleSupportFragment {
         return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 
+    @Override
+    public MultiSwipeRefreshLayout getRefreshLayout() {
+        return (MultiSwipeRefreshLayout) getView().findViewById(R.id.str_layout);
+    }
+
+    @Override
+    public View[] getRefreshableViews() {
+        return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
+    }
 }
