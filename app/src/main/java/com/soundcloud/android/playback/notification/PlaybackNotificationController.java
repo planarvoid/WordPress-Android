@@ -1,5 +1,7 @@
 package com.soundcloud.android.playback.notification;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -41,7 +43,10 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
         }
     };
 
-    private static final int DEFAULT_DELAY_MILLIS = 200;
+    // Estimated time between onPause and onResume. This to avoid cancelling a notification
+    // while switching from one activity to the user. Over DEFAULT_DELAY_MILLIS we estimate
+    // the app is either foreground or background.
+    private static final int DEFAULT_DELAY_MILLIS = 300;
 
     private final Runnable resetPlayback = new Runnable() {
         @Override
@@ -92,13 +97,13 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        this.currentController = foregroundController;
+        currentController = foregroundController;
         resetPlaybackContextDelayed();
     }
 
     @Override
     public void onPause(AppCompatActivity activity) {
-        this.currentController = backgroundController;
+        currentController = backgroundController;
         resetPlaybackContextDelayed();
     }
 
@@ -118,12 +123,14 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
             currentController.clear();
         }
         if (isPlaying) {
+            checkState(lastPlayerLifecycleEvent.isServiceRunning(), "Service should be running");
             currentController.notifyPlaying();
         } else {
             currentController.notifyIdleState();
         }
     }
 
+    @Nullable
     public Notification notifyPlaying() {
         isPlaying = true;
         return currentController.notifyPlaying();
@@ -140,6 +147,9 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
             playbackContext = track;
             if (lastPlayerLifecycleEvent.isServiceRunning()) {
                 currentController.setTrack(playbackContext);
+            } else {
+                // The service was stopped or destroyed and may have not notify Idle state.
+                isPlaying = false;
             }
         }
     }

@@ -64,7 +64,8 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
         createNotificationBuilder();
         subscriptions.unsubscribe();
         subscriptions = new CompositeSubscription(trackRepository
-                .track(track.get(EntityProperty.URN)).observeOn(AndroidSchedulers.mainThread())
+                .track(track.get(EntityProperty.URN))
+                .observeOn(AndroidSchedulers.mainThread())
                 .map(PropertySetFunctions.mergeInto(track))
                 .flatMap(toNotification).cache()
                 .subscribe(new NotificationSubscriber()));
@@ -85,7 +86,7 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
         if (cachedBitmap != null) {
             notificationBuilder.setIcon(cachedBitmap);
         } else {
-            notificationBuilder.setIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));notificationBuilder.clearIcon();
+            notificationBuilder.setIcon(imageOperations.decodeResource(resources, R.drawable.notification_loading));
             subscriptions.add(getBitmap(trackUrn, notificationBuilder)
                     .subscribe(new DefaultSubscriber<Bitmap>() {
                         @Override

@@ -135,4 +135,17 @@ public class PlaybackNotificationControllerTest {
         verify(backgroundController, never()).setTrack(any(PropertySet.class));
         verify(foregroundController).setTrack(event.getCurrentMetaData().put(EntityProperty.URN, event.getCurrentTrackUrn()));
     }
+
+    @Test
+    public void setTrackWhenSwitchingController() {
+        final CurrentPlayQueueTrackEvent event = CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN);
+        controller.subscribe();
+
+        controller.onResume(null);
+        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStarted());
+        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, event);
+        controller.onPause(null);
+
+        verify(backgroundController).setTrack(any(PropertySet.class));
+    }
 }
