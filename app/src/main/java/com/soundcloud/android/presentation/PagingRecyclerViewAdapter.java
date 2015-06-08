@@ -91,4 +91,8 @@ public abstract class PagingRecyclerViewAdapter<T, VH extends ViewHolder> extend
     private static ProgressCellRenderer createDefaultProgressCellRenderer() {
         return new ProgressCellRenderer(R.layout.list_loading_item);
     }
+
+    protected enum AppendState {
+        IDLE, LOADING, ERROR
+    }
 }
