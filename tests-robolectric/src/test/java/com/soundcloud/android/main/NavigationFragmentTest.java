@@ -164,7 +164,7 @@ public class NavigationFragmentTest {
 
     @Test
     public void shouldNotUpdateProfileAvatarWhenUserIsNotLoggedIn() {
-        when(accountOperations.isUserLoggedIn()).thenReturn(true);
+        when(accountOperations.isUserLoggedIn()).thenReturn(false);
 
         fragment.onCreateView(layoutInflater, container, null);
 
