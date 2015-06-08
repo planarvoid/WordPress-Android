@@ -35,6 +35,7 @@ public class StreamUrlBuilderTest {
         when(resources.getString(R.string.mobile_api_base_url)).thenReturn("https://api-mobile");
         when(oAuth.getClientId()).thenReturn("clientId");
         when(token.getAccessToken()).thenReturn("token");
+        when(token.valid()).thenReturn(true);
 
         ApiUrlBuilder apiUrlBuilder = new ApiUrlBuilder(resources, oAuth);
 
