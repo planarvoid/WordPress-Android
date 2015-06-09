@@ -13,7 +13,9 @@
         android:layout_above="@+id/nav_upsell"
         tools:context="com.soundcloud.android.fragment.NavigationFragment" />
 
-    <include layout="@layout/nav_upsell" />
+    <include
+        android:id="@id/nav_upsell"
+        layout="@layout/nav_upsell" />
 
 </RelativeLayout>
 
