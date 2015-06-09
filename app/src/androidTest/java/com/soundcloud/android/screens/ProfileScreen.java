@@ -39,6 +39,7 @@ public class ProfileScreen extends Screen {
     }
 
     public String getFirstTrackTitle() {
+        pullToRefresh();
         waiter.waitForContentAndRetryIfLoadingFailed();
         return new TextElement(trackTitle(tracks().get(0))).getText();
     }
