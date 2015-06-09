@@ -177,4 +177,14 @@ public final class ErrorUtils {
         }
     }
 
+    public static int emptyViewStatusFromError(Throwable error) {
+        if (error instanceof ApiRequestException) {
+            return (((ApiRequestException) error).isNetworkError() ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
+        } else if (error instanceof SyncFailedException) {
+            // default Sync Failures to connection for now as we can't tell the diff
+            return EmptyView.Status.CONNECTION_ERROR;
+        } else {
+            return EmptyView.Status.ERROR;
+        }
+    }
 }

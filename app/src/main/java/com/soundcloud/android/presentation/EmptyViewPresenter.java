@@ -1,11 +1,10 @@
 package com.soundcloud.android.presentation;
 
-import com.soundcloud.android.api.ApiRequestException;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycleBinder;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.sync.SyncFailedException;
-import com.soundcloud.android.view.EmptyView;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -69,14 +68,7 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
         @Override
         public void onError(Throwable error) {
             error.printStackTrace();
-            if (error instanceof ApiRequestException) {
-                updateEmptyViewStatus(((ApiRequestException) error).isNetworkError() ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
-            } if (error instanceof SyncFailedException) {
-                // default Sync Failures to connection for now as we can't tell the diff
-                updateEmptyViewStatus(EmptyView.Status.CONNECTION_ERROR);
-            } else {
-                super.onError(error);
-            }
+            updateEmptyViewStatus(ErrorUtils.emptyViewStatusFromError(error));
         }
     }
 }
