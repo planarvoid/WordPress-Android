@@ -30,6 +30,7 @@ public class AddToPlaylistScreen extends Screen {
     }
 
     public VisualPlayerElement clickPlaylistWithTitleFromPlayer(String title) {
+        pullToRefresh();
         playlists().scrollToItem(With.text(title)).click();
         return new VisualPlayerElement(testDriver);
     }

@@ -64,6 +64,7 @@ public class PlaylistsScreen extends Screen {
     }
 
     public PlaylistItemElement getPlaylistWithTitle(String title) {
+        pullToRefresh();
         return new PlaylistItemElement(testDriver, playlistsList().scrollToItem(With.text(title)));
     }
 
