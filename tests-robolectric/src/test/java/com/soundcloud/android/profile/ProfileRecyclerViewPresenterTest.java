@@ -91,6 +91,11 @@ public class ProfileRecyclerViewPresenterTest {
             }
 
             @Override
+            protected int handleError(Throwable error) {
+                return 0;
+            }
+
+            @Override
             public RecyclerView getRecyclerView() {
                 return recyclerView;
             }

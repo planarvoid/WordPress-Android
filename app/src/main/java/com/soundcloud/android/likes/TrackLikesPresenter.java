@@ -159,4 +159,9 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
         }
     }
 
+    @Override
+    protected int handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
+    }
+
 }

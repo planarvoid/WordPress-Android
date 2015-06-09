@@ -7,6 +7,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.Pager;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
@@ -40,5 +41,10 @@ class UserLikesPresenter extends ProfilePlayablePresenter {
     protected void configureEmptyView(EmptyView emptyView) {
         getEmptyView().setMessageText(R.string.empty_user_likes_text);
         getEmptyView().setImage(R.drawable.empty_like);
+    }
+
+    @Override
+    protected int handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 }

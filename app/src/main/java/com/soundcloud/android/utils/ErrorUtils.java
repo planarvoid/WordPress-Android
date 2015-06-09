@@ -92,12 +92,6 @@ public final class ErrorUtils {
         });
     }
 
-    public static int getEmptyViewStatusFromApiException(Throwable e) {
-        final boolean isNetworkError = e instanceof ApiRequestException
-                && ((ApiRequestException) e).isNetworkError();
-        return isNetworkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR;
-    }
-
     @VisibleForTesting
     static boolean includeInReports(Throwable t) {
         if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t) || t instanceof PlaylistMissingException) {

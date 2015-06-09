@@ -352,19 +352,6 @@ public class ListPresenterTest {
     }
 
     @Test
-    public void shouldConnectEmptyViewOnRetry() {
-        createPresenterWithBinding(defaultBinding());
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        Mockito.reset(emptyView);
-
-        presenter.onRetry();
-        source.onNext(Collections.singletonList("item"));
-
-        verify(emptyView).setStatus(EmptyView.Status.OK);
-    }
-
-    @Test
     public void shouldConnectEmptyViewOnRefresh() {
         CollectionBinding<String> refreshBinding = defaultBinding();
         createPresenterWithBinding(new CollectionBinding<>(Observable.<List<String>>empty(), adapter), refreshBinding);
@@ -442,6 +429,11 @@ public class ListPresenterTest {
                 lastClickedView = view;
                 lastClickedPosition = position;
             }
+
+            @Override
+            protected int handleError(Throwable error) {
+                return 0;
+            }
         };
     }
 
@@ -463,6 +455,11 @@ public class ListPresenterTest {
             protected void onItemClicked(View view, int position) {
                 lastClickedView = view;
                 lastClickedPosition = position;
+            }
+
+            @Override
+            protected int handleError(Throwable error) {
+                return 0;
             }
         };
     }

@@ -13,6 +13,7 @@ import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
 import com.soundcloud.lightcycle.LightCycle;
@@ -90,6 +91,11 @@ class UserPostsPresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
     @Override
     protected void onItemClicked(View view, int position) {
         clickListener.onItemClick(adapter.getItems(), view, position);
+    }
+
+    @Override
+    protected int handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 
     private MixedPlayableItemClickListener createClickListener(Bundle fragmentArgs) {
