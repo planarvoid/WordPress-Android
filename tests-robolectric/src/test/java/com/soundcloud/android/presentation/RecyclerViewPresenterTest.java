@@ -4,15 +4,15 @@ import static android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import static com.soundcloud.android.Expect.expect;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
-import static org.mockito.Matchers.refEq;
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
@@ -38,7 +38,7 @@ import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -62,7 +62,7 @@ public class RecyclerViewPresenterTest {
     @Mock private EmptyView emptyView;
     @Mock private RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
     @Mock private DividerItemDecoration dividerItemDecoration;
-    @Captor private ArgumentCaptor<SwipeRefreshLayout.OnRefreshListener> refreshListenerCaptor;
+    @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 
     private TestSubscriber<Iterable<String>> testSubscriber = new TestSubscriber<>();
 
@@ -74,7 +74,6 @@ public class RecyclerViewPresenterTest {
     public void setup() {
         when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
         when(view.getResources()).thenReturn(Robolectric.application.getResources());
     }
 
@@ -190,26 +189,26 @@ public class RecyclerViewPresenterTest {
 
     @Test
     public void shouldAttachPullToRefreshListener() {
+        Fragment refreshableFragment = mockRefreshableFragment();
         CollectionBinding<String> collectionBinding = defaultBinding();
         createPresenterWithBinding(collectionBinding);
 
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
+        presenter.onCreate(refreshableFragment, null);
+        presenter.onViewCreated(refreshableFragment, view, null);
 
-        verify(pullToRefreshWrapper).attach(refEq(refreshLayout), isA(SwipeRefreshLayout.OnRefreshListener.class), any(View[].class));
+        verify(pullToRefreshWrapper).attach(
+                isA(OnRefreshListener.class), same(refreshLayout), same(recyclerView), same(emptyView));
     }
 
     @Test
-    public void shouldNotAttachPullToRefreshListenerWithNullLayout() {
-        when(view.findViewById(R.id.str_layout)).thenReturn(null);
-
+    public void shouldNotAttachPullToRefreshListenerIfFragmentNotRefreshable() {
         CollectionBinding<String> collectionBinding = defaultBinding();
         createPresenterWithBinding(collectionBinding);
 
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(pullToRefreshWrapper, never()).attach(any(MultiSwipeRefreshLayout.class), any(SwipeRefreshLayout.OnRefreshListener.class), any(View[].class));
+        verifyZeroInteractions(pullToRefreshWrapper);
     }
 
     @Test
@@ -474,10 +473,9 @@ public class RecyclerViewPresenterTest {
         createPresenterWithBinding(defaultBinding());
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
-        presenter.attachExternalRefreshLayout(refreshLayout);
+        presenter.attachSwipeToRefresh(refreshLayout, recyclerView);
 
-        verify(pullToRefreshWrapper).attach(same(refreshLayout),any(SwipeRefreshLayout.OnRefreshListener.class),
-                eq(new View[]{recyclerView, emptyView}) );
+        verify(pullToRefreshWrapper).attach(any(OnRefreshListener.class), same(refreshLayout), same(recyclerView));
     }
 
     @Test
@@ -497,7 +495,7 @@ public class RecyclerViewPresenterTest {
         createPresenterWithBinding(defaultBinding(), refreshBinding);
 
         triggerPullToRefresh();
-        presenter.attachExternalRefreshLayout(refreshLayout);
+        presenter.attachSwipeToRefresh(refreshLayout);
 
         verify(refreshLayout).setRefreshing(true);
     }
@@ -510,17 +508,26 @@ public class RecyclerViewPresenterTest {
 
         triggerPullToRefresh();
         source.onNext(Collections.singletonList("item"));
-        presenter.attachExternalRefreshLayout(refreshLayout);
+        presenter.attachSwipeToRefresh(refreshLayout);
 
         verify(refreshLayout, never()).setRefreshing(true);
     }
 
     private void triggerPullToRefresh() {
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-        verify(pullToRefreshWrapper).attach(any(MultiSwipeRefreshLayout.class), refreshListenerCaptor.capture(), any(View[].class));
-        SwipeRefreshLayout.OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
+        Fragment refreshableFragment = mockRefreshableFragment();
+        presenter.onCreate(refreshableFragment, null);
+        presenter.onViewCreated(refreshableFragment, view, null);
+        verify(pullToRefreshWrapper).attach(
+                refreshListenerCaptor.capture(), isA(MultiSwipeRefreshLayout.class), same(recyclerView), same(emptyView));
+        OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
+    }
+
+    private Fragment mockRefreshableFragment() {
+        Fragment fragment = mock(Fragment.class, withSettings().extraInterfaces(RefreshableScreen.class));
+        when(((RefreshableScreen) fragment).getRefreshLayout()).thenReturn(refreshLayout);
+        when(((RefreshableScreen) fragment).getRefreshableViews()).thenReturn(new View[]{recyclerView, emptyView});
+        return fragment;
     }
 
     private CollectionBinding<String> defaultBinding() {

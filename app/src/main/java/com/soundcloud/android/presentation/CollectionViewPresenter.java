@@ -1,6 +1,5 @@
 package com.soundcloud.android.presentation;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
@@ -88,9 +87,9 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
 
         onCreateCollectionView(fragment, view, savedInstanceState);
 
-        MultiSwipeRefreshLayout refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
-        if (refreshLayout != null){
-            refreshWrapper.attach(refreshLayout, new PullToRefreshListener(), getSwipeToRefreshViews());
+        if (fragment instanceof RefreshableScreen) {
+            RefreshableScreen refreshableScreen = ((RefreshableScreen) fragment);
+            attachSwipeToRefresh(refreshableScreen.getRefreshLayout(), refreshableScreen.getRefreshableViews());
         }
 
         subscribeBinding();
@@ -108,16 +107,14 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         super.onDestroyView(fragment);
     }
 
-    public void attachExternalRefreshLayout(MultiSwipeRefreshLayout refreshLayout){
-        refreshWrapper.attach(refreshLayout, new PullToRefreshListener(), getSwipeToRefreshViews());
-        if (refreshBinding != null){
+    protected void attachSwipeToRefresh(MultiSwipeRefreshLayout refreshLayout, View... refreshableViews) {
+        refreshWrapper.attach(new PullToRefreshListener(), refreshLayout, refreshableViews);
+        if (refreshBinding != null) {
             refreshLayout.setRefreshing(true);
         }
     }
 
-    protected abstract View[] getSwipeToRefreshViews();
-
-    public void detachRefreshWrapper() {
+    protected void detachRefreshWrapper() {
         refreshWrapper.setRefreshing(false);
         refreshWrapper.detach();
     }

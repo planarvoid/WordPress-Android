@@ -1,9 +1,7 @@
 package com.soundcloud.android.presentation;
 
-import com.soundcloud.android.Consts;
-import com.soundcloud.android.R;
-
 import android.content.Context;
+import android.support.v7.appcompat.R;
 import android.support.v7.widget.RecyclerView;
 import android.util.SparseArray;
 import android.util.TypedValue;
@@ -19,15 +17,11 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     protected final List<ItemT> items;
     protected final SparseArray<CellRenderer<?>> cellRenderers;
 
-    protected enum AppendState {
-        IDLE, LOADING, ERROR
-    }
-
     private View.OnClickListener onClickListener;
-    private int backgroundResId = Consts.NOT_SET;
+    private int backgroundResId;
 
     protected RecyclerViewAdapter(CellRendererBinding<? extends ItemT>... cellRendererBindings) {
-        this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
+        this.items = new ArrayList<>();
         this.cellRenderers = new SparseArray<>(cellRendererBindings.length);
         for (CellRendererBinding<? extends ItemT> entity : cellRendererBindings) {
             this.cellRenderers.put(entity.itemViewType, entity.cellRenderer);
@@ -35,7 +29,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     }
 
     protected RecyclerViewAdapter(CellRenderer<? extends ItemT> cellRenderer) {
-        this.items = new ArrayList<>(Consts.LIST_PAGE_SIZE);
+        this.items = new ArrayList<>();
         this.cellRenderers = new SparseArray<>(1);
         this.cellRenderers.put(ViewTypes.DEFAULT_VIEW_TYPE, cellRenderer);
     }
@@ -50,7 +44,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
 
     private int getBackgroundResourceId(Context context) {
         // lazy init of backgroundResId to avoid unnecessary object creation
-        if (backgroundResId == Consts.NOT_SET) {
+        if (backgroundResId == 0) {
             TypedValue typedValue = new TypedValue();
             context.getTheme().resolveAttribute(R.attr.selectableItemBackground, typedValue, true);
             backgroundResId = typedValue.resourceId;

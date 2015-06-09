@@ -35,7 +35,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         return linearLayoutManager;
     }
 
-    protected RecyclerView getRecyclerView() {
+    public RecyclerView getRecyclerView() {
         return recyclerView;
     }
 
@@ -85,13 +85,6 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
 
     private void configureEmptyView() {
         getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    @Override
-    protected View[] getSwipeToRefreshViews() {
-        return new View[] {
-            recyclerView, getEmptyView()
-        };
     }
 
     private void configureScrollListener() {

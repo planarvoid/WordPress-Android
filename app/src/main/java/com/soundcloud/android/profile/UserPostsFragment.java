@@ -18,7 +18,8 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserPostsFragment extends LightCycleSupportFragment implements RefreshAware, ScrollableProfileItem {
+public class UserPostsFragment extends LightCycleSupportFragment
+        implements RefreshAware, ScrollableProfileItem {
 
     static final String USER_URN_KEY = "user_urn_key";
     static final String SCREEN_KEY = "screen_key";
