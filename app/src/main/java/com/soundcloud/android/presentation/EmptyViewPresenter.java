@@ -1,11 +1,10 @@
 package com.soundcloud.android.presentation;
 
-import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.lightcycle.LightCycleBinder;
 import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
-import org.jetbrains.annotations.Nullable;
+import rx.Subscriber;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,13 +16,13 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
     private int emptyViewStatus = EmptyView.Status.WAITING;
 
     @Override
-    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
+    public void onCreate(Fragment fragment, Bundle bundle) {
         LightCycleBinder.bind(this);
         super.onCreate(fragment, bundle);
     }
 
     @Override
-    public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(Fragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         emptyView = (EmptyView) view.findViewById(android.R.id.empty);
         emptyView.setStatus(emptyViewStatus);
@@ -53,7 +52,7 @@ public abstract class EmptyViewPresenter extends SupportFragmentLightCycleDispat
         emptyView.setStatus(status);
     }
 
-    protected final class EmptyViewSubscriber extends DefaultSubscriber<Object> {
+    protected final class EmptyViewSubscriber extends Subscriber<Object> {
 
         @Override
         public void onCompleted() {
