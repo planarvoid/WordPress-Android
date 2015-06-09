@@ -30,7 +30,7 @@ import android.view.View;
 import android.widget.TextView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class SubscribePresenterTest {
+public class UpgradePresenterTest {
 
     @Mock private PaymentOperations paymentOperations;
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
@@ -39,12 +39,12 @@ public class SubscribePresenterTest {
 
     @Mock private AppCompatActivity activity;
 
-    private SubscribePresenter controller;
+    private UpgradePresenter controller;
     private View contentView;
 
     @Before
     public void setUp() throws Exception {
-        controller = new SubscribePresenter(paymentOperations, paymentErrorPresenter, configurationOperations);
+        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations);
         contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.subscribe_activity, null, false);
         when(activity.getApplicationContext()).thenReturn(Robolectric.application);
         when(activity.findViewById(anyInt())).thenReturn(contentView);

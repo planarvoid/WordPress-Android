@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import javax.inject.Inject;
 
-class SubscribePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
+class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
 
     private final PaymentOperations paymentOperations;
     private final PaymentErrorPresenter paymentErrorPresenter;
@@ -40,8 +40,8 @@ class SubscribePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
     private ProductDetails details;
 
     @Inject
-    SubscribePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
-                       ConfigurationOperations configurationOperations) {
+    UpgradePresenter(PaymentOperations paymentOperations, PaymentErrorPresenter paymentErrorPresenter,
+                     ConfigurationOperations configurationOperations) {
         this.paymentOperations = paymentOperations;
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.configurationOperations = configurationOperations;

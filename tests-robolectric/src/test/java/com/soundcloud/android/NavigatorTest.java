@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.payments.SubscribeActivity;
+import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -45,7 +45,7 @@ public class NavigatorTest {
     @Test
     public void openUpgrade() {
         navigator.openUpgrade(activityContext);
-        expectStartedActivity(SubscribeActivity.class);
+        expectStartedActivity(UpgradeActivity.class);
     }
 
     @Test

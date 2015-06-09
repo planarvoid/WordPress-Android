@@ -18,9 +18,9 @@ public class OfflineSettingsScreen extends Screen {
         super(solo);
     }
 
-    public SubscribeScreen clickSubscribe() {
+    public UpgradeScreen clickSubscribe() {
         testDriver.clickOnText(R.string.pref_subscription_buy_title);
-        return new SubscribeScreen(testDriver);
+        return new UpgradeScreen(testDriver);
     }
 
     public String getSliderLimitText() {

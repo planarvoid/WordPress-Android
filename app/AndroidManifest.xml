@@ -322,7 +322,7 @@
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
         <!-- payments -->
-        <activity android:label="@string/title_subscribe" android:name=".payments.SubscribeActivity"/>
+        <activity android:label="@string/title_subscribe" android:name=".payments.UpgradeActivity"/>
         <activity android:label="@string/payments_success" android:name=".payments.SubscribeSuccessActivity"/>
 
         <!-- for testing purposes -->

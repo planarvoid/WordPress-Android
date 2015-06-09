@@ -5,7 +5,7 @@ import dagger.Module;
 
 @Module(addsTo = ApplicationModule.class,
         injects = {
-            SubscribeActivity.class,
+            UpgradeActivity.class,
             SubscribeSuccessActivity.class
         })
 public class PaymentModule {}

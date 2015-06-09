@@ -9,9 +9,9 @@ import android.content.Intent;
 
 import javax.inject.Inject;
 
-public class SubscribeActivity extends ScActivity {
+public class UpgradeActivity extends ScActivity {
 
-    @Inject @LightCycle SubscribePresenter controller;
+    @Inject @LightCycle UpgradePresenter controller;
 
     @VisibleForTesting
     @Override

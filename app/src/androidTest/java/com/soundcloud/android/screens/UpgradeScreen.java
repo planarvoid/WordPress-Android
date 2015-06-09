@@ -1,14 +1,14 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.payments.SubscribeActivity;
+import com.soundcloud.android.payments.UpgradeActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.R;
 
-public class SubscribeScreen extends Screen {
+public class UpgradeScreen extends Screen {
 
-    private static final Class ACTIVITY = SubscribeActivity.class;
+    private static final Class ACTIVITY = UpgradeActivity.class;
 
-    public SubscribeScreen(Han solo) {
+    public UpgradeScreen(Han solo) {
         super(solo);
     }
 
@@ -27,7 +27,7 @@ public class SubscribeScreen extends Screen {
         return new PaymentErrorScreen(testDriver);
     }
 
-    private SubscribeScreen clickBuy() {
+    private UpgradeScreen clickBuy() {
         waiter.waitForElement(R.id.subscribe_buy);
         testDriver.clickOnButtonWithText(R.string.subscribe_buy);
         return this;

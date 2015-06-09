@@ -2,7 +2,7 @@ package com.soundcloud.android.tests.payments;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.soundcloud.android.payments.SubscribeActivity;
+import com.soundcloud.android.payments.UpgradeActivity;
 
 import android.app.Activity;
 import android.content.Context;
@@ -37,7 +37,7 @@ final class BillingResponse {
     }
 
     public void insertInto(final Activity activity) {
-        final SubscribeActivity subscribe = (SubscribeActivity) activity;
+        final UpgradeActivity subscribe = (UpgradeActivity) activity;
         subscribe.runOnUiThread(new Runnable() {
             @Override
             public void run() {

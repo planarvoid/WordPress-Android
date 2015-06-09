@@ -13,14 +13,14 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PaymentErrorScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.SubscribeScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class SubscribeScreenTest extends ActivityTest<MainActivity> {
+public class UpgradeScreenTest extends ActivityTest<MainActivity> {
 
     private SettingsScreen settingsScreen;
 
-    public SubscribeScreenTest() {
+    public UpgradeScreenTest() {
         super(MainActivity.class);
     }
 
@@ -39,10 +39,10 @@ public class SubscribeScreenTest extends ActivityTest<MainActivity> {
 
     @PaymentTest
     public void testUserCanNavigateToSubscribePage() {
-        SubscribeScreen subscribeScreen = settingsScreen
+        UpgradeScreen upgradeScreen = settingsScreen
                 .clickOfflineSettings()
                 .clickSubscribe();
-        assertThat(subscribeScreen, is(visible()));
+        assertThat(upgradeScreen, is(visible()));
     }
 
     @PaymentTest
