@@ -3,7 +3,6 @@ package com.soundcloud.android.analytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.soundcloud.android.Consts;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,10 +42,10 @@ public class SearchQuerySourceInfo implements Parcelable {
     }
 
     public SearchQuerySourceInfo(Parcel in) {
-        queryUrn = ParcelableUrn.unpack(in);
+        queryUrn = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
         clickPosition = in.readInt();
-        clickUrn = ParcelableUrn.unpack(in);
-        queryResults = ParcelableUrn.unpackList(in);
+        clickUrn = in.readParcelable(SearchQuerySourceInfo.class.getClassLoader());
+        queryResults = in.readArrayList(getClass().getClassLoader());
     }
 
     @Nullable
@@ -85,10 +84,10 @@ public class SearchQuerySourceInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(ParcelableUrn.from(queryUrn), 0);
+        dest.writeParcelable(queryUrn, 0);
         dest.writeInt(clickPosition);
-        dest.writeParcelable(ParcelableUrn.from(clickUrn), 0);
-        dest.writeList(ParcelableUrn.from(queryResults));
+        dest.writeParcelable(clickUrn, 0);
+        dest.writeList(queryResults);
     }
 
     @Override

@@ -18,6 +18,7 @@ import com.soundcloud.android.events.ForegroundEvent;
 import com.soundcloud.android.main.LauncherActivity;
 import com.soundcloud.android.main.TrackedActivity;
 import com.soundcloud.android.main.WebViewActivity;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
@@ -52,7 +53,7 @@ public class ResolveActivity extends TrackedActivity implements FetchModelTask.L
     }
 
     public static boolean accept(Uri data, Resources resources) {
-        return "soundcloud".equalsIgnoreCase(data.getScheme())
+        return Urn.SOUNDCLOUD_SCHEME.equalsIgnoreCase(data.getScheme())
                 || (data.getHost() != null && data.getHost().contains(resources.getString(R.string.host_name)));
     }
 

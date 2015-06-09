@@ -15,7 +15,6 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.SearchEvent;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -156,8 +155,7 @@ public class SearchResultsFragmentTest {
         Intent nextStartedActivity = Robolectric.shadowOf(fragment.getActivity()).getNextStartedActivity();
         expect(nextStartedActivity).not.toBeNull();
         expect(nextStartedActivity.getAction()).toEqual(Actions.PLAYLIST);
-        expect(nextStartedActivity.getExtras().get(PlaylistDetailActivity.EXTRA_URN))
-                .toEqual(ParcelableUrn.from(PLAYLIST_URN));
+        expect(nextStartedActivity.getExtras().get(PlaylistDetailActivity.EXTRA_URN)).toEqual(PLAYLIST_URN);
     }
 
     @Test

@@ -1,7 +1,6 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.playlists.PlaylistDetailActivity.EXTRA_URN;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
@@ -12,10 +11,10 @@ import com.soundcloud.android.Actions;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.Link;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -146,7 +145,7 @@ public class PlayFromVoiceSearchActivityTest {
 
         Intent searchIntent = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
         expect(searchIntent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(ParcelableUrn.unpack(EXTRA_URN, searchIntent.getExtras())).toEqual(apiPlaylist.getUrn());
+        expect(searchIntent.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(apiPlaylist.getUrn());
         expect(searchIntent.getBooleanExtra("autoplay", false)).toBeTrue();
     }
 

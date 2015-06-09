@@ -7,12 +7,11 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
+import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ui.SlidingPlayerController;
 import com.soundcloud.android.utils.Log;
-import com.soundcloud.lightcycle.LightCycle;
 import org.jetbrains.annotations.NotNull;
 
 import android.content.Context;
@@ -58,7 +57,7 @@ public class PlaylistDetailActivity extends ScActivity {
         screen.addToIntent(intent);
 
         return intent.putExtra(EXTRA_AUTO_PLAY, autoPlay)
-                .putExtra(EXTRA_URN, ParcelableUrn.from(playlistUrn))
+                .putExtra(EXTRA_URN, playlistUrn)
                 .putExtra(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
     }
 
@@ -74,7 +73,7 @@ public class PlaylistDetailActivity extends ScActivity {
     }
 
     private void createFragmentForPlaylist() {
-        Urn urn = ParcelableUrn.unpack(EXTRA_URN, getIntent().getExtras());
+        Urn urn = getIntent().getParcelableExtra(EXTRA_URN);
         SearchQuerySourceInfo searchQuerySourceInfo = getIntent().getParcelableExtra(EXTRA_QUERY_SOURCE_INFO);
         Screen screen = Screen.fromIntent(getIntent());
         Log.d(LOG_TAG, "(Re-)creating fragment for " + urn);

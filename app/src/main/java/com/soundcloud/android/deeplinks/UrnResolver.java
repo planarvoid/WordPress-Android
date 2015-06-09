@@ -44,6 +44,6 @@ class UrnResolver {
         if (type.equals("sounds")) {
             type = "tracks";
         }
-        return new Urn("soundcloud:" + type + ":" + matcher.group(2));
+        return new Urn(Urn.SOUNDCLOUD_SCHEME + ":" + type + ":" + matcher.group(2));
     }
 }

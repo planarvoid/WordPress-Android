@@ -2,7 +2,6 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.associations.FollowingOperations;
 import com.soundcloud.android.main.ScActivity;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 
 import android.content.Context;
@@ -19,8 +18,7 @@ public class VerifyAgeActivity extends ScActivity {
     @Inject FollowingOperations followingOperations;
 
     public static Intent getIntent(Context context, Urn userToFollowUrn) {
-        return new Intent(context, VerifyAgeActivity.class)
-                .putExtra(EXTRA_USER_TO_FOLLOW_URN, ParcelableUrn.from(userToFollowUrn));
+        return new Intent(context, VerifyAgeActivity.class).putExtra(EXTRA_USER_TO_FOLLOW_URN, userToFollowUrn);
     }
 
     @Override

@@ -185,7 +185,6 @@ dependencies {
   provided libraries.intellijAnnotations
 
   /* SoundCloud Libraries */
-  compile libraries.androidKit
   compile libraries.propeller
   compile libraries.skippy
   compile libraries.soundCloudVorbisEncoder

@@ -1,7 +1,6 @@
 package com.soundcloud.android;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
@@ -56,12 +55,12 @@ public class Navigator {
 
     private Intent createProfileIntent(Context context, Urn user) {
         return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : LegacyProfileActivity.class)
-                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, ParcelableUrn.from(user));
+                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
     }
 
     private Intent createMyProfileIntent(Context context, Urn user) {
         return new Intent(context, featureFlags.isEnabled(Flag.NEW_PROFILE) ? ProfileActivity.class : MeActivity.class)
-                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, ParcelableUrn.from(user));
+                .putExtra(LegacyProfileActivity.EXTRA_USER_URN, user);
     }
 
 }

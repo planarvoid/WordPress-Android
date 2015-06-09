@@ -14,7 +14,6 @@ import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
 import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ForegroundEvent;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlayQueueManager;
@@ -89,7 +88,7 @@ public class ResolveActivityTest {
 
         Intent expected = new Intent(Actions.PLAYLIST);
         Screen.DEEPLINK.addToIntent(expected);
-        expected.putExtra(PlaylistDetailActivity.EXTRA_URN, ParcelableUrn.from(playlist.getUrn()));
+        expected.putExtra(PlaylistDetailActivity.EXTRA_URN, playlist.getUrn());
         expected.putExtra(PlaylistDetailActivity.EXTRA_AUTO_PLAY, false);
         expected.putExtra(PlaylistDetailActivity.EXTRA_QUERY_SOURCE_INFO, (Parcelable) null);
 

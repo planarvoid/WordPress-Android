@@ -3,7 +3,6 @@ package com.soundcloud.android.analytics;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.tracks.PromotedTrackItem;
 
@@ -50,8 +49,9 @@ public final class PromotedSourceInfo implements Parcelable {
     public PromotedSourceInfo(Parcel in) {
         ClassLoader loader = PromotedSourceInfo.class.getClassLoader();
         adUrn = in.readString();
-        trackUrn = ParcelableUrn.unpack(in);
-        promoterUrn = Optional.fromNullable(ParcelableUrn.unpack(in));
+        trackUrn = in.readParcelable(loader);
+        Urn nullableUrn = in.readParcelable(loader);
+        promoterUrn = Optional.fromNullable(nullableUrn);
         trackingUrls = in.readArrayList(loader);
     }
 
@@ -74,8 +74,8 @@ public final class PromotedSourceInfo implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(adUrn);
-        dest.writeParcelable(ParcelableUrn.from(trackUrn), NO_FLAGS);
-        dest.writeParcelable(promoterUrn.isPresent() ? ParcelableUrn.from(promoterUrn.get()) : null, NO_FLAGS);
+        dest.writeParcelable(trackUrn, NO_FLAGS);
+        dest.writeParcelable(promoterUrn.isPresent() ? promoterUrn.get() : null, NO_FLAGS);
         dest.writeList(trackingUrls);
     }
 

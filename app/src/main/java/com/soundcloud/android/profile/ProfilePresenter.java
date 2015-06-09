@@ -4,7 +4,6 @@ import static com.soundcloud.android.profile.ProfileHeaderPresenter.ProfileHeade
 import static com.soundcloud.android.profile.ProfilePagerRefreshHelper.ProfilePagerRefreshHelperFactory;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -48,7 +47,7 @@ class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
     public void onCreate(AppCompatActivity activity, Bundle bundle) {
         super.onCreate(activity, bundle);
 
-        user = ParcelableUrn.unpack(ProfileActivity.EXTRA_USER_URN, activity.getIntent().getExtras());
+        user = activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_USER_URN);
         refreshHelper = profilePagerRefreshHelperFactory.create((MultiSwipeRefreshLayout) activity.findViewById(R.id.str_layout));
         headerPresenter = profileHeaderPresenterFactory.create(activity.findViewById(R.id.profile_header));
 
