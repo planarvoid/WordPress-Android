@@ -53,14 +53,14 @@ public class RecordScreen extends Screen {
     }
 
     public RecordScreen deleteRecording() {
-        getDeleteButton().click();
+        deleteButton().click();
         testDriver.waitForDialogToOpen(2000l);
         acceptDeleteRecording();
         return this;
     }
 
-    public ViewElement getDeleteButton() {
-        return testDriver.findElement(With.id(R.id.btn_delete));
+    public boolean hasNextButton() {
+        return nextButton().isVisible();
     }
 
     public ViewElement getNextButton() {
@@ -80,7 +80,7 @@ public class RecordScreen extends Screen {
     }
 
     public RecordMetadataScreen clickNext() {
-        getNextButton().click();
+        nextButton().click();
         return new RecordMetadataScreen(testDriver);
     }
 
@@ -107,7 +107,7 @@ public class RecordScreen extends Screen {
     }
 
     private boolean hasRecording() {
-        return getDeleteButton().isVisible();
+        return deleteButton().isVisible();
     }
 
     private TextElement chronometer() {
@@ -124,7 +124,19 @@ public class RecordScreen extends Screen {
         return testDriver.findElement(With.id(R.id.btn_action));
     }
 
+    private ViewElement nextButton() {
+        return testDriver.findElement(With.id(R.id.btn_next));
+    }
+
+    private ViewElement deleteButton() {
+        return testDriver.findElement(With.id(R.id.btn_delete));
+    }
+
     private ViewElement getPlayButton() {
         return testDriver.findElement(With.id(R.id.btn_play));
+    }
+
+    public boolean hasRecordedTrack() {
+        return deleteButton().isVisible();
     }
 }

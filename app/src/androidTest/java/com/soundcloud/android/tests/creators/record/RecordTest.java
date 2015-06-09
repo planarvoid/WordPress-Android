@@ -35,21 +35,21 @@ public class RecordTest extends ActivityTest<MainActivity> {
         assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_rec)));
         recordScreen.startRecording();
         assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_recording)));
-        assertThat(recordScreen.getNextButton(), is(not(visible())));
+        assertThat(recordScreen.hasNextButton(), is(false));
 
         recordScreen.waitAndPauseRecording();
         assertThat(recordScreen.getTitle(), is(solo.getString(R.string.rec_title_idle_play)));
-        assertThat(recordScreen.getNextButton(), is(visible()));
+        assertThat(recordScreen.hasNextButton(), is(true));
     }
 
     public void testRecordingIsDeletable() {
         recordScreen
                 .startRecording()
                 .waitAndPauseRecording();
-        assertThat(recordScreen.getDeleteButton(), is(visible()));
+        assertThat(recordScreen.hasRecordedTrack(), is(true));
 
         recordScreen.deleteRecording();
-        assertThat(recordScreen.getDeleteButton(), is(not(visible())));
+        assertThat(recordScreen.hasRecordedTrack(), is(false));
     }
 
     public void testRecordingIsSaved() {
@@ -60,7 +60,7 @@ public class RecordTest extends ActivityTest<MainActivity> {
         solo.goBack();
 
         recordScreen = new StreamScreen(solo).actionBar().clickRecordButton();
-        assertThat(recordScreen.getDeleteButton(), is(visible()));
+        assertThat(recordScreen.hasRecordedTrack(), is(true));
     }
 
     public void testRecordingIsEditable() {

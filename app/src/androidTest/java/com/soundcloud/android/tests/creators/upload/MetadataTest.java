@@ -46,7 +46,7 @@ public class MetadataTest extends ActivityTest<MainActivity> {
                 .clickUploadButton();
 
         assertThat(recordScreen, is(visible()));
-        assertThat(recordScreen.getNextButton().isVisible(), is(false));
+        assertThat(recordScreen.hasNextButton(), is(false));
 
         solo.goBack();
 
