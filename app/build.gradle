@@ -112,9 +112,12 @@ android {
       signingConfig signingConfigs.release
     }
 
-    beta.initWith(buildTypes.release)
+    beta.initWith(buildTypes.releaseNoProguard)
     beta {
       versionNameSuffix '-beta'
+      minifyEnabled true
+      shrinkResources false
+      zipAlignEnabled true
       proguardFiles 'buildsystem/proguard.cfg'
     }
 
