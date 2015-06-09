@@ -146,6 +146,7 @@
     <string name="empty_user_likes_text">%1$s hasn\'t\nchosen any likes yet.</string>
     <string name="empty_user_followers_text">%1$s isn\'t\nbeing followed by anyone yet.</string>
     <string name="empty_user_followings_text">%1$s isn\'t\nfollowing anyone yet.</string>
+    <string name="empty_user_tracks_text">%1$s hasn\'t uploaded\nany public sounds yet.</string>
 
     <!-- new profile -->
     <string name="new_empty_user_posts_message">This user hasn\'t uploaded\nany public sounds yet.</string>
