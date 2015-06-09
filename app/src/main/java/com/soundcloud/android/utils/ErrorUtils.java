@@ -121,23 +121,32 @@ public final class ErrorUtils {
         handleSilentException(e, null, null);
     }
 
-    public static void handleSilentException(Throwable e, @NotNull Map<String, String> customLogs) {
+    public static void handleSilentException(Throwable e, @NotNull Map<String, String> contextKeyValuePairs) {
         if (Fabric.isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
-            for (Map.Entry<String, String> entry : customLogs.entrySet()) {
+            for (Map.Entry<String, String> entry : contextKeyValuePairs.entrySet()) {
                 Crashlytics.setString(entry.getKey(), entry.getValue());
             }
             Crashlytics.logException(e);
         }
     }
 
-    private static synchronized void handleSilentException(
-            Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
+    private static synchronized void handleSilentException(Throwable e, @Nullable String contextKey, @Nullable String contextValue) {
         e.printStackTrace();
         if (Fabric.isInitialized()) {
             Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
             if (contextKey != null && contextValue != null) {
                 Crashlytics.setString(contextKey, contextValue);
+            }
+            Crashlytics.logException(e);
+        }
+    }
+
+    public static void handleSilentException(Throwable e, @Nullable String customLog) {
+        if (Fabric.isInitialized()) {
+            Log.e(SoundCloudApplication.TAG, "Handling silent exception: " + e);
+            if (!ScTextUtils.isBlank(customLog)) {
+                Crashlytics.log(customLog);
             }
             Crashlytics.logException(e);
         }

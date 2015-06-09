@@ -28,6 +28,25 @@ public final class DebugUtils {
 
     public static final String UTF_8_ENC = Charsets.UTF_8.displayName();
 
+    public static String getLogDump(int logTailLineCount) {
+        BufferedReader bufferedReader = null;
+        try {
+            Process process = Runtime.getRuntime().exec(String.format("logcat -v time -d -t %d", logTailLineCount));
+            bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            StringBuilder logDump = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                logDump.append(line);
+            }
+            return logDump.toString();
+        } catch (IOException e) {
+            return ScTextUtils.EMPTY_STRING;
+        } finally {
+            IOUtils.close(bufferedReader);
+        }
+    }
+
     @SuppressWarnings("UnusedDeclaration")
     public static void dumpIntent(Intent intent) {
         Log.d(TAG, "dumpIntent("+intent+")");
