@@ -181,6 +181,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                 break;
             case PLAYLISTS:
                 eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.SIDE_MENU_PLAYLISTS));
+                break;
             default:
                 break; // the remaining content fragments are tracked individually
         }
@@ -200,6 +201,7 @@ public class MainActivity extends ScActivity implements NavigationCallbacks {
                 break;
             case PLAYLISTS:
                 eventBus.publish(EventQueue.TRACKING, UIEvent.fromPlaylistsNav());
+                break;
             default:
                 break;
         }
