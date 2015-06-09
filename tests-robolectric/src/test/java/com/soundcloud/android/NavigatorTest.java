@@ -4,6 +4,7 @@ import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.profile.LegacyProfileActivity;
 import com.soundcloud.android.profile.MeActivity;
@@ -48,7 +49,7 @@ public class NavigatorTest {
         Intent startedActivity = Robolectric.shadowOf(activityContext).getNextStartedActivity();
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getComponent().getClassName()).toEqual(MeActivity.class.getCanonicalName());
-        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(USER_URN);
+        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(ParcelableUrn.from(USER_URN));
     }
 
     @Test
@@ -58,7 +59,7 @@ public class NavigatorTest {
         Intent startedActivity = Robolectric.shadowOf(activityContext).getNextStartedActivity();
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getComponent().getClassName()).toEqual(LegacyProfileActivity.class.getCanonicalName());
-        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(USER_URN);
+        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(ParcelableUrn.from(USER_URN));
     }
 
     @Test
@@ -70,7 +71,7 @@ public class NavigatorTest {
         Intent startedActivity = Robolectric.shadowOf(activityContext).getNextStartedActivity();
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getComponent().getClassName()).toEqual(LegacyProfileActivity.class.getCanonicalName());
-        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(USER_URN);
+        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(ParcelableUrn.from(USER_URN));
         expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_QUERY_SOURCE_INFO)).not.toBeNull();
     }
 
@@ -84,7 +85,7 @@ public class NavigatorTest {
         expect(startedActivity).not.toBeNull();
         expect(startedActivity).toHaveFlag(Intent.FLAG_ACTIVITY_NEW_TASK);
         expect(startedActivity.getComponent().getClassName()).toEqual(LegacyProfileActivity.class.getCanonicalName());
-        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(USER_URN);
+        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(ParcelableUrn.from(USER_URN));
     }
 
     @Test
@@ -96,7 +97,7 @@ public class NavigatorTest {
         Intent startedActivity = Robolectric.shadowOf(activityContext).getNextStartedActivity();
         expect(startedActivity).not.toBeNull();
         expect(startedActivity.getComponent().getClassName()).toEqual(LegacyProfileActivity.class.getCanonicalName());
-        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(USER_URN);
+        expect(startedActivity.getExtras().get(LegacyProfileActivity.EXTRA_USER_URN)).toEqual(ParcelableUrn.from(USER_URN));
     }
 
 }

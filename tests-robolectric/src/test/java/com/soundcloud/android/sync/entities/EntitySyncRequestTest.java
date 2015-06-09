@@ -8,6 +8,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -46,7 +47,7 @@ public class EntitySyncRequestTest {
     @Before
     public void setUp() throws Exception {
         intent = new Intent(SyncActions.SYNC_TRACKS);
-        intent.putParcelableArrayListExtra(SyncExtras.URNS, Lists.newArrayList(URN));
+        intent.putParcelableArrayListExtra(SyncExtras.URNS, ParcelableUrn.from(Lists.newArrayList(URN)));
         entitySyncRequest = new EntitySyncRequest(entitySyncJob, intent, eventBus, ACTION, resultReceiver);
     }
 

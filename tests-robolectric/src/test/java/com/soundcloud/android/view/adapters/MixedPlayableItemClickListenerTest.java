@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -92,6 +93,7 @@ public class MixedPlayableItemClickListenerTest {
         Intent nextStartedActivity = Robolectric.shadowOf(Robolectric.application).getNextStartedActivity();
         expect(nextStartedActivity).not.toBeNull();
         expect(nextStartedActivity.getAction()).toEqual(Actions.PLAYLIST);
-        expect(nextStartedActivity.getExtras().get(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlistItem.getEntityUrn());
+        expect(nextStartedActivity.getExtras().get(PlaylistDetailActivity.EXTRA_URN))
+                .toEqual(ParcelableUrn.from(playlistItem.getEntityUrn()));
     }
 }

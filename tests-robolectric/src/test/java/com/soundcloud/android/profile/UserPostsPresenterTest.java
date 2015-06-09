@@ -8,6 +8,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -76,7 +77,7 @@ public class UserPostsPresenterTest {
         when(playableListUpdaterFactory.create(adapter, trackRenderer)).thenReturn(playableListUpdater);
         when(fragmentView.getResources()).thenReturn(Robolectric.application.getResources());
 
-        arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
+        arguments.putParcelable(UserPostsFragment.USER_URN_KEY, ParcelableUrn.from(user));
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         presenter = new UserPostsPresenter(pauseOnScrollListener, pullToRefreshWrapper, profileOperations, adapter, mixedClickListenerFactory, playableListUpdaterFactory);

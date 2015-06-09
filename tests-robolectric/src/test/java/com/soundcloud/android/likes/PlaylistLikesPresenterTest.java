@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.playlists.PlaylistItem;
@@ -78,7 +79,7 @@ public class PlaylistLikesPresenterTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN))
+        expect(ParcelableUrn.unpack(PlaylistDetailFragment.EXTRA_URN, intent.getExtras()))
                 .toEqual(clickedPlaylist.get(PlaylistProperty.URN));
         expect(Screen.fromIntent(intent)).toBe(Screen.SIDE_MENU_PLAYLISTS);
     }

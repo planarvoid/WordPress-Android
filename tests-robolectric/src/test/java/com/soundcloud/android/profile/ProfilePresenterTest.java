@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -58,7 +59,7 @@ public class ProfilePresenterTest {
         profileUser = createProfileUser();
 
         final Intent intent = new Intent();
-        intent.putExtra(ProfileActivity.EXTRA_USER_URN, USER_URN);
+        intent.putExtra(ProfileActivity.EXTRA_USER_URN, ParcelableUrn.from(USER_URN));
 
         when(activity.getIntent()).thenReturn(intent);
         when(activity.getSupportFragmentManager()).thenReturn(fragmentManager);

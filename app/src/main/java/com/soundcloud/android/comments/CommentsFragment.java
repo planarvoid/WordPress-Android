@@ -6,10 +6,11 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.PagingItemAdapter;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.presentation.PagingItemAdapter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Observable;
@@ -40,7 +41,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
 
     public static CommentsFragment create(Urn trackUrn) {
         final Bundle bundle = new Bundle();
-        bundle.putParcelable(EXTRA_TRACK_URN, trackUrn);
+        bundle.putParcelable(EXTRA_TRACK_URN, ParcelableUrn.from(trackUrn));
         CommentsFragment fragment = new CommentsFragment();
         fragment.setArguments(bundle);
         return fragment;
@@ -63,7 +64,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
 
     @Override
     public Observable<List<Comment>> buildObservable() {
-        final Urn trackUrn = getArguments().getParcelable(EXTRA_TRACK_URN);
+        final Urn trackUrn = ParcelableUrn.unpack(EXTRA_TRACK_URN, getArguments());
         comments = operations.pager().page(operations.comments(trackUrn))
                 .map(TO_COMMENT_VIEW_MODEL)
                 .observeOn(mainThread())

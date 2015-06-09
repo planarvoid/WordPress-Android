@@ -21,6 +21,7 @@ import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackOperations;
@@ -460,7 +461,7 @@ public class PlaylistDetailFragmentTest {
 
     private View createFragmentView() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
+        bundle.putParcelable(PlaylistDetailFragment.EXTRA_URN, ParcelableUrn.from(playlistWithTracks.getUrn()));
         Screen.SIDE_MENU_STREAM.addToBundle(bundle);
         fragment.setArguments(bundle);
         return createFragmentView(new Bundle());
@@ -468,7 +469,7 @@ public class PlaylistDetailFragmentTest {
 
     private View createFragmentView(Bundle savedInstanceState) {
         Bundle fragmentArguments = new Bundle();
-        fragmentArguments.putParcelable(PlaylistDetailFragment.EXTRA_URN, playlistWithTracks.getUrn());
+        fragmentArguments.putParcelable(PlaylistDetailFragment.EXTRA_URN, ParcelableUrn.from(playlistWithTracks.getUrn()));
         Screen.SIDE_MENU_STREAM.addToBundle(fragmentArguments);
         fragment.setArguments(fragmentArguments);
         fragment.onCreate(null);

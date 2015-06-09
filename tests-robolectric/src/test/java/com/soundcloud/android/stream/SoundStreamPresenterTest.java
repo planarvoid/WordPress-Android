@@ -1,6 +1,7 @@
 package com.soundcloud.android.stream;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playlists.PlaylistDetailActivity.EXTRA_URN;
 import static com.soundcloud.android.testsupport.InjectionSupport.providerOf;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
@@ -13,11 +14,11 @@ import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
 import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
-import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
@@ -185,7 +186,7 @@ public class SoundStreamPresenterTest {
         final Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistDetailActivity.EXTRA_URN)).toEqual(playlistItem.getEntityUrn());
+        expect(ParcelableUrn.unpack(EXTRA_URN, intent.getExtras())).toEqual(playlistItem.getEntityUrn());
     }
 
     @Test

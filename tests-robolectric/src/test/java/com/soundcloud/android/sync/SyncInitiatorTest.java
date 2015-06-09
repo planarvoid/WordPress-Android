@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.properties.FeatureFlags;
@@ -137,7 +138,7 @@ public class SyncInitiatorTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLIST);
-        expect(intent.getParcelableExtra(SyncExtras.URN)).toEqual(playlistUrn);
+        expect(ParcelableUrn.unpack(SyncExtras.URN, intent.getExtras())).toEqual(playlistUrn);
         expect(intent.getParcelableExtra(ApiSyncService.EXTRA_STATUS_RECEIVER)).toBeInstanceOf(ResultReceiver.class);
     }
 
@@ -196,7 +197,8 @@ public class SyncInitiatorTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(SyncActions.SYNC_TRACKS);
-        expect(intent.getParcelableArrayListExtra(SyncExtras.URNS)).toContainExactly(propertySet.get(TrackProperty.URN));
+        expect(ParcelableUrn.unpackList(SyncExtras.URNS, intent.getExtras()))
+                .toContainExactly(propertySet.get(TrackProperty.URN));
     }
 
     @Test
@@ -207,7 +209,8 @@ public class SyncInitiatorTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedService();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(SyncActions.SYNC_PLAYLISTS);
-        expect(intent.getParcelableArrayListExtra(SyncExtras.URNS)).toContainExactly(propertySet.get(PlaylistProperty.URN));
+        expect(ParcelableUrn.unpackList(SyncExtras.URNS, intent.getExtras()))
+                .toContainExactly(propertySet.get(PlaylistProperty.URN));
     }
 
 

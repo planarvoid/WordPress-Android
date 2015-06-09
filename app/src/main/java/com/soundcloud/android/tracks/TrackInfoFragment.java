@@ -12,6 +12,7 @@ import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
@@ -48,7 +49,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
 
     public static TrackInfoFragment create(Urn trackUrn) {
         Bundle args = new Bundle();
-        args.putParcelable(EXTRA_URN, trackUrn);
+        args.putParcelable(EXTRA_URN, ParcelableUrn.from(trackUrn));
         TrackInfoFragment fragment = new TrackInfoFragment();
         fragment.setArguments(args);
         return fragment;
@@ -67,7 +68,7 @@ public class TrackInfoFragment extends DialogFragment implements View.OnClickLis
         eventBus.publish(EventQueue.TRACKING, ScreenEvent.create(Screen.PLAYER_INFO));
 
         setStyle(STYLE_NO_FRAME, R.style.Theme_TrackInfoDialog);
-        loadTrack = trackRepository.fullTrackWithUpdate(getArguments().<Urn>getParcelable(EXTRA_URN))
+        loadTrack = trackRepository.fullTrackWithUpdate(ParcelableUrn.unpack(EXTRA_URN, getArguments()))
                 .observeOn(mainThread())
                 .cache();
     }

@@ -1,6 +1,7 @@
 package com.soundcloud.android.search;
 
 import static com.soundcloud.android.Expect.expect;
+import static com.soundcloud.android.playlists.PlaylistDetailFragment.EXTRA_URN;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.refEq;
@@ -14,8 +15,8 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
 import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
-import com.soundcloud.android.playlists.PlaylistDetailFragment;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
@@ -113,7 +114,7 @@ public class PlaylistResultsFragmentTest {
         Intent intent = Robolectric.getShadowApplication().getNextStartedActivity();
         expect(intent).not.toBeNull();
         expect(intent.getAction()).toEqual(Actions.PLAYLIST);
-        expect(intent.getParcelableExtra(PlaylistDetailFragment.EXTRA_URN)).toEqual(clickedPlaylist.getEntityUrn());
+        expect(ParcelableUrn.unpack(EXTRA_URN, intent.getExtras())).toEqual(clickedPlaylist.getEntityUrn());
         expect(Screen.fromIntent(intent)).toBe(Screen.SEARCH_PLAYLIST_DISCO);
     }
 

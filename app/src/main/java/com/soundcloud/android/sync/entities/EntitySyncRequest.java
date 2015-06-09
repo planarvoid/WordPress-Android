@@ -3,6 +3,7 @@ package com.soundcloud.android.sync.entities;
 import com.google.common.base.Preconditions;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.sync.ResultReceiverAdapter;
@@ -40,7 +41,7 @@ class EntitySyncRequest implements SyncRequest {
     }
 
     private void setUrnsFromIntent(Intent intent) {
-        final List<Urn> urnsToSync = intent.getParcelableArrayListExtra(SyncExtras.URNS);
+        final List<Urn> urnsToSync = ParcelableUrn.unpackList(SyncExtras.URNS, intent.getExtras());
         Preconditions.checkArgument(urnsToSync != null,
                 "Requested a resource sync without providing urns...");
         entitySyncJob.setUrns(urnsToSync);

@@ -17,6 +17,7 @@ import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
+import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -141,7 +142,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
 
     public static PlaylistDetailFragment create(Urn playlistUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         final Bundle bundle = new Bundle();
-        bundle.putParcelable(EXTRA_URN, playlistUrn);
+        bundle.putParcelable(EXTRA_URN, ParcelableUrn.from(playlistUrn));
         bundle.putParcelable(EXTRA_QUERY_SOURCE_INFO, searchQuerySourceInfo);
         screen.addToBundle(bundle);
         PlaylistDetailFragment fragment = new PlaylistDetailFragment();
@@ -278,7 +279,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
         if (playlistWithTracks != null) {
             return playlistWithTracks.getUrn();
         }
-        return getArguments().getParcelable(EXTRA_URN);
+        return ParcelableUrn.unpack(EXTRA_URN, getArguments());
     }
 
     private SearchQuerySourceInfo getSearchQuerySourceInfo() {
