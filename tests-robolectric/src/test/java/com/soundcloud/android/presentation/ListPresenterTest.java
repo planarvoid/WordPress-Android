@@ -431,8 +431,8 @@ public class ListPresenterTest {
             }
 
             @Override
-            protected int handleError(Throwable error) {
-                return 0;
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
             }
         };
     }
@@ -458,8 +458,8 @@ public class ListPresenterTest {
             }
 
             @Override
-            protected int handleError(Throwable error) {
-                return 0;
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
             }
         };
     }

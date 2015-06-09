@@ -44,7 +44,7 @@ class UserLikesPresenter extends ProfilePlayablePresenter {
     }
 
     @Override
-    protected int handleError(Throwable error) {
+    protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
 
 class EmptyPlaylistTracksRenderer implements CellRenderer<TrackItem>, EmptyViewAware {
 
-    private int emptyViewStatus = EmptyView.Status.WAITING;
+    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
 
     @Inject
     EmptyPlaylistTracksRenderer() {
@@ -41,7 +41,7 @@ class EmptyPlaylistTracksRenderer implements CellRenderer<TrackItem>, EmptyViewA
         ((EmptyView) itemView).setStatus(emptyViewStatus);
     }
 
-    public void setEmptyViewStatus(int emptyViewStatus) {
+    public void setEmptyViewStatus(EmptyView.Status emptyViewStatus) {
         this.emptyViewStatus = emptyViewStatus;
     }
 

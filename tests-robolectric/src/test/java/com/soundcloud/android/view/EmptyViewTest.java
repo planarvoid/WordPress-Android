@@ -4,7 +4,6 @@ import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.xtremelabs.robolectric.Robolectric;
-import org.apache.http.HttpStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,10 +12,9 @@ import org.mockito.Mock;
 @RunWith(SoundCloudTestRunner.class)
 public class EmptyViewTest {
 
-    EmptyView subject;
+    private EmptyView subject;
 
-    @Mock
-    ErrorView errorView;
+    @Mock ErrorView errorView;
 
     @Before
     public void setUp() throws Exception {
@@ -29,20 +27,20 @@ public class EmptyViewTest {
     }
 
     @Test
-    public void shouldSetUnexpectedResponseStateClientErrorCode() throws Exception {
-        subject.setStatus(HttpStatus.SC_NOT_FOUND);
-        verify(errorView).setUnexpectedResponseState();
-    }
-
-    @Test
-    public void shouldSetUnexpectedResponseStateWithServerErrorCode() throws Exception {
-        subject.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        verify(errorView).setUnexpectedResponseState();
+    public void shouldSetServerErrorState() throws Exception {
+        subject.setStatus(EmptyView.Status.SERVER_ERROR);
+        verify(errorView).setServerErrorState();
     }
 
     @Test
     public void shouldSetConnectionErrorState() throws Exception {
-        subject.setStatus(EmptyView.Status.ERROR);
+        subject.setStatus(EmptyView.Status.CONNECTION_ERROR);
         verify(errorView).setConnectionErrorState();
+    }
+
+    @Test // clarify with product
+    public void shouldSetServerErrorStateByDefault() {
+        subject.setStatus(EmptyView.Status.ERROR);
+        verify(errorView).setServerErrorState();
     }
 }

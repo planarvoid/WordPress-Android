@@ -171,7 +171,7 @@ public final class ErrorUtils {
         }
     }
 
-    public static int emptyViewStatusFromError(Throwable error) {
+    public static EmptyView.Status emptyViewStatusFromError(Throwable error) {
         if (error instanceof ApiRequestException) {
             return (((ApiRequestException) error).isNetworkError() ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
         } else if (error instanceof SyncFailedException) {

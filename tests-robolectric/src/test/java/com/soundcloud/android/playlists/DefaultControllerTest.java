@@ -9,6 +9,7 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
+import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,8 +75,8 @@ public class DefaultControllerTest {
 
     @Test
     public void setEmptyViewStatusSetsStateOnPresenterAndUpdatesAdapter() throws Exception {
-        controller.setEmptyViewStatus(100);
-        verify(adapter).setEmptyViewStatus(100);
+        controller.setEmptyViewStatus(EmptyView.Status.OK);
+        verify(adapter).setEmptyViewStatus(EmptyView.Status.OK);
         verify(adapter).notifyDataSetChanged();
     }
 

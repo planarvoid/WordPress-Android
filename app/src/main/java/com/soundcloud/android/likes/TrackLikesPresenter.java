@@ -20,6 +20,7 @@ import com.soundcloud.android.rx.observers.RefreshAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
@@ -160,7 +161,7 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
     }
 
     @Override
-    protected int handleError(Throwable error) {
+    protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 

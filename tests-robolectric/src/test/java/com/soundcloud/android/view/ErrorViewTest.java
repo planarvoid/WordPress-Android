@@ -31,7 +31,7 @@ public class ErrorViewTest {
 
     @Test
     public void shouldSetServerErrorState(){
-        errorView.setUnexpectedResponseState();
+        errorView.setServerErrorState();
         expect(errorView.findViewById(R.id.server_error).getVisibility()).toEqual(View.VISIBLE);
         expect(errorView.findViewById(R.id.connection_error_1).getVisibility()).toEqual(View.GONE);
         expect(errorView.findViewById(R.id.connection_error_2).getVisibility()).toEqual(View.GONE);

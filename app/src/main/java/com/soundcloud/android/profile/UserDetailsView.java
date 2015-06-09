@@ -63,7 +63,7 @@ public class UserDetailsView extends DefaultSupportFragmentLightCycle<UserDetail
         }
     }
 
-    void showEmptyView(int status){
+    void showEmptyView(EmptyView.Status status){
         if (emptyView != null){
             emptyView.setStatus(status);
             emptyView.setVisibility(View.VISIBLE);

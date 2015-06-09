@@ -393,7 +393,7 @@ public class PlaylistDetailFragmentTest {
         createFragmentView();
         fragment.onRefresh();
 
-        verify(controller, times(1)).setEmptyViewStatus(anyInt());
+        verify(controller, times(1)).setEmptyViewStatus(any(EmptyView.Status.class));
     }
 
     @Test

@@ -109,8 +109,8 @@ public class ProfilePlayablePresenterTest {
     private void createPresenter() {
         presenter = new ProfilePlayablePresenter(pullToRefreshWrapper, pauseOnScrollListener, adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations) {
             @Override
-            protected int handleError(Throwable error) {
-                return 0;
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
             }
 
             @Override

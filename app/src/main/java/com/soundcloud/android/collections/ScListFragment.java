@@ -41,6 +41,7 @@ import com.soundcloud.android.view.adapters.PostsAdapter;
 import com.soundcloud.android.view.adapters.SoundAdapter;
 import com.soundcloud.android.view.adapters.UserAdapter;
 import com.soundcloud.api.Request;
+import org.apache.http.HttpStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import rx.subscriptions.CompositeSubscription;
@@ -110,7 +111,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         }
     };
     protected String nextHref;
-    protected int statusCode;
+    protected EmptyView.Status emptyViewStatus;
     protected PublicCloudAPI publicApi;
 
     @Inject AccountOperations accountOperations;
@@ -223,7 +224,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         listView.setOnScrollListener(imageOperations.createScrollPauseListener(false, true, this));
 
         emptyView = createEmptyView();
-        emptyView.setStatus(statusCode);
+        emptyView.setStatus(emptyViewStatus);
         emptyView.setOnRetryListener(this);
         listView.setEmptyView(emptyView);
 
@@ -533,15 +534,25 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
     }
 
     protected void configureEmptyView() {
-        configureEmptyView(EmptyView.Status.OK);
+        configureEmptyView(HttpStatus.SC_OK);
     }
 
     protected void configureEmptyView(int statusCode) {
         final boolean wait = canAppend() || isRefreshing() || waitingOnInitialSync();
         log("Configure empty view [waiting:" + wait + "]");
-        this.statusCode = wait ? EmptyView.Status.WAITING : statusCode;
+        this.emptyViewStatus = wait ? EmptyView.Status.WAITING : emptyViewStatusFromHttpStatus(statusCode);
         if (emptyView != null) {
-            emptyView.setStatus(this.statusCode);
+            emptyView.setStatus(this.emptyViewStatus);
+        }
+    }
+
+    private EmptyView.Status emptyViewStatusFromHttpStatus(int httpStatus) {
+        if (httpStatus >= 400) {
+            return EmptyView.Status.SERVER_ERROR;
+        } else if (httpStatus >= 200) {
+            return EmptyView.Status.OK;
+        } else {
+            return EmptyView.Status.CONNECTION_ERROR;
         }
     }
 

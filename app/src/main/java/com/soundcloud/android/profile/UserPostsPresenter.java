@@ -14,6 +14,7 @@ import com.soundcloud.android.presentation.PlayableListUpdater;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
 import com.soundcloud.lightcycle.LightCycle;
@@ -94,7 +95,7 @@ class UserPostsPresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
     }
 
     @Override
-    protected int handleError(Throwable error) {
+    protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 

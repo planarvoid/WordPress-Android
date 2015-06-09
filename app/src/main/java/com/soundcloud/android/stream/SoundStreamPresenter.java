@@ -159,7 +159,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     }
 
     @Override
-    protected int handleError(Throwable error) {
+    protected EmptyView.Status handleError(Throwable error) {
         return ErrorUtils.emptyViewStatusFromError(error);
     }
 

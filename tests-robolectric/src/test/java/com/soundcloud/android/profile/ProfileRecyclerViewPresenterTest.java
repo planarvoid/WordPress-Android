@@ -91,8 +91,8 @@ public class ProfileRecyclerViewPresenterTest {
             }
 
             @Override
-            protected int handleError(Throwable error) {
-                return 0;
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
             }
 
             @Override

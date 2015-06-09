@@ -21,7 +21,7 @@ public class EmptyViewController extends DefaultSupportFragmentLightCycle {
 
     private final NetworkConnectionHelper networkConnectionHelper;
     private EmptyView emptyView;
-    private int emptyViewStatus = EmptyView.Status.WAITING;
+    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
 
     private Subscription subscription = Subscriptions.empty();
 
@@ -60,7 +60,7 @@ public class EmptyViewController extends DefaultSupportFragmentLightCycle {
         return emptyView;
     }
 
-    private void updateEmptyViewStatus(int status) {
+    private void updateEmptyViewStatus(EmptyView.Status status) {
         this.emptyViewStatus = status;
         emptyView.setStatus(status);
     }
