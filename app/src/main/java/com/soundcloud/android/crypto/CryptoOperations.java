@@ -70,6 +70,10 @@ public class CryptoOperations {
         encryptor.encrypt(stream, outputStream, secret);
     }
 
+    public void cancelEncryption() {
+        encryptor.tryToCancelRequest();
+    }
+
     public synchronized DeviceSecret checkAndGetDeviceKey() {
         if (!storage.contains(DEVICE_KEY)) {
             generateAndStoreDeviceKey();

@@ -3,8 +3,10 @@ package com.soundcloud.android.tests.crypto;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import com.soundcloud.android.crypto.CipherWrapper;
 import com.soundcloud.android.crypto.DeviceSecret;
 import com.soundcloud.android.crypto.EncryptionException;
+import com.soundcloud.android.crypto.EncryptionInterruptedException;
 import com.soundcloud.android.crypto.Encryptor;
 
 import android.test.InstrumentationTestCase;
@@ -26,13 +28,13 @@ public class EncryptionTest extends InstrumentationTestCase {
     private static final String IV_2 = "19153c673160df2b1d38c28060e59b96";
     private static final String PLAINTEXT_2 = "9b7cee827a26575afdbb7c7a329f887238052e3601a7917456ba61251c214763d5e1847a6ad5d54127a399ab07ee3599";
     private static final String CIPHER_TEXT_2 = "d5aed6c9622ec451a15db12819952b6752501cf05cdbf8cda34a457726ded97818e1f127a28d72db5652749f0c6afee5";
+
     private Encryptor encryptor;
-    private DeviceSecret secret;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        encryptor = new Encryptor();
+        encryptor = new Encryptor(new CipherWrapper());
     }
 
     public void testEncrypt16BytesInput() throws IOException, EncryptionException {
@@ -43,8 +45,24 @@ public class EncryptionTest extends InstrumentationTestCase {
         encryptAndVerifyEncryption(KEY_2, IV_2, PLAINTEXT_2, CIPHER_TEXT_2);
     }
 
+    public void testNextEncryptionAfterFirstWasCancelled() throws IOException, EncryptionException {
+        final DeviceSecret secret = new DeviceSecret("KEY", hexStringToBytes(KEY_1), hexStringToBytes(IV_1));
+        final InputStream plainTextInput = new ByteArrayInputStream(hexStringToBytes(PLAIN_TEXT_1));
+        final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
+
+        encryptor.tryToCancelRequest();
+        try {
+            encryptor.encrypt(plainTextInput, encryptedOutput, secret);
+        } catch (EncryptionException | IOException ex){
+            assertTrue(ex instanceof EncryptionInterruptedException);
+        }
+
+        encryptor.encrypt(plainTextInput, encryptedOutput, secret);
+        assertCipherTextWithoutPadding(encryptedOutput.toByteArray(), hexStringToBytes(CIPHER_TEXT_1));
+    }
+
     public void testDecrypt() throws IOException, EncryptionException {
-        secret = new DeviceSecret("KEY", hexStringToBytes(KEY_1), hexStringToBytes(IV_1));
+        final DeviceSecret secret = new DeviceSecret("KEY", hexStringToBytes(KEY_1), hexStringToBytes(IV_1));
 
         final InputStream plainTextInput = new ByteArrayInputStream(hexStringToBytes(PLAIN_TEXT_1));
         final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
@@ -59,7 +77,7 @@ public class EncryptionTest extends InstrumentationTestCase {
     }
 
     private void encryptAndVerifyEncryption(String key, String iv, String plainText, String cipherText) throws EncryptionException, IOException {
-        secret = new DeviceSecret("KEY", hexStringToBytes(key), hexStringToBytes(iv));
+        final DeviceSecret secret = new DeviceSecret("KEY", hexStringToBytes(key), hexStringToBytes(iv));
         final InputStream plainTextInput = new ByteArrayInputStream(hexStringToBytes(plainText));
         final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
 
