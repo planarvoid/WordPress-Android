@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.users.UserProperty;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.users.UserRecord;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,6 +27,11 @@ public class ApiUser extends ScModel implements PropertySetSource, UserRecord {
     private int followersCount;
     private String username;
     private String avatarUrl;
+    private String description;
+    private String myspaceName;
+    private String website;
+    private String websiteTitle;
+    private String discogsName;
 
     public ApiUser() { /* for Deserialization */ }
 
@@ -37,6 +43,10 @@ public class ApiUser extends ScModel implements PropertySetSource, UserRecord {
         super(in);
         this.username = in.readString();
         this.avatarUrl = in.readString();
+    }
+
+    public ApiUser(Urn urn) {
+        super(urn);
     }
 
     public String getUsername() {
@@ -72,27 +82,27 @@ public class ApiUser extends ScModel implements PropertySetSource, UserRecord {
 
     @Override
     public Optional<String> getDescription() {
-        return Optional.absent(); // not implement in api-mobi yet
+        return Optional.fromNullable(description);
     }
 
     @Override
     public Optional<String> getWebsiteUrl() {
-        return Optional.absent(); // not implement in api-mobi yet
+        return Optional.fromNullable(website);
     }
 
     @Override
     public Optional<String> getWebsiteName() {
-        return Optional.absent(); // not implement in api-mobi yet
+        return Optional.fromNullable(websiteTitle);
     }
 
     @Override
     public Optional<String> getDiscogsName() {
-        return Optional.absent(); // not implement in api-mobi yet
+        return Optional.fromNullable(discogsName);
     }
 
     @Override
     public Optional<String> getMyspaceName() {
-        return Optional.absent(); // not implement in api-mobi yet
+        return Optional.fromNullable(myspaceName);
     }
 
     @JsonProperty("followers_count")
@@ -125,5 +135,25 @@ public class ApiUser extends ScModel implements PropertySetSource, UserRecord {
             bindings.put(UserProperty.COUNTRY, country);
         }
         return bindings;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setWebsiteUrl(String website) {
+        this.website = website;
+    }
+
+    public void setWebsiteTitle(String websiteTitle) {
+        this.websiteTitle = websiteTitle;
+    }
+
+    public void setMyspaceName(String myspaceName) {
+        this.myspaceName = myspaceName;
+    }
+
+    public void setDiscogsName(String discogsName) {
+        this.discogsName = discogsName;
     }
 }

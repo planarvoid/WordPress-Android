@@ -3,6 +3,7 @@ package com.soundcloud.android.api.legacy.model;
 import static com.soundcloud.android.Expect.expect;
 
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -339,6 +340,32 @@ public class PublicApiTrackTest {
         expect(propertySet.get(PlayableProperty.CREATED_AT)).toEqual(track.created_at);
         expect(propertySet.get(TrackProperty.COMMENTS_COUNT)).toEqual(track.comment_count);
         return propertySet;
+    }
+
+    @Test
+    public void shouldConvertToApiMobileTrack(){
+        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
+        ApiTrack apiMobileTrack = track.toApiMobileTrack();
+
+        expect(apiMobileTrack.getCommentsCount()).toEqual(track.getCommentsCount());
+        expect(apiMobileTrack.getCreatedAt()).toEqual(track.getCreatedAt());
+        expect(apiMobileTrack.getDuration()).toEqual(track.getDuration());
+        expect(apiMobileTrack.getGenre()).toEqual(track.getGenre());
+        expect(apiMobileTrack.getLikesCount()).toEqual(track.getLikesCount());
+        expect(apiMobileTrack.getPermalinkUrl()).toEqual(track.getPermalinkUrl());
+        expect(apiMobileTrack.getPlaybackCount()).toEqual(track.getPlaybackCount());
+        expect(apiMobileTrack.getPolicy()).toEqual(track.getPolicy());
+        expect(apiMobileTrack.getRepostsCount()).toEqual(track.getRepostsCount());
+        expect(apiMobileTrack.getSharing()).toEqual(track.getSharing());
+        expect(apiMobileTrack.getStreamUrl()).toEqual(track.getStreamUrl());
+        expect(apiMobileTrack.getUserTags()).toEqual(track.humanTags());
+        expect(apiMobileTrack.getTitle()).toEqual(track.getTitle());
+        expect(apiMobileTrack.getUserName()).toEqual(track.getUserName());
+        expect(apiMobileTrack.getWaveformUrl()).toEqual(track.getWaveformUrl());
+        expect(apiMobileTrack.getUrn()).toEqual(track.getUrn());
+
+        PublicApiUserTest.assertApiUsersEqual((ApiUser) apiMobileTrack.getUser(), track.getUser());
+
     }
 
     @Test

@@ -12,17 +12,20 @@ import com.soundcloud.android.api.legacy.model.PublicApiTrack;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.api.legacy.model.SoundAssociation;
 import com.soundcloud.android.api.legacy.model.SoundAssociationHolder;
-import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.commands.StorePlaylistsCommand;
-import com.soundcloud.android.commands.StoreTracksCommand;
-import com.soundcloud.android.commands.StoreUsersCommand;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ApiPlaylistLike;
+import com.soundcloud.android.api.model.ApiPlaylistPost;
+import com.soundcloud.android.api.model.ApiPlaylistRepost;
+import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiTrackLike;
+import com.soundcloud.android.api.model.ApiTrackPost;
+import com.soundcloud.android.api.model.ApiTrackRepost;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.playlists.PlaylistRecord;
-import com.soundcloud.android.tracks.TrackRecord;
 import org.jetbrains.annotations.NotNull;
 import rx.Observable;
-import rx.functions.Action1;
 import rx.functions.Func1;
 
 import javax.inject.Inject;
@@ -33,118 +36,127 @@ public class ProfileApiPublic implements ProfileApi {
 
     private final ApiClientRx apiClientRx;
 
-    private static final Func1<CollectionHolder<? extends PropertySetSource>, PagedRemoteCollection> HOLDER_TO_COLLECTION = new Func1<CollectionHolder<? extends PropertySetSource>, PagedRemoteCollection>() {
+    private static final Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>> SOUND_ASSOCIATIONS_TO_POSTS_COLLECTION = new Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>>() {
         @Override
-        public PagedRemoteCollection call(CollectionHolder<? extends PropertySetSource> playlistsHolder) {
-            return new PagedRemoteCollection(playlistsHolder.collection, playlistsHolder.next_href);
-        }
-    };
+        public ModelCollection<PropertySetSource> call(SoundAssociationHolder postsHolder) {
 
-    private final StoreTracksCommand storeTracksCommand;
-    private final StorePlaylistsCommand storePlaylistsCommand;
-    private final StoreUsersCommand storeUsersCommand;
-
-    private final Action1<? super SoundAssociationHolder> writeSoundAssociationsToStorage = new Action1<SoundAssociationHolder>() {
-        @Override
-        public void call(SoundAssociationHolder collection) {
-            List<TrackRecord> tracks = new ArrayList<>();
-            List<PlaylistRecord> playlists = new ArrayList<>();
-            for (SoundAssociation entity : collection){
-                final Playable playable = entity.getPlayable();
+            List<PropertySetSource> posts = new ArrayList<>(postsHolder.size());
+            for (SoundAssociation soundAssociation : postsHolder){
+                final Playable playable = soundAssociation.getPlayable();
                 if (playable instanceof PublicApiTrack){
-                    tracks.add((TrackRecord) playable);
-                } else if (playable instanceof PublicApiPlaylist){
-                    playlists.add((PlaylistRecord) playable);
+                    final ApiTrack apiTrack = ((PublicApiTrack) playable).toApiMobileTrack();
+                    posts.add(soundAssociation.isRepost() ?
+                            new ApiTrackRepost(apiTrack, soundAssociation.created_at) :
+                            new ApiTrackPost(apiTrack));
+
+                } else {
+                    final ApiPlaylist apiPlaylist = ((PublicApiPlaylist) playable).toApiMobilePlaylist();
+                    posts.add(soundAssociation.isRepost() ?
+                            new ApiPlaylistRepost(apiPlaylist, soundAssociation.created_at) :
+                            new ApiPlaylistPost(apiPlaylist));
                 }
             }
-
-            if (!tracks.isEmpty()){
-                storeTracksCommand.call(tracks);
-            }
-            if (!playlists.isEmpty()){
-                storePlaylistsCommand.call(playlists);
-            }
+            return new ModelCollection<>(posts, postsHolder.getNextHref());
         }
     };
 
-    private final Action1<? super CollectionHolder<PublicApiPlaylist>> writePlaylistsToStorage = new Action1<CollectionHolder<PublicApiPlaylist>>() {
+    private static final Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>> SOUND_ASSOCIATIONS_TO_LIKES_COLLECTION = new Func1<SoundAssociationHolder, ModelCollection<PropertySetSource>>() {
         @Override
-        public void call(CollectionHolder<PublicApiPlaylist> publicApiPlaylists) {
-            if (!publicApiPlaylists.isEmpty()){
-                storePlaylistsCommand.call(publicApiPlaylists);
+        public ModelCollection<PropertySetSource> call(SoundAssociationHolder likesHolder) {
+
+            List<PropertySetSource> likes = new ArrayList<>(likesHolder.size());
+            for (SoundAssociation soundAssociation : likesHolder){
+                final Playable playable = soundAssociation.getPlayable();
+                if (playable instanceof PublicApiTrack){
+                    likes.add(new ApiTrackLike(((PublicApiTrack) playable).toApiMobileTrack(), soundAssociation.created_at));
+
+                } else {
+                    likes.add(new ApiPlaylistLike(((PublicApiPlaylist) playable).toApiMobilePlaylist(), soundAssociation.created_at));
+                }
             }
+            return new ModelCollection<>(likes, likesHolder.getNextHref());
         }
     };
 
-    private final Action1<? super CollectionHolder<PublicApiUser>> writeUsersToStorage = new Action1<CollectionHolder<PublicApiUser>>() {
+    private static final Func1<CollectionHolder<PublicApiPlaylist>, ModelCollection<ApiPlaylist>> PLAYLISTS_TO_COLLECTION = new Func1<CollectionHolder<PublicApiPlaylist>, ModelCollection<ApiPlaylist>>() {
         @Override
-        public void call(CollectionHolder<PublicApiUser> publicApiUsers) {
-            if (!publicApiUsers.isEmpty()){
-                storeUsersCommand.call(publicApiUsers);
+        public ModelCollection<ApiPlaylist> call(CollectionHolder<PublicApiPlaylist> playlistsHolder) {
+            List<ApiPlaylist> playlists = new ArrayList<>(playlistsHolder.size());
+            for (PublicApiPlaylist publicApiPlaylist : playlistsHolder){
+                playlists.add(publicApiPlaylist.toApiMobilePlaylist());
             }
+            return new ModelCollection<>(playlists, playlistsHolder.getNextHref());
+        }
+    };
+
+    private static final Func1<CollectionHolder<PublicApiUser>, ModelCollection<ApiUser>> USERS_TO_COLLECTION = new Func1<CollectionHolder<PublicApiUser>, ModelCollection<ApiUser>>() {
+        @Override
+        public ModelCollection<ApiUser> call(CollectionHolder<PublicApiUser> usersHolder) {
+            List<ApiUser> users = new ArrayList<>(usersHolder.size());
+            for (PublicApiUser publicApiUser : usersHolder){
+                users.add(publicApiUser.toApiMobileUser());
+            }
+            return new ModelCollection<>(users, usersHolder.getNextHref());
         }
     };
 
     @Inject
-    public ProfileApiPublic(ApiClientRx apiClientRx, StoreTracksCommand storeTracksCommand, StorePlaylistsCommand storePlaylistsCommand, StoreUsersCommand storeUsersCommand) {
+    public ProfileApiPublic(ApiClientRx apiClientRx) {
         this.apiClientRx = apiClientRx;
-        this.storeTracksCommand = storeTracksCommand;
-        this.storePlaylistsCommand = storePlaylistsCommand;
-        this.storeUsersCommand = storeUsersCommand;
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userPosts(Urn user) {
-        return getSoundAssociations(ApiEndpoints.USER_SOUNDS.path(user.getNumericId()));
+    public Observable<ModelCollection<PropertySetSource>> userPosts(Urn user) {
+        return getPostsCollection(ApiEndpoints.USER_SOUNDS.path(user.getNumericId()));
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userPosts(String pageLink) {
-        return getSoundAssociations(pageLink);
+    public Observable<ModelCollection<PropertySetSource>> userPosts(String pageLink) {
+        return getPostsCollection(pageLink);
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userLikes(Urn user) {
-        return getSoundAssociations(ApiEndpoints.USER_LIKES.path(user.getNumericId()));
+    public Observable<ModelCollection<PropertySetSource>> userLikes(Urn user) {
+        return getLikesCollection(ApiEndpoints.USER_LIKES.path(user.getNumericId()));
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userLikes(String pageLink) {
-        return getSoundAssociations(pageLink);
+    public Observable<ModelCollection<PropertySetSource>> userLikes(String pageLink) {
+        return getLikesCollection(pageLink);
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userPlaylists(Urn user) {
+    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(Urn user) {
         return getPlaylists(ApiEndpoints.USER_PLAYLISTS.path(user.getNumericId()));
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userPlaylists(String pageLink) {
+    public Observable<ModelCollection<ApiPlaylist>> userPlaylists(String pageLink) {
         return getPlaylists(pageLink);
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userFollowings(Urn user) {
+    public Observable<ModelCollection<ApiUser>> userFollowings(Urn user) {
         return getUsers(ApiEndpoints.USER_FOLLOWINGS.path(user.getNumericId()));
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userFollowings(String pageLink) {
+    public Observable<ModelCollection<ApiUser>> userFollowings(String pageLink) {
         return getUsers(pageLink);
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userFollowers(Urn user) {
+    public Observable<ModelCollection<ApiUser>> userFollowers(Urn user) {
         return getUsers(ApiEndpoints.USER_FOLLOWERS.path(user.getNumericId()));
     }
 
     @Override
-    public Observable<PagedRemoteCollection> userFollowers(String pageLink) {
+    public Observable<ModelCollection<ApiUser>> userFollowers(String pageLink) {
         return getUsers(pageLink);
     }
 
     @NotNull
-    private Observable<PagedRemoteCollection> getSoundAssociations(String path) {
+    private Observable<ModelCollection<PropertySetSource>> getPostsCollection(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
                 .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
@@ -152,12 +164,23 @@ public class ProfileApiPublic implements ProfileApi {
                 .build();
 
         return apiClientRx.mappedResponse(request, SoundAssociationHolder.class)
-                .doOnNext(writeSoundAssociationsToStorage)
-                .map(HOLDER_TO_COLLECTION);
+                .map(SOUND_ASSOCIATIONS_TO_POSTS_COLLECTION);
     }
 
     @NotNull
-    private Observable<PagedRemoteCollection> getPlaylists(String path) {
+    private Observable<ModelCollection<PropertySetSource>> getLikesCollection(String path) {
+        final ApiRequest request = ApiRequest.get(path)
+                .forPublicApi()
+                .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
+                .addQueryParam(ApiRequest.Param.PAGE_SIZE, PAGE_SIZE)
+                .build();
+
+        return apiClientRx.mappedResponse(request, SoundAssociationHolder.class)
+                .map(SOUND_ASSOCIATIONS_TO_LIKES_COLLECTION);
+    }
+
+    @NotNull
+    private Observable<ModelCollection<ApiPlaylist>> getPlaylists(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
                 .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
@@ -165,12 +188,11 @@ public class ProfileApiPublic implements ProfileApi {
                 .build();
 
         return apiClientRx.mappedResponse(request, playlistHolderToken)
-                .doOnNext(writePlaylistsToStorage)
-                .map(HOLDER_TO_COLLECTION);
+                .map(PLAYLISTS_TO_COLLECTION);
     }
 
     @NotNull
-    private Observable<PagedRemoteCollection> getUsers(String path) {
+    private Observable<ModelCollection<ApiUser>> getUsers(String path) {
         final ApiRequest request = ApiRequest.get(path)
                 .forPublicApi()
                 .addQueryParam(PublicApiWrapper.LINKED_PARTITIONING, "1")
@@ -178,8 +200,7 @@ public class ProfileApiPublic implements ProfileApi {
                 .build();
 
         return apiClientRx.mappedResponse(request, userHolderToken)
-                .doOnNext(writeUsersToStorage)
-                .map(HOLDER_TO_COLLECTION);
+                .map(USERS_TO_COLLECTION);
     }
 
     private final TypeToken<CollectionHolder<PublicApiPlaylist>> playlistHolderToken = new TypeToken<CollectionHolder<PublicApiPlaylist>>() {};

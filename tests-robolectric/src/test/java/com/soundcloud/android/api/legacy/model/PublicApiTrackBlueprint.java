@@ -31,4 +31,16 @@ public class PublicApiTrackBlueprint {
 
     @Default
     String policy = "monetizable";
+
+    @Default
+    String genre = "genre";
+
+    @Default
+    String permalinkUrl = "permalink-url";
+
+    @Default
+    String streamUrl = "stream-url";
+
+    @Default
+    String waveformUrl = "waveform-url";
 }

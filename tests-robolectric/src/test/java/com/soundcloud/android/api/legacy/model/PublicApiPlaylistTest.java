@@ -168,6 +168,26 @@ public class PublicApiPlaylistTest {
         expect(propertySet.get(PlayableProperty.IS_PRIVATE)).toEqual(playlist.isPrivate());
     }
 
+    @Test
+    public void shouldConvertToApiMobilePlaylist(){
+        PublicApiPlaylist playlist = ModelFixtures.create(PublicApiPlaylist.class);
+        ApiPlaylist apiMobilePlaylist = playlist.toApiMobilePlaylist();
+
+        expect(apiMobilePlaylist.getCreatedAt()).toEqual(playlist.getCreatedAt());
+        expect(apiMobilePlaylist.getDuration()).toEqual(playlist.getDuration());
+        expect(apiMobilePlaylist.getLikesCount()).toEqual(playlist.getLikesCount());
+        expect(apiMobilePlaylist.getPermalinkUrl()).toEqual(playlist.getPermalinkUrl());
+        expect(apiMobilePlaylist.getRepostsCount()).toEqual(playlist.getRepostsCount());
+        expect(apiMobilePlaylist.getSharing()).toEqual(playlist.getSharing());
+        expect(apiMobilePlaylist.getTitle()).toEqual(playlist.getTitle());
+        expect(apiMobilePlaylist.getUrn()).toEqual(playlist.getUrn());
+        expect(apiMobilePlaylist.getTags()).toEqual(playlist.humanTags());
+        expect(apiMobilePlaylist.getTrackCount()).toEqual(playlist.getTrackCount());
+
+        PublicApiUserTest.assertApiUsersEqual(apiMobilePlaylist.getUser(), playlist.getUser());
+
+    }
+
     private void comparePlaylists(PublicApiPlaylist playlist, PublicApiPlaylist playlist1) {
         expect(playlist1.getId()).toEqual(playlist.getId());
         expect(playlist1.title).toEqual(playlist.title);

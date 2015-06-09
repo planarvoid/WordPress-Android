@@ -4,15 +4,14 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
-import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.api.model.ApiPlaylist;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -39,10 +38,10 @@ public class ProfileApiPublicPlaylistsTest {
     @Mock private StoreUsersCommand storeUsersCommand;
 
     private ProfileApiPublic api;
-    private final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
+    private final TestObserver<ModelCollection<ApiPlaylist>> observer = new TestObserver<>();
     private final PublicApiPlaylist publicApiPlaylist1 = ModelFixtures.create(PublicApiPlaylist.class);
     private final PublicApiPlaylist publicApiPlaylist2 = ModelFixtures.create(PublicApiPlaylist.class);
-    private final CollectionHolder<PublicApiPlaylist> results = new CollectionHolder<>(
+    private final CollectionHolder<PublicApiPlaylist> publicApiCollection = new CollectionHolder<>(
             Arrays.asList(
                     publicApiPlaylist1,
                     publicApiPlaylist2),
@@ -50,36 +49,24 @@ public class ProfileApiPublicPlaylistsTest {
 
     @Before
     public void setUp() throws Exception {
-        api = new ProfileApiPublic(apiClientRx, storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+        api = new ProfileApiPublic(apiClientRx);
     }
 
     @Test
     public void returnsUserPlaylistsByUrnFromApi() throws Exception {
-        final Observable<CollectionHolder<PublicApiPlaylist>> results = Observable.just(this.results);
+        final Observable<CollectionHolder<PublicApiPlaylist>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/playlists")
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 any(TypeToken.class))).thenReturn(results);
-
 
         api.userPlaylists(Urn.forUser(123L)).subscribe(observer);
         assertAllItemsEmitted();
     }
 
     @Test
-    public void writesPlaylistsToDatabase() throws Exception {
-        when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/playlists")
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(Observable.just(this.results));
-
-        api.userPlaylists(Urn.forUser(123L)).subscribe(observer);
-        verify(storePlaylistsCommand).call(results);
-    }
-
-    @Test
-    public void returnsUserLikesByNextPageLinkFromApi() throws Exception {
-        final Observable<CollectionHolder<PublicApiPlaylist>> results = Observable.just(this.results);
+    public void returnsUserPlaylistsByNextPageLinkFromApi() throws Exception {
+        final Observable<CollectionHolder<PublicApiPlaylist>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
@@ -91,11 +78,10 @@ public class ProfileApiPublicPlaylistsTest {
 
     private void assertAllItemsEmitted() {
         expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).nextPageLink()).toEqual(Optional.of(NEXT_HREF));
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(
-                publicApiPlaylist1.toPropertySet(),
-                publicApiPlaylist2.toPropertySet()
+        expect(observer.getOnNextEvents().get(0).getNextLink().get().getHref()).toEqual(NEXT_HREF);
+        expect(observer.getOnNextEvents().get(0).getCollection()).toContain(
+                publicApiPlaylist1.toApiMobilePlaylist(),
+                publicApiPlaylist2.toApiMobilePlaylist()
         );
     }
-
 }

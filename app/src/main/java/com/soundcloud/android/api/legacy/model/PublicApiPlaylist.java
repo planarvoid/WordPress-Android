@@ -165,7 +165,7 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
         ContentValues cv = super.buildContentValues();
         cv.put(TableColumns.Sounds.TRACKS_URI, tracks_uri);
         cv.put(TableColumns.Sounds.TRACK_COUNT, track_count);
-        if (!isIncomplete()){
+        if (!isIncomplete()) {
             cv.put(TableColumns.Sounds.LAST_UPDATED, System.currentTimeMillis());
         }
         return cv;
@@ -263,4 +263,23 @@ public class PublicApiPlaylist extends Playable implements PlaylistRecord {
                 .put(PlayableProperty.IS_LIKED, user_like);
     }
 
+    public ApiPlaylist toApiMobilePlaylist() {
+        ApiPlaylist apiPlaylist = new ApiPlaylist(getUrn());
+        apiPlaylist.setCreatedAt(created_at);
+        apiPlaylist.setArtworkUrl(artwork_url);
+        apiPlaylist.setDuration(duration);
+        apiPlaylist.setPermalinkUrl(permalink_url);
+        apiPlaylist.setSharing(sharing);
+        apiPlaylist.setTitle(title);
+        apiPlaylist.setTags(humanTags());
+        apiPlaylist.setTrackCount(track_count);
+        apiPlaylist.setUser(getUser().toApiMobileUser());
+
+        final TrackStats stats = new TrackStats();
+        stats.setLikesCount(likes_count);
+        stats.setRepostsCount(reposts_count);
+        apiPlaylist.setStats(stats);
+
+        return apiPlaylist;
+    }
 }

@@ -202,6 +202,14 @@ public class PublicApiTrack extends Playable implements TrackRecord {
         return policy;
     }
 
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public void setStreamUrl(String streamUrl) {
+        this.stream_url = streamUrl;
+    }
+
     @Override
     public boolean isSyncable() {
         return false;
@@ -570,6 +578,34 @@ public class PublicApiTrack extends Playable implements TrackRecord {
     @Override
     public boolean isCommentable() {
         return commentable;
+    }
+
+    public ApiTrack toApiMobileTrack() {
+        ApiTrack apiTrack = new ApiTrack(getUrn());
+        apiTrack.setCreatedAt(created_at);
+        apiTrack.setArtworkUrl(artwork_url);
+        apiTrack.setCommentable(commentable);
+        apiTrack.setDuration(duration);
+        apiTrack.setGenre(genre);
+        apiTrack.setMonetizable(isMonetizable());
+        apiTrack.setPermalinkUrl(permalink_url);
+        apiTrack.setPolicy(policy);
+        apiTrack.setSharing(sharing);
+        apiTrack.setStreamUrl(stream_url);
+        apiTrack.setSyncable(isSyncable());
+        apiTrack.setUserTags(humanTags());
+        apiTrack.setTitle(title);
+        apiTrack.setWaveformUrl(waveform_url);
+        apiTrack.setUser(getUser().toApiMobileUser());
+
+        final TrackStats stats = new TrackStats();
+        stats.setCommentsCount(comment_count);
+        stats.setPlaybackCount(playback_count);
+        stats.setLikesCount(likes_count);
+        stats.setRepostsCount(reposts_count);
+        apiTrack.setStats(stats);
+
+        return apiTrack;
     }
 
     protected static String fixWaveform(String input) {

@@ -37,6 +37,10 @@ public class ApiPlaylist extends ScModel implements PropertySetSource, PlaylistR
         super(urn);
     }
 
+    public ApiPlaylist(Urn urn) {
+        super(urn);
+    }
+
     public String getTitle() {
         return title;
     }

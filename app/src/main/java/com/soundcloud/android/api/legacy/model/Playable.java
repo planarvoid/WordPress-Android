@@ -147,6 +147,10 @@ public abstract class Playable extends PublicApiResource implements PlayableHold
         this.title = title;
     }
 
+    public void setPermalinkUrl(String permalinkUrl) {
+        this.permalink_url = permalinkUrl;
+    }
+
     public void setCreatedAt(@Nullable Date createdAt) {
         this.created_at = createdAt;
     }

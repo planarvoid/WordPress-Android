@@ -4,15 +4,14 @@ import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.matchers.SoundCloudMatchers.isPublicApiRequestTo;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.base.Optional;
 import com.google.common.reflect.TypeToken;
 import com.soundcloud.android.api.ApiClientRx;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
-import com.soundcloud.android.api.model.PagedRemoteCollection;
+import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StorePlaylistsCommand;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.commands.StoreUsersCommand;
@@ -39,10 +38,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest {
     @Mock private StoreUsersCommand storeUsersCommand;
 
     private ProfileApiPublic api;
-    private final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
+    private final TestObserver<ModelCollection<ApiUser>> observer = new TestObserver<>();
     private final PublicApiUser publicApiUser1 = ModelFixtures.create(PublicApiUser.class);
     private final PublicApiUser publicApiUser2 = ModelFixtures.create(PublicApiUser.class);
-    private final CollectionHolder<PublicApiUser> results = new CollectionHolder<>(
+    private final CollectionHolder<PublicApiUser> publicApiCollection = new CollectionHolder<>(
             Arrays.asList(
                     publicApiUser1,
                     publicApiUser2),
@@ -50,36 +49,24 @@ public class ProfileApiPublicFollowingsAndFollowersTest {
 
     @Before
     public void setUp() throws Exception {
-        api = new ProfileApiPublic(apiClientRx, storeTracksCommand, storePlaylistsCommand, storeUsersCommand);
+        api = new ProfileApiPublic(apiClientRx);
     }
 
     @Test
     public void returnsUserFollowingsByUrnFromApi() throws Exception {
-        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(this.results);
+        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followings")
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 any(TypeToken.class))).thenReturn(results);
-
 
         api.userFollowings(Urn.forUser(123L)).subscribe(observer);
         assertAllItemsEmitted();
     }
 
     @Test
-    public void writesPlaylistsToDatabaseWhenRequestingFollowings() throws Exception {
-        when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followings")
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(Observable.just(this.results));
-
-        api.userFollowings(Urn.forUser(123L)).subscribe(observer);
-        verify(storeUsersCommand).call(results);
-    }
-
-    @Test
     public void returnsUserFollowingsByNextPageLinkFromApi() throws Exception {
-        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(this.results);
+        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
@@ -91,31 +78,19 @@ public class ProfileApiPublicFollowingsAndFollowersTest {
 
     @Test
     public void returnsUserFollowersByUrnFromApi() throws Exception {
-        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(this.results);
+        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followers")
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
                 any(TypeToken.class))).thenReturn(results);
-
 
         api.userFollowers(Urn.forUser(123L)).subscribe(observer);
         assertAllItemsEmitted();
     }
 
     @Test
-    public void writesPlaylistsToDatabaseWhenRequestingFollowers() throws Exception {
-        when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", "/users/123/followers")
-                        .withQueryParam("linked_partitioning", "1")
-                        .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
-                any(TypeToken.class))).thenReturn(Observable.just(this.results));
-
-        api.userFollowers(Urn.forUser(123L)).subscribe(observer);
-        verify(storeUsersCommand).call(results);
-    }
-
-    @Test
     public void returnsUserFollowersByNextPageLinkFromApi() throws Exception {
-        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(this.results);
+        final Observable<CollectionHolder<PublicApiUser>> results = Observable.just(publicApiCollection);
         when(apiClientRx.mappedResponse(argThat(isPublicApiRequestTo("GET", NEXT_HREF)
                         .withQueryParam("linked_partitioning", "1")
                         .withQueryParam("limit", String.valueOf(ProfileApiPublic.PAGE_SIZE))),
@@ -127,10 +102,10 @@ public class ProfileApiPublicFollowingsAndFollowersTest {
 
     private void assertAllItemsEmitted() {
         expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).nextPageLink()).toEqual(Optional.of(NEXT_HREF));
-        expect(observer.getOnNextEvents().get(0)).toContainExactly(
-                publicApiUser1.toPropertySet(),
-                publicApiUser2.toPropertySet()
+        expect(observer.getOnNextEvents().get(0).getNextLink().get().getHref()).toEqual(NEXT_HREF);
+        expect(observer.getOnNextEvents().get(0).getCollection()).toContain(
+                publicApiUser1.toApiMobileUser(),
+                publicApiUser2.toApiMobileUser()
         );
     }
 

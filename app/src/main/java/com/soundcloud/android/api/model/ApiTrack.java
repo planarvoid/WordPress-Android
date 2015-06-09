@@ -70,7 +70,11 @@ public class ApiTrack extends ScModel implements PropertySetSource, TrackRecord 
         this.syncable = in.readByte() != 0;
     }
 
-    public ApiTrack(String urn) {
+    public ApiTrack(String urnString) {
+        super(urnString);
+    }
+
+    public ApiTrack(Urn urn) {
         super(urn);
     }
 

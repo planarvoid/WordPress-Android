@@ -14,7 +14,15 @@ public class PublicApiUserBlueprint {
     ConstructorCallback constructor = new ConstructorCallback() {
         @Override
         public Object createInstance() {
-            return new PublicApiUser("soundcloud:users:" + runningId++);
+            final PublicApiUser publicApiUser = new PublicApiUser("soundcloud:users:" + runningId++);
+            // these have to go here because the setter has a differen param than the return type,
+            // and ModelCitizen if you use the annotation
+            publicApiUser.setDescription("description");
+            publicApiUser.setWebsite("http://website-url.com");
+            publicApiUser.setWebsiteTitle("website title");
+            publicApiUser.setDiscogsName("discogs name");
+            publicApiUser.setMyspaceName("myspace name");
+            return publicApiUser;
         }
     };
 

@@ -208,6 +208,10 @@ public class SoundAssociation extends Association implements PlayableHolder, Pro
     public PropertySet toPropertySet() {
         return playable.toPropertySet()
                 .put(PostProperty.CREATED_AT, created_at)
-                .put(PostProperty.IS_REPOST, associationType == ScContentProvider.CollectionItemTypes.REPOST);
+                .put(PostProperty.IS_REPOST, isRepost());
+    }
+
+    public boolean isRepost() {
+        return associationType == ScContentProvider.CollectionItemTypes.REPOST;
     }
 }

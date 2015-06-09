@@ -10,6 +10,7 @@ import com.soundcloud.android.Consts;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.api.legacy.json.Views;
 import com.soundcloud.android.api.legacy.model.behavior.Refreshable;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.model.Model;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
@@ -309,6 +310,10 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         this.avatar_url = avatarUrl;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getPermalink() {
         return permalink;
     }
@@ -586,6 +591,36 @@ public class PublicApiUser extends PublicApiResource implements UserHolder, Prop
         bundle.putInt("private_tracks_count", model.private_tracks_count);
         bundle.putLong("id", model.getId());
         out.writeBundle(bundle);
+    }
+
+    public ApiUser toApiMobileUser() {
+        final ApiUser apiUser = new ApiUser(urn);
+        apiUser.setAvatarUrl(avatar_url);
+        apiUser.setCountry(country);
+        apiUser.setFollowersCount(followers_count);
+        apiUser.setUsername(username);
+        apiUser.setDescription(description);
+        apiUser.setWebsiteUrl(website);
+        apiUser.setWebsiteTitle(website_title);
+        apiUser.setMyspaceName(myspace_name);
+        apiUser.setDiscogsName(discogs_name);
+        return apiUser;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
+    }
+
+    public void setWebsiteTitle(String websiteTitle) {
+        this.website_title = websiteTitle;
+    }
+
+    public void setDiscogsName(String discogsName) {
+        this.discogs_name = discogsName;
+    }
+
+    public void setMyspaceName(String myspaceName) {
+        this.myspace_name = myspaceName;
     }
 
 

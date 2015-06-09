@@ -28,4 +28,7 @@ public class PublicApiPlaylistBlueprint {
 
     @Mapped
     PublicApiUser user;
+
+    @Default
+    String permalinkUrl = "permalink-url";
 }

@@ -2,6 +2,7 @@ package com.soundcloud.android.api.legacy.model;
 
 import static com.soundcloud.android.Expect.expect;
 
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.onboarding.suggestions.SuggestedUser;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.storage.TableColumns;
@@ -229,5 +230,24 @@ public class PublicApiUserTest {
         expect(propertySet.get(UserProperty.USERNAME)).toEqual(user.getUsername());
         expect(propertySet.get(UserProperty.COUNTRY)).toEqual(user.getCountry());
         expect(propertySet.get(UserProperty.FOLLOWERS_COUNT)).toEqual(user.followers_count);
+    }
+
+    @Test
+    public void shouldConvertToApiMobileUser() throws Exception {
+        PublicApiUser user = ModelFixtures.create(PublicApiUser.class);
+        assertApiUsersEqual(user.toApiMobileUser(), user);
+    }
+
+    static void assertApiUsersEqual(ApiUser user, PublicApiUser publicApiUser) {
+        expect(user.getUrn()).toEqual(publicApiUser.getUrn());
+        expect(user.getDescription()).toEqual(publicApiUser.getDescription());
+        expect(user.getCountry()).toEqual(publicApiUser.getCountry());
+        expect(user.getDiscogsName()).toEqual(publicApiUser.getDiscogsName());
+        expect(user.getDescription()).toEqual(publicApiUser.getDescription());
+        expect(user.getFollowersCount()).toEqual(publicApiUser.followers_count);
+        expect(user.getMyspaceName()).toEqual(publicApiUser.getMyspaceName());
+        expect(user.getWebsiteName()).toEqual(publicApiUser.getWebsiteName());
+        expect(user.getWebsiteUrl()).toEqual(publicApiUser.getWebsiteUrl());
+        expect(user.getUsername()).toEqual(publicApiUser.getUsername());
     }
 }

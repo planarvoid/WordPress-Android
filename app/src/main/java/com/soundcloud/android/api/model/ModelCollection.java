@@ -2,6 +2,9 @@ package com.soundcloud.android.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Optional;
+import com.soundcloud.android.utils.ScTextUtils;
+
+import android.support.annotation.Nullable;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -17,6 +20,18 @@ public class ModelCollection<T> implements Iterable<T> {
 
     public ModelCollection(List<T> collection) {
         this.collection = collection;
+    }
+
+    public ModelCollection(List<T> collection, Map<String, Link> links) {
+        this(collection);
+        this.links = links;
+    }
+
+    public ModelCollection(List<T> collection, @Nullable String nextHref) {
+        this(collection);
+        if (ScTextUtils.isNotBlank(nextHref)) {
+            links = Collections.singletonMap(ModelCollection.NEXT_LINK_REL, new Link(nextHref));
+        }
     }
 
     public ModelCollection() {

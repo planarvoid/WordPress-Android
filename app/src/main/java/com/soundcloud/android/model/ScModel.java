@@ -39,6 +39,11 @@ public class ScModel implements Parcelable, Identifiable {
         setId(idFromUrn());
     }
 
+    public ScModel(Urn urn) {
+        this.urn = urn;
+        setId(idFromUrn());
+    }
+
     public ScModel(Parcel parcel) {
         id = parcel.readLong();
         byte hasUrn = parcel.readByte();
