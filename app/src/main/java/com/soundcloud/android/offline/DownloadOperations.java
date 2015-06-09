@@ -1,13 +1,17 @@
 package com.soundcloud.android.offline;
 
+import static com.soundcloud.android.offline.StrictSSLHttpClient.TrackFileResponse;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.crypto.EncryptionException;
+import com.soundcloud.android.crypto.EncryptionInterruptedException;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.offline.commands.DeleteOfflineTrackCommand;
 import com.soundcloud.android.playback.StreamUrlBuilder;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import rx.Observable;
@@ -31,6 +35,7 @@ class DownloadOperations {
     private final NetworkConnectionHelper connectionHelper;
     private final OfflineSettingsStorage offlineSettings;
     private final StreamUrlBuilder urlBuilder;
+    private final Scheduler scheduler;
 
     private final Predicate<Urn> isNotCurrentTrackFilter = new Predicate<Urn>() {
         @Override
@@ -38,8 +43,6 @@ class DownloadOperations {
             return !playQueueManager.isCurrentTrack(urn);
         }
     };
-
-    private final Scheduler scheduler;
 
     @Inject
     public DownloadOperations(StrictSSLHttpClient httpClient,
@@ -66,6 +69,10 @@ class DownloadOperations {
                 .subscribeOn(scheduler);
     }
 
+    void cancelCurrentDownload() {
+        fileStorage.tryCancelRunningEncryption();
+    }
+
     DownloadResult download(DownloadRequest request) {
         if (!fileStorage.isEnoughSpaceForTrack(request.duration)) {
             return DownloadResult.notEnoughSpace(request);
@@ -83,26 +90,30 @@ class DownloadOperations {
     }
 
     private DownloadResult downloadAndStore(DownloadRequest request) {
-        StrictSSLHttpClient.DownloadResponse response = null;
+        TrackFileResponse response = null;
         try {
-            response = strictSSLHttpClient.downloadFile(urlBuilder.buildHttpsStreamUrl(request.track));
-            if (response.isUnavailable()) {
-                return DownloadResult.unavailable(request);
+            response = strictSSLHttpClient.getFileStream(urlBuilder.buildHttpsStreamUrl(request.track));
+            if (response.isSuccess()) {
+                return saveFile(request, response);
+            } else {
+                return mapFailureToDownloadResult(request, response);
             }
-            if (response.isFailure()) {
-                return DownloadResult.error(request);
-            }
-            return saveFile(request, response);
-
+        } catch (EncryptionInterruptedException interrupted) {
+            return DownloadResult.canceled(request);
         } catch (EncryptionException encryptionException) {
             return DownloadResult.error(request);
         } catch (IOException ioException) {
             return DownloadResult.connectionError(request, getConnectionState());
         } finally {
-            if (response != null) {
-                response.close();
-            }
+            IOUtils.close(response);
         }
+    }
+
+    private DownloadResult mapFailureToDownloadResult(DownloadRequest request, TrackFileResponse response) {
+        if (response.isUnavailable()) {
+            return DownloadResult.unavailable(request);
+        }
+        return DownloadResult.error(request);
     }
 
     private ConnectionState getConnectionState() {
@@ -115,7 +126,7 @@ class DownloadOperations {
         }
     }
 
-    private DownloadResult saveFile(DownloadRequest request, StrictSSLHttpClient.DownloadResponse response)
+    private DownloadResult saveFile(DownloadRequest request, TrackFileResponse response)
             throws IOException, EncryptionException {
 
         fileStorage.storeTrack(request.track, response.getInputStream());

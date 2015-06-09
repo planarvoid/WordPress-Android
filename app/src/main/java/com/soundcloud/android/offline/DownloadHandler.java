@@ -87,6 +87,10 @@ public class DownloadHandler extends Handler {
         mainHandler.sendMessage(mainHandler.obtainMessage(status, result));
     }
 
+    void cancel() {
+        downloadOperations.cancelCurrentDownload();
+    }
+
     void quit() {
         getLooper().quit();
         mainHandler.quit();

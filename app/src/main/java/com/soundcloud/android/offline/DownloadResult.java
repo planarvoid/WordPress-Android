@@ -4,10 +4,11 @@ import static com.soundcloud.android.offline.DownloadOperations.ConnectionState;
 
 import com.google.common.base.Objects;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.utils.Log;
 
 public final class DownloadResult {
 
-    private enum Status {SUCCESS, UNAVAILABLE, NOT_ENOUGH_SPACE, CONNECTION_ERROR, ERROR}
+    private enum Status {SUCCESS, CANCELLED, UNAVAILABLE, NOT_ENOUGH_SPACE, CONNECTION_ERROR, ERROR}
 
     final Status status;
     final DownloadRequest request;
@@ -26,19 +27,28 @@ public final class DownloadResult {
     }
 
     public static DownloadResult success(DownloadRequest request) {
+        Log.d(OfflineContentService.TAG, "Successful download result: " + request.track);
         return new DownloadResult(Status.SUCCESS, request);
     }
 
     public static DownloadResult unavailable(DownloadRequest request) {
+        Log.d(OfflineContentService.TAG, "Unavailable download result: " + request.track);
         return new DownloadResult(Status.UNAVAILABLE, request);
     }
 
     public static DownloadResult connectionError(DownloadRequest request, ConnectionState connectionState) {
+        Log.d(OfflineContentService.TAG, "Connection error download result: " + request.track);
         return new DownloadResult(Status.CONNECTION_ERROR, request, connectionState);
     }
 
     public static DownloadResult notEnoughSpace(DownloadRequest request) {
+        Log.d(OfflineContentService.TAG, "Not enough space download result: " + request.track);
         return new DownloadResult(Status.NOT_ENOUGH_SPACE, request);
+    }
+
+    public static DownloadResult canceled(DownloadRequest request) {
+        Log.d(OfflineContentService.TAG, "Download cancelled: "+ request.track);
+        return new DownloadResult(Status.CANCELLED, request);
     }
 
     public static DownloadResult error(DownloadRequest request) {
@@ -47,6 +57,10 @@ public final class DownloadResult {
 
     public boolean isSuccess() {
         return status == Status.SUCCESS;
+    }
+
+    public boolean isCancelled() {
+        return status == Status.CANCELLED;
     }
 
     public boolean isConnectionError() {
