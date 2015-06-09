@@ -9,7 +9,6 @@ import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
@@ -73,7 +72,7 @@ public abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresen
 
     @Override
     protected CollectionBinding<PlayableItem> onBuildBinding(Bundle fragmentArgs) {
-        final Urn userUrn = ParcelableUrn.unpack(USER_URN_KEY, fragmentArgs);
+        final Urn userUrn = fragmentArgs.getParcelable(USER_URN_KEY);
         return CollectionBinding.from(getPagedObservable(userUrn), pageTransformer)
                 .withAdapter(adapter)
                 .withPager(getPagingFunction())

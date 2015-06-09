@@ -2,7 +2,6 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
-import com.soundcloud.android.model.ParcelableUrn;
 import com.soundcloud.android.model.Urn;
 
 import android.os.Bundle;
@@ -14,7 +13,7 @@ final class ProfileArguments {
 
     static Bundle from(Urn userUrn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(USER_URN_KEY, ParcelableUrn.from(userUrn));
+        bundle.putParcelable(USER_URN_KEY, userUrn);
         bundle.putSerializable(SCREEN_KEY, screen);
         bundle.putParcelable(SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
         return bundle;
