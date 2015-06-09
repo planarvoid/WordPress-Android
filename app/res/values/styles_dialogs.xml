@@ -70,6 +70,7 @@
         <item name="android:paddingTop">12dp</item>
         <item name="android:paddingBottom">12dp</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">@dimen/dialog_width</item>
     </style>
 
     <style name="DialogInput">
