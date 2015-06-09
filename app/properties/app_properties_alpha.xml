@@ -4,7 +4,7 @@
            tools:ignore="MissingTranslation">
 
     <string name="build_type">alpha</string>
-    <string name="localytics_app_key">50528391fafa3fd01426c66-0d7b596e-08d3-11e3-8d9f-005cf8cbabd8</string>
+    <string name="localytics_app_key">dd94ecf058dedd10d24cda8-dedc8f8c-0eb5-11e5-9ed9-00739d24cb30</string>
     <string name="adjust_environment">sandbox</string>
     <string name="adjust_log_level">info</string>
     <bool name="analytics_enabled">true</bool>
