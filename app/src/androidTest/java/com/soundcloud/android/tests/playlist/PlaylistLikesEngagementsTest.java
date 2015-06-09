@@ -8,10 +8,10 @@ import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class PlaylistLikesNewEngagementsTest extends ActivityTest<MainActivity> {
+public class PlaylistLikesEngagementsTest extends ActivityTest<MainActivity> {
     private PlaylistsScreen playlistsScreen;
 
-    public PlaylistLikesNewEngagementsTest() {
+    public PlaylistLikesEngagementsTest() {
         super(MainActivity.class);
     }
 

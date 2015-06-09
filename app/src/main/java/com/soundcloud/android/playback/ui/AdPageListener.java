@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.ui;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdProperty;
 import com.soundcloud.android.ads.AdsOperations;
@@ -14,11 +13,10 @@ import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.propeller.PropertySet;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
 
 import javax.inject.Inject;
 
@@ -28,6 +26,7 @@ class AdPageListener extends PageListener {
     private final PlayQueueManager playQueueManager;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
+    private final WhyAdsDialogPresenter whyAdsPresenter;
 
     @Inject
     public AdPageListener(Context context,
@@ -35,12 +34,14 @@ class AdPageListener extends PageListener {
                           PlaybackOperations playbackOperations,
                           PlayQueueManager playQueueManager,
                           EventBus eventBus, AdsOperations adsOperations,
-                          AccountOperations accountOperations) {
+                          AccountOperations accountOperations,
+                          WhyAdsDialogPresenter whyAdsPresenter) {
         super(playbackOperations, playSessionStateProvider, eventBus);
         this.context = context;
         this.playQueueManager = playQueueManager;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
+        this.whyAdsPresenter = whyAdsPresenter;
     }
 
     public void onNext() {
@@ -68,12 +69,8 @@ class AdPageListener extends PageListener {
         eventBus.publish(EventQueue.TRACKING, UIEvent.fromAudioAdClick(audioAd, playQueueManager.getCurrentTrackUrn(), accountOperations.getLoggedInUserUrn(), playQueueManager.getCurrentTrackSourceInfo()));
     }
 
-    public void onAboutAds(FragmentActivity activity) {
-        new AlertDialog.Builder(activity)
-                .setTitle(R.string.why_ads)
-                .setMessage(R.string.why_ads_dialog_message)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+    public void onAboutAds(Activity activity) {
+        whyAdsPresenter.show(activity);
     }
 
     private void startActivity(Uri uri) {

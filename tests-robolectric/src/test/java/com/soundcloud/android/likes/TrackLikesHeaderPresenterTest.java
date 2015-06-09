@@ -185,7 +185,7 @@ public class TrackLikesHeaderPresenterTest {
         presenter.onResume(fragment);
         eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(TRACK1_DOWNLOAD_REQUEST)));
 
-        verify(headerView, times(2)).show(DownloadState.NO_OFFLINE);//once from storage
+        verify(headerView, times(2)).show(DownloadState.NO_OFFLINE); // once from storage
     }
 
     @Test
@@ -294,7 +294,7 @@ public class TrackLikesHeaderPresenterTest {
     }
 
     @Test
-    public void showLikesMenuWhenOfflineContentFeaturesIsEnabled() {
+    public void showOverflowMenuIfOfflineContentIsEnabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
         presenter.onViewCreated(layoutView, listView);
         presenter.onResume(fragment);
@@ -304,7 +304,18 @@ public class TrackLikesHeaderPresenterTest {
     }
 
     @Test
-    public void doesNotShowLikesMenuWhenOfflineContentFeaturesIsDisable() {
+    public void showOverflowMenuIfUpsellIsEnabled() {
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
+        when(featureOperations.shouldShowUpsell()).thenReturn(true);
+        presenter.onViewCreated(layoutView, listView);
+        presenter.onResume(fragment);
+
+        verify(headerView).showOverflowMenuButton();
+        verify(headerView).setOnOverflowMenuClick(any(View.OnClickListener.class));
+    }
+
+    @Test
+    public void doesNotShowOverflowMenuWhenOfflineContentIsDisabled() {
         when(featureOperations.isOfflineContentEnabled()).thenReturn(false);
         when(featureOperations.shouldShowUpsell()).thenReturn(false);
         presenter.onViewCreated(layoutView, listView);
@@ -326,4 +337,5 @@ public class TrackLikesHeaderPresenterTest {
 
         verify(likesMenuPresenter).show(view);
     }
+
 }

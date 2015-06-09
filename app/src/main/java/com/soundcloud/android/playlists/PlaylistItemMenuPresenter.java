@@ -3,6 +3,7 @@ package com.soundcloud.android.playlists;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.common.base.Optional;
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.analytics.ScreenElement;
 import com.soundcloud.android.analytics.ScreenProvider;
@@ -28,7 +29,7 @@ import javax.inject.Inject;
 
 public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrapperListener {
 
-    private final Context context;
+    private final Context appContext;
     private final EventBus eventBus;
     private final PopupMenuWrapper.Factory popupMenuWrapperFactory;
     private final PlaylistOperations playlistOperations;
@@ -36,17 +37,18 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
     private final ScreenProvider screenProvider;
     private final FeatureOperations featureOperations;
     private final OfflineContentOperations offlineContentOperations;
+    private final Navigator navigator;
 
     private PlaylistItem playlist;
     private Subscription playlistSubscription = Subscriptions.empty();
     private boolean allowOfflineOptions;
 
     @Inject
-    public PlaylistItemMenuPresenter(Context context, EventBus eventBus, PopupMenuWrapper.Factory popupMenuWrapperFactory,
+    public PlaylistItemMenuPresenter(Context appContext, EventBus eventBus, PopupMenuWrapper.Factory popupMenuWrapperFactory,
                                      PlaylistOperations playlistOperations, LikeOperations likeOperations,
                                      ScreenProvider screenProvider, FeatureOperations featureOperations,
-                                     OfflineContentOperations offlineContentOperations) {
-        this.context = context;
+                                     OfflineContentOperations offlineContentOperations, Navigator navigator) {
+        this.appContext = appContext;
         this.eventBus = eventBus;
         this.popupMenuWrapperFactory = popupMenuWrapperFactory;
         this.playlistOperations = playlistOperations;
@@ -54,6 +56,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         this.screenProvider = screenProvider;
         this.featureOperations = featureOperations;
         this.offlineContentOperations = offlineContentOperations;
+        this.navigator = navigator;
     }
 
     public void show(View button, PlaylistItem playlist, boolean allowOfflineOptions) {
@@ -78,7 +81,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
                 handleLike();
                 return true;
             case R.id.upsell_offline_content:
-                // TODO
+                navigator.openUpgrade(context);
                 return true;
             case R.id.make_offline_available:
                 fireAndForget(offlineContentOperations.makePlaylistAvailableOffline(playlist.getEntityUrn()));
@@ -96,7 +99,7 @@ public class PlaylistItemMenuPresenter implements PopupMenuWrapper.PopupMenuWrap
         final Boolean addLike = !playlist.isLiked();
         likeOperations.toggleLike(playlistUrn, addLike)
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new LikeToggleSubscriber(context, addLike));
+                .subscribe(new LikeToggleSubscriber(appContext, addLike));
         eventBus.publish(EventQueue.TRACKING,
                 UIEvent.fromToggleLike(addLike, ScreenElement.LIST.get(),
                         screenProvider.getLastScreenTag(), playlistUrn));

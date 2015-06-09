@@ -13,6 +13,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.Navigator;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.OriginProvider;
 import com.soundcloud.android.analytics.Screen;
@@ -80,6 +81,7 @@ public class PlaylistEngagementsPresenterTest {
     @Mock private Fragment fragment;
     @Mock private OfflinePlaybackOperations offlinePlaybackOperations;
     @Mock private PlaybackToastHelper playbackToastHelper;
+    @Mock private Navigator navigator;
 
     @Captor private ArgumentCaptor<OnEngagementListener> listenerCaptor;
     private OnEngagementListener onEngagementListener;
@@ -87,10 +89,9 @@ public class PlaylistEngagementsPresenterTest {
     @Before
     public void setup() {
         eventBus = new TestEventBus();
-        controller = new PlaylistEngagementsPresenter(eventBus,
-                repostOperations, accountOperations,
-                likeOperations, engagementsView,
-                featureOperations, offlineContentOperations, offlinePlaybackOperations, playbackToastHelper);
+        controller = new PlaylistEngagementsPresenter(eventBus, repostOperations, accountOperations, likeOperations,
+                engagementsView, featureOperations, offlineContentOperations, offlinePlaybackOperations,
+                playbackToastHelper, navigator);
         when(rootView.getContext()).thenReturn(Robolectric.application);
 
         controller.bindView(rootView);
@@ -240,6 +241,13 @@ public class PlaylistEngagementsPresenterTest {
         onEngagementListener.onPlayShuffled();
 
         expect(subject.hasObservers()).toBeTrue();
+    }
+
+    @Test
+    public void shouldOpenUpgradeScreenWhenClickingOnUpsell() {
+        controller.onUpsell(context);
+
+        verify(navigator).openUpgrade(context);
     }
 
     @Test

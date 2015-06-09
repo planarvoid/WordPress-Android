@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
 import com.soundcloud.android.events.ScreenEvent;
@@ -42,8 +43,9 @@ public class NavigationDrawerFragment extends NavigationFragment {
     }
 
     @VisibleForTesting
-    protected NavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations, EventBus eventBus) {
-        super(imageOperations, accountOperations);
+    protected NavigationDrawerFragment(ImageOperations imageOperations, AccountOperations accountOperations,
+                                       FeatureOperations featureOperations, EventBus eventBus) {
+        super(imageOperations, accountOperations, featureOperations);
         this.eventBus = eventBus;
     }
 

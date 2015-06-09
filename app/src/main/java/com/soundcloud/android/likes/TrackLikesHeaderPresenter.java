@@ -115,22 +115,27 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
 
     @Override
     public void onResume(Fragment fragment) {
-        if (shouldShowOfflineSyncOptions()) {
-            foregroundSubscription = new CompositeSubscription(
-                    likesDownloadState()
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe(new DownloadStateSubscriber()),
-                    offlineContentOperations
-                            .getOfflineLikesSettingsStatus()
-                            .subscribe(new OfflineLikesSettingSubscriber())
-            );
-
+        if (shouldShowOverflowMenu()) {
+            if (featureOperations.isOfflineContentEnabled()) {
+                subscribeForOfflineContentUpdates();
+            }
             headerView.showOverflowMenuButton();
             headerView.setOnOverflowMenuClick(onOverflowMenuClick);
         } else {
             headerView.hideOverflowMenuButton();
             headerView.show(DownloadState.NO_OFFLINE);
         }
+    }
+
+    private void subscribeForOfflineContentUpdates() {
+        foregroundSubscription = new CompositeSubscription(
+                likesDownloadState()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new DownloadStateSubscriber()),
+                offlineContentOperations
+                        .getOfflineLikesSettingsStatus()
+                        .subscribe(new OfflineLikesSettingSubscriber())
+        );
     }
 
     private Observable<DownloadState> likesDownloadState() {
@@ -154,8 +159,8 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         viewLifeCycle.unsubscribe();
     }
 
-    private boolean shouldShowOfflineSyncOptions() {
-        return featureOperations.isOfflineContentEnabled();
+    private boolean shouldShowOverflowMenu() {
+        return featureOperations.isOfflineContentEnabled() || featureOperations.shouldShowUpsell();
     }
 
     public void onSubscribeListObservers(CollectionBinding<TrackItem> collectionBinding) {
@@ -172,14 +177,14 @@ public class TrackLikesHeaderPresenter extends DefaultSupportFragmentLightCycle<
         @Override
         public void onNext(List<Urn> allLikedTracks) {
             headerView.updateTrackCount(allLikedTracks.size());
-            headerView.updateOverflowMenuButton(!allLikedTracks.isEmpty() && shouldShowOfflineSyncOptions());
+            headerView.updateOverflowMenuButton(!allLikedTracks.isEmpty() && shouldShowOverflowMenu());
         }
     }
 
     private class DownloadStateSubscriber extends DefaultSubscriber<DownloadState> {
         @Override
         public void onNext(DownloadState state) {
-            if (shouldShowOfflineSyncOptions()) {
+            if (featureOperations.isOfflineContentEnabled()) {
                 if (state == DownloadState.NO_OFFLINE || offlineContentOperations.isOfflineLikedTracksEnabled()) {
                     headerView.show(state);
                 }
