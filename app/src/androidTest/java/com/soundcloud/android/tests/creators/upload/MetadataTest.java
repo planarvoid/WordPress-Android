@@ -32,15 +32,6 @@ public class MetadataTest extends ActivityTest<MainActivity> {
         recordScreen.deleteRecordingIfPresent();
     }
 
-    public void testMetadataScreenIsVisible() {
-        recordMetadataScreen = recordScreen
-                .startRecording()
-                .waitAndPauseRecording()
-                .clickNext();
-
-        assertThat(recordMetadataScreen, is(visible()));
-    }
-
     public void testMetadataUploadPrivate() {
         RecordMetadataScreen metadataScreen = recordScreen
                 .startRecording()
