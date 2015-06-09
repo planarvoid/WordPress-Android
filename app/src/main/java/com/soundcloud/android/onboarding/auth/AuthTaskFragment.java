@@ -10,7 +10,6 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
@@ -22,6 +21,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
