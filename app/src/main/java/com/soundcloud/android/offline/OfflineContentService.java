@@ -107,7 +107,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         final String action = intent.getAction();
-        Log.d(TAG, Thread.currentThread() + " Starting offlineContentService for action: " + action);
+        Log.d(TAG, " Starting offlineContentService for action: " + action);
 
         offlineContentScheduler.cancelPendingRetries();
 
@@ -120,7 +120,11 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new OfflineContentRequestsSubscriber());
         } else if (ACTION_STOP.equalsIgnoreCase(action)) {
-            downloadHandler.cancel();
+            if (downloadHandler.isDownloading()) {
+                downloadHandler.cancel();
+            } else {
+                stop();
+            }
         }
         return START_NOT_STICKY;
     }
