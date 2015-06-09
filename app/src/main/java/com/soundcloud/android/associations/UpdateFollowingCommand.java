@@ -11,6 +11,7 @@ import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.propeller.ContentValuesBuilder;
 import com.soundcloud.propeller.PropellerDatabase;
 import com.soundcloud.propeller.WriteResult;
+import com.soundcloud.propeller.query.Where;
 
 import android.content.ContentValues;
 
@@ -36,8 +37,8 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
             @Override
             public void steps(PropellerDatabase propeller) {
                 step(propeller.update(Table.Users,
-                        ContentValuesBuilder.values().put(TableColumns.Users.FOLLOWERS_COUNT, updatedFollowersCount).get(),
-                        filter().whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId())));
+                        buildContentValuesForFollowersCount(),
+                        buildWhereClauseForFollowersCount(params)));
                 step(propeller.upsert(Table.UserAssociations, buildContentValuesForFollowing(params)));
             }
         });
@@ -70,6 +71,17 @@ class UpdateFollowingCommand extends WriteStorageCommand<UpdateFollowingCommand.
                 .whereNotNull(TableColumns.UserAssociations.ADDED_AT)).getResultCount();
 
         return followingCount == 1;
+    }
+
+    private ContentValues buildContentValuesForFollowersCount() {
+        return ContentValuesBuilder
+                .values()
+                .put(TableColumns.Users.FOLLOWERS_COUNT, updatedFollowersCount)
+                .get();
+    }
+
+    private Where buildWhereClauseForFollowersCount(UpdateFollowingParams params) {
+        return filter().whereEq(TableColumns.Users._ID, params.targetUrn.getNumericId());
     }
 
     private ContentValues buildContentValuesForFollowing(UpdateFollowingParams params) {

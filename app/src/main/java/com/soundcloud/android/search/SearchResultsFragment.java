@@ -41,6 +41,7 @@ import rx.Subscription;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.observables.ConnectableObservable;
+import rx.subscriptions.CompositeSubscription;
 import rx.subscriptions.Subscriptions;
 
 import android.annotation.SuppressLint;
@@ -107,8 +108,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     private int searchType;
     private boolean publishSearchSubmissionEvent;
     private ConnectableObservable<List<ListItem>> observable;
-    private Subscription connectionSubscription = Subscriptions.empty();
-    private Subscription entityChangedSubscription = Subscriptions.empty();
+    private CompositeSubscription subscription;
     private SearchOperations.SearchResultPager pager;
 
     private final Action1<List<ListItem>> publishOnFirstPage = new Action1<List<ListItem>>() {
@@ -158,13 +158,13 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         publishSearchSubmissionEvent = getArguments().getBoolean(EXTRA_PUBLISH_SEARCH_SUBMISSION_EVENT, false);
         searchType = getArguments().getInt(EXTRA_TYPE);
         pager = searchOperations.pager(searchType);
         listViewController.setAdapter(adapter, pager, TO_PRESENTATION_MODELS);
-        entityChangedSubscription = eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter));
-        connectObservable(buildObservable());
+        subscription = new CompositeSubscription();
+        subscription.add(eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter)));
+        subscription.add(connectObservable(buildObservable()));
     }
 
     @Override
@@ -182,8 +182,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
     public Subscription connectObservable(ConnectableObservable<List<ListItem>> observable) {
         this.observable = observable;
         observable.subscribe(adapter);
-        connectionSubscription = observable.connect();
-        return connectionSubscription;
+        return observable.connect();
     }
 
     @Override
@@ -201,8 +200,7 @@ public class SearchResultsFragment extends LightCycleSupportFragment
 
     @Override
     public void onDestroy() {
-        connectionSubscription.unsubscribe();
-        entityChangedSubscription.unsubscribe();
+        subscription.unsubscribe();
         super.onDestroy();
     }
 

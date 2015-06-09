@@ -174,7 +174,7 @@ public class SearchOperationsTest {
                 PlaylistProperty.IS_LIKED.bind(true));
 
         final SearchResult expectedSearchResult = new SearchResult(apiUniversalSearchItems, Optional.<Link>absent(), Optional.<Urn>absent());
-        final Map<Urn,PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
+        final Map<Urn, PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
         when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
@@ -187,28 +187,30 @@ public class SearchOperationsTest {
 
     @Test
     public void shouldBackFillFollowingsForUsersInUniversalSearchResult() throws Exception {
+        final ApiUser user2 = ModelFixtures.create(ApiUser.class);
         final ArrayList<ApiUniversalSearchItem> apiUniversalSearchItems = Lists.newArrayList(
                 ApiUniversalSearchItem.forUser(user),
                 ApiUniversalSearchItem.forTrack(track),
+                ApiUniversalSearchItem.forUser(user2),
                 ApiUniversalSearchItem.forPlaylist(playlist));
+        final SearchResult expectedSearchResult = new SearchResult(apiUniversalSearchItems, Optional.<Link>absent(), Optional.<Urn>absent());
+        final Map<Urn, PropertySet> userFollowings = Collections.singletonMap(user.getUrn(), PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
+        final PropertySet userIsFollowing = PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true));
 
         Observable observable = Observable.just(new SearchCollection<>(apiUniversalSearchItems));
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
-
-        PropertySet userIsFollowing = PropertySet.from(
-                UserProperty.URN.bind(user.getUrn()),
-                UserProperty.IS_FOLLOWED_BY_ME.bind(true));
-
-        final SearchResult expectedSearchResult = new SearchResult(apiUniversalSearchItems, Optional.<Link>absent(), Optional.<Urn>absent());
-        final Map<Urn,PropertySet> userFollowings = Collections.singletonMap(user.getUrn(), PropertySet.from(UserProperty.IS_FOLLOWED_BY_ME.bind(true)));
         when(loadFollowingCommand.call(expectedSearchResult)).thenReturn(userFollowings);
 
         operations.searchResult("query", SearchOperations.TYPE_ALL).subscribe(observer);
 
         expect(observer.getOnNextEvents()).toNumber(1);
         SearchResult searchResult = observer.getOnNextEvents().get(0);
-        PropertySet userPropSet = searchResult.getItems().get(0);
-        expect(userPropSet).toEqual(user.toPropertySet().merge(userIsFollowing));
+
+        PropertySet followedUserPropertySet = searchResult.getItems().get(0);
+        expect(followedUserPropertySet).toEqual(user.toPropertySet().merge(userIsFollowing));
+
+        PropertySet nonFollowedUserPropertySet = searchResult.getItems().get(2);
+        expect(nonFollowedUserPropertySet).toEqual(user2.toPropertySet());
     }
 
     @Test
@@ -223,7 +225,7 @@ public class SearchOperationsTest {
 
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(observable);
 
-        Map<Urn,PropertySet> likedPlaylists = new HashMap<>(2);
+        Map<Urn, PropertySet> likedPlaylists = new HashMap<>(2);
         likedPlaylists.put(playlist2.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(true)));
         likedPlaylists.put(playlist.getUrn(), PropertySet.from(PlaylistProperty.IS_LIKED.bind(false)));
         when(loadPlaylistLikedStatuses.call(CollectionUtils.toPropertySets(apiUniversalSearchItems))).thenReturn(likedPlaylists);
@@ -246,7 +248,7 @@ public class SearchOperationsTest {
         when(apiClientRx.mappedResponse(any(ApiRequest.class), isA(TypeToken.class))).thenReturn(searchObservable);
 
         final PropertySet playlistIsLikedStatus = PropertySet.from(PlaylistProperty.IS_LIKED.bind(true));
-        Map<Urn,PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), playlistIsLikedStatus);
+        Map<Urn, PropertySet> likedPlaylists = Collections.singletonMap(playlist.getUrn(), playlistIsLikedStatus);
         final SearchResult expectedSearchResult = new SearchResult(apiPlaylists, Optional.<Link>absent(), Optional.<Urn>absent());
         when(loadPlaylistLikedStatuses.call(expectedSearchResult)).thenReturn(likedPlaylists);
 

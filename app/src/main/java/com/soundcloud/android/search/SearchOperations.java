@@ -62,7 +62,7 @@ class SearchOperations {
     private final LoadFollowingCommand loadFollowingCommand;
     private final Scheduler scheduler;
 
-    private final Func1<SearchResult, SearchResult> mergeLocalInfo = new Func1<SearchResult, SearchResult>() {
+    private final Func1<SearchResult, SearchResult> mergePlaylistLikeStatus = new Func1<SearchResult, SearchResult>() {
         @Override
         public SearchResult call(SearchResult input) {
             final Map<Urn, PropertySet> playlistsIsLikedStatus = loadPlaylistLikedStatuses.call(input);
@@ -228,7 +228,7 @@ class SearchOperations {
                     .subscribeOn(scheduler)
                     .doOnNext(storePlaylistsCommand.toAction())
                     .map(TO_SEARCH_RESULT)
-                    .map(mergeLocalInfo);
+                    .map(mergePlaylistLikeStatus);
         }
     }
 
@@ -266,7 +266,7 @@ class SearchOperations {
                     .subscribeOn(scheduler)
                     .doOnNext(cacheUniversalSearchCommand.toAction())
                     .map(TO_SEARCH_RESULT)
-                    .map(mergeLocalInfo)
+                    .map(mergePlaylistLikeStatus)
                     .map(mergeFollowings);
         }
     }
