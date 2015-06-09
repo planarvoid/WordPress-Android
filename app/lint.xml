@@ -11,8 +11,9 @@
     <issue id="ViewConstructor" severity="ignore"/>
     <issue id="TypographyEllipsis" severity="ignore"/>
     <issue id="MissingQuantity" severity="warning"/>
+    <issue id="MissingQuantity" severity="warning"/>
 
-    <!-- change before release -->
+    <issue id="RtlHardcoded" severity="informational"/>
     <issue id="MissingTranslation" severity="informational"/>
     <issue id="DuplicateDefinition" severity="warning"/>
     <issue id="Suspicious0dp" severity="warning"/>
