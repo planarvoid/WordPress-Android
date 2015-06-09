@@ -3,7 +3,6 @@ package com.soundcloud.android.presentation;
 
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 
-import com.google.common.base.Preconditions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
 
@@ -42,7 +41,9 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         final CollectionBinding<ItemT> collectionBinding = getBinding();
-        Preconditions.checkState(collectionBinding.adapter() instanceof RecyclerViewAdapter, "Adapter must be an " + RecyclerViewAdapter.class);
+        if (!(collectionBinding.adapter() instanceof RecyclerViewAdapter)) {
+            throw new IllegalArgumentException("Adapter must be an " + RecyclerViewAdapter.class);
+        }
 
         this.recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         if (this.recyclerView == null) {
