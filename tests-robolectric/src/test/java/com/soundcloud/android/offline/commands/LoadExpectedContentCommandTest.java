@@ -208,20 +208,6 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void doesNotReturnTracksWithoutStreamUrl() {
-        ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
-        Urn urn = apiTrack.getUrn();
-        testFixtures().insertPolicyAllow(urn, NOW);
-
-        database().execSQL("UPDATE Sounds SET stream_url=null"
-                + " WHERE _id=" + apiTrack.getUrn().getNumericId());
-
-        Collection<DownloadRequest> pending = command.call(null);
-
-        expect(pending).toBeEmpty();
-    }
-
-    @Test
     public void doesNotReturnLikedTrackWhenPolicyUpdateHappenedAfterTheLast30Days() {
         ApiTrack apiTrack = testFixtures().insertLikedTrack(new Date(10));
         testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW - TimeUnit.DAYS.toMillis(30));
