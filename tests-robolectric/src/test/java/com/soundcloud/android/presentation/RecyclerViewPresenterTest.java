@@ -481,7 +481,7 @@ public class RecyclerViewPresenterTest {
     @Test
     public void detachRefreshWrapperStopsRefreshingAndDetachesWrapper() throws Exception {
         createPresenterWithBinding(defaultBinding());
-        presenter.detachRefreshWrapper();
+        presenter.detachSwipeToRefresh();
 
         InOrder inOrder = Mockito.inOrder(swipeRefreshAttacher);
         inOrder.verify(swipeRefreshAttacher).setRefreshing(false);

@@ -131,7 +131,7 @@ abstract class CollectionViewPresenter<ItemT>
     public void onDestroyView(Fragment fragment) {
         Log.d(TAG, "onDestroyView");
         viewLifeCycle.unsubscribe();
-        detachRefreshWrapper();
+        detachSwipeToRefresh();
         super.onDestroyView(fragment);
     }
 
@@ -142,7 +142,7 @@ abstract class CollectionViewPresenter<ItemT>
         }
     }
 
-    protected void detachRefreshWrapper() {
+    protected void detachSwipeToRefresh() {
         swipeRefreshAttacher.setRefreshing(false);
         swipeRefreshAttacher.detach();
     }

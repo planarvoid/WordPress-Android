@@ -91,7 +91,7 @@ public abstract class ProfileRecyclerViewPresenter<ItemT> extends RecyclerViewPr
 
     @Override
     public void detachRefreshLayout(){
-        detachRefreshWrapper();
+        detachSwipeToRefresh();
         pendingRefreshLayout = null;
     }
 }
