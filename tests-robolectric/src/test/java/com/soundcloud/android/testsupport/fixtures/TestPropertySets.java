@@ -9,6 +9,7 @@ import com.soundcloud.android.ads.LeaveBehindProperty;
 import com.soundcloud.android.api.legacy.model.Sharing;
 import com.soundcloud.android.api.model.ApiPlaylist;
 import com.soundcloud.android.api.model.ApiTrack;
+import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.likes.LikeProperty;
 import com.soundcloud.android.model.PlayableProperty;
 import com.soundcloud.android.model.Urn;
@@ -16,6 +17,7 @@ import com.soundcloud.android.offline.OfflineProperty;
 import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackProperty;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.propeller.PropertySet;
 
 import android.net.Uri;
@@ -262,5 +264,22 @@ public abstract class TestPropertySets {
                 PlaylistProperty.IS_POSTED.bind(isPosted),
                 OfflineProperty.Collection.IS_MARKED_FOR_OFFLINE.bind(markedForOffline),
                 PlaylistProperty.TRACK_COUNT.bind(apiPlaylist.getTrackCount()));
+    }
+
+    public static PropertySet followingEntityChangeSet(Urn targetUrn, int followersCount, boolean following) {
+        return PropertySet.from(
+                UserProperty.URN.bind(targetUrn),
+                UserProperty.FOLLOWERS_COUNT.bind(followersCount),
+                UserProperty.IS_FOLLOWED_BY_ME.bind(following)
+        );
+    }
+
+    public static PropertySet userFollowing(ApiUser user, boolean following) {
+        return PropertySet.from(
+                UserProperty.URN.bind(Urn.forUser(user.getId())),
+                UserProperty.USERNAME.bind(user.getUsername()),
+                UserProperty.COUNTRY.bind(user.getCountry()),
+                UserProperty.FOLLOWERS_COUNT.bind(user.getFollowersCount()),
+                UserProperty.IS_FOLLOWED_BY_ME.bind(following));
     }
 }

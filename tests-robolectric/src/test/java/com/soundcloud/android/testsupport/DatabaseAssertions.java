@@ -81,6 +81,30 @@ public class DatabaseAssertions {
                 .whereNotNull(TableColumns.PlaylistTracks.REMOVED_AT)), counts(1));
     }
 
+    public void assertUserFollowingsPending(Urn targetUrn, boolean following) {
+        Query query = from(Table.UserAssociations.name())
+                .whereEq(TableColumns.UserAssociations.TARGET_ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.UserAssociations.ASSOCIATION_TYPE, TableColumns.UserAssociations.TYPE_FOLLOWING)
+                .whereEq(TableColumns.UserAssociations.RESOURCE_TYPE, TableColumns.UserAssociations.TYPE_RESOURCE_USER)
+                .whereNotNull(TableColumns.UserAssociations.CREATED_AT);
+
+        if (following) {
+            query.whereNotNull(TableColumns.UserAssociations.ADDED_AT)
+                    .whereNull(TableColumns.UserAssociations.REMOVED_AT);
+        } else {
+            query.whereNull(TableColumns.UserAssociations.ADDED_AT)
+                    .whereNotNull(TableColumns.UserAssociations.REMOVED_AT);
+        }
+
+        assertThat(select(query), counts(1));
+    }
+
+    public void assertUserFollowersCount(Urn targetUrn, int numberOfFollowers) {
+        assertThat(select(from(Table.Users.name())
+                .whereEq(TableColumns.Users._ID, targetUrn.getNumericId())
+                .whereEq(TableColumns.Users.FOLLOWERS_COUNT, numberOfFollowers)), counts(1));
+    }
+
     private void assertTrackPolicyInserted(ApiTrack track) {
         assertThat(select(from(Table.TrackPolicies.name())
                 .whereEq(TableColumns.TrackPolicies.TRACK_ID, track.getId())

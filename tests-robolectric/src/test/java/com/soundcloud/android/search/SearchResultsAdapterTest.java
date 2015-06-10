@@ -24,6 +24,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.view.adapters.FollowableUserItemRenderer;
 import com.soundcloud.android.view.adapters.PlaylistItemRenderer;
 import com.soundcloud.android.view.adapters.UserItemRenderer;
 import com.soundcloud.propeller.PropertySet;
@@ -44,7 +45,7 @@ import java.util.List;
 @RunWith(SoundCloudTestRunner.class)
 public class SearchResultsAdapterTest {
 
-    @Mock private UserItemRenderer userRenderer;
+    @Mock private FollowableUserItemRenderer userRenderer;
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlaylistItemRenderer playlistRenderer;
     @Mock private ViewGroup itemView;

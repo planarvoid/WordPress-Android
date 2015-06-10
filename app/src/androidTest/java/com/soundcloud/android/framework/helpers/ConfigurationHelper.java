@@ -35,7 +35,7 @@ public class ConfigurationHelper {
         disableOfflineContent(context);
         new OfflineContentHelper().clearOfflineContent(context);
     }
-    
+
     private static void enableFeature(Context context, final String feature) {
         final FeatureStorage featureStorage = getFeatureStorage(context);
 

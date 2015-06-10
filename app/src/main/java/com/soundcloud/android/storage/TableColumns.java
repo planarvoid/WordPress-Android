@@ -157,8 +157,10 @@ public final class TableColumns {
         public static final String REMOVED_AT = "removed_at"; // when was this removed locally (pre-api sync)
         public static final String TOKEN = "token"; // when was this removed locally (pre-api sync)
 
-        public static final String TYPE_FOLLOWING = String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWING);
-        public static final String TYPE_FOLLOWER = String.valueOf(ScContentProvider.CollectionItemTypes.FOLLOWER);
+        public static final int TYPE_FOLLOWING = ScContentProvider.CollectionItemTypes.FOLLOWING;
+        public static final int TYPE_FOLLOWER = ScContentProvider.CollectionItemTypes.FOLLOWER;
+
+        public static final int TYPE_RESOURCE_USER = 0;
     }
 
     /**
