@@ -8,6 +8,8 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.users.UserItem;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.UserRecyclerViewAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -73,5 +75,10 @@ class UserFollowingsPresenter extends ProfileRecyclerViewPresenter<UserItem> {
     @Override
     protected void onItemClicked(View view, int position) {
         navigator.openProfile(view.getContext(), adapter.getItem(position).getEntityUrn());
+    }
+
+    @Override
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 }
