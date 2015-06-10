@@ -65,11 +65,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
 
     private PlaybackProgressInfo playbackProgressInfo;
     private boolean gotRecommendedTracks;
-    private FetchRecommendedState fetchState = FetchRecommendedState.IDLE;
-
-    public enum FetchRecommendedState {
-        IDLE, LOADING, ERROR, EMPTY
-    }
 
     @Inject
     public PlayQueueManager(Context context,
@@ -398,7 +393,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     private void loadRecommendedTracks() {
-        setNewRelatedLoadingState(FetchRecommendedState.LOADING);
+        setNewRelatedLoadingState();
         gotRecommendedTracks = false;
         fetchRecommendedSubscription = recommendedTracksObservable.subscribe(this);
     }
@@ -417,17 +412,17 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     @Override
     public void onCompleted() {
         if (gotRecommendedTracks) {
-            setNewRelatedLoadingState(FetchRecommendedState.IDLE);
+            setNewRelatedLoadingState();
             publishQueueUpdate();
             saveQueue();
         } else {
-            setNewRelatedLoadingState(FetchRecommendedState.EMPTY);
+            setNewRelatedLoadingState();
         }
     }
 
     @Override
     public void onError(Throwable e) {
-        setNewRelatedLoadingState(FetchRecommendedState.ERROR);
+        setNewRelatedLoadingState();
     }
 
     private void saveQueue() {
@@ -436,8 +431,7 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         }
     }
 
-    private void setNewRelatedLoadingState(FetchRecommendedState fetchState) {
-        this.fetchState = fetchState;
+    private void setNewRelatedLoadingState() {
         broadcastRelatedLoadStateChanged();
     }
 
