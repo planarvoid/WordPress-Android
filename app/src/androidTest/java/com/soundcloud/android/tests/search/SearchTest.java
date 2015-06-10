@@ -1,14 +1,6 @@
 package com.soundcloud.android.tests.search;
 
-import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
-import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNot.not;
-
 import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
@@ -17,14 +9,23 @@ import com.soundcloud.android.screens.elements.UserItemElement;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
+import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.ActivityTest;
 
-public class SearchTest extends ActivityTest<MainActivity> {
+import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+
+public class SearchTest extends ActivityTest<SearchActivity> {
     private StreamScreen streamScreen;
     private PlaylistTagsScreen playlistTagsScreen;
 
     public SearchTest() {
-        super(MainActivity.class);
+        super(SearchActivity.class);
     }
 
     @Override
@@ -41,38 +42,15 @@ public class SearchTest extends ActivityTest<MainActivity> {
         playlistTagsScreen = streamScreen.actionBar().clickSearchButton();
     }
 
-    public void testTappingSearchIconOpensFullPageSearch() {
-        assertEquals("Playlist tags screen should be visible", true, playlistTagsScreen.isVisible());
-    }
-
     public void testClickingPhysicalSearchButtonOpensFullPageSearch() {
         assertEquals("Playlist tags screen should be visible", true, playlistTagsScreen.isVisible());
     }
 
     public void testSubmittingSearchQueryOpensSearchResults() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
+
         assertEquals("Search results screen should be visible", true, resultsScreen.isVisible());
-    }
-
-    public void testSubmittingSearchQueryRendersSearchResultsList() {
-        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
-        assertTrue("Search results should be populated", resultsScreen.getResultItemCount() > 0);
-    }
-
-    public void testGoingBackFromSearchResultsReturnsToTagPage() {
-        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
-        resultsScreen.pressBack();
-        playlistTagsScreen = new PlaylistTagsScreen(solo);
-        assertEquals("Tags screen should be visible", true, playlistTagsScreen.isVisible());
-        assertEquals("Search query should be empty", "", playlistTagsScreen.actionBar().getSearchQuery());
-    }
-
-    public void testGoingBackFromTagsScreenExitsSearch() {
-        SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
-        resultsScreen.pressBack();
-        playlistTagsScreen = new PlaylistTagsScreen(solo);
-        streamScreen = playlistTagsScreen.pressBack();
-        assertEquals("Main screen should be visible", true, streamScreen.isVisible());
+        assertThat("Search results should be populated", resultsScreen.getResultItemCount(), is(greaterThan(0)));
     }
 
     public void testGoingBackFromPlayingTrackFromSearchResultCollapsesThePlayer() {
@@ -147,7 +125,6 @@ public class SearchTest extends ActivityTest<MainActivity> {
 
     public void testOrderOfDisplayededTabs() {
         SearchResultsScreen resultsScreen = playlistTagsScreen.actionBar().doSearch("clownstep");
-        waiter.waitForContentAndRetryIfLoadingFailed();
         assertEquals("Current tab should be ALL", "ALL", resultsScreen.currentTabTitle());
         resultsScreen.swipeLeft();
         assertEquals("Current tab should be TRACKS", "TRACKS", resultsScreen.currentTabTitle());
