@@ -22,10 +22,12 @@ public class CipherWrapper {
     }
 
     public int getOutputSize(int length) {
+        ensureInitCalled();
         return cipher.getOutputSize(length);
     }
 
     public int update(byte[] buffer, int i, int readBytes, byte[] encrypted) throws EncryptionException {
+        ensureInitCalled();
         try {
             return cipher.update(buffer, i, readBytes, encrypted);
         } catch (ShortBufferException e) {
@@ -34,6 +36,7 @@ public class CipherWrapper {
     }
 
     public int doFinal(byte[] output, int outputOffset) throws EncryptionException {
+        ensureInitCalled();
         try {
             return cipher.doFinal(output, outputOffset);
         } catch (GeneralSecurityException e) {
@@ -52,6 +55,12 @@ public class CipherWrapper {
             throw new EncryptionException("Failed to get cipher instance", e);
         } catch (InvalidAlgorithmParameterException | InvalidKeyException e) {
             throw new EncryptionException("Failed to init cipher with given key and iv", e);
+        }
+    }
+
+    private void ensureInitCalled() {
+        if (cipher == null) {
+            throw new IllegalStateException("Cipher must be initialized before usage, call init first!");
         }
     }
 

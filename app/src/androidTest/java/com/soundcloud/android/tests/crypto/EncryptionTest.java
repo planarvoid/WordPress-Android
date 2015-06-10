@@ -51,10 +51,14 @@ public class EncryptionTest extends InstrumentationTestCase {
         final ByteArrayOutputStream encryptedOutput = new ByteArrayOutputStream();
 
         encryptor.tryToCancelRequest();
+        boolean exceptionThrown = false;
         try {
             encryptor.encrypt(plainTextInput, encryptedOutput, secret);
         } catch (EncryptionException | IOException ex){
             assertTrue(ex instanceof EncryptionInterruptedException);
+            exceptionThrown = true;
+        } finally {
+            assertTrue(exceptionThrown);
         }
 
         encryptor.encrypt(plainTextInput, encryptedOutput, secret);
