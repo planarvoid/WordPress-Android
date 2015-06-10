@@ -183,7 +183,7 @@ public class Han  {
 
     private void swipeHorizontal(int side) {
         // swipe at vertical center and from one horizontal side to the other
-        swipeHorizontal(side, .99f, .5f);
+        swipeHorizontal(side, .8f, .5f);
     }
 
     private void swipeHorizontal(int side, float horizontalPosition, float verticalPosition){
