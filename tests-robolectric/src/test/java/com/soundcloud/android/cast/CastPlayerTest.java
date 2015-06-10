@@ -68,7 +68,7 @@ public class CastPlayerTest {
     @Mock private AdsOperations adsOperations;
 
     @Captor private ArgumentCaptor<Playa.StateTransition> transitionArgumentCaptor;
-    @Captor private ArgumentCaptor<ProgressReporter.ProgressPusher> progressPusherArgumentCaptor;
+    @Captor private ArgumentCaptor<ProgressReporter.ProgressPuller> progressPusherArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -81,8 +81,8 @@ public class CastPlayerTest {
         when(castManager.getCurrentMediaPosition()).thenReturn(123L);
         when(castManager.getMediaDuration()).thenReturn(456L);
 
-        verify(progressReporter).setProgressPusher(progressPusherArgumentCaptor.capture());
-        progressPusherArgumentCaptor.getValue().pushProgress();
+        verify(progressReporter).setProgressPuller(progressPusherArgumentCaptor.capture());
+        progressPusherArgumentCaptor.getValue().pullProgress();
 
         verifyProgress(123L, 456L);
     }

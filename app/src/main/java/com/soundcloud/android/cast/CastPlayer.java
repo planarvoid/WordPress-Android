@@ -39,7 +39,7 @@ import javax.inject.Singleton;
 import java.util.List;
 
 @Singleton
-public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPusher {
+public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporter.ProgressPuller {
 
     private final CastOperations castOperations;
     private final VideoCastManager castManager;
@@ -65,7 +65,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
         this.eventBus = eventBus;
 
         castManager.addVideoCastConsumer(this);
-        progressReporter.setProgressPusher(this);
+        progressReporter.setProgressPuller(this);
     }
 
     @Override
@@ -120,7 +120,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     }
 
     @Override
-    public void pushProgress() {
+    public void pullProgress() {
         try {
             final PlaybackProgress playbackProgress = new PlaybackProgress(castManager.getCurrentMediaPosition(), castManager.getMediaDuration());
             eventBus.publish(EventQueue.PLAYBACK_PROGRESS, new PlaybackProgressEvent(playbackProgress, castOperations.getRemoteCurrentTrackUrn()));

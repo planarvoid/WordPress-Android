@@ -27,6 +27,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import rx.Observable;
 import rx.observers.TestObserver;
+import rx.schedulers.Schedulers;
 
 import android.content.res.Resources;
 
@@ -59,7 +60,8 @@ public class CastOperationsTest {
                 trackRepository,
                 policyOperations,
                 imageOperations,
-                resources);
+                resources,
+                Schedulers.immediate());
         observer = new TestObserver<>();
         when(imageOperations.getUrlForLargestImage(resources, TRACK1)).thenReturn(IMAGE_URL);
     }

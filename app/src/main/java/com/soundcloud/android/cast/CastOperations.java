@@ -1,5 +1,7 @@
 package com.soundcloud.android.cast;
 
+import static com.soundcloud.android.ApplicationModule.*;
+
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.common.images.WebImage;
@@ -8,6 +10,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.exceptions.NoConn
 import com.google.android.libraries.cast.companionlibrary.cast.exceptions.TransientNetworkDisconnectionException;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackConstants;
 import com.soundcloud.android.policies.PolicyOperations;
 import com.soundcloud.android.rx.RxUtils;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -19,16 +22,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import rx.Observable;
+import rx.Scheduler;
 import rx.functions.Func1;
 import rx.functions.Func2;
+import rx.schedulers.TimeInterval;
 
 import android.content.res.Resources;
 import android.net.Uri;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class CastOperations {
 
@@ -55,6 +62,7 @@ public class CastOperations {
     private final PolicyOperations policyOperations;
     private final ImageOperations imageOperations;
     private final Resources resources;
+    private final Scheduler progressPullIntervalScheduler;
 
     private final Func1<Urn, Observable<PropertySet>> loadTracks = new Func1<Urn, Observable<PropertySet>>() {
         @Override
@@ -68,12 +76,14 @@ public class CastOperations {
                           TrackRepository trackRepository,
                           PolicyOperations policyOperations,
                           ImageOperations imageOperations,
-                          Resources resources) {
+                          Resources resources,
+                          @Named(LOW_PRIORITY) Scheduler progressPullIntervalScheduler) {
         this.videoCastManager = videoCastManager;
         this.trackRepository = trackRepository;
         this.policyOperations = policyOperations;
         this.imageOperations = imageOperations;
         this.resources = resources;
+        this.progressPullIntervalScheduler = progressPullIntervalScheduler;
     }
 
     public Observable<LocalPlayQueue> loadLocalPlayQueueWithoutMonetizableAndPrivateTracks(final Urn currentTrackUrn, List<Urn> unfilteredLocalPlayQueueTracks) {
@@ -184,6 +194,10 @@ public class CastOperations {
 
     private Urn getCurrentTrackUrn(MediaInfo mediaInfo) {
         return mediaInfo == null ? Urn.NOT_SET : new Urn(mediaInfo.getMetadata().getString(KEY_URN));
+    }
+
+    public Observable<TimeInterval<Long>> intervalForProgressPull() {
+        return Observable.interval(PlaybackConstants.PROGRESS_DELAY_MS, TimeUnit.MILLISECONDS, progressPullIntervalScheduler).timeInterval();
     }
 
 }

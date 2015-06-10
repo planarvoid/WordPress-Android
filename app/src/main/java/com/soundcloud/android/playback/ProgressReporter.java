@@ -1,49 +1,60 @@
 package com.soundcloud.android.playback;
 
 import com.google.common.annotations.VisibleForTesting;
-
-import android.os.Handler;
-import android.os.Message;
+import com.soundcloud.android.ApplicationModule;
+import com.soundcloud.android.cast.CastOperations;
+import com.soundcloud.android.rx.ScSchedulers;
+import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import rx.Observable;
+import rx.Scheduler;
+import rx.Subscription;
+import rx.schedulers.Schedulers;
+import rx.schedulers.TimeInterval;
+import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
-public class ProgressReporter extends Handler {
+public class ProgressReporter {
 
-    private static final int MESSAGE_ID = 0;
-
-    private WeakReference<ProgressPusher> progressPusherReference;
+    private final CastOperations castOperations;
+    private WeakReference<ProgressPuller> progressPullerReference;
+    private Subscription subscription = Subscriptions.empty();
 
     @Inject
-    ProgressReporter() {
-        // for dagger
+    ProgressReporter(CastOperations castOperations) {
+        this.castOperations = castOperations;
+    }
+
+    public interface ProgressPuller {
+        void pullProgress();
     }
 
     @VisibleForTesting
-    public void setProgressPusher(ProgressPusher progressPusher) {
-        progressPusherReference = new WeakReference<>(progressPusher);
+    public void setProgressPuller(ProgressPuller progressPuller) {
+        progressPullerReference = new WeakReference<>(progressPuller);
     }
 
     public void start(){
-        sendEmptyMessage(MESSAGE_ID);
+        subscription.unsubscribe();
+        subscription = castOperations.intervalForProgressPull().subscribe(new ProgressTickSubscriber());
     }
 
     public void stop(){
-        removeMessages(MESSAGE_ID);
+        subscription.unsubscribe();
     }
 
-    @Override
-    public void handleMessage(Message msg) {
-        if (progressPusherReference != null) {
-            final ProgressPusher progressPusher = progressPusherReference.get();
-            if (progressPusher != null) {
-                progressPusher.pushProgress();
-                sendEmptyMessageDelayed(MESSAGE_ID, PlaybackConstants.PROGRESS_DELAY_MS);
+    private class ProgressTickSubscriber extends DefaultSubscriber<TimeInterval<Long>> {
+        @Override
+        public void onNext(TimeInterval<Long> timeInterval) {
+            if (progressPullerReference != null) {
+                final ProgressPuller progressPuller = progressPullerReference.get();
+                if (progressPuller != null) {
+                    progressPuller.pullProgress();
+                }
             }
         }
-    }
-
-    public interface ProgressPusher {
-        void pushProgress();
     }
 }
