@@ -2,6 +2,7 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -11,11 +12,14 @@ import rx.Subscription;
 import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
-public class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment> implements SwipeRefreshLayout.OnRefreshListener, RefreshAware {
+class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
+        implements SwipeRefreshLayout.OnRefreshListener, RefreshableProfileItem {
 
     private boolean isNotEmpty;
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
@@ -25,6 +29,7 @@ public class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserD
     private View[] refreshViews;
 
     private final UserDetailsView userDetailsView;
+    private final UserDetailsScroller userDetailsScroller;
 
     private final Func1<ProfileUser, Boolean> hasDetails = new Func1<ProfileUser, Boolean>() {
         @Override
@@ -33,36 +38,44 @@ public class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserD
         }
     };
 
-    @Override
-    public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
-        super.onCreate(fragment, bundle);
-        // we dont have a proper onAttach method in LightCycle, so this will have to do
-        activity = (ProfileActivity) fragment.getActivity();
-    }
-
-    public UserDetailsPresenter(UserDetailsView userDetailsView) {
+    public UserDetailsPresenter(UserDetailsView userDetailsView, UserDetailsScroller userDetailsScroller) {
         this.userDetailsView = userDetailsView;
-    }
+        this.userDetailsScroller = userDetailsScroller;
 
-    public void setHeaderSize(int currentHeaderSize) {
-        userDetailsView.setTopPadding(currentHeaderSize);
+        userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
+            @Override
+            public void onViewUri(Uri uri) {
+                activity.startActivity(new Intent(Intent.ACTION_VIEW, uri));
+            }
+        });
     }
 
     @Override
     public void onViewCreated(UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
-        setHeaderSize(view.getResources().getDimensionPixelSize(R.dimen.profile_header_expanded_height));
+
+        // we dont have a proper onAttach method in LightCycle, so this will have to do
+        activity = (ProfileActivity) fragment.getActivity();
+
+        userDetailsView.setView(view);
         configureEmptyView();
 
-        refreshViews = new View[]{view.findViewById(R.id.user_details_holder), view.findViewById(android.R.id.empty)};
+        final View userDetailsView = view.findViewById(R.id.user_details_holder);
+        final EmptyView emptyView = (EmptyView) view.findViewById(android.R.id.empty);
+        refreshViews = new View[]{userDetailsView, emptyView};
         if (refreshLayout != null){
             refreshLayout.setSwipeableChildren(refreshViews);
         }
-        subscribeToUserObservable(((ProfileActivity) fragment.getActivity()).profileUserProvider().user());
+
+        userDetailsScroller.setViews(userDetailsView, emptyView);
+        subscribeToUserObservable(activity.profileUserProvider().user());
     }
 
     @Override
     public void onDestroyView(UserDetailsFragment fragment) {
+        activity = null;
+        userDetailsView.clearViews();
+        userDetailsScroller.clearViews();
         subscription.unsubscribe();
         super.onDestroyView(fragment);
     }
@@ -154,7 +167,8 @@ public class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserD
         @Override
         public void onError(Throwable e) {
             super.onError(e);
-            emptyViewStatus = EmptyView.Status.ERROR;
+
+            emptyViewStatus = ErrorUtils.emptyViewStatusFromError(e);
             configureEmptyView();
 
             if (refreshLayout != null) {

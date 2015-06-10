@@ -20,11 +20,13 @@ class UserLikesPresenter extends ProfilePlayablePresenter {
     @Inject
     UserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                        ImagePauseOnScrollListener imagePauseOnScrollListener,
+                       ProfileRecyclerViewScroller profileRecyclerViewScroller,
                        MixedPlayableRecyclerItemAdapter adapter,
                        MixedPlayableItemClickListener.Factory clickListenerFactory,
                        PlayableListUpdater.Factory updaterFactory,
                        ProfileOperations profileOperations) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter, clickListenerFactory, updaterFactory, profileOperations);
+        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller, adapter,
+                clickListenerFactory, updaterFactory, profileOperations);
     }
 
     @Override

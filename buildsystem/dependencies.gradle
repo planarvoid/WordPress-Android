@@ -10,7 +10,7 @@ ext {
   androidBuildToolsVersion = '22.0.1'
 
   // Dependency versions
-  androidSupportVersion = '22.1.0'
+  androidSupportVersion = '22.2.0'
   playServicesVersion = '6.5.87'
   lightCycleVersion = '0.0.4'
   daggerVersion = '1.2.2'

@@ -7,7 +7,7 @@ import com.soundcloud.android.view.EmptyView;
 
 import javax.inject.Inject;
 
-public class ProfileEmptyViewHelper {
+class ProfileEmptyViewHelper {
 
     private final AccountOperations accountOperations;
 

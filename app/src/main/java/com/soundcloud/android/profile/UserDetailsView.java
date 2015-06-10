@@ -6,11 +6,8 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 
-import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.TextView;
@@ -18,53 +15,45 @@ import android.widget.TextView;
 import javax.inject.Inject;
 import java.util.Locale;
 
-public class UserDetailsView extends DefaultSupportFragmentLightCycle<UserDetailsFragment> {
+class UserDetailsView {
 
     private static final String DISCOGS_PATH = "http://www.discogs.com/artist/%s";
     private static final String MYSPACE_PATH = "http://www.myspace.com/%s";
 
-    private UserDetailsFragment fragment;
-
     @Inject ProfileEmptyViewHelper profileEmptyViewHelper;
-
     @InjectView(R.id.description) TextView descriptionText;
     @InjectView(R.id.website) TextView websiteText;
     @InjectView(R.id.discogs_name) TextView discogsText;
     @InjectView(R.id.myspace_name) TextView myspaceText;
     @InjectView(android.R.id.empty) EmptyView emptyView;
 
+    private UserDetailsListener listener;
+    private Urn userUrn;
+
     @Inject
     public UserDetailsView() {
         // dgr
     }
 
-    @Override
-    public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
-        super.onCreate(fragment, bundle);
-        this.fragment = fragment;
+    public void setListener(UserDetailsListener listener) {
+        this.listener = listener;
     }
 
-    @Override
-    public void onViewCreated(UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
-        super.onViewCreated(fragment, view, savedInstanceState);
+    public void setUrn(Urn userUrn){
+        this.userUrn = userUrn;
+    }
+
+    public void setView(View view){
         ButterKnife.inject(this, view);
-
-        profileEmptyViewHelper.configureBuilderForUserDetails(emptyView, getUserUrn(fragment));
     }
 
-    private Urn getUserUrn(UserDetailsFragment fragment) {
-        return fragment.getActivity().getIntent().getParcelableExtra(ProfileActivity.EXTRA_USER_URN);
-    }
-
-    public void setTopPadding(int currentHeaderSize) {
-        View fragmentLayout = getFragmentView();
-        if (fragmentLayout != null){
-            fragmentLayout.setPadding(0, currentHeaderSize, 0, 0);
-        }
+    public void clearViews(){
+        ButterKnife.reset(this);
     }
 
     void showEmptyView(EmptyView.Status status){
         if (emptyView != null){
+            profileEmptyViewHelper.configureBuilderForUserDetails(emptyView, this.userUrn);
             emptyView.setStatus(status);
             emptyView.setVisibility(View.VISIBLE);
         }
@@ -74,10 +63,6 @@ public class UserDetailsView extends DefaultSupportFragmentLightCycle<UserDetail
         if (emptyView != null){
             emptyView.setVisibility(View.GONE);
         }
-    }
-
-    private View getFragmentView() {
-        return fragment == null ? null : fragment.getView();
     }
 
     void showDescription(String description) {
@@ -96,7 +81,9 @@ public class UserDetailsView extends DefaultSupportFragmentLightCycle<UserDetail
         websiteText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragment.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(websiteUrl)));
+                if (listener != null) {
+                    listener.onViewUri(Uri.parse(websiteUrl));
+                }
             }
         });
     }
@@ -111,7 +98,9 @@ public class UserDetailsView extends DefaultSupportFragmentLightCycle<UserDetail
         discogsText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragment.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Locale.US, DISCOGS_PATH, discogsName))));
+                if (listener != null) {
+                    listener.onViewUri(Uri.parse(String.format(Locale.US, DISCOGS_PATH, discogsName)));
+                }
             }
         });
     }
@@ -126,12 +115,18 @@ public class UserDetailsView extends DefaultSupportFragmentLightCycle<UserDetail
         myspaceText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragment.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(String.format(Locale.US, MYSPACE_PATH, myspaceName))));
+                if (listener != null) {
+                    listener.onViewUri(Uri.parse(String.format(Locale.US, MYSPACE_PATH, myspaceName)));
+                }
             }
         });
     }
 
     void hideMyspace() {
         myspaceText.setVisibility(View.GONE);
+    }
+
+    interface UserDetailsListener {
+        void onViewUri(Uri uri);
     }
 }

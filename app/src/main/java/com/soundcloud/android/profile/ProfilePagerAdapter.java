@@ -10,7 +10,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.view.ViewGroup;
 
-public class ProfilePagerAdapter extends FragmentPagerAdapter {
+class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     public static final int FRAGMENT_COUNT = 6;
 
@@ -40,9 +40,9 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        final Fragment item = (Fragment) super.instantiateItem(container, position);
-        headerPresenter.registerScrollableFragment((ScrollableProfileItem) item);
-        refreshHelper.addRefreshable(position, (RefreshAware) item);
+        final ProfileFragment item = (ProfileFragment) super.instantiateItem(container, position);
+        headerPresenter.registerScrollableItem(item.getScrollableProfileItem());
+        refreshHelper.addRefreshable(position, item.getRefreshableItem());
         return item;
     }
 
@@ -74,7 +74,8 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
-        headerPresenter.unregisterScrollableFragment((ScrollableProfileItem) object);
+        final ProfileFragment profileFragment = (ProfileFragment) object;
+        headerPresenter.unregisterScrollableFragment(profileFragment.getScrollableProfileItem());
         refreshHelper.removeFragment(position);
         super.destroyItem(container, position, object);
     }
