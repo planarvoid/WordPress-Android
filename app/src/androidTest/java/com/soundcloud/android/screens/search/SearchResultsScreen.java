@@ -94,13 +94,11 @@ public class SearchResultsScreen extends Screen {
     }
 
     public String currentTabTitle() {
-        waiter.waitForItemCountToIncrease(resultsList().getAdapter(), 0);
         // toUppercase since SlidingTabLayout does the same
         return getViewPager().getCurrentTabText().toUpperCase();
     }
 
     private ViewPagerElement getViewPager() {
-        waiter.waitForContentAndRetryIfLoadingFailed();
         return new ViewPagerElement(testDriver);
     }
 
