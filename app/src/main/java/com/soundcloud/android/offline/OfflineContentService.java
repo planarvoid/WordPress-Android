@@ -107,7 +107,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         final String action = intent.getAction();
-        Log.d(TAG, "Starting offlineContentService for action: " + action);
+        Log.d(TAG, " Starting offlineContentService for action: " + action);
 
         offlineContentScheduler.cancelPendingRetries();
 
@@ -120,7 +120,11 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new OfflineContentRequestsSubscriber());
         } else if (ACTION_STOP.equalsIgnoreCase(action)) {
-            stop();
+            if (downloadHandler.isDownloading()) {
+                downloadHandler.cancel();
+            } else {
+                stop();
+            }
         }
         return START_NOT_STICKY;
     }
@@ -140,13 +144,20 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public void onError(DownloadResult result) {
         Log.d(TAG, "Download failed " + result);
 
+        if (result.isCancelled()) {
+            // for now we just stop the service
+            stop();
+            return;
+        }
+
         notificationController.onDownloadError(result);
         notifyTrackUnavailable(result);
         notifyRelatedQueuedCollectionsAsRequested(result);
         notifyRelatedCollectionsAsRequested(result);
 
         if (result.isConnectionError()) {
-            stopAndRetryLater(result);
+            stopAndRetryLater();
+            notificationController.onConnectionError(result);
         } else {
             downloadNextOrFinish(result);
         }
@@ -198,10 +209,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         notificationController.onDownloadsFinished(result);
     }
 
-    private void stopAndRetryLater(DownloadResult result) {
+    private void stopAndRetryLater() {
         offlineContentScheduler.scheduleRetry();
         stop();
-        notificationController.onConnectionError(result);
     }
 
     private void download(DownloadRequest request) {

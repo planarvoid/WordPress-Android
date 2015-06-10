@@ -13,6 +13,7 @@ import com.squareup.okhttp.Response;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +38,7 @@ class StrictSSLHttpClient {
         return client;
     }
 
-    public DownloadResponse downloadFile(String fileUrl) throws IOException {
+    public TrackFileResponse getFileStream(String fileUrl) throws IOException {
         final Request request = new Request.Builder()
                 .url(fileUrl)
                 .addHeader(HttpHeaders.USER_AGENT, deviceHelper.getUserAgent())
@@ -47,7 +48,7 @@ class StrictSSLHttpClient {
 
         final Response response = httpClient.newCall(request).execute();
         logResponse(response);
-        return new DownloadResponse(response);
+        return new TrackFileResponse(response);
     }
 
     private void logRequest(Request request) {
@@ -58,11 +59,15 @@ class StrictSSLHttpClient {
         Log.d(TAG, "[OkHttp] " + response);
     }
 
-    static class DownloadResponse {
+    static class TrackFileResponse implements Closeable {
         private final Response response;
 
-        public DownloadResponse(Response response) {
+        public TrackFileResponse(Response response) {
             this.response = response;
+        }
+
+        public boolean isSuccess() {
+            return response.isSuccessful();
         }
 
         public boolean isFailure() {

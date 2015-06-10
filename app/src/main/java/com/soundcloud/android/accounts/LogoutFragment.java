@@ -3,8 +3,10 @@ package com.soundcloud.android.accounts;
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import rx.subscriptions.CompositeSubscription;
@@ -24,6 +26,7 @@ public class LogoutFragment extends Fragment {
 
     @Inject EventBus eventBus;
     @Inject AccountOperations accountOperations;
+    @Inject FeatureOperations featureOperations;
 
     private final CompositeSubscription subscription = new CompositeSubscription();
 
@@ -33,14 +36,18 @@ public class LogoutFragment extends Fragment {
     }
 
     @VisibleForTesting
-    LogoutFragment(EventBus eventBus, AccountOperations accountOperations) {
+    LogoutFragment(EventBus eventBus, AccountOperations accountOperations, FeatureOperations featureOperations) {
         this.eventBus = eventBus;
         this.accountOperations = accountOperations;
+        this.featureOperations = featureOperations;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (featureOperations.isOfflineContentEnabled()) {
+            OfflineContentService.stop(getActivity());
+        }
         subscription.add(eventBus.subscribe(EventQueue.CURRENT_USER_CHANGED, new EventSubscriber()));
         subscription.add(accountOperations.logout().subscribe(new LogoutSubscriber()));
     }

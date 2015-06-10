@@ -143,8 +143,6 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
                 .setPositiveButton(R.string.btn_continue, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        OfflineContentService.stop(getActivity());
-
                         subscription.add(offlineContentOperations
                                 .clearOfflineContent()
                                 .observeOn(AndroidSchedulers.mainThread())
@@ -161,6 +159,7 @@ public class OfflineSettingsFragment extends PreferenceFragment implements OnPre
             if (!result.isEmpty()){
                 refreshStoragePreference();
             }
+            OfflineContentService.stop(getActivity());
         }
     }
 

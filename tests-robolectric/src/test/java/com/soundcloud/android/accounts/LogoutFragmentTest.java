@@ -5,18 +5,22 @@ import static com.xtremelabs.robolectric.Robolectric.shadowOf;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.soundcloud.android.configuration.FeatureOperations;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
 
+import android.content.Intent;
 import android.support.v4.app.FragmentActivity;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -25,15 +29,14 @@ public class LogoutFragmentTest {
     private LogoutFragment fragment;
     private TestEventBus eventBus = new TestEventBus();
 
-    @Mock
-    private AccountOperations accountOperations;
-
-    @Mock
-    private Observer observer;
+    @Mock private AccountOperations accountOperations;
+    @Mock private FeatureOperations featureOperations;
+    @Mock private Observer observer;
+    @Mock private FragmentActivity activity;
 
     @Before
     public void setup() {
-        fragment = new LogoutFragment(eventBus, accountOperations);
+        fragment = new LogoutFragment(eventBus, accountOperations, featureOperations);
         when(accountOperations.logout()).thenReturn(Observable.<Void>empty());
     }
 
@@ -73,5 +76,20 @@ public class LogoutFragmentTest {
         fragment.onCreate(null);
 
         expect(activity.isFinishing()).toBeTrue();
+    }
+
+    @Test
+    public void shouldStopOfflineContentServiceIfFeatureEnabled() {
+        shadowOf(fragment).setActivity(activity);
+        when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
+
+        fragment.onCreate(null);
+
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(activity).startService(captor.capture());
+
+        Intent startServiceIntent = captor.getValue();
+        expect(startServiceIntent.getAction()).toEqual("action_stop_download");
+        expect(startServiceIntent.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 }

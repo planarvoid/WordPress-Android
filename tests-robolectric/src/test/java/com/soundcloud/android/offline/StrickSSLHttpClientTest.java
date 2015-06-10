@@ -41,21 +41,21 @@ public class StrickSSLHttpClientTest {
 
     @Test
     public void downloadFileRequestUsesGivenUrl() throws Exception {
-        httpClient.downloadFile(FILE_PATH);
+        httpClient.getFileStream(FILE_PATH);
 
         expect(requestCaptor.getValue().urlString()).toMatch(FILE_PATH);
     }
 
     @Test
     public void downloadFileRequestIncludesDeviceHeader() throws Exception {
-        httpClient.downloadFile(FILE_PATH);
+        httpClient.getFileStream(FILE_PATH);
 
         expect(requestCaptor.getValue().header("User-Agent")).toEqual(USER_AGENT);
     }
 
     @Test
     public void downloadFileRequestIncludesOAuthToken() throws Exception {
-        httpClient.downloadFile(FILE_PATH);
+        httpClient.getFileStream(FILE_PATH);
 
         expect(requestCaptor.getValue().header("Authorization")).toEqual(OAUTH_TOKEN);
     }
