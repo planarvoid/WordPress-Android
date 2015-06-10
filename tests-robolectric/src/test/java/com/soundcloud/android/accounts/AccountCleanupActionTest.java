@@ -3,7 +3,6 @@ package com.soundcloud.android.accounts;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.SoundCloudApplication;
@@ -12,7 +11,6 @@ import com.soundcloud.android.commands.ClearTableCommand;
 import com.soundcloud.android.configuration.features.FeatureStorage;
 import com.soundcloud.android.creators.record.SoundRecorder;
 import com.soundcloud.android.offline.OfflineSettingsStorage;
-import com.soundcloud.android.playback.service.PlayQueueView;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.PlaylistTagStorage;
 import com.soundcloud.android.storage.ActivitiesStorage;
@@ -40,7 +38,6 @@ public class AccountCleanupActionTest {
     @Mock private ActivitiesStorage activitiesStorage;
     @Mock private PlaylistTagStorage tagStorage;
     @Mock private SoundRecorder soundRecorder;
-    @Mock private PlayQueueView playQueue;
     @Mock private SharedPreferences sharedPreferences;
     @Mock private SharedPreferences.Editor editor;
     @Mock private SoundCloudApplication soundCloudApplication;
@@ -82,12 +79,6 @@ public class AccountCleanupActionTest {
     public void shouldResetSoundRecorder() {
         action.call();
         verify(soundRecorder).reset();
-    }
-
-    @Test
-    public void shouldNotClearPlayQueueManagersState() {
-        action.call();
-        verifyZeroInteractions(playQueue);
     }
 
     @Test

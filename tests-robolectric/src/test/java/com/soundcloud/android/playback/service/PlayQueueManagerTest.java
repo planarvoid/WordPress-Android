@@ -515,17 +515,6 @@ public class PlayQueueManagerTest {
     }
 
     @Test
-    public void shouldReturnPlayQueueViewWithAppendState() {
-        PlayQueue playQueue = PlayQueue.fromTrackUrnList(createTracksUrn(1L, 2L, 3L), playSessionSource);
-        playQueueManager.setNewPlayQueue(playQueue, 2, playSessionSource);
-
-        final PlayQueueView playQueueView = playQueueManager.getViewWithAppendState(PlayQueueManager.FetchRecommendedState.LOADING);
-        expect(playQueueView).toContainExactly(1L, 2L, 3L);
-        expect(playQueueView.getPosition()).toBe(2);
-        expect(playQueueView.getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
-    }
-
-    @Test
     public void nextTrackReturnsFalseIfNoNextTrack() {
         playQueueManager.setNewPlayQueue(playQueue, playSessionSource);
         when(playQueue.hasNextTrack(0)).thenReturn(false);
@@ -805,7 +794,7 @@ public class PlayQueueManagerTest {
     public void shouldSetLoadingStateOnQueueAndBroadcastWhenFetchingRelatedTracks() {
         when(playQueueOperations.getRelatedTracks(any(Urn.class))).thenReturn(Observable.<RecommendedTracksCollection>never());
         playQueueManager.fetchTracksRelatedToCurrentTrack();
-        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.LOADING);
+
         expectBroadcastPlayQueueUpdate();
     }
 
@@ -855,8 +844,6 @@ public class PlayQueueManagerTest {
         playQueueManager.setNewPlayQueue(PlayQueue.fromTrackUrnList(createTracksUrn(123L), playSessionSource), playSessionSource);
         playQueueManager.onNext(new RecommendedTracksCollection(Lists.newArrayList(apiTrack), "123"));
 
-        expect(playQueueManager.getPlayQueueView()).toContainExactly(123L, apiTrack.getId());
-
         ArgumentCaptor<PublicApiTrack> captor = ArgumentCaptor.forClass(PublicApiTrack.class);
         verify(modelManager).cache(captor.capture());
         expect(captor.getValue().getId()).toEqual(apiTrack.getId());
@@ -866,21 +853,21 @@ public class PlayQueueManagerTest {
     public void shouldSetIdleStateOnQueueAndBroadcastWhenDoneSuccessfulRelatedLoad() {
         playQueueManager.onNext(new RecommendedTracksCollection(Collections.<ApiTrack>emptyList(), "123"));
         playQueueManager.onCompleted();
-        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.IDLE);
+
         expectBroadcastPlayQueueUpdate();
     }
 
     @Test
     public void shouldSetEmptyStateOnQueueAndBroadcastWhenDoneEmptyRelatedLoad() {
         playQueueManager.onCompleted();
-        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.EMPTY);
+
         expectBroadcastPlayQueueUpdate();
     }
 
     @Test
     public void shouldSetErrorStateOnQueueAndBroadcastWhenOnErrorCalled() {
         playQueueManager.onError(new Throwable());
-        expect(playQueueManager.getPlayQueueView().getFetchRecommendedState()).toEqual(PlayQueueManager.FetchRecommendedState.ERROR);
+
         expectBroadcastPlayQueueUpdate();
     }
 

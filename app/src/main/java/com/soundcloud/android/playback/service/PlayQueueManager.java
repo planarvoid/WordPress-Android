@@ -105,11 +105,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         fireAndForget(policyOperations.updatePolicies(playQueue.getTrackUrns()));
     }
 
-    @Deprecated
-    public PlayQueueView getViewWithAppendState(FetchRecommendedState fetchState) {
-        return new PlayQueueView(playQueue.getTrackIds(), currentPosition, fetchState);
-    }
-
     @Deprecated // use URNs instead
     public long getCurrentTrackId() {
         return playQueue.getTrackId(currentPosition);
@@ -358,10 +353,6 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
         playSessionSource = PlaySessionSource.EMPTY;
     }
 
-    public PlayQueueView getPlayQueueView() {
-        return getViewWithAppendState(fetchState);
-    }
-
     public void performPlayQueueUpdateOperations(QueueUpdateOperation... operations) {
         assertOnUiThread(UI_ASSERTION_MESSAGE);
         for (QueueUpdateOperation operation : operations) {
@@ -455,15 +446,11 @@ public class PlayQueueManager implements Observer<RecommendedTracksCollection>, 
     }
 
     private void broadcastRelatedLoadStateChanged() {
-        final Intent intent = new Intent(RELATED_LOAD_STATE_CHANGED_ACTION)
-                .putExtra(PlayQueueView.EXTRA, getViewWithAppendState(fetchState));
-        context.sendBroadcast(intent);
+        context.sendBroadcast(new Intent(RELATED_LOAD_STATE_CHANGED_ACTION));
     }
 
     private void broadcastNewPlayQueue() {
-        Intent intent = new Intent(PLAYQUEUE_CHANGED_ACTION)
-                .putExtra(PlayQueueView.EXTRA, getViewWithAppendState(fetchState));
-        context.sendBroadcast(intent);
+        context.sendBroadcast(new Intent(PLAYQUEUE_CHANGED_ACTION));
 
         final Urn currentTrackUrn = getCurrentTrackUrn();
         if (!Urn.NOT_SET.equals(currentTrackUrn)) {
