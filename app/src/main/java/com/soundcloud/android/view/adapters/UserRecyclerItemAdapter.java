@@ -1,6 +1,6 @@
 package com.soundcloud.android.view.adapters;
 
-import com.soundcloud.android.presentation.PagingRecyclerViewAdapter;
+import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.ViewTypes;
 import com.soundcloud.android.users.UserItem;
 
@@ -9,10 +9,10 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class UserRecyclerViewAdapter extends PagingRecyclerViewAdapter<UserItem, UserRecyclerViewAdapter.UserViewHolder> {
+public class UserRecyclerItemAdapter extends PagingRecyclerItemAdapter<UserItem, UserRecyclerItemAdapter.UserViewHolder> {
 
     @Inject
-    public UserRecyclerViewAdapter(UserItemRenderer userItemRenderer) {
+    public UserRecyclerItemAdapter(UserItemRenderer userItemRenderer) {
         super(userItemRenderer);
     }
 

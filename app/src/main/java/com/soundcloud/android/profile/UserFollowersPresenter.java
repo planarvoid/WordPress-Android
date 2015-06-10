@@ -3,14 +3,14 @@ package com.soundcloud.android.profile;
 import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.users.UserItem;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.UserRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.UserRecyclerItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
 import rx.functions.Func1;
@@ -26,7 +26,7 @@ import java.util.List;
 class UserFollowersPresenter extends ProfileRecyclerViewPresenter<UserItem> {
 
     private final ProfileOperations profileOperations;
-    private final UserRecyclerViewAdapter adapter;
+    private final UserRecyclerItemAdapter adapter;
     private final Navigator navigator;
 
     private final Func1<PagedRemoteCollection, List<UserItem>> pageTransformer = new Func1<PagedRemoteCollection, List<UserItem>>() {
@@ -41,9 +41,9 @@ class UserFollowersPresenter extends ProfileRecyclerViewPresenter<UserItem> {
     };
 
     @Inject
-    UserFollowersPresenter(RecyclerViewPauseOnScrollListener pauseOnScrollListener, PullToRefreshWrapper pullToRefreshWrapper,
-                           ProfileOperations profileOperations, UserRecyclerViewAdapter adapter, Navigator navigator) {
-        super(pullToRefreshWrapper, pauseOnScrollListener);
+    UserFollowersPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
+                           ProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
+        super(swipeRefreshAttacher, imagePauseOnScrollListener);
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.navigator = navigator;

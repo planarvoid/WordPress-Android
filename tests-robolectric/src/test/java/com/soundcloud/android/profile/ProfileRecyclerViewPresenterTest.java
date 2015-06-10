@@ -9,10 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.DividerItemDecoration;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -36,8 +36,8 @@ public class ProfileRecyclerViewPresenterTest {
     private ProfileRecyclerViewPresenter profileRecyclerViewPresenter;
 
     @Mock private MultiSwipeRefreshLayout swipeRefreshLayout;
-    @Mock private PullToRefreshWrapper pullToRefreshWrapper;
-    @Mock private RecyclerViewPauseOnScrollListener pauseOnScrollListener;
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
+    @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private DividerItemDecoration dividerItemDecoration;
     @Mock private CollectionBinding collectionBinding;
     @Mock private Fragment fragment;
@@ -54,7 +54,7 @@ public class ProfileRecyclerViewPresenterTest {
     @Test
     public void attachingRefreshLayoutBeforeResumedAttachesAfterResuming() throws Exception {
         profileRecyclerViewPresenter.attachRefreshLayout(swipeRefreshLayout);
-        verifyZeroInteractions(pullToRefreshWrapper);
+        verifyZeroInteractions(swipeRefreshAttacher);
         profileRecyclerViewPresenter.onResume(fragment);
         swipeToRefresh();
     }
@@ -67,19 +67,19 @@ public class ProfileRecyclerViewPresenterTest {
         profileRecyclerViewPresenter.detachRefreshLayout();
         profileRecyclerViewPresenter.onResume(fragment);
 
-        verify(pullToRefreshWrapper, never()).attach(
+        verify(swipeRefreshAttacher, never()).attach(
                 any(SwipeRefreshLayout.OnRefreshListener.class),
                 any(MultiSwipeRefreshLayout.class), same(recyclerView), same(emptyView));
     }
 
     private void swipeToRefresh() {
-        verify(pullToRefreshWrapper).attach(
+        verify(swipeRefreshAttacher).attach(
                 refreshListenerCaptor.capture(), same(swipeRefreshLayout), same(recyclerView), same(emptyView));
         refreshListenerCaptor.getValue().onRefresh();
     }
 
     private ProfileRecyclerViewPresenter buildPresenter() {
-        return new ProfileRecyclerViewPresenter(pullToRefreshWrapper, pauseOnScrollListener) {
+        return new ProfileRecyclerViewPresenter(swipeRefreshAttacher, imagePauseOnScrollListener) {
             @Override
             protected CollectionBinding onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;

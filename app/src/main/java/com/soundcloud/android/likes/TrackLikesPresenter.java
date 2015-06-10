@@ -14,7 +14,7 @@ import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListPresenter;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.RefreshAdapterSubscriber;
 import com.soundcloud.android.tracks.TrackItem;
@@ -61,8 +61,8 @@ class TrackLikesPresenter extends ListPresenter<TrackItem> {
                         TrackLikesActionMenuController actionMenuController,
                         TrackLikesHeaderPresenter headerPresenter,
                         Provider<ExpandPlayerSubscriber> expandPlayerSubscriberProvider, EventBus eventBus,
-                        ImageOperations imageOperations, PullToRefreshWrapper pullToRefreshWrapper) {
-        super(imageOperations, pullToRefreshWrapper);
+                        ImageOperations imageOperations, SwipeRefreshAttacher swipeRefreshAttacher) {
+        super(imageOperations, swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.playbackOperations = playbackOperations;
         this.offlineContentOperations = offlineContentOperations;

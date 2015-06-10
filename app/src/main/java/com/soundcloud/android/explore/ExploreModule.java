@@ -4,7 +4,7 @@ import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.R;
 import com.soundcloud.android.tracks.TrackGridRenderer;
 import com.soundcloud.android.tracks.TrackItem;
-import com.soundcloud.android.presentation.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import dagger.Module;
 import dagger.Provides;
 
@@ -18,7 +18,7 @@ import dagger.Provides;
 public class ExploreModule {
 
     @Provides
-    public PagingItemAdapter<TrackItem> provideEndlessAdapter(TrackGridRenderer renderer) {
-        return new PagingItemAdapter<>(R.layout.grid_loading_item, renderer);
+    public PagingListItemAdapter<TrackItem> provideEndlessAdapter(TrackGridRenderer renderer) {
+        return new PagingListItemAdapter<>(R.layout.grid_loading_item, renderer);
     }
 }

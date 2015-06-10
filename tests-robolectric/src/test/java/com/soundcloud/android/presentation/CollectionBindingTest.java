@@ -18,7 +18,7 @@ import java.util.List;
 public class CollectionBindingTest {
 
     @Mock private ItemAdapter<String> adapter;
-    @Mock private PagingItemAdapter<String> pagingAdapter;
+    @Mock private PagingListItemAdapter<String> pagingAdapter;
 
     @Test
     public void shouldBuildUnpagedListBinding() {

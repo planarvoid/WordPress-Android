@@ -48,13 +48,13 @@ public class ListPresenterTest {
     private ListPresenter<String> presenter;
     private PublishSubject<List<String>> source = PublishSubject.create();
 
-    @Mock private PagingItemAdapter adapter;
+    @Mock private PagingListItemAdapter adapter;
     @Mock private ImageOperations imageOperations;
     @Mock private Fragment fragment;
     @Mock private View view;
     @Mock private View itemView;
     @Mock private MultiSwipeRefreshLayout refreshLayout;
-    @Mock private PullToRefreshWrapper pullToRefreshWrapper;
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private ListView listView;
     @Mock private EmptyView emptyView;
     @Mock private AbsListView.OnScrollListener scrollListener;
@@ -170,7 +170,7 @@ public class ListPresenterTest {
         presenter.onCreate(fragment, null);
         presenter.onViewCreated(fragment, view, null);
 
-        verify(listView).setOnScrollListener(isA(PagingScrollListener.class));
+        verify(listView).setOnScrollListener(isA(PagingListScrollListener.class));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class ListPresenterTest {
         presenter.onCreate(refreshableFragment, null);
         presenter.onViewCreated(refreshableFragment, view, null);
 
-        verify(pullToRefreshWrapper).attach(isA(OnRefreshListener.class), same(refreshLayout), same(listView));
+        verify(swipeRefreshAttacher).attach(isA(OnRefreshListener.class), same(refreshLayout), same(listView));
     }
 
     @Test
@@ -230,7 +230,7 @@ public class ListPresenterTest {
 
         triggerPullToRefresh();
 
-        verify(pullToRefreshWrapper).setRefreshing(false);
+        verify(swipeRefreshAttacher).setRefreshing(false);
     }
 
     @Test
@@ -242,7 +242,7 @@ public class ListPresenterTest {
         triggerPullToRefresh();
         source.onNext(Collections.singletonList("item"));
 
-        verify(pullToRefreshWrapper).setRefreshing(false);
+        verify(swipeRefreshAttacher).setRefreshing(false);
     }
 
     @Test
@@ -299,7 +299,7 @@ public class ListPresenterTest {
         presenter.onViewCreated(fragment, view, null);
         presenter.onDestroyView(fragment);
 
-        verify(pullToRefreshWrapper).detach();
+        verify(swipeRefreshAttacher).detach();
     }
 
     @Test
@@ -384,7 +384,7 @@ public class ListPresenterTest {
         Fragment refreshableFragment = mockRefreshableFragment();
         presenter.onCreate(refreshableFragment, null);
         presenter.onViewCreated(refreshableFragment, view, null);
-        verify(pullToRefreshWrapper).attach(refreshListenerCaptor.capture(), any(MultiSwipeRefreshLayout.class), any(View[].class));
+        verify(swipeRefreshAttacher).attach(refreshListenerCaptor.capture(), any(MultiSwipeRefreshLayout.class), any(View[].class));
         OnRefreshListener refreshListener = refreshListenerCaptor.getValue();
         refreshListener.onRefresh();
     }
@@ -406,7 +406,7 @@ public class ListPresenterTest {
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final CollectionBinding refreshBinding,
                                             final Observer... listObservers) {
-        presenter = new ListPresenter<String>(imageOperations, pullToRefreshWrapper) {
+        presenter = new ListPresenter<String>(imageOperations, swipeRefreshAttacher) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;
@@ -440,7 +440,7 @@ public class ListPresenterTest {
     private void createPresenterWithPendingBindings(final CollectionBinding... collectionBindings) {
         final List<CollectionBinding> pendingBindings = new LinkedList<>();
         pendingBindings.addAll(Arrays.asList(collectionBindings));
-        presenter = new ListPresenter<String>(imageOperations, pullToRefreshWrapper) {
+        presenter = new ListPresenter<String>(imageOperations, swipeRefreshAttacher) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return pendingBindings.remove(0);

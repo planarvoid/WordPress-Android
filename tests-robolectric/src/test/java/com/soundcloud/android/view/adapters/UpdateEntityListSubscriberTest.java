@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.events.EntityStateChangedEvent;
 import com.soundcloud.android.model.PlayableProperty;
-import com.soundcloud.android.presentation.RecyclerViewAdapter;
+import com.soundcloud.android.presentation.RecyclerItemAdapter;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.TrackItem;
@@ -30,7 +30,7 @@ public class UpdateEntityListSubscriberTest {
 
     private UpdateEntityListSubscriber updateEntityListSubscriber;
 
-    @Mock private RecyclerViewAdapter<TrackItem, RecyclerView.ViewHolder> adapter;
+    @Mock private RecyclerItemAdapter<TrackItem, RecyclerView.ViewHolder> adapter;
 
     @Before
     public void setUp() throws Exception {

@@ -13,8 +13,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.presentation.PagingItemAdapter;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -51,7 +51,7 @@ public class PullToRefreshControllerTest {
     @Mock private FragmentActivity activity;
     @Mock private Bundle bundle;
     @Mock private OnRefreshListener listener;
-    @Mock private PullToRefreshWrapper wrapper;
+    @Mock private SwipeRefreshAttacher wrapper;
     @Mock private MultiSwipeRefreshLayout layout;
     @Mock private Subscription subscription;
     @Mock private ReactiveAdapter<List<String>> adapter;
@@ -91,7 +91,7 @@ public class PullToRefreshControllerTest {
     @Test
     public void shouldAttachPullToRefreshWrapperWithInternalRefreshListenerIfOwnerIsRefreshable() {
         when(wrapper.isAttached()).thenReturn(false);
-        controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
+        controller.setRefreshListener(fragment, mock(PagingListItemAdapter.class));
         controller.onViewCreated(fragment, layout, bundle);
 
         verify(wrapper).attach(isA(OnRefreshListener.class), same(layout), same(listView), same(emptyView));
@@ -170,7 +170,7 @@ public class PullToRefreshControllerTest {
     @Test
     public void connectingReactiveFragmentShouldNotResubscribeIfNoRefreshWasInProgressAndViewsGetRecreated() {
         when(wrapper.isRefreshing()).thenReturn(false);
-        controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
+        controller.setRefreshListener(fragment, mock(PagingListItemAdapter.class));
 
         controller.onDestroyView(fragment);
         controller.onViewCreated(fragment, layout, bundle);
@@ -209,7 +209,7 @@ public class PullToRefreshControllerTest {
 
     @Test
     public void refreshingReactiveFragmentShouldTellPTRToStopRefreshingOnError() {
-        controller.setRefreshListener(fragment, mock(PagingItemAdapter.class));
+        controller.setRefreshListener(fragment, mock(PagingListItemAdapter.class));
         observable = TestObservables.errorConnectableObservable();
         triggerRefresh();
         verifyZeroInteractions(adapter);

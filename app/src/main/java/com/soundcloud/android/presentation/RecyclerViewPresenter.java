@@ -4,7 +4,7 @@ package com.soundcloud.android.presentation;
 import static android.support.v7.widget.RecyclerView.OnScrollListener;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -15,15 +15,15 @@ import android.view.View;
 
 public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresenter<ItemT> {
 
-    private final RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
+    private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private RecyclerView recyclerView;
     private RecyclerView.OnScrollListener externalScrollListener;
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView.AdapterDataObserver emptyViewObserver;
 
-    protected RecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener) {
-        super(pullToRefreshWrapper);
-        this.recyclerViewPauseOnScrollListener = recyclerViewPauseOnScrollListener;
+    protected RecyclerViewPresenter(SwipeRefreshAttacher swipeRefreshAttacher, ImagePauseOnScrollListener imagePauseOnScrollListener) {
+        super(swipeRefreshAttacher);
+        this.imagePauseOnScrollListener = imagePauseOnScrollListener;
     }
 
     public void setOnScrollListener(OnScrollListener scrollListener) {
@@ -41,8 +41,8 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         final CollectionBinding<ItemT> collectionBinding = getBinding();
-        if (!(collectionBinding.adapter() instanceof RecyclerViewAdapter)) {
-            throw new IllegalArgumentException("Adapter must be an " + RecyclerViewAdapter.class);
+        if (!(collectionBinding.adapter() instanceof RecyclerItemAdapter)) {
+            throw new IllegalArgumentException("Adapter must be an " + RecyclerItemAdapter.class);
         }
 
         this.recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
@@ -56,7 +56,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         setupDividers(view);
         configureScrollListener();
 
-        final RecyclerViewAdapter adapter = (RecyclerViewAdapter) collectionBinding.adapter();
+        final RecyclerItemAdapter adapter = (RecyclerItemAdapter) collectionBinding.adapter();
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +89,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     }
 
     private void configureScrollListener() {
-        recyclerView.addOnScrollListener(recyclerViewPauseOnScrollListener);
+        recyclerView.addOnScrollListener(imagePauseOnScrollListener);
         if (externalScrollListener != null) {
             recyclerView.addOnScrollListener(externalScrollListener);
         }
@@ -102,7 +102,7 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
 
     private void configurePagedListAdapter(final PagedCollectionBinding<ItemT, ?> binding) {
         final PagingAwareAdapter<ItemT> adapter = binding.adapter();
-        recyclerView.addOnScrollListener(new RecyclerViewPagingScrollListener(this, adapter, linearLayoutManager));
+        recyclerView.addOnScrollListener(new PagingRecyclerScrollListener(this, adapter, linearLayoutManager));
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

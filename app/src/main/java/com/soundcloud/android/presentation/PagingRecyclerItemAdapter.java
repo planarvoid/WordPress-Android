@@ -8,23 +8,23 @@ import com.soundcloud.android.R;
 import android.view.View;
 import android.view.ViewGroup;
 
-public abstract class PagingRecyclerViewAdapter<T, VH extends ViewHolder> extends RecyclerViewAdapter<T, VH>
+public abstract class PagingRecyclerItemAdapter<T, VH extends ViewHolder> extends RecyclerItemAdapter<T, VH>
         implements PagingAwareAdapter<T> {
 
     private final ProgressCellRenderer progressCellRenderer;
 
     private AppendState appendState = AppendState.IDLE;
 
-    public PagingRecyclerViewAdapter(CellRenderer<T> cellRenderer) {
+    public PagingRecyclerItemAdapter(CellRenderer<T> cellRenderer) {
         this(cellRenderer, createDefaultProgressCellRenderer());
     }
 
-    public PagingRecyclerViewAdapter(CellRenderer<T> cellRenderer, ProgressCellRenderer progressCellRenderer) {
+    public PagingRecyclerItemAdapter(CellRenderer<T> cellRenderer, ProgressCellRenderer progressCellRenderer) {
         super(cellRenderer);
         this.progressCellRenderer = progressCellRenderer;
     }
 
-    public PagingRecyclerViewAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
+    public PagingRecyclerItemAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
         super(cellRendererBindings);
         this.progressCellRenderer = createDefaultProgressCellRenderer();
     }

@@ -21,17 +21,17 @@ import android.widget.FrameLayout;
 import java.util.Arrays;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PagingItemAdapterTest {
+public class PagingListItemAdapterTest {
 
     @Mock private CellRenderer cellRenderer;
     @Mock private AbsListView absListView;
     @Mock private View rowView;
 
-    private PagingItemAdapter adapter;
+    private PagingListItemAdapter adapter;
 
     @Before
     public void setup() {
-        adapter = new PagingItemAdapter(R.layout.list_loading_item, cellRenderer);
+        adapter = new PagingListItemAdapter(R.layout.list_loading_item, cellRenderer);
         Observable.just(Arrays.asList("one", "two", "three")).subscribe(adapter);
     }
 

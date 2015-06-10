@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHolder>
+public abstract class RecyclerItemAdapter<ItemT, VH extends RecyclerView.ViewHolder>
         extends RecyclerView.Adapter<VH> implements ItemAdapter<ItemT> {
 
     protected final List<ItemT> items;
@@ -20,7 +20,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
     private View.OnClickListener onClickListener;
     private int backgroundResId;
 
-    protected RecyclerViewAdapter(CellRendererBinding<? extends ItemT>... cellRendererBindings) {
+    protected RecyclerItemAdapter(CellRendererBinding<? extends ItemT>... cellRendererBindings) {
         this.items = new ArrayList<>();
         this.cellRenderers = new SparseArray<>(cellRendererBindings.length);
         for (CellRendererBinding<? extends ItemT> entity : cellRendererBindings) {
@@ -28,7 +28,7 @@ public abstract class RecyclerViewAdapter<ItemT, VH extends RecyclerView.ViewHol
         }
     }
 
-    protected RecyclerViewAdapter(CellRenderer<? extends ItemT> cellRenderer) {
+    protected RecyclerItemAdapter(CellRenderer<? extends ItemT> cellRenderer) {
         this.items = new ArrayList<>();
         this.cellRenderers = new SparseArray<>(1);
         this.cellRenderers.put(ViewTypes.DEFAULT_VIEW_TYPE, cellRenderer);

@@ -2,15 +2,15 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.PlayableListUpdater;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import rx.Observable;
 
 import javax.inject.Inject;
@@ -18,13 +18,13 @@ import javax.inject.Inject;
 class UserLikesPresenter extends ProfilePlayablePresenter {
 
     @Inject
-    UserLikesPresenter(PullToRefreshWrapper pullToRefreshWrapper,
-                       RecyclerViewPauseOnScrollListener pauseOnScrollListener,
-                       MixedPlayableRecyclerViewAdapter adapter,
+    UserLikesPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                       ImagePauseOnScrollListener imagePauseOnScrollListener,
+                       MixedPlayableRecyclerItemAdapter adapter,
                        MixedPlayableItemClickListener.Factory clickListenerFactory,
                        PlayableListUpdater.Factory updaterFactory,
                        ProfileOperations profileOperations) {
-        super(pullToRefreshWrapper, pauseOnScrollListener, adapter, clickListenerFactory, updaterFactory, profileOperations);
+        super(swipeRefreshAttacher, imagePauseOnScrollListener, adapter, clickListenerFactory, updaterFactory, profileOperations);
     }
 
     @Override

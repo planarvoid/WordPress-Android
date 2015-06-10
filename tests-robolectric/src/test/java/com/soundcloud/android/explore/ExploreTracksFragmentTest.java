@@ -21,7 +21,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestSubscribers;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.ListViewController;
-import com.soundcloud.android.presentation.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -44,7 +44,7 @@ public class ExploreTracksFragmentTest {
     private ExploreTracksFragment fragment;
     private FragmentActivity activity = new FragmentActivity();
 
-    @Mock private PagingItemAdapter<TrackItem> adapter;
+    @Mock private PagingListItemAdapter<TrackItem> adapter;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ImageOperations imageOperations;
     @Mock private ExploreTracksOperations exploreTracksOperations;

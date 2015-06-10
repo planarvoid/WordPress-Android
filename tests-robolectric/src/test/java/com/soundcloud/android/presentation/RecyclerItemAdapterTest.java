@@ -21,14 +21,14 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class RecyclerViewAdapterTest {
+public class RecyclerItemAdapterTest {
 
     @Mock private View itemView;
     @Mock private ViewGroup parent;
     @Mock private CellRenderer<String> cellRenderer;
     @Mock private View.OnClickListener clickListener;
 
-    private RecyclerViewAdapter<String, TestViewHolder> adapter;
+    private RecyclerItemAdapter<String, TestViewHolder> adapter;
     private TestViewHolder viewHolder;
 
     @Before
@@ -109,8 +109,8 @@ public class RecyclerViewAdapterTest {
         verify(itemView).setOnClickListener(clickListener);
     }
 
-    private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(final CellRendererBinding... bindings) {
-        return new RecyclerViewAdapter<String, TestViewHolder>(bindings) {
+    private RecyclerItemAdapter<String, TestViewHolder> buildAdapter(final CellRendererBinding... bindings) {
+        return new RecyclerItemAdapter<String, TestViewHolder>(bindings) {
             @Override
             public int getBasicItemViewType(int position) {
                 return 0;
@@ -123,8 +123,8 @@ public class RecyclerViewAdapterTest {
         };
     }
 
-    private RecyclerViewAdapter<String, TestViewHolder> buildAdapter(CellRenderer<String> cellRenderer) {
-        return new RecyclerViewAdapter<String, TestViewHolder>(cellRenderer) {
+    private RecyclerItemAdapter<String, TestViewHolder> buildAdapter(CellRenderer<String> cellRenderer) {
+        return new RecyclerItemAdapter<String, TestViewHolder>(cellRenderer) {
             @Override
             protected TestViewHolder createViewHolder(View itemView) {
                 return new TestViewHolder(itemView);

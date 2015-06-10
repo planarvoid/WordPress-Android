@@ -7,9 +7,9 @@ import com.soundcloud.android.Navigator;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.presentation.PagingItemAdapter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import rx.Observable;
@@ -31,7 +31,7 @@ public class CommentsFragment extends LightCycleSupportFragment implements React
     static final String EXTRA_TRACK_URN = "track_urn";
 
     @Inject CommentsOperations operations;
-    @Inject PagingItemAdapter<Comment> adapter;
+    @Inject PagingListItemAdapter<Comment> adapter;
     @Inject Navigator navigator;
     @Inject @LightCycle ListViewController listViewController;
 

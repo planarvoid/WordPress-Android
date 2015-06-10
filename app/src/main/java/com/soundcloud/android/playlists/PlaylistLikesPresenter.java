@@ -10,7 +10,7 @@ import com.soundcloud.android.likes.PlaylistLikeOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListPresenter;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
@@ -38,11 +38,11 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
 
     @Inject
     public PlaylistLikesPresenter(ImageOperations imageOperations,
-                                  PullToRefreshWrapper pullToRefreshWrapper,
+                                  SwipeRefreshAttacher swipeRefreshAttacher,
                                   PlaylistLikeOperations likeOperations,
                                   PlaylistLikesAdapter adapter,
                                   EventBus eventBus) {
-        super(imageOperations, pullToRefreshWrapper);
+        super(imageOperations, swipeRefreshAttacher);
         this.likeOperations = likeOperations;
         this.adapter = adapter;
         this.eventBus = eventBus;

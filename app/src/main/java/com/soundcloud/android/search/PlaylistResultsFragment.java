@@ -9,6 +9,7 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.ScreenEvent;
 import com.soundcloud.android.events.SearchEvent;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 import com.soundcloud.android.playlists.ApiPlaylistCollection;
@@ -19,7 +20,6 @@ import com.soundcloud.android.utils.AbsListViewParallaxer;
 import com.soundcloud.android.view.EmptyViewBuilder;
 import com.soundcloud.android.view.ListViewController;
 import com.soundcloud.android.view.ReactiveListComponent;
-import com.soundcloud.android.presentation.PagingItemAdapter;
 import rx.Subscription;
 import rx.observables.ConnectableObservable;
 import rx.subscriptions.Subscriptions;
@@ -43,7 +43,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
 
     @Inject @LightCycle ListViewController listViewController;
     @Inject PlaylistDiscoveryOperations operations;
-    @Inject PagingItemAdapter<PlaylistItem> adapter;
+    @Inject PagingListItemAdapter<PlaylistItem> adapter;
     @Inject EventBus eventBus;
 
     private ConnectableObservable<List<PlaylistItem>> observable;
@@ -65,7 +65,7 @@ public class PlaylistResultsFragment extends LightCycleSupportFragment
 
     @VisibleForTesting
     PlaylistResultsFragment(PlaylistDiscoveryOperations operations, ListViewController listViewController,
-                            PagingItemAdapter<PlaylistItem> adapter, EventBus eventBus) {
+                            PagingListItemAdapter<PlaylistItem> adapter, EventBus eventBus) {
         this.operations = operations;
         this.listViewController = listViewController;
         this.adapter = adapter;

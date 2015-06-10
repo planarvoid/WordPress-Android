@@ -8,19 +8,19 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
 import com.soundcloud.android.image.ImageOperations;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,9 +44,9 @@ public class UserPostsPresenterTest {
 
     @Mock private PlaybackOperations playbackOperations;
     @Mock private ImageOperations imageOperations;
-    @Mock private PullToRefreshWrapper pullToRefreshWrapper;
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private ProfileOperations profileOperations;
-    @Mock private MixedPlayableRecyclerViewAdapter adapter;
+    @Mock private MixedPlayableRecyclerItemAdapter adapter;
     @Mock private MixedPlayableItemClickListener.Factory mixedClickListenerFactory;
     @Mock private MixedPlayableItemClickListener itemClickListener;
     @Mock private ExpandPlayerSubscriber expandPlayerSubscriber;
@@ -58,7 +58,7 @@ public class UserPostsPresenterTest {
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private PlayableListUpdater.Factory playableListUpdaterFactory;
     @Mock private PlayableListUpdater playableListUpdater;
-    @Mock private RecyclerViewPauseOnScrollListener pauseOnScrollListener;
+    @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
 
     private final Bundle arguments = new Bundle();
     private final Screen screen = Screen.USER_POSTS;
@@ -79,7 +79,7 @@ public class UserPostsPresenterTest {
         arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
-        presenter = new UserPostsPresenter(pauseOnScrollListener, pullToRefreshWrapper, profileOperations, adapter, mixedClickListenerFactory, playableListUpdaterFactory);
+        presenter = new UserPostsPresenter(imagePauseOnScrollListener, swipeRefreshAttacher, profileOperations, adapter, mixedClickListenerFactory, playableListUpdaterFactory);
     }
 
     @Test

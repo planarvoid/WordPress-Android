@@ -20,8 +20,8 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
     private AbsListView.OnScrollListener scrollListener;
     @Nullable private ListHeaderPresenter headerPresenter;
 
-    public ListPresenter(ImageOperations imageOperations, PullToRefreshWrapper pullToRefreshWrapper) {
-        super(pullToRefreshWrapper);
+    public ListPresenter(ImageOperations imageOperations, SwipeRefreshAttacher swipeRefreshAttacher) {
+        super(swipeRefreshAttacher);
         this.imageOperations = imageOperations;
     }
 
@@ -84,7 +84,7 @@ public abstract class ListPresenter<ItemT> extends CollectionViewPresenter<ItemT
 
     private void configurePagedListAdapter(final PagedCollectionBinding<ItemT, ?> binding) {
         final PagingAwareAdapter<ItemT> adapter = binding.adapter();
-        scrollListener = new PagingScrollListener(this, adapter, scrollListener);
+        scrollListener = new PagingListScrollListener(this, adapter, scrollListener);
         adapter.setOnErrorRetryListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

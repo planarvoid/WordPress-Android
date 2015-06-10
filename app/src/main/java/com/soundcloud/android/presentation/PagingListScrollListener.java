@@ -7,14 +7,14 @@ import com.soundcloud.android.rx.Pager;
 import android.widget.AbsListView;
 
 
-final class PagingScrollListener implements OnScrollListener {
+final class PagingListScrollListener implements OnScrollListener {
 
     private final CollectionViewPresenter presenter;
     private final PagingAwareAdapter<?> adapter;
 
     private final OnScrollListener listenerDelegate;
 
-    PagingScrollListener(CollectionViewPresenter presenter, PagingAwareAdapter<?> adapter, OnScrollListener listenerDelegate) {
+    PagingListScrollListener(CollectionViewPresenter presenter, PagingAwareAdapter<?> adapter, OnScrollListener listenerDelegate) {
         this.presenter = presenter;
         this.adapter = adapter;
         this.listenerDelegate = listenerDelegate;

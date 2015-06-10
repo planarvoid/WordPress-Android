@@ -15,9 +15,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class RecyclerViewPagingScrollListenerTest {
+public class PagingRecyclerScrollListenerTest {
 
-    private RecyclerViewPagingScrollListener pagingScrollListener;
+    private PagingRecyclerScrollListener pagingScrollListener;
 
     @Mock private PagedCollectionBinding pagedCollectionBinding;
     @Mock private Pager pager;
@@ -30,7 +30,7 @@ public class RecyclerViewPagingScrollListenerTest {
     public void setUp() throws Exception {
         when(presenter.getBinding()).thenReturn(pagedCollectionBinding);
         when(pagedCollectionBinding.pager()).thenReturn(pager);
-        pagingScrollListener = new RecyclerViewPagingScrollListener(presenter, adapter, layoutManager);
+        pagingScrollListener = new PagingRecyclerScrollListener(presenter, adapter, layoutManager);
     }
 
     @Test

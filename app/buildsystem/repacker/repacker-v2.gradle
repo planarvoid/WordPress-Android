@@ -1,0 +1,113 @@
+/**
+ * Contains tasks related to shrinking app dependencies, repacking and deploying them.
+ *
+ * The repacker works by compiling and proguarding the application along a dependency
+ * we want to shrink, and generating the repack from the minified classes. This works
+ * for JARs and AARs in principle, but custom ProGuard rules might have to be added
+ * to proguard-repack.cfg
+ *
+ * Before repacking anything, make sure the app defines the dependency to the *original*
+ * library, so repacking something that had been repacked in the past has to be reverted
+ * to the original dependency first.
+ *
+ * To repack a JAR, run:
+ * <code>
+ *   $ ./gradlew clean assembleRepackJar repackInstall repackDeploy -P repackProfile=<profile>
+ * </code>
+ *
+ * To repack a AAR, run:
+ * <code>
+ *   $ ./gradlew clean assembleDebug
+ *   $ ./gradlew assembleRepackAar repackInstall repackDeploy -P repackProfile=<profile>
+ * </code>
+ *
+ * Running a normal build first make sure that the AAR has already
+ * been extracted into `exploded-aar`, which serves as input for the repacker.
+ *
+ */
+apply plugin: 'base'
+apply plugin: 'maven'
+apply plugin: 'com.android.application'
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:1.2.2'
+    classpath 'net.sf.proguard:proguard-gradle:4.11'
+  }
+}
+
+def profiles() {
+  [
+          "guava"       : [
+                  "base_package": "com/google/common",
+                  "group_id"    : "com.google.guava",
+                  "artifact_id" : "guava",
+                  "packaging"   : "jar"
+          ],
+          "jackson"     : [
+                  "base_package": "com/fasterxml/jackson",
+                  "group_id"    : "com.fasterxml.jackson.core",
+                  "artifact_id" : "jackson",
+                  "packaging"   : "jar"
+          ],
+          "support-v4"  : [
+                  "base_package": "android/support/v4",
+                  "group_id"    : "com.android.support",
+                  "artifact_id" : "support-v4",
+                  "packaging"   : "aar"
+          ],
+          // TODO: this isn't currently working, since we would have to support merging
+          // resource folders on top of class folders.
+          "appcompat-v7": [
+                  "base_package": "android/support/v7",
+                  "group_id"    : "com.android.support",
+                  "artifact_id" : "appcompat-v7",
+                  "packaging"   : "aar"
+          ],
+          "facebook"    : [
+                  "base_package": "com/facebook",
+                  "group_id"    : "com.facebook.android",
+                  "artifact_id" : "facebook-android-sdk",
+                  "packaging"   : "aar"
+          ]
+  ]
+}
+
+String getClassesJar(String platform) {
+  def javaHome = System.properties.'java.home'
+  switch (platform.replaceAll(' ', '').toLowerCase()) {
+    case ~/.*osx.*/:
+      // java6 only
+      return "$javaHome/../Classes/classes.jar"
+    case ~/.*linux.*/:
+    case ~/.*darwin.*/:
+    case ~/.*win.*/:
+      return "$javaHome/bin/rt.jar"
+    default: throw new GradleException('unable to determine java runtime classes!')
+  }
+}
+
+def classesJar = files(getClassesJar(System.properties['os.name']))
+
+configurations {
+  libjar
+}
+
+dependencies {
+  libjar classesJar
+}
+
+task assembleRepackJar(type: proguard.gradle.ProGuardTask) {
+  afterEvaluate {
+    def debugVariant = android.applicationVariants.find({ it.name == 'debug' })
+    //println debugVariant.javaCompile.classpath.toList()
+
+    println configurations.libjar.files
+    injars debugVariant.javaCompile.classpath
+    libraryjars configurations.libjar.files
+  }
+}
+

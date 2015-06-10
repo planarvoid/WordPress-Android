@@ -9,7 +9,7 @@ import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class PagingItemAdapter<T> extends ListItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
+public class PagingListItemAdapter<T> extends ListItemAdapter<T> implements ReactiveAdapter<Iterable<T>>, PagingAwareAdapter<T> {
 
     private final int progressItemLayoutResId;
 
@@ -20,16 +20,16 @@ public class PagingItemAdapter<T> extends ListItemAdapter<T> implements Reactive
         IDLE, LOADING, ERROR
     }
 
-    public PagingItemAdapter(CellRenderer<T> cellRenderer) {
+    public PagingListItemAdapter(CellRenderer<T> cellRenderer) {
         this(R.layout.list_loading_item, cellRenderer);
     }
 
-    public PagingItemAdapter(int progressItemLayoutResId, CellRenderer<T> cellRenderer) {
+    public PagingListItemAdapter(int progressItemLayoutResId, CellRenderer<T> cellRenderer) {
         super(cellRenderer);
         this.progressItemLayoutResId = progressItemLayoutResId;
     }
 
-    public PagingItemAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
+    public PagingListItemAdapter(CellRendererBinding<? extends T>... cellRendererBindings) {
         super(cellRendererBindings);
         this.progressItemLayoutResId = R.layout.list_loading_item;
     }

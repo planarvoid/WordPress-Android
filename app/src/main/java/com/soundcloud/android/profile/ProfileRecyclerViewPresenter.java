@@ -1,7 +1,7 @@
 package com.soundcloud.android.profile;
 
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import org.jetbrains.annotations.Nullable;
@@ -20,8 +20,8 @@ public abstract class ProfileRecyclerViewPresenter<ItemT> extends RecyclerViewPr
     public int scrollState;
     private boolean isResumed;
 
-    protected ProfileRecyclerViewPresenter(PullToRefreshWrapper pullToRefreshWrapper, RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener) {
-        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener);
+    protected ProfileRecyclerViewPresenter(SwipeRefreshAttacher swipeRefreshAttacher, ImagePauseOnScrollListener imagePauseOnScrollListener) {
+        super(swipeRefreshAttacher, imagePauseOnScrollListener);
     }
 
     public void setScrollListener(Listener scrollListener) {

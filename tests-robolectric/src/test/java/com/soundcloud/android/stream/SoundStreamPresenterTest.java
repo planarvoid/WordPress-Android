@@ -12,7 +12,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.PlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
@@ -21,7 +21,7 @@ import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -32,7 +32,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.utils.DateProvider;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.propeller.PropertySet;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
@@ -61,9 +61,9 @@ public class SoundStreamPresenterTest {
 
     @Mock private SoundStreamOperations streamOperations;
     @Mock private PlaybackOperations playbackOperations;
-    @Mock private MixedPlayableRecyclerViewAdapter adapter;
-    @Mock private RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener;
-    @Mock private PullToRefreshWrapper pullToRefreshWrapper;
+    @Mock private MixedPlayableRecyclerItemAdapter adapter;
+    @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private TrackItemRenderer trackRenderer;
     @Mock private DateProvider dateProvider;
     @Mock private Observer<Iterable<PlayableItem>> itemObserver;
@@ -78,8 +78,8 @@ public class SoundStreamPresenterTest {
 
     @Before
     public void setUp() throws Exception {
-        presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, recyclerViewPauseOnScrollListener,
-                pullToRefreshWrapper, expandPlayerSubscriberProvider, eventBus);
+        presenter = new SoundStreamPresenter(streamOperations, playbackOperations, adapter, imagePauseOnScrollListener,
+                swipeRefreshAttacher, expandPlayerSubscriberProvider, eventBus);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
         when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);

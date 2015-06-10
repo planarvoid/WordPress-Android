@@ -1,9 +1,9 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.events.EventQueue;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.rx.eventbus.EventBus;
-import com.soundcloud.android.presentation.PagingItemAdapter;
 import com.soundcloud.android.view.adapters.ReactiveAdapter;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -18,7 +18,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class PlaylistPostsAdapter extends PagingItemAdapter<PlaylistItem>
+public class PlaylistPostsAdapter extends PagingListItemAdapter<PlaylistItem>
         implements ReactiveAdapter<Iterable<PlaylistItem>> {
 
     private final DefaultSupportFragmentLightCycle lifeCycleHandler;

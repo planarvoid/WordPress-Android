@@ -6,7 +6,7 @@ import com.soundcloud.android.analytics.PromotedSourceInfo;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PromotedTrackEvent;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.ExpandPlayerSubscriber;
@@ -17,7 +17,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListItem;
 import com.soundcloud.android.presentation.PlayableItem;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PromotedTrackItem;
@@ -26,7 +26,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
 import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -68,7 +68,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
 
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
-    private final MixedPlayableRecyclerViewAdapter adapter;
+    private final MixedPlayableRecyclerItemAdapter adapter;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
 
@@ -78,12 +78,12 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     @Inject
     SoundStreamPresenter(SoundStreamOperations streamOperations,
                          PlaybackOperations playbackOperations,
-                         MixedPlayableRecyclerViewAdapter adapter,
-                         RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
-                         PullToRefreshWrapper pullToRefreshWrapper,
+                         MixedPlayableRecyclerItemAdapter adapter,
+                         ImagePauseOnScrollListener imagePauseOnScrollListener,
+                         SwipeRefreshAttacher swipeRefreshAttacher,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
                          EventBus eventBus) {
-        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener);
+        super(swipeRefreshAttacher, imagePauseOnScrollListener);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;

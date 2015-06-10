@@ -2,7 +2,7 @@ package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.presentation.CellRendererBinding;
-import com.soundcloud.android.presentation.PagingRecyclerViewAdapter;
+import com.soundcloud.android.presentation.PagingRecyclerItemAdapter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 
@@ -11,7 +11,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-public class MixedPlayableRecyclerViewAdapter extends PagingRecyclerViewAdapter<PlayableItem, MixedPlayableRecyclerViewAdapter.MixedPlayableViewHolder> {
+public class MixedPlayableRecyclerItemAdapter extends PagingRecyclerItemAdapter<PlayableItem, MixedPlayableRecyclerItemAdapter.MixedPlayableViewHolder> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;
@@ -19,7 +19,7 @@ public class MixedPlayableRecyclerViewAdapter extends PagingRecyclerViewAdapter<
     private final TrackItemRenderer trackRenderer;
 
     @Inject
-    public MixedPlayableRecyclerViewAdapter(TrackItemRenderer trackRenderer, PlaylistItemRenderer playlistRenderer) {
+    public MixedPlayableRecyclerItemAdapter(TrackItemRenderer trackRenderer, PlaylistItemRenderer playlistRenderer) {
         super(new CellRendererBinding<>(TRACK_ITEM_TYPE, trackRenderer),
                 new CellRendererBinding<>(PLAYLIST_ITEM_TYPE, playlistRenderer));
         this.trackRenderer = trackRenderer;

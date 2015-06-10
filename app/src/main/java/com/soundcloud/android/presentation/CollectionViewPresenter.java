@@ -19,7 +19,7 @@ abstract class CollectionViewPresenter<ItemT>
 
     private static final String TAG = "CollectionViewPresenter";
 
-    private final PullToRefreshWrapper refreshWrapper;
+    private final SwipeRefreshAttacher swipeRefreshAttacher;
 
     private Bundle fragmentArgs;
     private CollectionBinding<ItemT> collectionBinding;
@@ -29,8 +29,8 @@ abstract class CollectionViewPresenter<ItemT>
     private EmptyView emptyView;
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
 
-    protected CollectionViewPresenter(PullToRefreshWrapper pullToRefreshWrapper) {
-        this.refreshWrapper = pullToRefreshWrapper;
+    protected CollectionViewPresenter(SwipeRefreshAttacher swipeRefreshAttacher) {
+        this.swipeRefreshAttacher = swipeRefreshAttacher;
     }
 
     protected abstract CollectionBinding<ItemT> onBuildBinding(Bundle fragmentArgs);
@@ -136,15 +136,15 @@ abstract class CollectionViewPresenter<ItemT>
     }
 
     protected void attachSwipeToRefresh(MultiSwipeRefreshLayout refreshLayout, View... refreshableViews) {
-        refreshWrapper.attach(new PullToRefreshListener(), refreshLayout, refreshableViews);
+        swipeRefreshAttacher.attach(new RefreshListener(), refreshLayout, refreshableViews);
         if (refreshBinding != null) {
             refreshLayout.setRefreshing(true);
         }
     }
 
     protected void detachRefreshWrapper() {
-        refreshWrapper.setRefreshing(false);
-        refreshWrapper.detach();
+        swipeRefreshAttacher.setRefreshing(false);
+        swipeRefreshAttacher.detach();
     }
 
     @Override
@@ -166,7 +166,7 @@ abstract class CollectionViewPresenter<ItemT>
             refreshBinding = null;
             subscribeBinding();
 
-            refreshWrapper.setRefreshing(false);
+            swipeRefreshAttacher.setRefreshing(false);
             unsubscribe();
         }
 
@@ -179,11 +179,11 @@ abstract class CollectionViewPresenter<ItemT>
         public void onError(Throwable error) {
             Log.d(TAG, "refresh failed");
             error.printStackTrace();
-            refreshWrapper.setRefreshing(false);
+            swipeRefreshAttacher.setRefreshing(false);
         }
     }
 
-    private final class PullToRefreshListener implements SwipeRefreshLayout.OnRefreshListener {
+    private final class RefreshListener implements SwipeRefreshLayout.OnRefreshListener {
         @Override
         public void onRefresh() {
             Log.d(TAG, "refreshing collection");

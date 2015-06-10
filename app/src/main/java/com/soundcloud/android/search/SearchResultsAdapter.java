@@ -4,7 +4,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.CellRendererBinding;
 import com.soundcloud.android.presentation.ListItem;
-import com.soundcloud.android.presentation.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
@@ -24,7 +24,7 @@ import android.view.View;
 
 import javax.inject.Inject;
 
-class SearchResultsAdapter extends PagingItemAdapter<ListItem> implements SupportFragmentLightCycle<Fragment> {
+class SearchResultsAdapter extends PagingListItemAdapter<ListItem> implements SupportFragmentLightCycle<Fragment> {
 
     static final int TYPE_USER = 0;
     static final int TYPE_TRACK = 1;

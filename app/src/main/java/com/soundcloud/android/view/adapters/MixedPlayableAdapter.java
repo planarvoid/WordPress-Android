@@ -2,13 +2,13 @@ package com.soundcloud.android.view.adapters;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.presentation.CellRendererBinding;
-import com.soundcloud.android.presentation.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
 
 import javax.inject.Inject;
 
-public class MixedPlayableAdapter extends PagingItemAdapter<PlayableItem> {
+public class MixedPlayableAdapter extends PagingListItemAdapter<PlayableItem> {
 
     @VisibleForTesting static final int TRACK_ITEM_TYPE = 0;
     @VisibleForTesting static final int PLAYLIST_ITEM_TYPE = 1;

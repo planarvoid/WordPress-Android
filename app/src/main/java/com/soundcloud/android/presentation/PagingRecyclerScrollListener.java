@@ -6,15 +6,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 
-final class RecyclerViewPagingScrollListener extends RecyclerView.OnScrollListener {
+final class PagingRecyclerScrollListener extends RecyclerView.OnScrollListener {
 
     private final CollectionViewPresenter presenter;
     private final PagingAwareAdapter<?> adapter;
 
     private final LinearLayoutManager layoutManager;
 
-    RecyclerViewPagingScrollListener(CollectionViewPresenter presenter, PagingAwareAdapter<?> adapter,
-                                     LinearLayoutManager layoutManager) {
+    PagingRecyclerScrollListener(CollectionViewPresenter presenter, PagingAwareAdapter<?> adapter,
+                                 LinearLayoutManager layoutManager) {
         this.presenter = presenter;
         this.adapter = adapter;
         this.layoutManager = layoutManager;

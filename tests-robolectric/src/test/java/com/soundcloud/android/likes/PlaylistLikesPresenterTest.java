@@ -12,7 +12,7 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.playlists.PlaylistLikesAdapter;
 import com.soundcloud.android.playlists.PlaylistLikesPresenter;
 import com.soundcloud.android.playlists.PlaylistProperty;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
@@ -42,7 +42,7 @@ public class PlaylistLikesPresenterTest {
 
     @Mock private PlaylistLikeOperations likeOperations;
     @Mock private ImageOperations imageOperations;
-    @Mock private PullToRefreshWrapper pullToRefreshWrapper;
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private PlaylistLikesAdapter adapter;
     @Mock private Fragment fragment;
     @Mock private Context context;
@@ -56,7 +56,7 @@ public class PlaylistLikesPresenterTest {
     @Before
     public void setUp() throws Exception {
         // TODO: Extract this common ListPresenter setup to a common base test class
-        presenter = new PlaylistLikesPresenter(imageOperations, pullToRefreshWrapper, likeOperations, adapter, testEventBus);
+        presenter = new PlaylistLikesPresenter(imageOperations, swipeRefreshAttacher, likeOperations, adapter, testEventBus);
         when(fragmentView.findViewById(android.R.id.list)).thenReturn(listView);
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(likeOperations.likedPlaylists()).thenReturn(Observable.<List<PropertySet>>empty());

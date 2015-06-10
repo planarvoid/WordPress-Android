@@ -8,7 +8,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiUser;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
@@ -37,7 +37,7 @@ public class ProfilePresenterTest {
     private ProfilePresenter profilePresenter;
 
     @Mock private ImageOperations imageOperations;
-    @Mock private PullToRefreshWrapper pullToRefreshWrapper;
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private AppCompatActivity activity;
     @Mock private SlidingTabLayout slidingTabLayout;
     @Mock private MultiSwipeRefreshLayout swipeRefreshLayout;

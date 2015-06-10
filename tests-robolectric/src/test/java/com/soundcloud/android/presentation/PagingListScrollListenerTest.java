@@ -14,9 +14,9 @@ import org.mockito.Mock;
 import android.widget.AbsListView;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PagingScrollListenerTest {
+public class PagingListScrollListenerTest {
 
-    private PagingScrollListener pagingScrollListener;
+    private PagingListScrollListener pagingScrollListener;
 
     @Mock private PagedCollectionBinding pagedCollectionBinding;
     @Mock private Pager pager;
@@ -29,7 +29,7 @@ public class PagingScrollListenerTest {
     public void setUp() throws Exception {
         when(presenter.getBinding()).thenReturn(pagedCollectionBinding);
         when(pagedCollectionBinding.pager()).thenReturn(pager);
-        pagingScrollListener = new PagingScrollListener(presenter, adapter, listenerDelegate);
+        pagingScrollListener = new PagingListScrollListener(presenter, adapter, listenerDelegate);
     }
 
     @Test

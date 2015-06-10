@@ -20,7 +20,7 @@ import com.soundcloud.android.offline.OfflinePlaybackOperations;
 import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.presentation.CollectionBinding;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
@@ -59,7 +59,7 @@ public class TrackLikesPresenterTest {
     @Mock private TrackLikesActionMenuController actionMenuController;
     @Mock private TrackLikesHeaderPresenter headerPresenter;
     @Mock private ImageOperations imageOperations;
-    @Mock private PullToRefreshWrapper pullToRefreshWrapper;
+    @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private Fragment fragment;
     @Mock private View view;
     @Mock private ListView listView;
@@ -77,7 +77,7 @@ public class TrackLikesPresenterTest {
     public void setup() {
         presenter = new TrackLikesPresenter(likeOperations, playbackOperations,
                 offlineContentOperations, adapter, actionMenuController, headerPresenter, expandPlayerSubscriberProvider,
-                eventBus, imageOperations, pullToRefreshWrapper);
+                eventBus, imageOperations, swipeRefreshAttacher);
         when(view.findViewById(android.R.id.list)).thenReturn(listView);
         when(listView.getHeaderViewsCount()).thenReturn(1);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);

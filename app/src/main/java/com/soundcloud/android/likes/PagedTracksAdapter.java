@@ -3,11 +3,11 @@ package com.soundcloud.android.likes;
 import com.soundcloud.android.tracks.DownloadableTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.TrackItemRenderer;
-import com.soundcloud.android.presentation.PagingItemAdapter;
+import com.soundcloud.android.presentation.PagingListItemAdapter;
 
 import javax.inject.Inject;
 
-class PagedTracksAdapter extends PagingItemAdapter<TrackItem> {
+class PagedTracksAdapter extends PagingListItemAdapter<TrackItem> {
 
     private final TrackItemRenderer trackRenderer;
 

@@ -7,19 +7,19 @@ import static com.soundcloud.android.profile.ProfileArguments.USER_URN_KEY;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.model.PagedRemoteCollection;
-import com.soundcloud.android.image.RecyclerViewPauseOnScrollListener;
+import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
-import com.soundcloud.android.presentation.PullToRefreshWrapper;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
-import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
+import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.Nullable;
@@ -36,7 +36,7 @@ import java.util.List;
 public abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
 
     protected final ProfileOperations profileOperations;
-    private final MixedPlayableRecyclerViewAdapter adapter;
+    private final MixedPlayableRecyclerItemAdapter adapter;
     private final MixedPlayableItemClickListener.Factory clickListenerFactory;
     private MixedPlayableItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
@@ -57,13 +57,13 @@ public abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresen
         }
     };
 
-    protected ProfilePlayablePresenter(PullToRefreshWrapper pullToRefreshWrapper,
-                                       RecyclerViewPauseOnScrollListener recyclerViewPauseOnScrollListener,
-                                       MixedPlayableRecyclerViewAdapter adapter,
+    protected ProfilePlayablePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                                       ImagePauseOnScrollListener imagePauseOnScrollListener,
+                                       MixedPlayableRecyclerItemAdapter adapter,
                                        MixedPlayableItemClickListener.Factory clickListenerFactory,
                                        PlayableListUpdater.Factory updaterFactory,
                                        ProfileOperations profileOperations) {
-        super(pullToRefreshWrapper, recyclerViewPauseOnScrollListener);
+        super(swipeRefreshAttacher, imagePauseOnScrollListener);
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;

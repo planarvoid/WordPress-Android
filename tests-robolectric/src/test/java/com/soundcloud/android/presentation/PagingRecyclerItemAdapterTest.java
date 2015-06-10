@@ -22,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(SoundCloudTestRunner.class)
-public class PagingRecyclerViewAdapterTest {
+public class PagingRecyclerItemAdapterTest {
 
     @Mock private View itemView;
     @Mock private ViewGroup parent;
@@ -30,7 +30,7 @@ public class PagingRecyclerViewAdapterTest {
     @Mock private ProgressCellRenderer progressCellRenderer;
 
     private List<String> items = Arrays.asList("one", "two", "three");
-    private PagingRecyclerViewAdapter<String, TestViewHolder> adapter;
+    private PagingRecyclerItemAdapter<String, TestViewHolder> adapter;
 
     @Before
     public void setUp() throws Exception {
@@ -115,8 +115,8 @@ public class PagingRecyclerViewAdapterTest {
         verify(progressCellRenderer).setRetryListener(listener);
     }
 
-    private PagingRecyclerViewAdapter<String, TestViewHolder> buildPagingAdapter(CellRenderer<String> cellRenderer) {
-        return new PagingRecyclerViewAdapter<String, TestViewHolder>(cellRenderer, progressCellRenderer) {
+    private PagingRecyclerItemAdapter<String, TestViewHolder> buildPagingAdapter(CellRenderer<String> cellRenderer) {
+        return new PagingRecyclerItemAdapter<String, TestViewHolder>(cellRenderer, progressCellRenderer) {
             @Override
             protected TestViewHolder createViewHolder(View itemView) {
                 return new TestViewHolder(itemView);

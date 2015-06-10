@@ -13,12 +13,12 @@ import javax.inject.Inject;
  * As we cannot write tests for this guy, keep its methods as simple as possible so that they're
  * "obviously correct".
  */
-public class PullToRefreshWrapper {
+public class SwipeRefreshAttacher {
 
     private MultiSwipeRefreshLayout swipeRefreshLayout;
 
     @Inject
-    public PullToRefreshWrapper() {
+    public SwipeRefreshAttacher() {
         // For Dagger.
     }
 
