@@ -8,6 +8,7 @@ import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -51,7 +52,7 @@ abstract class CollectionViewPresenter<ItemT>
     }
 
     @Override
-    public void onCreate(Fragment fragment, Bundle bundle) {
+    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         Log.d(TAG, "onCreate");
         LightCycleBinder.bind(this);
         super.onCreate(fragment, bundle);
@@ -59,7 +60,7 @@ abstract class CollectionViewPresenter<ItemT>
         rebuildBinding(fragmentArgs);
     }
 
-    protected CollectionBinding<ItemT> rebuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<ItemT> rebuildBinding(@Nullable Bundle fragmentArgs) {
         Log.d(TAG, "rebinding collection");
         resetBindingTo(onBuildBinding(fragmentArgs));
         return collectionBinding;

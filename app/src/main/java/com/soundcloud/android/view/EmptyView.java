@@ -5,6 +5,7 @@ import com.soundcloud.android.utils.AnimUtils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -20,15 +21,16 @@ import android.widget.TextView;
 
 public class EmptyView extends RelativeLayout {
 
+    @Nullable private ViewGroup emptyLayout;
+    @Nullable private ImageView image;
+    @Nullable private ErrorView errorView;
+
     protected View progressView;
-    protected ViewGroup emptyLayout;
     protected Button buttonAction;
 
     private RelativeLayout emptyViewHolder;
     private TextView textMessage;
     private TextView textLink;
-    private ImageView image;
-    private ErrorView errorView;
 
     private int messageResource, imageResource;
     private String message, secondaryText, actionText;
@@ -60,7 +62,7 @@ public class EmptyView extends RelativeLayout {
         init(R.layout.empty_list);
     }
 
-    public EmptyView setButtonActions(final Intent action) {
+    public EmptyView setButtonActions(@Nullable final Intent action) {
         setActionListener(new ActionListener() {
             @Override
             public void onAction() {
