@@ -136,11 +136,15 @@ public class CastOperations {
 
     private MediaInfo createMediaInfo(PropertySet track) {
         final Urn trackUrn = track.get(TrackProperty.URN);
+        final String artworkUrl = imageOperations.getUrlForLargestImage(resources, trackUrn);
         MediaMetadata mediaMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MUSIC_TRACK);
         mediaMetadata.putString(MediaMetadata.KEY_TITLE, track.get(TrackProperty.TITLE));
         mediaMetadata.putString(MediaMetadata.KEY_ARTIST, track.get(TrackProperty.CREATOR_NAME));
         mediaMetadata.putString(KEY_URN, trackUrn.toString());
-        mediaMetadata.addImage(new WebImage(Uri.parse(imageOperations.getUrlForLargestImage(resources, trackUrn))));
+
+        if (artworkUrl != null) {
+            mediaMetadata.addImage(new WebImage(Uri.parse(artworkUrl)));
+        }
 
         return new MediaInfo.Builder(trackUrn.toString())
                 .setContentType("audio/mpeg")
@@ -162,9 +166,9 @@ public class CastOperations {
 
     private RemotePlayQueue parseMediaInfoToRemotePlayQueue(MediaInfo remoteMediaInformation) {
         try {
-            if (remoteMediaInformation != null){
+            if (remoteMediaInformation != null) {
                 final JSONObject customData = remoteMediaInformation.getCustomData();
-                if (customData != null){
+                if (customData != null) {
                     return new RemotePlayQueue(convertRemoteDataToTrackList(customData), getCurrentTrackUrn(remoteMediaInformation));
                 }
             }
@@ -177,7 +181,7 @@ public class CastOperations {
     private List<Urn> convertRemoteDataToTrackList(JSONObject customData) throws JSONException {
         final JSONArray jsonArray = (JSONArray) customData.get(KEY_PLAY_QUEUE);
         List<Urn> remoteTracks = new ArrayList<>(jsonArray.length());
-        for (int i = 0; i < jsonArray.length(); i++){
+        for (int i = 0; i < jsonArray.length(); i++) {
             remoteTracks.add(new Urn(jsonArray.getString(i)));
         }
         return remoteTracks;
