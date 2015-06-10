@@ -31,7 +31,7 @@ public class PopupMenuElement {
         return container().findElement(matcher);
     }
 
-    private ViewElement container() {
+    protected ViewElement container() {
         return testDriver.findElement(With.className("android.widget.PopupWindow$PopupViewContainer"));
     }
 

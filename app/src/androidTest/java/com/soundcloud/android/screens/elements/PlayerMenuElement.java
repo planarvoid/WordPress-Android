@@ -2,6 +2,7 @@ package com.soundcloud.android.screens.elements;
 
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.ViewElement;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.AddCommentScreen;
 import com.soundcloud.android.screens.AddToPlaylistScreen;
 import com.soundcloud.android.screens.TrackInfoScreen;
@@ -44,6 +45,6 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     private ViewElement info() {
-        return menuItems().get(4);
+        return container().findElement(With.text("Info"));
     }
 }
