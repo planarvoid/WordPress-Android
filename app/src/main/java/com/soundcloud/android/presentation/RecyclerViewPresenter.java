@@ -45,6 +45,10 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     private void setupEmptyView(RecyclerItemAdapter adapter) {
         emptyViewObserver = createEmptyViewObserver();
         adapter.registerAdapterDataObserver(emptyViewObserver);
+        updateEmptyViewVisibility();
+    }
+
+    private void updateEmptyViewVisibility() {
         getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
     }
 
@@ -107,17 +111,17 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         return new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
+                updateEmptyViewVisibility();
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
-                getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
+                updateEmptyViewVisibility();
             }
 
             @Override
             public void onChanged() {
-                getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
+                updateEmptyViewVisibility();
             }
         };
     }
