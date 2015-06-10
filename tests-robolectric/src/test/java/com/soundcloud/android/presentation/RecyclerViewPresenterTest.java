@@ -60,7 +60,6 @@ public class RecyclerViewPresenterTest {
     @Mock private SwipeRefreshAttacher swipeRefreshAttacher;
     @Mock private RecyclerView recyclerView;
     @Mock private EmptyView emptyView;
-    @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
     @Mock private DividerItemDecoration dividerItemDecoration;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshListenerCaptor;
 
@@ -126,30 +125,7 @@ public class RecyclerViewPresenterTest {
     }
 
     @Test
-    public void shouldRegisterDefaultScrollListener() {
-        CollectionBinding<String> collectionBinding = defaultBinding();
-        createPresenterWithBinding(collectionBinding);
-
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-
-        verify(recyclerView).addOnScrollListener(imagePauseOnScrollListener);
-    }
-
-    @Test
-    public void shouldWrapCustomScrollListenerInDefaultScrollListener() {
-        CollectionBinding<String> collectionBinding = defaultBinding();
-        createPresenterWithBinding(collectionBinding);
-        RecyclerView.OnScrollListener existingListener = mock(RecyclerView.OnScrollListener.class);
-        presenter.setOnScrollListener(existingListener);
-        presenter.onCreate(fragment, null);
-        presenter.onViewCreated(fragment, view, null);
-
-        verify(recyclerView).addOnScrollListener(imagePauseOnScrollListener);
-    }
-
-    @Test
-    public void shouldWrapScrollListenerInPagingScrollListenerIfBindingIsPaged() {
+    public void shouldAddPagingScrollListenerIfBindingIsPaged() {
         final CollectionBinding collectionBinding = CollectionBinding.from(source)
                 .withAdapter(adapter)
                 .withPager(TestPager.<List<String>>singlePageFunction())
@@ -326,6 +302,18 @@ public class RecyclerViewPresenterTest {
         presenter.onDestroyView(fragment);
 
         verify(adapter).unregisterAdapterDataObserver(any(RecyclerView.AdapterDataObserver.class));
+    }
+
+    @Test
+    public void shouldDetachScrollListenersInOnDestroyView() {
+        createPresenterWithBinding(defaultBinding());
+        when(recyclerView.getAdapter()).thenReturn(adapter);
+
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+        presenter.onDestroyView(fragment);
+
+        verify(recyclerView).clearOnScrollListeners();
     }
 
     @Test
@@ -540,7 +528,7 @@ public class RecyclerViewPresenterTest {
 
     private void createPresenterWithBinding(final CollectionBinding collectionBinding, final CollectionBinding refreshBinding,
                                             final Observer... observers) {
-        presenter = new RecyclerViewPresenter<String>(swipeRefreshAttacher, imagePauseOnScrollListener) {
+        presenter = new RecyclerViewPresenter<String>(swipeRefreshAttacher) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return collectionBinding;
@@ -574,7 +562,7 @@ public class RecyclerViewPresenterTest {
     private void createPresenterWithPendingBindings(final CollectionBinding... collectionBindings) {
         final List<CollectionBinding> pendingBindings = new LinkedList<>();
         pendingBindings.addAll(Arrays.asList(collectionBindings));
-        presenter = new RecyclerViewPresenter<String>(swipeRefreshAttacher, imagePauseOnScrollListener) {
+        presenter = new RecyclerViewPresenter<String>(swipeRefreshAttacher) {
             @Override
             protected CollectionBinding<String> onBuildBinding(Bundle fragmentArgs) {
                 return pendingBindings.remove(0);

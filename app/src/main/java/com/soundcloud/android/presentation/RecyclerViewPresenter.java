@@ -1,33 +1,24 @@
 package com.soundcloud.android.presentation;
 
 
-import static android.support.v7.widget.RecyclerView.OnScrollListener;
-
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImagePauseOnScrollListener;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.view.View;
 
 public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresenter<ItemT> {
 
-    private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private RecyclerView recyclerView;
-    private RecyclerView.OnScrollListener externalScrollListener;
     private LinearLayoutManager linearLayoutManager;
-    private RecyclerView.AdapterDataObserver emptyViewObserver;
+    private AdapterDataObserver emptyViewObserver;
 
-    protected RecyclerViewPresenter(SwipeRefreshAttacher swipeRefreshAttacher, ImagePauseOnScrollListener imagePauseOnScrollListener) {
+    protected RecyclerViewPresenter(SwipeRefreshAttacher swipeRefreshAttacher) {
         super(swipeRefreshAttacher);
-        this.imagePauseOnScrollListener = imagePauseOnScrollListener;
-    }
-
-    public void setOnScrollListener(OnScrollListener scrollListener) {
-        this.externalScrollListener = scrollListener;
     }
 
     protected LinearLayoutManager getLinearLayoutManager() {
@@ -41,10 +32,23 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     @Override
     protected void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState) {
         final CollectionBinding<ItemT> collectionBinding = getBinding();
-        if (!(collectionBinding.adapter() instanceof RecyclerItemAdapter)) {
-            throw new IllegalArgumentException("Adapter must be an " + RecyclerItemAdapter.class);
-        }
 
+        setupRecyclerView(fragment, view);
+
+        setupDividers(view);
+
+        final RecyclerItemAdapter adapter = setupAdapter(collectionBinding);
+
+        setupEmptyView(adapter);
+    }
+
+    private void setupEmptyView(RecyclerItemAdapter adapter) {
+        emptyViewObserver = createEmptyViewObserver();
+        adapter.registerAdapterDataObserver(emptyViewObserver);
+        getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void setupRecyclerView(Fragment fragment, View view) {
         this.recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         if (this.recyclerView == null) {
             throw new IllegalStateException("Expected to find RecyclerView with ID R.id.recycler_view");
@@ -52,11 +56,13 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
 
         linearLayoutManager = new LinearLayoutManager(fragment.getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+    }
 
-        setupDividers(view);
-        configureScrollListener();
-
+    private RecyclerItemAdapter setupAdapter(CollectionBinding<ItemT> collectionBinding) {
         final RecyclerItemAdapter adapter = (RecyclerItemAdapter) collectionBinding.adapter();
+        if (!(collectionBinding.adapter() instanceof RecyclerItemAdapter)) {
+            throw new IllegalArgumentException("Adapter must be an " + RecyclerItemAdapter.class);
+        }
         recyclerView.setAdapter(adapter);
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
@@ -64,10 +70,10 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
                 onItemClicked(view, recyclerView.getChildAdapterPosition(view));
             }
         });
-
-        emptyViewObserver = createEmptyViewObserver();
-        adapter.registerAdapterDataObserver(emptyViewObserver);
-        configureEmptyView();
+        if (collectionBinding instanceof PagedCollectionBinding) {
+            configurePagedListAdapter((PagedCollectionBinding<ItemT, ?>) collectionBinding);
+        }
+        return adapter;
     }
 
     private void setupDividers(View view) {
@@ -78,26 +84,11 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
 
     @Override
     public void onDestroyView(Fragment fragment) {
+        recyclerView.clearOnScrollListeners();
         recyclerView.getAdapter().unregisterAdapterDataObserver(emptyViewObserver);
         recyclerView.setAdapter(null);
         recyclerView = null;
         super.onDestroyView(fragment);
-    }
-
-    private void configureEmptyView() {
-        getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
-    }
-
-    private void configureScrollListener() {
-        recyclerView.addOnScrollListener(imagePauseOnScrollListener);
-        if (externalScrollListener != null) {
-            recyclerView.addOnScrollListener(externalScrollListener);
-        }
-
-        final CollectionBinding<ItemT> collectionBinding = getBinding();
-        if (collectionBinding instanceof PagedCollectionBinding) {
-            configurePagedListAdapter((PagedCollectionBinding<ItemT, ?>) collectionBinding);
-        }
     }
 
     private void configurePagedListAdapter(final PagedCollectionBinding<ItemT, ?> binding) {
@@ -112,21 +103,21 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         });
     }
 
-    private RecyclerView.AdapterDataObserver createEmptyViewObserver() {
+    private AdapterDataObserver createEmptyViewObserver() {
         return new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
-                configureEmptyView();
+                getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
             public void onItemRangeRemoved(int positionStart, int itemCount) {
-                configureEmptyView();
+                getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
             public void onChanged() {
-                configureEmptyView();
+                getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
             }
         };
     }

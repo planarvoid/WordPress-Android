@@ -15,13 +15,16 @@ import android.widget.AbsListView;
 
 public abstract class ProfileRecyclerViewPresenter<ItemT> extends RecyclerViewPresenter<ItemT> implements ScrollableProfileItem, RefreshAware {
 
+    private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private Listener scrollListener;
     private MultiSwipeRefreshLayout pendingRefreshLayout;
     public int scrollState;
     private boolean isResumed;
 
-    protected ProfileRecyclerViewPresenter(SwipeRefreshAttacher swipeRefreshAttacher, ImagePauseOnScrollListener imagePauseOnScrollListener) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener);
+    protected ProfileRecyclerViewPresenter(SwipeRefreshAttacher swipeRefreshAttacher,
+                                           ImagePauseOnScrollListener imagePauseOnScrollListener) {
+        super(swipeRefreshAttacher);
+        this.imagePauseOnScrollListener = imagePauseOnScrollListener;
     }
 
     public void setScrollListener(Listener scrollListener) {
@@ -41,6 +44,7 @@ public abstract class ProfileRecyclerViewPresenter<ItemT> extends RecyclerViewPr
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
 
+        getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {

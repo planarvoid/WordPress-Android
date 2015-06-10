@@ -69,6 +69,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     private final SoundStreamOperations streamOperations;
     private final PlaybackOperations playbackOperations;
     private final MixedPlayableRecyclerItemAdapter adapter;
+    private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private final Provider<ExpandPlayerSubscriber> subscriberProvider;
     private final EventBus eventBus;
 
@@ -83,10 +84,11 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
                          SwipeRefreshAttacher swipeRefreshAttacher,
                          Provider<ExpandPlayerSubscriber> subscriberProvider,
                          EventBus eventBus) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener);
+        super(swipeRefreshAttacher);
         this.streamOperations = streamOperations;
         this.playbackOperations = playbackOperations;
         this.adapter = adapter;
+        this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.subscriberProvider = subscriberProvider;
         this.eventBus = eventBus;
     }
@@ -121,6 +123,7 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
         configureEmptyView();
+        getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         viewLifeCycle = new CompositeSubscription(
                 eventBus.subscribe(EventQueue.PLAY_QUEUE_TRACK, new UpdatePlayingTrackSubscriber(adapter, adapter.getTrackRenderer())),
                 eventBus.subscribe(EventQueue.ENTITY_STATE_CHANGED, new UpdateEntityListSubscriber(adapter))
