@@ -135,4 +135,9 @@
     <color name="rec_wave_orange_below">#ffbf99</color>
     <color name="rec_wave_trim_color">#33000000</color>
 
+    <!-- Google Cast -->
+    <color name="ccl_mr_custom_line_1">@color/black</color>
+    <color name="ccl_mr_custom_line_2">@color/black</color>
+    <color name="ccl_mr_custom_button">@color/sc_orange</color>
+
 </resources>
