@@ -6,17 +6,13 @@ import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.utils.ScTextUtils;
 
 import javax.crypto.Cipher;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Encryptor {
 
@@ -25,22 +21,12 @@ public class Encryptor {
     private static final String KEY_ALG = "AES";
     private static final String HASH_ALG = "sha1";
 
-    private Cipher cipher;
+    private final CipherWrapper cipher;
+    private final AtomicBoolean cancelRequest = new AtomicBoolean();
 
     @Inject
-    public Encryptor() {
-        /* no - op */
-    }
-
-    private void initCipher(DeviceSecret secret, int cipherMode) throws EncryptionException {
-        try {
-            final IvParameterSpec ivParam = new IvParameterSpec(secret.getInitVector());
-            final SecretKey key = new SecretKeySpec(secret.getKey(), 0, secret.getKey().length, KEY_ALG);
-
-            getCipher().init(cipherMode, key, ivParam);
-        } catch (GeneralSecurityException e) {
-            throw new EncryptionException("Encryption algorithms not found", e);
-        }
+    public Encryptor(CipherWrapper cipher) {
+        this.cipher = cipher;
     }
 
     public void encrypt(InputStream in, OutputStream out, DeviceSecret secret) throws EncryptionException, IOException {
@@ -51,34 +37,35 @@ public class Encryptor {
         runCipher(in, out, secret, Cipher.DECRYPT_MODE);
     }
 
-    private Cipher getCipher() throws NoSuchPaddingException, NoSuchAlgorithmException {
-        if (cipher == null) {
-            cipher = Cipher.getInstance(CIPHER_ALG);
-        }
-        return cipher;
+    public void tryToCancelRequest() {
+        cancelRequest.set(true);
     }
 
     private void runCipher(InputStream in, OutputStream out, DeviceSecret secret, int cipherMode)
             throws EncryptionException, IOException {
-        try {
-            initCipher(secret, cipherMode);
 
-            int readBytes;
-            int cipherBytes;
-            byte[] buffer = new byte[BLOCK_SIZE];
-            byte[] encrypted = new byte[cipher.getOutputSize(buffer.length)];
+        initCipher(secret, cipherMode);
 
-            while ((readBytes = in.read(buffer)) != -1) {
-                cipherBytes = cipher.update(buffer, 0, readBytes, encrypted);
-                out.write(encrypted, 0, cipherBytes);
-            }
+        int readBytes;
+        int cipherBytes;
+        byte[] buffer = new byte[BLOCK_SIZE];
+        byte[] encrypted = new byte[cipher.getOutputSize(buffer.length)];
 
-            cipherBytes = cipher.doFinal(encrypted, 0);
+        while (!cancelRequest.get() && (readBytes = in.read(buffer)) != -1) {
+            cipherBytes = cipher.update(buffer, 0, readBytes, encrypted);
             out.write(encrypted, 0, cipherBytes);
-
-        } catch (GeneralSecurityException e) {
-            throw new EncryptionException("Failed to encrypt a file", e);
         }
+
+        if (cancelRequest.getAndSet(false)) {
+            throw new EncryptionInterruptedException("File encryption cancelled");
+        }
+
+        cipherBytes = cipher.doFinal(encrypted, 0);
+        out.write(encrypted, 0, cipherBytes);
+    }
+
+    private void initCipher(DeviceSecret secret, int cipherMode) throws EncryptionException {
+        cipher.init(CIPHER_ALG, cipherMode, secret, KEY_ALG);
     }
 
     @VisibleForTesting

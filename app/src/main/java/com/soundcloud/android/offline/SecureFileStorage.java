@@ -21,22 +21,29 @@ import java.util.concurrent.TimeUnit;
 
 public class SecureFileStorage {
 
-    private static final String TAG = "SecureFileStorage";
+    public static final int MP3_128_KBPS = 128;
 
+    private static final String TAG = "SecureFileStorage";
     private static final String DIRECTORY_NAME = "offline";
     private static final String ENC_FILE_EXTENSION = ".enc";
-    protected final File OFFLINE_DIR;
 
-    public static final int MP3_128_KBPS = 128;
+    protected final File OFFLINE_DIR;
 
     private final CryptoOperations cryptoOperations;
     private final OfflineSettingsStorage settingsStorage;
+    private volatile boolean isRunningEncryption;
 
     @Inject
     public SecureFileStorage(CryptoOperations operations, OfflineSettingsStorage settingsStorage) {
         this.cryptoOperations = operations;
         this.settingsStorage = settingsStorage;
         this.OFFLINE_DIR = new File(Consts.FILES_PATH, DIRECTORY_NAME);
+    }
+
+    public void tryCancelRunningEncryption() {
+        if (isRunningEncryption) {
+            cryptoOperations.cancelEncryption();
+        }
     }
 
     public void storeTrack(Urn urn, InputStream input) throws IOException, EncryptionException {
@@ -46,6 +53,8 @@ public class SecureFileStorage {
 
         final File trackFile = new File(OFFLINE_DIR, generateFileName(urn));
         final OutputStream output = new FileOutputStream(trackFile);
+        isRunningEncryption = true;
+
         try {
             cryptoOperations.encryptStream(input, output);
         } catch (Exception e) {
@@ -54,6 +63,7 @@ public class SecureFileStorage {
 
             throw e;
         } finally {
+            isRunningEncryption = false;
             IOUtils.close(output);
         }
     }
