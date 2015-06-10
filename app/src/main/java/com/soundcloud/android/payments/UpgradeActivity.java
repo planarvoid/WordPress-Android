@@ -26,4 +26,8 @@ public class UpgradeActivity extends ScActivity {
         presenter.setToolBar();
     }
 
+    @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        return upgradePresenter.getState();
+    }
 }

@@ -5,9 +5,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.api.ApiResponse;
 import com.soundcloud.android.api.TestApiResponses;
 import com.soundcloud.android.configuration.ConfigurationOperations;
@@ -15,43 +15,40 @@ import com.soundcloud.android.payments.googleplay.BillingResult;
 import com.soundcloud.android.payments.googleplay.Payload;
 import com.soundcloud.android.payments.googleplay.TestBillingResults;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.xtremelabs.robolectric.Robolectric;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.subjects.PublishSubject;
 
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.TextView;
 
 @RunWith(SoundCloudTestRunner.class)
 public class UpgradePresenterTest {
 
+    private static final String PRODUCT_ID = "id";
+    private static final String PRICE = "$100";
+
     @Mock private PaymentOperations paymentOperations;
     @Mock private PaymentErrorPresenter paymentErrorPresenter;
     @Mock private PaymentErrorView paymentErrorView;
+    @Mock private UpgradeView upgradeView;
     @Mock private ConfigurationOperations configurationOperations;
 
     @Mock private AppCompatActivity activity;
     @Mock private ActionBar actionBar;
+    @Captor private ArgumentCaptor<UpgradeView.Listener> listenerCaptor;
 
     private UpgradePresenter controller;
-    private View contentView;
 
     @Before
-    public void setUp() throws Exception {
-        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations,
-                Robolectric.application.getResources());
-        contentView = LayoutInflater.from(Robolectric.application).inflate(R.layout.upgrade_activity, null, false);
-        when(activity.getApplicationContext()).thenReturn(Robolectric.application);
-        when(activity.findViewById(android.R.id.content)).thenReturn(contentView);
-        when(activity.getSupportActionBar()).thenReturn(actionBar);
+    public void setUp() {
+        controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations, upgradeView);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
 
@@ -65,6 +62,90 @@ public class UpgradePresenterTest {
     public void onCreateBindsErrorHandler() {
         controller.onCreate(activity, null);
         verify(paymentErrorPresenter).setActivity(activity);
+    }
+
+    @Test
+    public void onCreateWithEmptyTransactionStateShowsBuyButton() {
+        setupExpectedProductDetails();
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, null));
+
+        controller.onCreate(activity, null);
+
+        verify(upgradeView).showBuyButton(PRICE);
+    }
+
+    @Test
+    public void onCreateWithPurchaseStateDoesNotShowBuyButton() {
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
+
+        controller.onCreate(activity, null);
+
+        verify(upgradeView, never()).showBuyButton(anyString());
+    }
+
+    @Test
+    public void onCreateWithPurchaseStateShowsErrorOnError() {
+        Throwable error = new Throwable();
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>error(error), null));
+
+        controller.onCreate(activity, null);
+
+        verify(paymentErrorPresenter).onError(error);
+    }
+
+    @Test
+    public void onCreateWithVerifyObservableUpdatesConfiguration() {
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.SUCCESS)));
+
+        controller.onCreate(activity, null);
+
+        verify(configurationOperations).update();
+    }
+
+    @Test
+    public void onCreateWithVerifyTimeoutObservableShowsFailure() {
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.VERIFY_TIMEOUT)));
+
+        controller.onCreate(activity, null);
+
+        verify(paymentErrorPresenter).showVerifyTimeout();
+    }
+
+    @Test
+    public void getStateWithNoObservablesReturnsEmptyTransactionState() {
+        controller.onCreate(activity, null);
+
+        final TransactionState state = controller.getState();
+
+        expect(state.transactionInProgress()).toBeFalse();
+    }
+
+    @Test
+    public void getStateWithPurchaseObservableReturnsPurchasingState() {
+        setupExpectedProductDetails();
+        Observable<String> purchase = Observable.never();
+        when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(purchase);
+
+        controller.onCreate(activity, null);
+        controller.startPurchase();
+        final TransactionState state = controller.getState();
+
+        expect(state.isVerifying()).toBeFalse();
+        expect(state.purchase()).toBe(purchase);
+    }
+
+    @Test
+    public void getStateWithVerifyObservableReturnsverifyState() {
+        final BillingResult success = TestBillingResults.success();
+        final Observable<PurchaseStatus> verify = Observable.never();
+        when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(Observable.just("token"));
+        when(paymentOperations.verify(success.getPayload())).thenReturn(verify);
+
+        controller.handleBillingResult(success);
+
+        final TransactionState state = controller.getState();
+        expect(state.isVerifying()).toBeTrue();
+        expect(state.verify()).toBe(verify);
     }
 
     @Test
@@ -106,6 +187,19 @@ public class UpgradePresenterTest {
     }
 
     @Test
+    public void purchaseCancellationWithNoProductSetsUpProduct() {
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
+        when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
+        controller.onCreate(activity, null);
+        setupExpectedProductDetails();
+        verifyZeroInteractions(paymentOperations);
+
+        controller.handleBillingResult(TestBillingResults.cancelled());
+
+        verify(upgradeView).showBuyButton(PRICE);
+    }
+
+    @Test
     public void doesNotQueryProductDetailsIfBillingIsNotSupported() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.UNSUPPORTED));
 
@@ -126,7 +220,7 @@ public class UpgradePresenterTest {
     }
 
     @Test
-    public void queriesProductDetailsWhenPurchaseStatusIsNone() throws Exception {
+    public void queriesProductDetailsWhenPurchaseStatusIsNone() {
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
 
@@ -137,13 +231,11 @@ public class UpgradePresenterTest {
 
     @Test
     public void displayBuyButtonWhenPurchaseStatusIsNone() {
-        ProductDetails details = setupExpectedProductDetails();
+        setupExpectedProductDetails();
 
         controller.onCreate(activity, null);
 
-        expect(getView(R.id.upgrade_buy)).toBeVisible();
-        expect(getView(R.id.upgrade_buy)).toBeEnabled();
-        expect(getText(R.id.upgrade_buy)).toContain(details.getPrice());
+        verify(upgradeView).showBuyButton(PRICE);
     }
 
     @Test
@@ -152,19 +244,21 @@ public class UpgradePresenterTest {
         when(paymentOperations.purchase(details.getId())).thenReturn(Observable.just("token"));
         controller.onCreate(activity, null);
 
-        getView(R.id.upgrade_buy).performClick();
+        verify(upgradeView).setListener(listenerCaptor.capture());
+        listenerCaptor.getValue().startPurchase();
 
-        expect(getView(R.id.upgrade_buy)).toBeDisabled();
+        verify(upgradeView).disableBuyButton();
     }
 
     @Test
     public void reEnablesBuyButtonWhenPurchaseIsCancelled() {
+        setupExpectedProductDetails();
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.just(TestApiResponses.ok()));
 
         controller.onCreate(activity, null);
         controller.handleBillingResult(TestBillingResults.cancelled());
 
-        expect(getView(R.id.upgrade_buy)).toBeEnabled();
+        verify(upgradeView).enableBuyButton();
     }
 
     @Test
@@ -207,8 +301,7 @@ public class UpgradePresenterTest {
         controller.onCreate(activity, null);
         controller.handleBillingResult(TestBillingResults.success());
 
-        expect(getView(R.id.upgrade_header)).toBeGone();
-        expect(getView(R.id.success_header)).toBeVisible();
+        verify(upgradeView).showSuccess();
     }
 
     @Test
@@ -231,17 +324,9 @@ public class UpgradePresenterTest {
         verify(paymentErrorPresenter).showVerifyTimeout();
     }
 
-    private View getView(int id) {
-        return contentView.findViewById(id);
-    }
-
-    private String getText(int id) {
-        return ((TextView) contentView.findViewById(id)).getText().toString();
-    }
-
     @NotNull
     private ProductDetails setupExpectedProductDetails() {
-        ProductDetails details = new ProductDetails("id", "product title", "description", "$100");
+        ProductDetails details = new ProductDetails(PRODUCT_ID, "product title", "description", PRICE);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(Observable.just(PurchaseStatus.NONE));
         when(paymentOperations.queryProduct()).thenReturn(Observable.just(ProductStatus.fromSuccess(details)));
