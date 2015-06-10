@@ -25,9 +25,8 @@ public class EmptyView extends RelativeLayout {
     @Nullable private ImageView image;
     @Nullable private ErrorView errorView;
 
-    protected View progressView;
-    protected Button buttonAction;
-
+    private View progressView;
+    private Button buttonAction;
     private RelativeLayout emptyViewHolder;
     private TextView textMessage;
     private TextView textLink;
