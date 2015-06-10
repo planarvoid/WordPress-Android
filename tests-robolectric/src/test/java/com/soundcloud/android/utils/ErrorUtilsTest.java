@@ -7,11 +7,12 @@ import static org.mockito.Mockito.verify;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.soundcloud.android.api.ApiMapperException;
+import com.soundcloud.android.api.ApiRequest;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.sync.ApiSyncService;
 import com.soundcloud.android.sync.SyncFailedException;
-import com.xtremelabs.robolectric.RobolectricTestRunner;
+import com.soundcloud.android.view.EmptyView;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import rx.exceptions.OnErrorFailedException;
@@ -148,5 +149,29 @@ public class ErrorUtilsTest {
     @Test
     public void shouldIncludeOtherExceptions() {
         expect(ErrorUtils.includeInReports(new IllegalStateException("foo"))).toBeTrue();
+    }
+
+    @Test
+    public void emptyViewStatusFromApiNetworkError() {
+        ApiRequestException exception = ApiRequestException.networkError(mock(ApiRequest.class), new IOException());
+        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.CONNECTION_ERROR);
+    }
+
+    @Test
+    public void emptyViewStatusFromApiServerError() {
+        ApiRequestException exception = ApiRequestException.serverError(mock(ApiRequest.class));
+        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.SERVER_ERROR);
+    }
+
+    @Test
+    public void emptyViewStatusFromSyncError() {
+        SyncFailedException exception = new SyncFailedException(new Bundle());
+        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.CONNECTION_ERROR);
+    }
+
+    @Test
+    public void emptyViewStatusFromGenericError() {
+        Exception exception = new Exception();
+        expect(ErrorUtils.emptyViewStatusFromError(exception)).toEqual(EmptyView.Status.ERROR);
     }
 }

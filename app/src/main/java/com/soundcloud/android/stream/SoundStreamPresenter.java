@@ -24,6 +24,7 @@ import com.soundcloud.android.tracks.PromotedTrackItem;
 import com.soundcloud.android.tracks.PromotedTrackProperty;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.tracks.UpdatePlayingTrackSubscriber;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerViewAdapter;
 import com.soundcloud.android.view.adapters.UpdateEntityListSubscriber;
@@ -155,6 +156,11 @@ public class SoundStreamPresenter extends RecyclerViewPresenter<PlayableItem> {
         } else if (playableUrn.isPlaylist()) {
             PlaylistDetailActivity.start(view.getContext(), playableUrn, Screen.SIDE_MENU_STREAM);
         }
+    }
+
+    @Override
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 
     private void playFromPromotedTrack(int position, PromotedTrackItem promotedTrack, Urn playableUrn) {

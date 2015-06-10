@@ -18,7 +18,7 @@ import android.view.View;
 public class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment> implements SwipeRefreshLayout.OnRefreshListener, RefreshAware {
 
     private boolean isNotEmpty;
-    private int emptyViewStatus = EmptyView.Status.WAITING;
+    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private MultiSwipeRefreshLayout refreshLayout;
     private Subscription subscription = Subscriptions.empty();
     private ProfileActivity activity;

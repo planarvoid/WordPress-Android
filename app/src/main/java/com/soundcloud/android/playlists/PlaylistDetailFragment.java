@@ -403,7 +403,7 @@ public class PlaylistDetailFragment extends LightCycleSupportFragment implements
                 Toast.makeText(getActivity(), R.string.playlist_load_error, Toast.LENGTH_SHORT).show();
                 getActivity().finish();
             } else {
-                controller.setEmptyViewStatus(ErrorUtils.getEmptyViewStatusFromApiException(e));
+                controller.setEmptyViewStatus(ErrorUtils.emptyViewStatusFromError(e));
                 showContent(true);
                 pullToRefreshController.stopRefreshing();
             }

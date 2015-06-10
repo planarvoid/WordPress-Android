@@ -1,7 +1,8 @@
 package com.soundcloud.android.collections.tasks;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.model.ScModel;
-import com.soundcloud.android.view.EmptyView;
+import org.apache.http.HttpStatus;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class ReturnData<T extends ScModel> {
     public final boolean wasRefresh;
 
     public ReturnData(CollectionParams<T> params) {
-        this(null, params, null, EmptyView.Status.OK, false, false);
+        this(null, params, null, HttpStatus.SC_OK, false, false);
     }
 
     public ReturnData(List<T> newItems,
@@ -46,9 +47,9 @@ public class ReturnData<T extends ScModel> {
     }
 
 
-    public  static class Error<T extends ScModel> extends ReturnData<T> {
+    public static class Error<T extends ScModel> extends ReturnData<T> {
         public Error(CollectionParams<T> parameters) {
-            this(parameters, EmptyView.Status.CONNECTION_ERROR);
+            this(parameters, Consts.NOT_SET);
         }
 
         public Error(CollectionParams<T> parameters, int statusCode) {

@@ -2,6 +2,7 @@ package com.soundcloud.android.playlists;
 
 
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.view.EmptyView;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;
@@ -37,7 +38,7 @@ class DefaultController extends PlaylistDetailsController {
     }
 
     @Override
-    public void setEmptyViewStatus(int status) {
+    public void setEmptyViewStatus(EmptyView.Status status) {
         adapter.setEmptyViewStatus(status);
         adapter.notifyDataSetChanged();
     }

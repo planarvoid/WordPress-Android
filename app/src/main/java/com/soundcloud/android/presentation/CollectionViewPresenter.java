@@ -1,16 +1,21 @@
 package com.soundcloud.android.presentation;
 
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.lightcycle.LightCycleBinder;
+import com.soundcloud.lightcycle.SupportFragmentLightCycleDispatcher;
 import rx.Subscriber;
 import rx.subscriptions.CompositeSubscription;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.View;
 
-abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
+abstract class CollectionViewPresenter<ItemT>
+        extends SupportFragmentLightCycleDispatcher<Fragment> {
 
     private static final String TAG = "CollectionViewPresenter";
 
@@ -20,6 +25,9 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
     private CollectionBinding<ItemT> collectionBinding;
     private CollectionBinding<ItemT> refreshBinding;
     private CompositeSubscription viewLifeCycle;
+
+    private EmptyView emptyView;
+    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
 
     protected CollectionViewPresenter(PullToRefreshWrapper pullToRefreshWrapper) {
         this.refreshWrapper = pullToRefreshWrapper;
@@ -39,15 +47,20 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         return collectionBinding;
     }
 
+    public EmptyView getEmptyView() {
+        return emptyView;
+    }
+
     @Override
-    public void onCreate(Fragment fragment, Bundle bundle) {
+    public void onCreate(Fragment fragment, @Nullable Bundle bundle) {
         Log.d(TAG, "onCreate");
+        LightCycleBinder.bind(this);
         super.onCreate(fragment, bundle);
         this.fragmentArgs = fragment.getArguments();
         rebuildBinding(fragmentArgs);
     }
 
-    protected CollectionBinding<ItemT> rebuildBinding(Bundle fragmentArgs) {
+    protected CollectionBinding<ItemT> rebuildBinding(@Nullable Bundle fragmentArgs) {
         Log.d(TAG, "rebinding collection");
         resetBindingTo(onBuildBinding(fragmentArgs));
         return collectionBinding;
@@ -56,11 +69,6 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
     private void resetBindingTo(CollectionBinding<ItemT> collectionBinding) {
         this.collectionBinding = collectionBinding;
         this.collectionBinding.items().subscribe(collectionBinding.adapter());
-    }
-
-    @Override
-    protected void onRetry() {
-        retryWith(onBuildBinding(fragmentArgs));
     }
 
     protected void retryWith(CollectionBinding<ItemT> collectionBinding) {
@@ -85,6 +93,7 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         Log.d(TAG, "onViewCreated");
         super.onViewCreated(fragment, view, savedInstanceState);
 
+        setupEmptyView(view);
         onCreateCollectionView(fragment, view, savedInstanceState);
 
         if (fragment instanceof RefreshableScreen) {
@@ -95,9 +104,28 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
         subscribeBinding();
     }
 
+    private void setupEmptyView(View view) {
+        emptyView = (EmptyView) view.findViewById(android.R.id.empty);
+        emptyView.setStatus(emptyViewStatus);
+        emptyView.setOnRetryListener(new EmptyView.RetryListener() {
+            @Override
+            public void onEmptyViewRetry() {
+                updateEmptyViewStatus(EmptyView.Status.WAITING);
+                retryWith(onBuildBinding(fragmentArgs));
+            }
+        });
+    }
+
+    private void updateEmptyViewStatus(EmptyView.Status status) {
+        this.emptyViewStatus = status;
+        emptyView.setStatus(status);
+    }
+
     protected abstract void onCreateCollectionView(Fragment fragment, View view, Bundle savedInstanceState);
 
     protected abstract void onItemClicked(View view, int position);
+
+    protected abstract EmptyView.Status handleError(Throwable error);
 
     @Override
     public void onDestroyView(Fragment fragment) {
@@ -162,6 +190,25 @@ abstract class CollectionViewPresenter<ItemT> extends EmptyViewPresenter {
             refreshBinding = onRefreshBinding();
             refreshBinding.items().subscribe(new RefreshSubscriber());
             refreshBinding.connect();
+        }
+    }
+
+    private final class EmptyViewSubscriber extends Subscriber<Object> {
+
+        @Override
+        public void onCompleted() {
+            updateEmptyViewStatus(EmptyView.Status.OK);
+        }
+
+        @Override
+        public void onNext(Object unused) {
+            updateEmptyViewStatus(EmptyView.Status.OK);
+        }
+
+        @Override
+        public void onError(Throwable error) {
+            error.printStackTrace();
+            updateEmptyViewStatus(handleError(error));
         }
     }
 }

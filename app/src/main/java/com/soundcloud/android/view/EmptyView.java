@@ -1,14 +1,11 @@
 package com.soundcloud.android.view;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.R;
-import com.soundcloud.android.api.legacy.PublicApiWrapper;
 import com.soundcloud.android.utils.AnimUtils;
-import org.apache.http.HttpStatus;
-import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -24,33 +21,29 @@ import android.widget.TextView;
 
 public class EmptyView extends RelativeLayout {
 
-    protected View progressView;
+    @Nullable private ViewGroup emptyLayout;
+    @Nullable private ImageView image;
+    @Nullable private ErrorView errorView;
 
-    @Nullable
-    protected ViewGroup emptyLayout;
-
+    private View progressView;
+    private Button buttonAction;
     private RelativeLayout emptyViewHolder;
     private TextView textMessage;
     private TextView textLink;
-    @Nullable
-    private ImageView image;
-    @Nullable
-    private ErrorView errorView;
-    protected Button buttonAction;
 
     private int messageResource, imageResource;
     private String message, secondaryText, actionText;
 
     private ActionListener buttonActionListener;
-    protected int status;
+    private Status status;
     private RetryListener retryListener;
 
-    public interface Status extends HttpStatus {
-        int WAITING = -1;
-        int ERROR = -2; //generic error
-        int CONNECTION_ERROR = -3;
-        int SERVER_ERROR = -4;
-        int OK = SC_OK; //generic OK
+    public enum Status {
+        WAITING,
+        ERROR,
+        CONNECTION_ERROR,
+        SERVER_ERROR,
+        OK
     }
 
     public EmptyView(final Context context) {
@@ -93,12 +86,11 @@ public class EmptyView extends RelativeLayout {
         setClickable(true); // needs to be clickable for swipe to refresh gesture
     }
 
-    public boolean setStatus(int status) {
+    public boolean setStatus(Status status) {
         if (this.status != status) {
             this.status = status;
 
             if (status == Status.WAITING) {
-
                 // don't show empty screen, show progress
                 progressView.setVisibility(View.VISIBLE);
                 if (emptyLayout != null) {
@@ -111,7 +103,7 @@ public class EmptyView extends RelativeLayout {
 
             } else {
                 AnimUtils.hideView(getContext(), progressView, false);
-                if (PublicApiWrapper.isStatusCodeOk(status)) {
+                if (status == Status.OK) {
                     // at rest, no error
                     showEmptyLayout();
                     return true;
@@ -127,11 +119,11 @@ public class EmptyView extends RelativeLayout {
         return true;
     }
 
-    public int getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    private void showError(int responseCode) {
+    private void showError(Status status) {
         if (errorView == null) {
             errorView = addErrorView();
             errorView.setOnRetryListener(retryListener);
@@ -142,14 +134,19 @@ public class EmptyView extends RelativeLayout {
             AnimUtils.hideView(getContext(), emptyLayout, false);
         }
 
-        if (PublicApiWrapper.isStatusCodeError(responseCode) || responseCode == Status.SERVER_ERROR) {
-            errorView.setUnexpectedResponseState();
-        } else {
-            errorView.setConnectionErrorState();
+        switch (status) {
+            case SERVER_ERROR:
+                errorView.setServerErrorState();
+                break;
+            case CONNECTION_ERROR:
+                errorView.setConnectionErrorState();
+                break;
+            default:
+                //TODO: might consider handling this separately
+                errorView.setServerErrorState();
         }
     }
 
-    @VisibleForTesting
     protected ErrorView addErrorView() {
         ErrorView errorView = (ErrorView) LayoutInflater.from(getContext()).inflate(R.layout.error_view, null);
         final RelativeLayout.LayoutParams params =
@@ -263,7 +260,7 @@ public class EmptyView extends RelativeLayout {
         return this;
     }
 
-    public EmptyView setActionText(@Nullable String actionText) {
+    public EmptyView setActionText(String actionText) {
         this.actionText = actionText;
         if (buttonAction != null) {
             if (actionText != null) {

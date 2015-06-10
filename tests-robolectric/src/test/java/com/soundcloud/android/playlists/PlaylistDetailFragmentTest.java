@@ -318,7 +318,7 @@ public class PlaylistDetailFragmentTest {
         when(playlistOperations.playlist(any(Urn.class))).thenReturn(
                 Observable.<PlaylistWithTracks>error(new Exception("something bad happened")));
         createFragmentView();
-        verify(controller).setEmptyViewStatus(EmptyView.Status.SERVER_ERROR);
+        verify(controller).setEmptyViewStatus(EmptyView.Status.ERROR);
     }
 
     @Test
@@ -393,7 +393,7 @@ public class PlaylistDetailFragmentTest {
         createFragmentView();
         fragment.onRefresh();
 
-        verify(controller, times(1)).setEmptyViewStatus(anyInt());
+        verify(controller, times(1)).setEmptyViewStatus(any(EmptyView.Status.class));
     }
 
     @Test

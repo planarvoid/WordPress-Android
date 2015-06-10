@@ -109,6 +109,11 @@ public class ProfilePlayablePresenterTest {
     private void createPresenter() {
         presenter = new ProfilePlayablePresenter(pullToRefreshWrapper, pauseOnScrollListener, adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations) {
             @Override
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
+            }
+
+            @Override
             protected Pager.PagingFunction<PagedRemoteCollection> getPagingFunction() {
                 return null;
             }

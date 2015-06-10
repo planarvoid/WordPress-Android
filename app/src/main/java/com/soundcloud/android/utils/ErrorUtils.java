@@ -92,12 +92,6 @@ public final class ErrorUtils {
         });
     }
 
-    public static int getEmptyViewStatusFromApiException(Throwable e) {
-        final boolean isNetworkError = e instanceof ApiRequestException
-                && ((ApiRequestException) e).isNetworkError();
-        return isNetworkError ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR;
-    }
-
     @VisibleForTesting
     static boolean includeInReports(Throwable t) {
         if (t instanceof SyncFailedException || isIOExceptionUnrelatedToParsing(t) || t instanceof PlaylistMissingException) {
@@ -177,4 +171,14 @@ public final class ErrorUtils {
         }
     }
 
+    public static EmptyView.Status emptyViewStatusFromError(Throwable error) {
+        if (error instanceof ApiRequestException) {
+            return (((ApiRequestException) error).isNetworkError() ? EmptyView.Status.CONNECTION_ERROR : EmptyView.Status.SERVER_ERROR);
+        } else if (error instanceof SyncFailedException) {
+            // default Sync Failures to connection for now as we can't tell the diff
+            return EmptyView.Status.CONNECTION_ERROR;
+        } else {
+            return EmptyView.Status.ERROR;
+        }
+    }
 }

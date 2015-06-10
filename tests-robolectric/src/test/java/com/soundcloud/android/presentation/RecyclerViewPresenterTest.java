@@ -563,6 +563,11 @@ public class RecyclerViewPresenterTest {
                 lastClickedView = view;
                 lastClickedPosition = position;
             }
+
+            @Override
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
+            }
         };
     }
 
@@ -584,6 +589,11 @@ public class RecyclerViewPresenterTest {
             protected void onItemClicked(View view, int position) {
                 lastClickedView = view;
                 lastClickedPosition = position;
+            }
+
+            @Override
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
             }
         };
     }

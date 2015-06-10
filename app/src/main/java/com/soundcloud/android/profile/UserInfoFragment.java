@@ -24,7 +24,7 @@ public class UserInfoFragment extends Fragment {
 
     private long userId;
     private EmptyViewBuilder emptyViewFactory;
-    private int emptyViewStatus = EmptyView.Status.WAITING;
+    private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private boolean displayedInfo;
 
     public static UserInfoFragment newInstance(long userId) {

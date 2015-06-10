@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.CollectionHolder;
 import com.soundcloud.android.api.legacy.model.PublicApiResource;
@@ -18,7 +19,6 @@ import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestObservables;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
-import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.Request;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
@@ -87,7 +87,7 @@ public class RemoteCollectionLoaderTest {
         ReturnData<PublicApiResource> responseData = remoteCollectionLoader.load(publicCloudApi, parameters);
         assertThat(responseData.success, is(false));
         assertThat(responseData.wasRefresh, is(true));
-        assertThat(responseData.responseCode, is(EmptyView.Status.CONNECTION_ERROR));
+        assertThat(responseData.responseCode, is(Consts.NOT_SET));
     }
 
     @Test

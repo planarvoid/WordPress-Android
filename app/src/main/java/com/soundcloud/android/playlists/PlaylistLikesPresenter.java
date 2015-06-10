@@ -12,6 +12,8 @@ import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.ListPresenter;
 import com.soundcloud.android.presentation.PullToRefreshWrapper;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.PrependItemToListSubscriber;
 import com.soundcloud.android.view.adapters.RemoveEntityListSubscriber;
 import com.soundcloud.android.view.adapters.UpdateCurrentDownloadSubscriber;
@@ -102,5 +104,10 @@ public class PlaylistLikesPresenter extends ListPresenter<PlaylistItem> {
     public void onItemClicked(View view, int position) {
         Urn playlistUrn = adapter.getItem(position).getEntityUrn();
         PlaylistDetailActivity.start(view.getContext(), playlistUrn, Screen.SIDE_MENU_PLAYLISTS);
+    }
+
+    @Override
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 }

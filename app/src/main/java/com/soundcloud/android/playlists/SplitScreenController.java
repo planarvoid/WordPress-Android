@@ -45,7 +45,7 @@ class SplitScreenController extends PlaylistDetailsController {
     }
 
     @Override
-    public void setEmptyViewStatus(int status) {
+    public void setEmptyViewStatus(EmptyView.Status status) {
         emptyView.setStatus(status);
     }
 }

@@ -81,7 +81,7 @@ public class SplitScreenControllerTest {
 
     @Test
     public void setEmptyViewStatusSetsStatesOnEmptyView() throws Exception {
-        controller.setEmptyViewStatus(100);
-        verify(emptyView).setStatus(100);
+        controller.setEmptyViewStatus(EmptyView.Status.OK);
+        verify(emptyView).setStatus(EmptyView.Status.OK);
     }
 }

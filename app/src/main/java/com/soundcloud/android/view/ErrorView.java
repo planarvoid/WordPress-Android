@@ -46,7 +46,7 @@ public class ErrorView extends RelativeLayout {
         connectionErrorSubtitle = (TextView) findViewById(R.id.connection_error_2);
     }
 
-    public void setUnexpectedResponseState() {
+    public void setServerErrorState() {
         imageView.setImageResource(R.drawable.error_message_soundcloud);
         serverErrorText.setVisibility(View.VISIBLE);
         connectionErrorTitle.setVisibility(View.GONE);

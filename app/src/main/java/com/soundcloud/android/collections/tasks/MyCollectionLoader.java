@@ -18,7 +18,6 @@ import com.soundcloud.android.storage.BaseDAO;
 import com.soundcloud.android.storage.TableColumns;
 import com.soundcloud.android.storage.UserAssociationStorage;
 import com.soundcloud.android.storage.provider.Content;
-import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Request;
 import org.apache.http.HttpStatus;
@@ -53,7 +52,7 @@ public class MyCollectionLoader<T extends ScModel> implements CollectionLoader<T
         final Context context = SoundCloudApplication.instance;
         final ContentResolver resolver = context.getContentResolver();
         boolean keepGoing = true;
-        int responseCode = EmptyView.Status.OK;
+        int responseCode = HttpStatus.SC_OK;
 
         switch (params.getContent()) {
             case ME_FOLLOWERS:

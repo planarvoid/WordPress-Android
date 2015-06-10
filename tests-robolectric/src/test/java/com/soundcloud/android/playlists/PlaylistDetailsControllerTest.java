@@ -11,6 +11,7 @@ import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.presentation.ListItemAdapter;
+import com.soundcloud.android.view.EmptyView;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,7 +81,7 @@ public class PlaylistDetailsControllerTest {
         }
 
         @Override
-        public void setEmptyViewStatus(int status) {
+        public void setEmptyViewStatus(EmptyView.Status status) {
 
         }
     }

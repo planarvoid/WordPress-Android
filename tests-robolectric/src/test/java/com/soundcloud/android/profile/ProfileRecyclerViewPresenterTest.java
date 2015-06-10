@@ -91,6 +91,11 @@ public class ProfileRecyclerViewPresenterTest {
             }
 
             @Override
+            protected EmptyView.Status handleError(Throwable error) {
+                return EmptyView.Status.OK;
+            }
+
+            @Override
             public RecyclerView getRecyclerView() {
                 return recyclerView;
             }
