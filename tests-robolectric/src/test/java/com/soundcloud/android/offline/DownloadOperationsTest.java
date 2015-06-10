@@ -203,7 +203,4 @@ public class DownloadOperationsTest {
 
         expect(operations.isValidNetwork()).toBeTrue();
     }
-
-
-
 }

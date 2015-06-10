@@ -10,12 +10,12 @@ import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.offline.OfflineContentService;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.rx.TestObservables;
-import com.xtremelabs.robolectric.Robolectric;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
@@ -32,6 +32,7 @@ public class LogoutFragmentTest {
     @Mock private AccountOperations accountOperations;
     @Mock private FeatureOperations featureOperations;
     @Mock private Observer observer;
+    @Mock private FragmentActivity activity;
 
     @Before
     public void setup() {
@@ -79,19 +80,16 @@ public class LogoutFragmentTest {
 
     @Test
     public void shouldStopOfflineContentServiceIfFeatureEnabled() {
-        final FragmentActivity activity = new FragmentActivity();
         shadowOf(fragment).setActivity(activity);
         when(featureOperations.isOfflineContentEnabled()).thenReturn(true);
 
         fragment.onCreate(null);
 
-        expect(wasServiceStopped()).toBeTrue();
-    }
+        ArgumentCaptor<Intent> captor = ArgumentCaptor.forClass(Intent.class);
+        verify(activity).startService(captor.capture());
 
-    private boolean wasServiceStopped() {
-        final Intent intent = Robolectric.getShadowApplication().peekNextStartedService();
-        return intent != null &&
-               intent.getAction().equals("action_stop_download") &&
-               intent.getComponent().getClassName().equals(OfflineContentService.class.getCanonicalName());
+        Intent startServiceIntent = captor.getValue();
+        expect(startServiceIntent.getAction()).toEqual("action_stop_download");
+        expect(startServiceIntent.getComponent().getClassName()).toEqual(OfflineContentService.class.getCanonicalName());
     }
 }
