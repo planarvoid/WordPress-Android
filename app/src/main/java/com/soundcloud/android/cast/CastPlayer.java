@@ -270,7 +270,6 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public void pause() {
         try {
             castManager.pause();
-            progressReporter.stop();
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
             Log.e(CastOperations.TAG, "Unable to pause playback", e);
         }
