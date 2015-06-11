@@ -1,21 +1,14 @@
 package com.soundcloud.android.playback;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.ApplicationModule;
 import com.soundcloud.android.cast.CastOperations;
-import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import rx.Observable;
-import rx.Scheduler;
 import rx.Subscription;
-import rx.schedulers.Schedulers;
 import rx.schedulers.TimeInterval;
 import rx.subscriptions.Subscriptions;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.TimeUnit;
 
 public class ProgressReporter {
 

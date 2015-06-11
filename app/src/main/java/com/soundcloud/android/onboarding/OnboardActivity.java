@@ -3,8 +3,8 @@ package com.soundcloud.android.onboarding;
 import static com.soundcloud.android.Consts.RequestCodes;
 import static com.soundcloud.android.SoundCloudApplication.TAG;
 import static com.soundcloud.android.onboarding.FacebookSessionCallback.DEFAULT_FACEBOOK_READ_PERMISSIONS;
-import static com.soundcloud.android.utils.AnimUtils.hideView;
-import static com.soundcloud.android.utils.AnimUtils.showView;
+import static com.soundcloud.android.util.AnimUtils.hideView;
+import static com.soundcloud.android.util.AnimUtils.showView;
 
 import com.facebook.NonCachingTokenCachingStrategy;
 import com.facebook.Session;
@@ -50,7 +50,7 @@ import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.AndroidUtils;
-import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.util.AnimUtils;
 import com.soundcloud.android.utils.BugReporter;
 import org.jetbrains.annotations.Nullable;
 

@@ -1,10 +1,10 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.framework.viewelements.ViewElement;
-import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.viewelements.TextElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
+import com.soundcloud.android.main.MainActivity;
 
 public class TrackInfoScreen extends Screen {
 

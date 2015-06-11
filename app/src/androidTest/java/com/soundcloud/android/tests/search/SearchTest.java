@@ -1,5 +1,13 @@
 package com.soundcloud.android.tests.search;
 
+import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
+import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+
 import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PlaylistDetailsScreen;
@@ -11,14 +19,6 @@ import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.ActivityTest;
-
-import static com.soundcloud.android.framework.matcher.player.IsCollapsed.collapsed;
-import static com.soundcloud.android.framework.matcher.screen.IsVisible.visible;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.core.IsEqual.equalTo;
-import static org.hamcrest.core.IsNot.not;
 
 public class SearchTest extends ActivityTest<SearchActivity> {
     private StreamScreen streamScreen;

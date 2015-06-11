@@ -4,9 +4,9 @@ import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_R
 import static com.soundcloud.android.actionbar.menu.ActionMenuController.STATE_START_SYNC;
 
 import com.soundcloud.android.actionbar.menu.DefaultActionMenuController;
-import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import com.soundcloud.android.offline.OfflineContentOperations;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
+import com.soundcloud.lightcycle.DefaultSupportFragmentLightCycle;
 import rx.Subscription;
 import rx.subscriptions.Subscriptions;
 

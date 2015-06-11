@@ -2,9 +2,9 @@ package com.soundcloud.android.tests.search.intents;
 
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
+import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.search.SearchActivity;
 import com.soundcloud.android.tests.ActivityTest;
-import com.soundcloud.android.framework.Waiter;
 
 import android.content.Intent;
 

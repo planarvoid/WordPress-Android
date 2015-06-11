@@ -1,8 +1,8 @@
 package com.soundcloud.android.profile;
 
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
-import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.presentation.RecyclerViewPresenter;
+import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import org.jetbrains.annotations.Nullable;
 

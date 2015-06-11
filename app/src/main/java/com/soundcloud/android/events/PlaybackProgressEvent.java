@@ -1,7 +1,7 @@
 package com.soundcloud.android.events;
 
-import com.soundcloud.android.playback.PlaybackProgress;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.PlaybackProgress;
 
 public class PlaybackProgressEvent {
     PlaybackProgress playbackProgress;
