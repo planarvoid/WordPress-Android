@@ -150,7 +150,7 @@
     <string name="error_soundcloud_no_response">SoundCloud ne répond pas.</string>
     <string name="error_no_internet">Pas d\'internet.</string>
     <string name="error_connect_and_try_again">Connectez-vous et réessayez.</string>
-    <string name="appending_failed">Erreur de chargement. Appuyez pour réessayer</string>
+    <string name="error_pager_failed">Erreur de chargement. Appuyez pour réessayer</string>
     <string name="crop_image_error">Une erreur est survenue lors du recadrage de votre image.</string>
     <string name="error_server_problems_message">Un problème est survenu lors du traitement de votre demande. Veuillez réessayer plus tard.</string>
     <string name="connection_list_error">Il semble y avoir un problème de connexion. Veuillez réessayer dans quelques instants.</string>

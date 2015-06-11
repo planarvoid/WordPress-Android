@@ -150,7 +150,7 @@
     <string name="error_soundcloud_no_response">O SoundCloud não está respondendo</string>
     <string name="error_no_internet">Sem conexão com a Internet</string>
     <string name="error_connect_and_try_again">Conecte-se e tente novamente.</string>
-    <string name="appending_failed">Erro de carregamento. Toque e tente novamente</string>
+    <string name="error_pager_failed">Erro de carregamento. Toque e tente novamente</string>
     <string name="crop_image_error">Ocorreu um erro ao recortar sua imagem</string>
     <string name="error_server_problems_message">Ocorreu um problema ao processar sua solicitação Tente novamente mais tarde.</string>
     <string name="connection_list_error">Parece estar havendo um problema na conexão. Tente novamente daqui a pouco.</string>

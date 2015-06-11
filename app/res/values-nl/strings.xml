@@ -149,7 +149,7 @@
     <string name="error_soundcloud_no_response">SoundCloud reageert niet.</string>
     <string name="error_no_internet">Geen Internet.</string>
     <string name="error_connect_and_try_again">Maak verbinding en probeer het nog eens.</string>
-    <string name="appending_failed">Laadfout. Tik om het nog eens te proberen</string>
+    <string name="error_pager_failed">Laadfout. Tik om het nog eens te proberen</string>
     <string name="crop_image_error">Er is een fout opgetreden bij het bijsnijden van uw afbeelding.</string>
     <string name="error_server_problems_message">Er is een probleem opgetreden tijdens het verwerken van uw verzoek. Probeer het later nog eens.</string>
     <string name="connection_list_error">Er lijkt een verbindingsprobleem te zijn. Probeer het binnenkort nog eens.</string>

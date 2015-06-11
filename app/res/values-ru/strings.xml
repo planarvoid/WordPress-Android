@@ -149,7 +149,7 @@
     <string name="error_soundcloud_no_response">SoundCloud не отвечает.</string>
     <string name="error_no_internet">Интернет не подключен.</string>
     <string name="error_connect_and_try_again">Подключитесь и попробуйте еще раз.</string>
-    <string name="appending_failed">Ошибка загрузки. Нажмите, чтобы попробовать еще раз</string>
+    <string name="error_pager_failed">Ошибка загрузки. Нажмите, чтобы попробовать еще раз</string>
     <string name="crop_image_error">Ошибка кадрирования изображения.</string>
     <string name="error_server_problems_message">Проблема при обработке вашего запроса. Пожалуйста, повторите попытку позднее.</string>
     <string name="connection_list_error">Там, кажется, проблема с подключением. Пожалуйста, попробуйте еще раз в ближайшее время.</string>

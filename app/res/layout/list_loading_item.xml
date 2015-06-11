@@ -19,7 +19,7 @@
                   style="@style/ErrorMessage"
                   android:layout_centerInParent="true"
                   android:gravity="center"
-                  android:text="@string/appending_failed"
+                  android:text="@string/error_pager_failed"
                   android:visibility="gone"/>
 
     </RelativeLayout>

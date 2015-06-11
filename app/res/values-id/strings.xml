@@ -149,7 +149,7 @@
     <string name="error_soundcloud_no_response">SoundCloud tidak merespons.</string>
     <string name="error_no_internet">Tidak ada Internet.</string>
     <string name="error_connect_and_try_again">Hubungkan dan coba lagi.</string>
-    <string name="appending_failed">Galat saat memuat. Ketuk untuk mencoba lagi</string>
+    <string name="error_pager_failed">Galat saat memuat. Ketuk untuk mencoba lagi</string>
     <string name="crop_image_error">Terjadi kesalahan saat memangkas gambar Anda.</string>
     <string name="error_server_problems_message">Terjadi masalah saat memproses permintaan Anda. Silakan coba lagi nanti.</string>
     <string name="connection_list_error">Tampaknya ada masalah koneksi. Silakan coba sebentar lagi.</string>

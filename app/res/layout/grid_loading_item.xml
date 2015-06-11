@@ -28,7 +28,7 @@
                       android:layout_weight="1"
                       style="@style/ErrorMessage"
                       android:gravity="center"
-                      android:text="@string/appending_failed" />
+                      android:text="@string/error_pager_failed" />
         </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>
