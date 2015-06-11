@@ -9,6 +9,7 @@ import com.soundcloud.android.screens.elements.SlidingTabs;
 
 import android.content.Context;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewParent;
@@ -63,7 +64,12 @@ public final class DefaultViewElement extends ViewElement {
         if (!isVisible()) {
             throw new ViewNotVisibleException();
         }
+        Log.i("CLICKEVENT", String.format("Clicking at: %s", getClickPoint()));
         testDriver.clickOnView(view);
+    }
+
+    private String getClickPoint() {
+        return String.format("%.02f, %.02f", view.getX() + view.getWidth()/2, view.getY() + view.getHeight()/2);
     }
 
     @Override
