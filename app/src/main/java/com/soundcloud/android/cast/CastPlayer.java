@@ -270,6 +270,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public void pause() {
         try {
             castManager.pause();
+            progressReporter.stop();
         } catch (CastException | TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
             Log.e(CastOperations.TAG, "Unable to pause playback", e);
         }
@@ -286,6 +287,7 @@ public class CastPlayer extends VideoCastConsumerImpl implements ProgressReporte
     public long seek(long ms) {
         try {
             castManager.seek((int) ms);
+            progressReporter.stop();
         } catch (TransientNetworkDisconnectionException | NoConnectionException | IllegalStateException e) {
             Log.e(CastOperations.TAG, "Unable to seek", e);
         }
