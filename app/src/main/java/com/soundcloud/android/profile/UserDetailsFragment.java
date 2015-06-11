@@ -17,6 +17,7 @@ public class UserDetailsFragment extends LightCycleSupportFragment implements Pr
 
     @Inject UserDetailsView userDetailsView;
     @Inject UserDetailsScroller userDetailsScroller;
+    @Inject ProfileOperations profileOperations;
     @LightCycle UserDetailsPresenter userDetailsPresenter;
 
     public static UserDetailsFragment create() {
@@ -25,7 +26,8 @@ public class UserDetailsFragment extends LightCycleSupportFragment implements Pr
 
     public UserDetailsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        userDetailsPresenter = new UserDetailsPresenter(userDetailsView, userDetailsScroller);
+        setRetainInstance(true);
+        userDetailsPresenter = new UserDetailsPresenter(profileOperations, userDetailsView, userDetailsScroller);
     }
 
     @Override

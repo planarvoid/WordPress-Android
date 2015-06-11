@@ -48,7 +48,16 @@ public class ProfileOperations {
         this.userRepository = userRepository;
     }
 
-    public Observable<ProfileUser> getUserDetails(Urn user) {
+    public Observable<ProfileUser> getLocalProfileUser(Urn user) {
+        return userRepository.localUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
+            @Override
+            public ProfileUser call(PropertySet properties) {
+                return new ProfileUser(properties);
+            }
+        });
+    }
+
+    public Observable<ProfileUser> getLocalAndSyncedProfileUser(Urn user) {
         return userRepository.localAndSyncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
             @Override
             public ProfileUser call(PropertySet properties) {
@@ -57,7 +66,7 @@ public class ProfileOperations {
         });
     }
 
-    public Observable<ProfileUser> updatedUserDetails(Urn user) {
+    public Observable<ProfileUser> getSyncedProfileUser(Urn user) {
         return userRepository.syncedUserInfo(user).map(new Func1<PropertySet, ProfileUser>() {
             @Override
             public ProfileUser call(PropertySet properties) {

@@ -4,15 +4,17 @@ import static com.soundcloud.android.profile.ProfileHeaderPresenter.ProfileHeade
 import static com.soundcloud.android.profile.ProfilePagerRefreshHelper.ProfilePagerRefreshHelperFactory;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
-import rx.Observable;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.observables.ConnectableObservable;
+import rx.functions.Func1;
 import rx.subscriptions.Subscriptions;
 
 import android.os.Bundle;
@@ -21,26 +23,35 @@ import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
 
-class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> implements ProfileUserProvider {
+class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
 
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     private final ProfilePagerRefreshHelperFactory profilePagerRefreshHelperFactory;
     private final ProfileOperations profileOperations;
+    private final EventBus eventBus;
 
     private ViewPager pager;
     private ProfilePagerRefreshHelper refreshHelper;
     private Subscription userSubscription = Subscriptions.empty();
+    private Subscription userUpdatedSubscription = Subscriptions.empty();
     private ProfileHeaderPresenter headerPresenter;
     private Urn user;
-    private ConnectableObservable<ProfileUser> currentUserObservable;
+
+    private final Func1<EntityStateChangedEvent, Boolean> isProfileUser = new Func1<EntityStateChangedEvent, Boolean>() {
+        @Override
+        public Boolean call(EntityStateChangedEvent entityStateChangedEvent) {
+            return entityStateChangedEvent.getChangeMap().containsKey(user);
+        }
+    };
 
     @Inject
     public ProfilePresenter(ProfilePagerRefreshHelperFactory profilePagerRefreshHelperFactory,
                             ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
-                            ProfileOperations profileOperations) {
+                            ProfileOperations profileOperations, EventBus eventBus) {
         this.profilePagerRefreshHelperFactory = profilePagerRefreshHelperFactory;
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
+        this.eventBus = eventBus;
     }
 
     @Override
@@ -61,43 +72,26 @@ class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
         tabIndicator.setOnPageChangeListener(new PageChangeListener());
         refreshHelper.setRefreshablePage(0);
 
-        ConnectableObservable<ProfileUser> loadObservable = getStoredObservable(activity);
-        if (loadObservable == null) {
-            loadObservable = profileOperations.getUserDetails(user)
-                    .observeOn(AndroidSchedulers.mainThread()).replay();
-        }
-        subscribeAndConnect(loadObservable);
+        refreshUser();
+
+        userUpdatedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
+                .filter(isProfileUser)
+                .subscribe(new RefreshUserSubscriber());
     }
 
-    @SuppressWarnings("unchecked")
-    private ConnectableObservable<ProfileUser> getStoredObservable(AppCompatActivity activity) {
-        return (ConnectableObservable<ProfileUser>) activity.getLastCustomNonConfigurationInstance();
-    }
-
-    @Override
-    public Observable<ProfileUser> user() {
-        return currentUserObservable;
-    }
-
-    public Observable<ProfileUser> refreshUser() {
-        final ConnectableObservable<ProfileUser> refreshObservable = profileOperations.updatedUserDetails(user)
-                .observeOn(AndroidSchedulers.mainThread())
-                .replay();
-        subscribeAndConnect(refreshObservable);
-        return refreshObservable;
-    }
-
-    private void subscribeAndConnect(ConnectableObservable<ProfileUser> observable) {
-        currentUserObservable = observable;
+    public void refreshUser() {
         userSubscription.unsubscribe();
-        currentUserObservable.subscribe(new UserDetailsSubscriber());
-        userSubscription = currentUserObservable.connect();
+        userSubscription = profileOperations
+                .getLocalProfileUser(user)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new UserDetailsSubscriber());
     }
 
     @Override
     public void onDestroy(AppCompatActivity activity) {
         pager = null;
         refreshHelper = null;
+        userUpdatedSubscription.unsubscribe();
         userSubscription.unsubscribe();
         super.onDestroy(activity);
     }
@@ -109,10 +103,17 @@ class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
         }
     }
 
-    private class UserDetailsSubscriber extends DefaultSubscriber<ProfileUser> {
+    private final class UserDetailsSubscriber extends DefaultSubscriber<ProfileUser> {
         @Override
         public void onNext(ProfileUser profileUser) {
             headerPresenter.setUserDetails(profileUser);
+        }
+    }
+
+    private final class RefreshUserSubscriber extends DefaultSubscriber<EntityStateChangedEvent> {
+        @Override
+        public void onNext(EntityStateChangedEvent args) {
+            refreshUser();
         }
     }
 }

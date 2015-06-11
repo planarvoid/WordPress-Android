@@ -2,23 +2,30 @@ package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfilePagerRefreshHelper.ProfilePagerRefreshHelperFactory;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.model.ApiUser;
+import com.soundcloud.android.events.EntityStateChangedEvent;
+import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.SlidingTabLayout;
+import com.soundcloud.propeller.PropertySet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import rx.Observable;
 
 import android.content.Intent;
@@ -51,6 +58,9 @@ public class ProfilePresenterTest {
     @Mock private Resources resources;
     @Mock private FragmentManager fragmentManager;
     @Captor private ArgumentCaptor<ViewPager.OnPageChangeListener> onPageChangeListenerCaptor;
+
+    private TestEventBus eventBus = new TestEventBus();
+
     private ProfileUser profileUser;
 
     @Before
@@ -70,10 +80,11 @@ public class ProfilePresenterTest {
         when(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width)).thenReturn(DIVIDER_WIDTH);
         when(profileHeaderPresenterFactory.create(headerView)).thenReturn(profileHeaderPresenter);
         when(profilePagerRefreshHelperFactory.create(swipeRefreshLayout)).thenReturn(profilePagerRefreshHelper);
-        when(profileOperations.getUserDetails(USER_URN)).thenReturn(Observable.just(profileUser));
+        when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
+
 
         profilePresenter = new ProfilePresenter(profilePagerRefreshHelperFactory, profileHeaderPresenterFactory,
-                profileOperations);
+                profileOperations, eventBus);
     }
 
     @Test
@@ -109,15 +120,27 @@ public class ProfilePresenterTest {
     }
 
     @Test
-    public void refreshSetsUserOnHeaderPresenter() throws Exception {
+    public void entityStateChangedEventReloadsUserOnHeaderPresenter() throws Exception {
         profilePresenter.onCreate(activity, null);
 
         final ProfileUser updatedProfileUser = createProfileUser();
-        when(profileOperations.updatedUserDetails(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
+        when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(updatedProfileUser));
 
-        profilePresenter.refreshUser();
+        final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(USER_URN));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(userProperties));
 
         verify(profileHeaderPresenter).setUserDetails(updatedProfileUser);
+    }
+
+    @Test
+    public void entityStateChangedEventForOtherUserDoesntReloadUser() throws Exception {
+        profilePresenter.onCreate(activity, null);
+        Mockito.reset(profileOperations);
+
+        final PropertySet userProperties = PropertySet.from(UserProperty.URN.bind(Urn.forUser(444)));
+        eventBus.publish(EventQueue.ENTITY_STATE_CHANGED, EntityStateChangedEvent.fromSync(userProperties));
+
+        verifyZeroInteractions(profileOperations);
     }
 
     private ProfileUser createProfileUser() {

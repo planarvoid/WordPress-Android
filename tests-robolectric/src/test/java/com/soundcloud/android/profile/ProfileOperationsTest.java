@@ -12,6 +12,7 @@ import com.soundcloud.android.playlists.PlaylistProperty;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.search.LoadPlaylistLikedStatuses;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
+import com.soundcloud.android.users.UserProperty;
 import com.soundcloud.android.users.UserRepository;
 import com.soundcloud.propeller.PropertySet;
 import org.jetbrains.annotations.NotNull;
@@ -40,11 +41,42 @@ public class ProfileOperationsTest {
     @Mock private LoadPlaylistLikedStatuses loadPlaylistLikedStatuses;
     @Mock private UserRepository userRepository;
 
+    final TestObserver<ProfileUser> userObserver = new TestObserver<>();
     final TestObserver<PagedRemoteCollection> observer = new TestObserver<>();
 
     @Before
     public void setUp() {
         operations = new ProfileOperations(profileApi, Schedulers.immediate(), loadPlaylistLikedStatuses, userRepository);
+    }
+
+    @Test
+    public void returnsLocalUserFromRepository() {
+        final PropertySet propertySet = PropertySet.from(UserProperty.URN.bind(USER_URN));
+        when(userRepository.localUserInfo(USER_URN)).thenReturn(Observable.just(propertySet));
+
+        operations.getLocalProfileUser(USER_URN).subscribe(userObserver);
+
+        expect(userObserver.getOnNextEvents()).toContainExactly(new ProfileUser(propertySet));
+    }
+
+    @Test
+    public void returnsLocalAndSyncedUserFromRepositoryWhenGettingDetails() {
+        final PropertySet propertySet = PropertySet.from(UserProperty.URN.bind(USER_URN));
+        when(userRepository.localAndSyncedUserInfo(USER_URN)).thenReturn(Observable.just(propertySet));
+
+        operations.getLocalAndSyncedProfileUser(USER_URN).subscribe(userObserver);
+
+        expect(userObserver.getOnNextEvents()).toContainExactly(new ProfileUser(propertySet));
+    }
+
+    @Test
+    public void returnsSyncedUserFromRepositoryWhenGettingUpdatedDetails() {
+        final PropertySet propertySet = PropertySet.from(UserProperty.URN.bind(USER_URN));
+        when(userRepository.syncedUserInfo(USER_URN)).thenReturn(Observable.just(propertySet));
+
+        operations.getSyncedProfileUser(USER_URN).subscribe(userObserver);
+
+        expect(userObserver.getOnNextEvents()).toContainExactly(new ProfileUser(propertySet));
     }
 
     @Test
