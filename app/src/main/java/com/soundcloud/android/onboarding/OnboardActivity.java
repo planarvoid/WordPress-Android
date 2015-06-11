@@ -294,7 +294,7 @@ public class OnboardActivity extends FragmentActivity
     @Override
     public void onLogin(String email, String password) {
         boolean emailAndPasswordFilledIn = email.length() > 0 && password.length() > 0;
-        Log.w(ONBOARDING_TAG, "on login with email and password filled in: " + emailAndPasswordFilledIn);
+        Log.i(ONBOARDING_TAG, "on login with email and password filled in: " + emailAndPasswordFilledIn);
 
         LoginTaskFragment.create(email, password).show(getSupportFragmentManager(), LOGIN_DIALOG_TAG);
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.nativeAuthEvent());
@@ -302,7 +302,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onCancelLogin() {
-        Log.w(ONBOARDING_TAG, "on cancel login");
+        Log.i(ONBOARDING_TAG, "on cancel login");
 
         setState(OnboardingState.PHOTOS);
         trackTourScreen();
@@ -364,7 +364,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onBackPressed() {
-        Log.w(ONBOARDING_TAG, "on back pressed in state " + state);
+        Log.i(ONBOARDING_TAG, "on back pressed in state " + state);
 
         switch (state) {
             case LOGIN:
@@ -395,7 +395,7 @@ public class OnboardActivity extends FragmentActivity
     @SuppressWarnings("PMD.ModifiedCyclomaticComplexity")
     private void setState(OnboardingState state, boolean animated) {
         this.state = state;
-        Log.w(ONBOARDING_TAG, "Will set state to: " + state);
+        Log.i(ONBOARDING_TAG, "Will set state to: " + state);
 
         switch (this.state) {
             case PHOTOS:
@@ -454,26 +454,26 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onGooglePlusAuth() {
-        Log.w(ONBOARDING_TAG, "on Google+ auth");
+        Log.i(ONBOARDING_TAG, "on Google+ auth");
 
         final String[] names = AndroidUtils.getAccountsByType(this, GoogleAuthUtil.GOOGLE_ACCOUNT_TYPE);
         if (names.length == 0) {
-            Log.w(ONBOARDING_TAG, "no google+ accounts found");
+            Log.i(ONBOARDING_TAG, "no google+ accounts found");
 
             onError(getString(R.string.authentication_no_google_accounts));
         } else if (names.length == 1) {
-            Log.w(ONBOARDING_TAG, "one google+ account found");
+            Log.i(ONBOARDING_TAG, "one google+ account found");
 
             onGoogleAccountSelected(names[0]);
         } else {
-            Log.w(ONBOARDING_TAG, "multiple google+ accounts found");
+            Log.i(ONBOARDING_TAG, "multiple google+ accounts found");
 
             ContextThemeWrapper cw = new ContextThemeWrapper(this, R.style.Theme_ScDialog);
             final AlertDialog.Builder builder = new AlertDialog.Builder(cw).setTitle(R.string.dialog_select_google_account);
             builder.setItems(names, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Log.w(ONBOARDING_TAG, "google+ account selected from many");
+                    Log.i(ONBOARDING_TAG, "google+ account selected from many");
 
                     onGoogleAccountSelected(names[which]);
                 }
@@ -485,7 +485,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onFacebookAuth() {
-        Log.w(ONBOARDING_TAG, "on Facebook auth");
+        Log.i(ONBOARDING_TAG, "on Facebook auth");
 
         proposeTermsOfUse(SignupVia.FACEBOOK_SSO, null);
         eventBus.publish(EventQueue.ONBOARDING, OnboardingEvent.facebookAuthEvent());
@@ -493,21 +493,21 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onShowTermsOfUse() {
-        Log.w(ONBOARDING_TAG, "will show terms of use");
+        Log.i(ONBOARDING_TAG, "will show terms of use");
 
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_terms))));
     }
 
     @Override
     public void onShowPrivacyPolicy() {
-        Log.w(ONBOARDING_TAG, "will show privacy policy");
+        Log.i(ONBOARDING_TAG, "will show privacy policy");
 
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.url_privacy))));
     }
 
     @Override
     public void onRecoverPassword(String email) {
-        Log.w(ONBOARDING_TAG, "on recover password");
+        Log.i(ONBOARDING_TAG, "on recover password");
 
         Intent recoveryIntent = new Intent(this, RecoverActivity.class);
         if (email != null && email.length() > 0) {
@@ -518,7 +518,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onAcceptTerms(SignupVia signupVia, Bundle signupParams) {
-        Log.w(ONBOARDING_TAG, "on accept terms via " + signupVia);
+        Log.i(ONBOARDING_TAG, "on accept terms via " + signupVia);
 
         setState(OnboardingState.PHOTOS);
         switch (signupVia) {
@@ -570,7 +570,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     public void onAuthTaskComplete(PublicApiUser user, SignupVia via, boolean wasApiSignupTask, boolean showFacebookSuggestions) {
-        Log.w(ONBOARDING_TAG, "auth task complete, via: " + via + ", was api signup task: " + wasApiSignupTask);
+        Log.i(ONBOARDING_TAG, "auth task complete, via: " + via + ", was api signup task: " + wasApiSignupTask);
 
         if (wasApiSignupTask) {
             SignupLog.writeNewSignupAsync();
@@ -609,7 +609,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        Log.w(ONBOARDING_TAG, "on save instance state");
+        Log.i(ONBOARDING_TAG, "on save instance state");
 
         isBeingDestroyed = true;
         super.onSaveInstanceState(outState);
@@ -634,7 +634,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        Log.w(ONBOARDING_TAG, "on restore instance state");
+        Log.i(ONBOARDING_TAG, "on restore instance state");
 
         super.onRestoreInstanceState(savedInstanceState);
 
@@ -656,7 +656,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        Log.w(ONBOARDING_TAG, "on activity result, code: " + requestCode + ", result code: " + resultCode);
+        Log.i(ONBOARDING_TAG, "on activity result, code: " + requestCode + ", result code: " + resultCode);
 
         if (currentFacebookSession != null) {
             currentFacebookSession.onActivityResult(this, requestCode, resultCode, intent);
@@ -666,7 +666,7 @@ public class OnboardActivity extends FragmentActivity
 
     @Override
     protected void onResumeFragments() {
-        Log.w(ONBOARDING_TAG, "on resume fragments");
+        Log.i(ONBOARDING_TAG, "on resume fragments");
 
         super.onResumeFragments();
         doSafeActivityResultActions(activityResult);
@@ -810,7 +810,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void onHideOverlay(boolean animated) {
-        Log.w(ONBOARDING_TAG, "hiding photo overlays");
+        Log.i(ONBOARDING_TAG, "hiding photo overlays");
 
         showView(this, photoBottomBar, animated);
         showView(this, photoLogo, animated);
@@ -827,7 +827,7 @@ public class OnboardActivity extends FragmentActivity
     }
 
     private void showOverlay(View overlay, boolean animated) {
-        Log.w(ONBOARDING_TAG, "showing photo overlays");
+        Log.i(ONBOARDING_TAG, "showing photo overlays");
 
         hideView(this, photoBottomBar, animated);
         hideView(this, photoLogo, animated);
@@ -994,7 +994,7 @@ public class OnboardActivity extends FragmentActivity
                     .setNeutralButton(R.string.title_feedback, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            Log.w(ONBOARDING_TAG, "on send bug report");
+                            Log.i(ONBOARDING_TAG, "on send bug report");
                             bugReporter.showFeedbackDialog(getFragmentActivity());
                         }
                     });

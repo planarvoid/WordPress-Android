@@ -251,27 +251,27 @@ public class SoundCloudApplication extends Application {
     }
 
     public boolean addUserAccountAndEnableSync(PublicApiUser user, Token token, SignupVia via) {
-        Log.w(Log.ONBOARDING_TAG, "will add account to account storage");
+        Log.i(Log.ONBOARDING_TAG, "will add account to account storage");
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
-            Log.w(Log.ONBOARDING_TAG, "account added successfully");
+            Log.i(Log.ONBOARDING_TAG, "account added successfully");
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
-            Log.w(Log.ONBOARDING_TAG, "sync enabled");
+            Log.i(Log.ONBOARDING_TAG, "sync enabled");
 
             // sync shortcuts so suggest works properly
             Intent intent = new Intent(this, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .setData(Content.ME_SHORTCUT.uri);
             startService(intent);
-            Log.w(Log.ONBOARDING_TAG, "api sync service started");
+            Log.i(Log.ONBOARDING_TAG, "api sync service started");
 
             requestSetsSync();
-            Log.w(Log.ONBOARDING_TAG, "playlist sync requested");
+            Log.i(Log.ONBOARDING_TAG, "playlist sync requested");
 
             return true;
         } else {
-            Log.w(Log.ONBOARDING_TAG, "account NOT added successfully");
+            Log.i(Log.ONBOARDING_TAG, "account NOT added successfully");
 
             return false;
         }

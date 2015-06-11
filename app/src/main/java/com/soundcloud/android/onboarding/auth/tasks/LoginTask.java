@@ -59,7 +59,7 @@ public class LoginTask extends AuthTask {
     }
 
     protected AuthTaskResult login(Bundle data) {
-        Log.w(Log.ONBOARDING_TAG, "login task login");
+        Log.i(Log.ONBOARDING_TAG, "login task login");
         Context app = getSoundCloudApplication();
 
         try {
@@ -82,12 +82,12 @@ public class LoginTask extends AuthTask {
             }
 
 
-            Log.w(Log.ONBOARDING_TAG, "LoginTask[Token](" + token + ")");
+            Log.i(Log.ONBOARDING_TAG, "LoginTask[Token](" + token + ")");
             accountOperations.updateToken(token);
 
             final PublicApiUser user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
             if (user == null) {
-                Log.w(Log.ONBOARDING_TAG, "user null after fetching, connection problem?");
+                Log.i(Log.ONBOARDING_TAG, "user null after fetching, connection problem?");
                 return AuthTaskResult.failure(app.getString(R.string.authentication_error_no_connection_message));
             }
             Log.d("LoginTask[User](" + user + ")");

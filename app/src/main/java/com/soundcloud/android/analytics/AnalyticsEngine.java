@@ -99,7 +99,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
     protected AnalyticsEngine(EventBus eventBus, SharedPreferences sharedPreferences,
                               Scheduler scheduler,
                               AnalyticsProviderFactory analyticsProviderFactory) {
-        Log.d(this, "Creating analytics engine");
+        Log.i(this, "Creating analytics engine");
         this.analyticsProviderFactory = analyticsProviderFactory;
         this.analyticsProviders = analyticsProviderFactory.getProviders();
         this.eventBus = eventBus;
@@ -211,7 +211,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(EventT event) {
             Log.d(AnalyticsEngine.this, "Track event " + event);
             if (event instanceof OnboardingEvent) {
-                Log.w(Log.ONBOARDING_TAG, "onboarding event published: " + event);
+                Log.i(Log.ONBOARDING_TAG, "onboarding event published: " + event);
             }
 
             for (AnalyticsProvider analyticsProvider : analyticsProviders) {
