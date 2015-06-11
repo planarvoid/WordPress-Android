@@ -4,6 +4,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.viewelements.EmptyViewElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
@@ -82,7 +83,22 @@ public class StreamScreen extends Screen {
 
     private List<TrackItemElement> trackItemElements() {
         waiter.waitForContentAndRetryIfLoadingFailed();
+        scrollToItem(With.id(R.id.track_list_item));
         return Lists.transform(testDriver.findElements(With.id(R.id.track_list_item)), toTrackItemElement);
+    }
+
+    private ViewElement scrollToItem(With with) {
+        int tries = 0;
+        ViewElement result = testDriver.findElement(with);
+        while (result instanceof EmptyViewElement) {
+            tries++;
+            testDriver.swipeUp();
+            if (tries > 10) {
+                return new EmptyViewElement("Unable to scroll to item; item not in list");
+            }
+            result = testDriver.findElement(with);
+        }
+        return result;
     }
 
     private final Function<ViewElement, TrackItemElement> toTrackItemElement = new Function<ViewElement, TrackItemElement>() {

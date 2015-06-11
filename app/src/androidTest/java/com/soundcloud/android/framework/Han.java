@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
  */
 public class Han  {
+    private static final int TOOLBAR_HEIGHT = 25;
     private static ViewFetcher viewFetcher;
 
     private final Solo solo;
@@ -165,6 +166,17 @@ public class Han  {
 
     public void swipeRight() {
         swipeHorizontal(Solo.RIGHT);
+    }
+
+
+    public void swipeUp() {
+        Point deviceSize = new Point();
+        solo.getCurrentActivity().getWindowManager().getDefaultDisplay().getSize(deviceSize);
+
+        final int screenWidth = deviceSize.x;
+        final int screenHeight = deviceSize.y;
+
+        drag(screenWidth / 4, screenWidth / 2, screenHeight - TOOLBAR_HEIGHT , screenHeight / 2, 20);
     }
 
     public void swipeDown() {
@@ -322,6 +334,10 @@ public class Han  {
 
     public void setup() {
         With.setResources(instrumentation.getTargetContext().getResources());
+    }
+
+    public boolean scrollUp() {
+        return solo.scrollUp();
     }
 
     public boolean scrollDown() {
