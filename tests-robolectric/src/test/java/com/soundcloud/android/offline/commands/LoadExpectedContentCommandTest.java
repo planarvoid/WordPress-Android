@@ -216,7 +216,17 @@ public class LoadExpectedContentCommandTest extends StorageIntegrationTest {
 
         expect(pending).toBeEmpty();
     }
-    
+
+    @Test
+    public void doesNotIncludeReturnRemovedLikes() {
+        ApiTrack apiTrack = testFixtures().insertLikedTrackPendingRemoval(new Date(10));
+        testFixtures().insertPolicyAllow(apiTrack.getUrn(), NOW);
+
+        final Collection<DownloadRequest> pending = command.call(null);
+
+        expect(pending).toBeEmpty();
+    }
+
     @Test
     public void doesNotReturnOfflinePlaylistTracksWhenPolicyUpdateHappenedAfterTheLast30Days() throws Exception {
         when(settingsStorage.isOfflineLikedTracksEnabled()).thenReturn(false);

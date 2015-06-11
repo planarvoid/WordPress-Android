@@ -79,6 +79,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
                 .innerJoin(Table.Likes.name(), Table.Likes.field(TableColumns.Likes._ID), Sounds.field(TableColumns.Sounds._ID))
                 .where(isDownloadable())
                 .whereEq(Sounds.field(TableColumns.Sounds._TYPE), TableColumns.Sounds.TYPE_TRACK)
+                .whereNull(Likes.field(TableColumns.Likes.REMOVED_AT))
                 .order(Table.Likes.field(TableColumns.Likes.CREATED_AT), Query.ORDER_DESC);
 
         return database.query(likesToDownload).toList(new LikedTrackMapper());
