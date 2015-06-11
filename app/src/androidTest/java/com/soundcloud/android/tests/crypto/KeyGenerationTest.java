@@ -1,8 +1,8 @@
 package com.soundcloud.android.tests.crypto;
 
-import com.soundcloud.android.framework.TestUser;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.framework.TestUser;
 
 public class KeyGenerationTest extends ActivityTest<MainActivity> {
 

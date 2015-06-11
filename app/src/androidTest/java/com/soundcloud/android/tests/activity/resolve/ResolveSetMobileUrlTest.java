@@ -5,8 +5,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 
-import com.soundcloud.android.screens.PlaylistDetailsScreen;
 import com.soundcloud.android.tests.TestConsts;
+import com.soundcloud.android.screens.PlaylistDetailsScreen;
 
 import android.net.Uri;
 

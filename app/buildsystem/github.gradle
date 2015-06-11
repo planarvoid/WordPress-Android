@@ -1,8 +1,7 @@
 import groovy.json.JsonSlurper
 import groovy.json.StringEscapeUtils
-
-import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.Files
 
 def tag   = "$project.ext.versionName-$project.ext.buildNumber-$project.buildType"
 def token = '0330604618ffbc5232a62f3e96f9d3b25377b9cb'

@@ -8,6 +8,7 @@
     <string name="view">Lihat</string>
     <string name="btn_apply">Terapkan</string>
     <string name="cancel">Batal</string>
+    <string name="retry">Coba lagi</string>
     <string name="shuffle">Acak</string>
     <string name="done">Selesai</string>
     <string name="email">Email</string>
@@ -145,6 +146,10 @@
     <string name="error_unauthorized_message">Terjadi masalah dengan akun Anda dan kami meminta Anda untuk masuk kembali ke SoundCloud sebelum Anda dapat melanjutkan menggunakan aplikasi.</string>
     <string name="error_unauthorized_title">Galat Akun</string>
     <string name="error_loading_url">Terjadi masalah saat memuat url tersebut</string>
+    <string name="error_soundcloud_no_response">SoundCloud tidak merespons.</string>
+    <string name="error_no_internet">Tidak ada Internet.</string>
+    <string name="error_connect_and_try_again">Hubungkan dan coba lagi.</string>
+    <string name="error_pager_failed">Galat saat memuat. Ketuk untuk mencoba lagi</string>
     <string name="crop_image_error">Terjadi kesalahan saat memangkas gambar Anda.</string>
     <string name="error_server_problems_message">Terjadi masalah saat memproses permintaan Anda. Silakan coba lagi nanti.</string>
     <string name="connection_list_error">Tampaknya ada masalah koneksi. Silakan coba sebentar lagi.</string>

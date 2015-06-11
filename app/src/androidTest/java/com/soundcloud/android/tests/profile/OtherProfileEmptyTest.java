@@ -1,10 +1,14 @@
 package com.soundcloud.android.tests.profile;
 
 import static com.soundcloud.android.framework.TestUser.defaultUser;
+import static com.soundcloud.android.framework.TestUser.emptyUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 
+import com.soundcloud.android.R;
 import com.soundcloud.android.deeplinks.ResolveActivity;
+import com.soundcloud.android.framework.viewelements.TextElement;
+import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.tests.ActivityTest;
 

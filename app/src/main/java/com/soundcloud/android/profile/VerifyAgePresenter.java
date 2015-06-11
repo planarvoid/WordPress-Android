@@ -7,10 +7,10 @@ import butterknife.OnTextChanged;
 import com.soundcloud.android.R;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.associations.FollowingOperations;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.ScTextUtils;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import org.jetbrains.annotations.Nullable;
 
 import android.app.Activity;

@@ -1,9 +1,9 @@
 package com.soundcloud.android.screens;
 
 import com.soundcloud.android.R;
+import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.explore.ExploreScreen;
 
 public class MenuScreenTablet extends MenuScreen{
 

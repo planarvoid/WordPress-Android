@@ -2,10 +2,10 @@ package com.soundcloud.android.screens;
 
 import static com.soundcloud.android.framework.with.With.text;
 
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.elements.VisualPlayerElement;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.with.With;
 
 public class WhyAdsScreen extends Screen {
 

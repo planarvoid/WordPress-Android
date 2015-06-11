@@ -1,9 +1,9 @@
 package com.soundcloud.android.screens.auth.signup;
 
-import com.soundcloud.android.framework.Han;
-import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.onboarding.OnboardActivity;
 import com.soundcloud.android.screens.Screen;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.with.With;
 
 public class SignupDomainBlacklistedScreen extends Screen {
     private static final Class ACTIVITY = OnboardActivity.class;

@@ -9,8 +9,8 @@ import com.soundcloud.android.api.legacy.model.TrackStats;
 import com.soundcloud.android.model.PropertySetSource;
 import com.soundcloud.android.model.ScModel;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.tracks.TrackRecord;
+import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.android.users.UserRecord;
 import com.soundcloud.propeller.PropertySet;
 

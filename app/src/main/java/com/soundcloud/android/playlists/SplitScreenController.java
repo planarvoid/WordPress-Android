@@ -1,10 +1,10 @@
 package com.soundcloud.android.playlists;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.presentation.ListItemAdapter;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.tracks.PlaylistTrackItemRenderer;
 import com.soundcloud.android.view.EmptyView;
+import com.soundcloud.android.presentation.ListItemAdapter;
 import org.jetbrains.annotations.Nullable;
 
 import android.os.Bundle;

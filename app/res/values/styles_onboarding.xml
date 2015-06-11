@@ -338,6 +338,11 @@
         <item name="android:textOff">@null</item>
         <item name="android:textOn">@null</item>
     </style>
+    <style name="emptyCollectionContentHolderBase">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+    </style>
 
     <style name="TourOverlayTextHolderLayout">
         <item name="android:layout_width">match_parent</item>

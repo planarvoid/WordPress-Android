@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback.ui;
 
 import com.google.common.collect.Lists;
-import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.PropertySet;
 
 import javax.inject.Inject;

@@ -6,8 +6,8 @@ import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.TextElement;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.elements.ToolBarElement;
+import com.soundcloud.android.screens.elements.ListElement;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 
 import java.util.List;

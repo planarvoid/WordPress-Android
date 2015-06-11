@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.api.UnauthorisedRequestRegistry;
 import com.soundcloud.android.dialog.TokenExpiredDialogFragment;
-import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
+import com.soundcloud.android.utils.ErrorUtils;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.BroadcastReceiver;

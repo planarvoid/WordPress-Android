@@ -9,9 +9,9 @@ import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.PlaylistResultsScreen;
+import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.WhoToFollowScreen;
-import com.soundcloud.android.screens.record.RecordScreen;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.screens.search.SearchResultsScreen;
 

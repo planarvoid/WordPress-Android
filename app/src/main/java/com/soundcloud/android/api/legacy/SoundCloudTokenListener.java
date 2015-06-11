@@ -1,8 +1,8 @@
 package com.soundcloud.android.api.legacy;
 
 import com.soundcloud.android.accounts.AccountOperations;
-import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.api.CloudAPI;
+import com.soundcloud.android.api.oauth.Token;
 
 class SoundCloudTokenListener implements CloudAPI.TokenListener {
     private final AccountOperations accountOperations;

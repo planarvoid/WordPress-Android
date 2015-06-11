@@ -4,8 +4,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
 import static org.hamcrest.Matchers.not;
 
-import com.soundcloud.android.framework.TestUser;
-import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.main.MainActivity;
 import com.soundcloud.android.screens.ActivitiesScreen;
 import com.soundcloud.android.screens.MenuScreen;
@@ -13,6 +11,8 @@ import com.soundcloud.android.screens.ProfileScreen;
 import com.soundcloud.android.screens.StreamScreen;
 import com.soundcloud.android.screens.TrackCommentsScreen;
 import com.soundcloud.android.tests.ActivityTest;
+import com.soundcloud.android.framework.TestUser;
+import com.soundcloud.android.framework.Waiter;
 
 public class ActivitiesTest extends ActivityTest<MainActivity> {
 

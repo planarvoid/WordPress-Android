@@ -1,9 +1,9 @@
 package com.soundcloud.android.main;
 
 import com.soundcloud.android.Actions;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.android.utils.NetworkConnectivityListener;
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import org.jetbrains.annotations.Nullable;
 
 import android.content.Context;

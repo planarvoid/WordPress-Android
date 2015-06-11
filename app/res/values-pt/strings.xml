@@ -8,6 +8,7 @@
     <string name="view">Visualizar</string>
     <string name="btn_apply">Aplicar</string>
     <string name="cancel">Cancelar</string>
+    <string name="retry">Tentar novamente</string>
     <string name="shuffle">Embaralhar</string>
     <string name="done">Concluído</string>
     <string name="email">E-mail</string>
@@ -146,6 +147,10 @@
     <string name="error_unauthorized_message">Estamos tendo um problema com sua conta e precisamos que você se conecte ao SoundCloud antes que possa continuar usando o app.</string>
     <string name="error_unauthorized_title">Erro na conta</string>
     <string name="error_loading_url">Ocorreu um problema ao carregar essa URL</string>
+    <string name="error_soundcloud_no_response">O SoundCloud não está respondendo</string>
+    <string name="error_no_internet">Sem conexão com a Internet</string>
+    <string name="error_connect_and_try_again">Conecte-se e tente novamente.</string>
+    <string name="error_pager_failed">Erro de carregamento. Toque e tente novamente</string>
     <string name="crop_image_error">Ocorreu um erro ao recortar sua imagem</string>
     <string name="error_server_problems_message">Ocorreu um problema ao processar sua solicitação Tente novamente mais tarde.</string>
     <string name="connection_list_error">Parece estar havendo um problema na conexão. Tente novamente daqui a pouco.</string>

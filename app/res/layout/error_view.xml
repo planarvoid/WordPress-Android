@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.soundcloud.android.view.ErrorView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/error_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout style="@style/emptyCollectionErrorContentHolder">
+
+        <ImageView android:id="@+id/img_error"
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   style="@style/EmptyViewImage"/>
+
+        <TextView android:id="@+id/server_error"
+                  android:text="@string/error_soundcloud_no_response"
+                  android:visibility="gone"
+                  style="@style/ErrorMessage.EmptyCollection.Main.Error"/>
+
+        <TextView android:id="@+id/connection_error_1"
+                  android:text="@string/error_no_internet"
+                  android:visibility="gone"
+                  style="@style/ErrorMessage.EmptyCollection.Main.Error"/>
+
+        <TextView android:id="@+id/connection_error_2"
+                  android:text="@string/error_connect_and_try_again"
+                  android:visibility="gone"
+                  style="@style/ErrorMessage.EmptyCollection.Sub.Error"/>
+
+        <Button android:id="@+id/btn_retry"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/retry"
+                style="@style/EmptyCollectionButton"/>
+
+    </LinearLayout>
+</com.soundcloud.android.view.ErrorView>

@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.image.ImagePauseOnScrollListener;
+import com.soundcloud.android.presentation.CollectionBinding;
+import com.soundcloud.android.presentation.DividerItemDecoration;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.view.EmptyView;

@@ -8,6 +8,7 @@
     <string name="view">Вид</string>
     <string name="btn_apply">Применить</string>
     <string name="cancel">Отмена</string>
+    <string name="retry">Повторить</string>
     <string name="shuffle">Перемешать</string>
     <string name="done">Готово</string>
     <string name="email">E-mail</string>
@@ -145,6 +146,10 @@
     <string name="error_unauthorized_message">У нас возникли проблемы с вашей учетной записью. Вам нужно снова войти в SoundCloud, прежде чем вы можете продолжать использовать приложение.</string>
     <string name="error_unauthorized_title">Ошибка</string>
     <string name="error_loading_url">Возникла проблема при загрузке URL</string>
+    <string name="error_soundcloud_no_response">SoundCloud не отвечает.</string>
+    <string name="error_no_internet">Интернет не подключен.</string>
+    <string name="error_connect_and_try_again">Подключитесь и попробуйте еще раз.</string>
+    <string name="error_pager_failed">Ошибка загрузки. Нажмите, чтобы попробовать еще раз</string>
     <string name="crop_image_error">Ошибка кадрирования изображения.</string>
     <string name="error_server_problems_message">Проблема при обработке вашего запроса. Пожалуйста, повторите попытку позднее.</string>
     <string name="connection_list_error">Там, кажется, проблема с подключением. Пожалуйста, попробуйте еще раз в ближайшее время.</string>

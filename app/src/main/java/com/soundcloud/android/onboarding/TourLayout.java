@@ -1,14 +1,5 @@
 package com.soundcloud.android.onboarding;
 
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static java.lang.Math.max;
-
-import com.soundcloud.android.R;
-import com.soundcloud.android.tasks.ParallelAsyncTask;
-import com.soundcloud.android.util.AnimUtils;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -24,6 +15,14 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.soundcloud.android.R;
+import com.soundcloud.android.tasks.ParallelAsyncTask;
+import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static java.lang.Math.max;
 
 public class TourLayout extends FrameLayout {
     public static final int IMAGE_LOADED = 1;

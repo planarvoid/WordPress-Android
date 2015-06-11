@@ -3,10 +3,10 @@ package com.soundcloud.android.tests.tablet;
 import static com.soundcloud.android.framework.TestUser.defaultUser;
 
 import com.soundcloud.android.main.MainActivity;
+import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.MenuScreenTablet;
 import com.soundcloud.android.screens.PlaylistsScreen;
 import com.soundcloud.android.screens.ProfileScreen;
-import com.soundcloud.android.screens.TrackLikesScreen;
 import com.soundcloud.android.screens.explore.ExploreScreen;
 import com.soundcloud.android.tests.ActivityTest;
 import com.soundcloud.android.tests.TabletTest;

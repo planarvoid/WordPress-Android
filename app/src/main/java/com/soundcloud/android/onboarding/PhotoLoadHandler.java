@@ -1,6 +1,6 @@
 package com.soundcloud.android.onboarding;
 
-import static com.soundcloud.android.util.AnimUtils.hideView;
+import static com.soundcloud.android.utils.AnimUtils.hideView;
 
 import android.os.Handler;
 import android.os.Message;
