@@ -47,8 +47,4 @@ public class TrackItemElement {
 
         return new TrackItemMenuElement(testDriver);
     }
-
-    public ViewElement findElement(With with) {
-        return testDriver.findElement(with);
-    }
 }

@@ -55,7 +55,7 @@ public class StreamScreen extends Screen {
     }
 
     public TrackItemMenuElement clickFirstTrackOverflowButton() {
-        getTrack(0).findElement(With.id(R.id.overflow_button)).click();
+        getTrack(0).clickOverflowButton();
         return new TrackItemMenuElement(testDriver);
     }
 
