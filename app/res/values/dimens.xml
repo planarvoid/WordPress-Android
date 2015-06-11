@@ -143,5 +143,6 @@
 
     <dimen name="widget_image_estimated_width">80dp</dimen>
     <dimen name="widget_image_estimated_height">80dp</dimen>
+    <dimen name="dialog_width">280dp</dimen>
 
 </resources>

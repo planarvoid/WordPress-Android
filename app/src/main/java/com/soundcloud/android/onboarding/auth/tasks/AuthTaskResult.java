@@ -3,8 +3,11 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.utils.Log;
 
 import android.os.Bundle;
+
+import org.jetbrains.annotations.NotNull;
 
 public final class AuthTaskResult {
 
@@ -83,9 +86,20 @@ public final class AuthTaskResult {
         this(kind, null, null, null, false, null, serverErrorMessage);
     }
 
-    private AuthTaskResult(Kind kind, PublicApiUser user, SignupVia signupVia,
+    private AuthTaskResult(@NotNull Kind kind, PublicApiUser user, SignupVia signupVia,
                            Exception exception, boolean showFacebookSuggestions, Bundle loginBundle,
                            String serverErrorMessage) {
+        String message = String.format(
+                "Creating auth task result with\n\tkind: %s\n\tuser present: %b\n\tvia: %s\n\texception: %s\n\tbundle present: %b\n\tserver error: %s",
+                kind,
+                user != null,
+                signupVia,
+                exception,
+                loginBundle != null,
+                serverErrorMessage
+        );
+        Log.i(Log.ONBOARDING_TAG, message);
+
         this.kind = kind;
         this.user = user;
         this.signupVia = signupVia;
@@ -154,5 +168,9 @@ public final class AuthTaskResult {
     @Deprecated
     public String getServerErrorMessage() {
         return serverErrorMessage;
+    }
+
+    public String getKindString() {
+        return kind.toString();
     }
 }

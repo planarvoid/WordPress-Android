@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public final class Log {
     public static final String ADS_TAG = "ScAds";
+    public static final String ONBOARDING_TAG = "ScOnboarding";
 
     public static void d(@NotNull final String tag, @NotNull final String message) {
         if (android.util.Log.isLoggable(tag, android.util.Log.DEBUG)) {

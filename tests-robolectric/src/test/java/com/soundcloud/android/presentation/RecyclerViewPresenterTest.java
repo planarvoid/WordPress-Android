@@ -458,6 +458,7 @@ public class RecyclerViewPresenterTest {
 
         View itemView = mock(View.class);
         when(recyclerView.getChildAdapterPosition(itemView)).thenReturn(2);
+        when(adapter.getItemCount()).thenReturn(3);
 
         ArgumentCaptor<View.OnClickListener> clickListenerCaptor = ArgumentCaptor.forClass(View.OnClickListener.class);
         verify(adapter).setOnItemClickListener(clickListenerCaptor.capture());
@@ -465,6 +466,22 @@ public class RecyclerViewPresenterTest {
 
         expect(lastClickedView).toBe(itemView);
         expect(lastClickedPosition).toEqual(2);
+    }
+
+    @Test
+    public void shouldNotCallClickListenerWithInvalidPosition() throws Exception {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        View itemView = mock(View.class);
+        when(recyclerView.getChildAdapterPosition(itemView)).thenReturn(-1);
+
+        ArgumentCaptor<View.OnClickListener> clickListenerCaptor = ArgumentCaptor.forClass(View.OnClickListener.class);
+        verify(adapter).setOnItemClickListener(clickListenerCaptor.capture());
+        clickListenerCaptor.getValue().onClick(itemView);
+
+        expect(lastClickedView).toBeNull();
     }
 
     @Test

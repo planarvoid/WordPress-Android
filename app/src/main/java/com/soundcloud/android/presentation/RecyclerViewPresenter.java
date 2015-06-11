@@ -1,8 +1,6 @@
 package com.soundcloud.android.presentation;
 
 
-import com.soundcloud.android.R;
-
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,6 +8,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.AdapterDataObserver;
 import android.view.View;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.utils.ErrorUtils;
 
 public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresenter<ItemT> {
 
@@ -73,7 +74,12 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
         adapter.setOnItemClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onItemClicked(view, recyclerView.getChildAdapterPosition(view));
+                final int adapterPosition = recyclerView.getChildAdapterPosition(view);
+                if (adapterPosition >= 0 && adapterPosition < adapter.getItemCount()) {
+                    onItemClicked(view, adapterPosition);
+                } else {
+                    ErrorUtils.handleSilentException(new IllegalArgumentException("Invalid recycler position in click handler " + adapterPosition));
+                }
             }
         });
         if (collectionBinding instanceof PagedCollectionBinding) {

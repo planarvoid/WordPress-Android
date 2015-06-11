@@ -59,6 +59,7 @@ public class LoginTask extends AuthTask {
     }
 
     protected AuthTaskResult login(Bundle data) {
+        Log.i(Log.ONBOARDING_TAG, "login task login");
         Context app = getSoundCloudApplication();
 
         try {
@@ -81,11 +82,12 @@ public class LoginTask extends AuthTask {
             }
 
 
-            Log.d("LoginTask[Token](" + token + ")");
+            Log.i(Log.ONBOARDING_TAG, "LoginTask[Token](" + token + ")");
             accountOperations.updateToken(token);
 
             final PublicApiUser user = fetchUserTask.resolve(Request.to(Endpoints.MY_DETAILS));
             if (user == null) {
+                Log.i(Log.ONBOARDING_TAG, "user null after fetching, connection problem?");
                 return AuthTaskResult.failure(app.getString(R.string.authentication_error_no_connection_message));
             }
             Log.d("LoginTask[User](" + user + ")");
@@ -94,6 +96,7 @@ public class LoginTask extends AuthTask {
             if (!addAccount(user, token, signupVia)) {
                 // might mean the account already existed or an unknown failure adding account.
                 // this should never happen, just show a generic error message
+                Log.i(Log.ONBOARDING_TAG, "unable to add account, the 'impossible' error");
                 return AuthTaskResult.failure(app.getString(R.string.authentication_login_error_message));
             }
 
