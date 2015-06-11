@@ -2,7 +2,6 @@ package com.soundcloud.android;
 
 import static com.soundcloud.android.storage.provider.ScContentProvider.AUTHORITY;
 import static com.soundcloud.android.storage.provider.ScContentProvider.enableSyncing;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 import com.crashlytics.android.Crashlytics;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -44,6 +43,7 @@ import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.CrashlyticsMemoryReporter;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.android.utils.IOUtils;
+import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.MemoryReporter;
 import dagger.ObjectGraph;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -59,7 +59,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import javax.inject.Inject;
 
@@ -252,27 +251,27 @@ public class SoundCloudApplication extends Application {
     }
 
     public boolean addUserAccountAndEnableSync(PublicApiUser user, Token token, SignupVia via) {
-        Log.w(ONBOARDING_TAG, "will add account to account storage");
+        Log.w(Log.ONBOARDING_TAG, "will add account to account storage");
         Account account = accountOperations.addOrReplaceSoundCloudAccount(user, token, via);
         if (account != null) {
-            Log.w(ONBOARDING_TAG, "account added successfully");
+            Log.w(Log.ONBOARDING_TAG, "account added successfully");
             // move this when we can't guarantee we will only have 1 account active at a time
             enableSyncing(account, SyncConfig.DEFAULT_SYNC_DELAY);
-            Log.w(ONBOARDING_TAG, "sync enabled");
+            Log.w(Log.ONBOARDING_TAG, "sync enabled");
 
             // sync shortcuts so suggest works properly
             Intent intent = new Intent(this, ApiSyncService.class)
                     .putExtra(ApiSyncService.EXTRA_IS_UI_REQUEST, true)
                     .setData(Content.ME_SHORTCUT.uri);
             startService(intent);
-            Log.w(ONBOARDING_TAG, "api sync service started");
+            Log.w(Log.ONBOARDING_TAG, "api sync service started");
 
             requestSetsSync();
-            Log.w(ONBOARDING_TAG, "playlist sync requested");
+            Log.w(Log.ONBOARDING_TAG, "playlist sync requested");
 
             return true;
         } else {
-            Log.w(ONBOARDING_TAG, "account NOT added successfully");
+            Log.w(Log.ONBOARDING_TAG, "account NOT added successfully");
 
             return false;
         }

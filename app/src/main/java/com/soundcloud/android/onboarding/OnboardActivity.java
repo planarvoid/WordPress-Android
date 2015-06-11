@@ -52,6 +52,7 @@ import com.soundcloud.android.storage.LegacyUserStorage;
 import com.soundcloud.android.utils.AndroidUtils;
 import com.soundcloud.android.utils.AnimUtils;
 import com.soundcloud.android.utils.BugReporter;
+import com.soundcloud.android.utils.Log;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -68,7 +69,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.view.ViewStub;

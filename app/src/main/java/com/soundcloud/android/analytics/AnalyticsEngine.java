@@ -1,7 +1,5 @@
 package com.soundcloud.android.analytics;
 
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
-
 import com.google.common.annotations.VisibleForTesting;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
 import com.soundcloud.android.events.UserSessionEvent;
@@ -213,7 +211,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(EventT event) {
             Log.d(AnalyticsEngine.this, "Track event " + event);
             if (event instanceof OnboardingEvent) {
-                android.util.Log.w(ONBOARDING_TAG, "onboarding event published: " + event);
+                Log.w(Log.ONBOARDING_TAG, "onboarding event published: " + event);
             }
 
             for (AnalyticsProvider analyticsProvider : analyticsProviders) {

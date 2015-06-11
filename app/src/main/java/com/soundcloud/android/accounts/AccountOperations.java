@@ -4,7 +4,6 @@ package com.soundcloud.android.accounts;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.api.legacy.model.PublicApiUser.CRAWLER_USER;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -24,6 +23,7 @@ import com.soundcloud.android.rx.ScSchedulers;
 import com.soundcloud.android.rx.ScheduledOperations;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.storage.LegacyUserStorage;
+import com.soundcloud.android.utils.Log;
 
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
@@ -39,7 +39,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -195,16 +194,16 @@ public class AccountOperations extends ScheduledOperations {
      */
     @Nullable
     public Account addOrReplaceSoundCloudAccount(PublicApiUser user, Token token, SignupVia via) {
-        Log.w(ONBOARDING_TAG, "adding or replacing SoundCloud account");
+        Log.w(Log.ONBOARDING_TAG, "adding or replacing SoundCloud account");
         boolean accountexists = false;
         Account account = getSoundCloudAccount();
         if (account != null) {
-            Log.w(ONBOARDING_TAG, "SoundCloud account found");
+            Log.w(Log.ONBOARDING_TAG, "SoundCloud account found");
             if (account.name.equals(user.getPermalink())) {
-                Log.w(ONBOARDING_TAG, "SoundCloud account matches current user");
+                Log.w(Log.ONBOARDING_TAG, "SoundCloud account matches current user");
                 accountexists = true; // same username, do not replace account
             } else {
-                Log.w(ONBOARDING_TAG, "SoundCloud account does not match, will replace");
+                Log.w(Log.ONBOARDING_TAG, "SoundCloud account does not match, will replace");
                 accountManager.removeAccount(account, null, null);
             }
         }
@@ -212,11 +211,11 @@ public class AccountOperations extends ScheduledOperations {
         if (!accountexists) {
             account = new Account(user.getPermalink(), context.getString(R.string.account_type));
             accountexists = accountManager.addAccountExplicitly(account, null, null);
-            Log.w(ONBOARDING_TAG, "SoundCloud account has been added");
+            Log.w(Log.ONBOARDING_TAG, "SoundCloud account has been added");
         }
 
         if (accountexists) {
-            Log.w(ONBOARDING_TAG, "will updated stored account information");
+            Log.w(Log.ONBOARDING_TAG, "will updated stored account information");
             tokenOperations.storeSoundCloudTokenData(account, token);
             accountManager.setUserData(account, AccountInfoKeys.USER_ID.getKey(), Long.toString(user.getId()));
             accountManager.setUserData(account, AccountInfoKeys.USERNAME.getKey(), user.getUsername());
@@ -224,10 +223,10 @@ public class AccountOperations extends ScheduledOperations {
             accountManager.setUserData(account, AccountInfoKeys.SIGNUP.getKey(), via.getSignupIdentifier());
             updateLoggedInUser(user);
             eventBus.publish(EventQueue.CURRENT_USER_CHANGED, CurrentUserChangedEvent.forUserUpdated(user));
-            Log.w(ONBOARDING_TAG, "stored account information updated");
+            Log.w(Log.ONBOARDING_TAG, "stored account information updated");
             return account;
         } else {
-            Log.w(ONBOARDING_TAG, "SoundCloud account was not added");
+            Log.w(Log.ONBOARDING_TAG, "SoundCloud account was not added");
             return null;
         }
     }

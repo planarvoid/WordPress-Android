@@ -3,13 +3,11 @@ package com.soundcloud.android.onboarding.auth.tasks;
 import com.soundcloud.android.api.ApiRequestException;
 import com.soundcloud.android.api.legacy.model.PublicApiUser;
 import com.soundcloud.android.onboarding.auth.SignupVia;
+import com.soundcloud.android.utils.Log;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import org.jetbrains.annotations.NotNull;
-
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public final class AuthTaskResult {
 
@@ -100,7 +98,7 @@ public final class AuthTaskResult {
                 loginBundle != null,
                 serverErrorMessage
         );
-        Log.w(ONBOARDING_TAG, message);
+        Log.w(Log.ONBOARDING_TAG, message);
 
         this.kind = kind;
         this.user = user;
