@@ -33,7 +33,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
+abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
 
     protected final ProfileOperations profileOperations;
     private final MixedPlayableRecyclerItemAdapter adapter;
@@ -59,11 +59,12 @@ public abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresen
 
     protected ProfilePlayablePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                        ImagePauseOnScrollListener imagePauseOnScrollListener,
+                                       ProfileRecyclerViewScroller profileRecyclerViewScroller,
                                        MixedPlayableRecyclerItemAdapter adapter,
                                        MixedPlayableItemClickListener.Factory clickListenerFactory,
                                        PlayableListUpdater.Factory updaterFactory,
                                        ProfileOperations profileOperations) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener);
+        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller);
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;

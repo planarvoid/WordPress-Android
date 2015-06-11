@@ -7,17 +7,17 @@ import android.util.SparseArray;
 
 import javax.inject.Inject;
 
-public class ProfilePagerRefreshHelper {
+class ProfilePagerRefreshHelper {
 
     private final MultiSwipeRefreshLayout refreshLayout;
-    private final SparseArray<RefreshAware> refreshables = new SparseArray<>(ProfilePagerAdapter.FRAGMENT_COUNT);
+    private final SparseArray<RefreshableProfileItem> refreshables = new SparseArray<>(ProfilePagerAdapter.FRAGMENT_COUNT);
     private int pendingRefreshPosition = Consts.NOT_SET;
 
     ProfilePagerRefreshHelper(MultiSwipeRefreshLayout refreshLayout) {
         this.refreshLayout = refreshLayout;
     }
 
-    public void addRefreshable(int position, RefreshAware refreshable){
+    public void addRefreshable(int position, RefreshableProfileItem refreshable){
         refreshables.put(position, refreshable);
         if (position == pendingRefreshPosition) {
             refreshable.attachRefreshLayout(refreshLayout);
@@ -27,14 +27,14 @@ public class ProfilePagerRefreshHelper {
     public void setRefreshablePage(int position) {
         for (int i = 0; i < ProfilePagerAdapter.FRAGMENT_COUNT; i++) {
             if (i != position){
-                final RefreshAware refreshable = refreshables.get(i);
+                final RefreshableProfileItem refreshable = refreshables.get(i);
                 if (refreshable != null) {
                     refreshable.detachRefreshLayout();
                 }
             }
         }
 
-        final RefreshAware refreshable = refreshables.get(position);
+        final RefreshableProfileItem refreshable = refreshables.get(position);
         if (refreshable != null) {
             refreshable.attachRefreshLayout(refreshLayout);
             pendingRefreshPosition = Consts.NOT_SET;
@@ -44,7 +44,7 @@ public class ProfilePagerRefreshHelper {
     }
 
     public void removeFragment(int position) {
-        final RefreshAware fragment = refreshables.get(position);
+        final RefreshableProfileItem fragment = refreshables.get(position);
         if (fragment != null) {
             fragment.detachRefreshLayout();
             refreshables.remove(position);

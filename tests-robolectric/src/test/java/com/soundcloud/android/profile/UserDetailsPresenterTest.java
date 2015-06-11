@@ -1,6 +1,7 @@
 package com.soundcloud.android.profile;
 
 import static android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -44,13 +45,18 @@ public class UserDetailsPresenterTest {
     @Mock private Resources resources;
     @Mock private MultiSwipeRefreshLayout refreshLayout;
     @Mock private ProfileUserProvider profileUserProvider;
+    @Mock private UserDetailsScroller userDetailsScroller;
+    @Mock private View userDetailsHolder;
+    @Mock private EmptyView emptyView;
     @Captor private ArgumentCaptor<OnRefreshListener> refreshCaptor;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new UserDetailsPresenter(userDetailsView);
+        presenter = new UserDetailsPresenter(userDetailsView, userDetailsScroller);
 
         when(view.getResources()).thenReturn(resources);
+        when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
+        when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(resources.getDimensionPixelSize(R.dimen.profile_header_expanded_height)).thenReturn(EXPANDED_HEIGHT);
         when(fragment.getActivity()).thenReturn(activity);
         when(activity.profileUserProvider()).thenReturn(profileUserProvider);
@@ -58,17 +64,20 @@ public class UserDetailsPresenterTest {
     }
 
     @Test
-    public void setHeaderSizeSetsTopPaddingUsingView() throws Exception {
-        presenter.setHeaderSize(10);
+    public void onViewCreatedSetsViewsOnUserDetailsView() throws Exception {
+        presenter.onViewCreated(fragment, view, null);
 
-        verify(userDetailsView).setTopPadding(10);
+        verify(userDetailsView).setView(view);
     }
 
     @Test
-    public void onViewCreatedSetsInitialHeaderSize() throws Exception {
+    public void onViewCreatedShowsEmptyViewAfterSetView() throws Exception {
+        InOrder inOrder = Mockito.inOrder(userDetailsView);
+
         presenter.onViewCreated(fragment, view, null);
 
-        verify(userDetailsView).setTopPadding(EXPANDED_HEIGHT);
+        inOrder.verify(userDetailsView).setView(view);
+        inOrder.verify(userDetailsView, times(2)).showEmptyView(any(EmptyView.Status.class));
     }
 
     @Test
@@ -147,7 +156,7 @@ public class UserDetailsPresenterTest {
 
         swipeToRefresh();
 
-        verify(userDetailsView).showEmptyView(EmptyView.Status.OK);
+        verify(userDetailsView, times(2)).showEmptyView(EmptyView.Status.OK);
     }
 
     @Test
@@ -193,8 +202,35 @@ public class UserDetailsPresenterTest {
         verify(refreshLayout).setRefreshing(false);
     }
 
+    @Test
+    public void onViewCreatedSetsViewsOnScroller() {
+        when(profileUserProvider.user()).thenReturn(Observable.just(userWithFullDetails()));
+
+        presenter.onViewCreated(fragment, view, null);
+
+        verify(userDetailsScroller).setViews(userDetailsHolder, emptyView);
+    }
+
+    @Test
+    public void onDestroyViewClearsViewsOnScroller() throws Exception {
+        when(profileUserProvider.user()).thenReturn(Observable.just(userWithFullDetails()));
+
+        presenter.onDestroyView(fragment);
+
+        verify(userDetailsScroller).clearViews();
+    }
+
+    @Test
+    public void onDestroyViewClearsViewsOnUserDetailsView() throws Exception {
+        when(profileUserProvider.user()).thenReturn(Observable.just(userWithFullDetails()));
+
+        presenter.onDestroyView(fragment);
+
+        verify(userDetailsView).clearViews();
+    }
+
     private void swipeToRefresh() {
-        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
         presenter.attachRefreshLayout(refreshLayout);
         verify(refreshLayout).setOnRefreshListener(refreshCaptor.capture());
         refreshCaptor.getValue().onRefresh();

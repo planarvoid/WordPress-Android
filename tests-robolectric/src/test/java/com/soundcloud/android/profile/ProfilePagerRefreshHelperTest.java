@@ -15,7 +15,7 @@ public class ProfilePagerRefreshHelperTest {
     private ProfilePagerRefreshHelper helper;
 
     @Mock private MultiSwipeRefreshLayout refreshLayout;
-    @Mock private RefreshAware refreshable;
+    @Mock private RefreshableProfileItem refreshable;
 
     @Before
     public void setUp() throws Exception {

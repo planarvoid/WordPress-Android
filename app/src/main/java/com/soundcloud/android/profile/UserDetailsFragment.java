@@ -2,7 +2,7 @@ package com.soundcloud.android.profile;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.view.MultiSwipeRefreshLayout;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -13,9 +13,10 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserDetailsFragment extends LightCycleSupportFragment implements ScrollableProfileItem, RefreshAware {
+public class UserDetailsFragment extends LightCycleSupportFragment implements ProfileFragment {
 
-    @Inject @LightCycle UserDetailsView userDetailsView;
+    @Inject UserDetailsView userDetailsView;
+    @Inject UserDetailsScroller userDetailsScroller;
     @LightCycle UserDetailsPresenter userDetailsPresenter;
 
     public static UserDetailsFragment create() {
@@ -24,7 +25,13 @@ public class UserDetailsFragment extends LightCycleSupportFragment implements Sc
 
     public UserDetailsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
-        userDetailsPresenter = new UserDetailsPresenter(userDetailsView);
+        userDetailsPresenter = new UserDetailsPresenter(userDetailsView, userDetailsScroller);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        userDetailsView.setUrn(getActivity().getIntent().<Urn>getParcelableExtra(ProfileActivity.EXTRA_USER_URN));
     }
 
     @Override
@@ -33,22 +40,12 @@ public class UserDetailsFragment extends LightCycleSupportFragment implements Sc
     }
 
     @Override
-    public void setScrollListener(Listener scrollListener) {
-        // no-op
+    public ScrollableProfileItem getScrollableProfileItem() {
+        return userDetailsScroller;
     }
 
     @Override
-    public void configureOffsets(int currentHeaderHeight, int maxHeaderHeight) {
-        userDetailsPresenter.setHeaderSize(currentHeaderHeight);
-    }
-
-    @Override
-    public void attachRefreshLayout(MultiSwipeRefreshLayout refreshLayout) {
-        userDetailsPresenter.attachRefreshLayout(refreshLayout);
-    }
-
-    @Override
-    public void detachRefreshLayout() {
-        userDetailsPresenter.detachRefreshLayout();
+    public RefreshableProfileItem getRefreshableItem() {
+        return userDetailsPresenter;
     }
 }

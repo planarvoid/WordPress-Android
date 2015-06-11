@@ -56,9 +56,10 @@ class UserPostsPresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
 
     @Inject
     UserPostsPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
+                       ProfileRecyclerViewScroller profileRecyclerViewScroller,
                        ProfileOperations profileOperations, MixedPlayableRecyclerItemAdapter adapter,
                        MixedPlayableItemClickListener.Factory clickListenerFactory, PlayableListUpdater.Factory updaterFactory) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener);
+        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller);
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;

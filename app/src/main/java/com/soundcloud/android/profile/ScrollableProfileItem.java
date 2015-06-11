@@ -3,7 +3,7 @@ package com.soundcloud.android.profile;
 public interface ScrollableProfileItem {
     void setScrollListener(Listener scrollListener);
 
-    void configureOffsets(int currentHeaderHeight, int maxHeaderHeight);
+    void configureOffsets(int currentHeaderHeight);
 
     interface Listener {
         void onVerticalScroll(int dy, int visibleHeaderHeight);

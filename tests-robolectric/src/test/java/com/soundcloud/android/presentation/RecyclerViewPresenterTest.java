@@ -15,7 +15,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.image.ImagePauseOnScrollListener;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.TestPager;
 import com.soundcloud.android.view.EmptyView;
@@ -67,7 +66,6 @@ public class RecyclerViewPresenterTest {
 
     private View lastClickedView;
     private int lastClickedPosition;
-
 
     @Before
     public void setup() {
@@ -366,6 +364,20 @@ public class RecyclerViewPresenterTest {
         when(adapter.isEmpty()).thenReturn(true);
         captor.getValue().onChanged();
         verify(emptyView).setVisibility(View.VISIBLE);
+    }
+
+    @Test
+    public void shouldHideRecyclerViewWithNoDataOnChangeObserved() {
+        createPresenterWithBinding(defaultBinding());
+        presenter.onCreate(fragment, null);
+        presenter.onViewCreated(fragment, view, null);
+
+        ArgumentCaptor<AdapterDataObserver> captor = ArgumentCaptor.forClass(AdapterDataObserver.class);
+        verify(adapter).registerAdapterDataObserver(captor.capture());
+
+        when(adapter.isEmpty()).thenReturn(true);
+        captor.getValue().onChanged();
+        verify(recyclerView).setVisibility(View.GONE);
     }
 
     @Test

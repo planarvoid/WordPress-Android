@@ -42,8 +42,9 @@ class UserFollowersPresenter extends ProfileRecyclerViewPresenter<UserItem> {
 
     @Inject
     UserFollowersPresenter(ImagePauseOnScrollListener imagePauseOnScrollListener, SwipeRefreshAttacher swipeRefreshAttacher,
+                           ProfileRecyclerViewScroller profileRecyclerViewScroller,
                            ProfileOperations profileOperations, UserRecyclerItemAdapter adapter, Navigator navigator) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener);
+        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller);
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.navigator = navigator;

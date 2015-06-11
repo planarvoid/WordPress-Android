@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
+class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
 
     private final int maxHeaderHeight;
     private final ImageOperations imageOperations;
@@ -112,9 +112,10 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
         return (int) (currentTranslationY - targetTranslation);
     }
 
-    public void registerScrollableFragment(ScrollableProfileItem fragment) {
+    public void registerScrollableItem(ScrollableProfileItem fragment) {
         scrollableFragments.add(fragment);
         fragment.setScrollListener(this);
+        fragment.configureOffsets((int) (maxHeaderHeight + getCurrentHeaderTranslation()));
     }
 
     public void unregisterScrollableFragment(ScrollableProfileItem fragment) {
@@ -129,7 +130,7 @@ public class ProfileHeaderPresenter implements ScrollableProfileItem.Listener {
             tabs.setTranslationY(targetTranslation);
             headerInfoLayout.setTranslationY(targetTranslation);
             for (ScrollableProfileItem scrollableFragment : scrollableFragments) {
-                scrollableFragment.configureOffsets((int) (maxHeaderHeight + targetTranslation), maxHeaderHeight);
+                scrollableFragment.configureOffsets((int) (maxHeaderHeight + targetTranslation));
             }
         }
         return (int) (currentTranslationY - targetTranslation);

@@ -49,7 +49,9 @@ public abstract class RecyclerViewPresenter<ItemT> extends CollectionViewPresent
     }
 
     private void updateEmptyViewVisibility() {
-        getEmptyView().setVisibility(getBinding().adapter().isEmpty() ? View.VISIBLE : View.GONE);
+        final boolean empty = getBinding().adapter().isEmpty();
+        getRecyclerView().setVisibility(empty ? View.GONE : View.VISIBLE);
+        getEmptyView().setVisibility(empty ? View.VISIBLE : View.GONE);
     }
 
     private void setupRecyclerView(Fragment fragment, View view) {
