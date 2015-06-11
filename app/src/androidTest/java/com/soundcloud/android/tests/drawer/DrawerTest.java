@@ -24,6 +24,7 @@ public class DrawerTest extends ActivityTest<LauncherActivity> {
     public void testOpeningOverflowDoesNotCloseDrawer() {
         menuScreen.open();
         solo.openSystemMenu();
+        solo.openSystemMenu();
         assertEquals("DrawerTest should be open when opening system menu", true, menuScreen.isOpened());
     }
 
