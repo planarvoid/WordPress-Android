@@ -9,7 +9,7 @@ import android.support.annotation.Nullable;
 
 import javax.inject.Inject;
 
-class ForegroundPlaybackNotificationController implements PlaybackNotificationController.Delegate {
+class ForegroundPlaybackNotificationController implements PlaybackNotificationController.Strategy {
     private final NotificationManager notificationManager;
 
     @Inject
@@ -19,7 +19,7 @@ class ForegroundPlaybackNotificationController implements PlaybackNotificationCo
 
     @Override
     public void setTrack(PropertySet track) {
-        clear();
+        // no-op
     }
 
     @Override

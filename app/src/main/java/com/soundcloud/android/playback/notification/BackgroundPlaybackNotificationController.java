@@ -24,7 +24,7 @@ import android.graphics.Bitmap;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-class BackgroundPlaybackNotificationController implements PlaybackNotificationController.Delegate {
+class BackgroundPlaybackNotificationController implements PlaybackNotificationController.Strategy {
     private final Resources resources;
     private final PlaybackNotificationPresenter presenter;
     private final TrackRepository trackRepository;
