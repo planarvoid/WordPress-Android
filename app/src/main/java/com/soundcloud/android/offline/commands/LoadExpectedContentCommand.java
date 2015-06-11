@@ -107,6 +107,7 @@ public class LoadExpectedContentCommand extends Command<Void, Collection<Downloa
                         .whereIn(TableColumns.PlaylistTracks.PLAYLIST_ID, playlistIds))
                 .innerJoin(TrackPolicies.name(), PlaylistTracks.field(TableColumns.PlaylistTracks.TRACK_ID), TrackPolicies.field(TableColumns.TrackPolicies.TRACK_ID))
                 .where(isDownloadable())
+                .whereNull(PlaylistTracks.field(TableColumns.PlaylistTracks.REMOVED_AT))
                 .order(PlaylistTracks.field(TableColumns.PlaylistTracks.PLAYLIST_ID), Query.ORDER_DESC)
                 .order(PlaylistTracks.field(TableColumns.PlaylistTracks.POSITION), Query.ORDER_ASC);
 
