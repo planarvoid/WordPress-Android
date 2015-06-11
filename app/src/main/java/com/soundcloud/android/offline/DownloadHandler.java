@@ -1,6 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.soundcloud.android.model.Urn;
 import com.soundcloud.propeller.WriteResult;
 
 import android.os.Handler;
@@ -30,8 +31,14 @@ public class DownloadHandler extends Handler {
         return current != null && current.equals(request);
     }
 
+    public Urn getCurrentTrack() {
+        return current != null ? current.track : Urn.NOT_SET;
+    }
+
     interface Listener {
         void onSuccess(DownloadResult result);
+
+        void onCancel(DownloadResult result);
 
         void onError(DownloadResult request);
     }
@@ -65,6 +72,8 @@ public class DownloadHandler extends Handler {
 
         if (result.isSuccess()) {
             tryToStoreDownloadSuccess(result);
+        } else if (result.isCancelled()) {
+            sendDownloadResult(MainHandler.ACTION_DOWNLOAD_CANCEL, result);
         } else {
             if (result.isUnavailable()) {
                 offlineTracksStorage.markTrackAsUnavailable(result.getTrack());
@@ -125,6 +134,7 @@ public class DownloadHandler extends Handler {
     static class MainHandler extends Handler {
         static final int ACTION_DOWNLOAD_SUCCESS = 0;
         static final int ACTION_DOWNLOAD_FAILED = 1;
+        static final int ACTION_DOWNLOAD_CANCEL = 2;
 
         private final WeakReference<Listener> listenerRef;
 
@@ -138,10 +148,18 @@ public class DownloadHandler extends Handler {
             final Listener listener = listenerRef.get();
             if (listener != null) {
                 final DownloadResult result = (DownloadResult) msg.obj;
-                if (ACTION_DOWNLOAD_SUCCESS == msg.what) {
-                    listener.onSuccess(result);
-                } else if (ACTION_DOWNLOAD_FAILED == msg.what) {
-                    listener.onError(result);
+                switch (msg.what) {
+                    case ACTION_DOWNLOAD_SUCCESS:
+                        listener.onSuccess(result);
+                        break;
+                    case ACTION_DOWNLOAD_CANCEL:
+                        listener.onCancel(result);
+                        break;
+                    case ACTION_DOWNLOAD_FAILED:
+                        listener.onError(result);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unknown action received by DownloadHandler: " + msg.what);
                 }
             }
         }

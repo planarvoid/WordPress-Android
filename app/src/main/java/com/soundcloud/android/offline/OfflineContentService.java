@@ -7,11 +7,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.soundcloud.android.SoundCloudApplication;
-import com.soundcloud.android.events.CurrentDownloadEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.RxUtils;
-import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.utils.Log;
 import rx.Observable;
@@ -26,7 +23,6 @@ import android.os.IBinder;
 import android.os.Message;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,13 +36,14 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     @Inject OfflineContentOperations offlineContentOperations;
     @Inject DownloadNotificationController notificationController;
     @Inject OfflineContentScheduler offlineContentScheduler;
-    @Inject EventBus eventBus;
+    @Inject DownloadStatePublisher publisher;
 
     @Inject DownloadQueue queue;
     @Inject DownloadHandler.Builder builder;
 
     private DownloadHandler downloadHandler;
     private Subscription subscription = RxUtils.invalidSubscription();
+    private String action;
 
     private final Func1<List<Urn>, Observable<Collection<Urn>>> removeTracks = new Func1<List<Urn>, Observable<Collection<Urn>>>() {
         @Override
@@ -85,15 +82,15 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     OfflineContentService(DownloadOperations downloadOps,
                           OfflineContentOperations offlineContentOperations,
                           DownloadNotificationController notificationController,
-                          EventBus eventBus,
                           OfflineContentScheduler offlineContentScheduler,
                           DownloadHandler.Builder builder,
+                          DownloadStatePublisher publisher,
                           DownloadQueue queue) {
         this.downloadOperations = downloadOps;
         this.offlineContentOperations = offlineContentOperations;
         this.notificationController = notificationController;
-        this.eventBus = eventBus;
         this.offlineContentScheduler = offlineContentScheduler;
+        this.publisher = publisher;
         this.builder = builder;
         this.queue = queue;
     }
@@ -106,9 +103,9 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        final String action = intent.getAction();
-        Log.d(TAG, " Starting offlineContentService for action: " + action);
+        action = intent.getAction();
 
+        Log.d(TAG, " Starting offlineContentService for action: " + action);
         offlineContentScheduler.cancelPendingRetries();
 
         if (ACTION_START.equalsIgnoreCase(action)) {
@@ -119,6 +116,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
                     .loadOfflineContentUpdates()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new OfflineContentRequestsSubscriber());
+
         } else if (ACTION_STOP.equalsIgnoreCase(action)) {
             if (downloadHandler.isDownloading()) {
                 downloadHandler.cancel();
@@ -134,9 +132,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         Log.d(TAG, "Download finished " + result);
 
         notificationController.onDownloadSuccess(result);
-        notifyDownloaded(result);
-        notifyRelatedQueuedCollectionsAsRequested(result);
-
+        publisher.publishDownloadSuccessfulEvents(queue, result);
         downloadNextOrFinish(result);
     }
 
@@ -144,16 +140,8 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     public void onError(DownloadResult result) {
         Log.d(TAG, "Download failed " + result);
 
-        if (result.isCancelled()) {
-            // for now we just stop the service
-            stop();
-            return;
-        }
-
         notificationController.onDownloadError(result);
-        notifyTrackUnavailable(result);
-        notifyRelatedQueuedCollectionsAsRequested(result);
-        notifyRelatedCollectionsAsRequested(result);
+        publisher.publishDownloadErrorEvents(queue, result);
 
         if (result.isConnectionError()) {
             stopAndRetryLater();
@@ -163,37 +151,19 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
         }
     }
 
-    private void notifyRelatedQueuedCollectionsAsRequested(DownloadResult result) {
-        final List<Urn> requested = queue.getRequested(result);
-        final boolean likedTrackRequested = queue.isLikedTrackRequested();
+    @Override
+    public void onCancel(DownloadResult result) {
+        Log.d(TAG, "Download cancelled " + result);
 
-        if (hasChanges(requested, likedTrackRequested)) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(likedTrackRequested, requested));
+        notificationController.onDownloadCancel(result);
+        publisher.publishDownloadCancelEvents(queue, result);
+
+        if (ACTION_STOP.equalsIgnoreCase(action)) {
+            stop();
+        } else {
+            Log.d(TAG, "Single track download cancelled.. work continues");
+            downloadNextOrFinish(result);
         }
-    }
-
-    private void notifyRelatedCollectionsAsRequested(DownloadResult result) {
-        List<Urn> relatedPlaylists = result.request.inPlaylists;
-        if (!relatedPlaylists.isEmpty() || result.request.inLikedTracks) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(result.request.inLikedTracks, relatedPlaylists));
-        }
-    }
-
-    private void notifyDownloaded(DownloadResult result) {
-        final List<Urn> completed = queue.getDownloaded(result);
-        final boolean isLikedTrackCompleted = queue.isAllLikedTracksDownloaded(result);
-
-        if (hasChanges(completed, isLikedTrackCompleted)) {
-            eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(isLikedTrackCompleted, completed));
-        }
-    }
-
-    private void notifyTrackUnavailable(DownloadResult result) {
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.unavailable(false, Arrays.asList(result.getTrack())));
-    }
-
-    private boolean hasChanges(List<Urn> entitiesChangeList, boolean likedTracksChanged) {
-        return !entitiesChangeList.isEmpty() || likedTracksChanged;
     }
 
     private void downloadNextOrFinish(DownloadResult result) {
@@ -219,7 +189,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
         final Message message = downloadHandler.obtainMessage(DownloadHandler.ACTION_DOWNLOAD, request);
         downloadHandler.sendMessage(message);
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloading(request));
+        publisher.publishDownloading(request);
     }
 
     @Override
@@ -235,7 +205,7 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
 
     private void stop() {
         Log.d(TAG, "Stopping the service");
-        eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.idle());
+        publisher.publishDone();
         subscription.unsubscribe();
         downloadHandler.quit();
 
@@ -246,36 +216,38 @@ public class OfflineContentService extends Service implements DownloadHandler.Li
     private class OfflineContentRequestsSubscriber extends DefaultSubscriber<OfflineContentRequests> {
         @Override
         public void onNext(OfflineContentRequests requests) {
-            if (!requests.newRemovedTracks.isEmpty()) {
-                // TODO : Cancel request if downloading a removed track.
-                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRemoved(requests.newRemovedTracks));
-            }
-            if (!requests.newRestoredRequests.isEmpty()) {
-                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloaded(requests.newRestoredRequests));
-            }
+            Log.d(OfflineContentService.TAG, "Received OfflineContentRequests: " + requests);
+            publisher.publishNotDownloadableStateChanges(queue, requests, downloadHandler.getCurrentTrack());
 
-            if (!queue.getRequests().isEmpty()) {
-                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequestRemoved(queue.getRequests()));
-            }
             queue.set(Collections2.filter(requests.allDownloadRequests, isNotCurrentDownloadFilter));
-            if (!queue.getRequests().isEmpty()) {
-                eventBus.publish(EventQueue.CURRENT_DOWNLOAD, CurrentDownloadEvent.downloadRequested(queue.getRequests()));
-            }
+            publisher.publishDownloadsRequested(queue);
+
             updateNotification();
-            startDownloadIfNecessary();
-        }
 
-        private void startDownloadIfNecessary() {
-            if (!downloadHandler.isDownloading()) {
-                downloadNextOrFinish(null);
+            if (isRemovedTrackCurrentlyBeingDownloaded(requests)) {
+                Log.d(OfflineContentService.TAG, "About to cancel download!");
+                // download cancelled event is sent in the callback.
+                downloadHandler.cancel();
+            } else {
+                startDownloadIfNecessary();
             }
         }
+    }
 
-        private void updateNotification() {
-            if (!queue.isEmpty()) {
-                final int size = downloadHandler.isDownloading() ? queue.size() + 1 : queue.size();
-                startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size, queue.getFirst()));
-            }
+    private boolean isRemovedTrackCurrentlyBeingDownloaded(OfflineContentRequests requests) {
+        return requests.newRemovedTracks.contains(downloadHandler.getCurrentTrack());
+    }
+
+    private void startDownloadIfNecessary() {
+        if (!downloadHandler.isDownloading()) {
+            downloadNextOrFinish(null);
+        }
+    }
+
+    private void updateNotification() {
+        if (!queue.isEmpty()) {
+            final int size = downloadHandler.isDownloading() ? queue.size() + 1 : queue.size();
+            startForeground(OFFLINE_NOTIFY_ID, notificationController.onPendingRequests(size, queue.getFirst()));
         }
     }
 }

@@ -9,9 +9,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.google.common.collect.Lists;
-import com.soundcloud.android.events.CurrentDownloadEvent;
-import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.testsupport.AndroidUnitTest;
@@ -38,40 +35,44 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     @Mock private DownloadHandler.Builder handlerFactory;
     @Mock private DownloadHandler downloadHandler;
     @Mock private Notification notification;
+    @Mock private DownloadStatePublisher publisher;
 
     private static final Urn TRACK_1 = Urn.forTrack(123L);
     private static final Urn TRACK_2 = Urn.forTrack(456L);
     private final DownloadRequest downloadRequest1 = createDownloadRequest(TRACK_1);
-    private final DownloadRequest downloadRequest2 = createDownloadRequest(TRACK_2);
+    private final DownloadRequest downloadRequest2 = createDownloadRequest(Urn.forTrack(456L));
     private final DownloadResult downloadResult1 = DownloadResult.success(downloadRequest1);
     private final DownloadResult unavailableTrackResult1 = DownloadResult.unavailable(downloadRequest1);
-    private final DownloadResult failedResult1 = DownloadResult.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
+    private final DownloadResult failedResult1 =
+            DownloadResult.connectionError(downloadRequest1, ConnectionState.NOT_ALLOWED);
 
     private Observable<List<Urn>> deletePendingRemoval;
     private OfflineContentService service;
-    private TestEventBus eventBus;
     private Message downloadMessage;
+    private DownloadQueue downloadQueue;
 
     @Before
     public void setUp() {
-        eventBus = new TestEventBus();
         downloadMessage = new Message();
         deletePendingRemoval = Observable.empty();
+        downloadQueue = new DownloadQueue();
 
-        when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class))).thenReturn(downloadMessage);
-        service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
-                eventBus, offlineContentScheduler, handlerFactory, new DownloadQueue());
-
+        when(downloadHandler.getCurrentTrack()).thenReturn(Urn.NOT_SET);
+        when(downloadHandler.obtainMessage(eq(DownloadHandler.ACTION_DOWNLOAD), any(Object.class)))
+                .thenReturn(downloadMessage);
         when(offlineContentOperations.loadContentToDelete()).thenReturn(deletePendingRemoval);
-        when(handlerFactory.create(service)).thenReturn(downloadHandler);
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.<OfflineContentRequests>never());
+        when(offlineContentOperations.loadOfflineContentUpdates())
+                .thenReturn(Observable.<OfflineContentRequests>never());
         when(notificationController.onPendingRequests(anyInt(), any(DownloadRequest.class))).thenReturn(notification);
 
+        service = new OfflineContentService(downloadOperations, offlineContentOperations, notificationController,
+                offlineContentScheduler, handlerFactory, publisher, downloadQueue);
+        when(handlerFactory.create(service)).thenReturn(downloadHandler);
         service.onCreate();
     }
 
     @Test
-    public void emitsNewDownloadRequests() {
+    public void resetsDownloadQueueWhenStartingAService() {
         final OfflineContentRequests updates = new OfflineContentRequests(
                 Arrays.asList(downloadRequest1, downloadRequest2),
                 Arrays.asList(downloadRequest1),
@@ -82,15 +83,11 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
-                CurrentDownloadEvent.downloading(downloadRequest1)
-        );
+        assertThat(downloadQueue.getRequests()).contains(downloadRequest2);
     }
 
     @Test
-    public void emitsNewTrackDownloadedWhenTrackIsRestoredFromPendingRemovals() {
+    public void publishesNotDownloadableStateChangesWhenStartingAService() {
         final OfflineContentRequests updates = new OfflineContentRequests(
                 Collections.<DownloadRequest>emptyList(),
                 Collections.<DownloadRequest>emptyList(),
@@ -101,29 +98,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)),
-                CurrentDownloadEvent.idle()
-        );
-    }
-
-    @Test
-    public void emitsRemovedTrack() {
-        final OfflineContentRequests updates = new OfflineContentRequests(
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Arrays.asList(TRACK_1));
-
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
-        startService();
-
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest1)),
-                CurrentDownloadEvent.idle()
-        );
+        verify(publisher).publishNotDownloadableStateChanges(downloadQueue, updates, Urn.NOT_SET);
     }
 
     @Test
@@ -155,7 +130,7 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
     }
 
     @Test
-    public void sendsDownloadPendingWhenCreatingRequestsQueue() {
+    public void publishesDownloadRequestedWhenCreatingRequestsQueue() {
         final OfflineContentRequests updates = new OfflineContentRequests(
                 Arrays.asList(downloadRequest1, downloadRequest2),
                 Collections.<DownloadRequest>emptyList(),
@@ -165,74 +140,39 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
         startService();
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
-                CurrentDownloadEvent.downloading(downloadRequest1)
-        );
+        verify(publisher).publishDownloadsRequested(downloadQueue);
     }
 
     @Test
-    public void sendsDownloadRemovedWhenUpdatingRequestsQueue() throws Exception {
-        final OfflineContentRequests updates = new OfflineContentRequests(
-                Arrays.asList(downloadRequest1, downloadRequest2),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<DownloadRequest>emptyList(),
-                Collections.<Urn>emptyList()
-        );
-        when(offlineContentOperations.loadOfflineContentUpdates()).thenReturn(Observable.just(updates));
+    public void publishedDownloadingWhenDownloadStarts() {
+        setUpSingleDownload();
         startService();
 
-        when(downloadHandler.isCurrentRequest(downloadRequest1)).thenReturn(true);
-        when(downloadHandler.isDownloading()).thenReturn(true);
-        startService();
-
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest1, downloadRequest2)),
-                CurrentDownloadEvent.downloading(downloadRequest1),
-                CurrentDownloadEvent.downloadRequestRemoved(Arrays.asList(downloadRequest2)),
-                CurrentDownloadEvent.downloadRequested(Arrays.asList(downloadRequest2))
-        );
+        verify(publisher).publishDownloading(downloadRequest1);
     }
 
     @Test
-    public void sendsDownloadStoppedEventWhenTrackDownloadSucceeded() {
+    public void publishesDownloadSuccessEventWhenTrackDownloadSucceeded() {
         startService();
         service.onSuccess(downloadResult1);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.downloaded(Arrays.asList(downloadRequest1)),
-                CurrentDownloadEvent.idle()
-        );
+        verify(publisher).publishDownloadSuccessfulEvents(downloadQueue, downloadResult1);
     }
 
     @Test
-    public void sendsDownloadStoppedEventWhenTrackDownloadFailed() {
+    public void publishesDownloadErrorEventsEventWhenTrackDownloadFailed() {
         startService();
         service.onError(downloadResult1);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(Arrays.asList(downloadRequest1)),
-                CurrentDownloadEvent.idle()
-        );
+        verify(publisher).publishDownloadErrorEvents(downloadQueue, downloadResult1);
     }
 
     @Test
-    public void sendsDownloadRequestEventForRelatedPlaylist() {
-        List<Urn> relatedPlaylists = Arrays.asList(Urn.forPlaylist(123L), Urn.forPlaylist(456L));
-
+    public void publishesDownloadCancelEventsWhenTrackDownloadWasCancelled() {
         startService();
-        service.onError(createFailedDownloadResult(TRACK_1, relatedPlaylists));
+        service.onCancel(downloadResult1);
 
-        assertThat(eventBus.eventsOn(EventQueue.CURRENT_DOWNLOAD)).containsExactly(
-                CurrentDownloadEvent.idle(),
-                CurrentDownloadEvent.unavailable(false, Lists.newArrayList(TRACK_1)),
-                CurrentDownloadEvent.downloadRequested(false, relatedPlaylists),
-                CurrentDownloadEvent.idle()
-        );
+        verify(publisher).publishDownloadCancelEvents(downloadQueue, downloadResult1);
     }
 
     @Test
@@ -344,6 +284,14 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
         verify(offlineContentScheduler).cancelPendingRetries();
     }
 
+    @Test
+    public void publishesDoneStateWhenStopingTheService() {
+        startService();
+        stopService();
+
+        verify(publisher).publishDone();
+    }
+
     private int startService() {
         Intent intent = new Intent(context(), OfflineContentService.class);
         intent.setAction(OfflineContentService.ACTION_START);
@@ -358,11 +306,6 @@ public class OfflineContentServiceTest extends AndroidUnitTest {
 
     private DownloadRequest createDownloadRequest(Urn track) {
         return new DownloadRequest(track, 123456);
-    }
-
-    private DownloadResult createFailedDownloadResult(Urn downloadedTrack, List<Urn> relatedPlaylists) {
-        DownloadRequest downloadRequest = new DownloadRequest(downloadedTrack, 123456, false, relatedPlaylists);
-        return DownloadResult.connectionError(downloadRequest, ConnectionState.DISCONNECTED);
     }
 
     private void setupNoDownloadRequest() {

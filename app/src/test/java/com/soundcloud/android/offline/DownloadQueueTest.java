@@ -68,7 +68,17 @@ public class DownloadQueueTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getCompletedReturnsTheTrackAndThePlaylistsWhenNoPlaylistsPendingInTheQueue() {
+    public void getRequestedReturnsPlaylistsWithoutDuplications() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1, PLAYLIST2);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1, PLAYLIST2);
+        downloadQueue.set(Arrays.asList(request1, request2));
+
+        assertThat(downloadQueue.getRequested(DownloadResult.success(request1)))
+                .containsExactly(PLAYLIST1, PLAYLIST2);
+    }
+
+    @Test
+    public void getDownloadedReturnsTheTrackAndThePlaylistsWhenNoPlaylistsPendingInTheQueue() {
         final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
         downloadQueue.set(Arrays.asList(request1));
@@ -77,12 +87,32 @@ public class DownloadQueueTest extends AndroidUnitTest {
     }
 
     @Test
-    public void getCompletedReturnsTheTrackWhenPlaylistsPendingInTheQueue() {
+    public void getDownloadedReturnsTheTrackWhenPlaylistsPendingInTheQueue() {
         final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
         final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
         downloadQueue.set(Arrays.asList(request1));
 
         assertThat(downloadQueue.getDownloaded(DownloadResult.success(request2))).contains(TRACK2);
+    }
+
+    @Test
+    public void getDownloadedCollectionsReturnsOnlyPlaylistsWhenItsNotPendingAnymore() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST2);
+
+        downloadQueue.set(Arrays.asList(request2));
+
+        assertThat(downloadQueue.getDownloadedPlaylists(DownloadResult.canceled(request1))).contains(PLAYLIST1);
+    }
+
+    @Test
+    public void getDownloadedCollectionsDoesNotReturnPlaylistWhenStillPending() {
+        final DownloadRequest request1 = createDownloadRequest(TRACK1, PLAYLIST1);
+        final DownloadRequest request2 = createDownloadRequest(TRACK2, PLAYLIST1);
+
+        downloadQueue.set(Arrays.asList(request2));
+
+        assertThat(downloadQueue.getDownloadedPlaylists(DownloadResult.canceled(request1))).isEmpty();
     }
 
     @Test
@@ -127,7 +157,7 @@ public class DownloadQueueTest extends AndroidUnitTest {
 
         assertThat(downloadQueue.isAllLikedTracksDownloaded(DownloadResult.success(request1))).isFalse();
     }
-    
+
     private DownloadRequest createDownloadRequest(Urn track, boolean isLikedTrack) {
         return new DownloadRequest.Builder(track, TRACK_DURATION)
                 .addToLikes(isLikedTrack)
@@ -137,6 +167,13 @@ public class DownloadQueueTest extends AndroidUnitTest {
     private DownloadRequest createDownloadRequest(Urn track, Urn playlist) {
         return new DownloadRequest.Builder(track, TRACK_DURATION)
                 .addToPlaylist(playlist)
+                .build();
+    }
+
+    private DownloadRequest createDownloadRequest(Urn track, Urn playlist1, Urn playlist2) {
+        return new DownloadRequest.Builder(track, TRACK_DURATION)
+                .addToPlaylist(playlist1)
+                .addToPlaylist(playlist2)
                 .build();
     }
 

@@ -1,7 +1,5 @@
 package com.soundcloud.android.offline;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 import com.soundcloud.android.model.Urn;
 
 import javax.inject.Inject;
@@ -11,7 +9,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-class DownloadQueue {
+final class DownloadQueue {
     private final LinkedList<DownloadRequest> queue;
 
     @Inject
@@ -48,8 +46,15 @@ class DownloadQueue {
         return getIntersectionWith(result);
     }
 
+    List<Urn> getRequestedWithOwningPlaylists(DownloadResult result) {
+        final List<Urn> requestedAndRelated = getRequestedEntities();
+        addAllRemovingDuplication(requestedAndRelated, result.request.inPlaylists);
+
+        return requestedAndRelated;
+    }
+
     private List<Urn> getIntersectionWith(DownloadResult result) {
-        final List<Urn> stillRequested = getRequestedEntities();
+        final List<Urn> stillRequested = new ArrayList<>(getRequestedEntities());
         stillRequested.retainAll(result.request.inPlaylists);
         return stillRequested;
     }
@@ -58,8 +63,14 @@ class DownloadQueue {
         return getComplementWith(result);
     }
 
+    List<Urn> getDownloadedPlaylists(DownloadResult result) {
+        final ArrayList<Urn> completed = new ArrayList<>(result.request.inPlaylists);
+        completed.removeAll(getRequestedEntities());
+        return completed;
+    }
+
     private List<Urn> getComplementWith(DownloadResult result) {
-        final ArrayList<Urn> completed = newArrayList(result.request.inPlaylists);
+        final ArrayList<Urn> completed = new ArrayList<>(result.request.inPlaylists);
         completed.removeAll(getRequestedEntities());
         completed.add(result.getTrack());
         return completed;
@@ -70,11 +81,20 @@ class DownloadQueue {
     }
 
     List<Urn> getRequestedEntities() {
-        final ArrayList<Urn> requested = newArrayList();
+        final List<Urn> requested = new ArrayList<>();
         for (DownloadRequest request : queue) {
-            requested.addAll(request.inPlaylists);
+            addAllRemovingDuplication(requested, request.inPlaylists);
         }
         return requested;
+    }
+
+    private List<Urn> addAllRemovingDuplication(List<Urn> to, List<Urn> from) {
+        for (Urn urn : from) {
+            if (!to.contains(urn)) {
+                to.add(urn);
+            }
+        }
+        return to;
     }
 
     boolean isLikedTrackRequested() {

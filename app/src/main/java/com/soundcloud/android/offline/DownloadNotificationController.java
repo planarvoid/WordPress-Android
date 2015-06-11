@@ -54,7 +54,8 @@ class DownloadNotificationController {
 
     public void onDownloadSuccess(DownloadResult lastDownload) {
         completed++;
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, updateProgressNotification(lastDownload.request));
+        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
+                updateProgressNotification(lastDownload.request));
     }
 
     public void onDownloadError(DownloadResult lastDownload) {
@@ -63,14 +64,29 @@ class DownloadNotificationController {
         } else {
             errors++;
         }
-        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, updateProgressNotification(lastDownload.request));
+        notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
+                updateProgressNotification(lastDownload.request));
+    }
+
+    public void onDownloadCancel(DownloadResult cancelled) {
+        if (completed > 0) {
+            completed--;
+        }
+
+        if (totalDownloads > 0) {
+            totalDownloads--;
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
+                    updateProgressNotification(cancelled.request));
+        }
     }
 
     public void onDownloadsFinished(@Nullable DownloadResult lastDownload) {
         if (storageErrors > 0) {
-            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, completedWithStorageErrorsNotification());
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
+                    completedWithStorageErrorsNotification());
         } else if (lastDownload != null && totalDownloads != errors) {
-            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID, completedNotification(lastDownload.request));
+            notificationManager.notify(NotificationConstants.OFFLINE_NOTIFY_ID,
+                    completedNotification(lastDownload.request));
         } else {
             notificationManager.cancel(NotificationConstants.OFFLINE_NOTIFY_ID);
         }
