@@ -97,7 +97,7 @@ public class PlayFromVoiceSearchActivityTest {
 
         activity.onResume();
 
-        verify(playbackOperations).playTrackWithRecommendations(eq(apiTrack.getUrn()), any(PlaySessionSource.class));
+        verify(playbackOperations).playTrackWithRecommendationsLegacy(eq(apiTrack.getUrn()), any(PlaySessionSource.class));
     }
 
     @Test

@@ -1,8 +1,8 @@
 package com.soundcloud.android.playback;
 
-import static com.soundcloud.android.Expect.expect;
-import static com.soundcloud.android.testsupport.TestHelper.createNewUserPlaylist;
-import static com.soundcloud.android.testsupport.TestHelper.createTracksUrn;
+import static com.soundcloud.android.testsupport.TestUrns.createTrackUrns;
+import static org.assertj.android.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -26,26 +26,27 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlayQueueOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.TrackSourceInfo;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
 import com.soundcloud.android.rx.eventbus.TestEventBus;
 import com.soundcloud.android.storage.TrackStorage;
 import com.soundcloud.android.storage.provider.Content;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.android.testsupport.fixtures.TestPropertySets;
 import com.tobedevoured.modelcitizen.CreateModelException;
-import com.xtremelabs.robolectric.Robolectric;
-import com.xtremelabs.robolectric.shadows.ShadowApplication;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.Shadows;
+import org.robolectric.shadows.ShadowApplication;
 import rx.Observable;
 import rx.observers.TestObserver;
 
@@ -53,10 +54,11 @@ import android.content.Intent;
 
 import javax.inject.Provider;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlaybackOperationsTest {
+public class PlaybackOperationsTest extends PlatformUnitTest {
 
     private static final Urn TRACK1 = Urn.forTrack(123L);
     private static final Urn TRACK2 = Urn.forTrack(456L);
@@ -76,6 +78,7 @@ public class PlaybackOperationsTest {
     @Mock private AdsOperations adsOperations;
     @Mock private AccountOperations accountOperations;
     @Mock private PlaybackStrategy playbackStrategy;
+    @Mock private PlayQueueOperations playQueueOperations;
 
     @Captor private ArgumentCaptor<List<Urn>> playQueueTracksCaptor;
 
@@ -94,8 +97,8 @@ public class PlaybackOperationsTest {
             }
         };
 
-        playbackOperations = new PlaybackOperations(Robolectric.application, modelManager, trackStorage,
-                playQueueManager, playSessionStateProvider, playbackToastHelper, eventBus, adsOperations, accountOperations,
+        playbackOperations = new PlaybackOperations(RuntimeEnvironment.application, modelManager, trackStorage,
+                playQueueManager, playSessionStateProvider, playbackToastHelper, eventBus, adsOperations, accountOperations, playQueueOperations,
                 playbackStrategyProvider);
 
         playlist = ModelFixtures.create(PublicApiPlaylist.class);
@@ -119,8 +122,8 @@ public class PlaybackOperationsTest {
         when(playQueueManager.isCurrentTrack(TRACK1)).thenReturn(true);
         playbackOperations.playTracks(Observable.just(TRACK1).toList(), TRACK1, 0, new PlaySessionSource(ORIGIN_SCREEN));
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService()).toBeNull();
+        final ShadowApplication application = Shadows.shadowOf(RuntimeEnvironment.application);
+        assertThat(application.getNextStartedService()).isNull();
     }
 
     @Test
@@ -141,7 +144,7 @@ public class PlaybackOperationsTest {
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         playSessionSource.setExploreVersion(EXPLORE_VERSION);
 
-        playbackOperations.playTrackWithRecommendations(TRACK1, playSessionSource).subscribe(observer);
+        playbackOperations.playTrackWithRecommendationsLegacy(TRACK1, playSessionSource).subscribe(observer);
 
         final PlaySessionSource expected = new PlaySessionSource(ORIGIN_SCREEN.get());
         expected.setExploreVersion(EXPLORE_VERSION);
@@ -151,17 +154,36 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playExploreTrackPlaysNewQueueWithRelatedTracks() {
-        playbackOperations.playTrackWithRecommendations(TRACK1, new PlaySessionSource(ORIGIN_SCREEN.get())).subscribe(observer);
+        playbackOperations.playTrackWithRecommendationsLegacy(TRACK1, new PlaySessionSource(ORIGIN_SCREEN.get())).subscribe(observer);
 
         verify(playbackStrategy).playNewQueue(anyListOf(Urn.class), any(Urn.class), anyInt(), eq(true), any(PlaySessionSource.class));
     }
 
     @Test
+    public void playTrackWithRecommendationsReturnsAnErrorWhenNoRecommendation() {
+        when(playQueueOperations.getRelatedTracksUrns(TRACK1)).thenReturn(Observable.<Urn>error(new NoSuchElementException()));
+
+        playbackOperations.playTrackWithRecommendations(TRACK1, new PlaySessionSource(ORIGIN_SCREEN), 0).subscribe(observer);
+
+        assertThat(observer.getOnErrorEvents()).hasSize(1);
+    }
+
+    @Test
+    public void playTrackWithRecommendationsPlaysQueueWithSeedAtSpecifiedPosition() {
+        final List<Urn> relatedUrns = new LinkedList<>(Arrays.asList(TRACK2, TRACK3));
+        when(playQueueOperations.getRelatedTracksUrns(TRACK1)).thenReturn(Observable.from(relatedUrns));
+
+        playbackOperations.playTrackWithRecommendations(TRACK1, new PlaySessionSource(ORIGIN_SCREEN), 0).subscribe(observer);
+
+        final List<Urn> expectedUrns = Arrays.asList(TRACK1, TRACK2, TRACK3);
+        verify(playbackStrategy).playNewQueue(eq(expectedUrns), any(Urn.class), anyInt(), eq(false), any(PlaySessionSource.class));
+    }
+
+    @Test
     public void playFromPlaylistPlaysNewQueue() throws CreateModelException {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
-        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final List<Urn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        final List<Urn> trackUrns = createTrackUrns(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
@@ -177,9 +199,8 @@ public class PlaybackOperationsTest {
     @Test
     public void playsNewQueueIfPlayingQueueHasSameContextWithDifferentPlaylistSources() throws CreateModelException {
         List<PublicApiTrack> tracks = ModelFixtures.create(PublicApiTrack.class, 3);
-        PublicApiPlaylist playlist = createNewUserPlaylist(tracks.get(0).user, true, tracks);
 
-        final List<Urn> trackUrns = createTracksUrn(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
+        final List<Urn> trackUrns = createTrackUrns(tracks.get(0).getId(), tracks.get(1).getId(), tracks.get(2).getId());
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(trackUrns));
 
         when(playQueueManager.getScreenTag()).thenReturn(Screen.EXPLORE_TRENDING_MUSIC.get()); // same screen origin
@@ -277,8 +298,8 @@ public class PlaybackOperationsTest {
         inOrder.verify(playQueueManager).setPosition(5);
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
-        expect(event.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
+        assertThat(event.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
     }
 
     @Test
@@ -368,8 +389,8 @@ public class PlaybackOperationsTest {
         inOrder.verify(playQueueManager).moveToPreviousTrack();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
-        expect(event.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
+        assertThat(event.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
     }
 
     @Test
@@ -436,8 +457,8 @@ public class PlaybackOperationsTest {
         inOrder.verify(playQueueManager).nextTrack();
 
         final UIEvent event = (UIEvent) eventBus.lastEventOn(EventQueue.TRACKING);
-        expect(event.getKind()).toEqual(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
-        expect(event.getAttributes().get("ad_track_urn")).toEqual(Urn.forTrack(123).toString());
+        assertThat(event.getKind()).isEqualTo(UIEvent.KIND_SKIP_AUDIO_AD_CLICK);
+        assertThat(event.getAttributes().get("ad_track_urn")).isEqualTo(Urn.forTrack(123).toString());
     }
 
     @Test
@@ -488,17 +509,17 @@ public class PlaybackOperationsTest {
 
         playbackOperations.seek(350L);
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
-        expect(application.getNextStartedService()).toBeNull();
+        ShadowApplication application = Shadows.shadowOf(RuntimeEnvironment.application);
+        assertThat(application.getNextStartedService()).isNull();
     }
 
     @Test
     public void stopServiceSendsStopActionToService() {
         playbackOperations.stopService();
 
-        ShadowApplication application = Robolectric.shadowOf(Robolectric.application);
+        ShadowApplication application = Shadows.shadowOf(RuntimeEnvironment.application);
         Intent sentIntent = application.getNextStartedService();
-        expect(sentIntent.getAction()).toBe(PlaybackService.Actions.STOP_ACTION);
+        assertThat(sentIntent.getAction()).isSameAs(PlaybackService.Actions.STOP_ACTION);
     }
 
     @Test
@@ -509,12 +530,12 @@ public class PlaybackOperationsTest {
         playbackOperations.playTracksShuffled(Observable.just(tracksToPlay), playSessionSource).subscribe(observer);
 
         verify(playbackStrategy).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), anyBoolean(), eq(playSessionSource));
-        expect(playQueueTracksCaptor.getValue()).toContainExactlyInAnyOrder(TRACK1, TRACK2, TRACK3);
+        assertThat(playQueueTracksCaptor.getValue()).contains(TRACK1, TRACK2, TRACK3);
     }
 
     @Test
     public void playTracksShuffledDoesNotLoadRecommendations() {
-        final List<Urn> idsOrig = createTracksUrn(1L, 2L, 3L);
+        final List<Urn> idsOrig = createTrackUrns(1L, 2L, 3L);
         playbackOperations.playTracksShuffled(Observable.just(idsOrig), new PlaySessionSource(Screen.YOUR_LIKES)).subscribe(observer);
 
         verify(playbackStrategy).playNewQueue(anyListOf(Urn.class), any(Urn.class), eq(0), eq(false), any(PlaySessionSource.class));
@@ -541,7 +562,7 @@ public class PlaybackOperationsTest {
 
     @Test
     public void playFromAdapterPlaysNewQueueFromListOfTracks() throws Exception {
-        List<Urn> playables = createTracksUrn(1L, 2L);
+        List<Urn> playables = createTrackUrns(1L, 2L);
 
         playbackOperations.playTracks(playables, 1, new PlaySessionSource(ORIGIN_SCREEN)).subscribe(observer);
 
@@ -598,8 +619,8 @@ public class PlaybackOperationsTest {
     @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayFromAdapter() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final List<Urn> tracks = createTracksUrn(1L);
-        final List<Urn> trackUrns = createTracksUrn(1L);
+        final List<Urn> tracks = createTrackUrns(1L);
+        final List<Urn> trackUrns = createTrackUrns(1L);
         when(trackStorage.getTracksForUriAsync(Content.ME_LIKES.uri)).thenReturn(Observable.just(trackUrns));
 
         Urn initialTrack = tracks.get(0);
@@ -613,7 +634,7 @@ public class PlaybackOperationsTest {
     @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayPlaylistFromPosition() throws CreateModelException {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(createTracksUrn(123L)));
+        when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(createTrackUrns(123L)));
 
         final PlaySessionSource playSessionSource = new PlaySessionSource(ORIGIN_SCREEN.get());
         playSessionSource.setPlaylist(playlist.getUrn(), playlist.getUserUrn());
@@ -642,15 +663,15 @@ public class PlaybackOperationsTest {
     }
 
     private void expectSuccessPlaybackResult() {
-        expect(observer.getOnNextEvents()).toNumber(1);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
         PlaybackResult playbackResult = observer.getOnNextEvents().get(0);
-        expect(playbackResult.isSuccess()).toBeTrue();
+        assertThat(playbackResult.isSuccess()).isTrue();
     }
 
     private void expectUnskippablePlaybackResult() {
-        expect(observer.getOnNextEvents()).toNumber(1);
-        expect(observer.getOnNextEvents().get(0).isSuccess()).toBeFalse();
-        expect(observer.getOnNextEvents().get(0).getErrorReason()).toEqual(PlaybackResult.ErrorReason.UNSKIPPABLE);
+        assertThat(observer.getOnNextEvents()).hasSize(1);
+        assertThat(observer.getOnNextEvents().get(0).isSuccess()).isFalse();
+        assertThat(observer.getOnNextEvents().get(0).getErrorReason()).isEqualTo(PlaybackResult.ErrorReason.UNSKIPPABLE);
     }
 
 }

@@ -134,4 +134,8 @@
     <color name="ccl_mr_custom_line_2">@color/black</color>
     <color name="ccl_mr_custom_button">@color/ak_sc_orange</color>
 
+    <!-- Google Cast -->
+    <color name="play_related_tracks_bars_color">#999999</color>
+    <color name="play_related_tracks_text_color">#333333</color>
+
 </resources>

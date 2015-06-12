@@ -15,6 +15,7 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.UIEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
+import com.soundcloud.android.playback.service.PlayQueueOperations;
 import com.soundcloud.android.playback.service.PlaySessionSource;
 import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
@@ -59,6 +60,7 @@ public class PlaybackOperations {
     private final EventBus eventBus;
     private final AdsOperations adsOperations;
     private final AccountOperations accountOperations;
+    private final PlayQueueOperations playQueueOperations;
     private final Provider<PlaybackStrategy> playbackStrategyProvider;
 
 
@@ -68,6 +70,7 @@ public class PlaybackOperations {
                               PlaySessionStateProvider playSessionStateProvider,
                               PlaybackToastHelper playbackToastHelper, EventBus eventBus,
                               AdsOperations adsOperations, AccountOperations accountOperations,
+                              PlayQueueOperations playQueueOperations,
                               Provider<PlaybackStrategy> playbackStrategyProvider) {
         this.context = context;
         this.modelManager = modelManager;
@@ -78,12 +81,15 @@ public class PlaybackOperations {
         this.eventBus = eventBus;
         this.adsOperations = adsOperations;
         this.accountOperations = accountOperations;
+        this.playQueueOperations = playQueueOperations;
         this.playbackStrategyProvider = playbackStrategyProvider;
     }
 
     public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, int position, PlaySessionSource playSessionSource) {
         return playTracks(trackUrns, trackUrns.get(position), position, playSessionSource);
     }
+
+
 
     public Observable<PlaybackResult> playTracks(List<Urn> trackUrns, Urn trackUrn, int position,
                                             PlaySessionSource playSessionSource) {
@@ -102,8 +108,27 @@ public class PlaybackOperations {
                 playSessionSource, WITHOUT_RELATED);
     }
 
-    public Observable<PlaybackResult> playTrackWithRecommendations(Urn track, PlaySessionSource playSessionSource) {
+    @Deprecated
+    public Observable<PlaybackResult> playTrackWithRecommendationsLegacy(Urn track, PlaySessionSource playSessionSource) {
+        // TODO : move to the alternative solution when playing the tracking story DROID-1028
         return playTracksList(Observable.just(track).toList(), track, 0, playSessionSource, WITH_RELATED);
+    }
+
+    public Observable<PlaybackResult> playTrackWithRecommendations(final Urn seedTrack, final PlaySessionSource playSessionSource, final int startPosition) {
+        return playQueueOperations
+                .getRelatedTracksUrns(seedTrack)
+                .startWith(seedTrack)
+                .toList()
+                .flatMap(playTracks(startPosition, playSessionSource));
+    }
+
+    private Func1<List<Urn>, Observable<PlaybackResult>> playTracks(final int startPosition, final PlaySessionSource playSessionSource) {
+        return new Func1<List<Urn>, Observable<PlaybackResult>>() {
+            @Override
+            public Observable<PlaybackResult> call(List<Urn> tracks) {
+                return playTracks(tracks, startPosition, playSessionSource);
+            }
+        };
     }
 
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,

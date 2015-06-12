@@ -1,6 +1,6 @@
 package com.soundcloud.android.playback.service;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -21,28 +21,27 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.model.ModelCollection;
 import com.soundcloud.android.commands.StoreTracksCommand;
 import com.soundcloud.android.model.Urn;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
-import com.soundcloud.android.rx.TestObservables;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.fixtures.ModelFixtures;
 import com.soundcloud.propeller.ChangeResult;
 import com.soundcloud.propeller.TxnResult;
 import com.tobedevoured.modelcitizen.CreateModelException;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import rx.Observable;
 import rx.Observer;
+import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import java.util.Iterator;
 
-@RunWith(SoundCloudTestRunner.class)
-public class PlayQueueOperationsTest {
+public class PlayQueueOperationsTest extends PlatformUnitTest {
 
     private static final String ORIGIN_PAGE = "origin:page";
     private static final long PLAYLIST_ID = 123L;
@@ -82,8 +81,8 @@ public class PlayQueueOperationsTest {
     @Test
     public void shouldReturnLastPlaySessionSourceFromPreferences() throws Exception {
         PlaySessionSource playSessionSource = playQueueOperations.getLastStoredPlaySessionSource();
-        expect(playSessionSource.getOriginScreen()).toEqual(ORIGIN_PAGE);
-        expect(playSessionSource.getPlaylistUrn()).toEqual(Urn.forPlaylist(PLAYLIST_ID));
+        assertThat(playSessionSource.getOriginScreen()).isEqualTo(ORIGIN_PAGE);
+        assertThat(playSessionSource.getPlaylistUrn()).isEqualTo(Urn.forPlaylist(PLAYLIST_ID));
 
     }
 
@@ -98,7 +97,7 @@ public class PlayQueueOperationsTest {
         ArgumentCaptor<PlayQueue> captor = ArgumentCaptor.forClass(PlayQueue.class);
         playQueueOperations.getLastStoredPlayQueue().subscribe(observer);
         verify(observer).onNext(captor.capture());
-        expect(captor.getValue()).toContainExactly(playQueueItem);
+        assertThat(captor.getValue()).containsExactly(playQueueItem);
     }
 
     @Test
@@ -112,14 +111,14 @@ public class PlayQueueOperationsTest {
         when(playQueueStorage.loadAsync()).thenReturn(itemObservable);
 
         PlayQueue playQueue = playQueueOperations.getLastStoredPlayQueue().toBlocking().lastOrDefault(null);
-        expect(playQueue).toContainExactly(playQueueItem1, playQueueItem2);
+        assertThat(playQueue).containsExactly(playQueueItem1, playQueueItem2);
     }
 
     @Test
     public void shouldReturnNullWhenReloadingWithNoValidStoredLastTrack() throws Exception {
         when(sharedPreferences.getLong(eq(PlayQueueOperations.Keys.TRACK_ID.name()), anyLong())).thenReturn(-1L);
         verifyZeroInteractions(playQueueStorage);
-        expect(playQueueOperations.getLastStoredPlayQueue()).toBeNull();
+        assertThat(playQueueOperations.getLastStoredPlayQueue()).isNull();
     }
 
     @Test
@@ -134,12 +133,11 @@ public class PlayQueueOperationsTest {
 
     @Test
     public void saveShouldStoreAllPlayQueueItems() throws Exception {
-        TestObservables.MockObservable observable = TestObservables.emptyObservable();
-        when(playQueueStorage.storeAsync(playQueue)).thenReturn(observable);
+        final PublishSubject<TxnResult> subject = PublishSubject.create();
+        when(playQueueStorage.storeAsync(playQueue)).thenReturn(subject);
 
         playQueueOperations.saveQueue(playQueue);
-
-        expect(observable.subscribedTo()).toBeTrue();
+        assertThat(subject.hasObservers()).isTrue();
     }
 
     @Test
@@ -162,8 +160,8 @@ public class PlayQueueOperationsTest {
 
         ArgumentCaptor<ApiRequest> argumentCaptor = ArgumentCaptor.forClass(ApiRequest.class);
         verify(apiClientRx).mappedResponse(argumentCaptor.capture(), eq(RecommendedTracksCollection.class));
-        expect(argumentCaptor.getValue().getMethod()).toEqual("GET");
-        expect(argumentCaptor.getValue().getEncodedPath()).toEqual(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
+        assertThat(argumentCaptor.getValue().getMethod()).isEqualTo("GET");
+        assertThat(argumentCaptor.getValue().getEncodedPath()).isEqualTo(ApiEndpoints.RELATED_TRACKS.path(Urn.forTrack(123L).toString()));
     }
 
     @Test
@@ -182,10 +180,23 @@ public class PlayQueueOperationsTest {
         ArgumentCaptor<ModelCollection> argumentCaptor = ArgumentCaptor.forClass(ModelCollection.class);
         verify(relatedObserver).onNext(argumentCaptor.capture());
         Iterator iterator = argumentCaptor.getValue().iterator();
-        expect(iterator.next()).toEqual(suggestion1);
-        expect(iterator.next()).toEqual(suggestion2);
+        assertThat(iterator.next()).isEqualTo(suggestion1);
+        assertThat(iterator.next()).isEqualTo(suggestion2);
         verify(relatedObserver).onCompleted();
         verify(relatedObserver, never()).onError(any(Throwable.class));
+    }
+
+    @Test
+    public void getRelatedTracksUrnsShouldReturnAneErrorWhenNoRelatedTracksReceivedFromApi() {
+        when(apiClientRx.mappedResponse(any(ApiRequest.class), eq(RecommendedTracksCollection.class)))
+                .thenReturn(Observable.just(new RecommendedTracksCollection()));
+
+        TestSubscriber<Object> objectTestSubscriber = new TestSubscriber<>();
+        playQueueOperations.getRelatedTracksUrns(Urn.forTrack(123)).subscribe(objectTestSubscriber);
+
+        assertThat(objectTestSubscriber.getOnNextEvents()).isEmpty();
+        assertThat(objectTestSubscriber.getOnCompletedEvents()).isEmpty();
+        assertThat(objectTestSubscriber.getOnErrorEvents()).hasSize(1);
     }
 
     @Test

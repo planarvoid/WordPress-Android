@@ -29,19 +29,19 @@ public class PlayerMenuElement extends PopupMenuElement {
     }
 
     private ViewElement addToPlaylistItem() {
-        return menuItems().get(0);
+        return getRootMenuElements().get(0);
     }
 
     public ViewElement shareItem() {
-        return menuItems().get(1);
+        return getRootMenuElements().get(1);
     }
 
     public ViewElement repostItem() {
-        return menuItems().get(2);
+        return getRootMenuElements().get(2);
     }
 
     private ViewElement comment() {
-        return menuItems().get(3);
+        return getRootMenuElements().get(3);
     }
 
     private ViewElement info() {

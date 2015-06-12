@@ -181,9 +181,8 @@ android {
  conflicting with the internal version provided by Android.
  */
 configurations {
-  all*.exclude group: 'commons-logging', module: 'commons-logging'
-
   testSupport // for exporting our test helpers
+
 }
 
 task testSupportJar(type: Jar, dependsOn: ':app:compileDebugUnitTestSources') {

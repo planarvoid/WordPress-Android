@@ -21,10 +21,10 @@ public class PlaylistOverflowMenu extends PopupMenuElement {
     }
 
     public ViewElement getMakeAvailableOfflineItem() {
-        return menuItem(With.text(testDriver.getString(R.string.make_offline_available)));
+        return findElement(With.text(testDriver.getString(R.string.make_offline_available)));
     }
 
     private ViewElement shuffleItem() {
-        return menuItem(With.text(testDriver.getString(R.string.shuffle_playlist)));
+        return findElement(With.text(testDriver.getString(R.string.shuffle_playlist)));
     }
 }
