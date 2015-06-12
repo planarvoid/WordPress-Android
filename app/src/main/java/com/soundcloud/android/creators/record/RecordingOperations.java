@@ -7,13 +7,13 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.io.File;
 
-public class RecordingOperations {
+class RecordingOperations {
 
     private final Scheduler scheduler;
     private final RecordingStorage recordingStorage;
 
     @Inject
-    public RecordingOperations(@Named("HighPriority") Scheduler scheduler, RecordingStorage recordingStorage) {
+    RecordingOperations(@Named("HighPriority") Scheduler scheduler, RecordingStorage recordingStorage) {
         this.scheduler = scheduler;
         this.recordingStorage = recordingStorage;
     }

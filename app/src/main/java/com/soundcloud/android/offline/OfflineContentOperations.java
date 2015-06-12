@@ -82,17 +82,17 @@ public class OfflineContentOperations {
     };
 
     @Inject
-    public OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
-                                    LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
-                                    ClearTrackDownloadsCommand clearTrackDownloadsCommand,
-                                    OfflineSettingsStorage settingsStorage,
-                                    EventBus eventBus,
-                                    OfflinePlaylistStorage playlistStorage,
-                                    PolicyOperations policyOperations,
-                                    LoadExpectedContentCommand loadExpectedContentCommand,
-                                    LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
-                                    FeatureOperations featureOperations, OfflineTracksStorage tracksStorage,
-                                    @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
+    OfflineContentOperations(StoreDownloadUpdatesCommand storeDownloadUpdatesCommand,
+                             LoadTracksWithStalePoliciesCommand loadTracksWithStalePolicies,
+                             ClearTrackDownloadsCommand clearTrackDownloadsCommand,
+                             OfflineSettingsStorage settingsStorage,
+                             EventBus eventBus,
+                             OfflinePlaylistStorage playlistStorage,
+                             PolicyOperations policyOperations,
+                             LoadExpectedContentCommand loadExpectedContentCommand,
+                             LoadOfflineContentUpdatesCommand loadOfflineContentUpdatesCommand,
+                             FeatureOperations featureOperations, OfflineTracksStorage tracksStorage,
+                             @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler) {
         this.storeDownloadUpdatesCommand = storeDownloadUpdatesCommand;
         this.loadTracksWithStalePolicies = loadTracksWithStalePolicies;
         this.clearTrackDownloadsCommand = clearTrackDownloadsCommand;

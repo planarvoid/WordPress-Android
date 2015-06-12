@@ -502,17 +502,6 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void playFromIdsShuffledPlaysNewQueueWithGivenTrackIdList() {
-        final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
-        PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
-
-        playbackOperations.playTracksShuffled(tracksToPlay, playSessionSource).subscribe(observer);
-
-        verify(playbackStrategy).playNewQueue(playQueueTracksCaptor.capture(), any(Urn.class), eq(0), anyBoolean(), eq(playSessionSource));
-        expect(playQueueTracksCaptor.getValue()).toContainExactlyInAnyOrder(TRACK1, TRACK2, TRACK3);
-    }
-
-    @Test
     public void playFromShuffledWithTracksObservablePlaysNewQueueWithGivenTrackIdList() {
         final List<Urn> tracksToPlay = Arrays.asList(TRACK1, TRACK2, TRACK3);
         PlaySessionSource playSessionSource = new PlaySessionSource(Screen.YOUR_LIKES);
@@ -560,23 +549,12 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void startPlaybackWithRecommendationsCachesTrack() throws CreateModelException {
-        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-
-        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN).subscribe(observer);
-
-        verify(modelManager).cache(track);
-    }
-
-    @Test
-    public void startPlaybackWithRecommendationsPlaysNewQueue() throws CreateModelException {
-        PublicApiTrack track = ModelFixtures.create(PublicApiTrack.class);
-
-        playbackOperations.startPlaybackWithRecommendations(track, ORIGIN_SCREEN).subscribe(observer);
+    public void startPlaybackWithRecommendationsPlaysNewQueue() {
+        playbackOperations.startPlaybackWithRecommendations(TRACK1, ORIGIN_SCREEN, searchQuerySourceInfo).subscribe(observer);
 
         verify(playbackStrategy).playNewQueue(
-                eq(Arrays.asList(track.getUrn())),
-                eq(track.getUrn()),
+                eq(Arrays.asList(TRACK1)),
+                eq(TRACK1),
                 eq(0),
                 anyBoolean(),
                 eq(new PlaySessionSource(ORIGIN_SCREEN.get())));
@@ -633,16 +611,6 @@ public class PlaybackOperationsTest {
     }
 
     @Test
-    public void showUnskippableToastWhenAdIsPlayingOnPlayFromShuffledIds() {
-        setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
-        final List<Urn> trackUrns = createTracksUrn(1L);
-
-        playbackOperations.playTracksShuffled(trackUrns, new PlaySessionSource(Screen.YOUR_LIKES)).subscribe(observer);
-
-        expectUnskippablePlaybackResult();
-    }
-
-    @Test
     public void showUnskippableToastWhenAdIsPlayingOnPlayPlaylistFromPosition() throws CreateModelException {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
         when(trackStorage.getTracksForUriAsync(playlist.toUri())).thenReturn(Observable.just(createTracksUrn(123L)));
@@ -661,7 +629,7 @@ public class PlaybackOperationsTest {
     public void showUnskippableToastWhenAdIsPlayingOnRecommendations() {
         setupAdInProgress(AdConstants.UNSKIPPABLE_TIME_MS - 1);
 
-        playbackOperations.startPlaybackWithRecommendations(ModelFixtures.create(PublicApiTrack.class), ORIGIN_SCREEN).subscribe(observer);
+        playbackOperations.startPlaybackWithRecommendations(TRACK1, ORIGIN_SCREEN, searchQuerySourceInfo).subscribe(observer);
 
         expectUnskippablePlaybackResult();
     }

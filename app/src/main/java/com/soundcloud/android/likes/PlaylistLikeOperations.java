@@ -59,10 +59,10 @@ public class PlaylistLikeOperations {
     };
 
     @Inject
-    public PlaylistLikeOperations(PlaylistLikesStorage storage, SyncInitiator syncInitiator,
-                                  EventBus eventBus,
-                                  @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                                  NetworkConnectionHelper networkConnectionHelper) {
+    PlaylistLikeOperations(PlaylistLikesStorage storage, SyncInitiator syncInitiator,
+                           EventBus eventBus,
+                           @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                           NetworkConnectionHelper networkConnectionHelper) {
         this.storage = storage;
         this.eventBus = eventBus;
         this.scheduler = scheduler;
