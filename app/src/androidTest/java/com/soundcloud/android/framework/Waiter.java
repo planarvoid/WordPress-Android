@@ -165,7 +165,7 @@ public class Waiter {
     }
 
     public void waitForActivity(Class<? extends Activity> activityClass) {
-        solo.waitForCondition(new CurrentActivityCondition(activityClass), TIMEOUT);
+        solo.waitForCondition(new CurrentActivityCondition(activityClass), FIVE_SECONDS);
     }
 
     public boolean waitForFragmentByTag(String fragmentTag) {
