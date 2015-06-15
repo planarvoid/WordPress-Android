@@ -41,7 +41,6 @@ public class CircularProgressDrawable extends Drawable
     private float mCurrentSweepAngle;
     private float mBorderWidth;
     private boolean mRunning;
-    private int progress = 0;
 
     public CircularProgressDrawable(float borderWidth, int color) {
         mBorderWidth = borderWidth;
@@ -110,7 +109,6 @@ public class CircularProgressDrawable extends Drawable
         }
 
         mRunning = false;
-        progress = 0;
         mCurrentSweepAngle = 0;
         mObjectAnimatorAngle.cancel();
         mObjectAnimatorSweep.cancel();
@@ -124,7 +122,6 @@ public class CircularProgressDrawable extends Drawable
     }
 
     public void setProgress(int progress) {
-        this.progress = progress;
         startProgress(progress);
         invalidateSelf();
     }

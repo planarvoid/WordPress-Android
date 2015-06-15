@@ -17,7 +17,7 @@ import rx.subjects.Subject;
 
 import javax.inject.Inject;
 
-public class AdOverlayImpressionOperations {
+class AdOverlayImpressionOperations {
     private final Subject<ActivityLifeCycleEvent, ActivityLifeCycleEvent> activityLifeCycleQueue;
     private final Subject<PlayerUIEvent, PlayerUIEvent> playerUIEventQueue;
     private final Subject<AdOverlayEvent, AdOverlayEvent> adOverlayEventQueue;
@@ -74,7 +74,7 @@ public class AdOverlayImpressionOperations {
     private boolean impressionEventEmitted = false;
 
     @Inject
-    public AdOverlayImpressionOperations(EventBus eventBus, PlayQueueManager playQueueManager, AccountOperations accountOperations) {
+    AdOverlayImpressionOperations(EventBus eventBus, PlayQueueManager playQueueManager, AccountOperations accountOperations) {
         this.playQueueManager = playQueueManager;
         this.accountOperations = accountOperations;
         this.activityLifeCycleQueue = eventBus.queue(EventQueue.ACTIVITY_LIFE_CYCLE);

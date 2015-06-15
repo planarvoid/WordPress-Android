@@ -106,18 +106,6 @@ public class BackgroundPlaybackNotificationControllerTest {
     }
 
     @Test
-    public void playQueueEventCreatesNewNotificationWithBitmapFromImageCache() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.getCachedBitmap(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(bitmap);
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
-        controller.setTrack(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
-
-        verify(notificationBuilder).setIcon(bitmap);
-        verify(imageOperations, never()).artwork(any(Urn.class), any(ApiImageSize.class), anyInt(), anyInt());
-    }
-
-    @Test
     public void playQueueEventSetsDefaultBitmapWhenArtworkCapableAndNoCachedBitmap() {
         when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
         when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
@@ -125,28 +113,6 @@ public class BackgroundPlaybackNotificationControllerTest {
         controller.setTrack(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
 
         verify(notificationBuilder).setIcon(loadingBitmap);
-    }
-
-    @Test
-    public void playQueueEventSetsLoadedBitmapWithPresenterWhenArtworkCapableAndNoCachedBitmap() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
-        controller.setTrack(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
-
-        verify(notificationBuilder).setIcon(bitmap);
-    }
-
-    @Test
-    public void playQueueEventNotifiesAgainAfterBitmapLoaded() {
-        when(notificationBuilder.hasArtworkSupport()).thenReturn(true);
-        when(imageOperations.artwork(eq(TRACK_URN), any(ApiImageSize.class), anyInt(), anyInt())).thenReturn(Observable.just(bitmap));
-        when(imageOperations.getLocalImageUri(eq(TRACK_URN), any(ApiImageSize.class))).thenReturn(uri);
-
-        controller.setTrack(PropertySet.from(EntityProperty.URN.bind(TRACK_URN)));
-
-        verify(notificationManager, times(2)).notify(eq(NotificationConstants.PLAYBACK_NOTIFY_ID), any(Notification.class));
     }
 
     @Test

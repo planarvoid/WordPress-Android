@@ -662,7 +662,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         final Context context = getActivity();
         final ScBaseAdapter adapter = getListAdapter();
         if (context != null && adapter != null) {
-            refreshTask = buildTask(context);
+            refreshTask = buildTask();
             refreshTask.execute(getTaskParams(adapter, true));
         }
 
@@ -722,7 +722,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         return content != null && content.isSyncable();
     }
 
-    private CollectionTask buildTask(Context context) {
+    private CollectionTask buildTask() {
         return new CollectionTask(publicApi, this);
     }
 
@@ -781,7 +781,7 @@ public class ScListFragment extends ListFragment implements OnRefreshListener,
         } // has been detached
 
         if (force || isTaskFinished(appendTask)) {
-            appendTask = buildTask(context);
+            appendTask = buildTask();
             appendTask.executeOnThreadPool(getTaskParams(adapter, false));
         }
         adapter.setIsLoadingData(true);

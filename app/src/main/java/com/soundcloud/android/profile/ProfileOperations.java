@@ -18,7 +18,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.Map;
 
-public class ProfileOperations {
+class ProfileOperations {
 
     private final ProfileApi profileApi;
     private final Scheduler scheduler;
@@ -40,8 +40,8 @@ public class ProfileOperations {
     };
 
     @Inject
-    public ProfileOperations(ProfileApi profileApi, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
-                             LoadPlaylistLikedStatuses loadPlaylistLikedStatuses, UserRepository userRepository) {
+    ProfileOperations(ProfileApi profileApi, @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler,
+                      LoadPlaylistLikedStatuses loadPlaylistLikedStatuses, UserRepository userRepository) {
         this.profileApi = profileApi;
         this.scheduler = scheduler;
         this.loadPlaylistLikedStatuses = loadPlaylistLikedStatuses;

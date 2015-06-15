@@ -96,28 +96,28 @@ class PaymentOperations {
         this.tokenStorage = tokenStorage;
     }
 
-    public Observable<ConnectionStatus> connect(Activity activity) {
+    Observable<ConnectionStatus> connect(Activity activity) {
         return playBilling.openConnection(activity);
     }
 
-    public void disconnect() {
+    void disconnect() {
         playBilling.closeConnection();
     }
 
-    public Observable<PurchaseStatus> queryStatus() {
+    Observable<PurchaseStatus> queryStatus() {
         return playBilling.getStatus()
                 .subscribeOn(scheduler)
                 .flatMap(verifyPendingSubscription)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Observable<ProductStatus> queryProduct() {
+    Observable<ProductStatus> queryProduct() {
         return getSubscriptionId()
                 .flatMap(productToResult)
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public Observable<String> purchase(final String id) {
+    Observable<String> purchase(final String id) {
         final ApiRequest request = ApiRequest.post(ApiEndpoints.CHECKOUT.path())
                         .forPrivateApi(API_VERSION)
                         .withContent(new StartCheckout(id))
@@ -139,7 +139,7 @@ class PaymentOperations {
         };
     }
 
-    public Observable<PurchaseStatus> verify(final Payload payload) {
+    Observable<PurchaseStatus> verify(final Payload payload) {
         return update(payload)
                 .flatMap(new Func1<PurchaseStatus, Observable<PurchaseStatus>>() {
                     @Override

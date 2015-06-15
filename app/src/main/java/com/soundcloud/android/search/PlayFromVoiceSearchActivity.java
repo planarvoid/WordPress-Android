@@ -1,16 +1,25 @@
 package com.soundcloud.android.search;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import com.soundcloud.android.Actions;
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.playback.ExpandPlayerSubscriber;
 import com.soundcloud.android.playback.PlaybackOperations;
+import com.soundcloud.android.playback.PlaybackResult;
 import com.soundcloud.android.playback.service.PlaySessionSource;
+import com.soundcloud.android.playback.ui.view.PlaybackToastHelper;
 import com.soundcloud.android.playlists.PlaylistDetailActivity;
 import com.soundcloud.android.playlists.PlaylistProperty;
+import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
 import com.soundcloud.propeller.PropertySet;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Func1;
 
 import android.app.Activity;
 import android.app.SearchManager;
@@ -31,6 +40,26 @@ public class PlayFromVoiceSearchActivity extends Activity {
     @Inject SearchOperations searchOperations;
     @Inject PlaybackOperations playbackOperations;
     @Inject Random random;
+    @Inject EventBus eventBus;
+    @Inject PlaybackToastHelper playbackToastHelper;
+
+    private final Func1<SearchResult, Observable<PlaybackResult>> toPlayWithRecommendations = new Func1<SearchResult, Observable<PlaybackResult>>() {
+        @Override
+        public Observable<PlaybackResult> call(SearchResult searchResult) {
+            List<PropertySet> items = searchResult.getItems();
+            checkState(!items.isEmpty(), "There is no result for this search");
+            return playbackOperations.playTrackWithRecommendations(items.get(0).get(TrackProperty.URN), new PlaySessionSource(Screen.VOICE_COMMAND));
+        }
+    };
+
+    private final Func1<SearchResult, PropertySet> toRandomSearchResultItem = new Func1<SearchResult, PropertySet>() {
+        @Override
+        public PropertySet call(SearchResult searchResult) {
+            List<PropertySet> items = searchResult.getItems();
+            checkState(!items.isEmpty(), "There is no result for this search");
+            return items.get(random.nextInt(items.size()));
+        }
+    };
 
     public PlayFromVoiceSearchActivity() {
         SoundCloudApplication.getObjectGraph().inject(this);
@@ -75,50 +104,19 @@ public class PlayFromVoiceSearchActivity extends Activity {
     }
 
     private void playTrackFromQuery(final String query) {
-        searchOperations.searchResult(query, SearchOperations.TYPE_TRACKS).subscribe(new FetchResourceSubscriber(query, false) {
-            @Override
-            public void onResult(PropertySet result) {
-                playbackOperations.playTrackWithRecommendations(result.get(TrackProperty.URN), new PlaySessionSource(Screen.VOICE_COMMAND));
-            }
-        });
+        searchOperations
+                .searchResult(query, SearchOperations.TYPE_TRACKS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(toPlayWithRecommendations)
+                .subscribe(new PlayFromQuerySubscriber(eventBus, playbackToastHelper, query));
     }
 
     private void playPlaylist(final String query) {
-        searchOperations.searchResult(query, SearchOperations.TYPE_PLAYLISTS).subscribe(new FetchResourceSubscriber(query, true) {
-            @Override
-            public void onResult(PropertySet result) {
-                PlaylistDetailActivity.start(PlayFromVoiceSearchActivity.this, result.get(PlaylistProperty.URN), Screen.SEARCH_PLAYLIST_DISCO, true);
-            }
-        });
-    }
-
-    private abstract class FetchResourceSubscriber extends DefaultSubscriber<SearchResult> {
-        private final String query;
-        private final boolean randomResult;
-
-        private FetchResourceSubscriber(String query, boolean randomResult) {
-            this.query = query;
-            this.randomResult = randomResult;
-        }
-
-        @Override
-        public void onNext(SearchResult searchResult) {
-            List<PropertySet> items = searchResult.getItems();
-            if (!items.isEmpty()) {
-                onResult(randomResult ? items.get(random.nextInt(items.size())) : items.get(0));
-            } else {
-                fallbackToSearch(query);
-            }
-        }
-
-        @Override
-        public void onError(Throwable e) {
-            fallbackToSearch(query);
-        }
-
-        public abstract void onResult(PropertySet result);
-
-
+        searchOperations
+                .searchResult(query, SearchOperations.TYPE_PLAYLISTS)
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(toRandomSearchResultItem)
+                .subscribe(new PlayFromPlaylistSubscriber(query));
     }
 
     private void fallbackToSearch(String query) {
@@ -127,6 +125,44 @@ public class PlayFromVoiceSearchActivity extends Activity {
                 .putExtra(SearchManager.QUERY, query);
 
         startActivity(intent);
+    }
+
+    private class PlayFromQuerySubscriber extends ExpandPlayerSubscriber {
+        private final String query;
+
+        public PlayFromQuerySubscriber(EventBus eventBus, PlaybackToastHelper playbackToastHelper, String query) {
+            super(eventBus, playbackToastHelper);
+            this.query = query;
+        }
+
+        @Override
+        public void onNext(PlaybackResult playbackResult) {
+            startActivity(new Intent(Actions.STREAM).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+            super.onNext(playbackResult);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            fallbackToSearch(query);
+        }
+    }
+
+    private class PlayFromPlaylistSubscriber extends DefaultSubscriber<PropertySet> {
+        private final String query;
+
+        public PlayFromPlaylistSubscriber(String query) {
+            this.query = query;
+        }
+
+        @Override
+        public void onNext(PropertySet result) {
+            PlaylistDetailActivity.start(PlayFromVoiceSearchActivity.this, result.get(PlaylistProperty.URN), Screen.SEARCH_PLAYLIST_DISCO, true);
+        }
+
+        @Override
+        public void onError(Throwable e) {
+            fallbackToSearch(query);
+        }
     }
 }
 

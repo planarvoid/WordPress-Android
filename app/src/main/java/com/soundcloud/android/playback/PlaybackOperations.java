@@ -106,12 +106,6 @@ public class PlaybackOperations {
         return playTracksList(Observable.just(track).toList(), track, 0, playSessionSource, WITH_RELATED);
     }
 
-    public Observable<PlaybackResult> playTracksShuffled(List<Urn> trackUrns, PlaySessionSource playSessionSource) {
-        List<Urn> shuffled = Lists.newArrayList(trackUrns);
-        Collections.shuffle(shuffled);
-        return playTracksList(Observable.from(shuffled).toList(), shuffled.get(0), 0, playSessionSource, WITHOUT_RELATED);
-    }
-
     public Observable<PlaybackResult> playTracksShuffled(Observable<List<Urn>> trackUrnsObservable,
                                                     PlaySessionSource playSessionSource) {
         if (shouldDisableSkipping()) {
@@ -163,10 +157,6 @@ public class PlaybackOperations {
         return playTracksList(Observable.just(track.getUrn()).toList(), track.getUrn(), 0, new PlaySessionSource(screen), withRecommendations);
     }
 
-    public Observable<PlaybackResult> startPlaybackWithRecommendations(PublicApiTrack track, Screen screen) {
-        return startPlayback(track, screen, WITH_RELATED);
-    }
-
     public Observable<PlaybackResult> startPlaybackWithRecommendations(Urn urn, Screen screen, SearchQuerySourceInfo searchQuerySourceInfo) {
         PlaySessionSource playSessionSource = new PlaySessionSource(screen);
         playSessionSource.setSearchQuerySourceInfo(searchQuerySourceInfo);
@@ -189,7 +179,7 @@ public class PlaybackOperations {
         playbackStrategyProvider.get().pause();
     }
 
-    public void playCurrent() {
+    void playCurrent() {
         playbackStrategyProvider.get().playCurrent();
     }
 

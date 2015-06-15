@@ -93,13 +93,13 @@ public class PlaylistOperations {
                 .subscribeOn(scheduler);
     }
 
-    public Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
+    Observable<Urn> createNewPlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return playlistTracksStorage.createNewPlaylist(title, isPrivate, firstTrackUrn)
                 .subscribeOn(scheduler)
                 .doOnCompleted(syncInitiator.requestSystemSyncAction());
     }
 
-    public Observable<Boolean> createNewOfflinePlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
+    Observable<Boolean> createNewOfflinePlaylist(String title, boolean isPrivate, Urn firstTrackUrn) {
         return createNewPlaylist(title, isPrivate, firstTrackUrn).flatMap(new Func1<Urn, Observable<Boolean>>() {
             @Override
             public Observable<Boolean> call(Urn urn) {
@@ -108,7 +108,7 @@ public class PlaylistOperations {
         });
     }
 
-    public Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
+    Observable<PropertySet> addTrackToPlaylist(Urn playlistUrn, Urn trackUrn) {
         final AddTrackToPlaylistParams params = new AddTrackToPlaylistParams(playlistUrn, trackUrn);
         return addTrackToPlaylistCommand.toObservable(params)
                 .map(toChangeSet(playlistUrn))

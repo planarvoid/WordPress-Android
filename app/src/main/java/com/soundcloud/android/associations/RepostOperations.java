@@ -36,8 +36,8 @@ public class RepostOperations {
     private final EventBus eventBus;
 
     @Inject
-    public RepostOperations(RepostStorage repostStorage, ApiClientRx apiClientRx,
-                            @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler, EventBus eventBus) {
+    RepostOperations(RepostStorage repostStorage, ApiClientRx apiClientRx,
+                     @Named(ApplicationModule.HIGH_PRIORITY) Scheduler scheduler, EventBus eventBus) {
         this.repostStorage = repostStorage;
         this.apiClientRx = apiClientRx;
         this.scheduler = scheduler;
