@@ -1,7 +1,5 @@
 package com.soundcloud.android.playback.notification;
 
-import static com.google.common.base.Preconditions.checkState;
-
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerLifeCycleEvent;
@@ -10,7 +8,6 @@ import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.propeller.PropertySet;
-import rx.functions.Func1;
 
 import android.app.Notification;
 import android.os.Handler;
@@ -23,7 +20,7 @@ import javax.inject.Singleton;
 @Singleton
 public class PlaybackNotificationController extends DefaultLightCycleActivity<AppCompatActivity> {
 
-    interface Delegate {
+    interface Strategy {
         void setTrack(PropertySet track);
 
         void clear();
@@ -34,130 +31,105 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
         boolean notifyIdleState();
     }
 
-    private static final Func1<CurrentPlayQueueTrackEvent, PropertySet> toTrack = new Func1<CurrentPlayQueueTrackEvent, PropertySet>() {
-        @Override
-        public PropertySet call(CurrentPlayQueueTrackEvent currentPlayQueueTrackEvent) {
-            return currentPlayQueueTrackEvent
-                    .getCurrentMetaData()
-                    .put(EntityProperty.URN, currentPlayQueueTrackEvent.getCurrentTrackUrn());
-        }
-    };
-
     // Estimated time between onPause and onResume. This to avoid cancelling a notification
     // while switching from one activity to the user. Over DEFAULT_DELAY_MILLIS we estimate
     // the app is either foreground or background.
     private static final int DEFAULT_DELAY_MILLIS = 300;
 
-    private final Runnable resetPlayback = new Runnable() {
-        @Override
-        public void run() {
-            resetPlayback();
-        }
-    };
-
-    private final Handler handler;
     private final EventBus eventBus;
-    private final Delegate backgroundController;
-    private final Delegate foregroundController;
+    private final Strategy backgroundStrategy;
+    private final Strategy foregroundStrategy;
+    private final Handler handler;
     private final int delayMillis;
 
-    /**
-     * NOTE : this requires this class to be instantiated before the playback service or it will not receive the first
-     * * One way to fix this would be to make the queue a replay queue, but its currently not necessary
-     */
-    private PlayerLifeCycleEvent lastPlayerLifecycleEvent = PlayerLifeCycleEvent.forDestroyed();
     private PropertySet playbackContext;
-    private boolean isPlaying;
-    private Delegate currentController;
+    private Strategy activeStrategy;
 
     @Inject
     public PlaybackNotificationController(EventBus eventBus,
-                                          BackgroundPlaybackNotificationController backgroundController,
-                                          ForegroundPlaybackNotificationController foregroundController) {
+                                          BackgroundPlaybackNotificationController backgroundStrategy,
+                                          ForegroundPlaybackNotificationController foregroundStrategy) {
 
-        this(eventBus, backgroundController, foregroundController, DEFAULT_DELAY_MILLIS);
+        this(eventBus, backgroundStrategy, foregroundStrategy, DEFAULT_DELAY_MILLIS);
     }
 
     public PlaybackNotificationController(EventBus eventBus,
-                                          BackgroundPlaybackNotificationController backgroundController,
-                                          ForegroundPlaybackNotificationController foregroundController,
+                                          BackgroundPlaybackNotificationController backgroundStrategy,
+                                          ForegroundPlaybackNotificationController foregroundStrategy,
                                           int delayMillis) {
         this.eventBus = eventBus;
-        this.backgroundController = backgroundController;
-        this.foregroundController = foregroundController;
-        this.currentController = backgroundController;
+        this.backgroundStrategy = backgroundStrategy;
+        this.foregroundStrategy = foregroundStrategy;
+        this.activeStrategy = backgroundStrategy;
         this.delayMillis = delayMillis;
         this.handler = new Handler();
     }
 
     public void subscribe() {
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).map(toTrack).subscribe(new CurrentTrackSubscriber());
+        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new CurrentTrackSubscriber());
         eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new PlayerLifeCycleSubscriber());
     }
 
     @Override
     public void onResume(AppCompatActivity activity) {
-        currentController = foregroundController;
-        resetPlaybackContextDelayed();
+        delayedSwitchStrategyTo(foregroundStrategy);
     }
 
     @Override
     public void onPause(AppCompatActivity activity) {
-        currentController = backgroundController;
-        resetPlaybackContextDelayed();
+        delayedSwitchStrategyTo(backgroundStrategy);
     }
 
-    private void resetPlaybackContextDelayed() {
+    private void delayedSwitchStrategyTo(Strategy nextStrategy) {
         if (delayMillis > 0) {
-            handler.removeCallbacks(resetPlayback);
-            handler.postDelayed(resetPlayback, delayMillis);
+            handler.removeCallbacksAndMessages(null);
+            handler.postDelayed(createSwitchStrategyToRunnable(nextStrategy), delayMillis);
         } else {
-            resetPlayback();
+            switchStrategyTo(nextStrategy);
         }
     }
 
-    private void resetPlayback() {
-        if (lastPlayerLifecycleEvent.isServiceRunning()) {
-            currentController.setTrack(playbackContext);
-        } else {
-            currentController.clear();
-        }
-        if (isPlaying) {
-            checkState(lastPlayerLifecycleEvent.isServiceRunning(), "Service should be running");
-            currentController.notifyPlaying();
-        } else {
-            currentController.notifyIdleState();
-        }
+    private Runnable createSwitchStrategyToRunnable(final Strategy nextStrategy) {
+        return new Runnable() {
+            @Override
+            public void run() {
+                switchStrategyTo(nextStrategy);
+            }
+        };
+    }
+
+    private void switchStrategyTo(Strategy nextStrategy) {
+        activeStrategy.clear();
+        activeStrategy = nextStrategy;
+        activeStrategy.setTrack(playbackContext);
     }
 
     @Nullable
     public Notification notifyPlaying() {
-        isPlaying = true;
-        return currentController.notifyPlaying();
+        return activeStrategy.notifyPlaying();
     }
 
     public boolean notifyIdleState() {
-        isPlaying = false;
-        return currentController.notifyIdleState();
+        return activeStrategy.notifyIdleState();
     }
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<PropertySet> {
+    private class CurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
         @Override
-        public void onNext(PropertySet track) {
-            playbackContext = track;
-            if (lastPlayerLifecycleEvent.isServiceRunning()) {
-                currentController.setTrack(playbackContext);
-            }
+        public void onNext(CurrentPlayQueueTrackEvent event) {
+            playbackContext = event
+                    .getCurrentMetaData()
+                    .put(EntityProperty.URN, event.getCurrentTrackUrn());
+
+            activeStrategy.setTrack(playbackContext);
         }
     }
 
     private class PlayerLifeCycleSubscriber extends DefaultSubscriber<PlayerLifeCycleEvent> {
         @Override
         public void onNext(PlayerLifeCycleEvent playerLifecycleEvent) {
-            lastPlayerLifecycleEvent = playerLifecycleEvent;
             if (!playerLifecycleEvent.isServiceRunning()) {
-                isPlaying = false;
-                currentController.clear();
+                handler.removeCallbacksAndMessages(null);
+                activeStrategy.clear();
             }
         }
     }

@@ -2,7 +2,6 @@ package com.soundcloud.android.playback.notification;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
@@ -30,25 +29,6 @@ public class PlaybackNotificationControllerTest {
     @Before
     public void setUp() throws Exception {
         controller = new PlaybackNotificationController(eventBus, backgroundController, foregroundController, 0);
-    }
-
-    @Test
-    public void playQueueEventDoesNotCreateNotificationBeforePlaybackServiceCreated() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
-    public void playQueueEventDoesNotCreateNotificationAfterPlaybackServiceDestroyed() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        reset(backgroundController);
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
     }
 
     @Test
@@ -84,30 +64,12 @@ public class PlaybackNotificationControllerTest {
     }
 
     @Test
-    public void playQueueEventDoesNotCreateNewNotificationFromQueueUpdateEvent() {
+    public void clearNotificationWhenServiceIsDestroyed() {
         controller.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromNewQueue(TRACK_URN));
 
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
-    public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceNotCreated() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
-
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
-    }
-
-    @Test
-    public void playQueueEventDoesNotifiesAgainAfterBitmapLoadedIfServiceDestroyed() {
-        controller.subscribe();
-        eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forCreated());
-        reset(backgroundController);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forDestroyed());
-        eventBus.publish(EventQueue.PLAY_QUEUE_TRACK, CurrentPlayQueueTrackEvent.fromPositionChanged(TRACK_URN));
 
-        verify(backgroundController, never()).setTrack(any(PropertySet.class));
+        verify(backgroundController).clear();
     }
 
     @Test
