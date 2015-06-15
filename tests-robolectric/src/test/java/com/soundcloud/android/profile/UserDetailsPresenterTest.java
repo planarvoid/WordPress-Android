@@ -26,6 +26,7 @@ import rx.Observable;
 
 import android.content.Intent;
 import android.content.res.Resources;
+import android.os.Bundle;
 import android.view.View;
 
 @RunWith(SoundCloudTestRunner.class)
@@ -55,15 +56,14 @@ public class UserDetailsPresenterTest {
     @Before
     public void setUp() throws Exception {
         presenter = new UserDetailsPresenter(profileOperations, userDetailsView);
-
+        final Bundle value = new Bundle();
+        value.putParcelable(ProfileArguments.USER_URN_KEY, USER_URN);
+        when(fragment.getArguments()).thenReturn(value);
         when(view.getResources()).thenReturn(resources);
         when(view.findViewById(R.id.user_details_holder)).thenReturn(userDetailsHolder);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(view.findViewById(R.id.str_layout)).thenReturn(refreshLayout);
         when(resources.getDimensionPixelSize(R.dimen.profile_header_expanded_height)).thenReturn(EXPANDED_HEIGHT);
-        when(fragment.getActivity()).thenReturn(activity);
-        when(activity.getIntent()).thenReturn(intent);
-        when(intent.getParcelableExtra(ProfileActivity.EXTRA_USER_URN)).thenReturn(USER_URN);
         when(profileOperations.getLocalAndSyncedProfileUser(USER_URN)).thenReturn(Observable.<ProfileUser>empty());
     }
 

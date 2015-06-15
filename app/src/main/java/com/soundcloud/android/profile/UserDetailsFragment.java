@@ -19,8 +19,12 @@ public class UserDetailsFragment extends LightCycleSupportFragment {
     @Inject ProfileOperations profileOperations;
     @LightCycle UserDetailsPresenter userDetailsPresenter;
 
-    public static UserDetailsFragment create() {
-        return new UserDetailsFragment();
+    public static UserDetailsFragment create(Urn userUrn) {
+        final UserDetailsFragment userDetailsFragment = new UserDetailsFragment();
+        Bundle args = new Bundle();
+        args.putParcelable(ProfileArguments.USER_URN_KEY, userUrn);
+        userDetailsFragment.setArguments(args);
+        return userDetailsFragment;
     }
 
     public UserDetailsFragment() {
@@ -32,7 +36,7 @@ public class UserDetailsFragment extends LightCycleSupportFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        userDetailsView.setUrn(getActivity().getIntent().<Urn>getParcelableExtra(ProfileActivity.EXTRA_USER_URN));
+        userDetailsView.setUrn(getArguments().<Urn>getParcelable(ProfileArguments.USER_URN_KEY));
     }
 
     @Override

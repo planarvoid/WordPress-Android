@@ -10,7 +10,8 @@ public enum Flag {
     OFFLINE_SYNC(R.bool.feature_offline_sync),
     PROMOTED_IN_STREAM(R.bool.feature_promoted_in_stream),
     NEW_PROFILE(R.bool.feature_new_profile),
-    FOLLOW_USER_SEARCH(R.bool.feature_follow_user_search);
+    FOLLOW_USER_SEARCH(R.bool.feature_follow_user_search),
+    NEW_PROFILE_FRAGMENTS(R.bool.feature_new_profile_fragments);
 
     private final int resourceId;
 

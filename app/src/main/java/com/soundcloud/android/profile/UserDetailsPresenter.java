@@ -48,7 +48,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     @Override
     public void onCreate(UserDetailsFragment fragment, Bundle bundle) {
         super.onCreate(fragment, bundle);
-        userUrn = getUserUrn(fragment);
+        userUrn = fragment.getArguments().getParcelable(ProfileArguments.USER_URN_KEY);
         createUserDetailsObservable();
     }
 
@@ -81,10 +81,6 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         subscription = userDetailsObservable
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new ProfileUserSubscriber());
-    }
-
-    private Urn getUserUrn(UserDetailsFragment fragment) {
-        return fragment.getActivity().getIntent().getParcelableExtra(ProfileActivity.EXTRA_USER_URN);
     }
 
     @Override

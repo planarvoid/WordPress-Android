@@ -35,7 +35,7 @@ class ProfilePagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case TAB_INFO:
-                return UserDetailsFragment.create();
+                return UserDetailsFragment.create(userUrn);
 
             case TAB_POSTS:
                 return UserPostsFragment.create(userUrn, Screen.USER_POSTS, null /* TODO : SearchQueryInfo */);
