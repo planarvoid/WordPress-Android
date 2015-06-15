@@ -1,52 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- frameLayout required because of https://github.com/soundcloud/SoundCloud-Android/issues/2988 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.soundcloud.android.view.MultiSwipeRefreshLayout
+    android:id="@+id/str_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.soundcloud.android.view.EmptyView
-        android:id="@android:id/empty"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <ScrollView
-        android:id="@+id/user_details_holder"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout
+        <com.soundcloud.android.view.EmptyView
+            android:id="@android:id/empty"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
+            android:layout_height="match_parent" />
 
-            <TextView
-                android:id="@+id/website"
-                style="@style/Profile.Info.Link"
-                android:drawableLeft="@drawable/favicon_website"
-                android:text="@string/website"
-                android:visibility="gone" />
+        <ScrollView
+            android:id="@+id/user_details_holder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/discogs_name"
-                style="@style/Profile.Info.Link"
-                android:drawableLeft="@drawable/favicon_discogs"
-                android:text="@string/discogs"
-                android:visibility="gone" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="12dp">
 
-            <TextView
-                android:id="@+id/myspace_name"
-                style="@style/Profile.Info.Link"
-                android:drawableLeft="@drawable/favicon_myspace"
-                android:text="@string/myspace"
-                android:visibility="gone" />
+                <TextView
+                    android:id="@+id/website"
+                    style="@style/Profile.Info.Link"
+                    android:drawableLeft="@drawable/favicon_website"
+                    android:text="@string/website"
+                    android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/description"
-                style="@style/Profile.Info"
-                android:padding="4dp"
-                android:visibility="gone" />
-        </LinearLayout>
-    </ScrollView>
-</FrameLayout>
+                <TextView
+                    android:id="@+id/discogs_name"
+                    style="@style/Profile.Info.Link"
+                    android:drawableLeft="@drawable/favicon_discogs"
+                    android:text="@string/discogs"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/myspace_name"
+                    style="@style/Profile.Info.Link"
+                    android:drawableLeft="@drawable/favicon_myspace"
+                    android:text="@string/myspace"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/description"
+                    style="@style/Profile.Info"
+                    android:padding="4dp"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</com.soundcloud.android.view.MultiSwipeRefreshLayout>

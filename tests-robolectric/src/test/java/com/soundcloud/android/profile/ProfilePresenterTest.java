@@ -1,6 +1,5 @@
 package com.soundcloud.android.profile;
 
-import static com.soundcloud.android.profile.ProfilePagerRefreshHelper.ProfilePagerRefreshHelperFactory;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -48,8 +47,6 @@ public class ProfilePresenterTest {
     @Mock private AppCompatActivity activity;
     @Mock private SlidingTabLayout slidingTabLayout;
     @Mock private MultiSwipeRefreshLayout swipeRefreshLayout;
-    @Mock private ProfilePagerRefreshHelperFactory profilePagerRefreshHelperFactory;
-    @Mock private ProfilePagerRefreshHelper profilePagerRefreshHelper;
     @Mock private ProfileHeaderPresenter.ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
     @Mock private ProfileHeaderPresenter profileHeaderPresenter;
     @Mock private ProfileOperations profileOperations;
@@ -78,12 +75,11 @@ public class ProfilePresenterTest {
         when(activity.findViewById(R.id.str_layout)).thenReturn(swipeRefreshLayout);
         when(activity.findViewById(R.id.profile_header)).thenReturn(headerView);
         when(resources.getDimensionPixelOffset(R.dimen.view_pager_divider_width)).thenReturn(DIVIDER_WIDTH);
-        when(profileHeaderPresenterFactory.create(headerView)).thenReturn(profileHeaderPresenter);
-        when(profilePagerRefreshHelperFactory.create(swipeRefreshLayout)).thenReturn(profilePagerRefreshHelper);
+        when(profileHeaderPresenterFactory.create(activity, USER_URN)).thenReturn(profileHeaderPresenter);
         when(profileOperations.getLocalProfileUser(USER_URN)).thenReturn(Observable.just(profileUser));
 
 
-        profilePresenter = new ProfilePresenter(profilePagerRefreshHelperFactory, profileHeaderPresenterFactory,
+        profilePresenter = new ProfilePresenter(profileHeaderPresenterFactory,
                 profileOperations, eventBus);
     }
 
@@ -93,23 +89,6 @@ public class ProfilePresenterTest {
 
         verify(viewPager).setPageMarginDrawable(R.drawable.divider_vertical_grey);
         verify(viewPager).setPageMargin(DIVIDER_WIDTH);
-    }
-
-    @Test
-    public void setsInitialRefreshPage() throws Exception {
-        profilePresenter.onCreate(activity, null);
-
-        verify(profilePagerRefreshHelper).setRefreshablePage(0);
-    }
-
-    @Test
-    public void attachesRefreshWhenPageChanges() throws Exception {
-        profilePresenter.onCreate(activity, null);
-
-        verify(slidingTabLayout).setOnPageChangeListener(onPageChangeListenerCaptor.capture());
-        onPageChangeListenerCaptor.getValue().onPageSelected(2);
-
-        verify(profilePagerRefreshHelper).setRefreshablePage(2);
     }
 
     @Test

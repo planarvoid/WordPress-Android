@@ -128,9 +128,9 @@
     <dimen name="toolbar_title_left_margin">72dp</dimen>
 
     <!-- Profile -->
-    <dimen name="profile_header_expanded_height">240dp</dimen>
+    <dimen name="profile_header_expanded_height">190dp</dimen>
     <dimen name="profile_tab_height">48dp</dimen>
-    <dimen name="profile_header_bottom_padding">5dp</dimen>
+    <dimen name="profile_total_header_height">238dp</dimen>
 
     <!-- Widget -->
     <dimen name="widget_player_width">272dp</dimen>

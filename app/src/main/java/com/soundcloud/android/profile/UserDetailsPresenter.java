@@ -21,17 +21,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.View;
 
 class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsFragment>
-        implements SwipeRefreshLayout.OnRefreshListener, RefreshableProfileItem {
+        implements SwipeRefreshLayout.OnRefreshListener {
 
     private boolean isNotEmpty;
     private EmptyView.Status emptyViewStatus = EmptyView.Status.WAITING;
     private MultiSwipeRefreshLayout refreshLayout;
     private Subscription subscription = Subscriptions.empty();
-    private View[] refreshViews;
 
     private final ProfileOperations profileOperations;
     private final UserDetailsView userDetailsView;
-    private final UserDetailsScroller userDetailsScroller;
 
     private final Func1<ProfileUser, Boolean> hasDetails = new Func1<ProfileUser, Boolean>() {
         @Override
@@ -42,10 +40,9 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     private Urn userUrn;
     private Observable<ProfileUser> userDetailsObservable;
 
-    public UserDetailsPresenter(ProfileOperations profileOperations, UserDetailsView userDetailsView, UserDetailsScroller userDetailsScroller) {
+    public UserDetailsPresenter(ProfileOperations profileOperations, UserDetailsView userDetailsView) {
         this.profileOperations = profileOperations;
         this.userDetailsView = userDetailsView;
-        this.userDetailsScroller = userDetailsScroller;
     }
 
     @Override
@@ -58,6 +55,7 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
     @Override
     public void onViewCreated(final UserDetailsFragment fragment, View view, Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+
         userDetailsView.setView(view);
         userDetailsView.setListener(new UserDetailsView.UserDetailsListener() {
             @Override
@@ -67,16 +65,15 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
         });
 
         configureEmptyView();
+        configureRefreshLayout(view);
 
-        final View userDetailsView = view.findViewById(R.id.user_details_holder);
-        final EmptyView emptyView = (EmptyView) view.findViewById(android.R.id.empty);
-        refreshViews = new View[]{userDetailsView, emptyView};
-        if (refreshLayout != null){
-            refreshLayout.setSwipeableChildren(refreshViews);
-        }
-
-        userDetailsScroller.setViews(userDetailsView, emptyView);
         loadUser();
+    }
+
+    private void configureRefreshLayout(View view) {
+        refreshLayout = (MultiSwipeRefreshLayout) view.findViewById(R.id.str_layout);
+        refreshLayout.setOnRefreshListener(this);
+        refreshLayout.setSwipeableChildren(R.id.user_details_holder, android.R.id.empty);
     }
 
     private void loadUser() {
@@ -92,24 +89,11 @@ class UserDetailsPresenter extends DefaultSupportFragmentLightCycle<UserDetailsF
 
     @Override
     public void onDestroyView(UserDetailsFragment fragment) {
-        refreshViews = null;
+        refreshLayout = null;
         userDetailsView.setListener(null);
         userDetailsView.clearViews();
-        userDetailsScroller.clearViews();
         subscription.unsubscribe();
         super.onDestroyView(fragment);
-    }
-
-    @Override
-    public void attachRefreshLayout(MultiSwipeRefreshLayout refreshLayout) {
-        this.refreshLayout = refreshLayout;
-        refreshLayout.setOnRefreshListener(this);
-        refreshLayout.setSwipeableChildren(refreshViews);
-    }
-
-    @Override
-    public void detachRefreshLayout() {
-        this.refreshLayout = null;
     }
 
     @Override

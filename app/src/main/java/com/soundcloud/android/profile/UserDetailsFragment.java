@@ -13,10 +13,9 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserDetailsFragment extends LightCycleSupportFragment implements ProfileFragment {
+public class UserDetailsFragment extends LightCycleSupportFragment {
 
     @Inject UserDetailsView userDetailsView;
-    @Inject UserDetailsScroller userDetailsScroller;
     @Inject ProfileOperations profileOperations;
     @LightCycle UserDetailsPresenter userDetailsPresenter;
 
@@ -27,7 +26,7 @@ public class UserDetailsFragment extends LightCycleSupportFragment implements Pr
     public UserDetailsFragment() {
         SoundCloudApplication.getObjectGraph().inject(this);
         setRetainInstance(true);
-        userDetailsPresenter = new UserDetailsPresenter(profileOperations, userDetailsView, userDetailsScroller);
+        userDetailsPresenter = new UserDetailsPresenter(profileOperations, userDetailsView);
     }
 
     @Override
@@ -39,15 +38,5 @@ public class UserDetailsFragment extends LightCycleSupportFragment implements Pr
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.user_info_view, container, false);
-    }
-
-    @Override
-    public ScrollableProfileItem getScrollableProfileItem() {
-        return userDetailsScroller;
-    }
-
-    @Override
-    public RefreshableProfileItem getRefreshableItem() {
-        return userDetailsPresenter;
     }
 }

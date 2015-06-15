@@ -71,6 +71,7 @@ ext {
           androidAppCompatLibrary     : "com.android.support:appcompat-v7:$androidSupportVersion",
           androidMediaRouterLibrary   : "com.android.support:mediarouter-v7:$androidSupportVersion",
           androidRecyclerView         : "com.android.support:recyclerview-v7:$androidSupportVersion",
+          androidDesign               : "com.android.support:design:$androidSupportVersion",
           androidPlayServicesBase     : "com.google.android.gms:play-services-base:$playServicesVersion@aar",
           androidPlayServicesCast     : "com.google.android.gms:play-services-cast:$playServicesVersion@aar",
   ]

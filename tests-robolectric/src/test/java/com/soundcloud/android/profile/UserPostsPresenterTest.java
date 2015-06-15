@@ -59,7 +59,6 @@ public class UserPostsPresenterTest {
     @Mock private PlayableListUpdater.Factory playableListUpdaterFactory;
     @Mock private PlayableListUpdater playableListUpdater;
     @Mock private ImagePauseOnScrollListener imagePauseOnScrollListener;
-    @Mock private ProfileRecyclerViewScroller recyclerViewScroller;
 
     private final Bundle arguments = new Bundle();
     private final Screen screen = Screen.USER_POSTS;
@@ -81,8 +80,8 @@ public class UserPostsPresenterTest {
         arguments.putParcelable(UserPostsFragment.USER_URN_KEY, user);
         arguments.putSerializable(UserPostsFragment.SCREEN_KEY, screen);
         arguments.putParcelable(UserPostsFragment.SEARCH_QUERY_SOURCE_INFO_KEY, searchQuerySourceInfo);
-        presenter = new UserPostsPresenter(imagePauseOnScrollListener, swipeRefreshAttacher, recyclerViewScroller,
-                profileOperations, adapter, mixedClickListenerFactory, playableListUpdaterFactory);
+        presenter = new UserPostsPresenter(swipeRefreshAttacher, imagePauseOnScrollListener,
+                adapter, mixedClickListenerFactory, playableListUpdaterFactory, profileOperations);
     }
 
     @Test

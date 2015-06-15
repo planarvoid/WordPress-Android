@@ -5,6 +5,8 @@ import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.presentation.RefreshableScreen;
+import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.lightcycle.LightCycleSupportFragment;
 
@@ -15,7 +17,7 @@ import android.view.ViewGroup;
 
 import javax.inject.Inject;
 
-public class UserLikesFragment extends LightCycleSupportFragment implements ProfileFragment {
+public class UserLikesFragment extends LightCycleSupportFragment implements RefreshableScreen {
 
     @Inject @LightCycle UserLikesPresenter presenter;
 
@@ -32,16 +34,16 @@ public class UserLikesFragment extends LightCycleSupportFragment implements Prof
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.new_profile_recycle_view, container, false);
+        return inflater.inflate(R.layout.default_recyclerview_with_refresh, container, false);
     }
 
     @Override
-    public ScrollableProfileItem getScrollableProfileItem() {
-        return presenter.getScrollableItem();
+    public MultiSwipeRefreshLayout getRefreshLayout() {
+        return (MultiSwipeRefreshLayout) getView().findViewById(R.id.str_layout);
     }
 
     @Override
-    public RefreshableProfileItem getRefreshableItem() {
-        return presenter;
+    public View[] getRefreshableViews() {
+        return new View[]{presenter.getRecyclerView(), presenter.getEmptyView()};
     }
 }

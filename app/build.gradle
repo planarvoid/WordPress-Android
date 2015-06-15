@@ -226,6 +226,7 @@ dependencies {
   compile libraries.undoBar
 
   /* Android ... keep order! */
+  compile libraries.androidDesign
   compile libraries.androidSupportLibrary
   compile libraries.androidAppCompatLibrary
   compile libraries.androidMediaRouterLibrary

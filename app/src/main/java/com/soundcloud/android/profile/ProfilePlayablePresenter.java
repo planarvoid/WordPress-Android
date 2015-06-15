@@ -14,9 +14,11 @@ import com.soundcloud.android.playlists.PlaylistItem;
 import com.soundcloud.android.presentation.CollectionBinding;
 import com.soundcloud.android.presentation.PlayableItem;
 import com.soundcloud.android.presentation.PlayableListUpdater;
+import com.soundcloud.android.presentation.RecyclerViewPresenter;
 import com.soundcloud.android.presentation.SwipeRefreshAttacher;
 import com.soundcloud.android.rx.Pager;
 import com.soundcloud.android.tracks.TrackItem;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.view.EmptyView;
 import com.soundcloud.android.view.adapters.MixedPlayableItemClickListener;
 import com.soundcloud.android.view.adapters.MixedPlayableRecyclerItemAdapter;
@@ -33,11 +35,12 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.List;
 
-abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresenter<PlayableItem> {
+abstract class ProfilePlayablePresenter extends RecyclerViewPresenter<PlayableItem> {
 
     protected final ProfileOperations profileOperations;
     private final MixedPlayableRecyclerItemAdapter adapter;
     private final MixedPlayableItemClickListener.Factory clickListenerFactory;
+    private final ImagePauseOnScrollListener imagePauseOnScrollListener;
     private MixedPlayableItemClickListener clickListener;
     @LightCycle final PlayableListUpdater listUpdater;
 
@@ -59,12 +62,12 @@ abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresenter<Pla
 
     protected ProfilePlayablePresenter(SwipeRefreshAttacher swipeRefreshAttacher,
                                        ImagePauseOnScrollListener imagePauseOnScrollListener,
-                                       ProfileRecyclerViewScroller profileRecyclerViewScroller,
                                        MixedPlayableRecyclerItemAdapter adapter,
                                        MixedPlayableItemClickListener.Factory clickListenerFactory,
                                        PlayableListUpdater.Factory updaterFactory,
                                        ProfileOperations profileOperations) {
-        super(swipeRefreshAttacher, imagePauseOnScrollListener, profileRecyclerViewScroller);
+        super(swipeRefreshAttacher);
+        this.imagePauseOnScrollListener = imagePauseOnScrollListener;
         this.profileOperations = profileOperations;
         this.adapter = adapter;
         this.clickListenerFactory = clickListenerFactory;
@@ -96,12 +99,24 @@ abstract class ProfilePlayablePresenter extends ProfileRecyclerViewPresenter<Pla
     @Override
     public void onViewCreated(Fragment fragment, View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(fragment, view, savedInstanceState);
+        getRecyclerView().addOnScrollListener(imagePauseOnScrollListener);
         configureEmptyView(getEmptyView());
+    }
+
+    @Override
+    public void onDestroyView(Fragment fragment) {
+        getRecyclerView().removeOnScrollListener(imagePauseOnScrollListener);
+        super.onDestroyView(fragment);
     }
 
     @Override
     protected void onItemClicked(View view, int position) {
         clickListener.onItemClick(adapter.getItems(), view, position);
+    }
+
+    @Override
+    protected EmptyView.Status handleError(Throwable error) {
+        return ErrorUtils.emptyViewStatusFromError(error);
     }
 
     private MixedPlayableItemClickListener createClickListener(Bundle fragmentArgs) {

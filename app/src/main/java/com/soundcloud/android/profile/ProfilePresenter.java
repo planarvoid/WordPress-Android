@@ -1,7 +1,6 @@
 package com.soundcloud.android.profile;
 
 import static com.soundcloud.android.profile.ProfileHeaderPresenter.ProfileHeaderPresenterFactory;
-import static com.soundcloud.android.profile.ProfilePagerRefreshHelper.ProfilePagerRefreshHelperFactory;
 
 import com.soundcloud.android.R;
 import com.soundcloud.android.events.EntityStateChangedEvent;
@@ -9,7 +8,6 @@ import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
-import com.soundcloud.android.view.MultiSwipeRefreshLayout;
 import com.soundcloud.android.view.SlidingTabLayout;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import rx.Subscription;
@@ -26,12 +24,10 @@ import javax.inject.Inject;
 class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
 
     private final ProfileHeaderPresenterFactory profileHeaderPresenterFactory;
-    private final ProfilePagerRefreshHelperFactory profilePagerRefreshHelperFactory;
     private final ProfileOperations profileOperations;
     private final EventBus eventBus;
 
     private ViewPager pager;
-    private ProfilePagerRefreshHelper refreshHelper;
     private Subscription userSubscription = Subscriptions.empty();
     private Subscription userUpdatedSubscription = Subscriptions.empty();
     private ProfileHeaderPresenter headerPresenter;
@@ -45,10 +41,8 @@ class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
     };
 
     @Inject
-    public ProfilePresenter(ProfilePagerRefreshHelperFactory profilePagerRefreshHelperFactory,
-                            ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
+    public ProfilePresenter(ProfileHeaderPresenterFactory profileHeaderPresenterFactory,
                             ProfileOperations profileOperations, EventBus eventBus) {
-        this.profilePagerRefreshHelperFactory = profilePagerRefreshHelperFactory;
         this.profileHeaderPresenterFactory = profileHeaderPresenterFactory;
         this.profileOperations = profileOperations;
         this.eventBus = eventBus;
@@ -59,19 +53,16 @@ class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
         super.onCreate(activity, bundle);
 
         user = activity.getIntent().getParcelableExtra(ProfileActivity.EXTRA_USER_URN);
-        refreshHelper = profilePagerRefreshHelperFactory.create((MultiSwipeRefreshLayout) activity.findViewById(R.id.str_layout));
-        headerPresenter = profileHeaderPresenterFactory.create(activity.findViewById(R.id.profile_header));
+
+        headerPresenter = profileHeaderPresenterFactory.create(activity, user);
 
         pager = (ViewPager) activity.findViewById(R.id.pager);
-        pager.setAdapter(new ProfilePagerAdapter(activity, headerPresenter, refreshHelper, user));
+        pager.setAdapter(new ProfilePagerAdapter(activity, user));
         pager.setPageMarginDrawable(R.drawable.divider_vertical_grey);
         pager.setPageMargin(activity.getResources().getDimensionPixelOffset(R.dimen.view_pager_divider_width));
 
         SlidingTabLayout tabIndicator = (SlidingTabLayout) activity.findViewById(R.id.indicator);
         tabIndicator.setViewPager(pager);
-        tabIndicator.setOnPageChangeListener(new PageChangeListener());
-        refreshHelper.setRefreshablePage(0);
-
         refreshUser();
 
         userUpdatedSubscription = eventBus.queue(EventQueue.ENTITY_STATE_CHANGED)
@@ -90,17 +81,9 @@ class ProfilePresenter extends DefaultLightCycleActivity<AppCompatActivity> {
     @Override
     public void onDestroy(AppCompatActivity activity) {
         pager = null;
-        refreshHelper = null;
         userUpdatedSubscription.unsubscribe();
         userSubscription.unsubscribe();
         super.onDestroy(activity);
-    }
-
-    private final class PageChangeListener extends ViewPager.SimpleOnPageChangeListener {
-        @Override
-        public void onPageSelected(int position) {
-            refreshHelper.setRefreshablePage(position);
-        }
     }
 
     private final class UserDetailsSubscriber extends DefaultSubscriber<ProfileUser> {
