@@ -2,15 +2,15 @@ package com.soundcloud.android.screens;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.soundcloud.android.R;
 import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.framework.Waiter;
 import com.soundcloud.android.framework.viewelements.ViewElement;
 import com.soundcloud.android.framework.with.With;
-import com.soundcloud.android.screens.elements.Element;
 import com.soundcloud.android.screens.elements.EmptyViewElement;
 import com.soundcloud.android.screens.elements.GoBackOnlineDialogElement;
-import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.PlaylistItemElement;
+import com.soundcloud.android.screens.elements.ToolBarElement;
 import com.soundcloud.android.screens.elements.TrackItemElement;
 import com.soundcloud.android.screens.elements.UserItemElement;
 
@@ -38,15 +38,15 @@ public abstract class Screen {
     }
 
     public EmptyViewElement emptyView(){
-       return new EmptyViewElement(testDriver, With.id(com.soundcloud.android.R.id.empty_view_holder));
+       return new EmptyViewElement(testDriver, With.id(R.id.ak_emptyview_holder));
     }
 
     public ViewElement errorView(){
-        return testDriver.findElement(With.id(com.soundcloud.android.R.id.error_view));
+        return testDriver.findElement(With.id(com.soundcloud.android.R.id.ak_error_view));
     }
 
     public void retryFromErrorView(){
-        errorView().findElement(With.id(com.soundcloud.android.R.id.btn_retry)).click();
+        errorView().findElement(With.id(R.id.ak_emptyview_btn_retry)).click();
         waiter.waitForContentAndRetryIfLoadingFailed();
     }
 

@@ -45,6 +45,7 @@ import rx.Observer;
 import rx.observers.TestSubscriber;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -59,6 +60,7 @@ public class SoundStreamPresenterTest {
 
     private SoundStreamPresenter presenter;
 
+    @Mock private Resources resources;
     @Mock private SoundStreamOperations streamOperations;
     @Mock private PlaybackOperations playbackOperations;
     @Mock private MixedPlayableRecyclerItemAdapter adapter;
@@ -82,11 +84,11 @@ public class SoundStreamPresenterTest {
                 swipeRefreshAttacher, expandPlayerSubscriberProvider, eventBus);
         when(streamOperations.initialStreamItems()).thenReturn(Observable.<List<PropertySet>>empty());
         when(streamOperations.pagingFunction()).thenReturn(TestPager.<List<PropertySet>>singlePageFunction());
-        when(view.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
+        when(view.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(view.findViewById(android.R.id.empty)).thenReturn(emptyView);
         when(adapter.getTrackRenderer()).thenReturn(trackRenderer);
         when(dateProvider.getCurrentTime()).thenReturn(100L);
-        when(view.getResources()).thenReturn(Robolectric.application.getResources());
+        when(view.getResources()).thenReturn(resources);
     }
 
     @Test

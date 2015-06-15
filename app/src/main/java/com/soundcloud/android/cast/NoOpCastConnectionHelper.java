@@ -1,7 +1,7 @@
 package com.soundcloud.android.cast;
 
-import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.android.utils.ScTextUtils;
+import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;

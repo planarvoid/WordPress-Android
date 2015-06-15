@@ -2,8 +2,8 @@ package com.soundcloud.android.accounts;
 
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 import static com.soundcloud.android.api.legacy.model.PublicApiUser.CRAWLER_USER;
+import static com.soundcloud.android.rx.observers.DefaultSubscriber.fireAndForget;
 
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;

@@ -1,7 +1,7 @@
 package com.soundcloud.android.offline;
 
 import com.soundcloud.android.R;
-import com.soundcloud.android.utils.AnimUtils;
+import com.soundcloud.android.util.AnimUtils;
 
 import android.content.Context;
 import android.content.res.TypedArray;

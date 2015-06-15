@@ -81,8 +81,6 @@
 
     <dimen name="explore_category_page_size">1px</dimen>
 
-    <dimen name="empty_message_margin_left_right">20dp</dimen>
-
     <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
 
@@ -98,9 +96,6 @@
     <!-- Notifications -->
     <dimen name="notification_title_text_size">18sp</dimen>
     <dimen name="notification_user_text_size">14sp</dimen>
-
-    <dimen name="divider_vertical_width">1px</dimen>
-    <dimen name="divider_horizontal_height">1px</dimen>
 
     <!-- List item -->
     <dimen name="list_item_image_dimension">60dp</dimen>

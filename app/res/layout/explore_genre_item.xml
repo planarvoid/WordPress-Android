@@ -12,7 +12,7 @@
                     android:paddingLeft="20dp"
                     android:paddingRight="20dp"
                     android:gravity="center_vertical"
-                    android:background="@drawable/list_selector_gray">
+                    android:background="@drawable/ak_list_selector_gray">
 
         <TextView android:id="@android:id/text1"
                   android:layout_width="match_parent"

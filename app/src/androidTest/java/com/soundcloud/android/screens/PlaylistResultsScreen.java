@@ -1,8 +1,8 @@
 package com.soundcloud.android.screens;
 
+import com.soundcloud.android.framework.Han;
 import com.soundcloud.android.screens.search.PlaylistTagsScreen;
 import com.soundcloud.android.search.SearchActivity;
-import com.soundcloud.android.framework.Han;
 
 import android.widget.GridView;
 

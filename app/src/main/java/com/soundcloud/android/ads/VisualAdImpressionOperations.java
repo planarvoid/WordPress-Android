@@ -2,11 +2,11 @@ package com.soundcloud.android.ads;
 
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
-import com.soundcloud.android.events.TrackingEvent;
-import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.PlayerUIEvent;
+import com.soundcloud.android.events.TrackingEvent;
+import com.soundcloud.android.events.VisualAdImpressionEvent;
 import com.soundcloud.android.model.Urn;
 import com.soundcloud.android.playback.service.PlayQueueManager;
 import com.soundcloud.android.rx.eventbus.EventBus;

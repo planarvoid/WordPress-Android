@@ -1,6 +1,6 @@
 package com.soundcloud.android.cast;
 
-import static com.soundcloud.android.ApplicationModule.*;
+import static com.soundcloud.android.ApplicationModule.LOW_PRIORITY;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;

@@ -6,8 +6,8 @@ import com.soundcloud.android.analytics.Screen;
 import com.soundcloud.android.events.EventQueue;
 import com.soundcloud.android.events.OnboardingEvent;
 import com.soundcloud.android.events.ScreenEvent;
-import com.soundcloud.lightcycle.LightCycle;
 import com.soundcloud.android.main.ScActivity;
+import com.soundcloud.lightcycle.LightCycle;
 
 import android.content.Intent;
 import android.os.Bundle;

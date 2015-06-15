@@ -1,5 +1,7 @@
 package com.soundcloud.android.utils;
 
+import com.soundcloud.android.util.AnimUtils;
+
 import android.annotation.TargetApi;
 import android.graphics.Outline;
 import android.os.Build;

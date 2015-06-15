@@ -59,7 +59,7 @@ public class ProfileRecyclerViewPresenterTest {
         profileRecyclerViewPresenter = buildPresenter();
         when(collectionBinding.items()).thenReturn(Observable.empty());
         when(fragmentView.findViewById(android.R.id.empty)).thenReturn(emptyView);
-        when(fragmentView.findViewById(R.id.recycler_view)).thenReturn(recyclerView);
+        when(fragmentView.findViewById(R.id.ak_recycler_view)).thenReturn(recyclerView);
         when(fragmentView.getResources()).thenReturn(resources);
         when(resources.getDrawable(R.drawable.divider_list_grey)).thenReturn(divider);
         when(collectionBinding.adapter()).thenReturn(adapter);

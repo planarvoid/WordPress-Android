@@ -8,6 +8,7 @@ import com.soundcloud.android.tracks.TrackItem;
 import com.soundcloud.android.view.EmptyView;
 import com.xtremelabs.robolectric.Robolectric;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -32,6 +33,7 @@ public class EmptyPlaylistTracksRendererTest {
         renderer = new EmptyPlaylistTracksRenderer();
     }
 
+    @Ignore // RL1 doesn't support dealing with resources from AARs
     @Test
     public void createsEmptyListViewWithNoDataForIgnoredItemType() throws Exception {
         View view = renderer.createItemView(parent);

@@ -8,7 +8,6 @@
     <string name="view">Voir</string>
     <string name="btn_apply">Appliquer</string>
     <string name="cancel">Annuler</string>
-    <string name="retry">Réessayer</string>
     <string name="shuffle">lecture aléatoire</string>
     <string name="done">Terminé</string>
     <string name="email">Email</string>
@@ -147,10 +146,6 @@
     <string name="error_unauthorized_message">Nous avons un problème avec votre compte et avons besoin que vous vous reconnectiez de nouveau dans SoundCloud avant de pouvoir continuer à utiliser l\'application.</string>
     <string name="error_unauthorized_title">Erreur de compte</string>
     <string name="error_loading_url">Un problème est survenu lors du chargement de cet URL</string>
-    <string name="error_soundcloud_no_response">SoundCloud ne répond pas.</string>
-    <string name="error_no_internet">Pas d\'internet.</string>
-    <string name="error_connect_and_try_again">Connectez-vous et réessayez.</string>
-    <string name="error_pager_failed">Erreur de chargement. Appuyez pour réessayer</string>
     <string name="crop_image_error">Une erreur est survenue lors du recadrage de votre image.</string>
     <string name="error_server_problems_message">Un problème est survenu lors du traitement de votre demande. Veuillez réessayer plus tard.</string>
     <string name="connection_list_error">Il semble y avoir un problème de connexion. Veuillez réessayer dans quelques instants.</string>

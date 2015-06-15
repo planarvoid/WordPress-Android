@@ -25,8 +25,8 @@ import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PAGE
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYER_TYPE;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_ID;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PLAYLIST_POSITION;
-import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROMOTED_BY;
+import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.PROTOCOL;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_POSITION;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.QUERY_URN;
 import static com.soundcloud.android.analytics.eventlogger.EventLoggerParam.REASON;

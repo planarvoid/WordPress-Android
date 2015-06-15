@@ -4,12 +4,6 @@
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
     
-    <!-- Brand -->
-    <color name="sc_orange">#ff5500</color>
-    <color name="sc_dark_orange_solid">#e36711</color>
-    <color name="sc_dark_orange">#cce36711</color>
-    <color name="link_text">#4499dd</color>
-
     <!-- List items -->
     <!-- Legacy cells -->
     <color name="list_text_value">@color/black</color>
@@ -54,7 +48,7 @@
     <color name="cloud_progress_secondary_end">#222222</color>
 
     <color name="cloud_progress_start">#ff3300</color>
-    <color name="cloud_progress_center">@color/sc_orange</color>
+    <color name="cloud_progress_center">@color/ak_sc_orange</color>
     <color name="cloud_progress_end">#ff3300</color>
 
     <color name="cloud_progress_round_background_start">#222222</color>
@@ -74,7 +68,7 @@
     <!-- Search -->
     <color name="search_item_unselected_color">#999999</color>
     <color name="search_item_selected_color">@color/white</color>
-    <color name="search_item_pressed_color">@color/sc_orange</color>
+    <color name="search_item_pressed_color">@color/ak_sc_orange</color>
     <color name="tag_text">#666666</color>
 
     <!-- Dialogs -->
@@ -138,6 +132,6 @@
     <!-- Google Cast -->
     <color name="ccl_mr_custom_line_1">@color/black</color>
     <color name="ccl_mr_custom_line_2">@color/black</color>
-    <color name="ccl_mr_custom_button">@color/sc_orange</color>
+    <color name="ccl_mr_custom_button">@color/ak_sc_orange</color>
 
 </resources>

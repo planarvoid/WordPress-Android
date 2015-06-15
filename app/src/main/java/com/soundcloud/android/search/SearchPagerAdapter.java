@@ -1,11 +1,11 @@
 package com.soundcloud.android.search;
 
+import com.soundcloud.android.R;
+
 import android.content.res.Resources;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-
-import com.soundcloud.android.R;
 
 public class SearchPagerAdapter extends FragmentPagerAdapter {
 

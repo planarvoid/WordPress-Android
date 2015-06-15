@@ -15,7 +15,7 @@ public class EmptyViewElement extends Element {
 
     //FIXME: Don't return ViewElements
     public ViewElement emptyConnectionErrorMessage() {
-        return emptyView().findElement(With.text(solo.getString(com.soundcloud.android.R.string.error_no_internet)));
+        return emptyView().findElement(With.text(solo.getString(R.string.ak_error_no_internet)));
     }
 
     public String message() {
@@ -23,10 +23,10 @@ public class EmptyViewElement extends Element {
     }
 
     private ViewElement emptyView(){
-        return solo.findElement(With.id(com.soundcloud.android.R.id.empty_view_holder));
+        return solo.findElement(With.id(R.id.ak_emptyview_holder));
     }
 
     private TextElement messageView() {
-        return new TextElement(emptyView().findElement(With.id(R.id.txt_message)));
+        return new TextElement(emptyView().findElement(With.id(R.id.ak_emptyview_message)));
     }
 }

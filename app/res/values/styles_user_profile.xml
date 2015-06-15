@@ -52,7 +52,7 @@
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textColor">@color/dark_gray_text</item>
-        <item name="android:textColorLink">@color/link_text</item>
+        <item name="android:textColorLink">@color/ak_link_text</item>
     </style>
 
     <style name="Profile.Info.Link">

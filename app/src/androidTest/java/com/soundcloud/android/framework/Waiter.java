@@ -115,7 +115,7 @@ public class Waiter {
 
     //TODO: We should have an error screen class defined
     private boolean retryIfFailed() {
-        List<ViewElement> retryButtons = solo.findElements(With.id(R.id.btn_retry));
+        List<ViewElement> retryButtons = solo.findElements(With.id(R.id.ak_emptyview_btn_retry));
         if (!retryButtons.isEmpty())   {
             ViewElement button = retryButtons.get(0);
             if (button.isVisible()) {

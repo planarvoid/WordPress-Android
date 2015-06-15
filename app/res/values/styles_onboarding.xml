@@ -281,7 +281,7 @@
 
     <style name="SignUp.EmailEntry" parent="SignUp.TextEntry">
         <item name="android:inputType">textNoSuggestions|textEmailAddress</item>
-        <item name="android:dropDownSelector">@drawable/list_selector_gray</item>
+        <item name="android:dropDownSelector">@drawable/ak_list_selector_gray</item>
     </style>
 
     <style name="SignUp.PasswordEntry" parent="SignUp.TextEntry">
@@ -337,11 +337,6 @@
         <item name="android:text">@null</item>
         <item name="android:textOff">@null</item>
         <item name="android:textOn">@null</item>
-    </style>
-    <style name="emptyCollectionContentHolderBase">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:orientation">vertical</item>
-        <item name="android:gravity">center</item>
     </style>
 
     <style name="TourOverlayTextHolderLayout">

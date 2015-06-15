@@ -6,8 +6,8 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.soundcloud.android.Consts;
 import com.soundcloud.android.R;
-import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.analytics.Screen;
+import com.soundcloud.android.analytics.SearchQuerySourceInfo;
 import com.soundcloud.android.api.legacy.PublicApi;
 import com.soundcloud.android.api.legacy.PublicCloudAPI;
 import com.soundcloud.android.api.legacy.model.PublicApiPlaylist;
@@ -151,7 +151,7 @@ public abstract class ScBaseAdapter<T extends ScModel> extends BaseAdapter {
 
         if (isPositionOfProgressElement(index)) {
             if (progressView == null) {
-                progressView = View.inflate(parent.getContext().getApplicationContext(), R.layout.list_loading_item, null);
+                progressView = View.inflate(parent.getContext().getApplicationContext(), R.layout.ak_list_loading_item, null);
             }
             return progressView;
         }

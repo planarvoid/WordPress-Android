@@ -1,5 +1,14 @@
 package com.soundcloud.android.onboarding;
 
+import static com.soundcloud.android.SoundCloudApplication.TAG;
+import static java.lang.Math.max;
+
+import com.soundcloud.android.R;
+import com.soundcloud.android.tasks.ParallelAsyncTask;
+import com.soundcloud.android.util.AnimUtils;
+import com.soundcloud.android.utils.ErrorUtils;
+import com.soundcloud.android.utils.images.ImageUtils;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
@@ -14,15 +23,6 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
-import com.soundcloud.android.R;
-import com.soundcloud.android.tasks.ParallelAsyncTask;
-import com.soundcloud.android.utils.AnimUtils;
-import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.images.ImageUtils;
-
-import static com.soundcloud.android.SoundCloudApplication.TAG;
-import static java.lang.Math.max;
 
 public class TourLayout extends FrameLayout {
     public static final int IMAGE_LOADED = 1;
@@ -92,11 +92,6 @@ public class TourLayout extends FrameLayout {
         WindowManager manager = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
         Display display = manager.getDefaultDisplay();
         return new Point(display.getWidth(), display.getHeight());
-    }
-
-    public CharSequence getMessage() {
-        TextView text = (TextView) findViewById(R.id.txt_message);
-        return text.getText();
     }
 
     public void recycle() {
