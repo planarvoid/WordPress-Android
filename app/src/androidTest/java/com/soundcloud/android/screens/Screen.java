@@ -30,6 +30,7 @@ public abstract class Screen {
 
     public void pullToRefresh() {
         testDriver.swipeDown();
+        waiter.waitForContentAndRetryIfLoadingFailed();
         waiter.waitForTextToDisappear("Loading");
     }
 
