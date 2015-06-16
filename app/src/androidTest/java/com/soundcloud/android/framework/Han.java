@@ -100,16 +100,7 @@ public class Han  {
     }
 
     public void clickOnActionBarHomeButton() {
-        try {
-            solo.getCurrentActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    solo.clickOnActionBarHomeButton();
-                }
-            });
-        } catch (Throwable throwable) {
-            throw new RuntimeException("Could not click on action bar home button on UI Thread", throwable);
-        }
+        solo.clickOnActionBarHomeButton();
     }
 
     public void clickOnActionBarItem(int itemId) {
