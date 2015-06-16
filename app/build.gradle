@@ -188,10 +188,7 @@ dependencies {
   provided libraries.intellijAnnotations
 
   /* SoundCloud Libraries */
-  compile(libraries.androidKit) {
-    //TODO: only until we update the app to the latest version
-    exclude group: "com.soundcloud.lightcycle"
-  }
+  compile libraries.androidKit
   compile libraries.propeller
   compile libraries.skippy
   compile libraries.soundCloudVorbisEncoder

@@ -12,6 +12,7 @@ ext {
   // Dependency versions
   androidSupportVersion = '22.2.0'
   playServicesVersion = '6.5.87'
+  androidKitVersion = '0.9'
   lightCycleVersion = '0.0.4'
   daggerVersion = '1.2.2'
   propellerVersion = '0.44'
@@ -29,7 +30,11 @@ ext {
           intellijAnnotations         : "com.intellij:annotations:9.0.4",
 
           // SoundCloud libraries
-          androidKit                  : "com.soundcloud.android-kit:platform:0.7",
+          androidKit                  : ["com.soundcloud.android-kit:core:$androidKitVersion",
+                                         dependencies.create("com.soundcloud.android-kit:platform:$androidKitVersion@aar") {
+                                           //TODO: only until we update the app to the latest version
+                                           exclude group: "com.soundcloud.lightcycle"
+                                         }],
           propeller                   : "com.soundcloud.propeller:propeller:$propellerVersion",
           skippy                      : "com.soundcloud.android:skippy:2.0.2@aar",
           soundCloudVorbisEncoder     : "com.soundcloud.android.native:soundcloud_vorbis_encoder:1.0.9-SNAPSHOT@aar",
