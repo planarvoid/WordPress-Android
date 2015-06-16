@@ -99,9 +99,15 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
     }
 
     private void switchStrategyTo(Strategy nextStrategy) {
-        activeStrategy.clear();
+        if (hasContext()) {
+            activeStrategy.clear();
+            nextStrategy.setTrack(playbackContext);
+        }
         activeStrategy = nextStrategy;
-        activeStrategy.setTrack(playbackContext);
+    }
+
+    private boolean hasContext() {
+        return playbackContext != null;
     }
 
     @Nullable
