@@ -1,5 +1,15 @@
 package com.soundcloud.android.api.legacy;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.SSLCertificateSocketFactory;
+import android.net.SSLSessionCache;
+import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -18,10 +28,12 @@ import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.utils.BuildHelper;
 import com.soundcloud.android.utils.DeviceHelper;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.IOUtils;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.Env;
 import com.soundcloud.api.Request;
+
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -32,20 +44,6 @@ import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import android.accounts.Account;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
-import android.util.Log;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
@@ -65,6 +63,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
 
@@ -194,7 +196,7 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
             response = super.safeExecute(target, request);
             recordUnauthorisedRequestIfRequired(response);
         } finally {
-            logRequest(request, response);
+            logRequest(target, request, response);
         }
 
         return response;
@@ -208,20 +210,22 @@ public class PublicApiWrapper extends ApiWrapper implements PublicCloudAPI {
         }
     }
 
-    private void logRequest(HttpUriRequest request, @Nullable HttpResponse response) {
-        if (!applicationProperties.isReleaseBuild()) {
-            String report = generateRequestResponseLog(request, response);
-            Log.d(TAG, report);
-        }
+    private void logRequest(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
+        String report = generateRequestResponseLog(target, request, response);
+        ErrorUtils.log(Log.INFO, TAG, report);
     }
 
     private boolean responseIsUnauthorised(HttpResponse response) {
         return response != null && response.getStatusLine().getStatusCode() == HttpStatus.SC_UNAUTHORIZED;
     }
 
-    public static String generateRequestResponseLog(HttpUriRequest request, @Nullable HttpResponse response) {
+    public static String generateRequestResponseLog(HttpHost target, HttpUriRequest request, @Nullable HttpResponse response) {
         StringBuilder sb = new StringBuilder(2000);
         sb.append(request.getMethod())
+                .append(' ')
+                .append(target.getSchemeName())
+                .append(':')
+                .append(target.toHostString())
                 .append(' ')
                 .append(request.getURI())
                 .append(";headers=");
