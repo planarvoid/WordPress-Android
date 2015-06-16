@@ -28,6 +28,6 @@
     <bool name="feature_new_profile_fragments">false</bool>
     <bool name="feature_new_profile">false</bool>
     <bool name="feature_follow_user_search">false</bool>
-    <bool name="feature_everyone_gets_skippy">false</bool>
+    <bool name="feature_everyone_gets_skippy">true</bool>
 
 </resources>
