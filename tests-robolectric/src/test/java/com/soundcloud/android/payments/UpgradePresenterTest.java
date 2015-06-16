@@ -75,6 +75,16 @@ public class UpgradePresenterTest {
     }
 
     @Test
+    public void onCreateWithExistingStatusObservableShw() {
+        setupExpectedProductDetails();
+        when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, null));
+
+        controller.onCreate(activity, null);
+
+        verify(upgradeView).showBuyButton(PRICE);
+    }
+
+    @Test
     public void onCreateWithPurchaseStateDoesNotShowBuyButton() {
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
 
@@ -117,7 +127,7 @@ public class UpgradePresenterTest {
 
         final TransactionState state = controller.getState();
 
-        expect(state.transactionInProgress()).toBeFalse();
+        expect(state.isTransactionInProgress()).toBeFalse();
     }
 
     @Test
@@ -130,22 +140,35 @@ public class UpgradePresenterTest {
         controller.startPurchase();
         final TransactionState state = controller.getState();
 
-        expect(state.isVerifying()).toBeFalse();
+        expect(state.isRetrievingStatus()).toBeFalse();
         expect(state.purchase()).toBe(purchase);
     }
 
     @Test
-    public void getStateWithVerifyObservableReturnsverifyState() {
+    public void getStateWithStatusObservableFromOnCreateReturnsStatus() {
+        final Observable<PurchaseStatus> status = Observable.never();
+        when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
+        when(paymentOperations.queryStatus()).thenReturn(status);
+
+        controller.onCreate(activity, null);
+
+        final TransactionState state = controller.getState();
+        expect(state.isRetrievingStatus()).toBeTrue();
+        expect(state.status()).toBe(status);
+    }
+
+    @Test
+    public void getStateWithStatusObservableFromBillingResultReturnsStatus() {
         final BillingResult success = TestBillingResults.success();
-        final Observable<PurchaseStatus> verify = Observable.never();
+        final Observable<PurchaseStatus> status = Observable.never();
         when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(Observable.just("token"));
-        when(paymentOperations.verify(success.getPayload())).thenReturn(verify);
+        when(paymentOperations.verify(success.getPayload())).thenReturn(status);
 
         controller.handleBillingResult(success);
 
         final TransactionState state = controller.getState();
-        expect(state.isVerifying()).toBeTrue();
-        expect(state.verify()).toBe(verify);
+        expect(state.isRetrievingStatus()).toBeTrue();
+        expect(state.status()).toBe(status);
     }
 
     @Test

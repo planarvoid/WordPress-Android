@@ -5,26 +5,26 @@ import rx.Observable;
 class TransactionState {
 
     private final Observable<String> purchase;
-    private final Observable<PurchaseStatus> verify;
+    private final Observable<PurchaseStatus> status;
 
-    TransactionState(Observable<String> purchase, Observable<PurchaseStatus> verify) {
+    TransactionState(Observable<String> purchase, Observable<PurchaseStatus> status) {
         this.purchase = purchase;
-        this.verify = verify;
+        this.status = status;
     }
 
-    public boolean transactionInProgress() {
-        return verify != null || purchase != null;
+    public boolean isTransactionInProgress() {
+        return status != null || purchase != null;
     }
 
-    public boolean isVerifying(){
-        return verify != null;
+    public boolean isRetrievingStatus() {
+        return status != null;
     }
 
     public Observable<String> purchase() {
         return purchase;
     }
 
-    public Observable<PurchaseStatus> verify() {
-        return verify;
+    public Observable<PurchaseStatus> status() {
+        return status;
     }
 }

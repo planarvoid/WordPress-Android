@@ -23,7 +23,7 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
     private final UpgradeView upgradeView;
 
     private Observable<String> purchaseObservable;
-    private Observable<PurchaseStatus> verifyObservable;
+    private Observable<PurchaseStatus> statusObservable;
     private final CompositeSubscription subscription = new CompositeSubscription();
 
     private AppCompatActivity activity;
@@ -49,7 +49,7 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
 
     private void initializeTransactionState() {
         TransactionState state = (TransactionState) activity.getLastCustomNonConfigurationInstance();
-        if (state != null && state.transactionInProgress()) {
+        if (state != null && state.isTransactionInProgress()) {
             restoreTransaction(state);
         } else {
             init();
@@ -61,15 +61,15 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
     }
 
     private void restoreTransaction(TransactionState state) {
-        if (state.isVerifying()) {
-            subscribeToVerify(state.verify());
+        if (state.isRetrievingStatus()) {
+            subscribeToStatus(state.status());
         } else {
             subscribeToPurchase(state.purchase());
         }
     }
 
     public TransactionState getState() {
-        return new TransactionState(purchaseObservable, verifyObservable);
+        return new TransactionState(purchaseObservable, statusObservable);
     }
 
     @Override
@@ -87,7 +87,7 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
         if (result.isForRequest()) {
             if (result.isOk()) {
                 upgradeView.hideBuyButton();
-                subscribeToVerify(paymentOperations.verify(result.getPayload()));
+                subscribeToStatus(paymentOperations.verify(result.getPayload()));
             } else {
                 paymentErrorPresenter.showCancelled();
                 fireAndForget(paymentOperations.cancel(result.getFailReason()));
@@ -100,12 +100,13 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
         }
     }
 
-    private void subscribeToVerify(Observable<PurchaseStatus> verify) {
-        verifyObservable = verify;
-        subscription.add(verifyObservable.cache().subscribe(new StatusSubscriber()));
+    private void subscribeToStatus(Observable<PurchaseStatus> status) {
+        statusObservable = status;
+        subscription.add(statusObservable.cache().subscribe(new StatusSubscriber()));
     }
 
     private void subscribeToPurchase(Observable<String> purchase) {
+        statusObservable = null;
         purchaseObservable = purchase;
         subscription.add(purchaseObservable.cache().subscribe(new PurchaseSubscriber()));
     }
@@ -114,7 +115,7 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
         @Override
         public void onNext(ConnectionStatus status) {
             if (status.isReady()) {
-                subscription.add(paymentOperations.queryStatus().subscribe(new StatusSubscriber()));
+                subscribeToStatus(paymentOperations.queryStatus());
             } else if (status.isUnsupported()) {
                 paymentErrorPresenter.showBillingUnavailable();
             }

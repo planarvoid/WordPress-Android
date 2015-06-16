@@ -11,39 +11,40 @@ import rx.Observable;
 public class TransactionStateTest {
 
     @Test
-    public void transactionInProgressFalseWithNoObservables() throws Exception {
-        expect(new TransactionState(null, null).transactionInProgress()).toBeFalse();
+    public void transactionIsNotInProgressWithNoObservables() {
+        expect(new TransactionState(null, null).isTransactionInProgress()).toBeFalse();
     }
 
     @Test
-    public void transactionInProgressTrueWithPurchaseObservable() throws Exception {
-        expect(new TransactionState(Observable.<String>empty(), null).transactionInProgress()).toBeTrue();
+    public void transactionIsInProgressWithPurchaseObservable() {
+        expect(new TransactionState(Observable.<String>empty(), null).isTransactionInProgress()).toBeTrue();
     }
 
     @Test
-    public void transactionInProgressTrueWithPurchaseAndVerifyObservable() throws Exception {
-        expect(new TransactionState(Observable.<String>empty(), Observable.<PurchaseStatus>empty()).transactionInProgress()).toBeTrue();
+    public void transactionIsInProgressWithPurchaseAndStatusObservable() {
+        expect(new TransactionState(Observable.<String>empty(), Observable.<PurchaseStatus>empty()).isTransactionInProgress()).toBeTrue();
     }
 
     @Test
-    public void verifyingFalseWithNoVerifyObservable() throws Exception {
-        expect(new TransactionState(Observable.<String>empty(), null).isVerifying()).toBeFalse();
+    public void notRetrievingStatusWithNoStatusObservable() {
+        expect(new TransactionState(Observable.<String>empty(), null).isRetrievingStatus()).toBeFalse();
     }
 
     @Test
-    public void verifyingTrueWithVerifyObservable() throws Exception {
-        expect(new TransactionState(Observable.<String>empty(), Observable.<PurchaseStatus>empty()).isVerifying()).toBeTrue();
+    public void retrievingStatusWithStatusObservable() {
+        expect(new TransactionState(Observable.<String>empty(), Observable.<PurchaseStatus>empty()).isRetrievingStatus()).toBeTrue();
     }
 
     @Test
-    public void purchaseReturnsPurchaseObservable() throws Exception {
+    public void purchaseReturnsPurchaseObservable() {
         final Observable<String> purchase = Observable.empty();
         expect(new TransactionState(purchase, Observable.<PurchaseStatus>empty()).purchase()).toBe(purchase);
     }
 
     @Test
-    public void verifyReturnsVerifyObservable() throws Exception {
-        final Observable<PurchaseStatus> verify = Observable.empty();
-        expect(new TransactionState(Observable.<String>empty(), verify).verify()).toBe(verify);
+    public void statusReturnsStatusObservable() {
+        final Observable<PurchaseStatus> status = Observable.empty();
+        expect(new TransactionState(Observable.<String>empty(), status).status()).toBe(status);
     }
+
 }
