@@ -20,4 +20,6 @@
     <dimen name="ad_learn_more_height">40dp</dimen>
     <dimen name="dialog_width">640dp</dimen>
 
+    <dimen name="buy_button_margin">128dp</dimen>
+
 </resources>

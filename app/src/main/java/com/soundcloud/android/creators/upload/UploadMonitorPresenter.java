@@ -128,7 +128,7 @@ public class UploadMonitorPresenter extends SupportFragmentLightCycleDispatcher<
 
     private void setUploadingState() {
         cancelButton.setVisibility(View.VISIBLE);
-        actionButton.setBackgroundResource(R.drawable.white_button);
+        actionButton.setBackgroundResource(R.drawable.rec_white_button);
         actionButton.setImageResource(R.drawable.ic_record_upload_white);
         actionButton.setEnabled(false);
         uploadProgress.setVisibility(View.VISIBLE);

@@ -438,13 +438,6 @@
     <string name="pref_extras_skippy">Forceer Experimentele Speler</string>
     <string name="pref_extras_skippy_desc">Speel alle nummers door middel van de experimentele speler. Dit zal van kracht worden bij het afspelen van de volgende track.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Abonnementen</string>
-    <string name="pref_subscription_buy_title">Abonneren</string>
-    <string name="pref_subscription_buy_summary">Upgrade je account</string>
-    <string name="title_subscribe">Abonneren</string>
-    <string name="subscribe_buy">Kopen</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>

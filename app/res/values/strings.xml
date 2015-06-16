@@ -458,13 +458,6 @@
     <string name="pref_extras_skippy">Force Experimental Player</string>
     <string name="pref_extras_skippy_desc">Play all tracks through experimental player. This will take effect when playing back the next track.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Subscriptions</string>
-    <string name="pref_subscription_buy_title">Subscribe</string>
-    <string name="pref_subscription_buy_summary">Upgrade your account</string>
-    <string name="title_subscribe">Subscribe</string>
-    <string name="subscribe_buy">Buy</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>

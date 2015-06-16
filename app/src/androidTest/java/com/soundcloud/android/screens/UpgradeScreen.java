@@ -1,8 +1,9 @@
 package com.soundcloud.android.screens;
 
-import com.soundcloud.android.R;
-import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.framework.with.With;
 import com.soundcloud.android.payments.UpgradeActivity;
+import com.soundcloud.android.framework.Han;
+import com.soundcloud.android.R;
 
 public class UpgradeScreen extends Screen {
 
@@ -17,9 +18,9 @@ public class UpgradeScreen extends Screen {
         return ACTIVITY;
     }
 
-    public SubscribeSuccessScreen clickBuyForSuccess() {
+    public UpgradeScreen clickBuyForSuccess() {
         clickBuy();
-        return new SubscribeSuccessScreen(testDriver);
+        return this;
     }
 
     public PaymentErrorScreen clickBuyForFailure() {
@@ -28,9 +29,13 @@ public class UpgradeScreen extends Screen {
     }
 
     private UpgradeScreen clickBuy() {
-        waiter.waitForElement(R.id.subscribe_buy);
-        testDriver.clickOnButtonWithText(R.string.subscribe_buy);
+        waiter.waitForElement(R.id.upgrade_buy);
+        testDriver.clickOnView(With.id(R.id.upgrade_buy));
         return this;
+    }
+
+    public boolean isDisplayingSuccess() {
+        return testDriver.findElement(With.id(R.id.success_header)).isVisible();
     }
 
 }

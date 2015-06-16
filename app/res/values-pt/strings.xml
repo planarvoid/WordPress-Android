@@ -439,13 +439,6 @@
     <string name="pref_extras_skippy">Forçar Player Experimental</string>
     <string name="pref_extras_skippy_desc">Tocar todas as faixas com o player experimental. Será aplicado ao tocar a próxima faixa.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Assinaturas</string>
-    <string name="pref_subscription_buy_title">Assinar</string>
-    <string name="pref_subscription_buy_summary">Atualize sua conta</string>
-    <string name="title_subscribe">Assinar</string>
-    <string name="subscribe_buy">Comprar</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d seg.</string>
     <string name="format_abbreviated_minutes">%d min.</string>

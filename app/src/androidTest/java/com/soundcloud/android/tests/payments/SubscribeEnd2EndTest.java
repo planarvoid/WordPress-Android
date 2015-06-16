@@ -9,7 +9,7 @@ import com.soundcloud.android.properties.Flag;
 import com.soundcloud.android.screens.PaymentErrorScreen;
 import com.soundcloud.android.screens.SettingsScreen;
 import com.soundcloud.android.screens.StreamScreen;
-import com.soundcloud.android.screens.SubscribeSuccessScreen;
+import com.soundcloud.android.screens.UpgradeScreen;
 import com.soundcloud.android.tests.ActivityTest;
 
 public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
@@ -36,14 +36,14 @@ public class SubscribeEnd2EndTest extends ActivityTest<MainActivity> {
     @PaymentTest
     public void testUserCanSubscribe() {
         PaymentStateHelper.resetTestAccount();
-        SubscribeSuccessScreen successScreen = settingsScreen
+        UpgradeScreen upgradeScreen = settingsScreen
                 .clickOfflineSettings()
                 .clickSubscribe()
                 .clickBuyForSuccess();
         waiter.waitTwoSeconds();
         BillingResponse.success().insertInto(solo.getCurrentActivity());
         waiter.waitFiveSeconds();
-        assertTrue(successScreen.isVisible());
+        assertTrue(upgradeScreen.isDisplayingSuccess());
     }
 
     @PaymentTest

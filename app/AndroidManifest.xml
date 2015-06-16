@@ -322,8 +322,7 @@
         <activity android:hardwareAccelerated="false" android:name=".crop.CropImageActivity"/>
 
         <!-- payments -->
-        <activity android:label="@string/title_subscribe" android:name=".payments.UpgradeActivity"/>
-        <activity android:label="@string/payments_success" android:name=".payments.SubscribeSuccessActivity"/>
+        <activity android:label="@string/upgrade_page_title" android:name=".payments.UpgradeActivity"/>
 
         <!-- for testing purposes -->
         <activity android:name=".main.WebViewActivity" android:theme="@style/Theme.SoundCloud.NoActionBar"/>

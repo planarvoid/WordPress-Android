@@ -81,6 +81,8 @@
 
     <dimen name="explore_category_page_size">1px</dimen>
 
+    <dimen name="buy_button_margin">36dp</dimen>
+
     <!-- will correspond to the arrow height -->
     <dimen name="view_pager_divider_width">1dp</dimen>
 

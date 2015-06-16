@@ -438,13 +438,6 @@
     <string name="pref_extras_skippy">Gunakan Pemutar Eksperimental</string>
     <string name="pref_extras_skippy_desc">Mainkan semua trek melalui pemutar eksperimental. Ini akan mulai berlaku saat memainkan trek berikutnya.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Langganan</string>
-    <string name="pref_subscription_buy_title">Berlangganan</string>
-    <string name="pref_subscription_buy_summary">Tingkatkan akun Anda</string>
-    <string name="title_subscribe">Berlangganan</string>
-    <string name="subscribe_buy">Beli</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d dtk.</string>
     <string name="format_abbreviated_minutes">%d mnt.</string>

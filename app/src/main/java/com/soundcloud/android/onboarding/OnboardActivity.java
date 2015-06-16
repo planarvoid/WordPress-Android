@@ -58,7 +58,6 @@ import org.jetbrains.annotations.Nullable;
 import android.accounts.AccountAuthenticatorResponse;
 import android.accounts.AccountManager;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -151,21 +150,20 @@ public class OnboardActivity extends FragmentActivity
         @Override
         public void onAnimationEnd(Animation animation) {
             overlayHolder.setVisibility(View.GONE);
-            final Context context = OnboardActivity.this;
             if (loginLayout != null) {
-                hideView(context, loginLayout, false);
+                hideView(OnboardActivity.this, loginLayout, false);
             }
             if (signUpMethodLayout != null) {
-                hideView(context, signUpMethodLayout, false);
+                hideView(OnboardActivity.this, signUpMethodLayout, false);
             }
             if (signUpBasicsLayout != null) {
-                hideView(context, signUpBasicsLayout, false);
+                hideView(OnboardActivity.this, signUpBasicsLayout, false);
             }
             if (signUpDetailsLayout != null) {
-                hideView(context, signUpDetailsLayout, false);
+                hideView(OnboardActivity.this, signUpDetailsLayout, false);
             }
             if (acceptTermsLayout != null) {
-                hideView(context, acceptTermsLayout, false);
+                hideView(OnboardActivity.this, acceptTermsLayout, false);
             }
         }
     };
@@ -813,10 +811,9 @@ public class OnboardActivity extends FragmentActivity
 
         showView(this, photoBottomBar, animated);
         showView(this, photoLogo, animated);
-
         hideView(this, overlayBg, animated);
 
-        photosAdapter.hideViewsOfLayout(this, photoPager.getCurrentItem());
+        photosAdapter.hideViewsOfLayout(photoPager.getCurrentItem());
 
         if (animated && overlayHolder.getVisibility() == View.VISIBLE) {
             hideView(this, overlayHolder, hideScrollViewListener);
@@ -832,7 +829,7 @@ public class OnboardActivity extends FragmentActivity
         hideView(this, photoLogo, animated);
 
         // hide foreground views
-        photosAdapter.showViewsOfLayout(this, photoPager.getCurrentItem(), animated);
+        photosAdapter.showViewsOfLayout(photoPager.getCurrentItem(), animated);
 
         showView(this, overlayHolder, animated);
         showView(this, overlayBg, animated);

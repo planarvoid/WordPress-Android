@@ -41,6 +41,10 @@
         <item name="dropDownListViewStyle">@style/DropDownListView</item>
     </style>
 
+    <style name="LightProgressTheme" parent="BaseTheme">
+        <item name="colorAccent">@color/white</item>
+    </style>
+
     <style name="Theme.SoundCloud.NoBg">
         <item name="android:windowBackground">@null</item>
     </style>

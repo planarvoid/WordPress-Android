@@ -401,7 +401,7 @@ public class RecordPresenter extends SupportFragmentLightCycleDispatcher<Fragmen
 
     private void configureRecordButton(boolean isRecording) {
         if (isRecording) {
-            actionButton.setBackgroundResource(R.drawable.white_button);
+            actionButton.setBackgroundResource(R.drawable.rec_white_button);
             actionButton.setImageResource(R.drawable.ic_record_record_orange);
             actionText.setText(recordFragment.getString(R.string.record_tap_to_pause));
 

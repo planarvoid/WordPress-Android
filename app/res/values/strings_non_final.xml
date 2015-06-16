@@ -1,8 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- __PAYMENTS -->
-    <string name="payments_success">Success</string>
+    <!-- __UPGRADE -->
+    <string name="pref_subscriptions_header">Subscriptions</string>
+    <string name="pref_subscription_buy_title">Upgrade</string>
+    <string name="pref_subscription_buy_summary">Upgrade your account</string>
+    <string name="upgrade_page_title">Upgrade</string>
+    <string name="upgrade_title">SoundCloud Go</string>
+    <string name="upgrade_description">No ads. Offline listening. Support creators.</string>
+    <string name="upgrade_buy_price">Subscribe for %s/month</string>
+    <string name="upgrade_features_title">SoundCloud Go features:</string>
+    <string name="upgrade_feature_1_title">No more ads</string>
+    <string name="upgrade_feature_1_description">Remove all audio ads and interstitials from all platforms</string>
+    <string name="upgrade_feature_2_title">Offline listening</string>
+    <string name="upgrade_feature_2_description">Download tracks to your phone, so you can listen to them offline</string>
+    <string name="upgrade_feature_3_title">Support creators</string>
+    <string name="upgrade_feature_3_description">Directly support creators and SoundCloud</string>
+    <string name="upgrade_success_title">Welcome to SoundCloud Go!</string>
+    <string name="upgrade_success_description">You are now able to enjoy SoundCloud offline and ad-free</string>
 
+    <!-- __PAYMENTS -->
     <string name="payments_error_title_unavailable">Product unavailable</string>
     <string name="payments_error_title_no_billing">Billing unavailable</string>
     <string name="payments_error_title_already_subscribed">There is already an active subscription</string>

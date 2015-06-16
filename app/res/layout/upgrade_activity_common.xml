@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/upgrade_header"
+        style="@style/UpgradeHeader">
+
+        <TextView
+            style="@style/UpgradeTitle"
+            android:id="@+id/upgrade_title"
+            android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
+            android:text="@string/upgrade_title" />
+
+        <TextView
+            android:id="@+id/upgrade_description"
+            style="@style/UpgradeDescription"
+            android:layout_marginTop="8dp"
+            android:layout_below="@+id/upgrade_title"
+            android:layout_centerHorizontal="true"
+            android:text="@string/upgrade_description" />
+
+        <Button
+            android:id="@+id/upgrade_buy"
+            style="@style/UpgradeBuy"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginRight="@dimen/buy_button_margin"
+            android:layout_marginLeft="@dimen/buy_button_margin" />
+
+        <FrameLayout
+            android:id="@+id/upgrade_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/upgrade_description">
+
+            <ProgressBar
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                style="?android:attr/progressBarStyle"
+                android:theme="@style/LightProgressTheme"
+                android:layout_gravity="center" />
+        </FrameLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/success_header"
+        style="@style/UpgradeHeader"
+        android:visibility="gone">
+
+        <TextView
+            style="@style/UpgradeTitle"
+            android:id="@+id/upgrade_success_title"
+            android:layout_marginTop="20dp"
+            android:text="@string/upgrade_success_title" />
+
+        <TextView
+            android:id="@+id/upgrade_success_description"
+            style="@style/UpgradeDescription"
+            android:layout_width="240dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/upgrade_success_description" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+
+            <TextView
+                android:id="@+id/features_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/gray_text"
+                android:textSize="16sp"
+                android:text="@string/upgrade_features_title"
+                android:layout_marginBottom="16dp" />
+
+            <ImageView
+                android:id="@+id/feature_1_image"
+                style="@style/FeatureImage"
+                android:layout_below="@id/features_title"
+                android:layout_marginBottom="16dp"
+                android:layout_marginRight="16dp" />
+
+            <TextView
+                android:id="@+id/feature_1_title"
+                style="@style/FeatureTitle"
+                android:layout_marginBottom="4dp"
+                android:text="@string/upgrade_feature_1_title"
+                android:layout_toRightOf="@id/feature_1_image"
+                android:layout_alignTop="@id/feature_1_image" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/FeatureDescription"
+                android:id="@+id/feature_1_description"
+                android:text="@string/upgrade_feature_1_description"
+                android:layout_toRightOf="@id/feature_1_image"
+                android:layout_below="@id/feature_1_title" />
+
+            <ImageView
+                android:id="@+id/feature_2_image"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:background="@color/gray_background"
+                android:layout_below="@id/feature_1_image"
+                android:layout_marginBottom="16dp"
+                android:layout_marginRight="16dp" />
+
+            <TextView
+                android:id="@+id/feature_2_title"
+                style="@style/FeatureTitle"
+                android:layout_marginBottom="4dp"
+                android:text="@string/upgrade_feature_2_title"
+                android:layout_toRightOf="@id/feature_2_image"
+                android:layout_alignTop="@id/feature_2_image" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/FeatureDescription"
+                android:id="@+id/feature_2_description"
+                android:text="@string/upgrade_feature_2_description"
+                android:layout_toRightOf="@id/feature_2_image"
+                android:layout_below="@id/feature_2_title" />
+
+            <ImageView
+                android:id="@+id/feature_3_image"
+                android:layout_width="76dp"
+                android:layout_height="76dp"
+                android:background="@color/gray_background"
+                android:layout_below="@id/feature_2_image"
+                android:layout_marginRight="16dp" />
+
+            <TextView
+                android:id="@+id/feature_3_title"
+                style="@style/FeatureTitle"
+                android:layout_marginBottom="4dp"
+                android:text="@string/upgrade_feature_3_title"
+                android:layout_toRightOf="@id/feature_3_image"
+                android:layout_alignTop="@id/feature_3_image" />
+
+            <com.soundcloud.android.view.CustomFontTextView
+                style="@style/FeatureDescription"
+                android:id="@+id/feature_3_description"
+                android:text="@string/upgrade_feature_3_description"
+                android:layout_toRightOf="@id/feature_3_image"
+                android:layout_below="@id/feature_3_title" />
+        </RelativeLayout>
+    </ScrollView>
+
+</merge>

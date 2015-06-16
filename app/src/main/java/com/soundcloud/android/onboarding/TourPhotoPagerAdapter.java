@@ -68,20 +68,20 @@ class TourPhotoPagerAdapter extends PagerAdapter {
         }
     }
 
-    public void hideViewsOfLayout(Context context, int currentItem) {
+    public void hideViewsOfLayout(int currentItem) {
         final TourLayout tourLayout = photoPages.get(currentItem);
         for (View view : allChildViewsOf(tourLayout)) {
             if (isForegroundView(view)) {
-                showView(context, view, false);
+                showView(view.getContext(), view, false);
             }
         }
     }
 
-    public void showViewsOfLayout(Context context, int currentItem, boolean animated) {
+    public void showViewsOfLayout(int currentItem, boolean animated) {
         final TourLayout tourLayout = photoPages.get(currentItem);
         for (View view : allChildViewsOf(tourLayout)) {
             if (isForegroundView(view)) {
-                hideView(context, view, animated);
+                hideView(view.getContext(), view, animated);
             }
         }
     }

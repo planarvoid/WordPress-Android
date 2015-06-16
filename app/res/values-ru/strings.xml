@@ -438,13 +438,6 @@
     <string name="pref_extras_skippy">Использовать экспериментальный плеер</string>
     <string name="pref_extras_skippy_desc">Проигрывать все треки через экспериментальный плеер. Вступит в силу при воспроизведении следующего трека.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">Подписки</string>
-    <string name="pref_subscription_buy_title">Подписаться</string>
-    <string name="pref_subscription_buy_summary">Обновить учетную запись</string>
-    <string name="title_subscribe">Подписаться</string>
-    <string name="subscribe_buy">Купить</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d сек.</string>
     <string name="format_abbreviated_minutes">%d мин.</string>

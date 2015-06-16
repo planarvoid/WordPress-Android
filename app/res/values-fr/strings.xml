@@ -436,13 +436,6 @@
     <string name="pref_extras_skippy">Forcer l\'utilisation du lecteur expérimental</string>
     <string name="pref_extras_skippy_desc">Lire toutes les pistes avec le lecteur expérimental. Cela prendra effet lors de la lecture de la piste suivante.</string>
 
-    <!-- __SETTINGS SUBSCRIPTIONS -->
-    <string name="pref_subscriptions_header">Abonnements</string>
-    <string name="pref_subscription_buy_title">S\'abonner</string>
-    <string name="pref_subscription_buy_summary">Mettre votre compte à niveau</string>
-    <string name="title_subscribe">S\'abonner</string>
-    <string name="subscribe_buy">Acheter</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d sec.</string>
     <string name="format_abbreviated_minutes">%d min.</string>

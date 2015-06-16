@@ -437,13 +437,6 @@
     <string name="pref_extras_skippy">إجبار المشغل التجريبي</string>
     <string name="pref_extras_skippy_desc">تشغيل كافة المسارات باستخدام المشغل التجريبي. سوف يتم تطبيق ذلك عند تشغيل المسار التالي.</string>
 
-    <!-- __SUBSCRIPTION SETTINGS -->
-    <string name="pref_subscriptions_header">اشتراكات</string>
-    <string name="pref_subscription_buy_title">اشتراك</string>
-    <string name="pref_subscription_buy_summary">ترقية حسابك</string>
-    <string name="title_subscribe">اشتراك</string>
-    <string name="subscribe_buy">شراء</string>
-
     <!-- __TIME -->
     <string name="format_abbreviated_seconds">%d ثانية</string>
     <string name="format_abbreviated_minutes">%d دقيقة</string>
