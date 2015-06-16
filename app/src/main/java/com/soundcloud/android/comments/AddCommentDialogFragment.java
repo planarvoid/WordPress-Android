@@ -1,6 +1,7 @@
 package com.soundcloud.android.comments;
 
-import static rx.android.observables.AndroidObservable.bindActivity;
+
+import static rx.android.app.AppObservable.bindActivity;
 
 import com.cocosw.undobar.UndoBarController;
 import com.cocosw.undobar.UndoBarController.UndoBar;
