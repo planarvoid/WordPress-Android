@@ -11,6 +11,8 @@ public final class PlaybackPerformanceEvent {
     public static final int METRIC_TIME_TO_SEEK = 3;
     public static final int METRIC_FRAGMENT_DOWNLOAD_RATE = 4;
     public static final int METRIC_TIME_TO_LOAD = 5;
+    public static final int METRIC_CACHE_USAGE_PERCENT = 6;
+    public static final int METRIC_UNINTERRUPTED_PLAYTIME_MS = 7;
     private final long timestamp;
     private final int metric;
     private final long metricValue;
@@ -30,6 +32,15 @@ public final class PlaybackPerformanceEvent {
         this.cdnHost = cdnHost;
         this.connectionType = connectionType;
         this.urn = urn;
+    }
+    public static PlaybackPerformanceEvent uninterruptedPlaytimeMs(long value, PlaybackProtocol protocol, PlayerType playerType,
+                                                      ConnectionType connectionType, String cdnHost) {
+        return new PlaybackPerformanceEvent(METRIC_UNINTERRUPTED_PLAYTIME_MS, value, protocol, playerType, connectionType, cdnHost, Urn.NOT_SET);
+    }
+
+    public static PlaybackPerformanceEvent cacheUsagePercent(long value, PlaybackProtocol protocol, PlayerType playerType,
+                                                                   ConnectionType connectionType, String cdnHost) {
+        return new PlaybackPerformanceEvent(METRIC_CACHE_USAGE_PERCENT, value, protocol, playerType, connectionType, cdnHost, Urn.NOT_SET);
     }
 
     public static PlaybackPerformanceEvent timeToPlay(long value, PlaybackProtocol protocol, PlayerType playerType,

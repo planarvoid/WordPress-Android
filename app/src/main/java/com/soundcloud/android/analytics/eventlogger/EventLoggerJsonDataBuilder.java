@@ -340,6 +340,8 @@ public class EventLoggerJsonDataBuilder {
 
     private String getPerformanceEventType(int type) {
         switch (type) {
+            case PlaybackPerformanceEvent.METRIC_UNINTERRUPTED_PLAYTIME_MS:
+                return "uninterruptedPlaytimeMs";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_PLAY:
                 return "play";
             case PlaybackPerformanceEvent.METRIC_TIME_TO_BUFFER:
