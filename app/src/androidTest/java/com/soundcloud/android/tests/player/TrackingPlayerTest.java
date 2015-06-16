@@ -23,7 +23,7 @@ public class TrackingPlayerTest extends TrackingActivityTest<MainActivity> {
         TestUser.playerUser.logIn(getInstrumentation().getTargetContext());
     }
 
-    public void testPlayAndPauseTrackFromStream() {
+    public void diabled_testPlayAndPauseTrackFromStream() {
         mrLoggaVerifier.startLogging();
 
         final VisualPlayerElement playerElement =
