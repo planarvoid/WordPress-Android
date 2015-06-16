@@ -20,7 +20,7 @@
     <!-- Feature flags (enabled) -->
     <bool name="feature_google_cast">true</bool>
     <bool name="feature_promoted_in_stream">true</bool>
-    <bool name="everyone_gets_skippy">true</bool>
+    <bool name="feature_everyone_gets_skippy">true</bool>
 
     <!-- Feature flags (disabled) -->
     <bool name="feature_payments_test">false</bool>

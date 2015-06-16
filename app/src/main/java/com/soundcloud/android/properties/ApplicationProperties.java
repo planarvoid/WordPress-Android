@@ -29,7 +29,6 @@ public class ApplicationProperties {
     private static BuildType BUILD_TYPE;
     private static boolean VERBOSE_LOGGING;
     private static boolean GOOGLE_PLUS_ENABLED;
-    private static boolean EVERYONE_GETS_SKIPPY;
 
     private final String castReceiverAppId;
     @VisibleForTesting
@@ -71,7 +70,6 @@ public class ApplicationProperties {
         BUILD_TYPE = BuildType.valueOf(buildType.toUpperCase(Locale.US));
         VERBOSE_LOGGING = resources.getBoolean(R.bool.verbose_logging);
         GOOGLE_PLUS_ENABLED = resources.getBoolean(R.bool.google_plus_enabled);
-        EVERYONE_GETS_SKIPPY = resources.getBoolean(R.bool.everyone_gets_skippy);
         castReceiverAppId = resources.getString(R.string.cast_receiver_app_id);
     }
 
@@ -81,10 +79,6 @@ public class ApplicationProperties {
 
     public boolean useVerboseLogging() {
         return VERBOSE_LOGGING;
-    }
-
-    public boolean everyoneGetsSkippy() {
-        return EVERYONE_GETS_SKIPPY;
     }
 
     public boolean isReleaseBuild() {

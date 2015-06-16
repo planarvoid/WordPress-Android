@@ -3,6 +3,8 @@ package com.soundcloud.android.playback;
 import android.os.Build;
 
 import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -24,15 +26,15 @@ public class PlayerDeviceCompatibility {
 
     private static final String MANUFACTURER_SAMSUNG = "samsung";
 
-    private final ApplicationProperties applicationProperties;
+    private final FeatureFlags featureFlags;
 
     @Inject
-    public PlayerDeviceCompatibility(ApplicationProperties applicationProperties) {
-        this.applicationProperties = applicationProperties;
+    public PlayerDeviceCompatibility(FeatureFlags featureFlags) {
+        this.featureFlags = featureFlags;
     }
 
     public boolean shouldForceMediaPlayer() {
-        if (applicationProperties.everyoneGetsSkippy()) {
+        if (featureFlags.isEnabled(Flag.EVERYBODY_GETS_SKIPPY)) {
             return false;
         }
 
