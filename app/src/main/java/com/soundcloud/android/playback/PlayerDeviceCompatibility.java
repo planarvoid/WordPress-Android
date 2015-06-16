@@ -2,9 +2,15 @@ package com.soundcloud.android.playback;
 
 import android.os.Build;
 
+import com.soundcloud.android.properties.ApplicationProperties;
+import com.soundcloud.android.properties.FeatureFlags;
+import com.soundcloud.android.properties.Flag;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 public class PlayerDeviceCompatibility {
     private static final String ONE_PLUS_CM = "bacon";
@@ -20,13 +26,26 @@ public class PlayerDeviceCompatibility {
 
     private static final String MANUFACTURER_SAMSUNG = "samsung";
 
-    public static boolean shouldForceMediaPlayer() {
-        return (ONE_PLUS_CM.equalsIgnoreCase(Build.HARDWARE)
-                    && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) ||
-                // All Samsung devices will be excluded until we completely fix the Exynos chip bug on skippy
-                (MANUFACTURER_SAMSUNG.equalsIgnoreCase(Build.MANUFACTURER)) ||
-                (MANUFACTURER_SAMSUNG.equalsIgnoreCase(Build.BRAND)) ||
-                // These devices are known to have continuous play issues. Can be removed when fixed on skippy
-                LG_DEVICES.contains(Build.DEVICE);
+    private final FeatureFlags featureFlags;
+
+    @Inject
+    public PlayerDeviceCompatibility(FeatureFlags featureFlags) {
+        this.featureFlags = featureFlags;
+    }
+
+    public boolean shouldForceMediaPlayer() {
+        if (featureFlags.isEnabled(Flag.EVERYBODY_GETS_SKIPPY)) {
+            return false;
+        }
+
+        boolean onePlusPreLollipop = ONE_PLUS_CM.equalsIgnoreCase(Build.HARDWARE)
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+        // All Samsung devices will be excluded until we completely fix the Exynos chip bug on skippy
+        boolean isSamsung = (MANUFACTURER_SAMSUNG.equalsIgnoreCase(Build.MANUFACTURER)) ||
+                (MANUFACTURER_SAMSUNG.equalsIgnoreCase(Build.BRAND));
+        // These devices are known to have continuous play issues. Can be removed when fixed on skippy
+        boolean isLg = LG_DEVICES.contains(Build.DEVICE);
+
+        return onePlusPreLollipop || isSamsung || isLg;
     }
 }

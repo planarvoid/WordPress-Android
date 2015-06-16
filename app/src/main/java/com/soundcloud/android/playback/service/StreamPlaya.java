@@ -248,13 +248,15 @@ public class StreamPlaya implements PlayaListener {
 
     public static class PlayerSwitcherInfo {
 
+        private final PlayerDeviceCompatibility playerDeviceCompatibility;
+
         @Inject
-        public PlayerSwitcherInfo() {
-            // dagger
+        public PlayerSwitcherInfo(PlayerDeviceCompatibility playerDeviceCompatibility) {
+            this.playerDeviceCompatibility = playerDeviceCompatibility;
         }
 
         public boolean shouldForceMediaPlayer() {
-            return PlayerDeviceCompatibility.shouldForceMediaPlayer();
+            return playerDeviceCompatibility.shouldForceMediaPlayer();
         }
     }
 }
