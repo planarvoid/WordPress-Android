@@ -51,10 +51,12 @@ public class PlaylistStorageTest extends StorageIntegrationTest {
     }
 
     @Test
-    public void hasPlaylistDueForSyncReturnsOnlyPlaylistWithUnpushedTracks() throws Exception {
+    public void hasPlaylistDueForSyncReturnsOnlyRemotePlaylistWithUnpushedTracks() throws Exception {
         testFixtures().insertPlaylist();
+        final ApiPlaylist localPlaylist = testFixtures().insertLocalPlaylist();
         ApiPlaylist playlistWithAddition = testFixtures().insertPlaylist();
         ApiPlaylist playlistWithRemoval = testFixtures().insertPlaylist();
+        testFixtures().insertPlaylistTrackPendingAddition(localPlaylist, 0, new Date());
         testFixtures().insertPlaylistTrackPendingAddition(playlistWithAddition, 0, new Date());
         testFixtures().insertPlaylistTrackPendingRemoval(playlistWithRemoval, 1, new Date());
 
