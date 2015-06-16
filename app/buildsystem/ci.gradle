@@ -64,7 +64,7 @@ task buildBetaCI(dependsOn: ['clean', 'assembleBeta']) {
 }
 buildBetaCI.mustRunAfter('updateVersion')
 
-task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+task deployBeta(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub', 'slog', 'headsup']) {
   description = 'Deploy Beta build to playstore and github.'
 }
 deployBeta.mustRunAfter('buildBetaCI')
@@ -86,7 +86,7 @@ buildReleaseCI.mustRunAfter('updateVersion')
 // NOTE: Uploading to Play Store's beta track is the expected operation here, due to differences in the way we version
 // releases versus how Google versions releases. We must upload the release apk (with a version code bump!) to the beta
 // track and then manually bump that apk to the release track in the play store.
-task deployReleaseCI(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub']) {
+task deployReleaseCI(dependsOn: ['commitVersionBump', 'uploadStoreBeta', 'uploadGithub', 'slog', 'headsup']) {
   description = 'Deploy Release build to playstore and github.'
 }
 deployReleaseCI.mustRunAfter('buildReleaseCI')
