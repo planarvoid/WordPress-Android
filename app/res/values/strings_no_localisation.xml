@@ -5,7 +5,6 @@
     <!-- __DEBUG LOGS/FEEDBACK -->
     <string-array name="feedback_options">
         <item>@string/feedback_playback_issue</item>
-        <item>@string/feedback_crash</item>
         <item>@string/feedback_other_issue</item>
     </string-array>
     <string name="select_feedback_category">What would you like to report?</string>
