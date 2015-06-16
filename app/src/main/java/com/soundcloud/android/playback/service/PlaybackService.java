@@ -3,7 +3,6 @@ package com.soundcloud.android.playback.service;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.soundcloud.android.NotificationConstants;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.ads.AdsOperations;
@@ -27,7 +26,6 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.Subscriptions;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -64,7 +62,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     // audio focus related
     private IAudioManager audioManager;
     private FocusLossState focusLossState = FocusLossState.NONE;
-    private boolean suppressNotifications;
     private PlaybackReceiver playbackReceiver;
     private Subscription loadTrackSubscription = Subscriptions.empty();
 
@@ -97,6 +94,7 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     public void onCreate() {
         super.onCreate();
 
+        playbackNotificationController.subscribe(this);
         streamPlayer.setListener(this);
 
         playbackReceiver = playbackReceiverFactory.create(this, accountOperations, playQueueManager, eventBus);
@@ -208,7 +206,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
             if (!stateTransition.isPlaying()) {
                 onIdleState();
             }
-            updatePlaybackNotification(stateTransition);
 
             analyticsController.onStateTransition(stateTransition);
             eventBus.publish(EventQueue.PLAYBACK_STATE_CHANGED, stateTransition);
@@ -260,20 +257,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         delayedStopHandler.sendEmptyMessageDelayed(0, IDLE_DELAY);
     }
 
-    private void updatePlaybackNotification(Playa.StateTransition stateTransition) {
-        if (Broadcasts.PLAYSTATE_CHANGED.equals(Broadcasts.PLAYSTATE_CHANGED) && !suppressNotifications) {
-            if (stateTransition.playSessionIsActive()) {
-                Notification notification = playbackNotificationController.notifyPlaying();
-                if (notification != null) {
-                    startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notification);
-                }
-            } else {
-                final boolean displayedNotification = playbackNotificationController.notifyIdleState();
-                stopForeground(!displayedNotification);
-            }
-        }
-    }
-
     private void onIdleState() {
         scheduleServiceShutdownCheck();
         fadeHandler.removeMessages(FadeHandler.FADE_OUT);
@@ -310,7 +293,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
 
     @VisibleForTesting
     void openCurrent(PropertySet track, boolean playUninterrupted) {
-        suppressNotifications = false;
         waitingForPlaylist = false;
         currentTrack = track;
 
@@ -326,8 +308,6 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
         if (!streamPlayer.isPlaying() && currentTrack != null && audioManager.requestMusicFocus(this, IAudioManager.FOCUS_GAIN)) {
             if (!(playQueueManager.isCurrentTrack(getCurrentTrackUrn()) && streamPlayer.playbackHasPaused() && streamPlayer.resume())) {
                 openCurrent();
-            } else {
-                suppressNotifications = false;
             }
         }
     }
@@ -338,8 +318,8 @@ public class PlaybackService extends Service implements IAudioManager.MusicFocus
     }
 
     /* package */ void stop() {
+        playbackNotificationController.unsubscribe();
         streamPlayer.stop();
-        suppressNotifications = true;
         stopForeground(true);
         eventBus.publish(EventQueue.PLAYER_LIFE_CYCLE, PlayerLifeCycleEvent.forStopped());
     }
