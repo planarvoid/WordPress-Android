@@ -5,6 +5,7 @@ import com.soundcloud.android.R;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.android.tracks.TrackProperty;
@@ -16,7 +17,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Func1;
 import rx.subscriptions.CompositeSubscription;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -77,8 +77,9 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
     }
 
     @Override
-    public void clear() {
-        notificationManager.cancel(NotificationConstants.PLAYBACK_NOTIFY_ID);
+    public void clear(PlaybackService playbackService) {
+        final boolean removeNotification = true;
+        playbackService.stopForeground(removeNotification);
     }
 
     private void loadAndSetArtwork(final Urn trackUrn, final NotificationBuilder notificationBuilder) {
@@ -111,19 +112,22 @@ class BackgroundPlaybackNotificationController implements PlaybackNotificationCo
     }
 
     @Override
-    public Notification notifyPlaying() {
+    public void notifyPlaying(PlaybackService playbackService) {
         presenter.updateToPlayingState(notificationBuilder);
-        return notificationBuilder.build();
+        playbackService.startForeground(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
     }
 
     @Override
-    public boolean notifyIdleState() {
+    public void notifyIdleState(PlaybackService playbackService) {
+        final boolean removeNotification;
         if (notificationBuilder != null && notificationBuilder.hasPlayStateSupport()) {
             presenter.updateToIdleState(notificationBuilder);
             notificationManager.notify(NotificationConstants.PLAYBACK_NOTIFY_ID, notificationBuilder.build());
-            return true;
+            removeNotification =  false;
+        } else {
+            removeNotification = true;
         }
-        return false;
+        playbackService.stopForeground(removeNotification);
     }
 
     private class NotificationSubscriber extends DefaultSubscriber<NotificationBuilder> {

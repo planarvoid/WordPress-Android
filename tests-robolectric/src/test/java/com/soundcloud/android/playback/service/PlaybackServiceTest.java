@@ -31,10 +31,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import rx.Observable;
 
-import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -271,25 +269,6 @@ public class PlaybackServiceTest {
         ShadowService service = Robolectric.shadowOf(playbackService);
         expect(service.getLastForegroundNotification()).toBeNull();
 
-    }
-
-    @Test
-    public void nonPauseStateCreatesNotificationAfterStoppingAndOpeningNewTrack() throws Exception {
-        playbackService.onCreate();
-
-        when(streamPlayer.getLastStateTransition()).thenReturn(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, getTrackUrn()));
-        when(playbackNotificationController.notifyPlaying()).thenReturn(Mockito.mock(Notification.class));
-        playbackService.openCurrent(track, false);
-
-        final Urn trackUrn2 = Urn.forTrack(456);
-        final PropertySet track2 = TestPropertySets.expectedTrackForPlayer().put(TrackProperty.URN, trackUrn2);
-        playbackService.stop();
-        playbackService.openCurrent(track2, false);
-        playbackService.onPlaystateChanged(new Playa.StateTransition(Playa.PlayaState.BUFFERING, Playa.Reason.NONE, trackUrn2));
-
-        ShadowService service = Robolectric.shadowOf(playbackService);
-        final Notification lastForegroundNotification = service.getLastForegroundNotification();
-        expect(lastForegroundNotification).not.toBeNull();
     }
 
     private ArrayList<BroadcastReceiver> getReceiversForAction(String action) {

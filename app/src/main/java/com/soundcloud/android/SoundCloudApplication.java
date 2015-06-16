@@ -23,7 +23,6 @@ import com.soundcloud.android.onboarding.auth.SignupVia;
 import com.soundcloud.android.peripherals.PeripheralsController;
 import com.soundcloud.android.playback.PlaySessionController;
 import com.soundcloud.android.playback.PlaySessionStateProvider;
-import com.soundcloud.android.playback.notification.PlaybackNotificationController;
 import com.soundcloud.android.playback.service.PlaybackServiceModule;
 import com.soundcloud.android.playback.service.skippy.SkippyFactory;
 import com.soundcloud.android.playback.widget.PlayerWidgetController;
@@ -91,7 +90,6 @@ public class SoundCloudApplication extends Application {
     @Inject PlaySessionStateProvider playSessionStateProvider;
     @Inject AdsController adsController;
     @Inject PlaylistTagStorage playlistTagStorage;
-    @Inject PlaybackNotificationController playbackNotificationController;
     @Inject SkippyFactory skippyFactory;
     @Inject FeatureFlags featureFlags;
     @Inject CryptoOperations cryptoOperations;
@@ -161,7 +159,6 @@ public class SoundCloudApplication extends Application {
         peripheralsController.subscribe();
         playSessionController.subscribe();
         playSessionStateProvider.subscribe();
-        playbackNotificationController.subscribe();
         adsController.subscribe();
         screenProvider.subscribe();
 

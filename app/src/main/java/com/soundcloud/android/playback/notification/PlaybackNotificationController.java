@@ -2,16 +2,18 @@ package com.soundcloud.android.playback.notification;
 
 import com.soundcloud.android.events.CurrentPlayQueueTrackEvent;
 import com.soundcloud.android.events.EventQueue;
-import com.soundcloud.android.events.PlayerLifeCycleEvent;
 import com.soundcloud.android.model.EntityProperty;
+import com.soundcloud.android.playback.service.Playa;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.rx.observers.DefaultSubscriber;
 import com.soundcloud.lightcycle.DefaultLightCycleActivity;
 import com.soundcloud.propeller.PropertySet;
+import rx.Subscription;
+import rx.subscriptions.CompositeSubscription;
+import rx.subscriptions.Subscriptions;
 
-import android.app.Notification;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import javax.inject.Inject;
@@ -23,12 +25,11 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
     interface Strategy {
         void setTrack(PropertySet track);
 
-        void clear();
+        void clear(PlaybackService playbackService);
 
-        @Nullable
-        Notification notifyPlaying();
+        void notifyPlaying(PlaybackService playbackService);
 
-        boolean notifyIdleState();
+        void notifyIdleState(PlaybackService playbackService);
     }
 
     // Estimated time between onPause and onResume. This to avoid cancelling a notification
@@ -42,7 +43,8 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
     private final Handler handler;
     private final int delayMillis;
 
-    private PropertySet playbackContext;
+    private Subscription subscriptions = Subscriptions.empty();
+    private PlaybackService playbackService;
     private Strategy activeStrategy;
 
     @Inject
@@ -65,9 +67,15 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
         this.handler = new Handler();
     }
 
-    public void subscribe() {
-        eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new CurrentTrackSubscriber());
-        eventBus.subscribe(EventQueue.PLAYER_LIFE_CYCLE, new PlayerLifeCycleSubscriber());
+    public void subscribe(PlaybackService service) {
+        playbackService = service;
+        startStrategy();
+    }
+
+    public void unsubscribe() {
+        subscriptions.unsubscribe();
+        activeStrategy.clear(playbackService);
+        playbackService = null;
     }
 
     @Override
@@ -99,43 +107,58 @@ public class PlaybackNotificationController extends DefaultLightCycleActivity<Ap
     }
 
     private void switchStrategyTo(Strategy nextStrategy) {
-        if (hasContext()) {
-            activeStrategy.clear();
-            nextStrategy.setTrack(playbackContext);
-        }
+        final Strategy previousStrategy = activeStrategy;
         activeStrategy = nextStrategy;
+        if (hasRunningPlaybackService()) {
+            previousStrategy.clear(playbackService);
+            startStrategy();
+        }
     }
 
-    private boolean hasContext() {
-        return playbackContext != null;
+    private boolean hasRunningPlaybackService() {
+        return playbackService != null;
     }
 
-    @Nullable
-    public Notification notifyPlaying() {
-        return activeStrategy.notifyPlaying();
+    private void startStrategy() {
+        subscriptions.unsubscribe();
+        subscriptions = new CompositeSubscription(
+                eventBus.queue(EventQueue.PLAY_QUEUE_TRACK).subscribe(new CurrentTrackSubscriber(activeStrategy)),
+                eventBus.queue(EventQueue.PLAYBACK_STATE_CHANGED).subscribe(new PlaybackStateSubscriber(playbackService, activeStrategy))
+        );
     }
 
-    public boolean notifyIdleState() {
-        return activeStrategy.notifyIdleState();
-    }
+    private static class CurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+        private final Strategy strategy;
 
-    private class CurrentTrackSubscriber extends DefaultSubscriber<CurrentPlayQueueTrackEvent> {
+        public CurrentTrackSubscriber(Strategy strategy) {
+            this.strategy = strategy;
+        }
+
         @Override
         public void onNext(CurrentPlayQueueTrackEvent event) {
-            playbackContext = event
+            PropertySet trackData = event
                     .getCurrentMetaData()
                     .put(EntityProperty.URN, event.getCurrentTrackUrn());
 
-            activeStrategy.setTrack(playbackContext);
+            strategy.setTrack(trackData);
         }
     }
 
-    private class PlayerLifeCycleSubscriber extends DefaultSubscriber<PlayerLifeCycleEvent> {
+    private static class PlaybackStateSubscriber extends DefaultSubscriber<Playa.StateTransition> {
+        private final Strategy strategy;
+        private final PlaybackService playbackService;
+
+        public PlaybackStateSubscriber(PlaybackService playbackService, Strategy strategy) {
+            this.playbackService = playbackService;
+            this.strategy = strategy;
+        }
+
         @Override
-        public void onNext(PlayerLifeCycleEvent playerLifecycleEvent) {
-            if (!playerLifecycleEvent.isServiceRunning()) {
-                handler.removeCallbacksAndMessages(null);
-                activeStrategy.clear();
+        public void onNext(Playa.StateTransition stateTransition) {
+            if (stateTransition.playSessionIsActive()) {
+                strategy.notifyPlaying(playbackService);
+            } else {
+                strategy.notifyIdleState(playbackService);
             }
         }
     }

@@ -1,6 +1,5 @@
 package com.soundcloud.android.playback.notification;
 
-import static com.soundcloud.android.Expect.expect;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.audioAdProperties;
 import static com.soundcloud.android.testsupport.fixtures.TestPropertySets.expectedTrackForPlayer;
 import static org.mockito.Matchers.any;
@@ -11,12 +10,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.soundcloud.android.R;
 import com.soundcloud.android.NotificationConstants;
+import com.soundcloud.android.R;
 import com.soundcloud.android.image.ApiImageSize;
 import com.soundcloud.android.image.ImageOperations;
 import com.soundcloud.android.model.EntityProperty;
 import com.soundcloud.android.model.Urn;
+import com.soundcloud.android.playback.service.PlaybackService;
 import com.soundcloud.android.playback.service.PlaybackStateProvider;
 import com.soundcloud.android.properties.ApplicationProperties;
 import com.soundcloud.android.robolectric.SoundCloudTestRunner;
@@ -59,6 +59,7 @@ public class BackgroundPlaybackNotificationControllerTest {
     @Mock private Uri uri;
     @Mock private Subscription subscription;
     @Mock private PlaybackStateProvider playbackStateProvider;
+    @Mock private PlaybackService playbackService;
     @Captor private ArgumentCaptor<PropertySet> propertySetCaptor;
     private PropertySet trackProperties;
 
@@ -132,7 +133,7 @@ public class BackgroundPlaybackNotificationControllerTest {
         when(notificationBuilder.hasPlayStateSupport()).thenReturn(true);
 
         controller.setTrack(trackProperties);
-        controller.notifyIdleState();
+        controller.notifyIdleState(playbackService);
 
         verify(playbackNotificationPresenter).updateToIdleState(notificationBuilder);
     }
@@ -142,7 +143,7 @@ public class BackgroundPlaybackNotificationControllerTest {
         when(notificationBuilder.hasPlayStateSupport()).thenReturn(true);
 
         controller.setTrack(trackProperties);
-        controller.notifyIdleState();
+        controller.notifyIdleState(playbackService);
 
         verify(playbackNotificationPresenter).updateToIdleState(notificationBuilder);
         // twice because the playqueue changed event will result in the first notification
@@ -152,10 +153,12 @@ public class BackgroundPlaybackNotificationControllerTest {
     @Test
     public void notifyToIdleStateReturnsPresenterUpdateIdleState() {
         controller.setTrack(trackProperties);
-        controller.notifyIdleState();
+        controller.notifyIdleState(playbackService);
 
         when(notificationBuilder.hasPlayStateSupport()).thenReturn(true);
-        expect(controller.notifyIdleState()).toBeTrue();
+        controller.notifyIdleState(playbackService);
+
+        verify(playbackService).stopForeground(true);
     }
 
 }
