@@ -476,17 +476,8 @@
     <string name="age_verify_info">سيتم حفظ هذه المعلومات في ملفك الشخصي.</string>
     <string name="age_verify_button">تحقق من العمر</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">غير قادر على إسناد المسار</string>
-    
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">ما الذي تريد أن تبلغ عنه؟</string>
-    <string name="feedback_playback_issue">مشكلة في التشغيل</string>
-    <string name="feedback_crash">عطل</string>
-    <string name="feedback_other_issue">مشكلة أخرى</string>
-    <string name="feedback_email_subject">التقرير: %1$s</string>
-    <string name="feedback_action_chooser">إرسال الملاحظات عبر البريد الإلكتروني ...</string>
-    <string name="feedback_unable_to_get_logs">تعذر الحصول على السجلات</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">ترويج</string>

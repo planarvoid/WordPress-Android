@@ -478,17 +478,8 @@
     <string name="age_verify_info">Informasi ini akan disimpan pada profil Anda.</string>
     <string name="age_verify_button">Verifikasikan usia</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Tidak dapat memasukkan trek</string>
-
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">Apa yang ingin Anda laporkan?</string>
-    <string name="feedback_playback_issue">Masalah pemutaran</string>
-    <string name="feedback_crash">Crash</string>
-    <string name="feedback_other_issue">Masalah lain</string>
-    <string name="feedback_email_subject">Laporan: %1$s</string>
-    <string name="feedback_action_chooser">Kirim masukan lewat email...</string>
-    <string name="feedback_unable_to_get_logs">Tidak dapat mengambil log</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Dipromosikan</string>

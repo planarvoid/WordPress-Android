@@ -478,17 +478,8 @@
     <string name="age_verify_info">Essa informação será gravada em seu perfil.</string>
     <string name="age_verify_button">Verificar idade</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Não foi possível compor a faixa</string>
-
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">O que você gostaria de relatar?</string>
-    <string name="feedback_playback_issue">Problema de playbak</string>
-    <string name="feedback_crash">Travamento</string>
-    <string name="feedback_other_issue">Outro problema</string>
-    <string name="feedback_email_subject">Relatório: %1$s</string>
-    <string name="feedback_action_chooser">Enviar feedback via e-mail...</string>
-    <string name="feedback_unable_to_get_logs">Registros indisponíveis</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promovido</string>

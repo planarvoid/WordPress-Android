@@ -477,17 +477,8 @@
     <string name="age_verify_info">Эта информация будет сохранена в вашем профиле.</string>
     <string name="age_verify_button">Подтвердите возраст</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Не удается передать трек</string>
-
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">Что бы вы хотели сообщить?</string>
-    <string name="feedback_playback_issue">Ошибка воспроизведения</string>
-    <string name="feedback_crash">Крэш</string>
-    <string name="feedback_other_issue">Другая проблема</string>
-    <string name="feedback_email_subject">Сообщено: %1$s</string>
-    <string name="feedback_action_chooser">Отправить отзыв по электронной почте...</string>
-    <string name="feedback_unable_to_get_logs">Не удалось получить журналы</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">При содействии</string>

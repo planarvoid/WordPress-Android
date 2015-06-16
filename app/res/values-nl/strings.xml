@@ -477,17 +477,8 @@
     <string name="age_verify_info">Deze informatie wordt op uw profiel opgeslagen.</string>
     <string name="age_verify_button">Geef uw leeftijd aan</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Niet in staat om nummer uit te brengen</string>
-    
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">Wat zou u graag willen rapporteren?</string>
-    <string name="feedback_playback_issue">Afspelen probleem</string>
-    <string name="feedback_crash">Crash</string>
-    <string name="feedback_other_issue">Ander probleem</string>
-    <string name="feedback_email_subject">Rapporteer: %1$s</string>
-    <string name="feedback_action_chooser">Zend feedback via e-mail...</string>
-    <string name="feedback_unable_to_get_logs">Niet in staat om logboeken te krijgen</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Gepromoot</string>

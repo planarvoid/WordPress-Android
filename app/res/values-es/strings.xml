@@ -477,17 +477,8 @@
     <string name="age_verify_info">Esta información será guardada en su perfil.</string>
     <string name="age_verify_button">Verificar edad</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">No se pudo emitir la pista</string>
-
-    <!-- __DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">¿Qué le gustaría informar?</string>
-    <string name="feedback_playback_issue">Problema de reproducción</string>
-    <string name="feedback_crash">Bloqueo</string>
-    <string name="feedback_other_issue">Otro problema</string>
-    <string name="feedback_email_subject">Reportar: %1$s</string>
-    <string name="feedback_action_chooser">Enviar retroalimentación por correo electrónico...</string>
-    <string name="feedback_unable_to_get_logs">No se pudo obtener los registros</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promocionado</string>

@@ -475,18 +475,9 @@
     <string name="age_verify_info">Cette information sera sauvegardée sur votre profil.</string>
     <string name="age_verify_button">Vérifier votre âge</string>
 
-    <!-- GOOGLE CAST -->
+    <!-- __GOOGLE CAST -->
     <string name="cast_unable_play_track">Impossible de jeter le morceau</string>
     <string name="casting_to">Distribution à</string>
-
-    <!-- DEBUG LOGS/FEEDBACK -->
-    <string name="select_feedback_category">Que voulez-vous signaler ?</string>
-    <string name="feedback_playback_issue">Problème de lecture</string>
-    <string name="feedback_crash">Crash</string>
-    <string name="feedback_other_issue">Autre problème</string>
-    <string name="feedback_email_subject">Rapport: %1$s</string>
-    <string name="feedback_action_chooser">Envoyer vos commentaires par e-mail...</string>
-    <string name="feedback_unable_to_get_logs">Impossible d\'obtenir les journaux</string>
 
     <!-- __PROMOTED TRACKS -->
     <string name="promoted_label">Promu</string>
