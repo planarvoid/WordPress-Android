@@ -41,7 +41,7 @@ public class BufferUnderrunListener {
                                    PlayerType playerType,
                                    ConnectionType currentConnectionType) {
         Log.d(TAG, "StateTransition: " + stateTransition);
-        boolean isBufferUnderun = detector.onStateTransitionEvent(stateTransition);
+        boolean isBufferUnderrun = detector.onStateTransitionEvent(stateTransition);
         if (stateTransition.isPlayerPlaying()) {
             if (enteringPlayingStateTime == null) {
                 enteringPlayingStateTime = dateProvider.getCurrentDate();
@@ -49,7 +49,7 @@ public class BufferUnderrunListener {
         } else if (enteringPlayingStateTime != null) {
             long uninterruptedPlayTime = uninterruptedPlaytimeStorage.getPlayTime(playerType);
             uninterruptedPlayTime = incrementPlaytime(uninterruptedPlayTime);
-            if (isBufferUnderun) {
+            if (isBufferUnderrun) {
                 checkForEmptyPlayerType(stateTransition);
                 emitUninterruptedPlaytimeEvent(stateTransition.getTrackUrn(), playbackProtocol, playerType, currentConnectionType, uninterruptedPlayTime);
                 uninterruptedPlayTime = 0L;

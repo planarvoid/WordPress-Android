@@ -186,11 +186,6 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
         }
     }
 
-    @VisibleForTesting
-    protected boolean isActivitySessionClosed() {
-        return !ACTIVITY_SESSION_OPEN.get();
-    }
-
     private void openSession() {
         Log.d(TAG, "opening session");
         session.open();
