@@ -127,4 +127,10 @@ public class PlaybackNotificationControllerTest {
         verify(backgroundController).setTrack(any(PropertySet.class));
     }
 
+    @Test
+    public void unsubscribeNoOpWhenNotSubscribed() {
+        controller.unsubscribe();
+
+        verifyZeroInteractions(backgroundController);
+    }
 }
