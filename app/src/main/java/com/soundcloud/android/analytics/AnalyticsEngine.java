@@ -32,6 +32,10 @@ import javax.inject.Singleton;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 
+import static android.util.Log.INFO;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
+
 /**
  * The engine which drives sending analytics. It acts as an event broker which forwards system events relevant for
  * analytics to any number of registered {@link AnalyticsProvider}s, and enables/disabled itself based on both
@@ -211,7 +215,7 @@ public class AnalyticsEngine implements SharedPreferences.OnSharedPreferenceChan
         public void onNext(EventT event) {
             Log.d(AnalyticsEngine.this, "Track event " + event);
             if (event instanceof OnboardingEvent) {
-                Log.i(Log.ONBOARDING_TAG, "onboarding event published: " + event);
+                log(INFO, ONBOARDING_TAG, "onboarding event published: " + event);
             }
 
             for (AnalyticsProvider analyticsProvider : analyticsProviders) {
