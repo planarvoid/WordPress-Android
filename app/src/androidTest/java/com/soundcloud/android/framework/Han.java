@@ -1,7 +1,5 @@
 package com.soundcloud.android.framework;
 
-import static junit.framework.Assert.assertTrue;
-
 import com.robotium.solo.By;
 import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
@@ -23,7 +21,6 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * An extension for {@link Solo}, to provider some cleaner assertions / driver logic.
@@ -81,17 +78,6 @@ public class Han  {
 
     public void sendKey(int key) {
         solo.sendKey(key);
-    }
-
-    @Deprecated
-    public void assertText(int resId, Object... args) {
-        final String text = getString(resId, args);
-        assertTrue("Text '" + text + "' not found", solo.waitForText(Pattern.quote(text)));
-    }
-
-    @Deprecated
-    public void assertText(String text) {
-        assertTrue("text " + text + " not found", solo.waitForText(text));
     }
 
     public void clickOnActionBarHomeButton() {
