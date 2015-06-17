@@ -30,17 +30,18 @@ class UpgradeView  {
         this.resources = resources;
     }
 
-    public void setListener(final Listener listener) {
+    void setupContentView(AppCompatActivity activity, Listener listener) {
+        ButterKnife.inject(this, activity.findViewById(android.R.id.content));
+        setListener(listener);
+    }
+
+    private void setListener(final Listener listener) {
         buyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 listener.startPurchase();
             }
         });
-    }
-
-    void setupContentView(AppCompatActivity activity) {
-        ButterKnife.inject(this, activity.findViewById(android.R.id.content));
     }
 
     public void showSuccess() {

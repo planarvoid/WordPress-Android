@@ -3,9 +3,9 @@ package com.soundcloud.android.payments;
 import static com.soundcloud.android.Expect.expect;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.soundcloud.android.api.ApiResponse;
@@ -23,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import rx.Observable;
+import rx.observers.TestObserver;
 import rx.subjects.PublishSubject;
 
 import android.support.v7.app.ActionBar;
@@ -46,8 +47,11 @@ public class UpgradePresenterTest {
 
     private UpgradePresenter controller;
 
+    private TestObserver testObserver;
+
     @Before
     public void setUp() {
+        testObserver = new TestObserver();
         controller = new UpgradePresenter(paymentOperations, paymentErrorPresenter, configurationOperations, upgradeView);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.DISCONNECTED));
     }
@@ -94,7 +98,8 @@ public class UpgradePresenterTest {
     }
 
     @Test
-    public void onCreateWithPurchaseStateShowsErrorOnError() {
+    public void restoringPurchaseStateWithErrorDisplaysError() {
+        setupSuccessfulConnection();
         Throwable error = new Throwable();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>error(error), null));
 
@@ -104,16 +109,19 @@ public class UpgradePresenterTest {
     }
 
     @Test
-    public void onCreateWithVerifyObservableUpdatesConfiguration() {
+    public void restoringVerificationObservableShowsSuccess() {
+        setupSuccessfulConnection();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.SUCCESS)));
 
         controller.onCreate(activity, null);
 
+        verify(upgradeView).showSuccess();
         verify(configurationOperations).update();
     }
 
     @Test
     public void onCreateWithVerifyTimeoutObservableShowsFailure() {
+        setupSuccessfulConnection();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(null, Observable.just(PurchaseStatus.VERIFY_TIMEOUT)));
 
         controller.onCreate(activity, null);
@@ -133,7 +141,7 @@ public class UpgradePresenterTest {
     @Test
     public void getStateWithPurchaseObservableReturnsPurchasingState() {
         setupExpectedProductDetails();
-        Observable<String> purchase = Observable.never();
+        Observable<String> purchase = Observable.just("token");
         when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(purchase);
 
         controller.onCreate(activity, null);
@@ -141,12 +149,13 @@ public class UpgradePresenterTest {
         final TransactionState state = controller.getState();
 
         expect(state.isRetrievingStatus()).toBeFalse();
-        expect(state.purchase()).toBe(purchase);
+        state.purchase().subscribe(testObserver);
+        expect(testObserver.getOnNextEvents()).toContainExactly("token");
     }
 
     @Test
     public void getStateWithStatusObservableFromOnCreateReturnsStatus() {
-        final Observable<PurchaseStatus> status = Observable.never();
+        final Observable<PurchaseStatus> status = Observable.just(PurchaseStatus.NONE);
         when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
         when(paymentOperations.queryStatus()).thenReturn(status);
 
@@ -154,13 +163,14 @@ public class UpgradePresenterTest {
 
         final TransactionState state = controller.getState();
         expect(state.isRetrievingStatus()).toBeTrue();
-        expect(state.status()).toBe(status);
+        state.status().subscribe(testObserver);
+        expect(testObserver.getOnNextEvents()).toContainExactly(PurchaseStatus.NONE);
     }
 
     @Test
     public void getStateWithStatusObservableFromBillingResultReturnsStatus() {
         final BillingResult success = TestBillingResults.success();
-        final Observable<PurchaseStatus> status = Observable.never();
+        final Observable<PurchaseStatus> status = Observable.just(PurchaseStatus.SUCCESS);
         when(paymentOperations.purchase(PRODUCT_ID)).thenReturn(Observable.just("token"));
         when(paymentOperations.verify(success.getPayload())).thenReturn(status);
 
@@ -168,7 +178,8 @@ public class UpgradePresenterTest {
 
         final TransactionState state = controller.getState();
         expect(state.isRetrievingStatus()).toBeTrue();
-        expect(state.status()).toBe(status);
+        state.status().subscribe(testObserver);
+        expect(testObserver.getOnNextEvents()).toContainExactly(PurchaseStatus.SUCCESS);
     }
 
     @Test
@@ -211,11 +222,10 @@ public class UpgradePresenterTest {
 
     @Test
     public void purchaseCancellationWithNoProductSetsUpProduct() {
+        setupExpectedProductDetails();
         when(activity.getLastCustomNonConfigurationInstance()).thenReturn(new TransactionState(Observable.<String>never(), null));
         when(paymentOperations.cancel(anyString())).thenReturn(Observable.<ApiResponse>empty());
         controller.onCreate(activity, null);
-        setupExpectedProductDetails();
-        verifyZeroInteractions(paymentOperations);
 
         controller.handleBillingResult(TestBillingResults.cancelled());
 
@@ -267,7 +277,7 @@ public class UpgradePresenterTest {
         when(paymentOperations.purchase(details.getId())).thenReturn(Observable.just("token"));
         controller.onCreate(activity, null);
 
-        verify(upgradeView).setListener(listenerCaptor.capture());
+        verify(upgradeView).setupContentView(eq(activity), listenerCaptor.capture());
         listenerCaptor.getValue().startPurchase();
 
         verify(upgradeView).disableBuyButton();
@@ -345,6 +355,10 @@ public class UpgradePresenterTest {
         controller.handleBillingResult(TestBillingResults.success());
 
         verify(paymentErrorPresenter).showVerifyTimeout();
+    }
+
+    private void setupSuccessfulConnection() {
+        when(paymentOperations.connect(activity)).thenReturn(Observable.just(ConnectionStatus.READY));
     }
 
     @NotNull

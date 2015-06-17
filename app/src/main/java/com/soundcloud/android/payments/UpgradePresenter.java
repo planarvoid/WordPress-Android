@@ -25,6 +25,7 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
     private Observable<String> purchaseObservable;
     private Observable<PurchaseStatus> statusObservable;
     private final CompositeSubscription subscription = new CompositeSubscription();
+    @Nullable private TransactionState restoreState;
 
     private AppCompatActivity activity;
     private ProductDetails details;
@@ -36,36 +37,19 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
         this.paymentErrorPresenter = paymentErrorPresenter;
         this.configurationOperations = configurationOperations;
         this.upgradeView = upgradeView;
-        upgradeView.setListener(this);
     }
 
     @Override
     public void onCreate(AppCompatActivity activity, @Nullable Bundle bundle) {
         this.activity = activity;
-        upgradeView.setupContentView(activity);
+        upgradeView.setupContentView(activity, this);
         paymentErrorPresenter.setActivity(activity);
-        initializeTransactionState();
+        restoreState = (TransactionState) activity.getLastCustomNonConfigurationInstance();
+        initConnection();
     }
 
-    private void initializeTransactionState() {
-        TransactionState state = (TransactionState) activity.getLastCustomNonConfigurationInstance();
-        if (state != null && state.isTransactionInProgress()) {
-            restoreTransaction(state);
-        } else {
-            init();
-        }
-    }
-
-    private void init() {
+    private void initConnection() {
         subscription.add(paymentOperations.connect(activity).subscribe(new ConnectionSubscriber()));
-    }
-
-    private void restoreTransaction(TransactionState state) {
-        if (state.isRetrievingStatus()) {
-            subscribeToStatus(state.status());
-        } else {
-            subscribeToPurchase(state.purchase());
-        }
     }
 
     public TransactionState getState() {
@@ -79,20 +63,21 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
     }
 
     public void startPurchase() {
-        subscribeToPurchase(paymentOperations.purchase(details.getId()));
+        subscribeToPurchase(paymentOperations.purchase(details.getId()).cache());
         upgradeView.disableBuyButton();
     }
 
     public void handleBillingResult(BillingResult result) {
         if (result.isForRequest()) {
             if (result.isOk()) {
+                restoreState = null;
                 upgradeView.hideBuyButton();
-                subscribeToStatus(paymentOperations.verify(result.getPayload()));
+                subscribeToStatus(paymentOperations.verify(result.getPayload()).cache());
             } else {
                 paymentErrorPresenter.showCancelled();
                 fireAndForget(paymentOperations.cancel(result.getFailReason()));
                 if (details == null) {
-                    init();
+                    initConnection();
                 } else {
                     upgradeView.enableBuyButton();
                 }
@@ -102,24 +87,41 @@ class UpgradePresenter extends DefaultLightCycleActivity<AppCompatActivity> impl
 
     private void subscribeToStatus(Observable<PurchaseStatus> status) {
         statusObservable = status;
-        subscription.add(statusObservable.cache().subscribe(new StatusSubscriber()));
+        subscription.add(statusObservable.subscribe(new StatusSubscriber()));
     }
 
     private void subscribeToPurchase(Observable<String> purchase) {
         statusObservable = null;
         purchaseObservable = purchase;
-        subscription.add(purchaseObservable.cache().subscribe(new PurchaseSubscriber()));
+        subscription.add(purchaseObservable.subscribe(new PurchaseSubscriber()));
     }
 
     private class ConnectionSubscriber extends DefaultSubscriber<ConnectionStatus> {
         @Override
         public void onNext(ConnectionStatus status) {
             if (status.isReady()) {
-                subscribeToStatus(paymentOperations.queryStatus());
+                restorePendingTransactionOrQueryStatus();
             } else if (status.isUnsupported()) {
                 paymentErrorPresenter.showBillingUnavailable();
             }
         }
+    }
+
+    private void restorePendingTransactionOrQueryStatus() {
+        if (restoreState != null && restoreState.isTransactionInProgress()) {
+            restoreTransaction(restoreState);
+        } else {
+            subscribeToStatus(paymentOperations.queryStatus().cache());
+        }
+    }
+
+    private void restoreTransaction(TransactionState state) {
+        if (state.isRetrievingStatus()) {
+            subscribeToStatus(state.status());
+        } else {
+            subscribeToPurchase(state.purchase());
+        }
+        restoreState = null;
     }
 
     private class DetailsSubscriber extends DefaultSubscriber<ProductStatus> {
