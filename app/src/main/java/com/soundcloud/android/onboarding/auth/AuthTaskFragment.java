@@ -1,6 +1,10 @@
 package com.soundcloud.android.onboarding.auth;
 
 
+import static android.util.Log.INFO;
+import static com.soundcloud.android.utils.ErrorUtils.log;
+import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
+
 import com.soundcloud.android.R;
 import com.soundcloud.android.SoundCloudApplication;
 import com.soundcloud.android.accounts.AccountOperations;
@@ -9,9 +13,9 @@ import com.soundcloud.android.configuration.ConfigurationOperations;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
+import com.soundcloud.android.onboarding.exceptions.TokenRetrievalException;
 import com.soundcloud.android.rx.eventbus.EventBus;
 import com.soundcloud.android.utils.ErrorUtils;
-import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.api.CloudAPI;
 import org.jetbrains.annotations.NotNull;
@@ -26,10 +30,6 @@ import android.support.v4.app.DialogFragment;
 
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
-
-import static android.util.Log.INFO;
-import static com.soundcloud.android.utils.ErrorUtils.log;
-import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public abstract class AuthTaskFragment extends DialogFragment {
     private AuthTask task;
@@ -131,23 +131,30 @@ public abstract class AuthTaskFragment extends DialogFragment {
     }
 
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
-        final Exception exception = result.getException();
+        final Throwable rootException = removeContainerException(result.getException());
 
-        if (exception instanceof CloudAPI.ApiResponseException) {
+        if (rootException instanceof CloudAPI.ApiResponseException) {
             // server error, tell them to try again later
             return activity.getString(R.string.error_server_problems_message);
-        } else if (exception instanceof AuthTaskException) {
+        } else if (rootException instanceof AuthTaskException) {
             // custom exception, message provided by the individual task
-            return ((AuthTaskException) exception).getFirstError();
+            return ((AuthTaskException) rootException).getFirstError();
         } else {
             if (networkConnectionHelper.isNetworkConnected()) {
-                log(INFO, ONBOARDING_TAG, "other sign in error while network connected: " + exception.getMessage());
-                ErrorUtils.handleSilentException("other sign in error while network connected", exception);
+                log(INFO, ONBOARDING_TAG, "other sign in error while network connected: " + rootException.getMessage());
+                ErrorUtils.handleSilentException("other sign in error while network connected", rootException);
                 return activity.getString(R.string.authentication_error_generic);
             } else {
                 return activity.getString(R.string.authentication_error_no_connection_message);
             }
         }
+    }
+
+    private Throwable removeContainerException(Exception exception) {
+        if (exception instanceof TokenRetrievalException) {
+            return exception.getCause();
+        }
+        return exception;
     }
 
     private void deliverResultAndDismiss() {
