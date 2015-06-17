@@ -104,7 +104,7 @@ public class PlaybackSessionAnalyticsControllerTest {
 
         Playa.StateTransition playEvent = publishPlayingEvent();
 
-        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.firstEventOn(EventQueue.TRACKING);
+        PlaybackSessionEvent playbackSessionEvent = (PlaybackSessionEvent) eventBus.lastEventOn(EventQueue.TRACKING);
         // track properties
         expectCommonAudioEventData(playEvent, playbackSessionEvent);
         expect(playbackSessionEvent.isStopEvent()).toBeFalse();

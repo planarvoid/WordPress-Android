@@ -7,6 +7,7 @@ import com.localytics.android.LocalyticsSession;
 import com.soundcloud.android.accounts.AccountOperations;
 import com.soundcloud.android.analytics.AnalyticsProvider;
 import com.soundcloud.android.events.ActivityLifeCycleEvent;
+import com.soundcloud.android.events.AdDebugEvent;
 import com.soundcloud.android.events.AudioAdFailedToBufferEvent;
 import com.soundcloud.android.events.CurrentUserChangedEvent;
 import com.soundcloud.android.events.OnboardingEvent;
@@ -139,6 +140,8 @@ public class LocalyticsAnalyticsProvider implements AnalyticsProvider {
             tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_ERROR, event.getAttributes());
         } else if (event instanceof SkippyInitilizationSucceededEvent) {
             tagEvent(LocalyticsEvents.SKIPPY_INITILIAZATION_SUCCESS, event.getAttributes());
+        } else if (event instanceof AdDebugEvent) {
+            tagEvent(LocalyticsEvents.AD_DEBUG, event.getAttributes());
         }
     }
 
