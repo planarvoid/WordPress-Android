@@ -49,32 +49,32 @@ public class GooglePlusSignInTaskFragment extends AuthTaskFragment {
 
     @Override
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
-        Exception e = result.getException();
+        Throwable rootException = result.getException().getCause();
 
-        if (e instanceof GooglePlayServicesAvailabilityException) {
+        if (rootException instanceof GooglePlayServicesAvailabilityException) {
             // GooglePlayServices.apk is either old, disabled, or not present.
             Dialog d = GooglePlayServicesUtil.getErrorDialog(
-                    ((GooglePlayServicesAvailabilityException) e).getConnectionStatusCode(),
+                    ((GooglePlayServicesAvailabilityException) rootException).getConnectionStatusCode(),
                     activity,
                     Consts.RequestCodes.RECOVER_FROM_PLAY_SERVICES_ERROR);
             d.show();
             return null;
 
-        } else if (e instanceof UserRecoverableAuthException) {
+        } else if (rootException instanceof UserRecoverableAuthException) {
             // Unable to authenticate, but the user can fix this.
             // Forward the user to the appropriate activity.
-            Intent intent = ((UserRecoverableAuthException) e).getIntent();
+            Intent intent = ((UserRecoverableAuthException) rootException).getIntent();
             activity.startActivityForResult(intent, getArguments().getInt(ARG_REQ_CODE));
             return null;
 
-        } else if (e instanceof CloudAPI.InvalidTokenException) {
+        } else if (rootException instanceof CloudAPI.InvalidTokenException) {
             // Normally this indicates that we could not swap the Google token for a SoundCloud API token, which can
             // happen if users try to sign in via G+ without actually having a G+ account
             // NOTE that using a dev build signed with a debug key that is NOT registered with the G+ client ID will
             // also raise this error.
             return activity.getString(R.string.error_google_sign_in_failed);
-        } else if (e instanceof GoogleAuthException) {
-            return "Unrecoverable error " + e.getMessage();
+        } else if (rootException instanceof GoogleAuthException) {
+            return "Unrecoverable error " + rootException.getMessage();
         } else {
             return super.getErrorFromResult(activity, result);
         }
