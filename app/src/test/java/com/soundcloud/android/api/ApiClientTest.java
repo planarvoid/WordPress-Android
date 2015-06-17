@@ -1,6 +1,6 @@
 package com.soundcloud.android.api;
 
-import static com.soundcloud.android.Expect.expect;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -19,7 +19,7 @@ import com.soundcloud.android.api.model.ApiTrack;
 import com.soundcloud.android.api.oauth.OAuth;
 import com.soundcloud.android.api.oauth.Token;
 import com.soundcloud.android.properties.FeatureFlags;
-import com.soundcloud.android.robolectric.SoundCloudTestRunner;
+import com.soundcloud.android.testsupport.PlatformUnitTest;
 import com.soundcloud.android.testsupport.TestHttpResponses;
 import com.soundcloud.android.utils.DeviceHelper;
 import com.soundcloud.api.Request;
@@ -28,7 +28,6 @@ import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -37,8 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-@RunWith(SoundCloudTestRunner.class)
-public class ApiClientTest {
+public class ApiClientTest extends PlatformUnitTest {
 
     private static final String URL = "/path/to/resource";
     private static final String JSON_DATA = "{}";
@@ -82,10 +80,10 @@ public class ApiClientTest {
         mockSuccessfulResponseFor(request);
         ApiResponse response = apiClient.fetchResponse(request);
 
-        expect(response.isSuccess()).toBeTrue();
-        expect(response.hasResponseBody()).toBeTrue();
-        expect(httpRequestCaptor.getValue().method()).toEqual("GET");
-        expect(httpRequestCaptor.getValue().urlString()).toEqual(URL);
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(response.hasResponseBody()).isTrue();
+        assertThat(httpRequestCaptor.getValue().method()).isEqualTo("GET");
+        assertThat(httpRequestCaptor.getValue().urlString()).isEqualTo(URL);
     }
 
     @Test
@@ -96,8 +94,8 @@ public class ApiClientTest {
 
         ApiResponse response = apiClient.fetchResponse(request);
 
-        expect(response.isSuccess()).toBeTrue();
-        expect(httpRequestCaptor.getValue().header("User-Agent")).toEqual("agent");
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().header("User-Agent")).isEqualTo("agent");
     }
 
     @Test
@@ -133,7 +131,7 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("key")).toContainExactly("value");
+        assertThat(httpRequestCaptor.getValue().headers("key")).containsExactly("value");
     }
 
     @Test
@@ -143,7 +141,7 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("Accept")).toContainExactly("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+        assertThat(httpRequestCaptor.getValue().headers("Accept")).containsExactly("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
     }
 
     @Test
@@ -153,7 +151,7 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("Accept")).toContainExactly("application/json");
+        assertThat(httpRequestCaptor.getValue().headers("Accept")).containsExactly("application/json");
     }
 
     @Test
@@ -163,7 +161,7 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("Authorization")).toContainExactly("OAuth 12345");
+        assertThat(httpRequestCaptor.getValue().headers("Authorization")).containsExactly("OAuth 12345");
     }
 
     @Test
@@ -173,7 +171,7 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("UDID")).toContainExactly("my-udid");
+        assertThat(httpRequestCaptor.getValue().headers("UDID")).containsExactly("my-udid");
     }
 
     @Test
@@ -185,7 +183,7 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("UDID")).toBeEmpty();
+        assertThat(httpRequestCaptor.getValue().headers("UDID")).isEmpty();
     }
 
     @Test
@@ -196,8 +194,8 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("ADID")).toContainExactly("my-adid");
-        expect(httpRequestCaptor.getValue().headers("ADID-TRACKING")).toContainExactly("true");
+        assertThat(httpRequestCaptor.getValue().headers("ADID")).containsExactly("my-adid");
+        assertThat(httpRequestCaptor.getValue().headers("ADID-TRACKING")).containsExactly("true");
     }
 
     @Test
@@ -208,8 +206,8 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().headers("ADID")).toBeEmpty();
-        expect(httpRequestCaptor.getValue().headers("ADID-TRACKING")).toBeEmpty();
+        assertThat(httpRequestCaptor.getValue().headers("ADID")).isEmpty();
+        assertThat(httpRequestCaptor.getValue().headers("ADID-TRACKING")).isEmpty();
     }
 
     @Test
@@ -251,9 +249,10 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().method()).toEqual("POST");
-        expect(httpRequestCaptor.getValue().body().contentLength()).toEqual((long) JSON_DATA.length());
-        expect(httpRequestCaptor.getValue().body().contentType().toString()).toEqual("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+        assertThat(httpRequestCaptor.getValue().method()).isEqualTo("POST");
+        assertThat(httpRequestCaptor.getValue().body().contentLength()).isEqualTo((long) JSON_DATA.length());
+        assertThat(httpRequestCaptor.getValue().body().contentType().toString())
+                .isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
     }
 
     @Test
@@ -266,9 +265,10 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().method()).toEqual("POST");
-        expect(httpRequestCaptor.getValue().body().contentLength()).toEqual(0L);
-        expect(httpRequestCaptor.getValue().body().contentType().toString()).toEqual("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+        assertThat(httpRequestCaptor.getValue().method()).isEqualTo("POST");
+        assertThat(httpRequestCaptor.getValue().body().contentLength()).isEqualTo(0L);
+        assertThat(httpRequestCaptor.getValue().body().contentType().toString())
+                .isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
     }
 
     @Test
@@ -282,9 +282,10 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().method()).toEqual("PUT");
-        expect(httpRequestCaptor.getValue().body().contentLength()).toEqual((long) JSON_DATA.length());
-        expect(httpRequestCaptor.getValue().body().contentType().toString()).toEqual("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
+        assertThat(httpRequestCaptor.getValue().method()).isEqualTo("PUT");
+        assertThat(httpRequestCaptor.getValue().body().contentLength()).isEqualTo((long) JSON_DATA.length());
+        assertThat(httpRequestCaptor.getValue().body().contentType().toString())
+                .isEqualTo("application/vnd.com.soundcloud.mobile.v1+json; charset=utf-8");
     }
 
     @Test
@@ -297,8 +298,8 @@ public class ApiClientTest {
         mockSuccessfulResponseFor(request);
 
         ApiResponse response = apiClient.fetchResponse(request);
-        expect(response.isSuccess()).toBeFalse();
-        expect(response.getFailure().reason()).toBe(ApiRequestException.Reason.MALFORMED_INPUT);
+        assertThat(response.isSuccess()).isFalse();
+        assertThat(response.getFailure().reason()).isEqualTo(ApiRequestException.Reason.MALFORMED_INPUT);
     }
 
     @Test
@@ -312,8 +313,8 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().method()).toEqual("POST");
-        expect(httpRequestCaptor.getValue().body().contentType().toString()).toStartWith(MultipartBuilder.FORM.toString());
+        assertThat(httpRequestCaptor.getValue().method()).isEqualTo("POST");
+        assertThat(httpRequestCaptor.getValue().body().contentType().toString()).startsWith(MultipartBuilder.FORM.toString());
     }
 
     @Test
@@ -328,7 +329,7 @@ public class ApiClientTest {
 
         apiClient.fetchResponse(request);
 
-        expect(httpRequestCaptor.getValue().body()).toBeInstanceOf(ProgressRequestBody.class);
+        assertThat(httpRequestCaptor.getValue().body()).isInstanceOf(ProgressRequestBody.class);
     }
 
     @Test
@@ -339,8 +340,8 @@ public class ApiClientTest {
         mockSuccessfulResponseFor(request);
         ApiResponse response = apiClient.fetchResponse(request);
 
-        expect(response.isSuccess()).toBeTrue();
-        expect(httpRequestCaptor.getValue().method()).toEqual("DELETE");
+        assertThat(response.isSuccess()).isTrue();
+        assertThat(httpRequestCaptor.getValue().method()).isEqualTo("DELETE");
     }
 
     @Test
@@ -352,7 +353,7 @@ public class ApiClientTest {
                 .build();
         mockJsonResponseFor(request, 200, JSON_DATA);
         ApiTrack resource = apiClient.fetchMappedResponse(request, ApiTrack.class);
-        expect(resource).toBe(mappedTrack);
+        assertThat(resource).isSameAs(mappedTrack);
     }
 
     @Test(expected = ApiMapperException.class)
