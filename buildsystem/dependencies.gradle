@@ -79,16 +79,12 @@ ext {
   unitTestLibraries = [
           daggerCompiler   : "com.squareup.dagger:dagger-compiler:$daggerVersion",
           guava            : "com.google.guava:guava:14.0.1",
-          robolectric      : "com.pivotallabs:robolectric:1.2_sdk_21_fix",
-          jUnit            : "junit:junit:4.9",
+          junit            : "junit:junit:4.12",
+          assertj          : "org.assertj:assertj-core:1.7.1",
+          robolectric      : "org.robolectric:robolectric:3.0-rc3",
           mockito          : "org.mockito:mockito-core:1.9.5",
-          hamcrest         : "org.hamcrest:hamcrest-all:1.3",
-          sqliteJdbc       : "org.xerial:sqlite-jdbc:3.7.15-M1",
-          javassist        : "org.javassist:javassist:3.18.2-GA",
-          greatExpectations: "com.github.xian:great-expectations:0.14",
           modelCitizen     : "com.tobedevoured.modelcitizen:core:0.8.1",
           equalsVerifier   : "nl.jqno.equalsverifier:equalsverifier:1.4.1",
-          json             : "org.json:json:20080701",
           propellerTest    : "com.soundcloud.propeller:propeller:$propellerVersion:tests",
   ]
 

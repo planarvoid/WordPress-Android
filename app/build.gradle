@@ -58,6 +58,10 @@ android {
     targetCompatibility JavaVersion.VERSION_1_7
   }
 
+  testOptions {
+    unitTests.returnDefaultValues = true
+  }
+
   sourceSets {
     main {
       manifest.srcFile globalConfiguration.getAt('manifestSrcFile')
@@ -233,6 +237,14 @@ dependencies {
   compile libraries.androidRecyclerView
   compile libraries.androidPlayServicesBase
   compile libraries.androidPlayServicesCast
+
+  /* Unit tests */
+  testCompile unitTestLibraries.junit
+  testCompile unitTestLibraries.assertj
+  testCompile unitTestLibraries.mockito
+  testCompile unitTestLibraries.robolectric
+  testCompile unitTestLibraries.modelCitizen
+  testCompile unitTestLibraries.equalsVerifier
 
   /* Acceptance Tests */
   androidTestCompile acceptanceTestLibraries.hamcrest
