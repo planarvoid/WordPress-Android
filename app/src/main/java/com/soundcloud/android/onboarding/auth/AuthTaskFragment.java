@@ -10,6 +10,7 @@ import com.soundcloud.android.onboarding.auth.tasks.AuthTask;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskException;
 import com.soundcloud.android.onboarding.auth.tasks.AuthTaskResult;
 import com.soundcloud.android.rx.eventbus.EventBus;
+import com.soundcloud.android.utils.ErrorUtils;
 import com.soundcloud.android.utils.Log;
 import com.soundcloud.android.utils.NetworkConnectionHelper;
 import com.soundcloud.api.CloudAPI;
@@ -26,6 +27,8 @@ import android.support.v4.app.DialogFragment;
 import javax.inject.Inject;
 import java.lang.ref.WeakReference;
 
+import static android.util.Log.INFO;
+import static com.soundcloud.android.utils.ErrorUtils.log;
 import static com.soundcloud.android.utils.Log.ONBOARDING_TAG;
 
 public abstract class AuthTaskFragment extends DialogFragment {
@@ -129,6 +132,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
 
     protected String getErrorFromResult(Activity activity, AuthTaskResult result) {
         final Exception exception = result.getException();
+
         if (exception instanceof CloudAPI.ApiResponseException) {
             // server error, tell them to try again later
             return activity.getString(R.string.error_server_problems_message);
@@ -137,6 +141,8 @@ public abstract class AuthTaskFragment extends DialogFragment {
             return ((AuthTaskException) exception).getFirstError();
         } else {
             if (networkConnectionHelper.isNetworkConnected()) {
+                log(INFO, ONBOARDING_TAG, "other sign in error while network connected: " + exception.getMessage());
+                ErrorUtils.handleSilentException("other sign in error while network connected", exception);
                 return activity.getString(R.string.authentication_error_generic);
             } else {
                 return activity.getString(R.string.authentication_error_no_connection_message);
@@ -147,7 +153,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
     private void deliverResultAndDismiss() {
         final OnAuthResultListener listener = listenerRef.get();
         if (listener != null) {
-            Log.i(ONBOARDING_TAG, "auth result of kind " + result.getKindString() + " sent to listener");
+            log(INFO, ONBOARDING_TAG, "auth result will be sent to listener: " + result.toString());
 
             if (result.wasSuccess()) {
                 listener.onAuthTaskComplete(result.getUser(), result.getSignupVia(),
@@ -168,7 +174,7 @@ public abstract class AuthTaskFragment extends DialogFragment {
                 listener.onError(getErrorFromResult((Activity) listener, result));
             }
         } else {
-            Log.i(ONBOARDING_TAG, "auth result listener is gone");
+            log(INFO, ONBOARDING_TAG, "auth result listener is gone, when delivering result");
         }
         dismiss();
     }
